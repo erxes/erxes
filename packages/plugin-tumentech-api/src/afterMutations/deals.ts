@@ -5,12 +5,12 @@ import {
   sendClientPortalMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from '../messageBroker';
 import {
   notifyDealRelatedUsers,
   notifyConfirmationFilesAttached,
-  notifyUnloadConfirmationFilesAttached
+  notifyUnloadConfirmationFilesAttached,
 } from './utils';
 
 export const afterDealCreate = async (subdomain, params) => {
@@ -24,10 +24,10 @@ export const afterDealCreate = async (subdomain, params) => {
     subdomain,
     action: 'stages.findOne',
     data: {
-      _id: deal.stageId
+      _id: deal.stageId,
     },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   const conformities = await sendCoreMessage({
@@ -36,37 +36,39 @@ export const afterDealCreate = async (subdomain, params) => {
     data: {
       mainType: 'deal',
       mainTypeIds: [deal._id],
-      relTypes: ['customer']
+      relTypes: ['customer'],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const testers = await sendContactsMessage({
     subdomain,
     action: 'customers.find',
     data: {
-      description: 'tester'
+      description: 'tester',
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const testerIds = testers.map(tester => tester._id);
+  const testerIds = testers.map((tester) => tester._id);
 
-  const customerIds = conformities.map(c => c.relTypeId);
+  const customerIds = conformities.map(
+    (c) => (c.mainType === 'customer' && c.mainTypeId) || c.relTypeId,
+  );
 
-  if (testerIds.some(testerId => customerIds.includes(testerId))) {
+  if (testerIds.some((testerId) => customerIds.includes(testerId))) {
     return;
   }
 
-  if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
+  if (stage.code && (stage.code === 'newOrder' || stage.code === 'dealsNew')) {
     const startPlace = deal?.customFieldsData?.find(
-      (cf: { field: string }) => cf.field === 'S4i87ocnQpgFEvLLa'
+      (cf: { field: string }) => cf.field === 'S4i87ocnQpgFEvLLa',
     )?.value;
 
     const endPlace = deal?.customFieldsData?.find(
-      (cf: { field: string }) => cf.field === 'G7x8nSnQsJiND6rJN'
+      (cf: { field: string }) => cf.field === 'G7x8nSnQsJiND6rJN',
     )?.value;
 
     const notificationContent =
@@ -78,46 +80,49 @@ export const afterDealCreate = async (subdomain, params) => {
       subdomain,
       action: 'customers.find',
       data: {
-        tagIds: 'FwJtL7Tw7FWQT4nJW'
+        tagIds: 'FwJtL7Tw7FWQT4nJW',
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
-    const driverIds = drivers.map(driver => driver._id);
-
+    const driverIds = drivers.map((driver) => driver._id);
+    console.log('driverIds', driverIds);
     const cpUsers = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.find',
       data: {
         erxesCustomerId: { $in: driverIds },
-        clientPortalId: process.env.MOBILE_CP_ID || ''
+        clientPortalId: process.env.MOBILE_CP_ID || '',
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
+    console.log('cpUsers', cpUsers);
+    const cpUsersIds = cpUsers.map((cpUser) => cpUser._id);
+    console.log('cpUsersIds', cpUsersIds);
 
     const notifData: any = {
       title: 'Шинэ захиалга ирлээ',
       content: notificationContent,
-      receivers: cpUsers.map(cpUser => cpUser._id),
+      receivers: cpUsersIds,
       notifType: 'system',
       link: '',
       isMobile: true,
       eventData: {
         type: 'deal',
-        id: deal._id
+        id: deal._id,
       },
       mobileConfig: {
         channelId: 'horn',
-        sound: 'horn.wav'
-      }
+        sound: 'horn.wav',
+      },
     };
 
     sendClientPortalMessage({
       subdomain,
       action: 'sendNotification',
-      data: notifData
+      data: notifData,
     });
   }
 
@@ -136,10 +141,10 @@ export const afterDealUpdate = async (subdomain, params) => {
     subdomain,
     action: 'stages.findOne',
     data: {
-      _id: deal.stageId
+      _id: deal.stageId,
     },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   await notifyConfirmationFilesAttached(subdomain, deal, oldDeal);
@@ -155,8 +160,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Жолооч ажлын хүсэлт зөвшөөрсөн байна',
           content: `Жолоочоос ${deal.name} ажлыг зөвшөөрлөө. Та цааш үргэлжлүүлэхийн тулд төлбөр төлнө үү!`,
-          link: `/shipping/payment?deal=${deal._id}`
-        }
+          link: `/shipping/payment?deal=${deal._id}`,
+        },
       );
     }
 
@@ -168,8 +173,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Урьдчилгаа төлөгдсөн байна',
           content: `Таны ${deal.name} ажлын урьдчилгаа төлбөр төлөгдлөө!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -179,7 +184,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       const dealPlace = await models.DealPlaces.findOne({ dealId: deal._id });
       const participant = await models.Participants.findOne({
         dealId: deal._id,
-        status: 'won'
+        status: 'won',
       });
       // let estimatedCloseDate: any;
 
@@ -222,10 +227,10 @@ export const afterDealUpdate = async (subdomain, params) => {
           data: {
             mainType: 'deal',
             mainTypeIds: [deal._id],
-            relTypes: ['customer']
+            relTypes: ['customer'],
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
 
         await models.Trips.create({
@@ -236,9 +241,9 @@ export const afterDealUpdate = async (subdomain, params) => {
           status: 'open',
           routeReversed: dealRoute && dealRoute.reversed,
           startedDate: new Date(),
-          customerIds: conformities.map(c => c.relTypeId),
+          customerIds: conformities.map((c) => c.relTypeId),
           // estimatedCloseDate
-          path: dealPlace && dealPlace.path
+          path: dealPlace && dealPlace.path,
         });
       }
 
@@ -249,8 +254,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Жолооч ажлыг хүлээн авлаа',
           content: `Жолооч ${deal.name} ажлыг хүлээн авлаа!`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
@@ -262,8 +267,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Бэлэн байдал хангагдлаа',
           content: `Жолооч ${deal.name} ажлыг бэлэн байдлыг хангалаа. Та ажлыг эхлүүлэх зөвшөөрөл олгоно уу!`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
@@ -275,8 +280,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Ачилт баталгаажлаа',
           content: `Таны ${deal.name} ажлын ачилт баталгаажлаа!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -288,8 +293,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Буулгалт баталгаажаагүй',
           content: `Таны ${deal.name} ажлын буулгалт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -301,15 +306,15 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Ачилт баталгаажаагүй',
           content: `Таны ${deal.name} ажлын ачилт баталгаажсангүй, Та дахин баталгаажуулна уу!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
     if (stage.code && stage.code === 'dispatchOngoing') {
       await models.Trips.updateOne(
         { dealIds: deal._id },
-        { $set: { status: 'ongoing' } }
+        { $set: { status: 'ongoing' } },
       );
 
       await notifyDealRelatedUsers(
@@ -319,8 +324,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Ачаа замд гарлаа',
           content: `Таны ${deal.name} ажил эхлэж жолооч замдаа гарлаа`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
@@ -332,8 +337,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Саатал!!!',
           content: `Таны ${deal.name} - д саатал гарлаа!`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
@@ -345,8 +350,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Саатал шийдвэрлэгдлээ',
           content: `Таны ${deal.name} - н саатал шийдвэрлэгдлээ!`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
@@ -358,15 +363,15 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Ажил дууслаа',
           content: `Таны ${deal.name} - н ажил дууслаа!`,
-          link: `/monitoring/deal?id=${deal._id}`
-        }
+          link: `/monitoring/deal?id=${deal._id}`,
+        },
       );
     }
 
     if (stage.code && stage.code === 'dispatchUnloadConfirmed') {
       await models.Trips.updateOne(
         { dealIds: deal._id },
-        { $set: { status: 'closed' } }
+        { $set: { status: 'closed' } },
       );
       await notifyDealRelatedUsers(
         subdomain,
@@ -375,8 +380,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Буулгалт баталгаажлаа',
           content: `Таны ${deal.name} ажлын буулгалт баталгаажлаа!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -388,8 +393,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Төлбөр хүлээгдэж байна',
           content: `${deal.name} ажлын төлбөр хүлээгдэж байна!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -401,8 +406,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Төлбөр төлөгдсөн байна',
           content: `Таны ${deal.name} ажлын төлбөр төлөгдлөө!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
     }
 
@@ -413,19 +418,19 @@ export const afterDealUpdate = async (subdomain, params) => {
     subdomain,
     action: 'fields.findOne',
     data: {
-      query: { contentType: 'cards:deal', code: 'staticCode' }
+      query: { contentType: 'cards:deal', code: 'staticCode' },
     },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (staticField) {
     const updatedVal =
       deal.customFieldsData.find(
-        f => f.field === staticField._id && f.value === 'ok'
+        (f) => f.field === staticField._id && f.value === 'ok',
       ).value || '';
     const oldVal =
-      oldDeal.customFieldsData.find(f => f.field === staticField._id).value ||
+      oldDeal.customFieldsData.find((f) => f.field === staticField._id).value ||
       '';
 
     if (updatedVal !== oldVal && updatedVal === 'ok') {
@@ -436,8 +441,8 @@ export const afterDealUpdate = async (subdomain, params) => {
         {
           title: 'Зөвшөөрөл олгогдлоо',
           content: `Таны ${deal.name} ажилд захиалагчаас зөвшөөрөл олголоо!`,
-          isMobile: true
-        }
+          isMobile: true,
+        },
       );
       return;
     }
