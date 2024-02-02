@@ -37,7 +37,7 @@ export const findAttachmentParts = (struct, attachments?) => {
   return attachments;
 };
 
-export const createImap = (integration: IIntegrationDocument) => {
+export const createImap = (integration: IIntegrationDocument): Imap => {
   return new Imap({
     user: integration.mainUser || integration.user,
     password: integration.password,
@@ -48,19 +48,22 @@ export const createImap = (integration: IIntegrationDocument) => {
   });
 };
 
-const searchMessages = (imap, criteria) => {
+const searchMessages = (imap: Imap, criteria) => {
   return new Promise((resolve, reject) => {
-    const messages: any = [];
+    const messages: string[] = [];
 
     imap.search(criteria, (err, results) => {
       if (err) {
         throw err;
       }
 
-      let f;
+      let f: Imap.ImapFetch;
 
       try {
         f = imap.fetch(results, { bodies: '', struct: true });
+        f.once('error', (error: any) => {
+          throw error;
+        });
       } catch (e) {
         if (e.message.includes('Nothing to fetch')) {
           return resolve([]);
@@ -70,27 +73,23 @@ const searchMessages = (imap, criteria) => {
 
       f.on('message', (msg) => {
         msg.on('body', async (stream) => {
-          let buffer = '';
+          let buffers: Buffer[] = [];
 
-          stream.on('data', (chunk) => {
-            buffer += chunk.toString('utf8');
+          stream.on('data', (buffer) => {
+            buffers.push(buffer);
           });
 
           stream.once('end', async () => {
-            messages.push(buffer);
+            messages.push(Buffer.concat(buffers).toString('utf8'));
           });
         });
-      });
-
-      f.once('error', (error: any) => {
-        reject(error);
       });
 
       f.once('end', async () => {
         const data: any = [];
 
-        for (const buffer of messages) {
-          const parsed = await simpleParser(buffer);
+        for (const message of messages) {
+          const parsed = await simpleParser(message);
           data.push(parsed);
         }
 
@@ -102,7 +101,7 @@ const searchMessages = (imap, criteria) => {
 
 const saveMessages = async (
   subdomain: string,
-  imap,
+  imap: Imap,
   integration: IIntegrationDocument,
   criteria,
   models: IModels,
@@ -253,6 +252,7 @@ export const listenIntegration = async (
     return new Promise<ListenResult>(async (resolve) => {
       let lock;
       let reconnect = true;
+      let closing = false;
       let error: Error | undefined;
       let result: string | undefined;
 
@@ -289,6 +289,9 @@ export const listenIntegration = async (
       const imap = createImap(updatedIntegration);
 
       const syncEmail = async () => {
+        if (closing) {
+          return;
+        }
         try {
           const criteria: any = [
             'UNSEEN',
@@ -326,6 +329,7 @@ export const listenIntegration = async (
             // if we can't open the inbox, we can't sync emails
             error = e;
             reconnect = false;
+            closing = true;
             await models.Logs.createLog({
               type: 'error',
               message: 'openBox error:' + e.message,
@@ -341,6 +345,7 @@ export const listenIntegration = async (
 
       imap.once('error', async (e) => {
         error = e;
+        closing = true;
         if (e.message.includes('Invalid credentials')) {
           // We shouldn't try to reconnect, since it's impossible to reconnect when the credentials are wrong.
           reconnect = false;
@@ -363,10 +368,7 @@ export const listenIntegration = async (
       });
 
       const closeEndHandler = async () => {
-        try {
-          clearTimeout(renewTimeout);
-        } catch (e) {}
-
+        closing = true;
         try {
           imap.removeAllListeners();
         } catch (e) {}
@@ -387,19 +389,9 @@ export const listenIntegration = async (
       imap.once('close', closeEndHandler);
       imap.once('end', closeEndHandler);
 
-      // The imap servers seem to be terminating the connection after 2 hours. Try to reconnect before that happens.
-      const renewTimeout = setTimeout(
-        async () => {
-          result = `Renewing imap ${integration._id} connection after 1 hour`;
-          reconnect = true;
-          await closeEndHandler();
-        },
-        60 * 60 * 1000,
-      );
-
       imap.connect();
 
-      let lockRenewInterval = setInterval(async () => {
+      let lockExtendInterval = setInterval(async () => {
         try {
           await lock.extend(60000);
         } catch (e) {
@@ -412,7 +404,7 @@ export const listenIntegration = async (
 
       const cleanupLock = async () => {
         try {
-          clearInterval(lockRenewInterval);
+          clearInterval(lockExtendInterval);
         } catch (e) {}
         try {
           await lock.unlock();
@@ -425,7 +417,6 @@ export const listenIntegration = async (
     try {
       const result = await listen();
       result.error && console.error(result.error);
-      result.result && console.log(result.result);
 
       if (!result.reconnect) {
         break;
@@ -433,7 +424,6 @@ export const listenIntegration = async (
       await new Promise((resolve) => setTimeout(resolve, 10_000));
     } catch (e) {
       console.error(e);
-      // disconnected due to unrecoverable error
       break;
     }
   }
