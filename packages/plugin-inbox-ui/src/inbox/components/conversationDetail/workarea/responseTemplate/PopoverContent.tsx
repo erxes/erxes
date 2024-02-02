@@ -7,7 +7,7 @@ import {
   PopoverList,
   PopoverLoadMore,
   TemplateContent,
-  TemplateTitle
+  TemplateTitle,
 } from '@erxes/ui-inbox/src/inbox/styles';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -29,11 +29,15 @@ type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   onSearchChange: (name: string, value: string) => void;
   onSelectTemplate: () => void;
-  fetchMore: (variables: { perPage: number; page: number }) => void;
-
   attachments?: IAttachment[];
   brands: IBrand[];
   content?: string;
+  refetchResponseTemplates: (
+    content: string,
+    brandId: string,
+    page: number,
+    perPage: number,
+  ) => void;
 };
 
 type State = {
@@ -49,7 +53,7 @@ class PopoverContent extends React.Component<Props, State> {
     this.state = {
       searchValue: props.searchValue,
       brandId: props.brandId,
-      options: props.responseTemplates
+      options: props.responseTemplates,
     };
   }
 
@@ -58,7 +62,7 @@ class PopoverContent extends React.Component<Props, State> {
 
     // find response template using event key
     const responseTemplate = responseTemplates.find(
-      t => t._id === responseTemplateId
+      (t) => t._id === responseTemplateId,
     );
 
     // hide selector
@@ -70,36 +74,27 @@ class PopoverContent extends React.Component<Props, State> {
   onChangeFilter = (e: React.FormEvent<HTMLElement>, type) => {
     const { value } = e.currentTarget as HTMLInputElement;
 
-    this.setState(({ [type]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [type]: value } as unknown as Pick<State, keyof State>);
   };
 
   filterByValue(array, value) {
-    return array.filter(o =>
-      o.name.toLowerCase().includes(value.toLowerCase())
+    return array.filter((o) =>
+      o.name.toLowerCase().includes(value.toLowerCase()),
     );
   }
   filterByBrandId(array, value) {
-    return array.filter(o => o.brandId === value);
+    return array.filter((o) => o.brandId === value);
   }
 
   renderItems() {
     const { responseTemplates } = this.props;
-    const { searchValue, brandId } = this.state;
+    console.log(responseTemplates, 'responseTemplates');
 
-    const filteredByBrandIdTargets =
-      brandId === ''
-        ? responseTemplates
-        : this.filterByBrandId(responseTemplates, brandId);
-    const filteredTargets =
-      searchValue === ''
-        ? filteredByBrandIdTargets
-        : this.filterByValue(filteredByBrandIdTargets, searchValue);
-
-    if (filteredTargets.length === 0) {
+    if (responseTemplates.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return filteredTargets.map((item, i) => {
+    return responseTemplates.map((item, i) => {
       const onClick = () => this.onSelect(item._id);
 
       return (
@@ -126,26 +121,35 @@ class PopoverContent extends React.Component<Props, State> {
       </PopoverLoadMore>
     );
   };
-
+  // Assuming this is inside a React component
   fetchTemplates = () => {
     const { responseTemplates = [] } = this.props;
 
     const perPage = 10;
     const page = Math.round((responseTemplates || []).length / perPage + 1);
 
-    this.props.fetchMore({
-      perPage,
-      page
-    });
+    // Ensure searchValue and brandId are not undefined before passing them to the function
+    const searchValue = this.state.searchValue || ''; // Providing a default value if it's undefined
+    const brandId = this.state.brandId || ''; // Providing a default value if it's undefined
+
+    // Call refetchResponseTemplates with the necessary parameters
+    this.props.refetchResponseTemplates(searchValue, brandId, page, perPage);
   };
 
   render() {
     const { brands } = this.props;
 
-    const onChangeSearchValue = e => this.onChangeFilter(e, 'searchValue');
+    const onChangeSearchValue = (e) => {
+      const searchValue = e.target.value; // Assuming searchValue is extracted from the event
+      this.setState({ searchValue }); // Update the state with the new searchValue
+      this.props.refetchResponseTemplates(searchValue, '', 1, 20);
+    };
 
-    const onChangeBrand = e => this.onChangeFilter(e, 'brandId');
-
+    const onChangeBrand = (e) => {
+      const brandId = e.target.value; // Assuming brandId is extracted from the event
+      this.setState({ brandId }); // Update the state with the new brandId
+      this.props.refetchResponseTemplates('', brandId, 1, 20);
+    };
     return (
       <>
         <PopoverHeader>
@@ -166,7 +170,7 @@ class PopoverContent extends React.Component<Props, State> {
                 onChange={onChangeBrand}
                 defaultValue={this.state.brandId}
               >
-                {brands.map(brand => (
+                {brands.map((brand) => (
                   <option key={brand._id} value={brand._id}>
                     {brand.name}
                   </option>
