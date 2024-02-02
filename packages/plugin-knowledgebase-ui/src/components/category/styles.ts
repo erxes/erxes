@@ -15,14 +15,14 @@ const CategoryItem = styledTS<{
   isChild: boolean | undefined;
 }>(styled.li)`
   position: relative;
-  background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
+  background: ${(props) => (props.isActive ? colors.bgActive : colors.bgLight)};
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   padding-right: 20px;
   overflow: hidden;
 
   a {
-    padding: ${props =>
+    padding: ${(props) =>
       props.isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
     white-space: normal;
     display: block;
@@ -58,7 +58,7 @@ const CategoryItem = styledTS<{
   }
 
   &:hover {
-    background: ${props =>
+    background: ${(props) =>
       props.isActive ? colors.bgActive : colors.colorWhite};
     
     a > i {
@@ -66,7 +66,7 @@ const CategoryItem = styledTS<{
     }
 
     ${ActionButtons} {
-      width: 35px;
+      width: 40px;
     }
   }
 `;

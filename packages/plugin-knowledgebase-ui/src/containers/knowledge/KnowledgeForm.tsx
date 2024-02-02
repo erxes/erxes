@@ -1,15 +1,13 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql, useQuery } from '@apollo/client';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import KnowledgeForm from '../../components/knowledge/KnowledgeForm';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import { ITopic } from '@erxes/ui-knowledgebase/src/types';
+import { queries } from '@erxes/ui-knowledgebase/src/graphql';
 
 type Props = {
   topic: ITopic;
@@ -17,54 +15,33 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  getBrandListQuery: BrandsQueryResponse;
-  segmentsQuery?: any;
-} & Props;
+const TopicAddFormContainer = ({ topic, ...props }: Props) => {
+  const getBrandListQuery = useQuery<BrandsQueryResponse>(
+    gql(brandQueries.brands),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
-const TopicAddFormContainer = ({
-  topic,
-  getBrandListQuery,
-  segmentsQuery,
-  ...props
-}: FinalProps) => {
-  if (getBrandListQuery.loading) {
+  const getSegmentListQuery = useQuery<any>(gql(queries.getSegmentList), {
+    variables: {
+      contentTypes: ['core:user'],
+    },
+    skip: !isEnabled('segments'),
+  });
+
+  if (getBrandListQuery.loading || getSegmentListQuery.loading) {
     return <Spinner objective={true} />;
   }
-
-  const segments = segmentsQuery ? segmentsQuery.segments || [] : [];
 
   const updatedProps = {
     ...props,
     topic,
-    segments,
-    brands: getBrandListQuery.brands || []
+    segments: getSegmentListQuery?.data?.segments || [],
+    brands: getBrandListQuery?.data?.brands || [],
   };
 
   return <KnowledgeForm {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
-      name: 'getBrandListQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql(
-      gql(
-        'query segments($contentTypes: [String]!) { segments(contentTypes: $contentTypes) { _id, name }}'
-      ),
-      {
-        name: 'segmentsQuery',
-        options: () => ({
-          variables: {
-            contentTypes: ['core:user']
-          }
-        }),
-        skip: !isEnabled('segments')
-      }
-    )
-  )(TopicAddFormContainer)
-);
+export default TopicAddFormContainer;
