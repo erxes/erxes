@@ -14,7 +14,7 @@ import {
   HeaderTop,
   LinkItem,
   NotificationsBadge,
-  SupportMenus
+  SupportMenus,
 } from '../../styles/main';
 import { Config, IUser } from '../../types';
 import React, { useState } from 'react';
@@ -53,14 +53,14 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount
+  notificationsCount,
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
   const [showResetPassword, setResetPassword] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const onClick = url => {
+  const onClick = (url) => {
     if (!currentUser && url.includes('tickets')) {
       Alert.error('Log in first to create or manage ticket cards');
 
@@ -170,8 +170,6 @@ function Header({
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-
-        {renderNavigationMenu()}
       </>
     );
   };
@@ -190,7 +188,7 @@ function Header({
               {config.publicTaskToggle
                 ? renderMenu(
                     '/publicTasks',
-                    config.taskPublicLabel || 'Public Task'
+                    config.taskPublicLabel || 'Public Task',
                   )
                 : null}
 
@@ -204,7 +202,7 @@ function Header({
               {config.purchaseToggle && currentUser
                 ? renderMenu(
                     '/purchases',
-                    config.purchaseLabel || 'Purchase pipeline'
+                    config.purchaseLabel || 'Purchase pipeline',
                   )
                 : null}
               {config.taskToggle && currentUser
@@ -247,6 +245,8 @@ function Header({
               {currentUser && Object.keys(currentUser).length !== 0
                 ? renderCurrentUser()
                 : renderAuth()}
+
+              {renderNavigationMenu()}
             </SupportMenus>
           </HeaderRight>
         </HeaderTop>

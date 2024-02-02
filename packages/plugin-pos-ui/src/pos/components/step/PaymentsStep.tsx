@@ -104,7 +104,8 @@ const PaymentsStep = (props: Props) => {
 
     const getTipText = (type) => {
       if (type === 'golomtCard') return 'continue';
-      if (type === 'TDBCard') return 'must config: "{port: 8078}"';
+      if (type === 'TDBCard' || type === 'capitron')
+        return 'must config: "{port: 8078}"';
       if (type === 'khaanCard')
         return 'check localhost:27028 and contact databank';
       return '';
