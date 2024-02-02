@@ -13,22 +13,21 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { __ } from 'coreui/utils';
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import {
   CONTRIBUTION,
   ENTITY,
   GOAL_STRUCTURE,
   GOAL_TYPE,
-  SPECIFIC_PERIOD_GOAL
+  SPECIFIC_PERIOD_GOAL,
 } from '../constants';
 import { IGoalType, IGoalTypeDoc } from '../types';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -49,114 +48,75 @@ type State = {
     addMonthly: string;
     addTarget: number;
   }>;
-  periodGoal: string;
+  periodGoal: string | undefined;
   entity: string;
-  teamGoalType: string;
+  teamGoalType: string | undefined;
   contributionType: string;
   metric: string;
   target: number;
   goalTypeChoose: string;
   startDate: Date;
   endDate: Date;
-  period: boolean;
-  contribution: string;
+  period: boolean | undefined;
+  contribution: string | undefined;
   branch: string[];
   department: string[];
   unit: string[];
-  pipelineLabels: IPipelineLabel[];
+  pipelineLabels: IPipelineLabel[] | undefined;
   stageId?: any;
   pipelineId?: any;
   boardId: any;
   segmentIds: any;
-  stageRadio: boolean;
-  segmentRadio: boolean;
+  stageRadio: boolean | undefined;
+  segmentRadio: boolean | undefined;
 };
 
-class GoalTypeForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-    const { goalType = {} } = props;
-    this.state = {
-      segmentIds: goalType.segmentIds || [],
-      branch: goalType.branch || [],
-      department: goalType.department || [],
-      unit: goalType.unit || [],
-      specificPeriodGoals: goalType.specificPeriodGoals || [],
-      stageRadio: goalType.stageRadio,
-      periodGoal: goalType.periodGoal,
-      segmentRadio: goalType.segmentRadio,
-      contribution: goalType.contribution,
-      pipelineLabels: goalType.pipelineLabels,
-      entity: goalType.entity || ENTITY[0].value,
-      teamGoalType: goalType.teamGoalType,
-      contributionType: goalType.contributionType || CONTRIBUTION[0].value,
-      goalTypeChoose: goalType.goalTypeChoose || GOAL_TYPE[0],
-      metric: goalType.metric || 'Value',
-      period: goalType.period,
-      startDate: goalType.startDate || new Date(),
-      endDate: goalType.endDate || new Date(),
-      stageId: goalType.stageId,
-      pipelineId: goalType.pipelineId,
-      boardId: goalType.boardId,
-      target: goalType.target || 0
-    };
+const initialState: State = {
+  segmentIds: [],
+  branch: [],
+  department: [],
+  unit: [],
+  specificPeriodGoals: [],
+  stageRadio: undefined,
+  periodGoal: undefined,
+  segmentRadio: undefined,
+  contribution: undefined,
+  pipelineLabels: undefined,
+  entity: ENTITY[0].value,
+  teamGoalType: undefined,
+  contributionType: CONTRIBUTION[0].value,
+  goalTypeChoose: GOAL_TYPE[0],
+  metric: 'Value',
+  period: undefined,
+  startDate: new Date(),
+  endDate: new Date(),
+  stageId: undefined,
+  pipelineId: undefined,
+  boardId: undefined,
+  target: 0,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'updateState':
+      return { ...state, ...action.payload };
+    default:
+      return state;
   }
+};
 
-  onChangeStartDate = value => {
-    this.setState({ startDate: value });
-  };
+const goalForm = (props: Props) => {
+  const { goalType, closeModal, renderButton } = props;
 
-  onChangeTargetPeriod = event => {
-    const { value } = event.target;
-    const parsedValue = parseInt(value);
-    this.setState({ target: parsedValue });
-    // if (!isNaN(parsedValue)) {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-    // }
-    //  else {
-    //   // Handle the case where the value is not a valid integer
-    //   // You might want to set the state to a default value or display an error message
-    //   this.setState({ target: 0 }); // Set a default value of 0
-    //   // You can also display an error message to the user
-    // }
-  };
-  onChangeBranchId = value => {
-    this.setState({ branch: value });
-  };
-  onChangeDepartments = value => {
-    this.setState({ department: value });
-  };
-  onChangeUnites = value => {
-    this.setState({ unit: value });
-  };
+  console.log(goalType);
 
-  onChangeStage = stgId => {
-    this.setState({ stageId: stgId });
-  };
+  useEffect(() => {
+    dispatch({ type: 'updateState', payload: goalType });
+  }, [goalType]);
 
-  onChangePipeline = plId => {
-    client
-      .query({
-        query: gql(pipelineQuery.pipelineLabels),
-        fetchPolicy: 'network-only',
-        variables: { pipelineId: plId }
-      })
-      .then(data => {
-        this.setState({ pipelineLabels: data.data.pipelineLabels });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-
-    this.setState({ pipelineId: plId });
-  };
-
-  onChangeBoard = brId => {
-    this.setState({ boardId: brId });
-  };
-
-  generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
-    const { goalType } = this.props;
+  const generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
     const {
       startDate,
       endDate,
@@ -179,8 +139,8 @@ class GoalTypeForm extends React.Component<Props, State> {
       goalTypeChoose,
       teamGoalType,
       pipelineLabels,
-      periodGoal
-    } = this.state;
+      periodGoal,
+    } = state;
     const finalValues = values;
     if (goalType) {
       finalValues._id = goalType._id;
@@ -188,7 +148,7 @@ class GoalTypeForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
+      ...state,
       entity,
       department,
       unit,
@@ -210,468 +170,512 @@ class GoalTypeForm extends React.Component<Props, State> {
       periodGoal,
       startDate,
       endDate,
-      target
+      target,
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel required={props.required}>{__(label)}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
+  const onChangeStartDate = (value) => {
+    dispatch({ type: 'updateState', payload: { startDate: value } });
   };
-  onChangeField = e => {
+
+  const onChangeEndDate = (value) => {
+    dispatch({
+      type: 'updateState',
+      payload: { endDate: value, periodGoal: state.periodGoal || 'Weekly' },
+    });
+  };
+
+  const onChangeTargetPeriod = (event) => {
+    const { value } = event.target;
+    const parsedValue = parseInt(value);
+    dispatch({ type: 'updateState', payload: { target: parsedValue } });
+    // if (!isNaN(parsedValue)) {
+
+    // }
+    //  else {
+    //   // Handle the case where the value is not a valid integer
+    //   // You might want to set the state to a default value or display an error message
+    //   this.setState({ target: 0 }); // Set a default value of 0
+    //   dispatch({ type: 'updateTargetPeriod', payload: { target: 0 } });
+    //   // You can also display an error message to the user
+    // }
+  };
+
+  const onChangeBranchId = (value) => {
+    dispatch({ type: 'updateState', payload: { branch: value } });
+  };
+  const onChangeDepartments = (value) => {
+    dispatch({ type: 'updateState', payload: { department: value } });
+  };
+  const onChangeUnites = (value) => {
+    dispatch({ type: 'updateState', payload: { unit: value } });
+  };
+
+  const onChangeStage = (stgId) => {
+    dispatch({ type: 'updateState', payload: { stageId: stgId } });
+  };
+
+  const onChangePipeline = (plId) => {
+    client
+      .query({
+        query: gql(pipelineQuery.pipelineLabels),
+        fetchPolicy: 'network-only',
+        variables: { pipelineId: plId },
+      })
+      .then((data) => {
+        dispatch({
+          type: 'updateState',
+          payload: { pipelineLabels: data.data.pipelineLabels },
+        });
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+
+    dispatch({ type: 'updateState', payload: { pipelineId: plId } });
+  };
+
+  const onChangeBoard = (brId) => {
+    dispatch({ type: 'updateState', payload: { boardId: brId } });
+  };
+
+  const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
+
     const value =
       e.target.type === 'checkbox'
         ? (e.target as HTMLInputElement).checked
         : (e.target as HTMLInputElement).value;
 
-    this.setState({ [name]: value } as any);
+    dispatch({ type: 'updateState', payload: { [name]: value } });
   };
 
-  onChangeEndDate = value => {
-    const { periodGoal } = this.state;
-
-    this.setState({
-      endDate: value,
-      periodGoal: periodGoal || 'Weekly' // Use 'Weekly' if periodGoal is falsy
-    });
+  const onUserChange = (userId) => {
+    dispatch({ type: 'updateState', payload: { contribution: userId } });
   };
 
-  onUserChange = userId => {
-    this.setState({ contribution: userId });
-  };
-  onChangeSegments = values => {
-    this.setState({ segmentIds: values });
+  const onChangeSegments = (values) => {
+    dispatch({ type: 'updateState', payload: { segmentIds: values } });
   };
 
-  onChangeTarget = (date, event) => {
-    const { specificPeriodGoals, periodGoal } = this.state;
+  const onChangeTarget = (date, event) => {
+    const { startDate, endDate, specificPeriodGoals, periodGoal } = state;
     const { value } = event.target;
     const parsedValue = parseInt(value);
-    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
-      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal) =>
+      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal,
     );
     // Add new periods to specificPeriodGoals if they don't exist
     const periods =
-      periodGoal === 'Monthly' ? this.mapMonths() : this.mapWeeks();
+      periodGoal === 'Monthly'
+        ? mapMonths(startDate, endDate)
+        : mapWeeks(startDate, endDate);
 
-    periods.forEach(period => {
+    periods.forEach((period) => {
       const exists = updatedSpecificPeriodGoals.some(
-        goal => goal.addMonthly === period
+        (goal) => goal.addMonthly === period,
       );
       if (!exists) {
         updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
-          addTarget: NaN
+          addTarget: NaN,
         });
       }
     });
 
     // Update the state with the modified specificPeriodGoals
     const filteredGoals = updatedSpecificPeriodGoals.filter(
-      goal =>
+      (goal) =>
         (periodGoal === 'Monthly' && goal.addMonthly.includes('Month')) ||
-        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week'))
+        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week')),
     );
 
-    this.setState({ specificPeriodGoals: filteredGoals });
+    dispatch({
+      type: 'updateState',
+      payload: { specificPeriodGoals: filteredGoals },
+    });
   };
 
-  mapMonths = (): string[] => {
-    const { startDate, endDate } = this.state;
-    const startDateObject = new Date(startDate); // Ensure startDate is a Date object
-    const endDateObject = new Date(endDate); // Ensure endDate is a Date object
-    const startMonth = startDateObject.getMonth();
-    const endMonth = endDateObject.getMonth();
-    const year = startDateObject.getFullYear(); //
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
-    const months: string[] = [];
-
-    for (let i = startMonth; i <= endMonth; i++) {
-      months.push(`Month of ${monthNames[i]} ${year}`);
-    }
-    return months;
-  };
-
-  mapWeeks = (): string[] => {
-    const { startDate, endDate } = this.state;
-    const weeks: string[] = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const currentDate = new Date(start);
-
-    while (currentDate <= end) {
-      const weekStart = new Date(currentDate);
-      const weekEnd = new Date(currentDate);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-      const weekString = `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`;
-
-      weeks.push(weekString);
-
-      currentDate.setDate(currentDate.getDate() + 7);
-    }
-
-    return weeks;
-  };
-
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const months: string[] = this.mapMonths();
-    const weeks = this.mapWeeks();
+    const { startDate, endDate } = state;
+    const months: string[] = mapMonths(startDate, endDate);
+    const weeks = mapWeeks(startDate, endDate);
+
     return (
       <>
-        <ScrollWrapper>
-          <FormWrapper>
-            <FormColumn>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('choose Entity')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="entity"
+                componentClass="select"
+                value={state.entity}
+                onChange={onChangeField}
+              >
+                {ENTITY.map((item, index) => (
+                  <option key={index} value={item.value}>
+                    {item.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <FormControl
+                {...formProps}
+                componentClass="checkbox" // Use 'input' for checkboxes
+                name="stageRadio"
+                checked={state.stageRadio}
+                onChange={onChangeField}
+                inline={true}
+              >
+                {__('Stage')}
+              </FormControl>
+              <FormControl
+                {...formProps}
+                componentClass="checkbox" // Use 'input' for checkboxes
+                name="segmentRadio"
+                checked={state.segmentRadio}
+                onChange={onChangeField}
+                inline={true}
+              />
+              {__('Segment')}
+            </FormGroup>
+            {state.segmentRadio === true && (
               <FormGroup>
-                <ControlLabel>{__('choose Entity')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="entity"
-                  componentClass="select"
-                  value={this.state.entity}
-                  onChange={this.onChangeField}
-                >
-                  {ENTITY.map((item, index) => (
-                    <option key={index} value={item.value}>
-                      {item.name}
-                    </option>
-                  ))}
-                </FormControl>
+                {isEnabled('segments') && isEnabled('contacts') && (
+                  <>
+                    <FormGroup>
+                      <ControlLabel>Segments</ControlLabel>
+                      <SelectSegments
+                        name="segmentIds"
+                        label="Choose segments"
+                        contentTypes={[`cards:${state.entity}`]}
+                        initialValue={state.segmentIds}
+                        multi={true}
+                        onSelect={(segmentIds) => onChangeSegments(segmentIds)}
+                      />
+                    </FormGroup>
+                  </>
+                )}
               </FormGroup>
+            )}
+            {state.stageRadio === true && (
               <FormGroup>
-                <FormControl
+                {isEnabled('cards') && (
+                  <BoardSelect
+                    type={state.entity}
+                    stageId={state.stageId}
+                    pipelineId={state.pipelineId}
+                    boardId={state.boardId}
+                    onChangeStage={onChangeStage}
+                    onChangePipeline={onChangePipeline}
+                    onChangeBoard={onChangeBoard}
+                  />
+                )}
+              </FormGroup>
+            )}
+            <FormGroup>
+              <ControlLabel>{__('start duration')}:</ControlLabel>
+              <DateContainer>
+                <DateControl
                   {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="stageRadio"
-                  checked={this.state.stageRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
-                >
-                  {__('Stage')}
-                </FormControl>
-                <FormControl
-                  {...formProps}
-                  componentClass="checkbox" // Use 'input' for checkboxes
-                  name="segmentRadio"
-                  checked={this.state.segmentRadio}
-                  onChange={this.onChangeField}
-                  inline={true}
+                  required={false}
+                  name="date"
+                  value={state.startDate}
+                  onChange={onChangeStartDate}
                 />
-                {__('Segment')}
-              </FormGroup>
-              {this.state.segmentRadio === true && (
-                <FormGroup>
-                  {isEnabled('segments') && isEnabled('contacts') && (
-                    <>
-                      <FormGroup>
-                        <ControlLabel>Segments</ControlLabel>
-                        <SelectSegments
-                          name="segmentIds"
-                          label="Choose segments"
-                          contentTypes={[`cards:${this.state.entity}`]}
-                          initialValue={this.state.segmentIds}
-                          multi={true}
-                          onSelect={segmentIds =>
-                            this.onChangeSegments(segmentIds)
-                          }
-                        />
-                      </FormGroup>
-                    </>
-                  )}
-                </FormGroup>
-              )}
-              {this.state.stageRadio === true && (
-                <FormGroup>
-                  {isEnabled('cards') && (
-                    <BoardSelect
-                      type={this.state.entity}
-                      stageId={this.state.stageId}
-                      pipelineId={this.state.pipelineId}
-                      boardId={this.state.boardId}
-                      onChangeStage={this.onChangeStage}
-                      onChangePipeline={this.onChangePipeline}
-                      onChangeBoard={this.onChangeBoard}
-                    />
-                  )}
-                </FormGroup>
-              )}
+              </DateContainer>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('end duration')}:</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  {...formProps}
+                  required={false}
+                  name="date"
+                  value={state.endDate}
+                  onChange={onChangeEndDate}
+                />
+              </DateContainer>
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('choose goalType type')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="goalTypeChoose"
+                componentClass="select"
+                value={state.goalTypeChoose}
+                onChange={onChangeField}
+              >
+                {GOAL_TYPE.map((typeName, index) => (
+                  <option key={index} value={typeName}>
+                    {typeName}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('contribution type')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="contributionType"
+                componentClass="select"
+                value={state.contributionType}
+                onChange={onChangeField}
+              >
+                {CONTRIBUTION.map((item, index) => (
+                  <option key={index} value={item.value}>
+                    {item.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            {state.contributionType === 'person' && (
               <FormGroup>
-                <ControlLabel>{__('start duration')}:</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="date"
-                    value={this.state.startDate}
-                    onChange={this.onChangeStartDate}
-                  />
-                </DateContainer>
+                <ControlLabel>contribution</ControlLabel>
+                <SelectTeamMembers
+                  label="Choose users"
+                  name="userId"
+                  customOption={{ label: 'Choose user', value: '' }}
+                  initialValue={state.contribution || ''}
+                  onSelect={onUserChange}
+                  multi={false}
+                />
               </FormGroup>
+            )}
+            {state.contributionType === 'team' && (
               <FormGroup>
-                <ControlLabel>{__('end duration')}:</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    {...formProps}
-                    required={false}
-                    name="date"
-                    value={this.state.endDate}
-                    onChange={this.onChangeEndDate}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>{__('choose goalType type')}</ControlLabel>
+                <ControlLabel>{__('Choose Structure')}</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name="goalTypeChoose"
+                  name="teamGoalType"
                   componentClass="select"
-                  value={this.state.goalTypeChoose}
-                  onChange={this.onChangeField}
+                  value={state.teamGoalType}
+                  onChange={onChangeField}
                 >
-                  {GOAL_TYPE.map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('contribution type')}</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="contributionType"
-                  componentClass="select"
-                  value={this.state.contributionType}
-                  onChange={this.onChangeField}
-                >
-                  {CONTRIBUTION.map((item, index) => (
+                  {GOAL_STRUCTURE.map((item, index) => (
                     <option key={index} value={item.value}>
                       {item.name}
                     </option>
                   ))}
                 </FormControl>
               </FormGroup>
-              {this.state.contributionType === 'person' && (
+            )}
+            {state.teamGoalType === 'Departments' &&
+              state.contributionType === 'team' && (
                 <FormGroup>
-                  <ControlLabel>contribution</ControlLabel>
-                  <SelectTeamMembers
-                    label="Choose users"
-                    name="userId"
-                    customOption={{ label: 'Choose user', value: '' }}
-                    initialValue={this.state.contribution || ''}
-                    onSelect={this.onUserChange}
+                  <ControlLabel>{__('Departments')}</ControlLabel>
+                  <SelectDepartments
+                    name="branchId"
+                    label={__('Choose Departments')}
+                    initialValue={state?.department}
+                    onSelect={onChangeDepartments}
                     multi={false}
                   />
                 </FormGroup>
               )}
-              {this.state.contributionType === 'team' && (
+            {state.teamGoalType === 'Units' &&
+              state.contributionType === 'team' && (
                 <FormGroup>
-                  <ControlLabel>{__('Choose Structure')}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="teamGoalType"
-                    componentClass="select"
-                    value={this.state.teamGoalType}
-                    onChange={this.onChangeField}
-                  >
-                    {GOAL_STRUCTURE.map((item, index) => (
-                      <option key={index} value={item.value}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
-              {this.state.teamGoalType === 'Departments' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Departments')}</ControlLabel>
-                    <SelectDepartments
-                      name="branchId"
-                      label={__('Choose Departments')}
-                      initialValue={this.state?.department}
-                      onSelect={this.onChangeDepartments}
-                      multi={false}
-                    />
-                  </FormGroup>
-                )}
-              {this.state.teamGoalType === 'Units' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Units')}</ControlLabel>
-                    <SelectUnits
-                      name="branchId"
-                      label={__('Choose Units')}
-                      initialValue={this.state?.unit}
-                      onSelect={this.onChangeUnites}
-                      multi={false}
-                    />
-                  </FormGroup>
-                )}
-              {this.state.teamGoalType === 'Branches' &&
-                this.state.contributionType === 'team' && (
-                  <FormGroup>
-                    <ControlLabel>{__('Branches')}</ControlLabel>
-                    <SelectBranches
-                      name="branchId"
-                      label={__('Choose Branches')}
-                      initialValue={this.state?.branch}
-                      onSelect={this.onChangeBranchId}
-                      multi={false}
-                    />
-                  </FormGroup>
-                )}
-              <FormGroup>
-                <ControlLabel>{__('metric')}:</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="metric"
-                  componentClass="select"
-                  value={this.state.metric}
-                  onChange={this.onChangeField}
-                >
-                  {['Value', 'Count'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Target')}</ControlLabel>
-                <FormGroup>
-                  <FormControl
-                    type="number"
-                    name="target"
-                    value={
-                      this.state.target !== undefined &&
-                      this.state.target !== null
-                        ? this.state.target
-                        : 0
-                    }
-                    onChange={this.onChangeTargetPeriod}
+                  <ControlLabel>{__('Units')}</ControlLabel>
+                  <SelectUnits
+                    name="branchId"
+                    label={__('Choose Units')}
+                    initialValue={state?.unit}
+                    onSelect={onChangeUnites}
+                    multi={false}
                   />
                 </FormGroup>
-              </FormGroup>
+              )}
+            {state.teamGoalType === 'Branches' &&
+              state.contributionType === 'team' && (
+                <FormGroup>
+                  <ControlLabel>{__('Branches')}</ControlLabel>
+                  <SelectBranches
+                    name="branchId"
+                    label={__('Choose Branches')}
+                    initialValue={state?.branch}
+                    onSelect={onChangeBranchId}
+                    multi={false}
+                  />
+                </FormGroup>
+              )}
+            <FormGroup>
+              <ControlLabel>{__('metric')}:</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="metric"
+                componentClass="select"
+                value={state.metric}
+                onChange={onChangeField}
+              >
+                {['Value', 'Count'].map((typeName, index) => (
+                  <option key={index} value={typeName}>
+                    {typeName}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Target')}</ControlLabel>
               <FormGroup>
-                <ControlLabel>
-                  {__('choose specific period goals')}
-                </ControlLabel>
                 <FormControl
-                  {...formProps}
-                  name="periodGoal"
-                  componentClass="select"
-                  value={this.state.periodGoal}
-                  onChange={this.onChangeField}
-                >
-                  {SPECIFIC_PERIOD_GOAL.map((item, index) => (
-                    <option key={index} value={item.value}>
-                      {item.name}
-                    </option>
-                  ))}
-                </FormControl>
+                  type="number"
+                  name="target"
+                  value={
+                    state.target !== undefined && state.target !== null
+                      ? state.target
+                      : 0
+                  }
+                  onChange={onChangeTargetPeriod}
+                />
               </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-          {this.state.periodGoal === 'Monthly' && (
-            <div>
-              {months.map(month => (
-                <FormWrapper key={month}>
-                  <FormColumn>
-                    <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
-                    <FormGroup>
-                      <DateContainer>{month}</DateContainer>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
-                    <FormGroup>
-                      <FormControl
-                        type="number"
-                        name="target"
-                        value={
-                          this.state.specificPeriodGoals.find(
-                            goal => goal.addMonthly === month
-                          )?.addTarget
-                        }
-                        onChange={event => this.onChangeTarget(month, event)}
-                      />
-                    </FormGroup>
-                  </FormColumn>
-                </FormWrapper>
-              ))}
-            </div>
-          )}
-          {this.state.periodGoal === 'Weekly' && (
-            <div>
-              {weeks.map(week => (
-                <FormWrapper key={week}>
-                  <FormColumn>
-                    <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
-                    <FormGroup>
-                      <DateContainer>{week}</DateContainer>
-                    </FormGroup>
-                  </FormColumn>
-                  <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
-                    <FormGroup>
-                      <FormControl
-                        type="number"
-                        name="target"
-                        value={
-                          this.state.specificPeriodGoals.find(
-                            goal => goal.addMonthly === week
-                          )?.addTarget
-                        }
-                        onChange={event => this.onChangeTarget(week, event)}
-                      />
-                    </FormGroup>
-                  </FormColumn>
-                </FormWrapper>
-              ))}
-            </div>
-          )}
-        </ScrollWrapper>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('choose specific period goals')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="periodGoal"
+                componentClass="select"
+                value={state.periodGoal}
+                onChange={onChangeField}
+              >
+                {SPECIFIC_PERIOD_GOAL.map((item, index) => (
+                  <option key={index} value={item.value}>
+                    {item.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        {state.periodGoal === 'Monthly' && (
+          <div>
+            {months.map((month) => (
+              <FormWrapper key={month}>
+                <FormColumn>
+                  <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
+                  <FormGroup>
+                    <DateContainer>{month}</DateContainer>
+                  </FormGroup>
+                </FormColumn>
+                <FormColumn>
+                  <ControlLabel>{__('Target')}</ControlLabel>
+                  <FormGroup>
+                    <FormControl
+                      type="number"
+                      name="target"
+                      value={
+                        state.specificPeriodGoals.find(
+                          (goal) => goal.addMonthly === month,
+                        )?.addTarget
+                      }
+                      onChange={(event) => onChangeTarget(month, event)}
+                    />
+                  </FormGroup>
+                </FormColumn>
+              </FormWrapper>
+            ))}
+          </div>
+        )}
+        {state.periodGoal === 'Weekly' && (
+          <div>
+            {weeks.map((week) => (
+              <FormWrapper key={week}>
+                <FormColumn>
+                  <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
+                  <FormGroup>
+                    <DateContainer>{week}</DateContainer>
+                  </FormGroup>
+                </FormColumn>
+                <FormColumn>
+                  <ControlLabel>{__('Target')}</ControlLabel>
+                  <FormGroup>
+                    <FormControl
+                      type="number"
+                      name="target"
+                      value={
+                        state.specificPeriodGoals.find(
+                          (goal) => goal.addMonthly === week,
+                        )?.addTarget
+                      }
+                      onChange={(event) => onChangeTarget(week, event)}
+                    />
+                  </FormGroup>
+                </FormColumn>
+              </FormWrapper>
+            ))}
+          </div>
+        )}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             {__('Close')}
           </Button>
           {renderButton({
             name: 'goalType',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.goalType
+            object: goalType,
           })}
         </ModalFooter>
       </>
     );
   };
+  return <Form renderContent={renderContent} />;
+};
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
+const mapMonths = (startDate, endDate): string[] => {
+  const startDateObject = new Date(startDate); // Ensure startDate is a Date object
+  const endDateObject = new Date(endDate); // Ensure endDate is a Date object
+  const startMonth = startDateObject.getMonth();
+  const endMonth = endDateObject.getMonth();
+  const year = startDateObject.getFullYear(); //
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const months: string[] = [];
+
+  for (let i = startMonth; i <= endMonth; i++) {
+    months.push(`Month of ${monthNames[i]} ${year}`);
   }
-}
+  return months;
+};
 
-export default GoalTypeForm;
+const mapWeeks = (startDate, endDate): string[] => {
+  const weeks: string[] = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const currentDate = new Date(start);
+
+  while (currentDate <= end) {
+    const weekStart = new Date(currentDate);
+    const weekEnd = new Date(currentDate);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const weekString = `Week of ${weekStart.toDateString()} - ${weekEnd.toDateString()}`;
+
+    weeks.push(weekString);
+
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  return weeks;
+};
+
+export default goalForm;

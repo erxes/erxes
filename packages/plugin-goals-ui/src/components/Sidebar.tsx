@@ -22,11 +22,12 @@ type Props = {
 
 const { Section } = Wrapper.Sidebar;
 
-export default function Sidebar(props: Props) {
+const Sidebar = (props: Props) => {
   const history = useHistory();
 
   const [filters, setFilters] = useState(props.params);
-  const { branch, department, unit, date, contribution, endDate } = filters;
+  const { branch, department, unit, startDate, contribution, endDate } =
+    filters;
 
   const clearFilter = () => {
     router.removeParams(
@@ -35,9 +36,9 @@ export default function Sidebar(props: Props) {
       'department',
       'unit',
       'contribution',
-      'date',
+      'startDate',
       'endDate',
-      'page'
+      'page',
     );
   };
 
@@ -50,16 +51,11 @@ export default function Sidebar(props: Props) {
   };
 
   return (
-    <Wrapper.Sidebar hasBorder>
+    <Wrapper.Sidebar hasBorder={true}>
       <Section.Title>
         {__('Filters')}
         <Section.QuickButtons>
-          {(branch ||
-            department ||
-            unit ||
-            contribution ||
-            date ||
-            endDate) && (
+          {!!Object.keys(props.params).length && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
               <Tip text={__('Clear filter')} placement="bottom">
                 <Icon icon="cancel-1" />
@@ -72,19 +68,19 @@ export default function Sidebar(props: Props) {
         <FormGroup>
           <ControlLabel>Start Date</ControlLabel>
           <DateControl
-            value={date}
-            name="date"
+            value={startDate || ''}
+            name="startDate"
             placeholder={'Start Date'}
             dateFormat={'YYYY-MM-DD'}
-            onChange={(date: any) =>
-              setFilter('date', dayjs(date).format('YYYY-MM-DD'))
+            onChange={(startDate: any) =>
+              setFilter('startDate', dayjs(startDate).format('YYYY-MM-DD'))
             }
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>End Date</ControlLabel>
           <DateControl
-            value={endDate}
+            value={endDate || ''}
             name="endDate"
             placeholder={'End Date'}
             dateFormat={'YYYY-MM-DD'}
@@ -101,9 +97,9 @@ export default function Sidebar(props: Props) {
             initialValue={branch || ''}
             customOption={{
               value: '',
-              label: '...Clear branch filter'
+              label: '...Clear branch filter',
             }}
-            onSelect={branch => setFilter('branch', branch)}
+            onSelect={(branch) => setFilter('branch', branch)}
             multi={false}
           />
         </FormGroup>
@@ -115,9 +111,9 @@ export default function Sidebar(props: Props) {
             initialValue={department || ''}
             customOption={{
               value: '',
-              label: '...Clear department filter'
+              label: '...Clear department filter',
             }}
-            onSelect={department => setFilter('department', department)}
+            onSelect={(department) => setFilter('department', department)}
             multi={false}
           />
         </FormGroup>
@@ -129,9 +125,9 @@ export default function Sidebar(props: Props) {
             initialValue={unit || ''}
             customOption={{
               value: '',
-              label: '...Clear unit filter'
+              label: '...Clear unit filter',
             }}
-            onSelect={unit => setFilter('unit', unit)}
+            onSelect={(unit) => setFilter('unit', unit)}
             multi={false}
           />
         </FormGroup>
@@ -143,9 +139,9 @@ export default function Sidebar(props: Props) {
             initialValue={contribution || ''}
             customOption={{
               value: '',
-              label: '...Clear user filter'
+              label: '...Clear user filter',
             }}
-            onSelect={contribution => setFilter('contribution', contribution)}
+            onSelect={(contribution) => setFilter('contribution', contribution)}
             multi={false}
           />
         </FormGroup>
@@ -155,4 +151,6 @@ export default function Sidebar(props: Props) {
       </SidebarFilters>
     </Wrapper.Sidebar>
   );
-}
+};
+
+export default Sidebar;
