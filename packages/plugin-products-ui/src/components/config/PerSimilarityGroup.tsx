@@ -7,12 +7,12 @@ import {
   FormControl,
   FormGroup,
   Icon,
-  Tip
+  Tip,
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { Alert, __, confirm } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { IConfigsMap } from '../../types';
 
 type Props = {
@@ -24,58 +24,41 @@ type Props = {
   delete: (currentConfigKey: string) => void;
 };
 
-type State = {
-  config: any;
-  rules: any[];
-  hasOpen: boolean;
-};
+const PerSettings: React.FC<Props> = (props) => {
+  const [config, setConfig] = useState(props.config);
+  const [rules, setRules] = useState(props.config.rules || []);
+  const [hasOpen, setHasOpen] = useState(false);
+  const { configsMap, currentConfigKey, save, fieldGroups } = props;
 
-class PerSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      config: props.config,
-      rules: props.config.rules || [],
-      hasOpen: false
-    };
-  }
-
-  onSave = e => {
+  const onSave = (e) => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
-    const { config, rules } = this.state;
     const key = config.codeMask;
     const similarityGroup = { ...configsMap.similarityGroup };
 
     delete similarityGroup[currentConfigKey];
     similarityGroup[key] = { ...config, rules };
-    this.props.save({ ...configsMap, similarityGroup });
+    save({ ...configsMap, similarityGroup });
   };
 
-  onDelete = e => {
+  const onDelete = (e) => {
     e.preventDefault();
 
     confirm(`This action will remove the config. Are you sure?`)
       .then(() => {
-        this.props.delete(this.props.currentConfigKey);
+        props.delete(currentConfigKey);
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
 
-  onChange = e => {
-    const { config } = this.state;
-
+  const onChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    this.setState({ config: { ...config, [name]: value } });
+    setConfig({ ...config, [name]: value });
   };
 
-  renderInput = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
+  const renderInput = (key: string, title?: string, description?: string) => {
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
@@ -83,30 +66,27 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           name={key}
           defaultValue={config[key]}
-          onChange={this.onChange}
+          onChange={onChange}
           required={true}
         />
       </FormGroup>
     );
   };
 
-  addRule = () => {
-    const { rules } = this.state;
-    this.setState({ rules: [...rules, { id: Math.random().toString() }] });
+  const addRule = () => {
+    setRules([...rules, { id: Math.random().toString() }]);
   };
 
-  renderRules() {
-    const { fieldGroups } = this.props;
-    const { rules } = this.state;
-    const onRemove = id => {
-      this.setState({ rules: rules.filter(c => c.id !== id) });
+  const renderRules = () => {
+    const onRemove = (id) => {
+      setRules(rules.filter((c) => c.id !== id));
     };
 
     const editRule = (id, rule) => {
-      const updated = (rules || []).map(r =>
-        r.id === id ? { ...r, ...rule } : r
+      const updated = (rules || []).map((r) =>
+        r.id === id ? { ...r, ...rule } : r,
       );
-      this.setState({ rules: updated });
+      setRules(updated);
     };
 
     const onChangeControl = (id, e) => {
@@ -114,14 +94,13 @@ class PerSettings extends React.Component<Props, State> {
       const value = e.target.value;
       editRule(id, { [name]: value });
     };
-
     const onChangeFieldGroup = (id, e) => {
       const name = e.target.name;
       const value = e.target.value;
       editRule(id, { [name]: value, fieldId: '' });
     };
 
-    return (rules || []).map(rule => (
+    return (rules || []).map((rule) => (
       <GroupWrapper key={rule.id}>
         <FormWrapper>
           <FormColumn>
@@ -142,10 +121,10 @@ class PerSettings extends React.Component<Props, State> {
                 componentClass="select"
                 options={[
                   { value: '', label: 'Empty' },
-                  ...(fieldGroups || []).map(fg => ({
+                  ...(fieldGroups || []).map((fg) => ({
                     value: fg._id,
-                    label: `${fg.code} - ${fg.name}`
-                  }))
+                    label: `${fg.code} - ${fg.name}`,
+                  })),
                 ]}
                 value={rule.groupId}
                 onChange={onChangeFieldGroup.bind(this, rule.id)}
@@ -164,10 +143,10 @@ class PerSettings extends React.Component<Props, State> {
                     (
                       (
                         (fieldGroups || []).find(
-                          fg => fg._id === rule.groupId
+                          (fg) => fg._id === rule.groupId,
                         ) || {}
                       ).fields || []
-                    ).filter(f =>
+                    ).filter((f) =>
                       [
                         'input',
                         'textarea',
@@ -178,13 +157,13 @@ class PerSettings extends React.Component<Props, State> {
                         'product',
                         'branch',
                         'department',
-                        'map'
-                      ].includes(f.type)
+                        'map',
+                      ].includes(f.type),
                     ) || []
-                  ).map(f => ({
+                  ).map((f) => ({
                     value: f._id,
-                    label: `${f.code} - ${f.text}`
-                  }))
+                    label: `${f.code} - ${f.text}`,
+                  })),
                 ]}
                 value={rule.fieldId}
                 onChange={onChangeControl.bind(this, rule.id)}
@@ -202,56 +181,50 @@ class PerSettings extends React.Component<Props, State> {
         </Tip>
       </GroupWrapper>
     ));
-  }
+  };
 
-  render() {
-    const { config } = this.state;
-    return (
-      <CollapseContent
-        title={__(config.title)}
-        open={
-          this.props.currentConfigKey === 'newSimilarityGroup' ? true : false
-        }
-        transparent={true}
-        beforeTitle={<Icon icon="settings" />}
-      >
-        <FormWrapper>
-          <FormColumn>{this.renderInput('title', 'Title', '')}</FormColumn>
-          <FormColumn>
-            {this.renderInput('codeMask', 'Code Mask', '')}
-          </FormColumn>
-        </FormWrapper>
-        {this.renderRules()}
-        <ModalFooter>
-          <Button
-            btnStyle="primary"
-            onClick={this.addRule}
-            icon="plus-circle"
-            uppercase={false}
-          >
-            Add Rule
-          </Button>
-          <Button
-            btnStyle="danger"
-            icon="cancel-1"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
+  return (
+    <CollapseContent
+      title={__(config.title)}
+      open={currentConfigKey === 'newSimilarityGroup' ? true : false}
+      transparent={true}
+      beforeTitle={<Icon icon="settings" />}
+    >
+      <FormWrapper>
+        <FormColumn>{renderInput('title', 'Title', '')}</FormColumn>
+        <FormColumn>{renderInput('codeMask', 'Code Mask', '')}</FormColumn>
+      </FormWrapper>
+      {renderRules()}
+      <ModalFooter>
+        <Button
+          btnStyle="primary"
+          onClick={addRule}
+          icon="plus-circle"
+          uppercase={false}
+        >
+          Add Rule
+        </Button>
+        <Button
+          btnStyle="danger"
+          icon="cancel-1"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-          <Button
-            btnStyle="success"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.codeMask ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="success"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.codeMask ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
+
 export default PerSettings;

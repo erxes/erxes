@@ -11,7 +11,7 @@ import dimensions from '@erxes/ui/src/styles/dimensions';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 
 import styled from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import { JOURNALS_KEY_LABELS, LEASE_TYPES } from '../constants';
 import { IContractTypeDetail } from '../types';
 import { __ } from 'coreui/utils';
@@ -49,7 +49,7 @@ export const DISTRICTS = [
   { value: 'Багахангай', label: 'Багахангай' },
   { value: 'Налайх', label: 'Налайх' },
   { value: 'Сонгинохайрхан', label: 'Сонгинохайрхан' },
-  { value: 'Чингэлтэй', label: 'Чингэлтэй' }
+  { value: 'Чингэлтэй', label: 'Чингэлтэй' },
 ];
 
 const ContentBox = styled.div`
@@ -67,46 +67,35 @@ type Props = {
   saveItem: (doc: IContractTypeDetail, callback?: (item) => void) => void;
 };
 
-type State = {
-  currentMap: any;
-};
+const GeneralSettings = (props: Props) => {
+  const [currentMap, setCurrentMap] = useState(props.contractType.config || {});
+  const { contractType } = props;
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      currentMap: this.props.contractType.config || {}
-    };
-  }
-
-  save = e => {
+  const save = (e) => {
     e.preventDefault();
-    const { contractType } = this.props;
-    const { currentMap } = this.state;
 
-    this.props.saveItem({ ...contractType, config: currentMap });
+    props.saveItem({ ...contractType, config: currentMap });
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
-
+  const onChangeConfig = (code: string, value) => {
     currentMap[code] = value;
 
-    this.setState({ currentMap });
+    setCurrentMap(currentMap);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
+  const onChangeCheckbox = (code: string, e) => {
+    onChangeConfig(code, e.target.checked);
   };
 
-  renderItem = (key: string, description?: string, controlProps?: any) => {
-    const { currentMap } = this.state;
-
+  const renderItem = (
+    key: string,
+    description?: string,
+    controlProps?: any,
+  ) => {
     return (
       <FormGroup>
         <ControlLabel>{__(JOURNALS_KEY_LABELS[key])}</ControlLabel>
@@ -114,15 +103,17 @@ class GeneralSettings extends React.Component<Props, State> {
         <FormControl
           {...controlProps}
           value={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+          onChange={onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  renderCheckbox = (key: string, description?: string, backElement?: any) => {
-    const { currentMap } = this.state;
-
+  const renderCheckbox = (
+    key: string,
+    description?: string,
+    backElement?: any,
+  ) => {
     return (
       <FormGroup>
         {backElement && (
@@ -134,14 +125,14 @@ class GeneralSettings extends React.Component<Props, State> {
         {description && <p>{__(description)}</p>}
         <FormControl
           checked={currentMap[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
+          onChange={onChangeCheckbox.bind(this, key)}
           componentClass="checkbox"
         />
       </FormGroup>
     );
   };
 
-  renderProductTrigger(collateral?: any) {
+  const renderProductTrigger = (collateral?: any) => {
     let content = (
       <div>
         {__('Choose E-Barimt Product')} <Icon icon="plus-circle" />
@@ -158,27 +149,26 @@ class GeneralSettings extends React.Component<Props, State> {
     }
 
     return <CollateralButton>{content}</CollateralButton>;
-  }
+  };
 
-  renderProductModal(key: string) {
-    const { currentMap } = this.state;
+  const renderProductModal = (key: string) => {
     const product = currentMap[key];
 
     const productOnChange = (products: any[]) => {
       const product = products && products.length === 1 ? products[0] : null;
 
       if (product) {
-        this.onChangeConfig(key, product);
+        onChangeConfig(key, product);
       }
     };
 
-    const content = props => (
+    const content = (props) => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         data={{
           name: 'Product',
-          products: product ? [product] : []
+          products: product ? [product] : [],
         }}
         limit={1}
         chooserComponent={Chooser}
@@ -188,209 +178,191 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title="Choose product"
-        trigger={this.renderProductTrigger(product)}
+        trigger={renderProductTrigger(product)}
         size="lg"
         content={content}
       />
     );
-  }
+  };
 
-  render() {
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        {__('Save')}
-      </Button>
-    );
+  const actionButtons = (
+    <Button
+      btnStyle="primary"
+      onClick={save}
+      icon="check-circle"
+      uppercase={false}
+    >
+      {__('Save')}
+    </Button>
+  );
 
-    const content = (
-      <ScrollWrapper>
-        <ContentBox>
-          <CollapseContent title={__('Loan payment')}>
-            {this.renderItem('transAccount')}
-            {this.renderItem('normalAccount')}
-            {this.renderItem('expiredAccount')}
-            {this.renderItem('doubtfulAccount')}
-            {this.renderItem('negativeAccount')}
-            {this.renderItem('badAccount')}
-            {this.renderCheckbox('amountHasEBarimt')}
-          </CollapseContent>
+  const content = (
+    <ScrollWrapper>
+      <ContentBox>
+        <CollapseContent title={__('Loan payment')}>
+          {renderItem('transAccount')}
+          {renderItem('normalAccount')}
+          {renderItem('expiredAccount')}
+          {renderItem('doubtfulAccount')}
+          {renderItem('negativeAccount')}
+          {renderItem('badAccount')}
+          {renderCheckbox('amountHasEBarimt')}
+        </CollapseContent>
 
-          <CollapseContent title={__('Interest')}>
-            {this.renderItem('interestAccount')}
-            {this.renderCheckbox('interestHasEBarimt')}
-          </CollapseContent>
+        <CollapseContent title={__('Interest')}>
+          {renderItem('interestAccount')}
+          {renderCheckbox('interestHasEBarimt')}
+        </CollapseContent>
 
-          <CollapseContent title={__('Insurance')}>
-            {this.renderItem('insuranceAccount')}
-          </CollapseContent>
+        <CollapseContent title={__('Insurance')}>
+          {renderItem('insuranceAccount')}
+        </CollapseContent>
 
-          <CollapseContent title={__('Loss')}>
-            {this.renderItem('undueAccount')}
-            {this.renderCheckbox('undueHasEBarimt')}
-          </CollapseContent>
+        <CollapseContent title={__('Loss')}>
+          {renderItem('undueAccount')}
+          {renderCheckbox('undueHasEBarimt')}
+        </CollapseContent>
 
-          <CollapseContent title={__('Other')}>
-            {this.renderItem('debtAccount')}
-            {this.renderItem('otherReceivable')}
-            {this.renderItem('feeIncomeAccount')}
-          </CollapseContent>
+        <CollapseContent title={__('Other')}>
+          {renderItem('debtAccount')}
+          {renderItem('otherReceivable')}
+          {renderItem('feeIncomeAccount')}
+        </CollapseContent>
 
-          <CollapseContent title={__('EBarimt')}>
-            {this.renderItem('eBarimtAccount')}
-            {this.renderCheckbox('isAutoSendEBarimt')}
-            {this.renderCheckbox('isHasVat')}
-            <FormGroup>
-              <ControlLabel>{__('Provice/District')}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                defaultValue={this.state.currentMap.districtName}
-                options={DISTRICTS}
-                onChange={this.onChangeInput.bind(this, 'districtName')}
-                required={true}
-              />
-            </FormGroup>
-            {this.renderItem('organizationRegister')}
-            {this.renderItem('defaultGSCode')}
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10
-              }}
-            >
-              {this.renderCheckbox('isAmountUseEBarimt')}
-              {this.state?.currentMap?.isAmountUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('amountEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10,
-                marginTop: 10
-              }}
-            >
-              {this.renderCheckbox('isInterestUseEBarimt')}
-              {this.state?.currentMap?.isInterestUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('interestEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10,
-                marginTop: 10
-              }}
-            >
-              {this.renderCheckbox('isUndueUseEBarimt')}
-              {this.state?.currentMap?.isUndueUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('undueEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-          </CollapseContent>
-
-          <CollapseContent title={__('Classification')}>
-            {this.renderItem('normalExpirationDay', 'Normal /Expiration Day/', {
-              type: 'number'
-            })}
-            {this.renderItem(
-              'expiredExpirationDay',
-              'Expired /Expiration Day/',
-              {
-                type: 'number'
-              }
+        <CollapseContent title={__('EBarimt')}>
+          {renderItem('eBarimtAccount')}
+          {renderCheckbox('isAutoSendEBarimt')}
+          {renderCheckbox('isHasVat')}
+          <FormGroup>
+            <ControlLabel>{__('Provice/District')}</ControlLabel>
+            <FormControl
+              componentClass="select"
+              defaultValue={currentMap.districtName}
+              options={DISTRICTS}
+              onChange={onChangeInput.bind(this, 'districtName')}
+              required={true}
+            />
+          </FormGroup>
+          {renderItem('organizationRegister')}
+          {renderItem('defaultGSCode')}
+          <div
+            style={{
+              boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
+              padding: 20,
+              paddingBottom: 10,
+              borderRadius: 10,
+            }}
+          >
+            {renderCheckbox('isAmountUseEBarimt')}
+            {currentMap?.isAmountUseEBarimt && (
+              <FormGroup>
+                <ControlLabel>{__('Product')}</ControlLabel>
+                {renderProductModal('amountEBarimtProduct')}
+              </FormGroup>
             )}
-            {this.renderItem('doubtExpirationDay', 'Doubt /Expiration Day/', {
-              type: 'number'
-            })}
-            {this.renderItem(
-              'negativeExpirationDay',
-              'Negative /Expiration Day/',
-              {
-                type: 'number'
-              }
+          </div>
+          <div
+            style={{
+              boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
+              padding: 20,
+              paddingBottom: 10,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+          >
+            {renderCheckbox('isInterestUseEBarimt')}
+            {currentMap?.isInterestUseEBarimt && (
+              <FormGroup>
+                <ControlLabel>{__('Product')}</ControlLabel>
+                {renderProductModal('interestEBarimtProduct')}
+              </FormGroup>
             )}
-            {this.renderItem('badExpirationDay', 'Bad /Expiration Day/', {
-              type: 'number'
-            })}
-          </CollapseContent>
+          </div>
+          <div
+            style={{
+              boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
+              padding: 20,
+              paddingBottom: 10,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+          >
+            {renderCheckbox('isUndueUseEBarimt')}
+            {currentMap?.isUndueUseEBarimt && (
+              <FormGroup>
+                <ControlLabel>{__('Product')}</ControlLabel>
+                {renderProductModal('undueEBarimtProduct')}
+              </FormGroup>
+            )}
+          </div>
+        </CollapseContent>
 
-          <CollapseContent title={__('Range config')}>
-            {this.renderItem('minInterest', 'Min interest', {
-              type: 'number'
-            })}
-            {this.renderItem('maxInterest', 'Max interest', {
-              type: 'number'
-            })}
-            {this.renderItem('defaultInterest', 'Default interest', {
-              type: 'number'
-            })}
-            {this.renderItem('minTenor', 'Min tenor /Month/', {
-              type: 'number'
-            })}
-            {this.renderItem('maxTenor', 'Max tenor /Month/', {
-              type: 'number'
-            })}
-            {this.renderItem('minAmount', 'Min amount', {
-              type: 'number',
-              useNumberFormat: true
-            })}
-            {this.renderItem('maxAmount', 'Max amount', {
-              type: 'number',
-              useNumberFormat: true
-            })}
-            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
-              this.renderItem(
-                'minCommitmentInterest',
-                'Min Commitment Interest',
-                {
-                  type: 'number',
-                  useNumberFormat: true
-                }
-              )}
-            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
-              this.renderItem(
-                'maxCommitmentInterest',
-                'Max Commitment Interest',
-                {
-                  type: 'number',
-                  useNumberFormat: true
-                }
-              )}
-          </CollapseContent>
-        </ContentBox>
-      </ScrollWrapper>
-    );
+        <CollapseContent title={__('Classification')}>
+          {renderItem('normalExpirationDay', 'Normal /Expiration Day/', {
+            type: 'number',
+          })}
+          {renderItem('expiredExpirationDay', 'Expired /Expiration Day/', {
+            type: 'number',
+          })}
+          {renderItem('doubtExpirationDay', 'Doubt /Expiration Day/', {
+            type: 'number',
+          })}
+          {renderItem('negativeExpirationDay', 'Negative /Expiration Day/', {
+            type: 'number',
+          })}
+          {renderItem('badExpirationDay', 'Bad /Expiration Day/', {
+            type: 'number',
+          })}
+        </CollapseContent>
 
-    return (
-      <ContentWrapper>
-        <Wrapper.ActionBar
-          left={<Title>{__('Journals configs')}</Title>}
-          right={actionButtons}
-        />
-        {content}
-      </ContentWrapper>
-    );
-  }
-}
+        <CollapseContent title={__('Range config')}>
+          {renderItem('minInterest', 'Min interest', {
+            type: 'number',
+          })}
+          {renderItem('maxInterest', 'Max interest', {
+            type: 'number',
+          })}
+          {renderItem('defaultInterest', 'Default interest', {
+            type: 'number',
+          })}
+          {renderItem('minTenor', 'Min tenor /Month/', {
+            type: 'number',
+          })}
+          {renderItem('maxTenor', 'Max tenor /Month/', {
+            type: 'number',
+          })}
+          {renderItem('minAmount', 'Min amount', {
+            type: 'number',
+            useNumberFormat: true,
+          })}
+          {renderItem('maxAmount', 'Max amount', {
+            type: 'number',
+            useNumberFormat: true,
+          })}
+          {props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+            renderItem('minCommitmentInterest', 'Min Commitment Interest', {
+              type: 'number',
+              useNumberFormat: true,
+            })}
+          {props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+            renderItem('maxCommitmentInterest', 'Max Commitment Interest', {
+              type: 'number',
+              useNumberFormat: true,
+            })}
+        </CollapseContent>
+      </ContentBox>
+    </ScrollWrapper>
+  );
+
+  return (
+    <ContentWrapper>
+      <Wrapper.ActionBar
+        left={<Title>{__('Journals configs')}</Title>}
+        right={actionButtons}
+      />
+      {content}
+    </ContentWrapper>
+  );
+};
 
 export default GeneralSettings;

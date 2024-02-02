@@ -1,17 +1,11 @@
-import { Chooser, withProps } from '@erxes/ui/src';
+import { Chooser } from '@erxes/ui/src';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useState } from 'react';
 
-import { mutations, queries } from '../graphql';
-import {
-  AddMutationResponse,
-  ContractsQueryResponse,
-  IContract,
-  IContractDoc
-} from '../types';
+import { queries } from '../graphql';
+import { ContractsQueryResponse, IContract } from '../types';
 import ContractForm from './ContractForm';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -19,101 +13,68 @@ type Props = {
   searchValue: string;
 };
 
-type FinalProps = {
-  contractsQuery: ContractsQueryResponse;
-} & Props &
-  AddMutationResponse;
-
-class ContractChooser extends React.Component<
-  WrapperProps & FinalProps,
-  { newContract?: IContract }
-> {
+const ContractChooser = (props: Props & WrapperProps) => {
   // TODO: Энэ гэрээ сонгох нь шинээр нэмэх л эрхтэй байхаар тооцно
-  constructor(props) {
-    super(props);
+  const [newContract, setNewContract] = useState(undefined as any);
 
-    this.state = {
-      newContract: undefined
-    };
-  }
+  const { data, search, searchValue, perPage } = props;
 
-  resetAssociatedItem = () => {
-    return this.setState({ newContract: undefined });
+  const contractsQuery = useQuery<ContractsQueryResponse>(
+    gql(queries.contracts),
+    {
+      variables: {
+        searchValue,
+        perPage,
+        mainType: data.mainType,
+        mainTypeId: data.mainTypeId,
+        isRelated: data.isRelated,
+        sortField: 'createdAt',
+        sortDirection: -1,
+      },
+      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
+    },
+  );
+
+  const resetAssociatedItem = () => {
+    setNewContract(undefined);
   };
 
-  render() {
-    const { data, contractsQuery, search } = this.props;
+  const renderName = (contract) => {
+    return contract.number;
+  };
 
-    const renderName = contract => {
-      return contract.number;
-    };
+  const getAssociatedContract = (newContract: IContract) => {
+    setNewContract(newContract);
+  };
 
-    const getAssociatedContract = (newContract: IContract) => {
-      this.setState({ newContract });
-    };
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.contracts,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'contract',
+    },
+    search,
+    clearState: () => search(''),
+    title: 'Contract',
+    renderForm: (formProps) => (
+      <ContractForm
+        {...formProps}
+        getAssociatedContract={getAssociatedContract}
+      />
+    ),
+    renderName,
+    newItem: newContract,
+    resetAssociatedItem: resetAssociatedItem,
+    datas: contractsQuery?.data?.contracts || [],
+    refetchQuery: queries.contracts,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      data: {
-        _id: data._id,
-        name: renderName(data),
-        datas: data.contracts,
-        mainTypeId: data.mainTypeId,
-        mainType: data.mainType,
-        relType: 'contract'
-      },
-      search,
-      clearState: () => search(''),
-      title: 'Contract',
-      renderForm: formProps => (
-        <ContractForm
-          {...formProps}
-          getAssociatedContract={getAssociatedContract}
-        />
-      ),
-      renderName,
-      newItem: this.state.newContract,
-      resetAssociatedItem: this.resetAssociatedItem,
-      datas: contractsQuery.contracts || [],
-      refetchQuery: queries.contracts
-    };
-
-    return <Chooser limit={1} {...updatedProps} />;
-  }
-}
-
-const WithQuery = withProps<Props>(
-  compose(
-    graphql<
-      Props & WrapperProps,
-      ContractsQueryResponse,
-      { searchValue: string; perPage: number }
-    >(gql(queries.contracts), {
-      name: 'contractsQuery',
-      options: ({ searchValue, perPage, data }) => {
-        return {
-          variables: {
-            searchValue,
-            perPage,
-            mainType: data.mainType,
-            mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated,
-            sortField: 'createdAt',
-            sortDirection: -1
-          },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
-        };
-      }
-    }),
-    // mutations
-    graphql<{}, AddMutationResponse, IContractDoc>(
-      gql(mutations.contractsAdd),
-      {
-        name: 'contractsAdd'
-      }
-    )
-  )(ContractChooser)
-);
+  return <Chooser limit={1} {...updatedProps} />;
+};
 
 type WrapperProps = {
   data: {
@@ -128,39 +89,29 @@ type WrapperProps = {
   closeModal: () => void;
 };
 
-export default class Wrapper extends React.Component<
-  WrapperProps,
-  {
-    perPage: number;
-    searchValue: string;
-  }
-> {
-  constructor(props) {
-    super(props);
+const Wrapper = (props: WrapperProps) => {
+  const [perPage, setPerPage] = useState(20);
+  const [searchValue, setSearchValue] = useState('');
 
-    this.state = { perPage: 20, searchValue: '' };
-  }
-
-  search = (value, loadmore) => {
+  const search = (value, loadmore) => {
     let perPage = 20;
 
     if (loadmore) {
-      perPage = this.state.perPage + 20;
+      perPage = perPage + 20;
     }
 
-    return this.setState({ perPage, searchValue: value });
+    setPerPage(perPage);
+    setSearchValue(value);
   };
 
-  render() {
-    const { searchValue, perPage } = this.state;
+  return (
+    <ContractChooser
+      {...props}
+      search={search}
+      searchValue={searchValue}
+      perPage={perPage}
+    />
+  );
+};
 
-    return (
-      <WithQuery
-        {...this.props}
-        search={this.search}
-        searchValue={searchValue}
-        perPage={perPage}
-      />
-    );
-  }
-}
+export default Wrapper;

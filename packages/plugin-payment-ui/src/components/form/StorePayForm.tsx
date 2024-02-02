@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { IPaymentDocument, IStorepayConfig } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
@@ -30,31 +30,27 @@ type State = {
   storeId: string;
 };
 
-class StorepayConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const StorepayConfigForm: React.FC<Props> = (props) => {
+  const { payment } = props;
+  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const {
+    storeId,
+    merchantPassword,
+    merchantUsername,
+    appUsername,
+    appPassword,
+  } = config || ({} as IStorepayConfig);
 
-    const { payment } = this.props;
-    const { name = '', config } = payment || ({} as IPaymentDocument);
-    const {
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
-    } = config || ({} as IStorepayConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name,
+    storeId,
+    merchantPassword,
+    merchantUsername,
+    appUsername,
+    appPassword,
+  });
 
-    this.state = {
-      paymentName: name,
-      storeId,
-      merchantPassword,
-      merchantUsername,
-      appUsername,
-      appPassword
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     storeId: string;
     merchantPassword: string;
@@ -62,7 +58,7 @@ class StorepayConfigForm extends React.Component<Props, State> {
     appUsername: string;
     appPassword: string;
   }) => {
-    const { payment } = this.props;
+    const { payment } = props;
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.STOREPAY,
@@ -72,24 +68,24 @@ class StorepayConfigForm extends React.Component<Props, State> {
         merchantPassword: values.merchantPassword,
         merchantUsername: values.merchantUsername,
         appUsername: values.appUsername,
-        appPassword: values.appPassword
-      }
+        appPassword: values.appPassword,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
-    const value = this.state[key];
+    const value = state[key];
 
     return (
       <FormGroup>
@@ -97,7 +93,7 @@ class StorepayConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={onChangeConfig.bind(this, key)}
           value={value}
           type={isPassword ? 'password' : ''}
         />
@@ -105,8 +101,8 @@ class StorepayConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = props;
     const { isSubmitted } = formProps;
     const {
       paymentName,
@@ -114,8 +110,8 @@ class StorepayConfigForm extends React.Component<Props, State> {
       merchantPassword,
       merchantUsername,
       appUsername,
-      appPassword
-    } = this.state;
+      appPassword,
+    } = state;
 
     const values = {
       paymentName,
@@ -123,18 +119,18 @@ class StorepayConfigForm extends React.Component<Props, State> {
       merchantPassword,
       merchantUsername,
       appUsername,
-      appPassword
+      appPassword,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('storeId', 'Store id')}
-          {this.renderItem('merchantUsername', 'Merchant username')}
-          {this.renderItem('merchantPassword', 'Merchant password', '', true)}
-          {this.renderItem('appUsername', 'App username')}
-          {this.renderItem('appPassword', 'App password', '', true)}
+          {renderItem('paymentName', 'Name')}
+          {renderItem('storeId', 'Store id')}
+          {renderItem('merchantUsername', 'Merchant username')}
+          {renderItem('merchantPassword', 'Merchant password', '', true)}
+          {renderItem('appUsername', 'App username')}
+          {renderItem('appPassword', 'App password', '', true)}
 
           <a
             href="https://docs.google.com/forms/d/e/1FAIpQLScxZItJ5egDhNqSOMTj6np6d9yrb5zW9micqvqxHFcyhsRszg/viewform"
@@ -155,19 +151,17 @@ class StorepayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'storepay',
-            values: this.generateDoc(values),
+            passedName: 'storepay',
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default StorepayConfigForm;

@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { IPaymentDocument, IQpayConfig } from '../../types';
 
 import { PAYMENT_KINDS } from '../constants';
@@ -27,58 +27,52 @@ type State = {
   qpayInvoiceCode: string;
 };
 
-class QpayConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const QpayConfigForm: React.FC<Props> = (props) => {
+  const { payment } = props;
+  const { name, config } = payment || ({} as IPaymentDocument);
 
-    const { payment } = this.props;
-    const { name, config } = payment || ({} as IPaymentDocument);
+  const { qpayMerchantUser, qpayMerchantPassword, qpayInvoiceCode } =
+    config || ({} as IQpayConfig);
 
-    const { qpayMerchantUser, qpayMerchantPassword, qpayInvoiceCode } =
-      config || ({} as IQpayConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name || '',
+    qpayMerchantUser: qpayMerchantUser || '',
+    qpayMerchantPassword: qpayMerchantPassword || '',
+    qpayInvoiceCode: qpayInvoiceCode || '',
+  });
 
-    this.state = {
-      paymentName: name || '',
-      qpayMerchantUser: qpayMerchantUser || '',
-      qpayMerchantPassword: qpayMerchantPassword || '',
-      qpayInvoiceCode: qpayInvoiceCode || ''
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     qpayMerchantUser: string;
     qpayMerchantPassword: string;
     qpayInvoiceCode: string;
   }) => {
-    const { payment } = this.props;
+    const { payment } = props;
     const generatedValues = {
       name: values.paymentName,
-      kind: this.props.isWechatpay
-        ? PAYMENT_KINDS.WECHATPAY
-        : PAYMENT_KINDS.QPAY,
+      kind: props.isWechatpay ? PAYMENT_KINDS.WECHATPAY : PAYMENT_KINDS.QPAY,
       status: 'active',
       config: {
         qpayMerchantUser: values.qpayMerchantUser,
         qpayMerchantPassword: values.qpayMerchantPassword,
-        qpayInvoiceCode: values.qpayInvoiceCode
-      }
+        qpayInvoiceCode: values.qpayInvoiceCode,
+      },
     };
 
     return payment ? { id: payment._id, ...generatedValues } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
-    const value = this.state[key];
+    const value = state[key];
 
     return (
       <FormGroup>
@@ -86,7 +80,7 @@ class QpayConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={onChangeConfig.bind(this, key)}
           value={value}
           type={isPassword ? 'password' : ''}
         />
@@ -94,34 +88,34 @@ class QpayConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = props;
     const { isSubmitted } = formProps;
 
     const {
       paymentName,
       qpayMerchantUser,
       qpayMerchantPassword,
-      qpayInvoiceCode
-    } = this.state;
+      qpayInvoiceCode,
+    } = state;
 
     const values = {
       paymentName,
       qpayMerchantUser,
       qpayMerchantPassword,
-      qpayInvoiceCode
+      qpayInvoiceCode,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('qpayMerchantUser', 'Username')}
-          {this.renderItem('qpayMerchantPassword', 'Password', '', true)}
-          {this.renderItem('qpayInvoiceCode', 'Invoice code')}
+          {renderItem('paymentName', 'Name')}
+          {renderItem('qpayMerchantUser', 'Username')}
+          {renderItem('qpayMerchantPassword', 'Password', '', true)}
+          {renderItem('qpayInvoiceCode', 'Invoice code')}
 
-          {this.props.metaData && this.props.metaData.link && (
-            <a href={this.props.metaData.link} target="_blank" rel="noreferrer">
+          {props.metaData && props.metaData.link && (
+            <a href={props.metaData.link} target="_blank" rel="noreferrer">
               {__('Contact with QPay')}
             </a>
           )}
@@ -138,18 +132,16 @@ class QpayConfigForm extends React.Component<Props, State> {
           </Button>
           {renderButton({
             passedName: 'payment',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default QpayConfigForm;

@@ -4,13 +4,11 @@ import {
   Button,
   confirm,
   DropdownToggle,
-  FieldStyle,
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
   Sidebar,
-  SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import React from 'react';
@@ -25,23 +23,14 @@ type Props = {
   remove?: () => void;
 };
 
-class DetailInfo extends React.Component<Props> {
-  renderRow = (label, value) => {
-    return (
-      <li>
-        <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
-      </li>
-    );
-  };
-
-  renderAction() {
-    const { remove } = this.props;
+const DetailInfo = (props: Props) => {
+  const renderAction = () => {
+    const { remove } = props;
 
     const onDelete = () =>
       confirm()
         .then(() => remove && remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -64,38 +53,36 @@ class DetailInfo extends React.Component<Props> {
         </Dropdown>
       </Action>
     );
-  }
+  };
 
-  render() {
-    const { periodLock } = this.props;
-    const { Section } = Sidebar;
+  const { periodLock } = props;
+  const { Section } = Sidebar;
 
-    const content = props => (
-      <PeriodLockForm {...props} periodLock={periodLock} />
-    );
+  const content = (props) => (
+    <PeriodLockForm {...props} periodLock={periodLock} />
+  );
 
-    return (
-      <Sidebar wide={true}>
-        <Sidebar.Section>
-          <InfoWrapper>
-            <Name>{dayjs(periodLock.date).format('ll')}</Name>
-            <ModalTrigger
-              title={__('Edit basic info')}
-              trigger={<Icon icon="edit" />}
-              size="lg"
-              content={content}
-            />
-          </InfoWrapper>
+  return (
+    <Sidebar wide={true}>
+      <Sidebar.Section>
+        <InfoWrapper>
+          <Name>{dayjs(periodLock.date).format('ll')}</Name>
+          <ModalTrigger
+            title={__('Edit basic info')}
+            trigger={<Icon icon="edit" />}
+            size="lg"
+            content={content}
+          />
+        </InfoWrapper>
 
-          {this.renderAction()}
+        {renderAction()}
 
-          <Section>
-            <SidebarList className="no-link"></SidebarList>
-          </Section>
-        </Sidebar.Section>
-      </Sidebar>
-    );
-  }
-}
+        <Section>
+          <SidebarList className="no-link"></SidebarList>
+        </Section>
+      </Sidebar.Section>
+    </Sidebar>
+  );
+};
 
 export default DetailInfo;

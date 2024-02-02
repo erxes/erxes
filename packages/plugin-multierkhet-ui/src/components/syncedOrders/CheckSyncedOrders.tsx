@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import React, { useState } from 'react';
 import Row from './CheckSyncedOrdersRow';
 import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -20,7 +20,7 @@ type Props = {
   emptyBulk: () => void;
   checkSynced: (
     doc: { orderIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
@@ -30,31 +30,27 @@ type Props = {
   posList?: any[];
 };
 
-type State = {
-  contentLoading: boolean;
-};
+const CheckSyncedOrders = (props: Props) => {
+  const [contentLoading, setContentLoading] = useState(props.loading);
+  const {
+    orders,
+    history,
+    toggleBulk,
+    bulk,
+    unSyncedOrderIds,
+    toSyncOrders,
+    syncedOrderInfos,
+    totalCount,
+    queryParams,
+    isAllSelected,
+    loading,
+    posList,
+    toggleAll,
+    emptyBulk,
+  } = props;
 
-class CheckSyncedOrders extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      contentLoading: this.props.loading
-    };
-  }
-
-  renderRow = () => {
-    const {
-      orders,
-      history,
-      toggleBulk,
-      bulk,
-      unSyncedOrderIds,
-      toSyncOrders,
-      syncedOrderInfos
-    } = this.props;
-
-    return orders?.map(order => (
+  const renderRow = () => {
+    return orders?.map((order) => (
       <Row
         history={history}
         key={order._id}
@@ -68,153 +64,138 @@ class CheckSyncedOrders extends React.Component<Props, State> {
     ));
   };
 
-  onChange = () => {
-    const { toggleAll, orders } = this.props;
+  const onChange = () => {
     toggleAll(orders, 'orders');
   };
 
-  checkSynced = async (_orders: any) => {
+  const checkSynced = async (_orders: any) => {
     const orderIds: string[] = [];
 
-    _orders.forEach(order => {
+    _orders.forEach((order) => {
       orderIds.push(order._id);
     });
 
-    await this.props.checkSynced({ orderIds }, this.props.emptyBulk);
+    await props.checkSynced({ orderIds }, emptyBulk);
   };
 
-  render() {
-    const {
-      totalCount,
-      queryParams,
-      isAllSelected,
-      bulk,
-      loading,
-      unSyncedOrderIds,
-      toSyncOrders,
-      posList
-    } = this.props;
-    const tablehead = [
-      'Number',
-      'Total Amount',
-      'Created At',
-      'Paid At',
-      'Synced',
-      'Brand',
-      'Synced Date',
-      'Synced bill Number',
-      'Synced customer',
-      'Sync Actions'
-    ];
-    const Content = (
-      <Table>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            {tablehead?.map(p => (
-              <th key={p}>{p || ''}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
+  const tablehead = [
+    'Number',
+    'Total Amount',
+    'Created At',
+    'Paid At',
+    'Synced',
+    'Brand',
+    'Synced Date',
+    'Synced bill Number',
+    'Synced customer',
+    'Sync Actions',
+  ];
+  const Content = (
+    <Table>
+      <thead>
+        <tr>
+          <th style={{ width: 60 }}>
+            <FormControl
+              checked={isAllSelected}
+              componentClass="checkbox"
+              onChange={onChange}
+            />
+          </th>
+          {tablehead?.map((p) => <th key={p}>{p || ''}</th>)}
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
-    const sidebar = (
-      <CheckSyncedOrdersSidebar
-        queryParams={queryParams}
-        history={this.props.history}
-        posList={posList}
-      />
-    );
+  const sidebar = (
+    <CheckSyncedOrdersSidebar
+      queryParams={queryParams}
+      history={history}
+      posList={posList}
+    />
+  );
 
-    const onClickCheck = () => {
-      confirm()
-        .then(async () => {
-          this.setState({ contentLoading: true });
-          await this.checkSynced(bulk);
-          this.setState({ contentLoading: false });
-        })
-        .catch(error => {
-          Alert.error(error.message);
-          this.setState({ contentLoading: false });
-        });
-    };
+  const onClickCheck = () => {
+    confirm()
+      .then(async () => {
+        setContentLoading(true);
+        await checkSynced(bulk);
+        setContentLoading(false);
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+        setContentLoading(false);
+      });
+  };
 
-    const onClickSync = () =>
-      confirm()
-        .then(() => {
-          toSyncOrders(unSyncedOrderIds);
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+  const onClickSync = () =>
+    confirm()
+      .then(() => {
+        toSyncOrders(unSyncedOrderIds);
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
 
-    const actionBarRight = (
-      <BarItems>
-        {bulk.length > 0 && (
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="check-1"
-            onClick={onClickCheck}
-          >
-            Check
-          </Button>
-        )}
-        {unSyncedOrderIds.length > 0 && (
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="sync"
-            onClick={onClickSync}
-          >
-            {`Sync all (${unSyncedOrderIds.length})`}
-          </Button>
-        )}
-      </BarItems>
-    );
+  const actionBarRight = (
+    <BarItems>
+      {bulk.length > 0 && (
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="check-1"
+          onClick={onClickCheck}
+        >
+          Check
+        </Button>
+      )}
+      {unSyncedOrderIds.length > 0 && (
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="sync"
+          onClick={onClickSync}
+        >
+          {`Sync all (${unSyncedOrderIds.length})`}
+        </Button>
+      )}
+    </BarItems>
+  );
 
-    const content = (
-      <DataWithLoader
-        data={Content}
-        loading={this.state.contentLoading && loading}
-        count={totalCount}
-        emptyText="Empty list"
-        emptyImage="/images/actions/1.svg"
-      />
-    );
+  const content = (
+    <DataWithLoader
+      data={Content}
+      loading={contentLoading && loading}
+      count={totalCount}
+      emptyText="Empty list"
+      emptyImage="/images/actions/1.svg"
+    />
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Check erkhet`)}
-            queryParams={queryParams}
-            submenu={menuMultierkhet}
-          />
-        }
-        leftSidebar={sidebar}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>Orders</Title>}
-            right={actionBarRight}
-            // withMargin
-            // wide
-            background="colorWhite"
-          />
-        }
-        content={content}
-        footer={<Pagination count={totalCount} />}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Check erkhet`)}
+          queryParams={queryParams}
+          submenu={menuMultierkhet}
+        />
+      }
+      leftSidebar={sidebar}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>Orders</Title>}
+          right={actionBarRight}
+          // withMargin
+          // wide
+          background="colorWhite"
+        />
+      }
+      content={content}
+      footer={<Pagination count={totalCount} />}
+    />
+  );
+};
 
 export default CheckSyncedOrders;

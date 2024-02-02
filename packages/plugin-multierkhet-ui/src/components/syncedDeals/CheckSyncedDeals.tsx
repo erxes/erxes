@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import CheckSyncedDealsSidebar from './CheckSyncedDealsSidebar';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import React, { useState } from 'react';
 import Row from './CheckSyncedDealsRow';
 import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -20,7 +20,7 @@ type Props = {
   emptyBulk: () => void;
   checkSynced: (
     doc: { dealIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
@@ -29,41 +29,35 @@ type Props = {
   toSyncDeals: (
     dealIds: string[],
     configStageId: string,
-    dateType: string
+    dateType: string,
   ) => void;
   dateType: string;
 };
 
-type State = {
-  contentLoading: boolean;
-};
+const CheckSyncedDeals = (props: Props) => {
+  const [contentLoading, setContentLoading] = useState(props.loading);
+  const {
+    deals,
+    history,
+    queryParams,
+    toggleBulk,
+    bulk,
+    unSyncedDealIds,
+    toSyncDeals,
+    syncedDealInfos,
+    toggleAll,
+    emptyBulk,
+    isAllSelected,
+    loading,
+    totalCount,
+  } = props;
 
-class CheckSyncedDeals extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      contentLoading: this.props.loading
-    };
-  }
-
-  renderRow = () => {
-    const {
-      deals,
-      history,
-      queryParams,
-      toggleBulk,
-      bulk,
-      unSyncedDealIds,
-      toSyncDeals,
-      syncedDealInfos
-    } = this.props;
-
-    const toSync = dealIds => {
+  const renderRow = () => {
+    const toSync = (dealIds) => {
       toSyncDeals(dealIds, queryParams.configStageId, queryParams.dateType);
     };
 
-    return deals.map(deal => (
+    return deals.map((deal) => (
       <Row
         history={history}
         key={deal._id}
@@ -77,157 +71,143 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     ));
   };
 
-  onChange = () => {
-    const { toggleAll, deals } = this.props;
+  const onChange = () => {
     toggleAll(deals, 'deals');
   };
 
-  checkSynced = async deals => {
+  const checkSynced = async (deals) => {
     const dealIds: string[] = [];
 
-    deals.forEach(deal => {
+    deals.forEach((deal) => {
       dealIds.push(deal._id);
     });
 
-    await this.props.checkSynced({ dealIds }, this.props.emptyBulk);
+    await props.checkSynced({ dealIds }, emptyBulk);
   };
 
-  render() {
-    const {
-      totalCount,
-      loading,
-      queryParams,
-      isAllSelected,
-      bulk,
-      unSyncedDealIds,
-      toSyncDeals
-    } = this.props;
+  const tablehead = [
+    'deal name',
+    'deal number',
+    'Amount',
+    'created At',
+    'modified At',
+    'stage Changed Date',
+    'Un Synced',
+    'Brand',
+    'Synced Date',
+    'Synced bill Number',
+    'Synced Customer',
+    'Sync Actions',
+  ];
 
-    const tablehead = [
-      'deal name',
-      'deal number',
-      'Amount',
-      'created At',
-      'modified At',
-      'stage Changed Date',
-      'Un Synced',
-      'Brand',
-      'Synced Date',
-      'Synced bill Number',
-      'Synced Customer',
-      'Sync Actions'
-    ];
+  const Content = (
+    <Table>
+      <thead>
+        <tr>
+          <th style={{ width: 60 }}>
+            <FormControl
+              checked={isAllSelected}
+              componentClass="checkbox"
+              onChange={onChange}
+            />
+          </th>
+          {tablehead.map((p) => (
+            <th key={p}>{p || ''}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
-    const Content = (
-      <Table>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            {tablehead.map(p => (
-              <th key={p}>{p || ''}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
+  const sidebar = (
+    <CheckSyncedDealsSidebar
+      queryParams={queryParams}
+      history={props.history}
+    />
+  );
 
-    const sidebar = (
-      <CheckSyncedDealsSidebar
-        queryParams={queryParams}
-        history={this.props.history}
-      />
-    );
+  const onClickCheck = () => {
+    confirm()
+      .then(async () => {
+        setContentLoading(true);
+        setContentLoading(false);
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+        setContentLoading(false);
+      });
+  };
 
-    const onClickCheck = () => {
-      confirm()
-        .then(async () => {
-          this.setState({ contentLoading: true });
-          await this.checkSynced(bulk);
-          this.setState({ contentLoading: false });
-        })
-        .catch(error => {
-          Alert.error(error.message);
-          this.setState({ contentLoading: false });
-        });
-    };
+  const onClickSync = () =>
+    confirm()
+      .then(() => {
+        toSyncDeals(
+          unSyncedDealIds,
+          queryParams.configStageId,
+          queryParams.dateType,
+        );
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
 
-    const onClickSync = () =>
-      confirm()
-        .then(() => {
-          toSyncDeals(
-            unSyncedDealIds,
-            queryParams.configStageId,
-            queryParams.dateType
-          );
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+  const actionBarRight = (
+    <BarItems>
+      {bulk.length > 0 && (
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="check-1"
+          onClick={onClickCheck}
+        >
+          Check
+        </Button>
+      )}
+      {unSyncedDealIds.length > 0 && (
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="sync"
+          onClick={onClickSync}
+        >
+          {`Sync all (${unSyncedDealIds.length})`}
+        </Button>
+      )}
+    </BarItems>
+  );
 
-    const actionBarRight = (
-      <BarItems>
-        {bulk.length > 0 && (
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="check-1"
-            onClick={onClickCheck}
-          >
-            Check
-          </Button>
-        )}
-        {unSyncedDealIds.length > 0 && (
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="sync"
-            onClick={onClickSync}
-          >
-            {`Sync all (${unSyncedDealIds.length})`}
-          </Button>
-        )}
-      </BarItems>
-    );
+  const content = (
+    <DataWithLoader
+      data={Content}
+      loading={loading || contentLoading}
+      count={totalCount}
+      emptyText="Empty list"
+      emptyImage="/images/actions/1.svg"
+    />
+  );
 
-    const content = (
-      <DataWithLoader
-        data={Content}
-        loading={loading || this.state.contentLoading}
-        count={totalCount}
-        emptyText="Empty list"
-        emptyImage="/images/actions/1.svg"
-      />
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Check erkhet`)}
-            queryParams={queryParams}
-            submenu={menuMultierkhet}
-          />
-        }
-        leftSidebar={sidebar}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>Deals</Title>}
-            right={actionBarRight}
-            background="colorWhite"
-          />
-        }
-        content={content}
-        footer={<Pagination count={totalCount} />}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Check erkhet`)}
+          queryParams={queryParams}
+          submenu={menuMultierkhet}
+        />
+      }
+      leftSidebar={sidebar}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>Deals</Title>}
+          right={actionBarRight}
+          background="colorWhite"
+        />
+      }
+      content={content}
+      footer={<Pagination count={totalCount} />}
+    />
+  );
+};
 
 export default CheckSyncedDeals;

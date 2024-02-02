@@ -9,32 +9,24 @@ interface IProps {
   invoices: IInvoice[];
 }
 
-class InvoiceList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
+const InvoiceList = (props: IProps) => {
+  const { invoices } = props;
 
-    this.state = {};
-  }
-
-  render() {
-    const { invoices } = this.props;
-
-    return (
-      <Table striped>
-        <thead>
-          <tr>
-            <th>{__('Date')}</th>
-            <th>{__('Stored interest')}</th>
-          </tr>
-        </thead>
-        <tbody id="schedules">
-          {invoices.map(schedule => (
-            <ScheduleRow schedule={schedule} key={schedule._id}></ScheduleRow>
-          ))}
-        </tbody>
-      </Table>
-    );
-  }
-}
+  return (
+    <Table striped>
+      <thead>
+        <tr>
+          <th>{__('Date')}</th>
+          <th>{__('Stored interest')}</th>
+        </tr>
+      </thead>
+      <tbody id="schedules">
+        {invoices.map((schedule) => (
+          <ScheduleRow schedule={schedule} key={schedule._id}></ScheduleRow>
+        ))}
+      </tbody>
+    </Table>
+  );
+};
 
 export default InvoiceList;

@@ -1,5 +1,5 @@
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
+import React, { useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 
 import PaymentList from '../containers/PaymentList';
@@ -13,27 +13,16 @@ type Props = {
   paymentsCount?: ByKindTotalCount;
 };
 
-type State = {
-  isContentVisible: boolean;
-  kind: string | null;
-};
+const Row: React.FC<Props> = (props) => {
+  const { payments, paymentsCount, queryParams } = props;
 
-class Row extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [state, setState] = useState({
+    isContentVisible: Boolean(queryParams.kind) || false,
+    kind: queryParams.kind,
+  });
 
-    const {
-      queryParams: { kind }
-    } = props;
-
-    this.state = {
-      isContentVisible: Boolean(kind) || false,
-      kind
-    };
-  }
-
-  getClassName = type => {
-    const { kind, isContentVisible } = this.state;
+  const getClassName = (type) => {
+    const { kind, isContentVisible } = state;
 
     if (!isContentVisible) {
       return '';
@@ -46,14 +35,14 @@ class Row extends React.Component<Props, State> {
     return '';
   };
 
-  toggleBox = (selectedKind: string, isAvailable?: boolean) => {
+  const toggleBox = (selectedKind: string, isAvailable?: boolean) => {
     if (isAvailable && !isAvailable) {
       return null;
     }
 
-    const { isContentVisible, kind } = this.state;
+    const { isContentVisible, kind } = state;
 
-    this.setState(prevState => {
+    setState((prevState) => {
       if (
         prevState.kind === selectedKind ||
         kind === null ||
@@ -64,37 +53,37 @@ class Row extends React.Component<Props, State> {
 
       return {
         kind: selectedKind,
-        isContentVisible: prevState.isContentVisible
+        isContentVisible: prevState.isContentVisible,
       };
     });
 
     return null;
   };
 
-  renderPagination(totalCount) {
+  const renderPagination = (totalCount) => {
     if (!totalCount || totalCount <= 20) {
       return null;
     }
 
     return <Pagination count={totalCount} />;
-  }
+  };
 
-  renderEntry(payment, paymentsCount, queryParams) {
+  const renderEntry = (payment, paymentsCount, queryParams) => {
     const commonProp = {
       key: payment.name,
       payment,
-      toggleBox: this.toggleBox,
-      getClassName: this.getClassName,
+      toggleBox: toggleBox,
+      getClassName: getClassName,
       paymentsCount,
-      queryParams
+      queryParams,
     };
 
     return <PaymentEntry {...commonProp} />;
-  }
+  };
 
-  renderList() {
-    const { queryParams, paymentsCount } = this.props;
-    const kind = this.state.kind || '';
+  const renderList = () => {
+    const { queryParams, paymentsCount } = props;
+    const kind = state.kind || '';
     const count = (paymentsCount && paymentsCount[kind]) || 0;
 
     return (
@@ -104,32 +93,28 @@ class Row extends React.Component<Props, State> {
           queryParams={queryParams}
           paymentsCount={count}
         />
-        {this.renderPagination(count)}
+        {renderPagination(count)}
       </>
     );
-  }
+  };
 
-  render() {
-    const { payments, paymentsCount, queryParams } = this.props;
+  const selected = payments.find((payment) => payment.kind === state.kind);
 
-    const selected = payments.find(payment => payment.kind === this.state.kind);
-
-    return (
-      <>
-        <PaymentRow>
-          {payments.map(payment =>
-            this.renderEntry(payment, paymentsCount, queryParams)
-          )}
-        </PaymentRow>
-        <Collapse
-          in={this.state.isContentVisible && selected ? true : false}
-          unmountOnExit={true}
-        >
-          <CollapsibleContent>{this.renderList()}</CollapsibleContent>
-        </Collapse>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <PaymentRow>
+        {payments.map((payment) =>
+          renderEntry(payment, paymentsCount, queryParams),
+        )}
+      </PaymentRow>
+      <Collapse
+        in={state.isContentVisible && selected ? true : false}
+        unmountOnExit={true}
+      >
+        <CollapsibleContent>{renderList()}</CollapsibleContent>
+      </Collapse>
+    </>
+  );
+};
 
 export default Row;

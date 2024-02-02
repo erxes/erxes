@@ -13,9 +13,9 @@ import { gql } from '@apollo/client';
 
 type Props = {} & IRouterProps;
 
-class ZaloContainer extends React.Component<Props> {
-  renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const { history } = this.props;
+const ZaloContainer = (props: Props) => {
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+    const { history } = props;
 
     const callback = () => {
       history.push('/settings/integrations');
@@ -34,15 +34,13 @@ class ZaloContainer extends React.Component<Props> {
     );
   };
 
-  render() {
-    const updatedProps = {
-      ...this.props,
-      renderButton: this.renderButton,
-    };
+  const updatedProps = {
+    ...props,
+    renderButton: renderButton,
+  };
 
-    return <Form {...updatedProps} />;
-  }
-}
+  return <Form {...updatedProps} />;
+};
 
 const getRefetchQueries = (kind: string) => {
   return [

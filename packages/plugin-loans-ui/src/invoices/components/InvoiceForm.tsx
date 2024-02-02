@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -10,7 +8,7 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IInvoice, IInvoiceDoc } from '../types';
@@ -18,21 +16,20 @@ import { IInvoice, IInvoiceDoc } from '../types';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
-import { setTimeout } from 'timers';
 
 const SelectCompanies = asyncComponent(
   () =>
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    )
+    ),
 );
 
 const SelectCustomers = asyncComponent(
@@ -40,7 +37,7 @@ const SelectCustomers = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    )
+    ),
 );
 
 type Props = {
@@ -51,49 +48,30 @@ type Props = {
   customers: ICustomer[];
 };
 
-type State = {
-  companyId: string;
-  customerId: string;
+const InvoiceForm = (props: Props) => {
+  const { invoice = {} as IInvoice, companies, customers } = props;
 
-  number: string;
-  payDate: Date;
-  payment: number;
-  interestEve: number;
-  interestNonce: number;
-  undue: number;
-  insurance: number;
-  debt: number;
-  total: number;
-};
+  const [number, setNumber] = useState(invoice.number || '');
+  const [payDate, setPayDate] = useState(invoice.payDate || '');
+  const [payment, setPayment] = useState(invoice.payment || 0);
+  const [interestEve, setInterestEve] = useState(invoice.interestEve || 0);
+  const [interestNonce, setInterestNonce] = useState(
+    invoice.interestNonce || 0,
+  );
+  const [undue, setUndue] = useState(invoice.undue || 0);
+  const [insurance, setInsurance] = useState(invoice.insurance || 0);
+  const [debt, setDebt] = useState(invoice.debt || 0);
+  const [total, setTotal] = useState(invoice.total || 0);
+  const [companyId, setCompanyId] = useState(
+    invoice.companyId ||
+      (companies && companies.length ? companies[0]._id : ''),
+  );
+  const [customerId, setCustomerId] = useState(
+    invoice.customerId ||
+      (customers && customers.length ? customers[0]._id : ''),
+  );
 
-class InvoiceForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { invoice = {}, companies, customers } = props;
-
-    this.state = {
-      number: invoice.number || '',
-      payDate: invoice.payDate || '',
-      payment: invoice.payment || 0,
-      interestEve: invoice.interestEve || 0,
-      interestNonce: invoice.interestNonce || 0,
-      undue: invoice.undue || 0,
-      insurance: invoice.insurance || 0,
-      debt: invoice.debt || 0,
-      total: invoice.total || 0,
-      companyId:
-        invoice.companyId ||
-        (companies && companies.length ? companies[0]._id : ''),
-      customerId:
-        invoice.customerId ||
-        (customers && customers.length ? customers[0]._id : '')
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IInvoiceDoc) => {
-    const { invoice } = this.props;
-
+  const generateDoc = (values: { _id: string } & IInvoiceDoc) => {
     const finalValues = values;
 
     if (invoice && invoice._id) {
@@ -103,20 +81,21 @@ class InvoiceForm extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       contractId: invoice.contractId,
-      ...this.state,
-      number: this.state.number,
+      companyId,
+      customerId,
+      number: number,
       payDate: finalValues.payDate,
-      payment: Number(this.state.payment),
-      interestEve: Number(this.state.interestEve),
-      interestNonce: Number(this.state.interestNonce),
-      undue: Number(this.state.undue),
-      insurance: Number(this.state.insurance),
-      debt: Number(this.state.debt),
-      total: Number(this.state.total)
+      payment: Number(payment),
+      interestEve: Number(interestEve),
+      interestNonce: Number(interestNonce),
+      undue: Number(undue),
+      insurance: Number(insurance),
+      debt: Number(debt),
+      total: Number(total),
     };
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
@@ -125,60 +104,74 @@ class InvoiceForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const invoice = this.props.invoice || ({} as IInvoice);
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     const onSelect = (value, name) => {
-      this.setState({ [name]: value } as any);
+      if (name === 'companyId') {
+        setCompanyId(value);
+      }
+      if (name === 'customerId') {
+        setCustomerId(value);
+      }
     };
 
-    const onChangeField = e => {
-      this.setState({
-        [(e.target as HTMLInputElement).name]: (e.target as HTMLInputElement)
-          .value
-      } as any);
+    const onChangeField = (e) => {
+      const name = (e.target as HTMLInputElement).name;
+      const value = (e.target as HTMLInputElement).value;
+      if (name === 'number') {
+        setNumber(value as any);
+      }
+      if (name === 'payment') {
+        setPayment(value as any);
+      }
+      if (name === 'interestEve') {
+        setInterestEve(value as any);
+      }
+      if (name === 'interestNonce') {
+        setInterestNonce(value as any);
+      }
+      if (name === 'undue') {
+        setUndue(value as any);
+      }
+      if (name === 'insurance') {
+        setInsurance(value as any);
+      }
+      if (name === 'debt') {
+        setDebt(value as any);
+      }
 
       setTimeout(() => {
-        const {
-          payment,
-          interestEve,
-          interestNonce,
-          undue,
-          insurance
-        } = this.state;
         const total =
           Number(payment) +
           Number(interestEve) +
           Number(interestNonce) +
           Number(undue) +
           Number(insurance);
-        this.setState({ total });
+        setTotal(total);
       }, 100);
     };
 
-    const onChangePayDate = value => {
+    const onChangePayDate = (value) => {
       client
         .query({
           query: gql(queries.getInvoicePreInfo),
           fetchPolicy: 'network-only',
-          variables: { contractId: invoice.contractId, payDate: value }
+          variables: { contractId: invoice.contractId, payDate: value },
         })
         .then(({ data }) => {
           const invoiceInfo = data.getInvoicePreInfo;
-          this.setState({
-            number: invoiceInfo.number,
-            payment: invoiceInfo.payment,
-            interestEve: invoiceInfo.interestEve,
-            interestNonce: invoiceInfo.interestNonce,
-            undue: invoiceInfo.undue,
-            insurance: invoiceInfo.insurance,
-            debt: invoiceInfo.debt,
-            total: invoiceInfo.total
-          });
+          setNumber(invoiceInfo.number);
+          setPayment(invoiceInfo.payment);
+          setInterestEve(invoiceInfo.interestEve);
+          setInterestNonce(invoiceInfo.interestNonce);
+          setUndue(invoiceInfo.undue);
+          setInsurance(invoiceInfo.insurance);
+          setDebt(invoiceInfo.debt);
+          setTotal(invoiceInfo.total);
         });
-      this.setState({ payDate: value });
+      setPayDate(value);
     };
 
     return (
@@ -186,11 +179,11 @@ class InvoiceForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderFormGroup('Number', {
+              {renderFormGroup('Number', {
                 ...formProps,
                 name: 'number',
                 onChange: onChangeField,
-                value: this.state.number || ''
+                value: number || '',
               })}
 
               <FormGroup>
@@ -201,7 +194,7 @@ class InvoiceForm extends React.Component<Props, State> {
                     required={false}
                     dateFormat="YYYY/MM/DD"
                     name="payDate"
-                    value={this.state.payDate}
+                    value={payDate}
                     onChange={onChangePayDate}
                   />
                 </DateContainer>
@@ -214,7 +207,7 @@ class InvoiceForm extends React.Component<Props, State> {
                     <SelectCompanies
                       label="Choose an company"
                       name="companyId"
-                      initialValue={this.state.companyId}
+                      initialValue={companyId}
                       onSelect={onSelect}
                       multi={false}
                     />
@@ -225,7 +218,7 @@ class InvoiceForm extends React.Component<Props, State> {
                     <SelectCustomers
                       label="Choose an customer"
                       name="customerId"
-                      initialValue={this.state.customerId}
+                      initialValue={customerId}
                       onSelect={onSelect}
                       multi={false}
                     />
@@ -234,60 +227,60 @@ class InvoiceForm extends React.Component<Props, State> {
               )}
             </FormColumn>
             <FormColumn>
-              {this.renderFormGroup('payment', {
+              {renderFormGroup('payment', {
                 ...formProps,
                 name: 'payment',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.payment || 0
+                value: payment || 0,
               })}
 
-              {this.renderFormGroup('interest eve', {
+              {renderFormGroup('interest eve', {
                 ...formProps,
                 name: 'interestEve',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.interestEve || 0
+                value: interestEve || 0,
               })}
 
-              {this.renderFormGroup('interest nonce', {
+              {renderFormGroup('interest nonce', {
                 ...formProps,
                 name: 'interestNonce',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.interestNonce || 0
+                value: interestNonce || 0,
               })}
 
-              {this.renderFormGroup('undue', {
+              {renderFormGroup('undue', {
                 ...formProps,
                 name: 'undue',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.undue || 0
+                value: undue || 0,
               })}
 
-              {this.renderFormGroup('insurance', {
+              {renderFormGroup('insurance', {
                 ...formProps,
                 name: 'insurance',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.insurance || 0
+                value: insurance || 0,
               })}
 
-              {this.renderFormGroup('debt', {
+              {renderFormGroup('debt', {
                 ...formProps,
                 name: 'debt',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.debt || 0
+                value: debt || 0,
               })}
 
-              {this.renderFormGroup('total', {
+              {renderFormGroup('total', {
                 ...formProps,
                 name: 'total',
                 type: 'number',
-                value: this.state.total || 0,
-                required: true
+                value: total || 0,
+                required: true,
               })}
             </FormColumn>
           </FormWrapper>
@@ -300,18 +293,16 @@ class InvoiceForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'invoice',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.invoice
+            object: props.invoice,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default InvoiceForm;

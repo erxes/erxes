@@ -1,55 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import strip from 'strip';
-import { graphql } from '@apollo/client/react/hoc';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import SimpleMessage from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps, sendDesktopNotification } from '@erxes/ui/src/utils';
+import { sendDesktopNotification } from '@erxes/ui/src/utils';
 
-import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
 import Message from './message/Message';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   currentId: string;
 };
 
-class Detail extends React.Component<any> {
-  private prevMessageInsertedSubscription;
-  private prevTypingInfoSubscription;
+const Detail = (props: Props) => {
+  let prevMessageInsertedSubscription = null as any;
+  let prevTypingInfoSubscription;
+  const { currentId } = props;
 
-  constructor(props) {
-    super(props);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [typingInfo, setTypingInfo] = useState('');
 
-    this.state = { loadingMessages: false, typingInfo: '' };
+  const messagesQuery = useQuery(gql(queries.zaloConversationMessages), {
+    variables: {
+      conversationId: currentId,
+      limit: 0,
+      skip: 0,
+    },
+    fetchPolicy: 'network-only',
+  });
 
-    this.prevMessageInsertedSubscription = null;
-  }
+  const messagesTotalCountQuery = useQuery(
+    gql(queries.zaloConversationMessagesCount),
+    {
+      variables: { conversationId: currentId },
+      fetchPolicy: 'network-only',
+    },
+  );
 
-  componentWillReceiveProps(nextProps) {
-    const { currentId, messagesQuery } = nextProps;
-
+  useEffect(() => {
     // It is first time or subsequent conversation change
-    if (
-      !this.prevMessageInsertedSubscription ||
-      currentId !== this.props.currentId
-    ) {
+    if (!prevMessageInsertedSubscription || currentId !== props.currentId) {
       // Unsubscribe previous subscription ==========
-      if (this.prevMessageInsertedSubscription) {
-        this.prevMessageInsertedSubscription();
+      if (prevMessageInsertedSubscription) {
+        prevMessageInsertedSubscription();
       }
 
-      if (this.prevTypingInfoSubscription) {
-        this.setState({ typingInfo: '' });
-        this.prevTypingInfoSubscription();
+      if (prevTypingInfoSubscription) {
+        setTypingInfo('');
+        prevTypingInfoSubscription();
       }
 
       // Start new subscriptions =============
-      this.prevMessageInsertedSubscription = messagesQuery.subscribeToMore({
+      prevMessageInsertedSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
@@ -59,7 +63,7 @@ class Detail extends React.Component<any> {
             return;
           }
 
-          if (currentId !== this.props.currentId) {
+          if (currentId !== props.currentId) {
             return;
           }
 
@@ -71,7 +75,7 @@ class Detail extends React.Component<any> {
           }
 
           // check whether or not already inserted
-          const prevEntry = messages.find(m => m._id === message._id);
+          const prevEntry = messages.find((m) => m._id === message._id);
 
           if (prevEntry) {
             return;
@@ -80,64 +84,62 @@ class Detail extends React.Component<any> {
           // add new message to messages list
           const next = {
             ...prev,
-            zaloConversationMessages: [...messages, message]
+            zaloConversationMessages: [...messages, message],
           };
 
           // send desktop notification
           sendDesktopNotification({
             title: 'You have a message from Zalo',
-            content: strip(message.content) || ''
+            content: strip(message.content) || '',
           });
 
           return next;
-        }
+        },
       });
 
-      this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
+      prevTypingInfoSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationClientTypingStatusChanged),
         variables: { _id: currentId },
         updateQuery: (
           _prev,
           {
             subscriptionData: {
-              data: { conversationClientTypingStatusChanged }
-            }
-          }
+              data: { conversationClientTypingStatusChanged },
+            },
+          },
         ) => {
-          this.setState({
-            typingInfo: conversationClientTypingStatusChanged.text
-          });
-        }
+          setTypingInfo(conversationClientTypingStatusChanged.text);
+        },
       });
     }
-  }
+  }, [currentId, messagesQuery]);
 
-  loadMoreMessages = () => {
-    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
-    const { zaloConversationMessagesCount } = messagesTotalCountQuery;
-    const conversationMessages = messagesQuery.zaloConversationMessages || [];
+  const loadMoreMessages = () => {
+    const { zaloConversationMessagesCount } = messagesTotalCountQuery.data;
+    const conversationMessages =
+      messagesQuery.data.zaloConversationMessages || [];
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore = zaloConversationMessagesCount > conversationMessages.length;
 
     if (!loading && hasMore) {
-      this.setState({ loadingMessages: true });
+      setLoadingMessages(true);
 
       messagesQuery.fetchMore({
         variables: {
           conversationId: currentId,
           limit: 10,
-          skip: conversationMessages.length
+          skip: conversationMessages.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          this.setState({ loadingMessages: false });
+          setLoadingMessages(false);
 
           if (!fetchMoreResult) {
             return prev;
           }
 
           const prevConversationMessages = prev.zaloConversationMessages || [];
-          const prevMessageIds = prevConversationMessages.map(m => m._id);
+          const prevMessageIds = prevConversationMessages.map((m) => m._id);
 
           const fetchedMessages: any[] = [];
 
@@ -151,15 +153,15 @@ class Detail extends React.Component<any> {
             ...prev,
             zaloConversationMessages: [
               ...fetchedMessages,
-              ...prevConversationMessages
-            ]
+              ...prevConversationMessages,
+            ],
           };
-        }
+        },
       });
     }
   };
 
-  renderMessages(messages: any[], conversationFirstMessage: any) {
+  const renderMessages = (messages: any[], conversationFirstMessage: any) => {
     const rows: React.ReactNode[] = [];
 
     let tempId;
@@ -168,7 +170,7 @@ class Detail extends React.Component<any> {
 
     // return rows
 
-    messages.forEach(message => {
+    messages.forEach((message) => {
       let parsedMessage = message;
       parsedMessage.attachments = message.attachments
         ?.map((attachment: any) => {
@@ -185,7 +187,7 @@ class Detail extends React.Component<any> {
 
           let output: any = {
             type,
-            name
+            name,
           };
 
           console.log(type, url, attachment);
@@ -207,7 +209,7 @@ class Detail extends React.Component<any> {
           message={parsedMessage}
           key={message._id}
           isStaff={message.userId}
-        />
+        />,
       );
 
       tempId = message.userId ? message.userId : message.customerId;
@@ -216,63 +218,18 @@ class Detail extends React.Component<any> {
     console.log('rows:', rows.length);
 
     return rows;
+  };
+
+  if (messagesQuery.loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const {
-      currentConversation,
-      messagesQuery,
-      zaloConversationMessages
-    } = this.props;
+  const messages = messagesQuery.data.zaloConversationMessages || [];
+  console.log('messagesQuery.zaloConversationMessages:', messages.length);
+  return renderMessages(
+    messagesQuery.data.zaloConversationMessages,
+    messages[0],
+  );
+};
 
-    if (messagesQuery.loading) {
-      return <Spinner />;
-    }
-
-    const messages = messagesQuery.zaloConversationMessages || [];
-    console.log('messagesQuery.zaloConversationMessages:', messages.length);
-    return this.renderMessages(
-      messagesQuery.zaloConversationMessages,
-      messages[0]
-    );
-  }
-}
-
-const WithQuery = withProps<Props & { currentUser: IUser }>(
-  compose(
-    // graphql<any>(gql(queries.zaloConversationMessages), {
-    //   name: 'messagesQuery',
-    //   options: ({ currentId }) => {
-    //     return {
-    //       variables: {
-    //         conversationId: currentId
-    //       },
-    //       fetchPolicy: 'network-only'
-    //     };
-    //   }
-    // }),
-    graphql<any>(gql(queries.zaloConversationMessages), {
-      // name: 'zaloConversationMessages',
-      name: 'messagesQuery',
-      options: ({ currentId }) => {
-        return {
-          variables: {
-            conversationId: currentId,
-            limit: 0,
-            skip: 0
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<any>(gql(queries.zaloConversationMessagesCount), {
-      name: 'messagesTotalCountQuery',
-      options: ({ currentId }) => ({
-        variables: { conversationId: currentId },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(Detail)
-);
-
-export default WithQuery;
+export default Detail;

@@ -2,9 +2,9 @@ import {
   Button,
   MainStyleTitle as Title,
   Wrapper,
-  HeaderDescription
+  HeaderDescription,
 } from '@erxes/ui/src';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -27,108 +27,94 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
+const GeneralSettings = (props: Props) => {
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      configsMap: props.configsMap
-    };
-  }
-
-  add = e => {
+  const add = (e) => {
     e.preventDefault();
-    const { configsMap } = this.state;
 
     if (!configsMap.undueConfig) {
       configsMap.undueConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.undueConfig.newUndueConfig = {
+    const newUndueConfig = {
       title: 'New Loss Config',
       startDate: new Date(),
       endDate: new Date(),
-      percent: 0
+      percent: 0,
     };
 
-    this.setState({ configsMap });
+    setConfigsMap((prevConfigsMap) => ({
+      ...prevConfigsMap,
+      undueConfig: {
+        ...prevConfigsMap.undueConfig,
+        newUndueConfig,
+      },
+    }));
   };
 
-  delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.undueConfig[currentConfigKey];
-    delete configsMap.undueConfig['newUndueConfig'];
+  const deleteHandler = (currentConfigKey: string) => {
+    const updated = Object.fromEntries(
+      Object.entries(configsMap.undueConfig).filter(
+        ([key]) => key !== (currentConfigKey || 'newUndueConfig'),
+      ),
+    );
+    setConfigsMap({ ...configsMap, undueConfig: updated });
 
-    this.setState({ configsMap });
-
-    this.props.save(configsMap);
+    props.save({ ...configsMap, undueConfig: updated });
   };
 
-  renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+  const renderConfigs = (configs) => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={Math.random()}
-          configsMap={this.state.configsMap}
+          configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
-          save={this.props.save}
-          delete={this.delete}
+          save={props.save}
+          delete={deleteHandler}
         />
       );
     });
-  }
+  };
 
-  renderContent() {
-    const { configsMap } = this.state;
+  const renderContent = () => {
     const configs = configsMap.undueConfig || {};
 
     return (
-      <ContentBox id={'UndueSettingsMenu'}>
-        {this.renderConfigs(configs)}
-      </ContentBox>
+      <ContentBox id={'UndueSettingsMenu'}>{renderConfigs(configs)}</ContentBox>
     );
-  }
+  };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Loan config') }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Loan config') },
+  ];
 
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.add}
-        icon="plus"
-        uppercase={false}
-      >
-        {__('New config')}
-      </Button>
-    );
+  const actionButtons = (
+    <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
+      {__('New config')}
+    </Button>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Loss configs')} breadcrumb={breadcrumb} />
-        }
-        mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Loss configs')}</Title>}
-            right={actionButtons}
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={this.renderContent()}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__('Loss configs')} breadcrumb={breadcrumb} />
+      }
+      mainHead={<Header />}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Loss configs')}</Title>}
+          right={actionButtons}
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+    />
+  );
+};
 
 export default GeneralSettings;

@@ -1,12 +1,10 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { withProps } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useEffect, useState } from 'react';
 import SchedulesList from '../components/schedules/SchedulesList';
 import { queries } from '../graphql';
 import { SchedulesQueryResponse, ScheduleYearsQueryResponse } from '../types';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   contractId: string;
@@ -14,89 +12,65 @@ type Props = {
   leaseType?: string;
 };
 
-type FinalProps = {
-  schedulesQuery: SchedulesQueryResponse;
-  scheduleYearsQuery: ScheduleYearsQueryResponse;
-} & Props;
+const SchedulesListContainer = (props: Props) => {
+  const [loading, setLoading] = useState(false);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const { contractId, isFirst } = props;
 
-type State = {
-  loading: boolean;
-  currentYear: number;
+  const schedulesQuery = useQuery<SchedulesQueryResponse>(
+    gql(queries.schedules),
+    {
+      skip: !contractId,
+      variables: {
+        contractId,
+        isFirst,
+        year: new Date().getFullYear(),
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const scheduleYearsQuery = useQuery<ScheduleYearsQueryResponse>(
+    gql(queries.scheduleYears),
+    {
+      skip: !contractId,
+      variables: {
+        contractId,
+      },
+    },
+  );
+
+  useEffect(() => {
+    schedulesQuery.refetch({
+      currentYear,
+    });
+  }, [currentYear]);
+
+  if (scheduleYearsQuery.loading) {
+    return null;
+  }
+
+  const onClickYear = (year: number) => {
+    setCurrentYear(year);
+  };
+
+  const scheduleYears = scheduleYearsQuery?.data?.scheduleYears || [];
+  const schedules = schedulesQuery?.data?.schedules || [];
+
+  const updatedProps = {
+    ...props,
+    schedules,
+    scheduleYears,
+    currentYear: currentYear,
+    onClickYear,
+    loading: schedulesQuery.loading || loading,
+  };
+
+  const contractsList = (props) => {
+    return <SchedulesList {...updatedProps} {...props} />;
+  };
+
+  return <Bulk content={contractsList} />;
 };
 
-class SchedulesListContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      currentYear: new Date().getFullYear()
-    };
-  }
-
-  render() {
-    const { schedulesQuery, scheduleYearsQuery } = this.props;
-
-    if (scheduleYearsQuery.loading) {
-      return null;
-    }
-
-    const onClickYear = (year: number) => {
-      this.setState({ currentYear: year }, () =>
-        schedulesQuery.refetch({
-          year
-        })
-      );
-    };
-
-    const scheduleYears = scheduleYearsQuery.scheduleYears || [];
-    const schedules = schedulesQuery.schedules || [];
-
-    const updatedProps = {
-      ...this.props,
-      schedules,
-      scheduleYears,
-      currentYear: this.state.currentYear,
-      onClickYear,
-      loading: schedulesQuery.loading || this.state.loading
-    };
-
-    const contractsList = props => {
-      return <SchedulesList {...updatedProps} {...props} />;
-    };
-
-    return <Bulk content={contractsList} />;
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, SchedulesQueryResponse, { contractId: String }>(
-      gql(queries.schedules),
-      {
-        name: 'schedulesQuery',
-        options: ({ contractId, isFirst }) => ({
-          skip: !contractId,
-          variables: {
-            contractId,
-            isFirst,
-            year: new Date().getFullYear()
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, ScheduleYearsQueryResponse, { contractId: String }>(
-      gql(queries.scheduleYears),
-      {
-        name: 'scheduleYearsQuery',
-        options: ({ contractId }) => ({
-          skip: !contractId,
-          variables: {
-            contractId
-          }
-        })
-      }
-    )
-  )(SchedulesListContainer)
-);
+export default SchedulesListContainer;

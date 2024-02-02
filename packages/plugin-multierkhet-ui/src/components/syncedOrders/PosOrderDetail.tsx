@@ -8,7 +8,7 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
-  Table
+  Table,
 } from '@erxes/ui/src';
 import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -17,17 +17,15 @@ type Props = {
   order: any;
 };
 
-class OrderDetail extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const OrderDetail = (props: Props) => {
+  const { order } = props;
 
-  displayValue(order, name) {
+  const displayValue = (order, name) => {
     const value = _.get(order, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
+  };
 
-  renderRow(label, value) {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FlexRow>
@@ -36,10 +34,9 @@ class OrderDetail extends React.Component<Props> {
         </FlexRow>
       </li>
     );
-  }
+  };
 
-  renderEditRow(label, key) {
-    const { order } = this.props;
+  const renderEditRow = (label, key) => {
     const value = order[key];
 
     return (
@@ -50,10 +47,10 @@ class OrderDetail extends React.Component<Props> {
         </FlexRow>
       </li>
     );
-  }
+  };
 
-  renderEditPaid() {
-    return this.props.order.paidAmounts.map(paidAmount => {
+  const renderEditPaid = () => {
+    return props.order.paidAmounts.map((paidAmount) => {
       return (
         <li key={paidAmount._id}>
           <FlexRow key={paidAmount._id}>
@@ -67,19 +64,18 @@ class OrderDetail extends React.Component<Props> {
         </li>
       );
     });
-  }
+  };
 
-  renderDeliveryInfo() {
-    const { order } = this.props;
+  const renderDeliveryInfo = () => {
     const { deliveryInfo } = order;
     if (!deliveryInfo) {
       return <></>;
     }
 
-    return this.renderRow('Delivery info', deliveryInfo.description);
-  }
+    return renderRow('Delivery info', deliveryInfo.description);
+  };
 
-  generateLabel = customer => {
+  const generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
@@ -98,80 +94,71 @@ class OrderDetail extends React.Component<Props> {
     return value;
   };
 
-  render() {
-    const { order } = this.props;
+  return (
+    <SidebarList>
+      {renderRow(
+        `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
+        order.customer ? generateLabel(order.customer) : '',
+      )}
+      {renderRow('Bill Number', order.number)}
+      {renderRow(
+        'Date',
+        dayjs(order.paidDate || order.createdAt).format('lll'),
+      )}
+      {renderDeliveryInfo()}
+      {order.multiErkhetInfo
+        ? renderRow('Erkhet Info', order.multiErkhetInfo)
+        : ''}
 
-    return (
-      <SidebarList>
-        {this.renderRow(
-          `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
-          order.customer ? this.generateLabel(order.customer) : ''
-        )}
-        {this.renderRow('Bill Number', order.number)}
-        {this.renderRow(
-          'Date',
-          dayjs(order.paidDate || order.createdAt).format('lll')
-        )}
-        {this.renderDeliveryInfo()}
-        {order.multiErkhetInfo
-          ? this.renderRow('Erkhet Info', order.multiErkhetInfo)
-          : ''}
+      {order.convertDealId
+        ? renderRow(
+            'Deal',
+            <Link to={order.dealLink || ''}>{order.deal?.name || 'deal'}</Link>,
+          )
+        : ''}
+      <>
+        {(order.putResponses || []).map((p) => {
+          return (
+            <DetailRow key={Math.random()}>
+              {renderRow('Bill ID', p.billId)}
+              {renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
+            </DetailRow>
+          );
+        })}
+      </>
 
-        {order.convertDealId
-          ? this.renderRow(
-              'Deal',
-              <Link to={order.dealLink || ''}>
-                {order.deal?.name || 'deal'}
-              </Link>
-            )
-          : ''}
-        <>
-          {(order.putResponses || []).map(p => {
-            return (
-              <DetailRow key={Math.random()}>
-                {this.renderRow('Bill ID', p.billId)}
-                {this.renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
-              </DetailRow>
-            );
-          })}
-        </>
-
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Product')}</th>
-              <th>{__('Count')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('Amount')}</th>
-              <th>{__('Diff')}</th>
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th>{__('Product')}</th>
+            <th>{__('Count')}</th>
+            <th>{__('Unit Price')}</th>
+            <th>{__('Amount')}</th>
+            <th>{__('Diff')}</th>
+          </tr>
+        </thead>
+        <tbody id="orderItems">
+          {(order.items || []).map((item) => (
+            <tr key={item._id}>
+              <td>{item.productName}</td>
+              <td>{item.count}</td>
+              <td>{item.unitPrice}</td>
+              <td>{item.count * item.unitPrice}</td>
+              <td>{item.discountAmount}</td>
             </tr>
-          </thead>
-          <tbody id="orderItems">
-            {(order.items || []).map(item => (
-              <tr key={item._id}>
-                <td>{item.productName}</td>
-                <td>{item.count}</td>
-                <td>{item.unitPrice}</td>
-                <td>{item.count * item.unitPrice}</td>
-                <td>{item.discountAmount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+          ))}
+        </tbody>
+      </Table>
 
-        {this.renderRow(
-          'Total Amount',
-          this.displayValue(order, 'totalAmount')
-        )}
+      {renderRow('Total Amount', displayValue(order, 'totalAmount'))}
 
-        <ul>
-          {this.renderEditRow('Cash Amount', 'cashAmount')}
-          {this.renderEditRow('Mobile Amount', 'mobileAmount')}
-          {this.renderEditPaid()}
-        </ul>
-      </SidebarList>
-    );
-  }
-}
+      <ul>
+        {renderEditRow('Cash Amount', 'cashAmount')}
+        {renderEditRow('Mobile Amount', 'mobileAmount')}
+        {renderEditPaid()}
+      </ul>
+    </SidebarList>
+  );
+};
 
 export default OrderDetail;

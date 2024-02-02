@@ -12,7 +12,7 @@ import Form from './UomsForm';
 import { IUom } from '../../types';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
-  padding-left: ${props => props.space * 20}px;
+  padding-left: ${(props) => props.space * 20}px;
 `;
 
 type Props = {
@@ -21,24 +21,10 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  showMerge: boolean;
-  mergeDestination?: { value: string; label: string };
-};
-class Row extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const Row: React.FC<Props> = (props) => {
+  const { renderButton, remove, uom } = props;
 
-    this.state = { showMerge: false };
-  }
-
-  onChangeDestination = option => {
-    this.setState({ mergeDestination: option });
-  };
-
-  renderEditAction = uom => {
-    const { renderButton } = this.props;
-
+  const renderEditAction = (uom) => {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -47,7 +33,7 @@ class Row extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <Form {...props} uom={uom} extended={true} renderButton={renderButton} />
     );
 
@@ -61,34 +47,28 @@ class Row extends React.Component<Props, State> {
     );
   };
 
-  remove = uom => {
-    const { remove } = this.props;
-
+  const removeHandler = (uom) => {
     remove(uom);
   };
 
-  render() {
-    const { uom } = this.props;
-
-    return (
-      <tr>
-        <td>{uom.code || ''}</td>
-        <td>{uom.name || ''}</td>
-        <td>
-          <ActionButtons>
-            {this.renderEditAction(uom)}
-            <Tip text={__('Delete')} placement="bottom">
-              <Button
-                btnStyle="link"
-                onClick={() => this.remove(uom)}
-                icon="times-circle"
-              />
-            </Tip>
-          </ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-}
+  return (
+    <tr>
+      <td>{uom.code || ''}</td>
+      <td>{uom.name || ''}</td>
+      <td>
+        <ActionButtons>
+          {renderEditAction(uom)}
+          <Tip text={__('Delete')} placement="bottom">
+            <Button
+              btnStyle="link"
+              onClick={() => removeHandler(uom)}
+              icon="times-circle"
+            />
+          </Tip>
+        </ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default Row;

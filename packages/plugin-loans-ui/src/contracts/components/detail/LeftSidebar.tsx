@@ -8,16 +8,14 @@ type Props = {
   contract: IContract;
 };
 
-class LeftSidebar extends React.Component<Props> {
-  render() {
-    const { contract } = this.props;
+const LeftSidebar = (props: Props) => {
+  const { contract } = props;
 
-    return (
-      <Sidebar wide={true}>
-        <BasicInfo contract={contract} />
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar wide={true}>
+      <BasicInfo contract={contract} />
+    </Sidebar>
+  );
+};
 
 export default LeftSidebar;

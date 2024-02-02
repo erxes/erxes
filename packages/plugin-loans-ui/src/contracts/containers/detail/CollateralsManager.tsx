@@ -1,14 +1,13 @@
 import { AppConsumer } from '@erxes/ui/src/appContext';
-import { Alert, withProps } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useState } from 'react';
 
 import CollateralsManager from '../../components/collaterals/CollateralsManager';
 import { mutations } from '../../graphql';
-import { FillFromDealMutationResponse, ICollateralData } from '../../types';
+import { ICollateralData } from '../../types';
+import { useMutation } from '@apollo/client';
 
 type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
@@ -20,61 +19,39 @@ type Props = {
   contractId: string;
 };
 
-type FinalProps = {} & Props & FillFromDealMutationResponse;
+const CollateralsManagerContainer = (props: Props) => {
+  const [collateralsData, setCollateralsData] = useState(props.collateralsData);
+  const [getProductsData] = useMutation(gql(mutations.getProductsData));
 
-type State = {
-  collateralsData: ICollateralData[];
-};
-
-class CollateralsManagerContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      collateralsData: this.props.collateralsData
-    };
-  }
-
-  fillFromDeal = () => {
-    const { getProductsData, contractId } = this.props;
+  const fillFromDeal = () => {
+    const { onChangeCollateralsData, contractId } = props;
     getProductsData({ variables: { contractId } })
-      .then(data => {
-        const nData = data.data.getProductsData.collateralsData;
+      .then((data) => {
+        const nData = data.data && data.data.getProductsData.collateralsData;
 
-        this.props.onChangeCollateralsData(nData);
-        this.setState({ collateralsData: nData });
+        onChangeCollateralsData(nData);
+        setCollateralsData(nData);
       })
-      .catch(err => {
+      .catch((err) => {
         Alert.error(err.message);
       });
   };
 
-  render() {
-    return (
-      <AppConsumer>
-        {({ currentUser }) => {
-          const configs = currentUser?.configs || {};
-          const extendedProps = {
-            ...this.props,
-            currencies: configs.dealCurrency || [],
-            collateralsData: this.state.collateralsData,
-            fillFromDeal: this.fillFromDeal
-          };
+  return (
+    <AppConsumer>
+      {({ currentUser }) => {
+        const configs = currentUser?.configs || {};
+        const extendedProps = {
+          ...props,
+          currencies: configs.dealCurrency || [],
+          collateralsData: collateralsData,
+          fillFromDeal: fillFromDeal,
+        };
 
-          return <CollateralsManager {...extendedProps} />;
-        }}
-      </AppConsumer>
-    );
-  }
-}
+        return <CollateralsManager {...extendedProps} />;
+      }}
+    </AppConsumer>
+  );
+};
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, FillFromDealMutationResponse, { _id: string }>(
-      gql(mutations.getProductsData),
-      {
-        name: 'getProductsData'
-      }
-    )
-  )(CollateralsManagerContainer)
-);
+export default CollateralsManagerContainer;

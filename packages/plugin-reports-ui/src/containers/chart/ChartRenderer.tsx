@@ -1,6 +1,4 @@
 import React from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import {
   IChartGetResultVariables,
@@ -8,13 +6,13 @@ import {
 } from '../../types';
 import { Spinner } from '@erxes/ui/src/components';
 import ChartRenderer from '../../components/chart/ChartRenderer';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { queries } from '../../graphql';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
 } from '../../components/chart/utils';
 import TableRenderer from '../../components/chart/TableRenderer';
+import { useQuery } from '@apollo/client';
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(
@@ -45,18 +43,26 @@ type Props = {
   chartHeight?: number;
 };
 
-type FinalProps = {
-  reportChartGetResultQuery: ReportChartGetResultQueryResponse;
-} & Props;
-const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery, chartVariables, filter, chartType } =
-    props;
+const ChartRendererList = (props: Props) => {
+  const { chartVariables, filter, chartType } = props;
+
+  const reportChartGetResultQuery = useQuery<ReportChartGetResultQueryResponse>(
+    gql(queries.reportChartGetResult),
+    {
+      variables: {
+        serviceName: chartVariables.serviceName,
+        templateType: chartVariables.templateType,
+        filter: { ...filter },
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
 
   if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
     return <Spinner />;
   }
 
-  const getResult = reportChartGetResultQuery?.reportChartGetResult || {};
+  const getResult = reportChartGetResultQuery?.data?.reportChartGetResult || {};
 
   let finalProps: any = {
     ...props,
@@ -79,7 +85,7 @@ const ChartRendererList = (props: FinalProps) => {
   }
 
   const { data, labels, title, options } =
-    reportChartGetResultQuery?.reportChartGetResult || {};
+    reportChartGetResultQuery?.data?.reportChartGetResult || {};
 
   const dataset = { data, labels, title };
   if (chartType === 'table') {
@@ -89,7 +95,7 @@ const ChartRendererList = (props: FinalProps) => {
     !data &&
     !labels &&
     !title &&
-    reportChartGetResultQuery.reportChartGetResult;
+    reportChartGetResultQuery?.data?.reportChartGetResult;
 
   finalProps = {
     ...props,
@@ -104,19 +110,4 @@ const ChartRendererList = (props: FinalProps) => {
   return <ChartRenderer {...finalProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<any>(gql(queries.reportChartGetResult), {
-      name: 'reportChartGetResultQuery',
-      options: ({ chartVariables, filter, dimension }) => ({
-        variables: {
-          serviceName: chartVariables.serviceName,
-          templateType: chartVariables.templateType,
-          filter: { ...filter },
-          dimension: { ...dimension },
-        },
-        fetchPolicy: 'network-only',
-      }),
-    }),
-  )(ChartRendererList),
-);
+export default ChartRendererList;

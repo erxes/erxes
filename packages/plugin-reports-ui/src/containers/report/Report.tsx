@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
+import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import Report from '../../components/report/Report';
 import { mutations, queries } from '../../graphql';
 import {
   ReportDetailQueryResponse,
-  ReportsMutationResponse
+  ReportsMutationResponse,
 } from '../../types';
+import { useQuery, useMutation } from '@apollo/client';
+import { IReport } from '../../types';
 
 type Props = {
   history: any;
@@ -17,17 +17,54 @@ type Props = {
   reportId: string;
 };
 
-type FinalProps = {
-  reportDetailQuery: ReportDetailQueryResponse;
-} & Props &
-  ReportsMutationResponse;
-const ReportList = (props: FinalProps) => {
-  const {
-    reportDetailQuery,
-    reportsEditMutation,
-    reportChartsEditMutation,
-    reportChartsRemoveMutation
-  } = props;
+const ReportList = (props: Props) => {
+  const { reportId } = props;
+
+  const reportDetailQuery = useQuery<ReportDetailQueryResponse>(
+    gql(queries.reportDetail),
+    {
+      variables: { reportId },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const [reportsEditMutation] = useMutation<ReportsMutationResponse>(
+    gql(mutations.reportsEdit),
+    {
+      fetchPolicy: 'network-only',
+      refetchQueries: ['reportsList'],
+    },
+  );
+
+  const [reportChartsEditMutation] = useMutation<ReportsMutationResponse>(
+    gql(mutations.reportChartsEdit),
+    {
+      fetchPolicy: 'network-only',
+      refetchQueries: [
+        {
+          query: gql(queries.reportDetail),
+          variables: {
+            reportId,
+          },
+        },
+      ],
+    },
+  );
+
+  const [reportChartsRemoveMutation] = useMutation<ReportsMutationResponse>(
+    gql(mutations.reportChartsRemove),
+    {
+      fetchPolicy: 'network-only',
+      refetchQueries: [
+        {
+          query: gql(queries.reportDetail),
+          variables: {
+            reportId,
+          },
+        },
+      ],
+    },
+  );
 
   if (reportDetailQuery.loading) {
     return <Spinner />;
@@ -41,7 +78,7 @@ const ReportList = (props: FinalProps) => {
           callback();
         }
       })
-      .catch(err => Alert.error(err.message));
+      .catch((err) => Alert.error(err.message));
   };
 
   const reportChartsEdit = (_id: string, values: any, callback?: any) => {
@@ -58,12 +95,12 @@ const ReportList = (props: FinalProps) => {
       .then(() => {
         Alert.success('Successfully removed chart');
       })
-      .catch(err => Alert.error(err.message));
+      .catch((err) => Alert.error(err.message));
   };
 
   return (
     <Report
-      report={reportDetailQuery?.reportDetail}
+      report={reportDetailQuery?.data?.reportDetail || ({} as IReport)}
       reportsEdit={reportsEdit}
       reportChartsEdit={reportChartsEdit}
       reportChartsRemove={reportChartsRemove}
@@ -72,51 +109,4 @@ const ReportList = (props: FinalProps) => {
   );
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, any>(gql(mutations.reportsEdit), {
-      name: 'reportsEditMutation',
-      options: variables => ({
-        variables,
-        fetchPolicy: 'network-only',
-        refetchQueries: ['reportsList']
-      })
-    }),
-    graphql<Props, any>(gql(mutations.reportChartsEdit), {
-      name: 'reportChartsEditMutation',
-      options: ({ reportId, ...variables }) => ({
-        variables,
-        fetchPolicy: 'network-only',
-        refetchQueries: [
-          {
-            query: gql(queries.reportDetail),
-            variables: {
-              reportId
-            }
-          }
-        ]
-      })
-    }),
-    graphql<Props, any>(gql(mutations.reportChartsRemove), {
-      name: 'reportChartsRemoveMutation',
-      options: ({ reportId }) => ({
-        fetchPolicy: 'network-only',
-        refetchQueries: [
-          {
-            query: gql(queries.reportDetail),
-            variables: {
-              reportId
-            }
-          }
-        ]
-      })
-    }),
-    graphql<Props, any, { reportId: string }>(gql(queries.reportDetail), {
-      name: 'reportDetailQuery',
-      options: ({ reportId }) => ({
-        variables: { reportId },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(ReportList)
-);
+export default ReportList;

@@ -2,7 +2,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -12,7 +12,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { ChangeAmount } from '../../styles';
 import { ICloseInfo, IContract, IContractDoc } from '../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -27,24 +27,12 @@ type Props = {
   closeDate: Date;
 };
 
-type State = {
-  closeType: string;
-  description: string;
-};
+const CloseForm = (props: Props) => {
+  const [closeType, setCloseType] = useState('');
+  const [description, setDescription] = useState('');
+  const { contract = {} as IContract } = props;
 
-class CloseForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      closeType: '',
-      description: ''
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IContractDoc) => {
-    const { contract } = this.props;
-
+  const generateDoc = (values: { _id: string } & IContractDoc) => {
     const finalValues = values;
 
     if (contract) {
@@ -53,36 +41,25 @@ class CloseForm extends React.Component<Props, State> {
 
     return {
       contractId: finalValues._id,
-      ...this.state,
-      description: this.state.description,
-      closeDate: this.props.closeDate,
-      closeType: this.state.closeType
+      description,
+      closeDate: props.closeDate,
+      closeType,
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
-          {label}
-        </ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  onChangeField = e => {
+  const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as unknown);
+    if (name === 'closeType') {
+      setCloseType(value);
+    }
+    if (name === 'description') {
+      setDescription(value);
+    }
   };
 
-  onFieldClick = e => {
-    e.target.select();
-  };
-
-  renderRow = (label, fieldName) => {
-    const { closeInfo } = this.props;
+  const renderRow = (label, fieldName) => {
+    const { closeInfo } = props;
     const value = closeInfo[fieldName] || 0;
     return (
       <FormWrapper>
@@ -97,25 +74,24 @@ class CloseForm extends React.Component<Props, State> {
       </FormWrapper>
     );
   };
-  renderCloseInfo = () => {
+  const renderCloseInfo = () => {
     return (
       <>
-        {this.renderRow('Total', 'total')}
-        {this.renderRow('Payment', 'payment')}
-        {this.renderRow('Interest', 'interest')}
-        {this.renderRow('Loss', 'undue')}
-        {this.renderRow('Insurance', 'insurance')}
-        {this.renderRow('Debt', 'debt')}
+        {renderRow('Total', 'total')}
+        {renderRow('Payment', 'payment')}
+        {renderRow('Interest', 'interest')}
+        {renderRow('Loss', 'undue')}
+        {renderRow('Insurance', 'insurance')}
+        {renderRow('Debt', 'debt')}
       </>
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const contract = this.props.contract || ({} as IContract);
-    const { closeModal, renderButton, onChangeDate } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton, onChangeDate } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeCloseDate = value => {
+    const onChangeCloseDate = (value) => {
       onChangeDate(value);
     };
 
@@ -132,7 +108,7 @@ class CloseForm extends React.Component<Props, State> {
                     required={false}
                     dateFormat="YYYY/MM/DD"
                     name="closeDate"
-                    value={this.props.closeDate}
+                    value={props.closeDate}
                     onChange={onChangeCloseDate}
                   />
                 </DateContainer>
@@ -145,16 +121,16 @@ class CloseForm extends React.Component<Props, State> {
                   {...formProps}
                   name="closeType"
                   componentClass="select"
-                  value={this.state.closeType}
+                  value={closeType}
                   required={true}
-                  onChange={this.onChangeField}
+                  onChange={onChangeField}
                 >
                   {['value0', 'changeCondition', 'cantPay'].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {typeName}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
@@ -169,14 +145,14 @@ class CloseForm extends React.Component<Props, State> {
                   max={140}
                   name="description"
                   componentClass="textarea"
-                  value={this.state.description || ''}
-                  onChange={this.onChangeField}
+                  value={description || ''}
+                  onChange={onChangeField}
                 />
               </FormGroup>
             </FormColumn>
           </FormWrapper>
 
-          {this.renderCloseInfo()}
+          {renderCloseInfo()}
         </ScrollWrapper>
 
         <ModalFooter>
@@ -186,18 +162,16 @@ class CloseForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'contract',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.contract
+            object: props.contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default CloseForm;

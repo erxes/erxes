@@ -8,83 +8,84 @@ import React from 'react';
 import { categoryStatusChoises } from '../../../utils';
 // import { withRouter } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+type Props = {
   searchable?: boolean;
-}
+};
 
-class CategoryStatusFilter extends React.Component<IProps> {
-  render() {
-    const { history } = this.props;
-    const productParam = 'state';
-    const categoryParam = 'status';
+type FinalProps = Props & IRouterProps;
 
-    const onClick = (key, value) => {
-      router.setParams(history, { [key]: value });
-      router.setParams(history, { categoryId: null });
-    };
+const CategoryStatusFilter: React.FC<FinalProps> = (props) => {
+  const { history } = props;
+  const productParam = 'state';
+  const categoryParam = 'status';
 
-    return (
-      <>
-        <Box
-          title={__('FILTER CATEGORY BY STATUS')}
-          name="showFilterByType"
-          isOpen={router.getParam(history, [categoryParam])}
-        >
-          <SidebarList>
-            {categoryStatusChoises(__).map(
-              ({ value, label }: { value: string; label: string }) =>
-                (value === 'disabled' || value === 'archived') && (
-                  <li key={Math.random()}>
-                    <a
-                      href="#filter"
-                      tabIndex={0}
-                      className={
-                        router.getParam(history, [categoryParam]) === value
-                          ? 'active'
-                          : ''
-                      }
-                      onClick={onClick.bind(this, categoryParam, value)}
-                    >
-                      <FieldStyle>{label}</FieldStyle>
-                    </a>
-                  </li>
-                ),
-            )}
-          </SidebarList>
-        </Box>
-        <Box
-          title={__('FILTER PRODUCT BY STATUS')}
-          name="showFilterByType"
-          isOpen={router.getParam(history, [productParam])}
-        >
-          <SidebarList>
-            {categoryStatusChoises(__).map(
-              (
-                { value, label }: { value: string; label: string },
-                index: number,
-              ) =>
-                value === 'deleted' && (
-                  <li key={index}>
-                    <a
-                      href="#filter"
-                      tabIndex={0}
-                      className={
-                        router.getParam(history, [productParam]) === value
-                          ? 'active'
-                          : ''
-                      }
-                      onClick={onClick.bind(this, productParam, value)}
-                    >
-                      <FieldStyle>{label}</FieldStyle>
-                    </a>
-                  </li>
-                ),
-            )}
-          </SidebarList>
-        </Box>
-      </>
-    );
-  }
-}
+  const onClick = (key, value) => {
+    router.setParams(history, { [key]: value });
+    router.setParams(history, { categoryId: null });
+  };
+
+  return (
+    <>
+      <Box
+        title={__('FILTER CATEGORY BY STATUS')}
+        name="showFilterByType"
+        isOpen={router.getParam(history, [categoryParam])}
+      >
+        <SidebarList>
+          {categoryStatusChoises(__).map(
+            ({ value, label }: { value: string; label: string }) =>
+              (value === 'disabled' || value === 'archived') && (
+                <li key={Math.random()}>
+                  <a
+                    href="#filter"
+                    tabIndex={0}
+                    className={
+                      router.getParam(history, [categoryParam]) === value
+                        ? 'active'
+                        : ''
+                    }
+                    onClick={onClick.bind(this, categoryParam, value)}
+                  >
+                    <FieldStyle>{label}</FieldStyle>
+                  </a>
+                </li>
+              ),
+          )}
+        </SidebarList>
+      </Box>
+      <Box
+        title={__('FILTER PRODUCT BY STATUS')}
+        name="showFilterByType"
+        isOpen={router.getParam(history, [productParam])}
+      >
+        <SidebarList>
+          {categoryStatusChoises(__).map(
+            (
+              { value, label }: { value: string; label: string },
+              index: number,
+            ) =>
+              value === 'deleted' && (
+                <li key={index}>
+                  <a
+                    href="#filter"
+                    tabIndex={0}
+                    className={
+                      router.getParam(history, [productParam]) === value
+                        ? 'active'
+                        : ''
+                    }
+                    onClick={onClick.bind(this, productParam, value)}
+                  >
+                    <FieldStyle>{label}</FieldStyle>
+                  </a>
+                </li>
+              ),
+          )}
+        </SidebarList>
+      </Box>
+    </>
+  );
+};
 
 export default CategoryStatusFilter;
+// export default withRouter<IRouterProps>(CategoryStatusFilter);

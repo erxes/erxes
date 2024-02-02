@@ -25,6 +25,12 @@ export interface ITransactionDoc {
 
 export interface ITransaction extends ITransactionDoc {
   _id: string;
+  invoiceId?: string;
+  closeInterestRate?: number;
+  closeInterest?: number;
+  interestRate?: number;
+  savingAmount?: number;
+  futureDebt?: number;
 }
 
 // mutation types

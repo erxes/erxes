@@ -1,16 +1,15 @@
 import { ISchedule, IScheduleYear } from '../../types';
 
-import Button from '@erxes/ui/src/components/Button';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { __ } from 'coreui/utils';
 import React from 'react';
+import Button from '@erxes/ui/src/components/Button';
 import ScheduleRow from './ScheduleRow';
 // import { withRouter } from 'react-router-dom';
 import { ScheduleYears } from '../../styles';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
 
-interface IProps extends IRouterProps {
+interface IProps {
   contractId: string;
   schedules: ISchedule[];
   loading: boolean;
@@ -20,15 +19,10 @@ interface IProps extends IRouterProps {
   onClickYear: (year: number) => void;
 }
 
-class SchedulesList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
+const SchedulesList = (props: IProps) => {
+  const { schedules, loading, leaseType, scheduleYears, onClickYear } = props;
 
-    this.state = {};
-  }
-
-  renderYear() {
-    const { scheduleYears, onClickYear } = this.props;
+  const renderYear = () => {
     return scheduleYears.map((item) => {
       return (
         <Button key={item.year} onClick={() => onClickYear(item.year)}>
@@ -36,44 +30,40 @@ class SchedulesList extends React.Component<IProps> {
         </Button>
       );
     });
+  };
+
+  if (loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const { schedules, loading, leaseType } = this.props;
-
-    if (loading) {
-      return <Spinner />;
-    }
-
-    return (
-      <>
-        <ScheduleYears>{this.renderYear()}</ScheduleYears>
-        <Table striped>
-          <thead>
-            <tr>
-              <th />
-              <th>{__('Date')}</th>
-              <th>{__('Loan Balance')}</th>
-              <th>{__('Loan Payment')}</th>
-              <th>{__('Interest')}</th>
-              {leaseType === 'linear' && <th>{__('Commitment interest')}</th>}
-              <th>{__('Loss')}</th>
-              <th>{__('Total')}</th>
-            </tr>
-          </thead>
-          <tbody id="schedules">
-            {schedules.map((schedule) => (
-              <ScheduleRow
-                schedule={schedule}
-                key={schedule._id}
-                leaseType={leaseType}
-              ></ScheduleRow>
-            ))}
-          </tbody>
-        </Table>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <ScheduleYears>{renderYear()}</ScheduleYears>
+      <Table striped>
+        <thead>
+          <tr>
+            <th />
+            <th>{__('Date')}</th>
+            <th>{__('Loan Balance')}</th>
+            <th>{__('Loan Payment')}</th>
+            <th>{__('Interest')}</th>
+            {leaseType === 'linear' && <th>{__('Commitment interest')}</th>}
+            <th>{__('Loss')}</th>
+            <th>{__('Total')}</th>
+          </tr>
+        </thead>
+        <tbody id="schedules">
+          {schedules.map((schedule) => (
+            <ScheduleRow
+              schedule={schedule}
+              key={schedule._id}
+              leaseType={leaseType}
+            ></ScheduleRow>
+          ))}
+        </tbody>
+      </Table>
+    </>
+  );
+};
 
 export default SchedulesList;

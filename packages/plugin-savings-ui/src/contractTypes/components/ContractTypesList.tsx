@@ -18,7 +18,7 @@ import ContractTypeRow from './ContractTypeRow';
 import { ContractTypesTableWrapper } from '../styles';
 import { IContractType } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { __ } from 'coreui/utils';
 // import { withRouter } from 'react-router-dom';
 
@@ -41,192 +41,182 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-type State = {
-  searchValue?: string;
-};
+const ContractTypesList = (props: IProps) => {
+  const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const timerRef = useRef<number | null>(null);
+  const {
+    contractTypes,
+    history,
+    loading,
+    toggleBulk,
+    bulk,
+    isAllSelected,
+    totalCount,
+    queryParams,
+    toggleAll,
+  } = props;
 
-class ContractTypesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+  useEffect(() => {
+    setSearchValue(props.searchValue);
+  }, [props.searchValue]);
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, contractTypes } = this.props;
+  const onChange = () => {
     toggleAll(contractTypes, 'contractTypes');
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const { history } = props;
+    const value = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue(value);
+
+    timerRef.current = setTimeout(() => {
+      history.push(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
-  removeContractTypes = (contractTypes) => {
+  const removeContractTypes = (contractTypes) => {
     const contractTypeIds: string[] = [];
 
     contractTypes.forEach((contractType) => {
       contractTypeIds.push(contractType._id);
     });
 
-    this.props.removeContractTypes({ contractTypeIds }, this.props.emptyBulk);
+    props.removeContractTypes({ contractTypeIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      contractTypes,
-      history,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      queryParams,
-    } = this.props;
-
-    const mainContent = (
-      <ContractTypesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'code'} label={__('Code')} />
-              </th>
-              <th>
-                <SortHandler sortField={'name'} label={__('Name')} />
-              </th>
-              <th>
-                <SortHandler sortField={'number'} label={__('Start Number')} />
-              </th>
-              <th>{__('After vacancy count')}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="contractTypes">
-            {contractTypes.map((contractType) => (
-              <ContractTypeRow
-                contractType={contractType}
-                isChecked={bulk.includes(contractType)}
-                key={contractType._id}
-                history={history}
-                toggleBulk={toggleBulk}
+  const mainContent = (
+    <ContractTypesTableWrapper>
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={onChange}
               />
-            ))}
-          </tbody>
-        </Table>
-      </ContractTypesTableWrapper>
-    );
+            </th>
+            <th>
+              <SortHandler sortField={'code'} label={__('Code')} />
+            </th>
+            <th>
+              <SortHandler sortField={'name'} label={__('Name')} />
+            </th>
+            <th>
+              <SortHandler sortField={'number'} label={__('Start Number')} />
+            </th>
+            <th>{__('After vacancy count')}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="contractTypes">
+          {contractTypes.map((contractType) => (
+            <ContractTypeRow
+              contractType={contractType}
+              isChecked={bulk.includes(contractType)}
+              key={contractType._id}
+              history={history}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
+    </ContractTypesTableWrapper>
+  );
 
-    const addTrigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        {__('Add Saving contract type')}
-      </Button>
-    );
+  const addTrigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      {__('Add Saving contract type')}
+    </Button>
+  );
 
-    let actionBarLeft: React.ReactNode;
+  let actionBarLeft: React.ReactNode;
 
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeContractTypes(bulk);
-          })
-          .catch((error) => {
-            Alert.error(error.message);
-          });
+  if (bulk.length > 0) {
+    const onClick = () =>
+      confirm()
+        .then(() => {
+          removeContractTypes(bulk);
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
 
-      actionBarLeft = (
-        <BarItems>
-          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
-          </Button>
-        </BarItems>
-      );
-    }
-
-    const contractTypeForm = (props) => {
-      return <ContractTypeForm {...props} queryParams={queryParams} />;
-    };
-
-    const actionBarRight = (
+    actionBarLeft = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
-        <ModalTrigger
-          title={__('New Saving contract type')}
-          trigger={addTrigger}
-          autoOpenKey="showContractTypeModal"
-          size="lg"
-          content={contractTypeForm}
-          backDrop="static"
-        />
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+          {__('Delete')}
+        </Button>
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`ContractTypes`) + ` (${totalCount})`}
-            queryParams={queryParams}
-            breadcrumb={[
-              { title: __('Settings'), link: '/settings' },
-              { title: __('Contract Type') },
-            ]}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={contractTypes.length}
-            emptyText="Add in your first contractType!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
   }
-}
+
+  const contractTypeForm = (props) => {
+    return <ContractTypeForm {...props} queryParams={queryParams} />;
+  };
+
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title={__('New Saving contract type')}
+        trigger={addTrigger}
+        autoOpenKey="showContractTypeModal"
+        size="lg"
+        content={contractTypeForm}
+        backDrop="static"
+      />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`ContractTypes`) + ` (${totalCount})`}
+          queryParams={queryParams}
+          breadcrumb={[
+            { title: __('Settings'), link: '/settings' },
+            { title: __('Contract Type') },
+          ]}
+        />
+      }
+      actionBar={actionBar}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={contractTypes.length}
+          emptyText="Add in your first contractType!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
 export default ContractTypesList;

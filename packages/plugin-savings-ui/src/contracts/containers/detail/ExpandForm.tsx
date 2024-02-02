@@ -1,7 +1,6 @@
-import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { ButtonMutate } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
 import React from 'react';
 import { mutations } from '../../graphql';
 import { IContract } from '../../types';
@@ -12,60 +11,40 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props;
+const CloseFromContainer = (props: Props) => {
+  const { contract, closeModal } = props;
 
-type State = {
-  loading: boolean;
-  closeDate: Date;
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+    const afterSave = () => {
+      closeModal();
+    };
+
+    return (
+      <ButtonMutate
+        mutation={mutations.expandContract}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={__(`You successfully expand this contract`)}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
+  const updatedProps = {
+    ...props,
+    contract,
+    renderButton,
+  };
+
+  return <ExpandForm {...updatedProps} />;
 };
-
-class CloseFromContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      closeDate: new Date()
-    };
-  }
-
-  render() {
-    const { contract } = this.props;
-
-    const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-      const { closeModal } = this.props;
-
-      const afterSave = () => {
-        closeModal();
-      };
-
-      return (
-        <ButtonMutate
-          mutation={mutations.expandContract}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={__(`You successfully expand this contract`)}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
-    };
-
-    const updatedProps = {
-      ...this.props,
-      contract,
-      renderButton
-    };
-
-    return <ExpandForm {...updatedProps} />;
-  }
-}
 
 const getRefetchQueries = () => {
   return ['savingsContractsMain', 'savingsContractDetail', 'savingsContracts'];
 };
 
-export default withProps<Props>(compose()(CloseFromContainer));
+export default CloseFromContainer;

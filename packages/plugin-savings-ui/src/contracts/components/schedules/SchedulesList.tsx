@@ -8,7 +8,7 @@ import ScheduleRow from './ScheduleRow';
 import { __ } from 'coreui/utils';
 // import { withRouter } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   contractId: string;
   transactions: ITransaction[];
   loading: boolean;
@@ -16,45 +16,37 @@ interface IProps extends IRouterProps {
   onClickYear: (year: number) => void;
 }
 
-class SchedulesList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
+const SchedulesList = (props: IProps) => {
+  const { transactions, loading } = props;
 
-    this.state = {};
+  if (loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const { transactions, loading } = this.props;
-
-    if (loading) {
-      return <Spinner />;
-    }
-
-    return (
-      <ContractsTableWrapper>
-        <Table>
-          <thead>
-            <tr>
-              <th>{__('Date')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Saving Balance')}</th>
-              <th>{__('Amount')}</th>
-              <th>{__('Stored Interest')}</th>
-              <th>{__('Total')}</th>
-            </tr>
-          </thead>
-          <tbody id="schedules">
-            {transactions.map((transaction) => (
-              <ScheduleRow
-                transaction={transaction}
-                key={transaction._id}
-              ></ScheduleRow>
-            ))}
-          </tbody>
-        </Table>
-      </ContractsTableWrapper>
-    );
-  }
-}
+  return (
+    <ContractsTableWrapper>
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Date')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Saving Balance')}</th>
+            <th>{__('Amount')}</th>
+            <th>{__('Stored Interest')}</th>
+            <th>{__('Total')}</th>
+          </tr>
+        </thead>
+        <tbody id="schedules">
+          {transactions.map((transaction) => (
+            <ScheduleRow
+              transaction={transaction}
+              key={transaction._id}
+            ></ScheduleRow>
+          ))}
+        </tbody>
+      </Table>
+    </ContractsTableWrapper>
+  );
+};
 
 export default SchedulesList;

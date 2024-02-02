@@ -1,30 +1,28 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import List from '../../components/config/Uoms';
 import { mutations, queries } from '../../graphql';
 import { UomRemoveMutationResponse, UomsCountQueryResponse } from '../../types';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { UomsQueryResponse } from '@erxes/ui-products/src/types';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   history: any;
 };
 
-type FinalProps = {
-  uomsQuery: UomsQueryResponse;
-  uomsCountQuery: UomsCountQueryResponse;
-} & Props &
-  UomRemoveMutationResponse;
+const ListContainer = (props: Props) => {
+  const uomsQuery = useQuery<UomsQueryResponse>(gql(queries.uoms));
+  const uomsCountQuery = useQuery<UomsCountQueryResponse>(
+    gql(queries.uomsTotalCount),
+  );
+  const [uomsRemove] = useMutation<UomRemoveMutationResponse>(
+    gql(mutations.uomsRemove),
+  );
 
-const ListContainer = (props: FinalProps) => {
-  const { uomsQuery, uomsCountQuery, uomsRemove } = props;
-
-  const remove = uom => {
+  const remove = (uom) => {
     confirm(`This action will remove the uom. Are you sure?`)
       .then(() => {
         uomsRemove({ variables: { uomIds: [uom._id] } })
@@ -33,21 +31,20 @@ const ListContainer = (props: FinalProps) => {
             uomsQuery.refetch();
             uomsCountQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
-
   const renderButton = ({
     name,
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -66,11 +63,12 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    uoms: uomsQuery.uoms || [],
-    uomsTotalCount: uomsCountQuery.uomsTotalCount || 0,
+    uoms: (uomsQuery.data && uomsQuery.data.uoms) || [],
+    uomsTotalCount:
+      (uomsCountQuery.data && uomsCountQuery.data.uomsTotalCount) || 0,
     loading: uomsQuery.loading || uomsCountQuery.loading,
     renderButton,
-    remove
+    remove,
   };
 
   return <List {...updatedProps} />;
@@ -78,19 +76,4 @@ const ListContainer = (props: FinalProps) => {
 
 const refetch = ['uoms', 'uomsTotalCount'];
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery'
-    }),
-    graphql<Props, UomsCountQueryResponse>(gql(queries.uomsTotalCount), {
-      name: 'uomsCountQuery'
-    }),
-    graphql<Props, UomRemoveMutationResponse, { _id: string }>(
-      gql(mutations.uomsRemove),
-      {
-        name: 'uomsRemove'
-      }
-    )
-  )(ListContainer)
-);
+export default ListContainer;

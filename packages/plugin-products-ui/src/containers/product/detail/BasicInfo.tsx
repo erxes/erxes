@@ -11,6 +11,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../../../graphql';
+import { useMutation } from '@apollo/client';
 
 type Props = {
   product: IProduct;
@@ -20,11 +21,17 @@ type Props = {
 type FinalProps = {
   currentUser: IUser;
 } & Props &
-  IRouterProps &
-  ProductRemoveMutationResponse;
+  IRouterProps;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { product, productsRemove, history } = props;
+  const { product, history } = props;
+
+  const [productsRemove] = useMutation<ProductRemoveMutationResponse>(
+    gql(mutations.productsRemove),
+    {
+      refetchQueries: ['products', 'productCategories', 'productsTotalCount'],
+    },
+  );
 
   const { _id } = product;
 
@@ -51,14 +58,5 @@ const generateOptions = () => ({
   refetchQueries: ['products', 'productCategories', 'productsTotalCount'],
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, ProductRemoveMutationResponse, { productIds: string[] }>(
-      gql(mutations.productsRemove),
-      {
-        name: 'productsRemove',
-        options: generateOptions,
-      },
-    ),
-  )(BasicInfoContainer),
-);
+export default BasicInfoContainer;
+// export default withRouter<FinalProps>(BasicInfoContainer);

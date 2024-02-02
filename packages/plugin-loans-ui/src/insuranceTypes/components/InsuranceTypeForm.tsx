@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -9,12 +7,12 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IInsuranceType, IInsuranceTypeDoc } from '../types';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -24,7 +22,7 @@ const SelectCompanies = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    )
+    ),
 );
 
 type Props = {
@@ -33,29 +31,11 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  name: string;
-  companyId: string;
-  description;
-};
+const InsuranceTypeForm = (props: Props) => {
+  const { insuranceType = {} as IInsuranceType } = props;
+  const [companyId, setCompanyId] = useState(insuranceType.companyId || '');
 
-class InsuranceTypeForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { insuranceType = {} } = props;
-
-    this.state = {
-      name: insuranceType.name || '',
-      description: insuranceType.description || '',
-      companyId: insuranceType.companyId || ''
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IInsuranceTypeDoc) => {
-    const { insuranceType } = this.props;
-    const { companyId } = this.state;
-
+  const generateDoc = (values: { _id: string } & IInsuranceTypeDoc) => {
     const finalValues = values;
 
     if (insuranceType) {
@@ -64,17 +44,16 @@ class InsuranceTypeForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
       code: finalValues.code,
       name: finalValues.name,
       percent: Number(finalValues.percent),
       description: finalValues.description,
       companyId,
-      yearPercents: finalValues.yearPercents
+      yearPercents: finalValues.yearPercents,
     };
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel required={props.required}>{__(label)}</ControlLabel>
@@ -83,15 +62,12 @@ class InsuranceTypeForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const insuranceType = this.props.insuranceType || ({} as IInsuranceType);
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const { companyId } = this.state;
-
-    const onSelectCompany = value => {
-      this.setState({ companyId: value });
+    const onSelectCompany = (value) => {
+      setCompanyId(value);
     };
 
     return (
@@ -99,17 +75,17 @@ class InsuranceTypeForm extends React.Component<Props, State> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderFormGroup('Code', {
+              {renderFormGroup('Code', {
                 ...formProps,
                 name: 'code',
                 required: true,
-                defaultValue: insuranceType.code || ''
+                defaultValue: insuranceType.code || '',
               })}
-              {this.renderFormGroup('Name', {
+              {renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 required: true,
-                defaultValue: insuranceType.name || ''
+                defaultValue: insuranceType.name || '',
               })}
 
               {isEnabled('contacts') && (
@@ -126,17 +102,17 @@ class InsuranceTypeForm extends React.Component<Props, State> {
                 </FormGroup>
               )}
 
-              {this.renderFormGroup('Percent', {
+              {renderFormGroup('Percent', {
                 ...formProps,
                 name: 'percent',
                 type: 'number',
-                defaultValue: insuranceType.percent || 0
+                defaultValue: insuranceType.percent || 0,
               })}
 
-              {this.renderFormGroup('Year Percents', {
+              {renderFormGroup('Year Percents', {
                 ...formProps,
                 name: 'yearPercents',
-                defaultValue: insuranceType.yearPercents || ''
+                defaultValue: insuranceType.yearPercents || '',
               })}
 
               <FormGroup>
@@ -160,18 +136,16 @@ class InsuranceTypeForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'insuranceType',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.insuranceType
+            object: props.insuranceType,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default InsuranceTypeForm;
