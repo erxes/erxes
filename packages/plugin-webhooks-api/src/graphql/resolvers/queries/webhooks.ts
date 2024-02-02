@@ -1,16 +1,37 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src/core';
+
+interface IListParams {
+  page: number;
+  perPage: number;
+  searchValue: string;
+}
+
+const generateFilter = (args: IListParams) => {
+  const { searchValue } = args;
+
+  const filter: any = {};
+
+  if (searchValue) {
+    filter.url = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  return filter;
+};
 
 const webhookQueries = {
   /**
    * Webhooks list
    */
-  webhooks(_root, _args, { models }: IContext) {
-    return models.Webhooks.find({});
+  webhooks(_root, _args: IListParams, { models }: IContext) {
+    const filter = generateFilter(_args);
+
+    return paginate(models.Webhooks.find(filter), _args);
   },
 
   /**
@@ -22,10 +43,15 @@ const webhookQueries = {
 
   async webhooksTotalCount(
     _root,
-    _args,
-    { commonQuerySelector, models }: IContext
+    _args: IListParams,
+    { commonQuerySelector, models }: IContext,
   ) {
-    return models.Webhooks.find({ ...commonQuerySelector }).countDocuments();
+    const filter = generateFilter(_args);
+
+    return models.Webhooks.find({
+      ...commonQuerySelector,
+      ...filter,
+    }).countDocuments();
   },
 
   async webhooksGetActions(_root) {
@@ -43,14 +69,14 @@ const webhookQueries = {
           webhookActions.push({
             label: action.label,
             action: action.action,
-            type: action.type
+            type: action.type,
           });
         }
       }
     }
 
     return webhookActions;
-  }
+  },
 };
 
 requireLogin(webhookQueries, 'webhookDetail');

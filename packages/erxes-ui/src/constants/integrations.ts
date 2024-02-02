@@ -10,7 +10,7 @@ export const days = [
   { value: 'thursday', label: __('Thursday') },
   { value: 'friday', label: __('Friday') },
   { value: 'saturday', label: __('Saturday') },
-  { value: 'sunday', label: __('Sunday') }
+  { value: 'sunday', label: __('Sunday') },
 ];
 
 export const hours = [
@@ -62,7 +62,7 @@ export const hours = [
   { value: '10:30 PM', label: '10:30 PM' },
   { value: '11:00 PM', label: '11:00 PM' },
   { value: '11:30 PM', label: '11:30 PM' },
-  { value: '11:59 PM', label: '11:59 PM' }
+  { value: '11:59 PM', label: '11:59 PM' },
 ];
 
 export const INTEGRATION_KINDS = {
@@ -79,23 +79,23 @@ export const INTEGRATION_KINDS = {
     { text: 'Forms', value: 'lead' },
     {
       text: 'Facebook Messenger',
-      value: 'facebook-messenger'
+      value: 'facebook-messenger',
     },
     {
       text: 'Instagram Messenger',
-      value: 'instagram-messenger'
+      value: 'instagram-messenger',
     },
     { text: 'Webhook', value: 'webhook' },
     { text: 'Callpro', value: 'callpro' },
-    { text: 'Booking', value: 'booking' }
-  ]
+    { text: 'Booking', value: 'booking' },
+  ],
 };
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL_LIST: ['', 'shoutbox', 'popup', 'embedded']
+  ALL_LIST: ['', 'shoutbox', 'popup', 'embedded'],
 };
 
 export const FORM_SUCCESS_ACTIONS = {
@@ -105,8 +105,8 @@ export const FORM_SUCCESS_ACTIONS = {
   ALL_LIST: [
     { text: 'On page', value: 'onPage' },
     { text: 'Email', value: 'email' },
-    { text: 'Page redirect', value: 'redirect' }
-  ]
+    { text: 'Page redirect', value: 'redirect' },
+  ],
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
@@ -121,10 +121,10 @@ export const MAIL_TOOLBARS_CONFIG = [
       'Underline',
       'NumberedList',
       'BulletedList',
-      'Link'
-    ]
+      'Link',
+    ],
   },
-  { name: 'clear', items: ['RemoveFormat'] }
+  { name: 'clear', items: ['RemoveFormat'] },
 ];
 
 export const INTEGRATIONS = [
@@ -138,7 +138,7 @@ export const INTEGRATIONS = [
     createModal: 'messenger',
     createUrl: '/settings/integrations/createMessenger',
     category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Conversation'
+      'All integrations, For support teams, For marketing teams, Marketing automation, Conversation',
   },
   {
     name: 'Call Pro',
@@ -149,7 +149,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/callpro.png',
     createModal: 'callpro',
     category:
-      'All integrations, For support teams, Marketing automation, Phone and video, Conversation'
+      'All integrations, For support teams, Marketing automation, Phone and video, Conversation',
   },
   {
     name: 'Incoming Webhook',
@@ -160,9 +160,8 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/incoming-webhook.png',
     createModal: 'webhook',
     category:
-      'All integrations, For support teams, Conversation, Marketing automation'
-  }
+      'All integrations, For support teams, Conversation, Marketing automation',
+  },
 ];
 
-export const WEBHOOK_DOC_URL =
-  'https://www.erxes.org/developer/webhook#samples';
+export const WEBHOOK_DOC_URL = 'https://docs.erxes.io/webhooks';
