@@ -500,8 +500,6 @@ class GenerateGroup extends React.Component<Props, State> {
   render() {
     const { fieldGroup, fieldsGroups, isDetail, collapseCallback } = this.props;
 
-    console.log('&&&&&&&& ', this.props.object);
-
     const childGroups = fieldsGroups.filter(
       (gro) => gro.parentId === fieldGroup._id,
     );
