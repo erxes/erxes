@@ -61,7 +61,7 @@ const searchMessages = (imap: Imap, criteria) => {
 
       try {
         f = imap.fetch(results, { bodies: '', struct: true });
-        f.once('error', (error: any) => {
+        f.on('error', (error: any) => {
           throw error;
         });
       } catch (e) {
@@ -343,7 +343,10 @@ export const listenIntegration = async (
 
       imap.on('mail', throttle(syncEmail, 30000, { leading: true }));
 
-      imap.once('error', async (e) => {
+      imap.on('error', async (e) => {
+        if (closing) {
+          return;
+        }
         error = e;
         closing = true;
         if (e.message.includes('Invalid credentials')) {
@@ -369,15 +372,16 @@ export const listenIntegration = async (
 
       const closeEndHandler = async () => {
         closing = true;
+
+        try {
+          await imap.end();
+        } catch (e) {}
+
         try {
           imap.removeAllListeners();
         } catch (e) {}
 
         await cleanupLock();
-
-        try {
-          await imap.end();
-        } catch (e) {}
 
         return resolve({
           reconnect,
