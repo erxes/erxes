@@ -54,7 +54,7 @@ const advertisementQuery = {
     if (carIds) {
       filter.carIds = { $in: carIds };
     }
-    if (productCategoryIds) {
+    if (productCategoryIds?.length > 0) {
       filter.productCategoryIds = { $in: productCategoryIds };
     }
     if (status) {
