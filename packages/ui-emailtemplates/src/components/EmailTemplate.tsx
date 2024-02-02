@@ -1,3 +1,9 @@
+import React from 'react';
+
+import dayjs from 'dayjs';
+
+import { Icon, ModalTrigger } from '@erxes/ui/src';
+
 import {
   Actions,
   IframeFullScreen,
@@ -5,12 +11,8 @@ import {
   Template,
   TemplateBox,
   TemplateBoxInfo,
-  TemplateInfo
+  TemplateInfo,
 } from '../styles';
-import { Icon, ModalTrigger } from '@erxes/ui/src';
-
-import React from 'react';
-import dayjs from 'dayjs';
 
 type Props = {
   handleSelect?: (_id: string) => void;
@@ -20,12 +22,17 @@ type Props = {
   onlyPreview?: boolean;
 };
 
-class EmailTemplate extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const EmailTemplate = (props: Props) => {
+  const {
+    selectedTemplateId,
+    template,
+    handleSelect,
+    templateId,
+    onlyPreview,
+  } = props;
+  const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
 
-  renderDate(createdAt, modifiedAt) {
+  const renderDate = (createdAt, modifiedAt) => {
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
         return '-';
@@ -35,9 +42,9 @@ class EmailTemplate extends React.Component<Props> {
     }
 
     return dayjs(modifiedAt).format('DD MMM YYYY');
-  }
+  };
 
-  renderView(content) {
+  const renderView = (content) => {
     const trigger = (
       <div>
         <Icon icon="eye" /> View
@@ -60,19 +67,12 @@ class EmailTemplate extends React.Component<Props> {
         size="lg"
       />
     );
-  }
+  };
 
-  renderActions() {
-    const {
-      template: { content },
-      handleSelect,
-      templateId,
-      onlyPreview
-    } = this.props;
-
+  const renderActions = () => {
     return (
       <Actions>
-        {this.renderView(content)}
+        {renderView(content)}
         {!onlyPreview && (
           <div onClick={handleSelect && handleSelect.bind(this, templateId)}>
             <Icon icon="clicker" /> Select
@@ -80,44 +80,37 @@ class EmailTemplate extends React.Component<Props> {
         )}
       </Actions>
     );
-  }
+  };
 
-  render() {
-    const { selectedTemplateId, template } = this.props;
-    const { _id, name, createdAt, modifiedAt, createdUser, content } = template;
+  return (
+    <Template key={_id} className={selectedTemplateId === _id ? 'active' : ''}>
+      <TemplateBox>
+        {renderActions()}
+        <IframePreview>
+          <iframe title="content-iframe" srcDoc={content} />
+        </IframePreview>
+      </TemplateBox>
+      <TemplateBoxInfo>
+        <h5>{name}</h5>
+        <div>
+          <TemplateInfo>
+            <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+            <p>{renderDate(createdAt, modifiedAt)}</p>
+          </TemplateInfo>
+          <TemplateInfo>
+            <p>Created by</p>
+            {createdUser ? (
+              createdUser.details.fullName && (
+                <p>{createdUser.details.fullName}</p>
+              )
+            ) : (
+              <p>erxes Inc</p>
+            )}
+          </TemplateInfo>
+        </div>
+      </TemplateBoxInfo>
+    </Template>
+  );
+};
 
-    return (
-      <Template
-        key={_id}
-        className={selectedTemplateId === _id ? 'active' : ''}
-      >
-        <TemplateBox>
-          {this.renderActions()}
-          <IframePreview>
-            <iframe title="content-iframe" srcDoc={content} />
-          </IframePreview>
-        </TemplateBox>
-        <TemplateBoxInfo>
-          <h5>{name}</h5>
-          <div>
-            <TemplateInfo>
-              <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
-              <p>{this.renderDate(createdAt, modifiedAt)}</p>
-            </TemplateInfo>
-            <TemplateInfo>
-              <p>Created by</p>
-              {createdUser ? (
-                createdUser.details.fullName && (
-                  <p>{createdUser.details.fullName}</p>
-                )
-              ) : (
-                <p>erxes Inc</p>
-              )}
-            </TemplateInfo>
-          </div>
-        </TemplateBoxInfo>
-      </Template>
-    );
-  }
-}
 export default EmailTemplate;
