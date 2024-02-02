@@ -1,4 +1,5 @@
 export type TravelProductConfig = {
   duration: number;
-  prices: any;
+  price: number;
+  numberOfPeople: number;
 };

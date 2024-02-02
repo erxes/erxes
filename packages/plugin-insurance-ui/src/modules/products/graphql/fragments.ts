@@ -39,9 +39,17 @@ export const PRODUCT_CORE_FIELDS = gql`
       }
     }
 
+    tags {
+      _id
+      name
+    }
+
+    tagIds
+
     travelProductConfigs {
       duration
-      prices
+      price
+      numberOfPeople
     }
   }
 `;

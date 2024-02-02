@@ -45,32 +45,17 @@ const Row = (props: Props) => {
     const { id, value } = e.target;
     console.log(id, value);
 
-    if (id === 'price') {
-      props.onChange(props.index, {
-        ...config,
-        prices: {
-          ...config.prices,
-          [id]: value,
-        },
-      });
-    }
+    // if (id === 'price') {
+    //   props.onChange(props.index, {
+    //     ...config,
+    //     price: value,
+    //   });
+    // }
 
-    if (id === 'duration') {
-      props.onChange(props.index, {
-        ...config,
-        [id]: value,
-      });
-    }
-
-    if (id === 'numberOfIndividuals') {
-      props.onChange(props.index, {
-        ...config,
-        prices: {
-          ...config.prices,
-          [id]: value,
-        },
-      });
-    }
+    props.onChange(props.index, {
+      ...config,
+      [id]: Number(value),
+    });
   };
 
   const remove = () => {
@@ -94,10 +79,10 @@ const Row = (props: Props) => {
       </FormControl>
 
       <FormControl
-        id="numberOfIndividuals"
+        id="numberOfPeople"
         componentClass="select"
         placeholder="Number of people in a group"
-        value={config.prices.numberOfIndividuals}
+        value={config.numberOfPeople}
         onChange={onChangeInput}
       >
         {GROUP_OPTIONS.map((option) => (
@@ -111,7 +96,7 @@ const Row = (props: Props) => {
         id="price"
         componentClass="Input"
         placeholder="Price"
-        value={config.prices.price}
+        value={config.price}
         type="number"
         onChange={onChangeInput}
       />

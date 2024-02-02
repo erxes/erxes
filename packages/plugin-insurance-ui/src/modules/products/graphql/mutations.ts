@@ -5,7 +5,7 @@ const PRODUCTS_ADD = gql`
     $name: String!
     $code: String!
     $description: String!
-    $price: Float!
+    $price: Float
     $riskConfigs: [RiskConfigInput]
     $categoryId: ID!
     $companyProductConfigs: [CompanyProductConfigInput]
@@ -92,5 +92,5 @@ export default {
   PRODUCTS_REMOVE,
   DEST_ADD,
   DEST_EDIT,
-  DEST_REMOVE
+  DEST_REMOVE,
 };

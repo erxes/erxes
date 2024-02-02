@@ -21,16 +21,30 @@ import TravelPriceRow from './TravelPriceRow';
 import SelectCategory from '../../categories/containers/SelectCategory';
 import RiskRow from './RiskRow';
 import CustomFieldSection from './CustomFieldSection';
+import Tagger from '@erxes/ui-tags/src/containers/Tagger';
+import Box from '@erxes/ui/src/components/Box';
+import Collapse from 'react-bootstrap/Collapse';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+
+type TaggerProps = {
+  type: string;
+  refetchQueries?: any[];
+  collapseCallback?: () => void;
+};
 
 type Props = {
   product?: InsuranceProduct;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   refetch: () => void;
   closeModal: () => void;
-};
+} & TaggerProps;
 
 const ProductForm = (props: Props) => {
   console.log('props', props);
+  const [isTaggerVisible, setIsTaggerVisible] = React.useState(false);
   const [category, setCategory] = React.useState<any>(
     props.product ? props.product.category : undefined,
   );
@@ -91,16 +105,23 @@ const ProductForm = (props: Props) => {
       };
     });
 
+    finalValues.tagIds = product.tagIds || [];
+
     finalValues.travelProductConfigs = travelConfigs.map((config) => {
       return {
-        duration: config.duration,
-        prices: config.prices.map((price) => {
-          return {
-            numberOfIndividuals: price.numberOfIndividuals,
-            price: Number(price.price),
-          };
-        }),
+        duration: Number(config.duration),
+        price: Number(config.price),
+        numberOfPeople: Number(config.numberOfPeople),
       };
+      // return {
+      //   duration: config.duration,
+      //   prices: config.prices.map((price) => {
+      //     return {
+      //       numberOfIndividuals: price.numberOfIndividuals,
+      //       price: Number(price.price),
+      //     };
+      //   }),
+      // };
     });
 
     return {
@@ -253,7 +274,7 @@ const ProductForm = (props: Props) => {
         return null;
       }
       return (
-        <div style={{ width: '50%', padding: '20px', height: '100%' }}>
+        <div style={{ width: '40%', padding: '20px', height: '100%' }}>
           <CustomFieldSection
             isDetail={true}
             _id={props.product ? props.product._id : ''}
@@ -313,12 +334,104 @@ const ProductForm = (props: Props) => {
       );
     };
 
+    const rednerTagSection = () => {
+      const { product, type, refetchQueries, collapseCallback } = props;
+      const data: any = product || {};
+      const tags = (data && data.tags) || [];
+      const extraButtons = (
+        <a
+          href="#settings"
+          tabIndex={0}
+          onClick={(e) => {
+            e.preventDefault();
+            setIsTaggerVisible(!isTaggerVisible);
+          }}
+        >
+          <Icon icon="cog" />
+        </a>
+      );
+
+      // if (!tags.length) {
+      //   return <EmptyState icon="tag-alt" text="Not tagged yet" size="small" />;
+      // }
+
+      // return (
+      //   <SidebarList className="no-link">
+      //     {tags.map(({ _id, colorCode, name }) => (
+      //       <li key={_id}>
+      //         <Icon icon="tag-alt" style={{ color: colorCode }} />
+      //         {name}
+      //       </li>
+      //     ))}
+      //   </SidebarList>
+      // );
+
+      const tagIds = (data && data.tagIds) || [];
+
+      return (
+        <div style={{ width: '40%', padding: '20px' }}>
+          <Box
+            title={__('Tags')}
+            name="showTags"
+            extraButtons={extraButtons}
+            callback={collapseCallback}
+            noPadding={true}
+          >
+            <Collapse in={isTaggerVisible}>
+              {/* <Tagger
+              type={'insurance:product'}
+              targets={[data]}
+              className="sidebar-accordion"
+              event="onClick"
+              refetchQueries={refetchQueries}
+            /> */}
+              <SelectTags
+                tagsType="insurance:product"
+                multi={false}
+                name="productTags"
+                label={'Tags'}
+                onSelect={(e) => {
+                  if (e.length === 0) {
+                    return;
+                  }
+
+                  if (tagIds.includes(e)) {
+                    data.tagIds = tagIds.filter((id: string) => id !== e);
+                  } else {
+                    data.tagIds = [...tagIds, e];
+                  }
+
+                  setProduct({
+                    ...product,
+                    tagIds: data.tagIds,
+                  });
+                }}
+                initialValue={data ? data.tagIds : []}
+              />
+            </Collapse>
+            {tags.length > 0 ? (
+              <SidebarList className="no-link">
+                {tags.map(({ _id, colorCode, name }) => (
+                  <li key={_id}>
+                    <Icon icon="tag-alt" style={{ color: colorCode }} />
+                    {name}
+                  </li>
+                ))}
+              </SidebarList>
+            ) : (
+              <EmptyState icon="tag-alt" text="Not tagged yet" size="small" />
+            )}
+          </Box>
+        </div>
+      );
+    };
+
     return (
       <>
         <div style={{ display: 'flex' }}>
           <div
             style={{
-              width: props.product ? '50%' : '100%',
+              width: props.product ? '60%' : '100%',
               padding: '20px',
               height: '100%',
             }}
@@ -360,6 +473,7 @@ const ProductForm = (props: Props) => {
             {renderTravelConfigs()}
           </div>
           {renderCustomFields()}
+          {rednerTagSection()}
         </div>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
