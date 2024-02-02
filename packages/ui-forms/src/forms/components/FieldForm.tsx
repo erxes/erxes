@@ -15,7 +15,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 
 import {
   FlexRow,
@@ -371,13 +371,13 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
-        <Select
+        {/* <Select
           isRequired={true}
           value={field.pageNumber || 1}
           onChange={onChange}
           options={options}
           clearable={false}
-        />
+        /> */}
       </FormGroup>
     );
   }

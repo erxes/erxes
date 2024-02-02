@@ -2,14 +2,14 @@ import { Button, Icon } from '@erxes/ui/src/components';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
-  COUNTRIES
+  COUNTRIES,
 } from '@erxes/ui-contacts/src/companies/constants';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
 import { LogicIndicator, SelectInput } from '../styles';
 import {
   RenderDynamicComponent,
   __,
-  isEnabled
+  isEnabled,
 } from '@erxes/ui/src/utils/core';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -22,7 +22,7 @@ import Map from '@erxes/ui/src/containers/map/Map';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectList from './ObjectList';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -60,11 +60,11 @@ export default class GenerateField extends React.Component<Props, State> {
     this.state = {
       errorCounter: 0,
       ...this.generateState(props),
-      currentLocation: props.currentLocation
+      currentLocation: props.currentLocation,
     };
   }
 
-  generateState = props => {
+  generateState = (props) => {
     const { field, defaultValue } = props;
 
     const state = { value: defaultValue, checkBoxValues: [] };
@@ -83,7 +83,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     if (nextProps.currentLocation !== this.props.currentLocation) {
       this.setState({
-        currentLocation: nextProps.currentLocation
+        currentLocation: nextProps.currentLocation,
       });
     }
   }
@@ -108,20 +108,22 @@ export default class GenerateField extends React.Component<Props, State> {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {
-        const value = ops.map(e => e.value).toString();
+        const value = ops.map((e) => e.value).toString();
         this.setState({ value });
 
         onValueChange({ _id: field._id, value });
       }
     };
-    return (
-      <Select
-        value={attrs.value}
-        options={options.map(e => ({ value: e, label: e }))}
-        onChange={onChange}
-        multi={true}
-      />
-    );
+
+    return null;
+    // return (
+    //   <Select
+    //     value={attrs.value}
+    //     options={options.map(e => ({ value: e, label: e }))}
+    //     onChange={onChange}
+    //     multi={true}
+    //   />
+    // );
   }
 
   renderInput(attrs, hasError?: boolean) {
@@ -138,7 +140,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     attrs.type = 'text';
 
-    attrs.onChange = e => {
+    attrs.onChange = (e) => {
       this.setState({ value: e.target.value });
       this.onChange(e, attrs.option);
     };
@@ -175,7 +177,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.max = '9999-12-31';
 
       // redefine onChange since date chooser returns the value, not event
-      attrs.onChange = val => {
+      attrs.onChange = (val) => {
         this.setState({ value: val });
         this.onChange(val, val);
       };
@@ -195,7 +197,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.max = '9999-12-31';
 
       // redefine onChange since date chooser returns the value, not event
-      attrs.onChange = val => {
+      attrs.onChange = (val) => {
         this.setState({ value: val });
         this.onChange(val, val);
       };
@@ -265,7 +267,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderCustomer({ id, value }) {
-    const onSelect = e => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
@@ -287,7 +289,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderProduct({ id, value }) {
-    const onSelect = e => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
@@ -309,7 +311,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderBranch({ id, value }) {
-    const onSelect = e => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
@@ -331,7 +333,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderDepartment({ id, value }) {
-    const onSelect = e => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
@@ -364,7 +366,7 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     const { scope, component } = filteredPlugin.formsExtraFields.find(
-      extraField => extraField.type === type
+      (extraField) => extraField.type === type,
     );
     return (
       <ErrorBoundary key={scope}>
@@ -382,7 +384,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <div
         dangerouslySetInnerHTML={{
-          __html: content || ''
+          __html: content || '',
         }}
       />
     );
@@ -394,7 +396,7 @@ export default class GenerateField extends React.Component<Props, State> {
       options = attrs.value.split(',') || [];
     }
 
-    const onChange = ops => {
+    const onChange = (ops) => {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {
@@ -478,7 +480,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     let { currentLocation } = this.state;
 
-    const onChangeMarker = e => {
+    const onChangeMarker = (e) => {
       if (onValueChange) {
         onValueChange({ _id: field._id, value: e });
       }
@@ -503,7 +505,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field, onValueChange } = this.props;
     const { value } = attrs;
 
-    const onChangeCategory = values => {
+    const onChangeCategory = (values) => {
       if (onValueChange) {
         onValueChange({ _id: field._id, value: values });
       }
@@ -524,13 +526,13 @@ export default class GenerateField extends React.Component<Props, State> {
     const otherFields = this.props.otherFields || [];
 
     const subFields =
-      otherFields.filter(otherField =>
-        field.subFieldIds?.includes(otherField._id)
+      otherFields.filter((otherField) =>
+        field.subFieldIds?.includes(otherField._id),
       ) || [];
 
     return (
       <>
-        {subFields.map(subField => {
+        {subFields.map((subField) => {
           return <GenerateField key={subField._id} field={subField} />;
         })}
       </>
@@ -566,7 +568,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
       // remove option from checked list
       if (!isChecked) {
-        checkBoxValues = checkBoxValues.filter(v => v !== optionValue);
+        checkBoxValues = checkBoxValues.filter((v) => v !== optionValue);
       }
 
       this.setState({ checkBoxValues });
@@ -590,7 +592,7 @@ export default class GenerateField extends React.Component<Props, State> {
       id: field._id,
       value: this.state.value,
       onChange: this.onChange,
-      name: ''
+      name: '',
     };
 
     const boolOptions = ['Yes', 'No'];
@@ -726,11 +728,13 @@ export default class GenerateField extends React.Component<Props, State> {
       default:
         try {
           const plugins = ((window as any).plugins || []).filter(
-            plugin => plugin.formsExtraFields
+            (plugin) => plugin.formsExtraFields,
           );
 
-          const filteredPlugin = plugins.find(plugin =>
-            plugin.formsExtraFields.find(extraField => extraField.type === type)
+          const filteredPlugin = plugins.find((plugin) =>
+            plugin.formsExtraFields.find(
+              (extraField) => extraField.type === type,
+            ),
           );
 
           if (filteredPlugin) {
@@ -773,8 +777,8 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field, hasLogic, otherFields = [] } = this.props;
 
     const subFieldIds = otherFields
-      .filter(f => f.subFieldIds)
-      .map(f => f.subFieldIds)
+      .filter((f) => f.subFieldIds)
+      .map((f) => f.subFieldIds)
       .flat();
 
     return (

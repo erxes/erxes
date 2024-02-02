@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IDepartment } from '../types';
 import { IOption } from '@erxes/ui/src/types';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -18,19 +18,19 @@ type Props = {
 
 class SelectDepartments extends React.Component<Props, {}> {
   generateUserOptions(array: IDepartment[] = []): IOption[] {
-    return array.map(item => {
+    return array.map((item) => {
       const department = item || ({} as IDepartment);
 
       return {
         value: department._id,
-        label: department.title
+        label: department.title,
       };
     });
   }
 
-  onChangeChannel = values => {
+  onChangeChannel = (values) => {
     if (this.props.onChange) {
-      this.props.onChange(values.map(item => item.value) || []);
+      this.props.onChange(values.map((item) => item.value) || []);
     }
   };
 
@@ -42,13 +42,13 @@ class SelectDepartments extends React.Component<Props, {}> {
         <ControlLabel required={isRequired}>Departments</ControlLabel>
         <Row>
           <LeftContent>
-            <Select
+            {/* <Select
               placeholder={__('Select departments')}
               value={defaultValue}
               onChange={this.onChangeChannel}
               options={this.generateUserOptions(departments)}
               multi={true}
-            />
+            /> */}
           </LeftContent>
         </Row>
       </FormGroup>

@@ -3,7 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IField } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Info from '@erxes/ui/src/components/Info';
 
 type Props = {
@@ -15,10 +15,10 @@ type Props = {
 const GroupedField = (props: Props) => {
   const { field } = props;
   const [subFieldIds, setSubFieldIds] = React.useState<string[]>(
-    field?.subFieldIds || []
+    field?.subFieldIds || [],
   );
 
-  const otherFields = props.fields.filter(f => {
+  const otherFields = props.fields.filter((f) => {
     if (f.type === 'parentField') {
       return false;
     }
@@ -46,10 +46,10 @@ const GroupedField = (props: Props) => {
       <p>{__('Please select a subfields')}</p>
       <Info>
         {__(
-          'Note: If subfields have logics, they will be ignored. But main field logics will be applied.'
+          'Note: If subfields have logics, they will be ignored. But main field logics will be applied.',
         )}
       </Info>
-      <Select
+      {/* <Select
         placeholder={__('Choose')}
         options={otherFields.map(f => ({ label: f.text, value: f._id }))}
         onChange={(values: any) => {
@@ -61,7 +61,7 @@ const GroupedField = (props: Props) => {
         clearable={true}
         value={subFieldIds}
         multi={true}
-      />
+      /> */}
     </FormGroup>
   );
 };

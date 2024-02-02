@@ -21,7 +21,7 @@ import { METHODS } from '../constants';
 import MessengerPreview from '../containers/MessengerPreview';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils';
 import { generateEmailTemplateParams } from '../utils';
@@ -273,12 +273,12 @@ class WidgetForm extends React.Component<Props, State> {
             <ControlLabel>Email templates:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
 
-            <Select
+            {/* <Select
               value={this.state.templateId}
               onChange={this.templateChange}
               options={generateEmailTemplateParams(this.props.emailTemplates)}
               clearable={false}
-            />
+            /> */}
           </FormGroup>
         </Half>
 

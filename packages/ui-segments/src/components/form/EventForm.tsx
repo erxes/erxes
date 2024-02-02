@@ -1,5 +1,5 @@
 import { IConditionFilter, IEvent, ISegmentCondition } from '../../types';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -20,7 +20,7 @@ type Props = {
     segmentKey: string,
     boardId?: string,
     pipelineId?: string,
-    formId?: string
+    formId?: string,
   ) => void;
   condition?: ISegmentCondition;
   onClickBackToList: () => void;
@@ -43,34 +43,34 @@ class EventForm extends React.Component<Props, State> {
       eventName: condition.eventName,
       eventOccurence: condition.eventOccurence,
       eventOccurenceValue: condition.eventOccurenceValue,
-      eventAttributeFilters: condition.eventAttributeFilters || {}
+      eventAttributeFilters: condition.eventAttributeFilters || {},
     };
   }
 
   onChangeSelect = (key, e) => {
     const value = e ? e.value : '';
 
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
-  onChangeOccurenceValue = e => {
+  onChangeOccurenceValue = (e) => {
     const value = e.target.value;
     this.setState({ eventOccurenceValue: value ? parseFloat(value) : 0 });
   };
 
-  renderInput = attributeName => {
+  renderInput = (attributeName) => {
     const { eventAttributeFilters } = this.state;
 
     const eventAttributeFilter =
       eventAttributeFilters[0] || ({} as IConditionFilter);
 
-    const onChangeSelect = e => {
+    const onChangeSelect = (e) => {
       eventAttributeFilter.operator = e ? e.value : '';
 
       this.setState({ eventAttributeFilters: [eventAttributeFilter] });
     };
 
-    const onChangeAttributeValue = e => {
+    const onChangeAttributeValue = (e) => {
       eventAttributeFilter.value = e.target.value;
 
       this.setState({ eventAttributeFilters: [eventAttributeFilter] });
@@ -79,7 +79,7 @@ class EventForm extends React.Component<Props, State> {
     if (eventAttributeFilter && eventAttributeFilter.name === attributeName) {
       return (
         <>
-          <FormGroup>
+          {/* <FormGroup>
             <Select
               placeholder="Select operator"
               options={DEFAULT_OPERATORS.map(b => ({
@@ -89,7 +89,7 @@ class EventForm extends React.Component<Props, State> {
               value={eventAttributeFilter.operator}
               onChange={onChangeSelect}
             />
-          </FormGroup>
+          </FormGroup> */}
           <FormGroup>
             <FormControl
               placeholder="value"
@@ -104,7 +104,7 @@ class EventForm extends React.Component<Props, State> {
     return;
   };
 
-  isChecked = attributeName => {
+  isChecked = (attributeName) => {
     const { eventAttributeFilters } = this.state;
 
     return (
@@ -113,7 +113,7 @@ class EventForm extends React.Component<Props, State> {
     );
   };
 
-  onClickAttribute = attributeName => {
+  onClickAttribute = (attributeName) => {
     const attritibutes = [{ name: attributeName, operator: '', value: '' }];
 
     this.setState({ eventAttributeFilters: attritibutes });
@@ -123,7 +123,7 @@ class EventForm extends React.Component<Props, State> {
     const { events } = this.props;
     const { eventName } = this.state;
 
-    const event = events.find(e => e.name === eventName) || ({} as IEvent);
+    const event = events.find((e) => e.name === eventName) || ({} as IEvent);
 
     if (event.attributeNames && event.attributeNames.length > 0) {
       const attributeNames = event.attributeNames;
@@ -160,7 +160,7 @@ class EventForm extends React.Component<Props, State> {
       eventName,
       eventOccurence,
       eventOccurenceValue,
-      eventAttributeFilters
+      eventAttributeFilters,
     } = this.state;
 
     return addCondition(
@@ -174,9 +174,9 @@ class EventForm extends React.Component<Props, State> {
           eventAttributeFilters[0] && eventAttributeFilters[0].operator
             ? eventAttributeFilters
             : [],
-        config: {}
+        config: {},
       },
-      segmentKey
+      segmentKey,
     );
   };
 
@@ -192,23 +192,23 @@ class EventForm extends React.Component<Props, State> {
         <OperatorList>
           <FormGroup>
             <ControlLabel>Event</ControlLabel>
-            <Select
+            {/* <Select
               value={eventName}
               options={events.map(b => ({ value: b.name, label: b.name }))}
               onChange={this.onChangeSelect.bind(this, 'eventName')}
-            />
+            /> */}
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Occurence</ControlLabel>
-            <Select
+            {/* <Select
               value={eventOccurence}
               options={EVENT_OCCURENCES.map(b => ({
                 value: b.value,
                 label: b.name
               }))}
               onChange={this.onChangeSelect.bind(this, 'eventOccurence')}
-            />
+            /> */}
           </FormGroup>
 
           <FormGroup>

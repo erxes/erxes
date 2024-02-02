@@ -16,7 +16,7 @@ import { ILeadData } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
@@ -198,12 +198,12 @@ class SuccessStep extends React.Component<Props, State> {
             <label>Email templates:</label>
             <p>{__('Insert email template to content')}</p>
 
-            <Select
+            {/* <Select
               value={leadData.templateId}
               onChange={this.templateChange}
               options={generateEmailTemplateParams(this.props.emailTemplates)}
               clearable={false}
-            />
+            /> */}
           </FormGroup>
         )}
         <FormGroup>

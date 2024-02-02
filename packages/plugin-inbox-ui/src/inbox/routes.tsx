@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -9,11 +9,11 @@ const InboxComponent = asyncComponent(
   () => import(/* webpackChunkName: "InboxCore"   */ './containers/InboxCore'),
 );
 
-const index = ({ location }) => {
-  return <Redirect to={`/inbox/index${location.search}`} />;
+const Index = ({ location }) => {
+  // return <Redirect to={`/inbox/index${location.search}`} />;
 };
 
-const inbox = (props: IRouterProps) => {
+const Inbox = (props: IRouterProps) => {
   return (
     <InboxComponent
       history={props.history}
@@ -24,15 +24,14 @@ const inbox = (props: IRouterProps) => {
 
 const routes = () => {
   return (
-    <>
-      <Route exact={true} path="/inbox" key="inbox" render={index} />
-      <Route
-        exact={true}
+    <Routes>
+      {/* <Route path="/inbox" key="inbox" element={<Index />} /> */}
+      {/* <Route
         path="/inbox/index"
         key="inbox/index"
-        render={inbox}
-      />
-    </>
+        element={<Inbox />}
+      /> */}
+    </Routes>
   );
 };
 

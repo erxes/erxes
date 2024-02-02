@@ -31,7 +31,7 @@ import CategoryForm from '../containers/CategoryForm';
 import { queries } from '../graphql';
 import { BarcodeItem, TableBarcode } from '../styles';
 import { IProduct, IProductCategory, IUom, IVariant } from '../types';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 
 type Props = {
   product?: IProduct;
@@ -550,13 +550,13 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Category</ControlLabel>
               <Row>
-                <Select
+                {/* <Select
                   {...formProps}
                   placeholder={__('Choose a category')}
                   value={categoryId}
                   options={generateOptions()}
                   onChange={this.onChangeCateogry}
-                />
+                /> */}
                 {this.renderFormTrigger(trigger)}
               </Row>
             </FormGroup>

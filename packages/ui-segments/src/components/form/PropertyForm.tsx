@@ -2,7 +2,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 import { OperatorList } from '../styles';
@@ -40,7 +40,7 @@ class PropertyForm extends React.Component<Props, State> {
       const operators = OPERATORS[field.type || ''] || OPERATORS.string;
 
       chosenOperator = operators.find(
-        operator => operator.value === condition.propertyOperator
+        (operator) => operator.value === condition.propertyOperator,
       );
 
       currentValue = condition.propertyValue || '';
@@ -50,22 +50,22 @@ class PropertyForm extends React.Component<Props, State> {
       chosenOperator,
       currentValue,
       propertyType: condition ? condition.propertyType : propertyType,
-      config: condition ? condition.config : config
+      config: condition ? condition.config : config,
     };
   }
 
-  onClickOperator = operator => {
+  onClickOperator = (operator) => {
     if (['is', 'ins', 'it', 'if'].indexOf(operator.value) >= 0) {
       this.setState({
         chosenOperator: operator,
-        currentValue: operator.value
+        currentValue: operator.value,
       });
     } else {
       this.setState({ chosenOperator: operator, currentValue: '' });
     }
   };
 
-  renderInput = operator => {
+  renderInput = (operator) => {
     const { chosenOperator } = this.state;
 
     if (
@@ -79,21 +79,21 @@ class PropertyForm extends React.Component<Props, State> {
     return;
   };
 
-  renderSelect(
-    value: string | number,
-    options: Array<{ label: string; value: string | number }>
-  ) {
-    return (
-      <Select
-        placeholder={__('Select value')}
-        value={value}
-        options={options}
-        isRequired={true}
-        clearable={false}
-        onChange={this.onChangeSelect}
-      />
-    );
-  }
+  // renderSelect(
+  //   value: string | number,
+  //   options: Array<{ label: string; value: string | number }>
+  // ) {
+  //   return (
+  //     <Select
+  //       placeholder={__('Select value')}
+  //       value={value}
+  //       options={options}
+  //       isRequired={true}
+  //       clearable={false}
+  //       onChange={this.onChangeSelect}
+  //     />
+  //   );
+  // }
 
   renderDate(value: string) {
     return (
@@ -103,7 +103,7 @@ class PropertyForm extends React.Component<Props, State> {
         closeOnSelect={false}
         closeOnTab={true}
         value={`${new Date(value).toDateString()} ${new Date(
-          value
+          value,
         ).toTimeString()}`}
         onChange={this.onChangeDate}
       />
@@ -118,13 +118,13 @@ class PropertyForm extends React.Component<Props, State> {
 
   onChangeValue = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      currentValue: (e.currentTarget as HTMLInputElement).value
+      currentValue: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
-  onChangeDate = date => {
+  onChangeDate = (date) => {
     this.setState({
-      currentValue: new Date(date).toISOString()
+      currentValue: new Date(date).toISOString(),
     });
   };
 
@@ -144,21 +144,21 @@ class PropertyForm extends React.Component<Props, State> {
       return this.renderDate(currentValue);
     }
 
-    if (selectOptions.length > 0) {
-      return this.renderSelect(currentValue, selectOptions);
-    }
+    // if (selectOptions.length > 0) {
+    //   return this.renderSelect(currentValue, selectOptions);
+    // }
 
-    // if custom field is of type radio, then show options as select
-    if (type === 'radio' && choiceOptions.length > 0) {
-      const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
+    // // if custom field is of type radio, then show options as select
+    // if (type === 'radio' && choiceOptions.length > 0) {
+    //   const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
 
-      return this.renderSelect(currentValue, options);
-    }
+    //   return this.renderSelect(currentValue, options);
+    // }
 
     return <FormControl value={currentValue} onChange={this.onChangeValue} />;
   };
 
-  isChecked = operator => {
+  isChecked = (operator) => {
     const { chosenOperator } = this.state;
 
     if (chosenOperator) {
@@ -204,9 +204,9 @@ class PropertyForm extends React.Component<Props, State> {
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue,
-        config
+        config,
       },
-      segmentKey
+      segmentKey,
     );
   };
 

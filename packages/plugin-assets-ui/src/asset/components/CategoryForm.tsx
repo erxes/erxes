@@ -3,19 +3,19 @@ import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
 } from '@erxes/ui/src/styles/main';
 import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 
 import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 import { extractAttachment } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -29,10 +29,10 @@ function CategoryForm({
   renderButton,
   closeModal,
   category,
-  categories
+  categories,
 }: Props) {
   const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
-    undefined
+    undefined,
   );
   const [status, setStatus] = React.useState<string>('');
   const [parentId, setParentId] = React.useState<string>('');
@@ -44,7 +44,7 @@ function CategoryForm({
     }
   }, []);
 
-  const generateDocs = values => {
+  const generateDocs = (values) => {
     const finalValues = values;
 
     if (category) {
@@ -103,7 +103,7 @@ function CategoryForm({
                 placeholder={__('Choose status')}
                 value={status}
                 options={ASSET_CATEGORY_STATUSES}
-                onChange={option => setStatus(option.value)}
+                onChange={(option) => setStatus(option.value)}
                 {...formProps}
               />
             </CommonFormGroup>
@@ -115,7 +115,7 @@ function CategoryForm({
                 name="categoryId"
                 multi={false}
                 initialValue={object.parentId}
-                onSelect={value => setParentId(value as string)}
+                onSelect={(value) => setParentId(value as string)}
                 customOption={{ value: '', label: 'Choose Asset Category' }}
                 {...formProps}
               />
@@ -142,7 +142,7 @@ function CategoryForm({
             values: generateDocs(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

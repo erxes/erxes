@@ -1,5 +1,5 @@
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
 
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -25,7 +25,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: this.props.currentId || ''
+      categoryId: this.props.currentId || '',
     };
   }
 
@@ -40,11 +40,11 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
   selectOptions(categories: IProductCategory[]) {
     const { customOption } = this.props;
-    const options = categories.map(item => ({
+    const options = categories.map((item) => ({
       value: item._id,
       label: item.name,
       order: item.order,
-      isRoot: item.isRoot
+      isRoot: item.isRoot,
     }));
 
     if (customOption) {
@@ -60,15 +60,15 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     let childIds: string[] = [];
 
     if (hasChildIds) {
-      const foundCategory = categories.find(c => c._id === categoryId);
+      const foundCategory = categories.find((c) => c._id === categoryId);
 
       if (foundCategory) {
-        const childs = categories.filter(c =>
-          c.order.startsWith(foundCategory.order)
+        const childs = categories.filter((c) =>
+          c.order.startsWith(foundCategory.order),
         );
 
         if (childs.length) {
-          childIds = childIds.concat(childs.map(ch => ch._id));
+          childIds = childIds.concat(childs.map((ch) => ch._id));
         }
       }
     }
@@ -77,7 +77,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     this.props.onChangeCategory(categoryId, childIds);
   };
 
-  renderOptions = option => {
+  renderOptions = (option) => {
     const name = option.isRoot ? (
       <strong>{option.label}</strong>
     ) : (
@@ -105,11 +105,11 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
   render() {
     const { categories } = this.props;
-    const onChangeCategory = option => this.onChange(option?.value);
+    const onChangeCategory = (option) => this.onChange(option?.value);
 
     return (
       <CategoryContainer>
-        <Select
+        {/* <Select
           isRequired={true}
           placeholder={__('Choose a category')}
           optionRenderer={this.renderOptions}
@@ -117,7 +117,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
           value={this.state.categoryId}
           onChange={onChangeCategory}
           clearable={false}
-        />
+        /> */}
       </CategoryContainer>
     );
   }
