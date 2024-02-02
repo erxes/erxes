@@ -2,12 +2,15 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
+import { getDefaultHighWaterMark } from 'stream';
 
 const MMSTOMINS = 60000;
 
 const MMSTOHRS = MMSTOMINS * 60;
 
 const INBOX_TAG_TYPE = 'inbox:conversation';
+
+const NOW = new Date();
 
 const reportTemplates = [
   {
@@ -26,6 +29,18 @@ const reportTemplates = [
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
+};
+
+const getDates = (startDate: Date, endDate: Date) => {
+  const dates: Date[] = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dates;
 };
 
 // integrationTypess
@@ -79,6 +94,65 @@ const calculateAverage = (arr: number[]) => {
   return (sum / arr.length).toFixed();
 };
 
+const returnDateRange = (dateRange: string, startDate: Date, endDate: Date) => {
+  const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+  const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+  const startOfYesterday = new Date(
+    dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
+  );
+
+  let $gte;
+  let $lte;
+
+  switch (dateRange) {
+    case 'today':
+      $gte = startOfToday;
+      $lte = endOfToday;
+      break;
+    case 'yesterday':
+      $gte = startOfYesterday;
+      $lte = startOfToday;
+    case 'thisWeek':
+      $gte = dayjs(NOW).startOf('week').toDate();
+      $lte = dayjs(NOW).endOf('week').toDate();
+      break;
+
+    case 'lastWeek':
+      $gte = dayjs(NOW).add(-1, 'week').startOf('week').toDate();
+      $lte = dayjs(NOW).add(-1, 'week').endOf('week').toDate();
+      break;
+    case 'lastMonth':
+      $gte = dayjs(NOW).add(-1, 'month').startOf('month').toDate();
+      $lte = dayjs(NOW).add(-1, 'month').endOf('month').toDate();
+      break;
+    case 'thisMonth':
+      $gte = dayjs(NOW).startOf('month').toDate();
+      $lte = dayjs(NOW).endOf('month').toDate();
+      break;
+    case 'thisYear':
+      $gte = dayjs(NOW).startOf('year').toDate();
+      $lte = dayjs(NOW).endOf('year').toDate();
+      break;
+    case 'lastYear':
+      $gte = dayjs(NOW).add(-1, 'year').startOf('year').toDate();
+      $lte = dayjs(NOW).add(-1, 'year').endOf('year').toDate();
+      break;
+    case 'customDate':
+      $gte = startDate;
+      $lte = endDate;
+      break;
+    // all
+    default:
+      break;
+  }
+
+  if ($gte && $lte) {
+    return { $gte, $lte };
+  }
+
+  return {};
+};
+
 const chartTemplates = [
   {
     templateType: 'averageFirstResponseTime',
@@ -98,19 +172,12 @@ const chartTemplates = [
         'conversationMessages.content': { $ne: '' },
       };
 
-      const { startDate, endDate } = filter;
+      const { startDate, endDate, tagIds } = filter;
 
-      const filterQuery = {
-        createdAt: { $gte: startDate, $lte: endDate },
-      };
       const { departmentIds, branchIds, userIds } = filter;
-
-      const dimensionX = dimension.x;
 
       let departmentUsers;
       let filterUserIds: any = [];
-      const integrationsDict = {};
-      let totalIntegrations;
 
       if (checkFilterParam(departmentIds)) {
         const findDepartmentUsers = await sendCoreMessage({
@@ -160,78 +227,21 @@ const chartTemplates = [
 
       // filter by date
       if (filter.dateRange) {
-        const dateFilter = {};
-        const NOW = new Date();
-        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-        const startOfYesterday = new Date(
-          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
         );
 
-        switch (filter.dateRange) {
-          case 'today':
-            dateFilter['$gte'] = startOfToday;
-            dateFilter['$lte'] = endOfToday;
-            break;
-          case 'yesterday':
-            dateFilter['$gte'] = startOfYesterday;
-            dateFilter['$lte'] = startOfToday;
-          case 'thisWeek':
-            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
-            break;
-
-          case 'lastWeek':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .startOf('week')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .endOf('week')
-              .toDate();
-            break;
-          case 'lastMonth':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .startOf('month')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .endOf('month')
-              .toDate();
-            break;
-          case 'thisMonth':
-            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
-            break;
-          case 'thisYear':
-            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
-            break;
-          case 'lastYear':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .startOf('year')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .endOf('year')
-              .toDate();
-            break;
-
-          case 'customDate':
-            dateFilter['$gte'] = filter.startDate;
-            dateFilter['$lte'] = filter.endDate;
-            break;
-          //all
-          default:
-            break;
-        }
+        console.log(dateFilter);
 
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
         }
+      }
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['conversationMessages.tagIds'] = { $in: tagIds };
       }
 
       matchfilter['conversationMessages.userId'] = filterUserIds.length
@@ -266,6 +276,7 @@ const chartTemplates = [
             closedUserId: 1,
             firstRespondedDate: 1,
             firstRespondedUserId: 1,
+            tagIds: 1,
           },
         },
         {
@@ -393,13 +404,6 @@ const chartTemplates = [
         fieldLabel: 'Select users',
       },
       {
-        fieldName: 'userIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select users',
-      },
-      {
         fieldName: 'departmentIds',
         fieldType: 'select',
         multi: true,
@@ -416,6 +420,7 @@ const chartTemplates = [
       {
         fieldName: 'integrationTypes',
         fieldType: 'select',
+        fieldQuery: 'integrations',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source',
@@ -429,8 +434,12 @@ const chartTemplates = [
         fieldLabel: 'Select date range',
       },
       {
-        fieldName: 'tags',
+        fieldName: 'tagIds',
         fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -504,74 +513,10 @@ const chartTemplates = [
 
       // filter by date
       if (filter.dateRange) {
-        const dateFilter = {};
-        const NOW = new Date();
-        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-        const startOfYesterday = new Date(
-          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
-        );
+        const { startDate, endDate, dateRange } = filter;
+        let dateFilter = {};
 
-        switch (filter.dateRange) {
-          case 'today':
-            dateFilter['$gte'] = startOfToday;
-            dateFilter['$lte'] = endOfToday;
-            break;
-          case 'yesterday':
-            dateFilter['$gte'] = startOfYesterday;
-            dateFilter['$lte'] = startOfToday;
-          case 'thisWeek':
-            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
-            break;
-
-          case 'lastWeek':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .startOf('week')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .endOf('week')
-              .toDate();
-            break;
-          case 'lastMonth':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .startOf('month')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .endOf('month')
-              .toDate();
-            break;
-          case 'thisMonth':
-            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
-            break;
-          case 'thisYear':
-            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
-            break;
-          case 'lastYear':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .startOf('year')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .endOf('year')
-              .toDate();
-            break;
-
-          case 'customDate':
-            dateFilter['$gte'] = filter.startDate;
-            dateFilter['$lte'] = filter.endDate;
-            break;
-          //all
-          default:
-            break;
-        }
+        dateFilter = returnDateRange(dateRange, startDate, endDate);
 
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
@@ -672,6 +617,7 @@ const chartTemplates = [
       {
         fieldName: 'integrationTypes',
         fieldType: 'select',
+        fieldQuery: 'integrations',
         multi: true,
         fieldOptions: INTEGRATION_TYPES,
         fieldLabel: 'Select source',
@@ -685,8 +631,12 @@ const chartTemplates = [
         fieldLabel: 'Select date range',
       },
       {
-        fieldName: 'tags',
+        fieldName: 'tagIds',
         fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -769,74 +719,76 @@ const chartTemplates = [
       }
 
       if (dateRange) {
-        const dateFilter = {};
-        const NOW = new Date();
-        const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-        const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-        const startOfYesterday = new Date(
-          dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0),
-        );
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
 
-        switch (dateRange) {
-          case 'today':
-            dateFilter['$gte'] = startOfToday;
-            dateFilter['$lte'] = endOfToday;
-            break;
-          case 'yesterday':
-            dateFilter['$gte'] = startOfYesterday;
-            dateFilter['$lte'] = startOfToday;
-          case 'thisWeek':
-            dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
-            break;
+        // const NOW = new Date();
+        // const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
+        // const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
+        // const startOfYesterday = new Date(
+        //   dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0)
+        // );
 
-          case 'lastWeek':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .startOf('week')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'week')
-              .endOf('week')
-              .toDate();
-            break;
-          case 'lastMonth':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .startOf('month')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'month')
-              .endOf('month')
-              .toDate();
-            break;
-          case 'thisMonth':
-            dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
-            break;
-          case 'thisYear':
-            dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
-            dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
-            break;
-          case 'lastYear':
-            dateFilter['$gte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .startOf('year')
-              .toDate();
-            dateFilter['$lte'] = dayjs(NOW)
-              .add(-1, 'year')
-              .endOf('year')
-              .toDate();
-            break;
+        // switch (dateRange) {
+        //   case 'today':
+        //     dateFilter['$gte'] = startOfToday;
+        //     dateFilter['$lte'] = endOfToday;
+        //     break;
+        //   case 'yesterday':
+        //     dateFilter['$gte'] = startOfYesterday;
+        //     dateFilter['$lte'] = startOfToday;
+        //   case 'thisWeek':
+        //     dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
+        //     dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
+        //     break;
 
-          case 'customDate':
-            dateFilter['$gte'] = filter.startDate;
-            dateFilter['$lte'] = filter.endDate;
-            break;
-          //all
-          default:
-            break;
-        }
+        //   case 'lastWeek':
+        //     dateFilter['$gte'] = dayjs(NOW)
+        //       .add(-1, 'week')
+        //       .startOf('week')
+        //       .toDate();
+        //     dateFilter['$lte'] = dayjs(NOW)
+        //       .add(-1, 'week')
+        //       .endOf('week')
+        //       .toDate();
+        //     break;
+        //   case 'lastMonth':
+        //     dateFilter['$gte'] = dayjs(NOW)
+        //       .add(-1, 'month')
+        //       .startOf('month')
+        //       .toDate();
+        //     dateFilter['$lte'] = dayjs(NOW)
+        //       .add(-1, 'month')
+        //       .endOf('month')
+        //       .toDate();
+        //     break;
+        //   case 'thisMonth':
+        //     dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
+        //     dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
+        //     break;
+        //   case 'thisYear':
+        //     dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
+        //     dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
+        //     break;
+        //   case 'lastYear':
+        //     dateFilter['$gte'] = dayjs(NOW)
+        //       .add(-1, 'year')
+        //       .startOf('year')
+        //       .toDate();
+        //     dateFilter['$lte'] = dayjs(NOW)
+        //       .add(-1, 'year')
+        //       .endOf('year')
+        //       .toDate();
+        //     break;
+
+        //   case 'customDate':
+        //     dateFilter['$gte'] = filter.startDate;
+        //     dateFilter['$lte'] = filter.endDate;
+        //     break;
+        //   //all
+        //   default:
+        //     break;
+        // }
 
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
@@ -844,7 +796,7 @@ const chartTemplates = [
       }
 
       // filter by status
-      if (filterStatus && filterStatus !== 'all' && dimensionX !== 'status') {
+      if (filterStatus && filterStatus !== 'all') {
         if (filterStatus === 'unassigned') {
           matchfilter['assignedUserId'] = null;
         } else {
@@ -1293,6 +1245,55 @@ const chartTemplates = [
         return { title, labels, data };
       }
 
+      // frequency
+
+      if (dimensionX === 'frequency') {
+        const convosCountByDateRange =
+          (await models?.Conversations.find(matchfilter)) || [];
+
+        if (dateRange) {
+          if (dateRange === 'today' || dateRange === 'yesterday') {
+            labels.push(dateRange);
+            data.push(convosCountByDateRange.length);
+          }
+
+          // { label: 'All time', value: 'all' },
+          // { label: 'Today', value: 'today' },
+          // { label: 'Yesterday', value: 'yesterday' },
+          // { label: 'This Week', value: 'thisWeek' },
+          // { label: 'Last Week', value: 'lastWeek' },
+          // { label: 'This Month', value: 'thisMonth' },
+          // { label: 'Last Month', value: 'lastMonth' },
+          // { label: 'This Year', value: 'thisYear' },
+          // { label: 'Last Year', value: 'lastYear' },
+          // { label: 'Custom Date', value: 'customDate' }
+
+          if (dateRange.toLowerCase().includes('week')) {
+            if (dateRange === 'thisWeek') {
+              dayjs().set;
+              const startOfThisWeek = dayjs(NOW).startOf('week').toDate();
+              const endOfThisWeek = dayjs(NOW).endOf('week').toDate();
+
+              console.log(dayjs(startOfThisWeek).format('YYYY-MM-DD hh:mm'));
+              console.log(dayjs(endOfThisWeek).format('YYYY-MM-DD hh:mm'));
+
+              console.log(startOfThisWeek, endOfThisWeek, ' ````````````````');
+
+              const dates = getDates(startOfThisWeek, endOfThisWeek);
+              console.log(dates);
+            }
+
+            if (dateRange === 'lastWeek') {
+              // const startOfLastWeek = dayjs(NOW).
+            }
+          }
+        }
+
+        const title = `Conversations count of ${dateRange}`;
+
+        return { title, labels, data };
+      }
+
       // team members
       if (usersWithConvosCount) {
         for (const user of usersWithConvosCount) {
@@ -1349,7 +1350,6 @@ const chartTemplates = [
       },
       {
         fieldName: 'brandIds',
-
         fieldType: 'select',
         fieldQuery: 'allBrands',
         multi: true,
@@ -1369,7 +1369,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": ${INBOX_TAG_TYPE}, "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },

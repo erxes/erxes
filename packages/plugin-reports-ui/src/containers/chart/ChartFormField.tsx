@@ -26,6 +26,7 @@ type Props = {
 
 const ChartFormFieldList = (props: Props) => {
   const { filterType, setFilter } = props;
+
   const {
     fieldName,
     fieldType,

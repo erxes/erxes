@@ -35,8 +35,13 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (e) => {
+    console.log('on select ', e);
+
     if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
+
+      console.log(arr, ' arr');
+
       onChange(arr);
       setFieldValue(arr);
       return;

@@ -154,7 +154,10 @@ const ChartForm = (props: Props) => {
     }
 
     filters[fieldName] = value;
+    console.log(filters);
+
     setFilters({ ...filters });
+    return;
   };
 
   const renderFilterTypes = filterTypes.length ? (
