@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FormGroup,
   FormControl,
@@ -7,7 +7,7 @@ import {
   Toggle,
   Button,
   colors,
-  Icon
+  Icon,
 } from '@erxes/ui/src';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import SelectFields from '@erxes/ui-automations/src/containers/forms/actions/SelectFields';
@@ -25,66 +25,83 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
-type State = {
-  config: any;
-  useSpecifiedFields: boolean;
-};
-
 const RESP_METHODS = [
   {
     value: 'POST',
-    label: 'POST'
+    label: 'POST',
   },
   {
     value: 'PUT',
-    label: 'PUT'
+    label: 'PUT',
   },
   {
     value: 'DELETE',
-    label: 'DELETE'
+    label: 'DELETE',
   },
   {
     value: 'PATCH',
-    label: 'PATCH'
-  }
+    label: 'PATCH',
+  },
 ];
 
-class SendWebhook extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const SendWebhook = (props: Props) => {
+  const { triggerType, closeModal, activeAction, addAction } = props;
 
-    const { activeAction } = props;
+  const [config, setConfig] = useState<any>();
+  const [useSpecifiedFields, setUseSpecifiedFields] = useState<boolean>();
 
-    this.state = {
-      useSpecifiedFields:
-        !!Object.keys(activeAction?.config?.specifiedFields || {}).length ||
-        false,
-      config: activeAction?.config || {}
-    };
-  }
+  useEffect(() => {
+    const specifiedField =
+      !!Object.keys(activeAction?.config?.specifiedFields || {}).length ||
+      false;
 
-  onChange(config) {
-    this.setState({ config });
-  }
+    setUseSpecifiedFields(specifiedField);
+    setConfig(activeAction?.config || {});
+  }, []);
 
-  renderParam(param) {
-    const { config } = this.state;
+  const handleOnChange = (config) => {
+    setConfig(config);
+  };
 
+  const handleOnChangeFields = (rConf) => {
+    setConfig((prevConfig) => {
+      return {
+        ...prevConfig,
+        specifiedFields: { ...(prevConfig?.specifiedFields || {}), ...rConf },
+      };
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.currentTarget as HTMLInputElement;
+
+    handleOnChange({ ...config, [name]: value });
+  };
+
+  const handleSelect = ({ value }) => {
+    handleOnChange({ ...config, method: value });
+  };
+
+  const renderParam = (param) => {
     const { params } = config || {};
 
-    const onChange = e => {
+    const onChange = (e) => {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
-      const updatedParams = params.map(h =>
-        h._id === param._id ? { ...h, [name]: value } : h
+      const updatedParams = params.map((h) =>
+        h._id === param._id ? { ...h, [name]: value } : h,
       );
 
-      this.setState({ config: { ...config, params: updatedParams } });
+      setConfig((prevConfig) => {
+        return { ...prevConfig, params: updatedParams };
+      });
     };
 
     const handleRemove = () => {
-      const updatedParams = params.filter(h => h._id !== param._id);
-      this.setState({ config: { ...config, params: updatedParams } });
+      const updatedParams = params.filter((h) => h._id !== param._id);
+      setConfig((prevConfig) => {
+        return { ...prevConfig, params: updatedParams };
+      });
     };
 
     return (
@@ -119,52 +136,58 @@ class SendWebhook extends React.Component<Props, State> {
         </Columns>
       </ListItem>
     );
-  }
+  };
 
-  renderParams() {
-    const { config } = this.state;
-
+  const renderParams = () => {
     const addParam = () => {
-      this.setState({
-        config: {
-          ...config,
+      setConfig((prevConfig) => {
+        return {
+          ...prevConfig,
           params: [
             ...(config?.params || []),
-            { _id: Math.random(), key: '', value: '' }
-          ]
-        }
+            { _id: Math.random(), key: '', value: '' },
+          ],
+        };
       });
     };
 
     return (
       <>
-        {(config?.params || []).map(param => this.renderParam(param))}
+        {(config?.params || []).map((param) => renderParam(param))}
         <LinkButton onClick={addParam}>
           <Icon icon="plus-1" />
           {'Add param'}
         </LinkButton>
       </>
     );
-  }
+  };
 
-  renderHeader(header) {
-    const { config } = this.state;
-
+  const renderHeader = (header) => {
     const { headers } = config || {};
 
-    const onChange = e => {
+    const onChange = (e) => {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
-      const updatedHeaders = headers.map(h =>
-        h._id === header._id ? { ...h, [name]: value } : h
+      const updatedHeaders = headers.map((h) =>
+        h._id === header._id ? { ...h, [name]: value } : h,
       );
 
-      this.setState({ config: { ...config, headers: updatedHeaders } });
+      setConfig((prevConfig) => {
+        return {
+          ...prevConfig,
+          headers: updatedHeaders,
+        };
+      });
     };
 
     const handleRemove = () => {
-      const updatedHeaders = headers.filter(h => h._id !== header._id);
-      this.setState({ config: { ...config, headers: updatedHeaders } });
+      const updatedHeaders = headers.filter((h) => h._id !== header._id);
+      setConfig((prevConfig) => {
+        return {
+          ...prevConfig,
+          headers: updatedHeaders,
+        };
+      });
     };
 
     return (
@@ -199,130 +222,105 @@ class SendWebhook extends React.Component<Props, State> {
         </Columns>
       </ListItem>
     );
-  }
+  };
 
-  renderHeaders() {
-    const { config } = this.state;
-
+  const renderHeaders = () => {
     const addHeader = () => {
-      this.setState({
-        config: {
-          ...config,
+      setConfig((prevConfig) => {
+        return {
+          ...prevConfig,
           headers: [
             ...(config?.headers || []),
-            { _id: Math.random(), key: '', value: '' }
-          ]
-        }
+            { _id: Math.random(), key: '', value: '' },
+          ],
+        };
       });
     };
 
     return (
       <>
-        {(config?.headers || []).map(header => this.renderHeader(header))}
+        {(config?.headers || []).map((header) => renderHeader(header))}
         <LinkButton onClick={addHeader}>
           <Icon icon="plus-1" />
           {'Add header'}
         </LinkButton>
       </>
     );
-  }
+  };
 
-  render() {
-    const { triggerType, closeModal, activeAction, addAction } = this.props;
-    const { useSpecifiedFields, config } = this.state;
+  return (
+    <DrawerDetail>
+      <Common
+        closeModal={closeModal}
+        addAction={addAction}
+        activeAction={activeAction}
+        config={config}
+      >
+        <Columns>
+          <FirstColumn>
+            <FormGroup>
+              <ControlLabel>{__('Method')}</ControlLabel>
 
-    const onChangeFields = rConf => {
-      this.setState({
-        config: {
-          ...config,
-          specifiedFields: { ...(config?.specifiedFields || {}), ...rConf }
-        }
-      });
-    };
+              <Select
+                value={config?.method || 'POST'}
+                options={RESP_METHODS}
+                name="method"
+                clearable={false}
+                onChange={handleSelect}
+              />
+            </FormGroup>
+          </FirstColumn>
+          <EndColumn>
+            <FormGroup>
+              <ControlLabel required>{__('Post Url')}</ControlLabel>
+              <FormControl
+                name="url"
+                value={config?.url}
+                placeholder="https://erxes.io/..."
+                onChange={handleChange}
+              />
+            </FormGroup>
+          </EndColumn>
+        </Columns>
 
-    const handleChange = e => {
-      const { name, value } = e.currentTarget as HTMLInputElement;
+        <DrawerDetail>
+          <ControlLabel>{__('Headers (optional)  ')}</ControlLabel>
+          {renderHeaders()}
+        </DrawerDetail>
+        <Padding />
+        <DrawerDetail>
+          <ControlLabel>{__('Params (optional)  ')}</ControlLabel>
+          {renderParams()}
+        </DrawerDetail>
+        <FormGroup>
+          <ControlLabel>{__('Use specified fields')}</ControlLabel>
+          <Toggle
+            onChange={() => {
+              setUseSpecifiedFields((prevFields) => !prevFields);
 
-      this.onChange({ ...config, [name]: value });
-    };
+              setConfig((prevConfig) => {
+                return {
+                  ...prevConfig,
+                  specifiedFields: !useSpecifiedFields ? {} : undefined,
+                };
+              });
+            }}
+          />
+        </FormGroup>
 
-    const handleSelect = ({ value }) => {
-      this.onChange({ ...config, method: value });
-    };
-
-    return (
-      <DrawerDetail>
-        <Common
-          closeModal={closeModal}
-          addAction={addAction}
-          activeAction={activeAction}
-          config={config}
-        >
-          <Columns>
-            <FirstColumn>
-              <FormGroup>
-                <ControlLabel>{__('Method')}</ControlLabel>
-
-                <Select
-                  value={config?.method || 'POST'}
-                  options={RESP_METHODS}
-                  name="method"
-                  clearable={false}
-                  onChange={handleSelect}
-                />
-              </FormGroup>
-            </FirstColumn>
-            <EndColumn>
-              <FormGroup>
-                <ControlLabel required>{__('Post Url')}</ControlLabel>
-                <FormControl
-                  name="url"
-                  value={config?.url}
-                  placeholder="https://erxes.io/..."
-                  onChange={handleChange}
-                />
-              </FormGroup>
-            </EndColumn>
-          </Columns>
-
-          <DrawerDetail>
-            <ControlLabel>{__('Headers (optional)  ')}</ControlLabel>
-            {this.renderHeaders()}
-          </DrawerDetail>
-          <Padding />
-          <DrawerDetail>
-            <ControlLabel>{__('Params (optional)  ')}</ControlLabel>
-            {this.renderParams()}
-          </DrawerDetail>
-          <FormGroup>
-            <ControlLabel>{__('Use specified fields')}</ControlLabel>
-            <Toggle
-              onChange={() =>
-                this.setState({
-                  useSpecifiedFields: !useSpecifiedFields,
-                  config: {
-                    ...config,
-                    specifiedFields: !useSpecifiedFields ? {} : undefined
-                  }
-                })
-              }
-            />
-          </FormGroup>
-
-          {useSpecifiedFields && (
-            <SelectFields
-              config={config?.specifiedFields || {}}
-              triggerType={triggerType}
-              onSelect={onChangeFields}
-              actionType={triggerType}
-              label="Add Fields"
-              withDefaultValue={true}
-            />
-          )}
-        </Common>
-      </DrawerDetail>
-    );
-  }
-}
+        {useSpecifiedFields && (
+          <SelectFields
+            config={config?.specifiedFields || {}}
+            triggerType={triggerType}
+            onSelect={handleOnChangeFields}
+            actionType={triggerType}
+            label="Add Fields"
+            withDefaultValue={true}
+          />
+        )}
+      </Common>
+    </DrawerDetail>
+  );
+};
 
 export default SendWebhook;

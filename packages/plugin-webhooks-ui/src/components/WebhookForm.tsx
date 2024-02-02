@@ -2,10 +2,10 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
-import { IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { WEBHOOK_DOC_URL } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
@@ -15,64 +15,58 @@ import { getWebhookActions } from '../utils';
 type Props = {
   object?: IWebhook;
   webhookActions: any;
-};
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonFormProps;
 
-type State = {
-  selectedActions: any[];
-};
+const WebhookForm = (props: Props) => {
+  const { object, webhookActions } = props;
 
-class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
-  constructor(props) {
-    super(props);
+  const [selectedActions, setSelectedActions] = useState<any[]>([]);
 
-    const webhook = props.object || {};
-
-    let selectedActions = [] as any;
+  useEffect(() => {
+    const webhook = object || ({} as IWebhook);
 
     if (webhook.actions) {
-      selectedActions =
-        webhook.actions.map(item => {
-          return { label: item.label, value: item.label };
+      const actions =
+        webhook.actions.map((item) => {
+          return { label: item?.label, value: item?.label };
         }) || [];
+
+      setSelectedActions(actions);
     }
+  }, []);
 
-    this.state = {
-      selectedActions
-    };
-  }
-
-  select = <T extends keyof State>(name: T, value) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+  const handleSelect = (value) => {
+    setSelectedActions(value);
   };
 
-  onChange = e => {
+  const onChange = (e) => {
     const index = (e.currentTarget as HTMLInputElement).value;
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
-    const selected = this.state.selectedActions[index];
-    const selectedActions = this.state.selectedActions;
+    const selected = selectedActions[index];
+    const newSelectedActions = selectedActions;
 
-    selectedActions[index] = {
+    newSelectedActions[index] = {
       type: selected.type,
       action: selected.action,
       label: selected.label,
-      checked: isChecked
+      checked: isChecked,
     };
 
-    this.setState({ selectedActions });
+    setSelectedActions(newSelectedActions);
   };
 
-  collectValues = selectedActions =>
-    selectedActions.map(
-      selectedAction =>
-        getWebhookActions(this.props.webhookActions).find(
-          action => action.label === selectedAction.label
-        ) || {}
+  const collectValues = (selectedActions) => {
+    return selectedActions.map(
+      (selectedAction) =>
+        getWebhookActions(webhookActions).find(
+          (action) => action?.label === selectedAction?.label,
+        ) || {},
     );
+  };
 
-  generateDoc = (values: { _id?: string; url: string }) => {
-    const { object } = this.props;
-    const { selectedActions } = this.state;
+  const generateDoc = (values: { _id?: string; url: string }) => {
     const finalValues = values;
 
     if (!selectedActions) {
@@ -86,23 +80,20 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       url: finalValues.url,
-      actions: this.collectValues(selectedActions)
+      actions: collectValues(selectedActions),
     };
   };
 
-  generateActions = () => {
-    const actions = getWebhookActions(this.props.webhookActions);
+  const generateActions = () => {
+    const actions = getWebhookActions(webhookActions);
     return actions
-      .filter(a => a)
-      .map(action => {
-        return { label: action.label, value: action.label };
+      .filter((a) => a)
+      .map((action) => {
+        return { label: action?.label, value: action?.label };
       });
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as IWebhook);
-    const { selectedActions } = this.state;
-
+  const renderContent = (formProps: IFormProps) => {
     return (
       <>
         <FormGroup>
@@ -110,7 +101,7 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="url"
-            defaultValue={object.url}
+            defaultValue={object?.url || ''}
             required={true}
             autoFocus={true}
           />
@@ -120,9 +111,9 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel required={true}>Actions</ControlLabel>
           <Select
             placeholder={__('Choose actions')}
-            options={this.generateActions()}
+            options={generateActions()}
             value={selectedActions}
-            onChange={this.select.bind(this, 'selectedActions')}
+            onChange={handleSelect}
             multi={true}
           />
         </FormGroup>
@@ -139,17 +130,15 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
     );
   };
 
-  render() {
-    return (
-      <CommonForm
-        {...this.props}
-        name="Webhook"
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={this.props.object}
-      />
-    );
-  }
-}
+  return (
+    <CommonForm
+      {...props}
+      name="Webhook"
+      renderContent={renderContent}
+      generateDoc={generateDoc}
+      object={object}
+    />
+  );
+};
 
 export default WebhookForm;
