@@ -65,7 +65,7 @@ const searchMessages = (imap: Imap, criteria) => {
           throw error;
         });
       } catch (e) {
-        if (e.message.includes('Nothing to fetch')) {
+        if (e.message?.includes('Nothing to fetch')) {
           return resolve([]);
         }
         throw e;
