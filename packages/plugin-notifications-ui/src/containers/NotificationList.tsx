@@ -1,10 +1,8 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import {
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse
+  NotificationsQueryResponse,
 } from '@erxes/ui-notifications/src/types';
 import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
 
@@ -12,100 +10,79 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import NotificationList from '../components/NotificationList';
 import React from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: IQueryParams;
 };
 
-type FinalProps = {
-  notificationsQuery: NotificationsQueryResponse;
-  notificationCountQuery: NotificationsCountQueryResponse;
-} & Props &
-  MarkAsReadMutationResponse;
+const NotificationListContainer = (props: Props) => {
+  const { queryParams } = props;
 
-class NotificationListContainer extends React.Component<FinalProps> {
-  render() {
-    const {
-      notificationsQuery,
-      notificationCountQuery,
-      notificationsMarkAsReadMutation
-    } = this.props;
+  // Queries
+  const notificationsQuery = useQuery<NotificationsQueryResponse>(
+    gql(queries.notifications),
+    {
+      variables: {
+        ...generatePaginationParams(queryParams),
+        requireRead: queryParams.requireRead === 'true' ? true : false,
+        title: queryParams.title,
+      },
+    },
+  );
 
-    const markAsRead = (notificationIds?: string[]) => {
-      notificationsMarkAsReadMutation({
-        variables: { _ids: notificationIds }
-      })
-        .then(() => {
-          if (notificationsQuery.refetch) {
-            notificationsQuery.refetch();
-            notificationCountQuery.refetch();
-          }
+  const notificationCountQuery = useQuery<NotificationsCountQueryResponse>(
+    gql(queries.notificationCounts),
+    {
+      variables: {
+        requireRead: queryParams.requireRead === 'true' ? true : false,
+      },
+    },
+  );
 
-          Alert.success('Notification have been seen');
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
-    const updatedProps = {
-      ...this.props,
-      markAsRead,
-      notifications: notificationsQuery.notifications || [],
-      count: notificationCountQuery.notificationCounts || 0,
-      loading: notificationsQuery.loading
-    };
-
-    return <NotificationList {...updatedProps} />;
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<
-      Props,
-      NotificationsQueryResponse,
-      { requireRead: boolean; page?: number; perPage?: number; title?: string }
-    >(gql(queries.notifications), {
-      name: 'notificationsQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          ...generatePaginationParams(queryParams),
-          requireRead: queryParams.requireRead === 'true' ? true : false,
-          title: queryParams.title
-        }
-      })
-    }),
-    graphql<Props, NotificationsCountQueryResponse>(
-      gql(queries.notificationCounts),
-      {
-        name: 'notificationCountQuery',
-        options: ({ queryParams }) => ({
+  // Mutations
+  const [notificationsMarkAsReadMutation] =
+    useMutation<MarkAsReadMutationResponse>(gql(mutations.markAsRead), {
+      refetchQueries: [
+        {
+          query: gql(queries.notifications),
           variables: {
-            requireRead: queryParams.requireRead === 'true' ? true : false
-          }
-        })
-      }
-    ),
-    graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
-      gql(mutations.markAsRead),
-      {
-        name: 'notificationsMarkAsReadMutation',
-        options: {
-          refetchQueries: [
-            {
-              query: gql(queries.notifications),
-              variables: {
-                limit: 10,
-                requireRead: false
-              }
-            },
-            'notificationCounts'
-          ]
+            limit: 10,
+            requireRead: false,
+          },
+        },
+        'notificationCounts',
+      ],
+    });
+
+  // Methods
+  const markAsRead = (notificationIds?: string[]) => {
+    notificationsMarkAsReadMutation({
+      variables: { _ids: notificationIds },
+    })
+      .then(() => {
+        if (notificationsQuery.refetch) {
+          notificationsQuery.refetch();
+          notificationCountQuery.refetch();
         }
-      }
-    )
-  )(NotificationListContainer)
-);
+
+        Alert.success('Notification have been seen');
+      })
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  // Definitions
+  const updatedProps = {
+    ...props,
+    markAsRead,
+    notifications: notificationsQuery.data?.notifications || [],
+    count: notificationCountQuery.data?.notificationCounts || 0,
+    loading: notificationsQuery.loading || notificationCountQuery.loading,
+  };
+
+  return <NotificationList {...updatedProps} />;
+};
+
+export default NotificationListContainer;
