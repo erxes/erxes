@@ -1,16 +1,13 @@
-import { withProps } from '@erxes/ui/src';
 import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import React, { useState } from 'react';
 
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
   CarsQueryResponse,
   ICar,
-  ICarDoc
+  ICarDoc,
 } from '../types';
 import CarForm from './CarForm';
 
@@ -18,96 +15,67 @@ type Props = {
   search: (value: string, loadMore?: boolean) => void;
   perPage: number;
   searchValue: string;
-};
+} & WrapperProps;
 
-type FinalProps = {
-  carsQuery: CarsQueryResponse;
-} & Props &
-  AddMutationResponse;
+const CarChooser = (props: Props) => {
+  const { data, searchValue, perPage, search } = props;
 
-class CarChooser extends React.Component<
-  WrapperProps & FinalProps,
-  { newCar?: ICar }
-> {
-  constructor(props) {
-    super(props);
+  const [car, setCar] = useState<ICar | undefined>(undefined);
 
-    this.state = {
-      newCar: undefined
-    };
-  }
+  const carsQuery = useQuery<CarsQueryResponse>(gql(queries.cars), {
+    variables: {
+      searchValue,
+      perPage,
+      mainType: data.mainType,
+      mainTypeId: data.mainTypeId,
+      isRelated: data.isRelated,
+      sortField: 'createdAt',
+      sortDirection: -1,
+    },
+    fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
+  });
 
-  resetAssociatedItem = () => {
-    return this.setState({ newCar: undefined });
+  const [carsAdd] = useMutation<AddMutationResponse, ICarDoc>(
+    gql(mutations.carsAdd),
+  );
+
+  const renderName = (car) => {
+    return car.plateNumber || car.vinNumber || 'Unknown';
   };
 
-  render() {
-    const { data, carsQuery, search } = this.props;
+  const getAssociatedCar = (newCar: ICar) => {
+    setCar(newCar);
+  };
 
-    const renderName = car => {
-      return car.plateNumber || car.vinNumber || 'Unknown';
-    };
+  const resetAssociatedItem = () => {
+    return setCar(undefined);
+  };
 
-    const getAssociatedCar = (newCar: ICar) => {
-      this.setState({ newCar });
-    };
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.cars,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'car',
+    },
+    search,
+    clearState: () => search(''),
+    title: 'Car',
+    renderForm: (formProps) => (
+      <CarForm {...formProps} getAssociatedCar={getAssociatedCar} />
+    ),
+    renderName,
+    newItem: car,
+    resetAssociatedItem,
+    datas: carsQuery?.data?.cars || [],
+    refetchQuery: queries.cars,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      data: {
-        _id: data._id,
-        name: renderName(data),
-        datas: data.cars,
-        mainTypeId: data.mainTypeId,
-        mainType: data.mainType,
-        relType: 'car'
-      },
-      search,
-      clearState: () => search(''),
-      title: 'Car',
-      renderForm: formProps => (
-        <CarForm {...formProps} getAssociatedCar={getAssociatedCar} />
-      ),
-      renderName,
-      newItem: this.state.newCar,
-      resetAssociatedItem: this.resetAssociatedItem,
-      datas: carsQuery.cars || [],
-      refetchQuery: queries.cars
-    };
-
-    return <ConformityChooser {...updatedProps} />;
-  }
-}
-
-const WithQuery = withProps<Props>(
-  compose(
-    graphql<
-      Props & WrapperProps,
-      CarsQueryResponse,
-      { searchValue: string; perPage: number }
-    >(gql(queries.cars), {
-      name: 'carsQuery',
-      options: ({ searchValue, perPage, data }) => {
-        return {
-          variables: {
-            searchValue,
-            perPage,
-            mainType: data.mainType,
-            mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated,
-            sortField: 'createdAt',
-            sortDirection: -1
-          },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
-        };
-      }
-    }),
-    // mutations
-    graphql<{}, AddMutationResponse, ICarDoc>(gql(mutations.carsAdd), {
-      name: 'carsAdd'
-    })
-  )(CarChooser)
-);
+  return <ConformityChooser {...updatedProps} />;
+};
 
 type WrapperProps = {
   data: {
@@ -122,39 +90,29 @@ type WrapperProps = {
   closeModal: () => void;
 };
 
-export default class Wrapper extends React.Component<
-  WrapperProps,
-  {
-    perPage: number;
-    searchValue: string;
-  }
-> {
-  constructor(props) {
-    super(props);
+const Wrapper = (props: WrapperProps) => {
+  const [perPage, setPerPage] = useState<number>(20);
+  const [searchValue, setSearchValue] = useState<string>('');
 
-    this.state = { perPage: 20, searchValue: '' };
-  }
-
-  search = (value, loadmore) => {
-    let perPage = 20;
+  const search = (value, loadmore) => {
+    let page = 20;
 
     if (loadmore) {
-      perPage = this.state.perPage + 20;
+      page = page + 20;
     }
 
-    return this.setState({ perPage, searchValue: value });
+    setPerPage(perPage);
+    setSearchValue(value);
   };
 
-  render() {
-    const { searchValue, perPage } = this.state;
+  return (
+    <CarChooser
+      {...props}
+      search={search}
+      searchValue={searchValue}
+      perPage={perPage}
+    />
+  );
+};
 
-    return (
-      <WithQuery
-        {...this.props}
-        search={this.search}
-        searchValue={searchValue}
-        perPage={perPage}
-      />
-    );
-  }
-}
+export default Wrapper;

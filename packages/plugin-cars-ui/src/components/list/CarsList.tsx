@@ -9,24 +9,26 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  __,
-  confirm,
-  router,
+  Icon,
 } from '@erxes/ui/src';
-
+import { isEnabled, router } from '@erxes/ui/src/utils/core';
+import React, { useState, useRef } from 'react';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import CarForm from '../../containers/CarForm';
 import CarRow from './CarRow';
 import CarsMerge from '../detail/CarsMerge';
 import { CarsTableWrapper } from '../../styles';
 import { ICar } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
 import Sidebar from './Sidebar';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-// import { withRouter } from 'react-router-dom';
+import {
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title,
+} from '@erxes/ui-settings/src/styles';
 
-interface IProps extends IRouterProps {
+type Props = {
   cars: ICar[];
   loading: boolean;
   searchValue: string;
@@ -37,78 +39,169 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeCars: (doc: { carIds: string[] }, emptyBulk: () => void) => void;
-  mergeCars: () => void;
+  remove: (doc: { carIds: string[] }, emptyBulk: () => void) => void;
+  merge: () => void;
   history: any;
   queryParams: any;
-}
-
-type State = {
-  searchValue?: string;
 };
 
-class CarsList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+const CarsList = (props: Props) => {
+  const {
+    cars,
+    loading,
+    searchValue,
+    totalCount,
+    toggleBulk,
+    toggleAll,
+    bulk,
+    isAllSelected,
+    emptyBulk,
+    remove,
+    merge,
+    history,
+    queryParams,
+  } = props;
 
-  constructor(props) {
-    super(props);
+  const [search, setSearch] = useState<string>(searchValue || '');
+  const timerRef = useRef<number | null>(null);
 
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, cars } = this.props;
+  const onChange = () => {
     toggleAll(cars, 'cars');
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const handleSearch = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
+    setSearch(value);
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.setParams(history, { searchValue: value });
     }, 500);
   };
 
-  removeCars = (cars) => {
+  const removeCars = (cars) => {
     const carIds: string[] = [];
 
     cars.forEach((car) => {
       carIds.push(car._id);
     });
 
-    this.props.removeCars({ carIds }, this.props.emptyBulk);
+    remove({ carIds }, emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      cars,
-      history,
-      loading,
-      toggleBulk,
-      bulk,
-      emptyBulk,
-      isAllSelected,
-      totalCount,
-      mergeCars,
-      queryParams,
-    } = this.props;
+  const carForm = (formProps) => {
+    return <CarForm {...formProps} queryParams={queryParams} />;
+  };
 
-    const mainContent = (
+  const carsMerge = (formProps) => {
+    return <CarsMerge {...formProps} objects={bulk} save={merge} />;
+  };
+
+  const renderActionBarRight = () => {
+    const addTrigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        Add car
+      </Button>
+    );
+
+    const mergeButton = (
+      <Button btnStyle="primary" icon="merge">
+        Merge
+      </Button>
+    );
+
+    const tagButton = (
+      <Button btnStyle="simple" icon="tag-alt">
+        Tag
+      </Button>
+    );
+
+    if (bulk.length > 0) {
+      const onClick = () =>
+        confirm()
+          .then(() => {
+            removeCars(bulk);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+          });
+
+      return (
+        <>
+          {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Cars"
+              size="lg"
+              trigger={mergeButton}
+              content={carsMerge}
+            />
+          )}
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={'cars:car'}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['productCountByTags']}
+            />
+          )}
+
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+            Delete
+          </Button>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={handleSearch}
+              value={search}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
+        </InputBar>
+
+        <ModalTrigger
+          title="New car"
+          trigger={addTrigger}
+          autoOpenKey="showCarModal"
+          size="lg"
+          content={carForm}
+          backDrop="static"
+        />
+      </>
+    );
+  };
+
+  const renderActionBar = () => {
+    const actionBarLeft = <Title>{__(`Cars (${totalCount})`)}</Title>;
+
+    const actionBarRight = <FlexRow>{renderActionBarRight()}</FlexRow>;
+
+    return <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />;
+  };
+
+  const renderContent = () => {
+    return (
       <CarsTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -117,7 +210,7 @@ class CarsList extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th>
@@ -163,133 +256,38 @@ class CarsList extends React.Component<IProps, State> {
         </Table>
       </CarsTableWrapper>
     );
+  };
 
-    const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        Add car
-      </Button>
-    );
-
-    const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="merge">
-        Merge
-      </Button>
-    );
-
-    const tagButton = (
-      <Button btnStyle="simple" size="small" icon="tag-alt">
-        Tag
-      </Button>
-    );
-
-    let actionBarLeft: React.ReactNode;
-
-    const carsMerge = (props) => {
-      return <CarsMerge {...props} objects={bulk} save={mergeCars} />;
-    };
-
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeCars(bulk);
-          })
-          .catch((error) => {
-            Alert.error(error.message);
-          });
-
-      actionBarLeft = (
-        <BarItems>
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Cars"
-              size="lg"
-              trigger={mergeButton}
-              content={carsMerge}
-            />
-          )}
-
-          {isEnabled('tags') && (
-            <TaggerPopover
-              type={'cars:car'}
-              successCallback={emptyBulk}
-              targets={bulk}
-              trigger={tagButton}
-              refetchQueries={['productCountByTags']}
-            />
-          )}
-
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Delete
-          </Button>
-        </BarItems>
-      );
-    }
-
-    const carForm = (props) => {
-      return <CarForm {...props} queryParams={queryParams} />;
-    };
-
-    const actionBarRight = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Cars`)}
+          queryParams={queryParams}
+          breadcrumb={[{ title: 'Cars' }]}
         />
-
-        <ModalTrigger
-          title="New car"
-          trigger={addTrigger}
-          autoOpenKey="showCarModal"
-          size="lg"
-          content={carForm}
-          backDrop="static"
+      }
+      actionBar={renderActionBar()}
+      footer={<Pagination count={totalCount} />}
+      leftSidebar={
+        <Sidebar
+          loadingMainQuery={loading}
+          queryParams={queryParams}
+          history={history}
         />
-      </BarItems>
-    );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Cars`) + ` (${totalCount})`}
-            queryParams={queryParams}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        leftSidebar={
-          <Sidebar
-            loadingMainQuery={loading}
-            queryParams={queryParams}
-            history={history}
-          />
-        }
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={cars.length}
-            emptyText="Add in your first car!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+      }
+      hasBorder={true}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={cars.length}
+          emptyText="Add in your first car!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
 export default CarsList;

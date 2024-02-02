@@ -3,62 +3,57 @@ import {
   Button,
   DataWithLoader,
   Icon,
-  MainStyleTopHeader as TopHeader,
   ModalTrigger,
   router,
-  Sidebar,
   Tip,
-  Wrapper
+  Wrapper,
+  SidebarList,
 } from '@erxes/ui/src';
+import { Header } from '@erxes/ui-settings/src/styles';
+
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import CategoryForm from '../../containers/carCategory/CategoryForm';
 import SegmentFilter from '../../containers/SegmentFilter';
 import TagFilter from '../../containers/TagFilter';
-import { ActionButtons, SidebarListItem } from '../../styles';
 import { ICarCategory } from '../../types';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 
-const { Section } = Wrapper.Sidebar;
-
-interface IProps {
+type Props = {
   history: any;
   queryParams: any;
   refetch: any;
   remove: (carCategoryId: string) => void;
   carCategories: ICarCategory[];
-  carCategoriesCount: number;
+  totalCount: number;
   loading: boolean;
-}
+};
 
-class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: ICarCategory) {
-    const content = props => (
-      <CategoryForm
-        {...props}
-        category={category}
-        categories={this.props.carCategories}
-      />
+const { Section } = Wrapper.Sidebar;
+
+const CategoryList = (props: Props) => {
+  const { history, queryParams, remove, carCategories, totalCount, loading } =
+    props;
+
+  const clearCategoryFilter = () => {
+    router.setParams(history, { categoryId: null });
+  };
+
+  const renderFormTrigger = (
+    trigger: React.ReactNode,
+    category?: ICarCategory,
+  ) => {
+    const content = (props) => (
+      <CategoryForm {...props} category={category} categories={carCategories} />
     );
 
     return (
       <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
-  }
-
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
-
-    return currentGroup === id;
-  };
-
-  renderEditAction(category: ICarCategory) {
+  const renderEditAction = (category: ICarCategory) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -67,12 +62,10 @@ class List extends React.Component<IProps> {
       </Button>
     );
 
-    return this.renderFormTrigger(trigger, category);
-  }
+    return renderFormTrigger(trigger, category);
+  };
 
-  renderRemoveAction(category: ICarCategory) {
-    const { remove } = this.props;
-
+  const renderRemoveAction = (category: ICarCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
         <Tip text={__('Remove')} placement="bottom">
@@ -80,53 +73,45 @@ class List extends React.Component<IProps> {
         </Tip>
       </Button>
     );
-  }
+  };
 
-  renderContent() {
-    const { carCategories } = this.props;
+  const handleClick = (categoryId) => {
+    router.setParams(history, { categoryId: categoryId });
+    router.removeParams(history, 'page');
+  };
 
-    const result: React.ReactNode[] = [];
+  const renderContent = () => {
+    return (
+      <SidebarList>
+        <CollapsibleList
+          items={carCategories}
+          editAction={renderEditAction}
+          removeAction={renderRemoveAction}
+          loading={loading}
+          queryParams={queryParams}
+          queryParamName="categoryId"
+          treeView={true}
+          keyCount="carCount"
+          onClick={handleClick}
+        />
+      </SidebarList>
+    );
+  };
 
-    for (const category of carCategories) {
-      const order = category.order;
+  const renderCategoryList = () => {
+    return (
+      <DataWithLoader
+        data={renderContent()}
+        loading={loading}
+        count={totalCount}
+        emptyText="There is no car category"
+        emptyIcon="folder-2"
+        size="small"
+      />
+    );
+  };
 
-      const m = order.match(/[/]/gi);
-
-      let space = '';
-
-      if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
-      }
-
-      const name = category.isRoot ? (
-        `${category.name} (${category.carCount})`
-      ) : (
-        <span>
-          {category.name} ({category.carCount})
-        </span>
-      );
-
-      result.push(
-        <SidebarListItem
-          key={category._id}
-          isActive={this.isActive(category._id)}
-        >
-          <Link to={`?categoryId=${category._id}`}>
-            {space}
-            {name}
-          </Link>
-          <ActionButtons>
-            {this.renderEditAction(category)}
-            {this.renderRemoveAction(category)}
-          </ActionButtons>
-        </SidebarListItem>
-      );
-    }
-
-    return result;
-  }
-
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     const trigger = (
       <Button
         btnStyle="success"
@@ -140,14 +125,14 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Header>{renderFormTrigger(trigger)}</Header>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+            {router.getParam(history, 'categoryId') && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
-                  <Icon icon="cancel-1" />
+                  <Icon icon="times-circle" />
                 </Tip>
               </a>
             )}
@@ -155,44 +140,16 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { carCategoriesCount, loading } = this.props;
+  return (
+    <>
+      {renderCategoryHeader()}
+      {renderCategoryList()}
+      {isEnabled('segments') && <SegmentFilter loadingMainQuery={loading} />}
+      {isEnabled('tags') && <TagFilter />}
+    </>
+  );
+};
 
-    return (
-      <DataWithLoader
-        data={this.renderContent()}
-        loading={loading}
-        count={carCategoriesCount}
-        emptyText="There is no car category"
-        emptyIcon="folder-2"
-        size="small"
-      />
-    );
-  }
-
-  render() {
-    return (
-      <Sidebar>
-        <Section
-          maxHeight={188}
-          collapsible={this.props.carCategoriesCount > 9}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-
-        {isEnabled('segments') && (
-          <SegmentFilter loadingMainQuery={this.props.loading} />
-        )}
-
-        {isEnabled('tags') && (
-          <TagFilter loadingMainQuery={this.props.loading} />
-        )}
-      </Sidebar>
-    );
-  }
-}
-
-export default List;
+export default CategoryList;

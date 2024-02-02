@@ -13,19 +13,22 @@ import { IRouterProps } from '@erxes/ui/src/types';
 // import { withRouter } from 'react-router-dom';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   car: ICar;
-};
+} & IRouterProps;
 
-type FinalProps = { currentUser: IUser } & Props &
-  IRouterProps &
-  RemoveMutationResponse;
+const BasicInfoContainer = (props: Props) => {
+  const { car, history } = props;
 
-const BasicInfoContainer = (props: FinalProps) => {
-  const { car, carsRemove, history } = props;
+  const [carsRemove] = useMutation<
+    RemoveMutationResponse,
+    RemoveMutationVariables
+  >(gql(mutations.carsRemove), {
+    refetchQueries: ['carsMain', 'carCounts', 'carCategoriesCount'],
+  });
 
   const { _id } = car;
 
@@ -48,18 +51,6 @@ const BasicInfoContainer = (props: FinalProps) => {
   return <BasicInfoSection {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['carsMain', 'carCounts', 'carCategoriesCount'],
-});
+export default BasicInfoContainer;
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.carsRemove),
-      {
-        name: 'carsRemove',
-        options: generateOptions,
-      },
-    ),
-  )(BasicInfoContainer),
-);
+// export default withRouter<Props>(BasicInfoContainer);

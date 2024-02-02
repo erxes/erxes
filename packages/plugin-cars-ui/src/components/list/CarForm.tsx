@@ -1,7 +1,6 @@
 import {
   __,
   Button,
-  CollapseContent,
   ControlLabel,
   Form,
   FormControl,
@@ -11,26 +10,25 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-  router,
   SelectTeamMembers,
   generateCategoryOptions,
-  extractAttachment
+  extractAttachment,
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IFormProps,
-  IAttachment
+  IAttachment,
 } from '@erxes/ui/src/types';
 import { ChooseColor, BackgroundSelector } from '../../styles';
-import React from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import Select from 'react-select-plus';
 
 import {
   CAR_BODY_TYPES,
   CAR_FUEL_TYPES,
   CAR_GEAR_BOXS,
-  COLORS
+  COLORS,
 } from '../../constants';
 import { ICar, ICarCategory, ICarDoc } from '../../types';
 import { Uploader } from '@erxes/ui/src';
@@ -59,38 +57,34 @@ type State = {
   importYear: number;
 
   nowYear: number;
-  attachment: IAttachment;
+  attachment: IAttachment | undefined;
+  description: string;
 };
 
-class CarForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const CarForm = (props: Props) => {
+  const { car = {} as ICar, closeModal, carCategories, renderButton } = props;
+  const nowYear = new Date().getFullYear();
 
-    const { car = {} } = props;
-    const nowYear = new Date().getFullYear();
+  const [state, setState] = useState<State>({
+    ownerId: car.ownerId || '',
+    users: [],
+    plateNumber: car.plateNumber || '',
+    vinNumber: car.vinNumber || '',
+    colorCode: car.colorCode || '',
+    attachment: car.attachment || undefined,
+    categoryId: car.categoryId || '',
 
-    this.state = {
-      ownerId: car.ownerId || '',
-      users: [],
-      plateNumber: car.plateNumber || '',
-      vinNumber: car.vinNumber || '',
-      colorCode: car.colorCode || '',
-      attachment: car.attachment || undefined,
-      categoryId: car.categoryId || '',
+    bodyType: car.bodyType || '',
+    fuelType: car.fuelType || '',
+    gearBox: car.gearBox || '',
 
-      bodyType: car.bodyType || '',
-      fuelType: car.fuelType || '',
-      gearBox: car.gearBox || '',
+    vintageYear: car.vintageYear || nowYear,
+    importYear: car.importYear || nowYear,
+    nowYear,
+    description: car.description || '',
+  });
 
-      vintageYear: car.vintageYear || nowYear,
-      importYear: car.importYear || nowYear,
-      nowYear
-    };
-  }
-
-  generateDoc = (values: { _id: string } & ICarDoc) => {
-    const { car } = this.props;
-
+  const generateDoc = (values: { _id: string } & ICarDoc) => {
     const finalValues = values;
 
     if (car) {
@@ -99,17 +93,17 @@ class CarForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state,
+      ...state,
       description: finalValues.description,
       plateNumber: finalValues.plateNumber,
       vinNumber: finalValues.vinNumber,
       vintageYear: Number(finalValues.vintageYear),
       importYear: Number(finalValues.importYear),
-      categoryId: finalValues.categoryId
+      categoryId: finalValues.categoryId,
     };
   };
 
-  renderFormGroup = (label, props) => {
+  const renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
@@ -118,29 +112,29 @@ class CarForm extends React.Component<Props, State> {
     );
   };
 
-  onBodyTypeChange = option => {
-    this.setState({ bodyType: option.value });
+  const onBodyTypeChange = (option) => {
+    setState((prevState) => ({ ...prevState, bodyType: option.value }));
   };
 
-  onFuelTypeChange = option => {
-    this.setState({ fuelType: option.value });
+  const onFuelTypeChange = (option) => {
+    setState((prevState) => ({ ...prevState, fuelType: option.value }));
   };
 
-  onGearBoxChange = option => {
-    this.setState({ gearBox: option.value });
+  const onGearBoxChange = (option) => {
+    setState((prevState) => ({ ...prevState, gearBox: option.value }));
   };
 
-  onColorChange = e => {
-    this.setState({ colorCode: e });
+  const onColorChange = (e) => {
+    setState((prevState) => ({ ...prevState, colorCode: e }));
   };
 
-  renderColors(colorCode: string) {
-    const onClick = () => this.onColorChange(colorCode);
+  const renderColors = (colorCode: string) => {
+    const onClick = () => onColorChange(colorCode);
 
     return (
       <BackgroundSelector
         key={colorCode}
-        selected={this.state.colorCode === colorCode}
+        selected={state.colorCode === colorCode}
         onClick={onClick}
       >
         <div style={{ backgroundColor: colorCode }}>
@@ -148,157 +142,148 @@ class CarForm extends React.Component<Props, State> {
         </div>
       </BackgroundSelector>
     );
-  }
-
-  onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ attachment: files.length ? files[0] : undefined });
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const car = this.props.car || ({} as ICar);
-    const { closeModal, renderButton, carCategories } = this.props;
-    const { values, isSubmitted } = formProps;
+  const onChangeAttachment = (files: IAttachment[]) => {
+    setState((prevState) => ({
+      ...prevState,
+      attachment: files.length ? files[0] : undefined,
+    }));
+  };
 
-    const { ownerId, nowYear } = this.state;
+  const onSelectOwner = (value) => {
+    setState((prevState) => ({ ...prevState, ownerId: value }));
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
 
     const attachments =
       (car.attachment && extractAttachment([car.attachment])) || [];
 
-    const onSelectOwner = value => {
-      this.setState({ ownerId: value });
-    };
-
     return (
       <>
-        <ScrollWrapper>
-          <CollapseContent
-            title={__('General information')}
-            compact={true}
-            open={true}
-          >
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Category</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="categoryId"
-                    componentClass="select"
-                    defaultValue={car.categoryId}
-                    required={true}
-                  >
-                    {generateCategoryOptions(carCategories, '', true)}
-                  </FormControl>
-                </FormGroup>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Category</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="categoryId"
+                componentClass="select"
+                defaultValue={state.categoryId}
+                required={true}
+              >
+                {generateCategoryOptions(carCategories, '', true)}
+              </FormControl>
+            </FormGroup>
 
-                {this.renderFormGroup('Plate number', {
-                  ...formProps,
-                  name: 'plateNumber',
-                  defaultValue: car.plateNumber || ''
-                })}
+            {renderFormGroup('Plate number', {
+              ...formProps,
+              name: 'plateNumber',
+              defaultValue: state.plateNumber,
+            })}
 
-                {this.renderFormGroup('VIN number', {
-                  ...formProps,
-                  name: 'vinNumber',
-                  defaultValue: car.vinNumber || ''
-                })}
+            {renderFormGroup('VIN number', {
+              ...formProps,
+              name: 'vinNumber',
+              defaultValue: state.vinNumber,
+            })}
 
-                <FormGroup>
-                  <ControlLabel required={true}>Select a color</ControlLabel>
-                  <ChooseColor>
-                    {COLORS.map(colorCode => this.renderColors(colorCode))}
-                  </ChooseColor>
-                </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Select a color</ControlLabel>
+              <ChooseColor>
+                {COLORS.map((colorCode) => renderColors(colorCode))}
+              </ChooseColor>
+            </FormGroup>
 
-                <FormGroup>
-                  <ControlLabel>Owner</ControlLabel>
-                  <SelectTeamMembers
-                    label="Choose an owner"
-                    name="ownerId"
-                    initialValue={ownerId}
-                    onSelect={onSelectOwner}
-                    multi={false}
-                  />
-                </FormGroup>
-              </FormColumn>
+            <FormGroup>
+              <ControlLabel>Owner</ControlLabel>
+              <SelectTeamMembers
+                label="Choose an owner"
+                name="ownerId"
+                initialValue={state.ownerId}
+                onSelect={onSelectOwner}
+                multi={false}
+              />
+            </FormGroup>
+          </FormColumn>
 
-              <FormColumn>
-                {this.renderFormGroup('Vintage Year', {
-                  ...formProps,
-                  name: 'vintageYear',
-                  defaultValue: car.vintageYear || nowYear,
-                  type: 'number',
-                  min: '1950',
-                  max: nowYear
-                })}
+          <FormColumn>
+            {renderFormGroup('Vintage Year', {
+              ...formProps,
+              name: 'vintageYear',
+              defaultValue: state.vintageYear || state.nowYear,
+              type: 'number',
+              min: '1950',
+              max: state.nowYear,
+            })}
 
-                {this.renderFormGroup('Import Year', {
-                  ...formProps,
-                  name: 'importYear',
-                  defaultValue: car.importYear || nowYear,
-                  type: 'number',
-                  min: 1950,
-                  max: nowYear
-                })}
+            {renderFormGroup('Import Year', {
+              ...formProps,
+              name: 'importYear',
+              defaultValue: state.importYear || state.nowYear,
+              type: 'number',
+              min: 1950,
+              max: state.nowYear,
+            })}
 
-                <FormGroup>
-                  <ControlLabel>Featured image</ControlLabel>
+            <FormGroup>
+              <ControlLabel>Featured image</ControlLabel>
 
-                  <Uploader
-                    defaultFileList={attachments}
-                    onChange={this.onChangeAttachment}
-                    multiple={false}
-                    single={true}
-                  />
-                </FormGroup>
+              <Uploader
+                defaultFileList={attachments}
+                onChange={onChangeAttachment}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
 
-                <FormGroup>
-                  <ControlLabel>Body Type</ControlLabel>
-                  <Select
-                    value={this.state.bodyType}
-                    onChange={this.onBodyTypeChange}
-                    options={CAR_BODY_TYPES}
-                    clearable={false}
-                  />
-                </FormGroup>
+            <FormGroup>
+              <ControlLabel>Body Type</ControlLabel>
+              <Select
+                value={state.bodyType}
+                onChange={onBodyTypeChange}
+                options={CAR_BODY_TYPES}
+                clearable={false}
+              />
+            </FormGroup>
 
-                <FormGroup>
-                  <ControlLabel>Fuel Type</ControlLabel>
-                  <Select
-                    value={this.state.fuelType}
-                    onChange={this.onFuelTypeChange}
-                    options={CAR_FUEL_TYPES}
-                    clearable={false}
-                  />
-                </FormGroup>
+            <FormGroup>
+              <ControlLabel>Fuel Type</ControlLabel>
+              <Select
+                value={state.fuelType}
+                onChange={onFuelTypeChange}
+                options={CAR_FUEL_TYPES}
+                clearable={false}
+              />
+            </FormGroup>
 
-                <FormGroup>
-                  <ControlLabel>Gear Box</ControlLabel>
-                  <Select
-                    value={this.state.gearBox}
-                    onChange={this.onGearBoxChange}
-                    options={CAR_GEAR_BOXS}
-                    clearable={false}
-                  />
-                </FormGroup>
-              </FormColumn>
-            </FormWrapper>
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Description</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    max={140}
-                    name="description"
-                    componentClass="textarea"
-                    defaultValue={car.description || ''}
-                  />
-                </FormGroup>
-              </FormColumn>
-            </FormWrapper>
-          </CollapseContent>
-        </ScrollWrapper>
+            <FormGroup>
+              <ControlLabel>Gear Box</ControlLabel>
+              <Select
+                value={state.gearBox}
+                onChange={onGearBoxChange}
+                options={CAR_GEAR_BOXS}
+                clearable={false}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                {...formProps}
+                max={140}
+                name="description"
+                componentClass="textarea"
+                defaultValue={state.description || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
@@ -307,18 +292,15 @@ class CarForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'car',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.car
+            object: props.car,
           })}
         </ModalFooter>
       </>
     );
   };
-
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default CarForm;

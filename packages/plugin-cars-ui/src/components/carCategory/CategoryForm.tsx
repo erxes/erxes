@@ -7,14 +7,14 @@ import {
   FormControl,
   FormGroup,
   Uploader,
-  extractAttachment
+  extractAttachment,
 } from '@erxes/ui/src';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { ICarCategory } from '../../types';
 
 type Props = {
@@ -24,32 +24,27 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  image?: IAttachment;
-  secondaryImages?: IAttachment[];
-};
+const CategoryForm = (props: Props) => {
+  const {
+    categories,
+    category = {} as ICarCategory,
+    renderButton,
+    closeModal,
+  } = props;
 
-class CategoryForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [image, setImage] = useState<IAttachment | undefined>(
+    category.image || undefined,
+  );
+  const [images, setImages] = useState<IAttachment[] | undefined>(
+    category.secondaryImages || undefined,
+  );
 
-    const category = props.category || ({} as ICarCategory);
-    const { image, secondaryImages } = category;
-
-    this.state = {
-      image: image ? image : undefined,
-      secondaryImages: secondaryImages ? secondaryImages : undefined
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     image?: IAttachment;
     secondaryImages?: IAttachment[];
   }) => {
-    const { category } = this.props;
     const finalValues = values;
-    const { image, secondaryImages } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -60,19 +55,19 @@ class CategoryForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       image,
-      secondaryImages
+      secondaryImages: images,
     };
   };
-  onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ image: files.length ? files[0] : undefined });
+
+  const onChangeAttachment = (files: IAttachment[]) => {
+    setImage(files.length ? files[0] : undefined);
   };
 
-  onChangeAttachmentMore = (files: IAttachment[]) => {
-    this.setState({ secondaryImages: files ? files : undefined });
+  const onChangeAttachmentMore = (files: IAttachment[]) => {
+    setImages(files ? files : undefined);
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, category, categories } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     const object = category || ({} as ICarCategory);
@@ -140,7 +135,7 @@ class CategoryForm extends React.Component<Props, State> {
 
           <Uploader
             defaultFileList={image}
-            onChange={this.onChangeAttachment}
+            onChange={onChangeAttachment}
             multiple={false}
             single={true}
           />
@@ -151,7 +146,7 @@ class CategoryForm extends React.Component<Props, State> {
 
           <Uploader
             defaultFileList={secondaryImages}
-            onChange={this.onChangeAttachmentMore}
+            onChange={onChangeAttachmentMore}
             multiple={true}
             single={false}
           />
@@ -169,19 +164,16 @@ class CategoryForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'car category',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: props.category,
           })}
         </ModalFooter>
       </>
     );
   };
-
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default CategoryForm;
