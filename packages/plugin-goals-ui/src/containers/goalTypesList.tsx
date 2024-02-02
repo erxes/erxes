@@ -1,17 +1,13 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { Alert, Bulk, router } from '@erxes/ui/src';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import GoalTypesList from '../components/goalTypesList';
 import { mutations, queries } from '../graphql';
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
 
 type Props = {
@@ -19,95 +15,65 @@ type Props = {
   history: any;
 };
 
-type FinalProps = {
-  goalTypesMainQuery: MainQueryResponse;
-} & Props &
-  IRouterProps &
-  RemoveMutationResponse;
+const goalTypesList = (props: Props) => {
+  const { queryParams, history } = props;
 
-type State = {
-  loading: boolean;
-};
+  const goalTypesMainQuery = useQuery<MainQueryResponse>(
+    gql(queries.goalTypesMain),
+    {
+      variables: {
+        ...router.generatePaginationParams(queryParams || {}),
+        date: queryParams.date,
+        endDate: queryParams.endDate,
+        branch: queryParams.branch,
+        department: queryParams.department,
+        unit: queryParams.unit,
+        contribution: queryParams.contribution,
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
 
-class GoalTypeListContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
+  const [goalTypesRemove] = useMutation<RemoveMutationResponse>(
+    gql(mutations.goalTypesRemove),
+    {
+      refetchQueries: ['goalTypesMain'],
+    },
+  );
 
-    this.state = {
-      loading: false
-    };
-  }
-
-  render() {
-    const { goalTypesMainQuery, goalTypesRemove } = this.props;
-    const removeGoalTypes = ({ goalTypeIds }, emptyBulk) => {
-      goalTypesRemove({
-        variables: { goalTypeIds }
+  const remove = ({ goalTypeIds }, emptyBulk) => {
+    goalTypesRemove({
+      variables: { goalTypeIds },
+    })
+      .then(() => {
+        emptyBulk();
+        Alert.success('You successfully deleted a goalType');
       })
-        .then(() => {
-          emptyBulk();
-          Alert.success('You successfully deleted a goalType');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
+  const goalTypesList = (bulkProps) => {
     const { list = [], totalCount = 0 } =
-      goalTypesMainQuery.goalTypesMain || {};
+      goalTypesMainQuery?.data?.goalTypesMain || {};
+
     const updatedProps = {
-      ...this.props,
+      ...props,
       totalCount,
       goalTypes: list,
-      loading: goalTypesMainQuery.loading || this.state.loading,
-      removeGoalTypes
+      loading: goalTypesMainQuery.loading,
+      remove,
     };
 
-    const goalTypesList = props => {
-      return <GoalTypesList {...updatedProps} {...props} />;
-    };
+    return <GoalTypesList {...updatedProps} {...bulkProps} />;
+  };
 
-    const refetch = () => {
-      this.props.goalTypesMainQuery.refetch();
-    };
+  const refetch = () => {
+    goalTypesMainQuery.refetch();
+  };
 
-    return <Bulk content={goalTypesList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={goalTypesList} refetch={refetch} />;
+};
 
-const generateOptions = () => ({
-  refetchQueries: ['goalTypesMain']
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
-      gql(queries.goalTypesMain),
-      {
-        name: 'goalTypesMainQuery',
-        options: ({ queryParams }) => {
-          return {
-            variables: {
-              ...router.generatePaginationParams(queryParams || {}),
-              date: queryParams.date,
-              endDate: queryParams.endDate,
-              branch: queryParams.branch,
-              department: queryParams.department,
-              unit: queryParams.unit,
-              contribution: queryParams.contribution
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
-      }
-    ),
-    // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.goalTypesRemove),
-      {
-        name: 'goalTypesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(GoalTypeListContainer))
-);
+export default goalTypesList;
