@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
@@ -8,7 +8,7 @@ import {
   DataWithLoader,
   FormControl,
   ModalTrigger,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { IReserveRem } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
@@ -31,53 +31,51 @@ type Props = {
   searchValue: string;
 };
 
-type State = {
-  searchValue: string;
-};
+const ReserveRems: React.FC<Props> = (props) => {
+  let timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue || '');
+  const {
+    toggleAll,
+    reserveRems,
+    history,
+    toggleBulk,
+    bulk,
+    edit,
+    remove,
+    emptyBulk,
+    isAllSelected,
+    totalCount,
+    queryParams,
+  } = props;
 
-class ReserveRems extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue || ''
-    };
-  }
-
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    setSearchValue(searchValue);
 
-    this.timer = setTimeout(() => {
+    timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
     e.target.value = tmpValue;
-  }
+  };
 
-  onChange = () => {
-    const { toggleAll, reserveRems } = this.props;
+  const onChange = () => {
     toggleAll(reserveRems, 'reserveRems');
   };
 
-  renderRow = () => {
-    const { reserveRems, history, toggleBulk, bulk, edit } = this.props;
-
-    return reserveRems.map(reserveRem => (
+  const renderRow = () => {
+    return reserveRems.map((reserveRem) => (
       <Row
         key={reserveRem._id}
         history={history}
@@ -89,30 +87,28 @@ class ReserveRems extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  const modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeReserveRems = reserveRems => {
+  const removeReserveRems = (reserveRems) => {
     const reserveRemIds: string[] = [];
 
-    reserveRems.forEach(reserveRem => {
+    reserveRems.forEach((reserveRem) => {
       reserveRemIds.push(reserveRem._id);
     });
 
-    this.props.remove({ reserveRemIds }, this.props.emptyBulk);
+    remove({ reserveRemIds }, emptyBulk);
   };
 
-  actionBarRight() {
-    const { bulk } = this.props;
-
+  const actionBarRight = () => {
     if (bulk.length) {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeReserveRems(bulk);
+            removeReserveRems(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -139,75 +135,71 @@ class ReserveRems extends React.Component<Props, State> {
         <FormControl
           type="text"
           placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
+          onChange={search}
+          value={searchValue}
           autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+          onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
           size={'lg'}
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
-          content={this.modalContent}
+          content={modalContent}
         />
       </BarItems>
     );
-  }
+  };
 
-  render() {
-    const { isAllSelected, totalCount, queryParams, history } = this.props;
+  const content = (
+    <Table hover={true}>
+      <thead>
+        <tr>
+          <th style={{ width: 60 }}>
+            <FormControl
+              checked={isAllSelected}
+              componentClass="checkbox"
+              onChange={onChange}
+            />
+          </th>
+          <th>{__('Branch')}</th>
+          <th>{__('Department')}</th>
+          <th>{__('Product')}</th>
+          <th>{__('Uom')}</th>
+          <th>{__('Remainder')}</th>
+          <th>{__('')}</th>
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
-    const content = (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Product')}</th>
-            <th>{__('Uom')}</th>
-            <th>{__('Remainder')}</th>
-            <th>{__('')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Sales Year plans')} submenu={SUBMENU} />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Reserve Remainders')}</Title>}
-            right={this.actionBarRight()}
-          />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            count={totalCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        footer={<Pagination count={totalCount} />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__('Sales Year plans')} submenu={SUBMENU} />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Reserve Remainders')}</Title>}
+          right={actionBarRight()}
+        />
+      }
+      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      content={
+        <DataWithLoader
+          data={content}
+          loading={false}
+          count={totalCount}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      footer={<Pagination count={totalCount} />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
 export default ReserveRems;

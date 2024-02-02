@@ -1,90 +1,90 @@
-import * as compose from 'lodash.flowright';
-
+import { gql } from '@apollo/client';
+import PutResponse from '../components/PutResponses';
+import queryString from 'query-string';
+import React from 'react';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+import { router } from '@erxes/ui/src/utils';
+import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
-  ListQueryVariables,
   PutResponsesAmountQueryResponse,
   PutResponsesCountQueryResponse,
   PutResponsesQueryResponse,
 } from '../types';
-import { router, withProps } from '@erxes/ui/src/utils';
-
-// import { withRouter } from 'react-router-dom';
-import { FILTER_PARAMS } from '../constants';
-import PutResponse from '../components/PutResponses';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-import queryString from 'query-string';
+import { FILTER_PARAMS } from '../constants';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   queryParams: any;
   history: any;
 };
 
-type FinalProps = {
-  putResponsesQuery: PutResponsesQueryResponse;
-  putResponsesCountQuery: PutResponsesCountQueryResponse;
-  putResponsesAmountQuery: PutResponsesAmountQueryResponse;
-} & Props &
-  IRouterProps;
-
-type State = {
-  loading: boolean;
-};
-
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
-class PutResponsesContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
+const PutResponsesContainer: React.FC<Props> = (props) => {
+  const { history, queryParams } = props;
 
-    this.state = {
-      loading: false,
-    };
-  }
+  const putResponsesQuery = useQuery<PutResponsesQueryResponse>(
+    gql(queries.putResponses),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
+  const putResponsesCountQuery = useQuery<PutResponsesCountQueryResponse>(
+    gql(queries.putResponsesCount),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
+  const putResponsesAmountQuery = useQuery<PutResponsesAmountQueryResponse>(
+    gql(queries.putResponsesAmount),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
 
-  onSearch = (search: string, key?: string) => {
-    router.removeParams(this.props.history, 'page');
+  const onSearch = (search: string, key?: string) => {
+    router.removeParams(history, 'page');
 
     if (!search) {
-      return router.removeParams(this.props.history, key || 'search');
+      return router.removeParams(history, key || 'search');
     }
 
-    router.setParams(this.props.history, { [key || 'search']: search });
+    router.setParams(history, { [key || 'search']: search });
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, 'page');
+  const onSelect = (values: string[] | string, key: string) => {
+    const params = generateQueryParams(history);
+    router.removeParams(history, 'page');
 
     if (params[key] === values) {
-      return router.removeParams(this.props.history, key);
+      return router.removeParams(history, key);
     }
 
-    return router.setParams(this.props.history, { [key]: values });
+    return router.setParams(history, { [key]: values });
   };
 
-  onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(this.props.history, 'page');
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(history, 'page');
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(this.props.history, { [key]: filterParams[key] });
+        router.setParams(history, { [key]: filterParams[key] });
       } else {
-        router.removeParams(this.props.history, key);
+        router.removeParams(history, key);
       }
     }
 
     return router;
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
+  const isFiltered = (): boolean => {
+    const params = generateQueryParams(history);
 
     for (const param in params) {
       if (FILTER_PARAMS.includes(param)) {
@@ -95,57 +95,57 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
     return false;
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    const params = generateQueryParams(history);
+    router.removeParams(history, ...Object.keys(params));
   };
 
-  render() {
-    const {
-      putResponsesQuery,
-      putResponsesCountQuery,
-      putResponsesAmountQuery,
-    } = this.props;
-
-    if (
-      putResponsesQuery.loading ||
-      putResponsesCountQuery.loading ||
-      putResponsesAmountQuery.loading
-    ) {
-      return <Spinner />;
-    }
-
-    const searchValue = this.props.queryParams.searchValue || '';
-    const putResponses = putResponsesQuery.putResponses || [];
-    const putResponsesCount = putResponsesCountQuery.putResponsesCount || 0;
-    const putResponsesAmount = putResponsesAmountQuery.putResponsesAmount || 0;
-
-    const updatedProps = {
-      ...this.props,
-      searchValue,
-      putResponses,
-      totalCount: putResponsesCount,
-      sumAmount: putResponsesAmount,
-      loading: putResponsesQuery.loading,
-
-      onFilter: this.onFilter,
-      onSelect: this.onSelect,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter,
-    };
-
-    const putResponsesList = (props) => {
-      return <PutResponse {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.putResponsesQuery.refetch();
-    };
-
-    return <Bulk content={putResponsesList} refetch={refetch} />;
+  if (
+    putResponsesQuery.loading ||
+    putResponsesCountQuery.loading ||
+    putResponsesAmountQuery.loading
+  ) {
+    return <Spinner />;
   }
-}
+
+  const searchValue = queryParams.searchValue || '';
+  const putResponses =
+    (putResponsesQuery.data && putResponsesQuery.data.putResponses) || [];
+  const putResponsesCount =
+    (putResponsesCountQuery.data &&
+      putResponsesCountQuery.data.putResponsesCount) ||
+    0;
+  const putResponsesAmount =
+    (putResponsesAmountQuery.data &&
+      putResponsesAmountQuery.data.putResponsesAmount) ||
+    0;
+
+  const updatedProps = {
+    ...props,
+
+    searchValue,
+    putResponses,
+    totalCount: putResponsesCount,
+    sumAmount: putResponsesAmount,
+    loading: putResponsesQuery.loading,
+
+    onFilter: onFilter,
+    onSelect: onSelect,
+    onSearch: onSearch,
+    isFiltered: isFiltered(),
+    clearFilter: clearFilter,
+  };
+
+  const putResponsesList = (props) => {
+    return <PutResponse {...updatedProps} {...props} />;
+  };
+
+  const refetch = () => {
+    putResponsesQuery.refetch();
+  };
+
+  return <Bulk content={putResponsesList} refetch={refetch} />;
+};
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -170,41 +170,4 @@ const generateParams = ({ queryParams }) => ({
   paidDate: queryParams.paidDate,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<
-      { queryParams: any },
-      PutResponsesQueryResponse,
-      ListQueryVariables
-    >(gql(queries.putResponses), {
-      name: 'putResponsesQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
-      }),
-    }),
-
-    graphql<
-      { queryParams: any },
-      PutResponsesCountQueryResponse,
-      ListQueryVariables
-    >(gql(queries.putResponsesCount), {
-      name: 'putResponsesCountQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
-      }),
-    }),
-    graphql<
-      { queryParams: any },
-      PutResponsesAmountQueryResponse,
-      ListQueryVariables
-    >(gql(queries.putResponsesAmount), {
-      name: 'putResponsesAmountQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
-      }),
-    }),
-  )(PutResponsesContainer),
-);
+export default PutResponsesContainer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BarItems,
   Button,
@@ -7,7 +7,7 @@ import {
   FormControl,
   FormGroup,
   Icon,
-  __
+  __,
 } from '@erxes/ui/src';
 import { IResponse } from '../containers/ResponseForm';
 
@@ -16,32 +16,22 @@ type Props = {
   response: (props: IResponse) => void;
 };
 
-type State = {
-  description: string;
-  response?: 'approved' | 'declined';
-};
+const ResponseComponent: React.FC<Props> = (props) => {
+  const [state, setState] = useState({
+    description: '',
+    response: '',
+  });
 
-class ResponseComponent extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      description: ''
-    };
-
-    this.renderContent = this.renderContent.bind(this);
-  }
-
-  renderContent() {
-    const { response, description } = this.state;
+  const renderContent = () => {
+    const { response, description } = state;
 
     const handleResponse = (response: 'approved' | 'declined') => {
-      this.props.response({ description, response });
+      props.response({ description, response });
     };
 
-    const handleChange = e => {
+    const handleChange = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
-      this.setState({ description: value });
+      setState((prevState) => ({ ...prevState, description: value }));
     };
 
     return (
@@ -62,11 +52,9 @@ class ResponseComponent extends React.Component<Props, State> {
         </BarItems>
       </>
     );
-  }
+  };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default ResponseComponent;

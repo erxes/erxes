@@ -1,5 +1,5 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { FormControl } from '@erxes/ui/src/components';
 import { IReserveRem } from '../types';
@@ -16,73 +16,66 @@ type State = {
   remainder: number;
 };
 
-class Row extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+const Row: React.FC<Props> = (props) => {
+  let timer;
+  const [remainder, setRemainder] = useState(props.reserveRem.remainder || 0);
+  const { edit, reserveRem, toggleBulk, isChecked } = props;
 
-  constructor(props: Props) {
-    super(props);
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
 
-    this.state = {
-      remainder: props.reserveRem.remainder || 0
+      timer = setTimeout(() => {
+        edit({ _id: reserveRem._id, remainder: Number(remainder) });
+      }, 1000);
     };
-  }
+  }, [remainder]);
 
-  onChangeValue = e => {
-    const { edit, reserveRem } = this.props;
+  const onChangeValue = (e) => {
     const value = e.target.value;
 
-    this.setState({ remainder: value }, () => {
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
-
-      this.timer = setTimeout(() => {
-        edit({ _id: reserveRem._id, remainder: Number(value) });
-      }, 1000);
-    });
+    setRemainder(value);
   };
 
-  render() {
-    const { reserveRem, toggleBulk, isChecked } = this.props;
+  const onChange = (e) => {
+    if (toggleBulk) {
+      toggleBulk(reserveRem, e.target.checked);
+    }
+  };
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(reserveRem, e.target.checked);
-      }
-    };
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
-
-    const { _id, branch, department, remainder, product, uom } = reserveRem;
-    return (
-      <tr key={_id}>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
-        <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-        <td>{department ? `${department.code} - ${department.title}` : ''}</td>
-        <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-        <td>{uom || ''}</td>
-        <td>
-          <FormControl
-            type="number"
-            name={'remainder'}
-            defaultValue={remainder || 0}
-            onChange={this.onChangeValue}
-          />
-        </td>
-        <td>
-          <ActionButtons>.</ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-}
+  const { _id, branch, department, product, uom } = reserveRem;
+  return (
+    <tr key={_id}>
+      <td onClick={onClick}>
+        <FormControl
+          checked={isChecked}
+          componentClass="checkbox"
+          onChange={onChange}
+        />
+      </td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
+      <td>{product ? `${product.code} - ${product.name}` : ''}</td>
+      <td>{uom || ''}</td>
+      <td>
+        <FormControl
+          type="number"
+          name={'remainder'}
+          defaultValue={reserveRem.remainder || 0}
+          onChange={onChangeValue}
+        />
+      </td>
+      <td>
+        <ActionButtons>.</ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default Row;

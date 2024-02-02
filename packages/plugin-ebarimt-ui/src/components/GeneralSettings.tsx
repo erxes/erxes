@@ -4,11 +4,11 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import React, { useState } from 'react';
 import { KEY_LABELS } from '../constants';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -21,109 +21,88 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  currentMap: IConfigsMap;
-};
+const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
+  const [currentMap, setCurrentMap] = useState(configsMap.EBARIMT || {});
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      currentMap: props.configsMap.EBARIMT || {}
-    };
-  }
-
-  save = e => {
+  const saveHandler = (e) => {
     e.preventDefault();
 
-    const { currentMap } = this.state;
-    const { configsMap } = this.props;
     configsMap.EBARIMT = currentMap;
-    this.props.save(configsMap);
+    save(configsMap);
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
-
+  const onChangeConfig = (code: string, value) => {
     currentMap[code] = value;
 
-    this.setState({ currentMap });
+    setCurrentMap(currentMap);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  renderItem = (key: string, description?: string) => {
-    const { currentMap } = this.state;
-
+  const renderItem = (key: string, description?: string) => {
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           defaultValue={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+          onChange={onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Ebarimt config') },
+  ];
 
-    const actionButtons = (
-      <Button
-        btnStyle="success"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
+  const actionButtons = (
+    <Button
+      btnStyle="success"
+      onClick={saveHandler}
+      icon="check-circle"
+      uppercase={false}
+    >
+      Save
+    </Button>
+  );
 
-    const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent
-          title="Ebarimt settings"
-          beforeTitle={<Icon icon="settings" />}
-          transparent={true}
-        >
-          {this.renderItem('companyName')}
-          {this.renderItem('ebarimtUrl')}
-          {this.renderItem('checkCompanyUrl')}
-        </CollapseContent>
-      </ContentBox>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Ebarimt config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar
-            background="colorWhite"
-            left={<Title>{__('Ebarimt configs')}</Title>}
-            right={actionButtons}
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={content}
-        hasBorder={true}
+  const content = (
+    <ContentBox id={'GeneralSettingsMenu'}>
+      <CollapseContent
+        title="Ebarimt settings"
+        beforeTitle={<Icon icon="settings" />}
         transparent={true}
-      />
-    );
-  }
-}
+      >
+        {renderItem('companyName')}
+        {renderItem('ebarimtUrl')}
+        {renderItem('checkCompanyUrl')}
+      </CollapseContent>
+    </ContentBox>
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__('Ebarimt config')} breadcrumb={breadcrumb} />
+      }
+      mainHead={<Header />}
+      actionBar={
+        <Wrapper.ActionBar
+          background="colorWhite"
+          left={<Title>{__('Ebarimt configs')}</Title>}
+          right={actionButtons}
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={content}
+      hasBorder={true}
+      transparent={true}
+    />
+  );
+};
 
 export default GeneralSettings;

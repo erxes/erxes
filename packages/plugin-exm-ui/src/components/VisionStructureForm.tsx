@@ -3,8 +3,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import React, { useState } from 'react';
 
 type Props = {
   object?: any;
@@ -12,31 +11,30 @@ type Props = {
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
-type State = {
-  vision: string;
-  structure: string;
-};
+const Form: React.FC<Props & ICommonFormProps> = (props) => {
+  const { object, type, renderButton } = props;
 
-class Form extends React.Component<Props & ICommonFormProps, State> {
-  constructor(props: Props) {
-    super(props);
+  const [state, setState] = useState({
+    structure: (props.object && props.object.structure) || '',
+    vision: (props.object && props.object.vision) || '',
+  });
 
-    this.state = {
-      structure: (props.object && props.object.structure) || '',
-      vision: (props.object && props.object.vision) || '',
-    };
-  }
-
-  onEditorChange = (content: string) => {
-    if (this.props.type === 'vision') {
-      this.setState({ vision: content });
+  const onEditorChange = (e) => {
+    if (type === 'vision') {
+      setState((prevState) => ({ ...prevState, vision: e.editor.getData() }));
     } else {
-      this.setState({ structure: content });
+      setState((prevState) => ({
+        ...prevState,
+        structure: e.editor.getData(),
+      }));
     }
   };
 
-  generateDoc = (values: { _id?: string; name: string; content: string }) => {
-    const { object } = this.props;
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    content: string;
+  }) => {
     const finalValues = values;
 
     if (object) {
@@ -45,49 +43,41 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return {
       _id: finalValues._id,
-      structure: this.state.structure,
-      vision: this.state.vision,
+      structure: state.structure,
+      vision: state.vision,
     };
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as any);
+  const renderContent = (formProps: IFormProps) => {
+    const object = props.object || ({} as any);
 
     return (
       <FormGroup>
-        <RichTextEditor
-          content={
-            this.props.type === 'vision'
-              ? this.state.vision
-              : this.state.structure
-          }
-          onChange={this.onEditorChange}
+        <EditorCK
+          content={type === 'vision' ? state.vision : state.structure}
+          onChange={onEditorChange}
           autoGrow={true}
           isSubmitted={formProps.isSaved}
           name={`vision_structure_${object._id || 'create'}`}
-          contentType={this?.props?.type}
+          contentType={type}
         />
       </FormGroup>
     );
   };
 
-  render() {
-    const { object } = this.props;
-
-    return (
-      <CommonForm
-        {...this.props}
-        name="exm"
-        renderButton={this.props.renderButton}
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={object}
-        createdAt={
-          object && object.modifiedAt !== object.createdAt && object.createdAt
-        }
-      />
-    );
-  }
-}
+  return (
+    <CommonForm
+      {...props}
+      renderButton={renderButton}
+      name="exm"
+      renderContent={renderContent}
+      generateDoc={generateDoc}
+      object={object}
+      createdAt={
+        object && object.modifiedAt !== object.createdAt && object.createdAt
+      }
+    />
+  );
+};
 
 export default Form;

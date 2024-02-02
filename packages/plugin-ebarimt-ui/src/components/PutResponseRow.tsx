@@ -19,62 +19,58 @@ export const displayValue = (putResponse, name) => {
   return formatValue(value);
 };
 
-class PutResponseRow extends React.Component<Props, {}> {
-  render() {
-    const { putResponse, history } = this.props;
+const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
+  const onClick = () => {
+    client
+      .query({
+        query: gql(queries.getDealLink),
+        variables: { _id: putResponse.contentId },
+      })
+      .then((data) => {
+        history.push(`${data.data.getDealLink}`);
+      });
+  };
 
-    const onClick = () => {
-      client
-        .query({
-          query: gql(queries.getDealLink),
-          variables: { _id: putResponse.contentId }
-        })
-        .then(data => {
-          history.push(`${data.data.getDealLink}`);
-        });
-    };
+  const onPrint = () => {
+    const printContent = PerResponse(putResponse);
+    const printMianContent = Response(printContent);
+    const myWindow =
+      window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+    myWindow.document.write(printMianContent);
+  };
 
-    const onPrint = () => {
-      const printContent = PerResponse(putResponse);
-      const printMianContent = Response(printContent);
-      const myWindow =
-        window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
-      myWindow.document.write(printMianContent);
-    };
-
-    return (
-      <tr>
-        <td key={'BillID'}>{putResponse.billId} </td>
-        <td key={'number'}>{putResponse.number} </td>
-        <td key={'Date'}>{putResponse.date}</td>
-        <td key={'success'}>{displayValue(putResponse, 'success')}</td>
-        <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>
-        <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>
-        <td key={'amount'}>{displayValue(putResponse, 'amount')}</td>
-        <td key={'message'}>{displayValue(putResponse, 'message')}</td>
-        <td key={'ReturnBillId'}>{putResponse.sendInfo?.returnBillId} </td>
-        <td key={'actions'}>
-          {putResponse.contentType === 'deal' && (
-            <Button
-              btnStyle="link"
-              size="small"
-              icon="external-link-alt"
-              onClick={onClick}
-            >
-              Show Deal
-            </Button>
-          )}
-
+  return (
+    <tr>
+      <td key={'BillID'}>{putResponse.billId} </td>
+      <td key={'number'}>{putResponse.number} </td>
+      <td key={'Date'}>{putResponse.date}</td>
+      <td key={'success'}>{displayValue(putResponse, 'success')}</td>
+      <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>
+      <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>
+      <td key={'amount'}>{displayValue(putResponse, 'amount')}</td>
+      <td key={'message'}>{displayValue(putResponse, 'message')}</td>
+      <td key={'ReturnBillId'}>{putResponse.sendInfo?.returnBillId} </td>
+      <td key={'actions'}>
+        {putResponse.contentType === 'deal' && (
           <Button
             btnStyle="link"
             size="small"
-            icon="print"
-            onClick={onPrint}
-          ></Button>
-        </td>
-      </tr>
-    );
-  }
-}
+            icon="external-link-alt"
+            onClick={onClick}
+          >
+            Show Deal
+          </Button>
+        )}
+
+        <Button
+          btnStyle="link"
+          size="small"
+          icon="print"
+          onClick={onPrint}
+        ></Button>
+      </td>
+    </tr>
+  );
+};
 
 export default PutResponseRow;

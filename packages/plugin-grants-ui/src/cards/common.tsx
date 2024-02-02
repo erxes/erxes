@@ -12,7 +12,7 @@ export function SelectStage({
   label,
   name,
   excludeIds,
-  onSelect
+  onSelect,
 }: {
   pipelineId: string;
   initialValue?: string;
@@ -30,12 +30,12 @@ export function SelectStage({
   const { data, loading } = useQuery(gql(queries.stages), {
     variables: queryVariables,
     fetchPolicy: 'network-only',
-    skip: !pipelineId
+    skip: !pipelineId,
   });
 
-  const options = (data?.stages || []).map(stage => ({
+  const options = (data?.stages || []).map((stage) => ({
     value: stage._id,
-    label: stage.name
+    label: stage.name,
   }));
 
   return (
@@ -58,17 +58,19 @@ export function SelectCardType({ type, handleSelect, params }) {
   const options = [
     { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
     { value: 'task', label: 'Task', icon: 'file-check-alt' },
-    { value: 'ticket', label: 'Ticket', icon: 'ticket' }
-  ].filter(option => option.value !== type);
+    { value: 'ticket', label: 'Ticket', icon: 'ticket' },
+  ].filter((option) => option.value !== type);
 
   return (
     <BarItems>
-      {options.map(option => {
+      {options.map((option) => {
         return (
           <Card
             key={option.value}
             className={params['type'] === option.value ? 'active' : ''}
-            onClick={() => handleSelect({ value: option.value })}
+            onClick={() =>
+              handleSelect({ ...params, value: option.value }, 'params')
+            }
           >
             <Icon icon={option.icon} />
             <ControlLabel>{option.label}</ControlLabel>

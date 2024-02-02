@@ -1,11 +1,10 @@
 import React from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-import { withProps } from '@erxes/ui/src/utils/core';
 import queries from '../graphql/queries';
 import { RequestDetailQueryResponse } from '../../common/type';
 import { Spinner } from '@erxes/ui/src';
+import { useQuery } from '@apollo/client';
+import { IGrantRequest, IGrantResponse } from '../../common/type';
 
 import FormComponent from '../components/Form';
 
@@ -13,38 +12,26 @@ type Props = {
   _id: string;
 };
 
-type FinalProps = {
-  detailQuery: RequestDetailQueryResponse;
-} & Props;
+const DetailForm: React.FC<Props> = ({ _id }: Props) => {
+  const detailQuery = useQuery<RequestDetailQueryResponse>(
+    gql(queries.requestDetail),
+    {
+      variables: { _id },
+      skip: !_id ? true : false,
+    },
+  );
 
-class DetailForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  if (detailQuery.loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const { detailQuery } = this.props;
+  const updatedProps = {
+    detail:
+      (detailQuery.data && detailQuery.data.grantRequestDetail) ||
+      ({} as { responses: IGrantResponse[] } & IGrantRequest),
+  };
 
-    if (detailQuery.loading) {
-      return <Spinner />;
-    }
+  return <FormComponent {...updatedProps} />;
+};
 
-    const updatedProps = {
-      detail: detailQuery.grantRequestDetail || null
-    };
-
-    return <FormComponent {...updatedProps} />;
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.requestDetail), {
-      name: 'detailQuery',
-      options: ({ _id }) => ({
-        variables: { _id }
-      }),
-      skip: ({ _id }) => !_id
-    })
-  )(DetailForm)
-);
+export default DetailForm;

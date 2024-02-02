@@ -3,7 +3,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import Bulk from '@erxes/ui/src/components/Bulk';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -25,14 +24,14 @@ function ListContainer() {
       searchValue: queryParams.searchValue,
       search: queryParams.search,
       departmentId: queryParams.departmentId,
-      branchId: queryParams.branchId
+      branchId: queryParams.branchId,
     },
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const [remaindersUpdate] = useMutation(gql(mutations.remaindersUpdate), {
-    refetchQueries: ['remainderProductsQuery']
+    refetchQueries: ['remainderProductsQuery'],
   });
 
   const refetch = () => remainderProductsQuery.refetch();
@@ -59,7 +58,7 @@ function ListContainer() {
     products: any[],
     departmentId: string,
     branchId: string,
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => {
     const productIds: string[] = [];
 
@@ -83,7 +82,7 @@ function ListContainer() {
     }
 
     remaindersUpdate({
-      variables: { productIds, departmentId, branchId }
+      variables: { productIds, departmentId, branchId },
     })
       .then(() => {
         emptyBulk();
@@ -117,7 +116,7 @@ function ListContainer() {
     recalculate,
     handleSearch,
     handleFilter,
-    clearFilter
+    clearFilter,
   };
 
   const renderContent = (bulkProps: any) => (
@@ -127,4 +126,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

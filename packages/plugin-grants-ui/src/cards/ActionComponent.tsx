@@ -1,92 +1,64 @@
+import React, { useEffect, useState } from 'react';
 import Attribution from '@erxes/ui-automations/src/containers/forms/actions/Attribution';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { CollapseContent, Icon } from '@erxes/ui/src';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import { FormColumn, FormWrapper, LinkButton } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
 import Select from 'react-select-plus';
 import { DividerBox } from '../styles';
 import { SelectCardType, SelectStage } from './common';
 import { ListItem, RemoveRow, Row } from './styles';
-type Props = {
-  action: string;
-  initialProps: any;
-  source: any;
-  onChange: (params: any) => void;
-};
 
-type State = {
-  params: any;
-};
+const CardActionComponent = ({ action, initialProps, source, onChange }) => {
+  const [params, setParams] = useState(initialProps || ({} as any));
 
-class CardActionComponent extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      params: props.initialProps || {}
-    };
-  }
-
-  componentDidMount(): void {
-    if (this.props.action === 'createRelatedCard') {
-      const sourceType = this.props?.source?.type || '';
-      this.handleChange(sourceType, 'sourceType');
-    }
-  }
-
-  handleChange = (value, name: string) => {
-    const { onChange } = this.props;
-    const { params } = this.state;
-    params[name] = value;
-
-    onChange(params);
+  const handleChange = (value, name) => {
+    const updatedParams = { ...params, [name]: value };
+    onChange(updatedParams);
+    setParams(updatedParams);
   };
 
-  renderMoveAction(extraProps: any) {
-    const { params } = this.state;
-    const { source } = this.props;
+  const renderMoveAction = (extraProps) => {
+    const { pipelineId } = source;
 
     const updateProps = {
       ...extraProps,
       ...params,
-      onChangeBoard: e => this.handleChange(e, 'boardId'),
-      onChangePipeline: e => this.handleChange(e, 'pipelineId'),
-      onChangeStage: e => this.handleChange(e, 'stageId')
+      onChangeBoard: (e) => handleChange(e, 'boardId'),
+      onChangePipeline: (e) => handleChange(e, 'pipelineId'),
+      onChangeStage: (e) => handleChange(e, 'stageId'),
     };
 
     return (
-      <>
+      <div>
         <BoardSelect {...updateProps} />
         <DividerBox>{__('ELSE')}</DividerBox>
         <SelectStage
           name="declinedStageId"
           label="Declined Stage"
-          pipelineId={source.pipelineId || null}
+          pipelineId={pipelineId || null}
           initialValue={(params?.logics || [])[0]?.targetStageId}
           onSelect={({ value }) =>
-            this.handleChange(
+            handleChange(
               [{ logic: 'declined', targetStageId: value }],
-              'logics'
+              'logics',
             )
           }
         />
-      </>
+      </div>
     );
-  }
+  };
 
-  renderConfigs() {
-    const { params } = this.state;
-    const { source } = this.props;
+  const renderConfigs = () => {
     const { pipelineId } = source || {};
 
     const {
-      configs
+      configs,
     }: {
       configs: {
         _id: string;
@@ -95,26 +67,29 @@ class CardActionComponent extends React.Component<Props, State> {
       }[];
     } = params || {};
 
-    const selectedSourceStageIds = configs.map(config => config.sourceStageId);
+    const selectedSourceStageIds = configs.map(
+      (config) => config.sourceStageId,
+    );
     const selectedDestinationStageIds = configs.map(
-      config => config.destinationStageId
+      (config) => config.destinationStageId,
     );
 
-    const removeConfig = _id => {
-      params.configs = configs.filter(config => config._id !== _id);
-
-      this.props.onChange(params);
+    const removeConfig = (_id) => {
+      const updatedConfigs = configs.filter((config) => config._id !== _id);
+      onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
     const onSelect = (value, name, configId) => {
-      params.configs = configs.map(config =>
-        config._id === configId ? { ...config, [name]: value } : config
+      const updatedConfigs = configs.map((config) =>
+        config._id === configId ? { ...config, [name]: value } : config,
       );
 
-      this.props.onChange(params);
+      onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
-    return (configs || []).map(config => (
+    return (configs || []).map((config) => (
       <ListItem key={config._id}>
         <RemoveRow onClick={() => removeConfig(config._id)}>
           <Icon icon="times-circle" />
@@ -124,7 +99,7 @@ class CardActionComponent extends React.Component<Props, State> {
             <SelectStage
               name="sourceStageId"
               label={`${params.type} stage`}
-              pipelineId={this.state.params.pipelineId}
+              pipelineId={params.pipelineId}
               initialValue={config.sourceStageId}
               excludeIds={selectedSourceStageIds}
               onSelect={({ value }) =>
@@ -135,7 +110,7 @@ class CardActionComponent extends React.Component<Props, State> {
           <FormColumn>
             <SelectStage
               name="destinationStageId"
-              label={`Destination stage`}
+              label="Destination stage"
               pipelineId={pipelineId}
               excludeIds={selectedDestinationStageIds}
               initialValue={config.destinationStageId}
@@ -147,42 +122,41 @@ class CardActionComponent extends React.Component<Props, State> {
         </FormWrapper>
       </ListItem>
     ));
-  }
+  };
 
-  renderLogics() {
-    const { params } = this.state;
-    const {
-      source: { pipelineId }
-    } = this.props;
+  const renderLogics = () => {
+    const { pipelineId } = source || {};
 
-    const removeLogic = _id => {
-      params.logics = params.logics.filter(logic => logic._id !== _id);
-
-      this.props.onChange(params);
+    const removeLogic = (_id) => {
+      const updatedLogics = params.logics.filter((logic) => logic._id !== _id);
+      onChange({ ...params, logics: updatedLogics });
+      setParams({ ...params, logics: updatedLogics });
     };
 
     const onChangeLogic = (_id, value, name) => {
-      params.logics = params.logics.map(logic =>
-        logic._id === _id ? { ...logic, [name]: value } : logic
+      const updatedLogics = params.logics.map((logic) =>
+        logic._id === _id ? { ...logic, [name]: value } : logic,
       );
-      this.props.onChange(params);
+
+      onChange({ ...params, logics: updatedLogics });
+      setParams({ ...params, logics: updatedLogics });
     };
 
     const logicOptions = [
       { value: 'approved', label: 'Approved' },
-      { value: 'declined', label: 'Declined' }
+      { value: 'declined', label: 'Declined' },
     ];
 
     const generateOptions = (_id, options) => {
       const logics = params.logics
-        .filter(logic => logic._id !== _id && logic?.logic)
+        .filter((logic) => logic._id !== _id && logic?.logic)
         .map(({ logic }) => logic);
 
-      options = options.filter(logic => !logics.includes(logic.value));
+      options = options.filter((logic) => !logics.includes(logic.value));
       return options;
     };
 
-    return params.logics.map(logic => (
+    return params.logics.map((logic) => (
       <ListItem key={logic._id}>
         <RemoveRow onClick={() => removeLogic(logic._id)}>
           <Icon icon="times-circle" />
@@ -214,43 +188,42 @@ class CardActionComponent extends React.Component<Props, State> {
         </FormWrapper>
       </ListItem>
     ));
-  }
+  };
 
-  renderCreateRelatedCard({ type }) {
-    const { params } = this.state;
-
+  const renderCreateRelatedCard = ({ type }) => {
     const handleSelect = ({ value }) => {
-      this.handleChange(value, 'type');
+      handleChange(value, 'type');
     };
 
-    const onChange = e => {
+    const onNameChange = (e) => {
       const { value, name } = e.currentTarget as HTMLInputElement;
-      this.handleChange(value, name);
+      handleChange(value, name);
     };
 
     const addConfig = () => {
-      params.configs.push({
+      const updatedConfigs = params.configs || [];
+      updatedConfigs.push({
         _id: Math.random(),
         sourceStageId: null,
-        destinationStageId: null
+        destinationStageId: null,
       });
 
-      this.props.onChange(params);
+      onChange({ ...params, configs: updatedConfigs });
+      setParams({ ...params, configs: updatedConfigs });
     };
 
     const addLogics = () => {
-      params.logics.push({
-        _id: Math.random()
-      });
+      const updatedLogics = params.logics || [];
+      updatedLogics.push({ _id: Math.random() });
 
-      this.props.onChange(params);
+      onChange({ ...params, logics: updatedLogics });
     };
 
     const updateProps = {
       ...params,
-      onChangeBoard: e => this.handleChange(e, 'boardId'),
-      onChangePipeline: e => this.handleChange(e, 'pipelineId'),
-      onChangeStage: e => this.handleChange(e, 'stageId')
+      onChangeBoard: (e) => handleChange(e, 'boardId'),
+      onChangePipeline: (e) => handleChange(e, 'pipelineId'),
+      onChangeStage: (e) => handleChange(e, 'stageId'),
     };
 
     return (
@@ -274,13 +247,13 @@ class CardActionComponent extends React.Component<Props, State> {
                     triggerType={`cards:${params['type']}`}
                     inputName="name"
                     config={params}
-                    setConfig={params => this.props.onChange(params)}
+                    setConfig={(updatedParams) => onChange(updatedParams)}
                   />
                 </Row>
                 <FormControl
                   name="name"
                   value={params?.name}
-                  onChange={onChange}
+                  onChange={onNameChange}
                 />
               </FormGroup>
             </CollapseContent>
@@ -293,7 +266,7 @@ class CardActionComponent extends React.Component<Props, State> {
                   checked={!!params?.configs}
                   componentClass="checkbox"
                   onClick={() =>
-                    this.handleChange(!params?.configs ? [] : null, 'configs')
+                    handleChange(!params?.configs ? [] : null, 'configs')
                   }
                 />
               </FormGroup>
@@ -303,15 +276,15 @@ class CardActionComponent extends React.Component<Props, State> {
                   checked={!!params?.logics}
                   componentClass="checkbox"
                   onClick={() =>
-                    this.handleChange(!params?.logics ? [] : null, 'logics')
+                    handleChange(!params?.logics ? [] : null, 'logics')
                   }
                 />
               </FormGroup>
             </Row>
 
             {!!params?.configs && (
-              <CollapseContent title="Track Changes Configrations" compact>
-                {this.renderConfigs()}
+              <CollapseContent title="Track Changes Configurations" compact>
+                {renderConfigs()}
                 <LinkButton onClick={addConfig}>
                   <Icon icon="plus-1" /> {__('Add config')}
                 </LinkButton>
@@ -319,7 +292,7 @@ class CardActionComponent extends React.Component<Props, State> {
             )}
             {!!params?.logics && (
               <CollapseContent title="After logics" compact>
-                {this.renderLogics()}
+                {renderLogics()}
                 <LinkButton onClick={addLogics}>
                   <Icon icon="plus-1" /> {__('Add logic')}
                 </LinkButton>
@@ -329,22 +302,25 @@ class CardActionComponent extends React.Component<Props, State> {
         )}
       </>
     );
-  }
+  };
 
-  render() {
-    const { action, source } = this.props;
-
+  const renderComponent = () => {
     if (!action) {
       return null;
     }
 
     if (action === 'changeStage') {
-      return this.renderMoveAction({ ...source });
+      return renderMoveAction({ ...source });
     }
+
     if (action === 'createRelatedCard') {
-      return this.renderCreateRelatedCard({ ...source });
+      return renderCreateRelatedCard({ ...source });
     }
-  }
-}
+
+    return null;
+  };
+
+  return renderComponent();
+};
 
 export default CardActionComponent;

@@ -5,7 +5,7 @@ import { ContentBox } from '../styles';
 import Header from './Header';
 import { IConfigsMap } from '../types';
 import PerSettings from './PerSettings';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -15,29 +15,23 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
+const GeneralSettings: React.FC<Props> = (props) => {
+  const [configsMap, setConfigsMap] = useState(props.configsMap);
+  const { save } = props;
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  useEffect(() => {
+    renderContent();
+  }, [configsMap]);
 
-    this.state = {
-      configsMap: props.configsMap
-    };
-  }
-
-  add = e => {
+  const add = (e) => {
     e.preventDefault();
-    const { configsMap } = this.state;
 
     if (!configsMap.stageInEbarimt) {
       configsMap.stageInEbarimt = {};
     }
 
     // must save prev item saved then new item
-    configsMap.stageInEbarimt.newEbarimtConfig = {
+    const newEbarimtConfig = {
       title: 'New Ebarimt Config',
       boardId: '',
       pipelineId: '',
@@ -50,90 +44,89 @@ class GeneralSettings extends React.Component<Props, State> {
       companyRD: '',
       defaultGSCode: '',
       vatPercent: 0,
-      cityTaxPercent: 0
+      cityTaxPercent: 0,
     };
 
-    this.setState({ configsMap });
+    setConfigsMap((prevConfigsMap) => ({
+      ...prevConfigsMap,
+      stageInEbarimt: {
+        ...prevConfigsMap.stageInEbarimt,
+        newEbarimtConfig,
+      },
+    }));
   };
 
-  delete = (currentConfigKey: string) => {
+  const deleteHandler = (currentConfigKey: string) => {
     confirm('This Action will delete this config are you sure?').then(() => {
-      const { configsMap } = this.state;
       delete configsMap.stageInEbarimt[currentConfigKey];
       delete configsMap.stageInEbarimt['newEbarimtConfig'];
 
-      this.setState({ configsMap });
+      setConfigsMap(configsMap);
 
-      this.props.save(configsMap);
+      save(configsMap);
     });
   };
 
-  renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+  const renderConfigs = (configs) => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={key}
-          configsMap={this.state.configsMap}
+          configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
-          save={this.props.save}
-          delete={this.delete}
+          save={save}
+          delete={deleteHandler}
         />
       );
     });
-  }
+  };
 
-  renderContent() {
-    const { configsMap } = this.state;
+  const renderContent = () => {
     const configs = configsMap.stageInEbarimt || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
-        {this.renderConfigs(configs)}
+        {renderConfigs(configs)}
       </ContentBox>
     );
-  }
+  };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Ebarimt config') },
+  ];
 
-    const actionButtons = (
-      <Button
-        btnStyle="success"
-        onClick={this.add}
-        icon="plus-circle"
-        uppercase={false}
-      >
-        New config
-      </Button>
-    );
+  const actionButtons = (
+    <Button
+      btnStyle="success"
+      onClick={add}
+      icon="plus-circle"
+      uppercase={false}
+    >
+      New config
+    </Button>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Ebarimt config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar
-            background="colorWhite"
-            left={<Title>{__('Ebarimt configs')}</Title>}
-            right={actionButtons}
-          />
-        }
-        leftSidebar={<Sidebar />}
-        content={this.renderContent()}
-        hasBorder={true}
-        transparent={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__('Ebarimt config')} breadcrumb={breadcrumb} />
+      }
+      mainHead={<Header />}
+      actionBar={
+        <Wrapper.ActionBar
+          background="colorWhite"
+          left={<Title>{__('Ebarimt configs')}</Title>}
+          right={actionButtons}
+        />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+      hasBorder={true}
+      transparent={true}
+    />
+  );
+};
 
 export default GeneralSettings;

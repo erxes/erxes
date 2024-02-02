@@ -8,11 +8,11 @@ import {
   ModalTrigger,
   NameCard,
   SectionBodyItem,
-  colors
+  colors,
 } from '@erxes/ui/src';
 import Form from '../containers/RequestForm';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { AssignedMemberCard, SectionContent } from '../../styles';
+import { AssignedMemberCard } from '../../styles';
 import ResponseForm from '../containers/ResponseForm';
 import _loadash from 'lodash';
 
@@ -24,14 +24,10 @@ type Props = {
   currentUser: IUser;
 };
 
-class Section extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const Section: React.FC<Props> = (props) => {
+  const { currentUser, request, contentTypeId, contentType, object } = props;
 
-  renderForm(user: { grantResponse?: string } & IUser) {
-    const { currentUser, request, contentTypeId, contentType } = this.props;
-
+  const renderForm = (user: { grantResponse?: string } & IUser) => {
     if (
       currentUser._id === user._id &&
       currentUser._id !== request.requesterId &&
@@ -45,12 +41,12 @@ class Section extends React.Component<Props> {
         </Button>
       );
 
-      const content = props => {
+      const content = (props) => {
         const updatedProps = {
           ...props,
           contentTypeId,
           contentType,
-          requestId: request._id
+          requestId: request._id,
         };
 
         return <ResponseForm {...updatedProps} />;
@@ -91,36 +87,26 @@ class Section extends React.Component<Props> {
           />
         );
     }
-  }
+  };
 
-  renderContent() {
-    const {
-      request: { users }
-    } = this.props;
+  const renderContent = () => {
+    const { users } = request;
 
     if (!users?.length) {
       return <EmptyState text="There has no grant request" icon="list-ul" />;
     }
 
-    return users.map(user => (
+    return users.map((user) => (
       <SectionBodyItem key={user._id}>
         <AssignedMemberCard>
           <NameCard user={user} />
-          {this.renderForm(user)}
+          {renderForm(user)}
         </AssignedMemberCard>
       </SectionBodyItem>
     ));
-  }
+  };
 
-  renderRequestForm() {
-    const {
-      contentType,
-      contentTypeId,
-      object,
-      currentUser,
-      request
-    } = this.props;
-
+  const renderRequestForm = () => {
     if (!_loadash.isEmpty(request) && currentUser._id !== request.requesterId) {
       return null;
     }
@@ -136,10 +122,10 @@ class Section extends React.Component<Props> {
       contentType,
       contentTypeId,
       object,
-      request
+      request,
     };
 
-    const content = props => <Form {...props} {...updatedProps} />;
+    const content = (props) => <Form {...props} {...updatedProps} />;
 
     return (
       <ModalTrigger
@@ -149,20 +135,18 @@ class Section extends React.Component<Props> {
         size="lg"
       />
     );
-  }
+  };
 
-  render() {
-    return (
-      <Box
-        title="Grant Request"
-        name="grantSection"
-        isOpen={true}
-        extraButtons={this.renderRequestForm()}
-      >
-        {this.renderContent()}
-      </Box>
-    );
-  }
-}
+  return (
+    <Box
+      title="Grant Request"
+      name="grantSection"
+      isOpen={true}
+      extraButtons={renderRequestForm()}
+    >
+      {renderContent()}
+    </Box>
+  );
+};
 
 export default Section;

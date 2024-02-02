@@ -1,5 +1,5 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { __ } from '@erxes/ui/src/utils';
@@ -7,13 +7,13 @@ import {
   Button,
   ControlLabel,
   Form as CommonForm,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IReserveRemParams } from '../types';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
@@ -23,56 +23,47 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  reserveRemParams: IReserveRemParams;
-};
+const Form: React.FC<Props> = (props) => {
+  const [reserveRemParams, setReserveRemParams] = useState(
+    {} as IReserveRemParams,
+  );
+  const { renderButton, closeModal } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      reserveRemParams: {}
-    };
-  }
-
-  generateDoc = (values: { _id?: string }) => {
+  const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
-    const { reserveRemParams } = this.state;
 
     reserveRemParams.remainder = Number(reserveRemParams.remainder || 0);
 
     return {
       ...finalValues,
-      ...reserveRemParams
+      ...reserveRemParams,
     };
   };
 
-  onInputChange = e => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      reserveRemParams: { ...this.state.reserveRemParams, [name]: value }
-    });
+    setReserveRemParams((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
-  onSelectChange = (name, value) => {
-    this.setState({
-      reserveRemParams: { ...this.state.reserveRemParams, [name]: value }
-    });
+  const onSelectChange = (name, value) => {
+    setReserveRemParams((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
-  onAfterSave = () => {
-    this.props.closeModal();
+  const onAfterSave = () => {
+    closeModal();
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
-    const { reserveRemParams } = this.state;
 
     return (
       <>
@@ -83,9 +74,7 @@ class Form extends React.Component<Props, State> {
               label="Choose branch"
               name="branchIds"
               initialValue={''}
-              onSelect={branchIds =>
-                this.onSelectChange('branchIds', branchIds)
-              }
+              onSelect={(branchIds) => onSelectChange('branchIds', branchIds)}
               multi={true}
             />
           </FormGroup>
@@ -95,8 +84,8 @@ class Form extends React.Component<Props, State> {
               label="Choose department"
               name="departmentIds"
               initialValue={''}
-              onSelect={departmentIds =>
-                this.onSelectChange('departmentIds', departmentIds)
+              onSelect={(departmentIds) =>
+                onSelectChange('departmentIds', departmentIds)
               }
               multi={true}
             />
@@ -107,8 +96,8 @@ class Form extends React.Component<Props, State> {
               label="Choose product category"
               name="productCategoryId"
               initialValue={''}
-              onSelect={categoryId =>
-                this.onSelectChange('productCategoryId', categoryId)
+              onSelect={(categoryId) =>
+                onSelectChange('productCategoryId', categoryId)
               }
               multi={false}
             />
@@ -119,9 +108,7 @@ class Form extends React.Component<Props, State> {
               label="Choose product"
               name="productId"
               initialValue={''}
-              onSelect={productId =>
-                this.onSelectChange('productId', productId)
-              }
+              onSelect={(productId) => onSelectChange('productId', productId)}
               multi={false}
             />
           </FormGroup>
@@ -131,7 +118,7 @@ class Form extends React.Component<Props, State> {
               type="number"
               name={'remainder'}
               defaultValue={0}
-              onChange={this.onInputChange}
+              onChange={onInputChange}
             />
           </FormGroup>
         </ScrollWrapper>
@@ -146,19 +133,17 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: this.onAfterSave,
-            object: reserveRemParams
+            callback: onAfterSave,
+            object: reserveRemParams,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default Form;

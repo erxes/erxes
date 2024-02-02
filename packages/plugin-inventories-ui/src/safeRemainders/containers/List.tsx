@@ -1,7 +1,6 @@
 import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 import queryString from 'query-string';
 // erxes
@@ -19,7 +18,6 @@ function ListContainer() {
 
   // Queries
   const safeRemaindersQuery = useQuery(gql(queries.safeRemainders), {
-    displayName: 'safeRemaindersQuery',
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
       beginDate: queryParams.beginDate,
@@ -27,18 +25,18 @@ function ListContainer() {
       productId: queryParams.productId,
       branchId: queryParams.branchId,
       departmentId: queryParams.departmentId,
-      searchValue: queryParams.searchValue
+      searchValue: queryParams.searchValue,
     },
     fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
   });
 
   // Mutations
   const [safeRemainderRemove] = useMutation(
     gql(mutations.safeRemainderRemove),
     {
-      refetchQueries: ['safeRemaindersQuery']
-    }
+      refetchQueries: ['safeRemaindersQuery'],
+    },
   );
 
   // Methods
@@ -62,11 +60,11 @@ function ListContainer() {
             Alert.success('You successfully deleted a census');
             safeRemaindersQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -90,7 +88,7 @@ function ListContainer() {
     loading: safeRemaindersQuery.loading,
     handleSearch,
     searchValue,
-    removeItem
+    removeItem,
   };
 
   const renderContent = (bulkProps: any) => {
@@ -100,4 +98,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

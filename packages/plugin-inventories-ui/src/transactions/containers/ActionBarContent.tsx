@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
@@ -20,7 +19,7 @@ const ActionBarContentContainer = () => {
     departmentId: string,
     branchId: string,
     products: any,
-    closeModal: any
+    closeModal: any,
   ) => {
     transactionAdd({
       variables: {
@@ -28,14 +27,14 @@ const ActionBarContentContainer = () => {
         branchId: branchId,
         contentType: 'Transaction Page',
         contentId: 'transaction_page_id',
-        products: products
-      }
+        products: products,
+      },
     })
       .then(() => {
         closeModal();
         window.location.reload();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -43,4 +42,4 @@ const ActionBarContentContainer = () => {
   return <ActionBarContentComponent submit={submit} />;
 };
 
-export default compose()(ActionBarContentContainer);
+export default ActionBarContentContainer;
