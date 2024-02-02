@@ -38,7 +38,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { FilePreview } from "@/components/FilePreview"
+import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
+import { ImageGrid } from "@/components/ImageGrid"
 import { useUsers } from "@/components/hooks/useUsers"
 
 import { useComments } from "../hooks/useComment"
@@ -46,6 +47,7 @@ import useFeedMutation from "../hooks/useFeedMutation"
 import { useReactionMutaion } from "../hooks/useReactionMutation"
 import { useReactionQuery } from "../hooks/useReactionQuery"
 import { useTeamMembers } from "../hooks/useTeamMembers"
+import CommentItem from "./CommentItem"
 import UsersList from "./UsersList"
 import CommentForm from "./form/CommentForm"
 
@@ -56,6 +58,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [emojiOpen, setEmojiOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
@@ -158,41 +161,37 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderComment = (triggerType: string) => {
-    const trigger =
-      triggerType === "button" ? (
-        <div className="cursor-pointer flex items-center py-3 px-4">
-          <MessageCircleIcon size={20} className="mr-1" color="#475467" />
-          Comment
-        </div>
-      ) : (
-        <div className="cursor-pointer">{commentsCount} comments</div>
-      )
+  const renderComment = () => {
+    if (commentLoading) {
+      return <LoadingCard />
+    }
 
     return (
-      <>
-        <Dialog
-          open={commentOpen}
-          onOpenChange={() => setCommentOpen(!commentOpen)}
-        >
-          <DialogTrigger asChild={true} id="delete-form">
-            {trigger}
-          </DialogTrigger>
-
-          {commentOpen && (
-            <CommentForm
-              feed={feed}
-              comments={comments}
-              commentsCount={commentsCount}
-              loading={commentLoading}
-              handleLoadMore={handleLoadMore}
+      commentOpen && (
+        <>
+          {comments.map((item: any, i: number) => (
+            <CommentItem
+              key={i}
+              comment={item}
               currentUserId={currentUser._id}
-              emojiReactedUser={emojiReactedUser.map((u) => u._id)}
-              emojiCount={emojiCount}
             />
-          )}
-        </Dialog>
-      </>
+          ))}
+          {commentsCount > 0 && (
+          <div className="flex items-center justify-between mt-2">
+            <p
+              className="cursor-pointer text-[#444] hover:underline underline-offset-2"
+              onClick={handleLoadMore}
+            >
+              {commentsCount !== comments.length ? "View more comments" : ""}
+            </p>
+
+            <p className="text-[#444] mr-2" onClick={handleLoadMore}>
+              {comments.length} / {commentsCount}
+            </p>
+          </div>
+        )}
+        </>
+      )
     )
   }
 
@@ -314,6 +313,11 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       text = emojiCount
     }
 
+    const onClickHandler = () => {
+      setDetailOpen(true)
+      setCommentOpen(true)
+    }
+
     return (
       <div className="flex my-3 justify-between text-[#475467] items-center px-4">
         <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
@@ -332,7 +336,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             <UsersList users={emojiReactedUser} />
           </DialogContent>
         </Dialog>
-        {renderComment("count")}
+        <div className="cursor-pointer" onClick={() => onClickHandler()}>
+          {commentsCount} comments
+        </div>
       </div>
     )
   }
@@ -393,12 +399,9 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <FilePreview
-        attachments={feed.images}
-        fileUrl={feed.images[0].url}
-        fileIndex={0}
-        grid={true}
-      />
+      <div onClick={() => setDetailOpen(!detailOpen)}>
+        <ImageGrid attachments={feed.images} />
+      </div>
     )
   }
 
@@ -474,47 +477,114 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
+  const renderPostHeader = () => {
+    return (
+      <div className="flex  justify-between px-4 pt-2">
+        <div className="flex items-center">
+          <Image
+            src={userDetail?.avatar || "/avatar-colored.svg"}
+            alt="User Profile"
+            width={100}
+            height={100}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div className="ml-2">
+            <div className="text-base font-bold text-gray-700 flex items-center gap-[8px]">
+              {userDetail?.fullName ||
+                userDetail?.username ||
+                userDetail?.email}
+              <span className="text-[18px] text-[#98A2B3]">∙</span>
+              <span
+                className={`uppercase flex ${contentTypeBgColor} text-sm text-white px-2 py-1 rounded-full gap-[4px] items-center`}
+              >
+                {feed.isPinned && <PinIcon size={15} color={"#fff"} />}
+                {feed.contentType}
+              </span>
+              {feed.contentType === "bravo" && renderRecipientUsers()}
+            </div>
+            <div className="text-xs text-[#666] font-normal">
+              {renderCreatedDate()}{" "}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex  cursor-pointer">{renderFeedActions()}</div>
+      </div>
+    )
+  }
+
+  const renderPostFooter = () => {
+    return (
+      <CardFooter className="border-t p-0 text-[#475467]">
+        <div
+          className="cursor-pointer flex items-center py-3 px-4"
+          onClick={reactionAdd}
+        >
+          <ThumbsUp
+            size={20}
+            className="mr-1"
+            color={`${idExists ? "#5B38CA" : "#475467"}`}
+          />
+          <div className={`${idExists ? "text-primary" : "text-[#475467]"}`}>
+            Like
+          </div>
+        </div>
+        <div
+          className="cursor-pointer flex items-center py-3 px-4"
+          onClick={() => setCommentOpen(!commentOpen)}
+        >
+          <MessageCircleIcon size={20} className="mr-1" color="#475467" />
+          Comment
+        </div>
+      </CardFooter>
+    )
+  }
+
+  const renderDetail = () => {
+    const dialogHandler = () => {
+      setDetailOpen(!detailOpen)
+      setCommentOpen(false)
+    }
+
+    return (
+      <Dialog open={detailOpen} onOpenChange={() => dialogHandler()}>
+        <DialogTrigger asChild={true}>{renderImages()}</DialogTrigger>
+        <DialogContent className="p-0 gap-0 max-w-[65%] bg-0 overflow-hidden">
+          <div className="flex min-h-[60vh] h-[60vh]">
+            <AttachmentWithPreview
+              images={feed.images || []}
+              indexProp={0}
+              className="w-[calc(100%-430px)]"
+            />
+            <div className="w-[430px] px-4 relative bg-white">
+              <div className=" h-[calc(100%-70px)] overflow-auto">
+                {renderPostHeader()}
+                <p className="text-black px-4 py-3">{updatedDescription}</p>
+                {renderAttachments()}
+                {renderEmojiCount()}
+                {renderPostFooter()}
+                {renderComment()}
+              </div>
+              <div className="absolute bottom-0 w-full pr-7">
+                <CommentForm
+                  feedId={feed._id}
+                  avatar={currentUser.details.avatar}
+                />
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   const contentTypeBgColor =
     feed.contentType === "bravo" ? "bg-[#32D583]" : "bg-[#0BA5EC]"
 
   return (
     <>
       <Card className="max-w-[880px] w-full mx-auto border-[#EAECF0] border pt-[12px]">
-        <CardHeader className="p-0">
-          <div className="flex items-center justify-between px-4 pt-2">
-            <div className="flex items-center">
-              <Image
-                src={userDetail?.avatar || "/avatar-colored.svg"}
-                alt="User Profile"
-                width={100}
-                height={100}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div className="ml-2">
-                <div className="text-base font-bold text-gray-700 flex items-center gap-[8px]">
-                  {userDetail?.fullName ||
-                    userDetail?.username ||
-                    userDetail?.email}
-                  <span className="text-[18px] text-[#98A2B3]">∙</span>
-                  <span
-                    className={`uppercase flex ${contentTypeBgColor} text-sm text-white px-2 py-1 rounded-full gap-[4px] items-center`}
-                  >
-                    {feed.isPinned && <PinIcon size={15} color={"#fff"} />}
-                    {feed.contentType}
-                  </span>
-                  {feed.contentType === "bravo" && renderRecipientUsers()}
-                </div>
-                <div className="text-xs text-[#666] font-normal">
-                  {renderCreatedDate()}{" "}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center cursor-pointer">
-              {renderFeedActions()}
-            </div>
-          </div>
-        </CardHeader>
+        <CardHeader className="p-0">{renderPostHeader()}</CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-hidden px-4 py-[12px]">
             <p className="text-black">{updatedDescription}</p>
@@ -537,26 +607,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           })}
 
           {renderAttachments()}
-          {renderImages()}
+          {renderDetail()}
           {renderEmojiCount()}
         </CardContent>
-
-        <CardFooter className="border-t p-0 text-[#475467]">
-          <div
-            className="cursor-pointer flex items-center py-3 px-4"
-            onClick={reactionAdd}
-          >
-            <ThumbsUp
-              size={20}
-              className="mr-1"
-              color={`${idExists ? "#5B38CA" : "#475467"}`}
+        {renderPostFooter()}
+        {commentOpen && (
+          <div className="px-4">
+            {renderComment()}
+            <CommentForm
+              feedId={feed._id}
+              avatar={currentUser.details.avatar}
             />
-            <div className={`${idExists ? "text-primary" : "text-[#475467]"}`}>
-              Like
-            </div>
           </div>
-          {renderComment("button")}
-        </CardFooter>
+        )}
       </Card>
     </>
   )
