@@ -1,22 +1,22 @@
 import { useEffect } from "react"
-import { useTDBTransaction } from "@/modules/checkout/hooks/useTDB"
+import { useCapitronTransaction } from "@/modules/checkout/hooks/useCapitron"
 import useTransaction from "@/modules/checkout/hooks/useTransaction"
 import { currentPaymentTypeAtom } from "@/store"
 import { useAtomValue } from "jotai"
 
 import TerminalUI from "./terminalUI"
 
-const TDBCardSheet = () => {
+const CapitronSheet = () => {
   const type = useAtomValue(currentPaymentTypeAtom)
   const { amount, _id, closePaymentSheet, handleAddPayment } =
     useTransaction(type)
-  const { TDBTransaction } = useTDBTransaction({
+  const { capitronTransaction } = useCapitronTransaction({
     onCompleted: handleAddPayment,
     onError: closePaymentSheet,
   })
 
   useEffect(() => {
-    TDBTransaction({
+    capitronTransaction({
       _id: _id || "",
       amount,
     })
@@ -26,4 +26,4 @@ const TDBCardSheet = () => {
   return <TerminalUI />
 }
 
-export default TDBCardSheet
+export default CapitronSheet
