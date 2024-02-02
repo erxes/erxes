@@ -1,16 +1,15 @@
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { useQuery, useMutation } from '@apollo/client';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import KnowledgeList from '../../components/knowledge/KnowledgeList';
 import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   RemoveTopicsMutation,
   TopicsQueryResponse,
-  TopicsTotalCountQueryResponse
+  TopicsTotalCountQueryResponse,
 } from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
@@ -19,27 +18,31 @@ type Props = {
   articlesCount: number;
 };
 
-type FinalProps = {
-  topicsQuery: TopicsQueryResponse;
-  topicsCountQuery: TopicsTotalCountQueryResponse;
-} & Props &
-  RemoveTopicsMutation;
+const KnowledgeBaseContainer = (props: Props) => {
+  const { currentCategoryId, queryParams, articlesCount } = props;
 
-const KnowledgeBaseContainer = (props: FinalProps) => {
-  const {
-    currentCategoryId,
-    topicsQuery,
-    topicsCountQuery,
-    removeTopicsMutation,
-    queryParams,
-    articlesCount
-  } = props;
+  const topicsQuery = useQuery<TopicsQueryResponse>(
+    gql(queries.knowledgeBaseTopics),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
-  // remove action
-  const remove = topicId => {
+  const topicsCountQuery = useQuery<TopicsTotalCountQueryResponse>(
+    gql(queries.knowledgeBaseTopicsTotalCount),
+  );
+
+  const [removeTopicsMutation] = useMutation<RemoveTopicsMutation>(
+    gql(mutations.knowledgeBaseTopicsRemove),
+    {
+      refetchQueries: refetchQueries(currentCategoryId),
+    },
+  );
+
+  const removeTopic = (topicId) => {
     confirm().then(() => {
       removeTopicsMutation({
-        variables: { _id: topicId }
+        variables: { _id: topicId },
       })
         .then(() => {
           topicsQuery.refetch();
@@ -47,7 +50,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
 
           Alert.success('You successfully deleted a knowledge base');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -58,7 +61,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
       topicsQuery.refetch();
@@ -89,55 +92,35 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
 
   const extendedProps = {
     ...props,
-    remove,
+    remove: removeTopic,
     renderButton,
     currentCategoryId,
     queryParams,
     articlesCount,
-    topics: topicsQuery.knowledgeBaseTopics || [],
-    loading: topicsQuery.loading,
+    topics: topicsQuery?.data?.knowledgeBaseTopics || [],
+    topicsCount: topicsCountQuery?.data?.knowledgeBaseTopicsTotalCount || 0,
+    loading: topicsQuery.loading || topicsCountQuery.loading,
     refetch: topicsQuery.refetch,
-    topicsCount: topicsCountQuery.knowledgeBaseTopicsTotalCount || 0
   };
 
   return <KnowledgeList {...extendedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
-      name: 'topicsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, TopicsTotalCountQueryResponse>(
-      gql(queries.knowledgeBaseTopicsTotalCount),
-      {
-        name: 'topicsCountQuery'
-      }
-    ),
-    graphql<Props, RemoveTopicsMutation, { _id: string }>(
-      gql(mutations.knowledgeBaseTopicsRemove),
-      {
-        name: 'removeTopicsMutation',
-        options: ({ currentCategoryId }) => {
-          return {
-            refetchQueries: !currentCategoryId
-              ? []
-              : [
-                  {
-                    query: gql(queries.knowledgeBaseArticlesTotalCount),
-                    variables: { categoryIds: [currentCategoryId] }
-                  },
-                  {
-                    query: gql(queries.knowledgeBaseCategoryDetail),
-                    variables: { _id: currentCategoryId }
-                  }
-                ]
-          };
-        }
-      }
-    )
-  )(KnowledgeBaseContainer)
-);
+const refetchQueries = (currentCategoryId) => {
+  if (!currentCategoryId) {
+    return [];
+  }
+
+  return [
+    {
+      query: gql(queries.knowledgeBaseArticlesTotalCount),
+      variables: { categoryIds: [currentCategoryId] },
+    },
+    {
+      query: gql(queries.knowledgeBaseCategoryDetail),
+      variables: { _id: currentCategoryId },
+    },
+  ];
+};
+
+export default KnowledgeBaseContainer;
