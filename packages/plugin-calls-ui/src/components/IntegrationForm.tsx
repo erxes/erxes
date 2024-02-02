@@ -5,7 +5,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -19,18 +19,15 @@ type Props = {
   channelIds: string[];
 };
 
-type State = {
-  operators: Operator[];
-};
+const IntegrationForm: React.FC<Props> = ({
+  renderButton,
+  callback,
+  onChannelChange,
+  channelIds,
+}: Props) => {
+  const [operators, setOperators] = useState<Operator[]>([]);
 
-class IntegrationForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = { operators: [] };
-  }
-
-  generateDoc = (values: any) => {
+  const generateDoc = (values: any) => {
     return {
       name: values.name,
       brandId: values.brandId,
@@ -38,15 +35,15 @@ class IntegrationForm extends React.Component<Props, State> {
       data: {
         phone: values.phone,
         wsServer: values.wsServer,
-        operators: this.state.operators
-      }
+        operators,
+      },
     };
   };
 
-  renderField = ({
+  const renderField = ({
     label,
     fieldName,
-    formProps
+    formProps,
   }: {
     label: string;
     fieldName: string;
@@ -65,57 +62,52 @@ class IntegrationForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, callback, onChannelChange, channelIds } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { operators } = this.state;
 
     const onChangeOperators = (index: number, value: any) => {
-      operators[index] = value;
-      this.setState({ operators });
+      const updatedOperators = [...operators];
+      updatedOperators[index] = value;
+      setOperators(updatedOperators);
     };
 
     const onChangeOperatorDetails = (
       name: string,
       value: string,
-      index: number
+      index: number,
     ) => {
-      const currentOperator = operators.find((l, i) => i === index);
-
-      if (currentOperator) {
-        currentOperator[name] = value;
-      }
+      const updatedOperators = operators.map((operator, i) =>
+        i === index ? { ...operator, [name]: value } : operator,
+      );
+      setOperators(updatedOperators);
     };
 
     const handleAddOperation = () => {
       const temp = { userId: '', gsUsername: '', gsPassword: '' };
-      const { operators } = this.state;
 
       operators.push(temp);
 
-      this.setState({ operators });
+      setOperators(operators);
     };
 
     const handleRemoveOperator = (index: number) => {
-      const operators = this.state.operators.filter((l, i) => i !== index);
-
-      this.setState({ operators });
+      setOperators(operators.filter((l, i) => i !== index));
     };
 
     return (
       <>
-        {this.renderField({ label: 'Name', fieldName: 'name', formProps })}
+        {renderField({ label: 'Name', fieldName: 'name', formProps })}
 
-        {this.renderField({
+        {renderField({
           label: 'Phone number',
           fieldName: 'phone',
-          formProps
+          formProps,
         })}
 
-        {this.renderField({
+        {renderField({
           label: 'Web socket server',
           fieldName: 'wsServer',
-          formProps
+          formProps,
         })}
 
         <>
@@ -166,18 +158,16 @@ class IntegrationForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback
+            callback,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default IntegrationForm;

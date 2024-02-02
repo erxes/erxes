@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import FormComponent from '@erxes/ui-tags/src/components/Form';
@@ -8,7 +9,6 @@ import Info from '@erxes/ui/src/components/Info';
 import Label from '@erxes/ui/src/components/Label';
 import Modal from 'react-bootstrap/Modal';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import Select from 'react-select-plus';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -17,10 +17,10 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
-  padding-left: ${props => props.space * 20}px;
+  padding-left: ${(props) => props.space * 20}px;
 `;
 
-type Props = {
+type RowProps = {
   tag: ITag;
   type: string;
   count?: number;
@@ -32,48 +32,48 @@ type Props = {
   tags: ITag[];
 };
 
-type State = {
-  showMerge: boolean;
-  mergeDestination?: { value: string; label: string };
-};
-class Row extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const Row: React.FC<RowProps> = ({
+  tag,
+  type,
+  count,
+  space,
+  types,
+  renderButton,
+  remove,
+  merge,
+  tags,
+}) => {
+  const [showMerge, setShowMerge] = useState(false);
+  const [mergeDestination, setMergeDestination] = useState<
+    | {
+        value: string;
+        label: string;
+      }
+    | undefined
+  >(undefined);
 
-    this.state = { showMerge: false };
-  }
-
-  removeTag = () => {
-    const { remove, tag } = this.props;
-
+  const removeTag = () => {
     remove(tag);
   };
 
-  toggleMergeWindow = () => {
-    const { showMerge } = this.state;
-
-    this.setState({ showMerge: !showMerge, mergeDestination: undefined });
+  const toggleMergeWindow = () => {
+    setShowMerge(!showMerge);
+    setMergeDestination(undefined);
   };
 
-  onChangeDestination = option => {
-    this.setState({ mergeDestination: option });
+  const onChangeDestination = (option: { value: string; label: string }) => {
+    setMergeDestination(option);
   };
 
-  onMerge = () => {
-    const { merge, tag } = this.props;
-    const { mergeDestination } = this.state;
-
+  const onMerge = () => {
     if (mergeDestination) {
       merge(tag._id, mergeDestination.value, () => {
-        this.toggleMergeWindow();
+        toggleMergeWindow();
       });
     }
   };
 
-  renderMergeWindow() {
-    const { showMerge, mergeDestination } = this.state;
-    const { tag, tags } = this.props;
-
+  const renderMergeWindow = () => {
     if (!showMerge) {
       return null;
     }
@@ -104,7 +104,7 @@ class Row extends React.Component<Props, State> {
     };
 
     return (
-      <Modal show={true} onHide={this.toggleMergeWindow}>
+      <Modal show={true} onHide={toggleMergeWindow}>
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {__('Merge')} <b>{tag.name}</b>
@@ -120,85 +120,73 @@ class Row extends React.Component<Props, State> {
             <Select
               isRequired={true}
               value={mergeDestination ? mergeDestination.value : null}
-              onChange={this.onChangeDestination}
+              onChange={onChangeDestination}
               options={options}
             />
           </div>
 
           <Modal.Footer>
-            <Button type="primary" onClick={this.onMerge}>
+            <Button type="primary" onClick={onMerge}>
               {__('Merge')}
             </Button>
           </Modal.Footer>
         </Modal.Body>
       </Modal>
     );
-  }
+  };
 
-  render() {
-    const { tag, type, count, renderButton, space, tags, types } = this.props;
+  const editTrigger = (
+    <Button btnStyle="link">
+      <Tip text={__('Edit')} placement="top">
+        <Icon icon="edit-3" />
+      </Tip>
+    </Button>
+  );
 
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
+  const content = (props: any) => (
+    <FormComponent
+      {...props}
+      type={type}
+      types={types}
+      tag={tag}
+      renderButton={renderButton}
+      tags={tags}
+    />
+  );
 
-    const content = props => (
-      <FormComponent
-        {...props}
-        type={type}
-        types={types}
-        tag={tag}
-        renderButton={renderButton}
-        tags={tags}
-      />
-    );
+  return (
+    <tr>
+      <td>
+        <TagWrapper space={space}>
+          <Tags tags={[tag]} size="medium" />
+        </TagWrapper>
+      </td>
+      <td>{tag.totalObjectCount || '-'}</td>
+      <td>{count || '0'}</td>
+      <td>
+        <Label lblStyle="default">{tag.type || '-'}</Label>
+      </td>
+      <td>
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit tag"
+            trigger={editTrigger}
+            content={content}
+          />
 
-    return (
-      <tr>
-        <td>
-          <TagWrapper space={space}>
-            <Tags tags={[tag]} size="medium" />
-          </TagWrapper>
-        </td>
-        <td>{tag.totalObjectCount || '-'}</td>
-        <td>{count || '0'}</td>
-        <td>
-          <Label lblStyle="default">{tag.type || '-'}</Label>
-        </td>
-        <td>
-          <ActionButtons>
-            <ModalTrigger
-              title="Edit tag"
-              trigger={editTrigger}
-              content={content}
-            />
+          {renderMergeWindow()}
 
-            {this.renderMergeWindow()}
+          <Tip text={__('Merge')} placement="top">
+            <Button btnStyle="link" onClick={toggleMergeWindow} icon="merge" />
+          </Tip>
 
-            <Tip text={__('Merge')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={this.toggleMergeWindow}
-                icon="merge"
-              />
-            </Tip>
-
-            <Tip text={__('Delete')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={this.removeTag}
-                icon="times-circle"
-              />
-            </Tip>
-          </ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-}
+          <Tip text={__('Delete')} placement="top">
+            <Button btnStyle="link" onClick={removeTag} icon="times-circle" />
+          </Tip>
+        </ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default Row;

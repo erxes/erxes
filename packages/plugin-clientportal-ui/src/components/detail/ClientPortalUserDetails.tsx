@@ -19,7 +19,7 @@ const ActivityInputs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 type Props = {
@@ -30,8 +30,10 @@ type Props = {
   queryParams?: any;
 };
 
-class ClientPortalUserDetails extends React.Component<Props> {
-  renderContent(content) {
+const ClientPortalUserDetails: React.FC<Props> = (props: Props) => {
+  const { clientPortalUser, currentUser, history, queryParams } = props;
+
+  const renderContent = (content) => {
     if (isEnabled('logs')) {
       return content;
     }
@@ -43,45 +45,41 @@ class ClientPortalUserDetails extends React.Component<Props> {
         size="full"
       />
     );
-  }
+  };
 
-  render() {
-    const { clientPortalUser } = this.props;
+  const title = clientPortalUser.firstName || 'Unknown';
 
-    const title = clientPortalUser.firstName || 'Unknown';
+  const breadcrumb = [
+    { title: __('ClientPortal Users'), link: '/settings/client-portal/user' },
+    { title },
+  ];
 
-    const breadcrumb = [
-      { title: __('ClientPortal Users'), link: '/settings/client-portal/user' },
-      { title }
-    ];
-
-    const content = (
-      <>
-        <ActivityInputs
-          contentTypeId={clientPortalUser._id}
-          contentType="clientPortalUser"
-          showEmail={false}
-        />
-      </>
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        mainHead={
-          <UserHeader>
-            <InfoSection avatarSize={40} clientPortalUser={clientPortalUser}>
-              <BasicInfo clientPortalUser={clientPortalUser} />
-            </InfoSection>
-          </UserHeader>
-        }
-        leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={<RightSidebar clientPortalUser={clientPortalUser} />}
-        content={this.renderContent(content)}
-        transparent={true}
+  const content = (
+    <>
+      <ActivityInputs
+        contentTypeId={clientPortalUser._id}
+        contentType="clientPortalUser"
+        showEmail={false}
       />
-    );
-  }
-}
+    </>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      mainHead={
+        <UserHeader>
+          <InfoSection avatarSize={40} clientPortalUser={clientPortalUser}>
+            <BasicInfo clientPortalUser={clientPortalUser} />
+          </InfoSection>
+        </UserHeader>
+      }
+      leftSidebar={<LeftSidebar {...props} />}
+      rightSidebar={<RightSidebar clientPortalUser={clientPortalUser} />}
+      content={renderContent(content)}
+      transparent={true}
+    />
+  );
+};
 
 export default ClientPortalUserDetails;

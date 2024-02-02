@@ -1,53 +1,44 @@
 import { Counts } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
 import ClientPortalIdFilter from '../components/list/ClientPortalIdFilter';
 import { queries } from '../graphql';
-import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
+import { ClientPortalConfigsQueryResponse } from '../types';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   counts: Counts;
   kind?: string;
 };
 
-type FinalProps = {
-  clientPortalConfigsQuery?: ClientPortalConfigsQueryResponse;
-} & Props;
+const ClientPortalIdFilterContainer: React.FC<Props> = (props: Props) => {
+  const { counts, kind } = props;
 
-class ClientPortalIdFilterContainer extends React.Component<FinalProps> {
-  render() {
-    const { clientPortalConfigsQuery, counts } = this.props;
+  const clientPortalConfigsQuery = useQuery<ClientPortalConfigsQueryResponse>(
+    gql(queries.getConfigs),
+    {
+      fetchPolicy: 'network-only',
+      variables: { kind: kind || 'client' },
+    },
+  );
 
-    const clientPortalGetConfigs =
-      (clientPortalConfigsQuery &&
-        clientPortalConfigsQuery.clientPortalGetConfigs) ||
-      [];
+  const clientPortalGetConfigs =
+    (clientPortalConfigsQuery &&
+      clientPortalConfigsQuery.data &&
+      clientPortalConfigsQuery.data.clientPortalGetConfigs) ||
+    [];
 
-    const updatedProps = {
-      ...this.props,
-      clientPortalGetConfigs,
-      loading:
-        (clientPortalConfigsQuery ? clientPortalConfigsQuery.loading : null) ||
-        false,
-      counts: counts || {}
-    };
+  const updatedProps = {
+    ...props,
+    clientPortalGetConfigs,
+    loading:
+      (clientPortalConfigsQuery ? clientPortalConfigsQuery.loading : null) ||
+      false,
+    counts: counts || {},
+  };
 
-    return <ClientPortalIdFilter {...updatedProps} />;
-  }
-}
+  return <ClientPortalIdFilter {...updatedProps} />;
+};
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, ClientPortalConfigsQueryResponse>(gql(queries.getConfigs), {
-      name: 'clientPortalConfigsQuery',
-      options: ({ kind = 'client' }) => ({
-        fetchPolicy: 'network-only',
-        variables: { kind }
-      })
-    })
-  )(ClientPortalIdFilterContainer)
-);
+export default ClientPortalIdFilterContainer;

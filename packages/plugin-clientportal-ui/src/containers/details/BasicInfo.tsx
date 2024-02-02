@@ -1,17 +1,16 @@
-import * as compose from 'lodash.flowright';
+import { Alert } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { gql } from '@apollo/client';
+import React from 'react';
 
-import { Alert, withProps } from '@erxes/ui/src';
 import {
   ClientPortalUserRemoveMutationResponse,
   IClientPortalUser,
 } from '../../types';
+import { useMutation } from '@apollo/client';
 
 import BasicInfoSection from '../../components/detail/BasicInfoSection';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../../graphql';
 // import { withRouter } from 'react-router-dom';
 
@@ -24,7 +23,15 @@ type FinalProps = { currentUser: IUser } & Props &
   ClientPortalUserRemoveMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { clientPortalUser, clientPortalUsersRemove, history } = props;
+  const { clientPortalUser, history } = props;
+
+  const [clientPortalUsersRemove] =
+    useMutation<ClientPortalUserRemoveMutationResponse>(
+      gql(mutations.clientPortalUsersRemove),
+      {
+        refetchQueries: ['clientPortalUserCounts', 'clientPortalUsers'],
+      },
+    );
 
   const { _id } = clientPortalUser;
 
@@ -47,18 +54,6 @@ const BasicInfoContainer = (props: FinalProps) => {
   return <BasicInfoSection {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['clientPortalUserCounts', 'clientPortalUsers'],
-});
+export default BasicInfoContainer;
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, ClientPortalUserRemoveMutationResponse>(
-      gql(mutations.clientPortalUsersRemove),
-      {
-        name: 'clientPortalUsersRemove',
-        options: generateOptions,
-      },
-    ),
-  )(BasicInfoContainer),
-);
+// export default withRouter<FinalProps>(BasicInfoContainer);

@@ -1,6 +1,4 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import { PackagesQueryResponse, PackageRemoveMutationResponse } from '../types';
 import { mutations, queries } from '../graphql';
 
@@ -9,27 +7,25 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import PackageList from '../components/PackageList';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   history: any;
   type: string;
 };
 
-type FinalProps = {
-  packagesQuery: PackagesQueryResponse;
-} & Props &
-  PackageRemoveMutationResponse;
-
-const ListContainer = (props: FinalProps) => {
-  const { packagesQuery, packagesRemove } = props;
+const ListContainer = (props: Props) => {
+  const packagesQuery = useQuery<PackagesQueryResponse>(gql(queries.packages));
+  const [packagesRemove] = useMutation<PackageRemoveMutationResponse>(
+    gql(mutations.packagesRemove),
+  );
 
   if (packagesQuery.loading) {
     return <Spinner />;
   }
 
-  const remove = tag => {
+  const remove = (tag) => {
     confirm(`Are you sure?`)
       .then(() => {
         packagesRemove({ variables: { _id: tag._id } })
@@ -37,11 +33,11 @@ const ListContainer = (props: FinalProps) => {
             Alert.success('You successfully deleted a package');
             packagesQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -50,11 +46,11 @@ const ListContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.packagesEdit : mutations.packagesAdd}
+        mutation={object._id ? mutations.packagesEdit : mutations.packagesAdd}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
@@ -69,11 +65,10 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-
-    packages: packagesQuery.packages || [],
+    packages: (packagesQuery.data && packagesQuery.data.packages) || [],
     loading: packagesQuery.loading,
     remove,
-    renderButton
+    renderButton,
   };
 
   return <PackageList {...updatedProps} />;
@@ -82,21 +77,9 @@ const ListContainer = (props: FinalProps) => {
 const getRefetchQueries = () => {
   return [
     {
-      query: gql(queries.packages)
-    }
+      query: gql(queries.packages),
+    },
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PackagesQueryResponse>(gql(queries.packages), {
-      name: 'packagesQuery'
-    }),
-    graphql<Props, PackageRemoveMutationResponse, { _id: string }>(
-      gql(mutations.packagesRemove),
-      {
-        name: 'packagesRemove'
-      }
-    )
-  )(ListContainer)
-);
+export default ListContainer;

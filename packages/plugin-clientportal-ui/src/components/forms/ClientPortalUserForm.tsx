@@ -11,17 +11,17 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper
+  ScrollWrapper,
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { USER_LOGIN_TYPES } from '../../constants';
 import {
   ClientPortalConfig,
   IClientPortalUser,
-  IClientPortalUserDoc
+  IClientPortalUserDoc,
 } from '../../types';
 
 type Props = {
@@ -49,38 +49,48 @@ type State = {
   clientPortalId: string;
 };
 
-class CustomerForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const clientPortalUser =
-      props.clientPortalUser || ({} as IClientPortalUser);
-    const userId = props.currentUser ? props.currentUser._id : '';
-
-    const activeSections = {
+const CustomerForm: React.FC<Props> = (props: Props) => {
+  const [state, setState] = useState<State>({
+    ownerId: '',
+    isSubscribed: 'Yes',
+    hasAuthority: 'No',
+    users: [],
+    avatar: '',
+    phone: '',
+    email: '',
+    type: 'customer',
+    erxesCompanyId: '',
+    req: true,
+    activeSections: {
       renderClientPortalUser: false,
-      renderClientPortalCompany: false
-    };
+      renderClientPortalCompany: false,
+    },
+    password: '',
+    disableVerificationMail: false,
+    clientPortalId: '',
+  });
 
-    this.state = {
-      type: clientPortalUser.type || 'customer',
-      ownerId: clientPortalUser.ownerId || userId,
-      isSubscribed: clientPortalUser.isSubscribed || 'Yes',
-      hasAuthority: clientPortalUser.hasAuthority || 'No',
-      users: [],
-      avatar: clientPortalUser.avatar,
-      req: true,
-      activeSections,
-      erxesCompanyId: clientPortalUser.erxesCompanyId,
+  useEffect(() => {
+    const { currentUser, clientPortalUser } = props;
+    const userId = currentUser ? currentUser._id : '';
+
+    setState((prevState) => ({
+      ...prevState,
+      type: clientPortalUser?.type || 'customer',
+      ownerId: clientPortalUser?.ownerId || userId,
+      isSubscribed: clientPortalUser?.isSubscribed || 'Yes',
+      hasAuthority: clientPortalUser?.hasAuthority || 'No',
+      avatar: clientPortalUser?.avatar || '',
+      erxesCompanyId: clientPortalUser?.erxesCompanyId || '',
       disableVerificationMail: false,
-      clientPortalId: clientPortalUser.clientPortalId
-    };
-  }
+      clientPortalId: clientPortalUser?.clientPortalId || '',
+    }));
+  }, [props.clientPortalUser, props.currentUser]);
 
-  generateDoc = (
-    values: { _id: string; password?: string } & IClientPortalUserDoc
+  const generateDoc = (
+    values: { _id: string; password?: string } & IClientPortalUserDoc,
   ) => {
-    const { clientPortalUser } = this.props;
+    const { clientPortalUser } = props;
     const finalValues = values;
 
     if (clientPortalUser) {
@@ -89,7 +99,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const doc: any = {
       _id: finalValues._id,
-      ...this.state,
+      ...state,
       firstName: finalValues.firstName,
       lastName: finalValues.lastName,
       username: finalValues.username,
@@ -100,57 +110,51 @@ class CustomerForm extends React.Component<Props, State> {
       companyRegistrationNumber: finalValues.companyRegistrationNumber,
       type: finalValues.type,
       erxesCustomerId: finalValues.erxesCustomerId,
-      erxesCompanyId: this.state.erxesCompanyId,
-      clientPortalId: finalValues.clientPortalId
+      erxesCompanyId: state.erxesCompanyId,
+      clientPortalId: finalValues.clientPortalId,
     };
-    if (this.state.password) {
-      doc.password = this.state.password;
+    if (state.password) {
+      doc.password = state.password;
     }
 
-    doc.disableVerificationMail = this.state.disableVerificationMail;
+    doc.disableVerificationMail = state.disableVerificationMail;
 
     return doc;
   };
 
-  onOwnerChange = ownerId => {
-    this.setState({ ownerId });
+  const onOwnerChange = (ownerId: string) => {
+    setState((prevState) => ({ ...prevState, ownerId }));
   };
 
-  onChange = e => {
-    this.setState({
-      clientPortalId: e.target.value
-    });
+  const onChange = (e: any) => {
+    setState((prevState) => ({ ...prevState, clientPortalId: e.target.value }));
   };
 
-  onAvatarUpload = url => {
-    this.setState({ avatar: url });
+  const onAvatarUpload = (url: string) => {
+    setState((prevState) => ({ ...prevState, avatar: url }));
   };
 
-  renderSelectOptions() {
-    return USER_LOGIN_TYPES.map(e => {
+  const renderSelectOptions = () => {
+    return USER_LOGIN_TYPES.map((e) => {
       return (
         <option key={e.value} value={e.value}>
           {e.label}
         </option>
       );
     });
-  }
-
-  onChangeContent = e => {
-    this.setState({
-      type: e.target.value
-    });
   };
 
-  onChangeCompany = erxesCompanyId => {
-    this.setState({ erxesCompanyId });
+  const onChangeContent = (e: any) => {
+    setState((prevState) => ({ ...prevState, type: e.target.value }));
   };
 
-  renderClientPortalUser = (formProps: IFormProps) => {
-    const { clientPortalGetConfigs } = this.props;
+  const onChangeCompany = (erxesCompanyId) => {
+    setState((prevState) => ({ ...prevState, erxesCompanyId }));
+  };
 
+  const renderClientPortalUser = (formProps: IFormProps) => {
     const clientPortalUser =
-      this.props.clientPortalUser || ({} as IClientPortalUser);
+      props.clientPortalUser || ({} as IClientPortalUser);
 
     return (
       <>
@@ -164,7 +168,7 @@ class CustomerForm extends React.Component<Props, State> {
               <FormGroup>
                 <AvatarUpload
                   avatar={clientPortalUser.avatar}
-                  onAvatarUpload={this.onAvatarUpload}
+                  onAvatarUpload={onAvatarUpload}
                 />
               </FormGroup>
             </FormColumn>
@@ -205,7 +209,7 @@ class CustomerForm extends React.Component<Props, State> {
                   initialValue={clientPortalUser.erxesCompanyId}
                   label={__('Select a company')}
                   name="companyId"
-                  onSelect={this.onChangeCompany}
+                  onSelect={onChangeCompany}
                   multi={false}
                 />
               </FormGroup>
@@ -244,10 +248,10 @@ class CustomerForm extends React.Component<Props, State> {
                   componentClass="select"
                   defaultValue={clientPortalUser.clientPortalId}
                   required={true}
-                  onChange={this.onChange}
+                  onChange={onChange}
                 >
                   <option />
-                  {clientPortalGetConfigs.map((cp, index) => (
+                  {props.clientPortalGetConfigs.map((cp, index) => (
                     <option key={index} value={cp._id}>
                       {cp.name}
                     </option>
@@ -265,8 +269,15 @@ class CustomerForm extends React.Component<Props, State> {
               {...formProps}
               name="password"
               defaultValue={clientPortalUser._id && '******'}
-              onChange={(e: any) => this.setState({ password: e.target.value })}
-              onFocus={() => this.setState({ password: undefined })}
+              onChange={(e: any) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  password: e.target.value,
+                }))
+              }
+              onFocus={() =>
+                setState((prevState) => ({ ...prevState, password: undefined }))
+              }
             />
           </FormGroup>
 
@@ -279,7 +290,10 @@ class CustomerForm extends React.Component<Props, State> {
                 componentClass="checkbox"
                 defaultChecked={false}
                 onChange={(e: any) =>
-                  this.setState({ disableVerificationMail: !e.target.checked })
+                  setState((prevState) => ({
+                    ...prevState,
+                    disableVerificationMail: !e.target.checked,
+                  }))
                 }
               />
             </FormGroup>
@@ -289,11 +303,9 @@ class CustomerForm extends React.Component<Props, State> {
     );
   };
 
-  renderClientPortalCompany = (formProps: IFormProps) => {
-    const { clientPortalGetConfigs } = this.props;
-
+  const renderClientPortalCompany = (formProps: IFormProps) => {
     const clientPortalUser =
-      this.props.clientPortalUser || ({} as IClientPortalUser);
+      props.clientPortalUser || ({} as IClientPortalUser);
 
     return (
       <CollapseContent
@@ -349,10 +361,10 @@ class CustomerForm extends React.Component<Props, State> {
                 componentClass="select"
                 defaultValue={clientPortalUser.clientPortalId}
                 required={true}
-                onChange={this.onChange}
+                onChange={onChange}
               >
                 <option />
-                {clientPortalGetConfigs.map((cp, index) => (
+                {props.clientPortalGetConfigs.map((cp, index) => (
                   <option key={index} value={cp._id}>
                     {cp.name}
                   </option>
@@ -365,12 +377,8 @@ class CustomerForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted, resetSubmit } = formProps;
-
-    const clientPortalUser =
-      this.props.clientPortalUser || ({} as IClientPortalUser);
 
     return (
       <>
@@ -381,43 +389,41 @@ class CustomerForm extends React.Component<Props, State> {
               {...formProps}
               name="type"
               componentClass="select"
-              defaultValue={clientPortalUser.type}
+              defaultValue={state.type}
               required={true}
-              onChange={this.onChangeContent}
+              onChange={onChangeContent}
             >
-              {this.renderSelectOptions()}
+              {renderSelectOptions()}
             </FormControl>
           </FormGroup>
 
-          {this.state.type === 'customer'
-            ? this.renderClientPortalUser(formProps)
-            : this.renderClientPortalCompany(formProps)}
+          {state.type === 'customer'
+            ? renderClientPortalUser(formProps)
+            : renderClientPortalCompany(formProps)}
         </ScrollWrapper>
         <ModalFooter>
           <Button
             btnStyle="simple"
             uppercase={false}
-            onClick={closeModal}
+            onClick={props.closeModal}
             icon="times-circle"
           >
             Close
           </Button>
 
-          {renderButton({
+          {props.renderButton({
             name: 'clientPortalUser',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.clientPortalUser,
-            resetSubmit
+            object: props.clientPortalUser,
+            resetSubmit,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default CustomerForm;
