@@ -2,17 +2,17 @@ import React from 'react';
 import ReplyFbMessage from './components/action/ReplyFbMessage';
 import OptionalContent from './components/OptionalContent';
 import TriggerForm from './components/trigger/TriggerForm';
+import TriggerContent from './components/trigger/Content';
 
 const Automations = (props) => {
   const { componentType, activeAction } = props;
 
   if (componentType === 'triggerForm') {
-    console.log({ props });
     return <TriggerForm {...props} />;
   }
 
-  if (componentType === 'historyName') {
-    return <>{'-'}</>;
+  if (componentType === 'triggerContent') {
+    return <TriggerContent {...props} />;
   }
 
   if (componentType === 'optionalContent') {
@@ -21,7 +21,7 @@ const Automations = (props) => {
 
   if (componentType === 'actionForm') {
     const { type } = activeAction;
-    const [serviceName, contentType, action] = type
+    const [_serviceName, contentType, _action] = type
       .replace('.', ':')
       .split(':');
 
@@ -36,6 +36,9 @@ const Automations = (props) => {
   if (componentType === 'historyActionResult') {
     const { result } = props;
     return <>{JSON.stringify(result || {})}</>;
+  }
+  if (componentType === 'historyName') {
+    return <>{'-'}</>;
   }
 };
 

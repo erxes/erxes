@@ -4,12 +4,14 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __ } from '@erxes/ui/src/utils/core';
-
 import {
   Content,
   MessengerPreview,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { BreadCrumb, PageHeader, Step, Steps } from '@erxes/ui/src';
+import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
+import { PageHeader } from '@erxes/ui/src/layout/styles';
+import Step from '@erxes/ui/src/components/step/Step';
+import Steps from '@erxes/ui/src/components//step/Steps';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { ModalFooter } from '@erxes/ui/src/styles/main';

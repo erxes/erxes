@@ -2,7 +2,10 @@ import colors from '@erxes/ui/src/styles/colors';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ActionButtons, Alert, Icon, __ } from '@erxes/ui/src';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/core';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 const List = styled.ul`
   list-style: none;

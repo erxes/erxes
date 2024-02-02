@@ -1,4 +1,7 @@
-import { Button, Icon, TabTitle, Tabs, __ } from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs/index';
+import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { TabAction } from './ReplyFbMessage';
 import Card from './Card';

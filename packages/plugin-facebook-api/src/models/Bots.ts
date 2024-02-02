@@ -160,10 +160,8 @@ export const loadBotClass = (models: IModels) => {
         }
       }
 
-      console.log({ persistentMenus });
-
       await graphRequest.post('/me/messenger_profile', pageAccessToken, {
-        get_started: { payload: bot._id },
+        get_started: { payload: JSON.stringify({ botId: bot._id }) },
         persistent_menu: [
           {
             locale: 'default',

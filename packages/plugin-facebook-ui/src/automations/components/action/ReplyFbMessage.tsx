@@ -1,13 +1,11 @@
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { IAction } from '@erxes/ui-automations/src/types';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon,
-  SortableList,
-  Uploader,
-} from '@erxes/ui/src';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import SortableList from '@erxes/ui/src/components/SortableList';
 import colors from '@erxes/ui/src/styles/colors';
 import dimensions from '@erxes/ui/src/styles/dimensions';
 import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
@@ -241,6 +239,10 @@ function ReplyFbMessage({
     const addMessage = (type) => {
       const initialValues = INITIAL_OBJ_ACTIONS[type];
 
+      if (messages.length === 5) {
+        return Alert.error('You can add only 5 messages per action');
+      }
+
       const updateMessages = messages.concat({
         _id: Math.random(),
         type,
@@ -263,7 +265,7 @@ function ReplyFbMessage({
         <ModalFooter>
           <PreviewWidget messages={messages} />
           <Button btnStyle="success" icon="checked-1" block onClick={onSave}>
-            Save
+            {__('Save')}
           </Button>
         </ModalFooter>
       </BottomBarContainer>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ImageUploader from './ImageUpload';
-import { FormControl } from '@erxes/ui/src';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import ButtonsGenerator from './ButtonGenerator';
 import { Column } from '@erxes/ui/src/styles/main';
 
@@ -27,7 +27,6 @@ function Card({ onChange, ...props }) {
 
   return (
     <Column>
-      {/* <>{JSON.stringify(props)}</> */}
       <ImageUploader
         src={image}
         onUpload={(img) => onChange(_id, 'image', img)}

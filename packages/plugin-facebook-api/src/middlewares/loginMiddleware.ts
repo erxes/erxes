@@ -16,7 +16,7 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN' });
@@ -24,14 +24,14 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:facebook/fblogin`
+    `${DOMAIN}/pl:facebook/fblogin`,
   );
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL
+    redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
   debugRequest(debugFacebook, req);
@@ -43,7 +43,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: DOMAIN
+      state: DOMAIN,
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -60,7 +60,7 @@ const loginMiddleware = async (req, res) => {
     client_id: conf.client_id,
     redirect_uri: conf.redirect_uri,
     client_secret: conf.client_secret,
-    code: req.query.code
+    code: req.query.code,
   };
 
   debugResponse(debugFacebook, req, JSON.stringify(config));
@@ -79,7 +79,7 @@ const loginMiddleware = async (req, res) => {
       last_name: string;
     } = await graphRequest.get(
       'me?fields=id,first_name,last_name',
-      access_token
+      access_token,
     );
 
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
@@ -89,11 +89,11 @@ const loginMiddleware = async (req, res) => {
     if (account) {
       await models.Accounts.updateOne(
         { _id: account._id },
-        { $set: { token: access_token } }
+        { $set: { token: access_token } },
       );
 
       const integrations = await models.Integrations.find({
-        accountId: account._id
+        accountId: account._id,
       });
 
       for (const integration of integrations) {
@@ -104,7 +104,7 @@ const loginMiddleware = async (req, res) => {
         token: access_token,
         name,
         kind: 'facebook',
-        uid: userAccount.id
+        uid: userAccount.id,
       });
     }
 

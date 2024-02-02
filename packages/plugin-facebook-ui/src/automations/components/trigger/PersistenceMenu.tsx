@@ -14,16 +14,29 @@ type Props = {
   botId?: string;
   onChange: (name: string, value: any) => void;
   persistentMenuIds?: string[];
+  displaySelectedContent?: boolean;
 };
 
 type FinalProps = {
   botQueryResponse: { facebootMessengerBot: any } & QueryResponse;
 } & Props;
 
+const renderSelectedMenus = (persistentMenus: any[], ids: string[]) => {
+  return (
+    <div style={{ color: colors.colorPrimary }}>
+      {persistentMenus
+        .filter((menu) => ids.includes(menu._id))
+        .map((persistentMenu) => persistentMenu.text)
+        .join(',')}
+    </div>
+  );
+};
+
 function PersistenceMenuSelector({
   botQueryResponse,
   persistentMenuIds = [],
   onChange,
+  displaySelectedContent,
 }: FinalProps) {
   const { facebootMessengerBot, loading } = botQueryResponse || {};
 
@@ -32,6 +45,10 @@ function PersistenceMenuSelector({
   }
 
   const { persistentMenus = [] } = facebootMessengerBot || {};
+
+  if (displaySelectedContent) {
+    return renderSelectedMenus(persistentMenus, persistentMenuIds);
+  }
 
   const onCheck = (_id) => {
     const updatedMenuIds = persistentMenuIds.includes(_id)

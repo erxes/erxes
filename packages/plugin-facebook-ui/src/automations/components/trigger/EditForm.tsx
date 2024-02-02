@@ -1,17 +1,16 @@
 import { BackIcon, DrawerDetail } from '@erxes/ui-automations/src/styles';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon,
-  __,
-  colors,
-} from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 import { Features, TriggerItem, TriggersList } from '../../styles';
 import DirectMessageForm from './DirectMessage';
 import PersistenceMenu from './PersistenceMenu';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   triggerConst: { conditions: any[]; botId: string };
@@ -19,6 +18,7 @@ type Props = {
   onCancel: () => void;
   config: any;
 };
+``;
 
 function EditForm({
   triggerConst: { conditions: conditionsConst = [] },
@@ -60,7 +60,6 @@ function EditForm({
   const renderDetail = ({ type, condition }) => {
     if (activeItem === type) {
       const handleSave = () => {
-        //   onSave(condition);
         setActiveItem('');
       };
 
@@ -108,20 +107,27 @@ function EditForm({
     return (
       <div key={type}>
         <TriggerItem>
-          <FormControl
-            color={colors.colorCoreBlue}
-            componentClass="radio"
-            checked={condition?.isSelected}
-            onChange={handleCheck}
-            disabled={isDisabled}
-          />
+          <Tip
+            text={
+              isDisabled
+                ? 'Please provide configuration of condition before click'
+                : ''
+            }
+          >
+            <FormControl
+              color={colors.colorCoreBlue}
+              componentClass="radio"
+              checked={condition?.isSelected}
+              onChange={handleCheck}
+              disabled={isDisabled}
+            />
+          </Tip>
           <Icon icon={icon} />
           <div onClick={handleClick}>
             <label>{label}</label>
             <p>{description}</p>
           </div>
         </TriggerItem>
-        {/* {renderDetail()} */}
       </div>
     );
   };

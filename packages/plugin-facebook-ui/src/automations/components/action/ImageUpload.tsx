@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ImagePreview, UploadWrapper } from '../../styles';
-import { Alert, Icon, Spinner, readFile, uploadHandler } from '@erxes/ui/src';
-
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Icon from '@erxes/ui/src/components/Icon';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { readFile } from '@erxes/ui/src/utils/core';
+import uploadHandler from '@erxes/ui/src/utils/uploadHandler';
 type Props = {
   src?: string;
   onUpload: (response: any) => void;

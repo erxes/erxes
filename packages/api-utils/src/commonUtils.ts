@@ -30,8 +30,8 @@ export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
     bulkOps.push({
       updateOne: {
         filter: { _id },
-        update: selector
-      }
+        update: selector,
+      },
     });
   }
 
@@ -60,7 +60,7 @@ export const encryptText = (text: string): IEncryptionData => {
       algorithm,
       key,
       iv: iv.toString('hex'),
-      encryptedData: encrypted.toString('hex')
+      encryptedData: encrypted.toString('hex'),
     };
   } catch (e) {
     throw new Error(e);
@@ -75,7 +75,7 @@ export const decryptText = (data: IEncryptionData): string => {
   const decipher = crypto.createDecipheriv(
     data.algorithm,
     Buffer.from(data.key),
-    iv
+    iv,
   );
 
   // decipher
@@ -95,14 +95,14 @@ export const pluralFormation = (type: string) => {
   return type + 's';
 };
 
-export const removeLastTrailingSlash = url => {
+export const removeLastTrailingSlash = (url) => {
   if (typeof url !== 'string') {
     return url;
   }
   return url.replace(/\/$/, '');
 };
 
-export const removeExtraSpaces = text => {
+export const removeExtraSpaces = (text) => {
   if (typeof text !== 'string') {
     return;
   }
@@ -124,8 +124,8 @@ export const readFileUrl = (value: string) => {
   }
 
   const DOMAIN = getEnv({
-    name: 'DOMAIN'
+    name: 'DOMAIN',
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${value}`;
+  return `${DOMAIN}/read-file?key=${value}`;
 };

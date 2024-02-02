@@ -44,14 +44,16 @@ export const isInSegment = async (
   segmentId: string,
   targetId: string,
 ) => {
-  const response = await sendSegmentsMessage({
-    subdomain,
-    action: 'isInSegment',
-    data: { segmentId, idToCheck: targetId },
-    isRPC: true,
-  });
+  return setTimeout(async () => {
+    const response = await sendSegmentsMessage({
+      subdomain,
+      action: 'isInSegment',
+      data: { segmentId, idToCheck: targetId },
+      isRPC: true,
+    });
 
-  return response;
+    return response;
+  }, 10000);
 };
 
 export const executeActions = async (
@@ -288,9 +290,7 @@ export const calculateExecution = async ({
       ) {
         return;
       }
-    }
-
-    if (!(await isInSegment(subdomain, contentId, target._id))) {
+    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
       return;
     }
   } catch (e) {

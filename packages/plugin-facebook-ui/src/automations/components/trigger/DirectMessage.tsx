@@ -1,17 +1,12 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
-import {
-  Button,
-  Chip,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  HelpPopover,
-  Icon,
-  Table,
-  __,
-  colors,
-  typography,
-} from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
+import typography from '@erxes/ui/src/styles/typography';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import { Column } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
@@ -19,7 +14,7 @@ import Select from 'react-select-plus';
 import styled from 'styled-components';
 import { ConditionsContainer } from '../../styles';
 
-const CustomChip = styled.span`
+export const CustomChip = styled.span`
   color: ${colors.colorCoreBlack};
   background: ${colors.colorWhite};
   border: 1px solid ${colors.colorShadowGray}
@@ -74,7 +69,7 @@ const CondtionContainer = styled.div`
 
 `;
 
-const OPERATOR_TYPES = [
+export const OPERATOR_TYPES = [
   { label: 'Is Equal to', value: 'isEqual' },
   { label: 'Is Contains', value: 'isContains' },
   { label: 'Is Every keywords includes', value: 'every' },

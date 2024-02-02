@@ -1,4 +1,5 @@
-import { Icon, readFile } from '@erxes/ui/src';
+import Icon from '@erxes/ui/src/components/Icon';
+import { readFile } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import { Card } from '../styles';

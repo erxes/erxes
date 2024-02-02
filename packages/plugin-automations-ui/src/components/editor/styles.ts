@@ -125,6 +125,14 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
         padding: 5px;
       }
   }
+
+  .triggerContent {
+    background-color:${rgba(colors.colorPrimary, 0.12)};
+    border-radius: 5px;
+
+    padding: 5px;
+    margin-top: 5px;
+   }
 `;
 
 export const ScratchNode = styled.div`

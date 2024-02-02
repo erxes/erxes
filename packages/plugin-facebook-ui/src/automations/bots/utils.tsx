@@ -1,14 +1,15 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box } from '@erxes/ui-contacts/src/customers/styles';
 import {
   AccountBox,
   AccountItem,
   AccountTitle,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { Button, EmptyState, FormControl, Spinner, __ } from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { queries } from '../../graphql';
-import { PagesContainer } from './styles';
 
 type Props = {
   onSelect: (value: string, name: string) => void;

@@ -244,6 +244,7 @@ export const Card = styled.div`
 
   > p,
   > span {
+    overflow-wrap: break-word;
     margin: 0 5px;
   }
 
@@ -271,30 +272,45 @@ export const TriggersList = styled.div`
   }
 `;
 
-export const TriggerItem = styledTS<{ isActive?: boolean }>(styled.div)`
+const checkHover = (isActive, withoutHover) => {
+  const header = isActive ? '' : '&:hover';
+  const style = withoutHover
+    ? ''
+    : `{
+    border: 1px solid #316ff6;
+    box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
+  }`;
+
+  return `${header}${style}`;
+};
+
+export const TriggerItem = styledTS<{
+  isActive?: boolean;
+  small?: boolean;
+  withoutHover?: boolean;
+}>(styled.div)`
   display: flex;
-  gap: 25px;
+  gap: ${({ small }) => (small ? '5px' : '25px')};;
+  background-color:${colors.colorWhite};
   border: 1px solid ${colors.bgGray};
-  padding: 10px 20px;
+  padding: ${({ small }) => (small ? '0' : '10px')} 20px;
   border-radius: 10px;
   align-items: center;
   cursor: pointer;
   transition: all ease 0.3s;
+  ${({ small }) => (small ? 'margin-bottom:5px' : '')};
 
-  ${({ isActive }) => (isActive ? '' : '&:hover')} {
-    border: 1px solid #316ff6;
-    box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
-  }
+  ${({ isActive, withoutHover }) => checkHover(isActive, withoutHover)} 
 
   > i {
-    width: 40px;
-    height: 40px;
+    width: ${({ small }) => (small ? '30px' : '40px')};
+    height: ${({ small }) => (small ? '30px' : '40px')};
     border-radius: 50%;
     background-color: #316ff6;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: ${({ small }) => (small ? '14px' : '20px')};
     color: white;
   }
 

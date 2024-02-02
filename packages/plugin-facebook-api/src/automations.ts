@@ -4,6 +4,7 @@ import { debugError } from './debuggers';
 import { IConversation } from './models/definitions/conversations';
 import { sendReply } from './utils';
 import { sendInboxMessage } from './messageBroker';
+import { lastIndexOf } from './essyncer';
 
 export default {
   constants: {
@@ -67,8 +68,10 @@ export default {
   }) => {
     const { conditions = [], botId } = config;
 
+    console.log({ collectionType, botId, target });
+
     if (collectionType === 'messages') {
-      if (target.botId === botId) {
+      if (target.botId !== botId) {
         return;
       }
 
@@ -83,7 +86,7 @@ export default {
             return true;
           }
           if (type === 'persistentMenu' && target?.payload) {
-            const { persistenceMenuId } = JSON.parse(target?.payload || '{}');
+            const { persistenceMenuId } = target.payload || {};
 
             if ((persistentMenuIds || []).includes(persistenceMenuId)) {
               return true;
@@ -97,11 +100,11 @@ export default {
                 directMessageCondtions,
               )
             ) {
+              console.log({ result: true });
               return true;
             }
-            continue;
+            console.log({ result: false });
           }
-          continue;
         }
         continue;
       }
@@ -116,13 +119,12 @@ const checkDirectMessageConditions = (content: string, conditions: any[]) => {
     const keywords = (cond?.keywords || [])
       .map((keyword) => keyword.text)
       .filter((keyword) => keyword);
-    const regexPattern = new RegExp(keywords.join('|'), 'i');
 
     switch (cond?.operator || '') {
       case 'every':
-        return keywords.every((_keyword) => regexPattern.test(content));
+        return keywords.every((keyword) => content.includes(keyword));
       case 'some':
-        return keywords.some((_keyword) => regexPattern.test(content));
+        return keywords.some((keyword) => content.includes(keyword));
       case 'isEqual':
         return keywords.some((keyword) => keyword === content);
       case 'isContains':
@@ -153,7 +155,7 @@ const generateMessages = async (
   conversation: IConversation,
   senderId,
 ) => {
-  const { messages = [] } = config || {};
+  let { messages = [] } = config || {};
 
   const customer = await models.Customers.findOne({ userId: senderId }).lean();
 
@@ -183,73 +185,102 @@ const generateMessages = async (
     return generatedButtons;
   };
 
-  const generatedMessages = messages.map(
-    ({ type, buttons, text, cards = [], quickReplies, image = '' }) => {
-      if (type === 'text' && buttons?.length > 0) {
-        return {
-          text,
-        };
-      }
-
-      if (type === 'text' && !!buttons?.length) {
-        return {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'button',
-              text,
-              buttons: generateButtons(buttons),
-            },
-          },
-        };
-      }
-
-      if (type === 'cards') {
-        return {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'generic',
-              elements: cards.map(
-                ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
-                  title,
-                  subtitle,
-                  image_url: readFileUrl(image),
-                  buttons: generateButtons(buttons),
-                }),
-              ),
-            },
-          },
-        };
-      }
-
-      if (type === 'quickReplies') {
-        return {
-          text: text || '',
-          quick_replies: quickReplies.map((quickReply) => ({
-            content_type: 'text',
-            title: quickReply?.text || '',
-            payload: generatePayloadString(
-              conversation,
-              quickReply,
-              customer?.erxesApiId,
-            ),
-          })),
-        };
-      }
-
-      if (type === 'image') {
-        return {
-          attachment: {
-            type: 'image',
-            payload: {
-              url: image,
-            },
-          },
-        };
-      }
-    },
+  const quickRepliesIndex = messages.findIndex(
+    ({ type }) => type === 'quickReplies',
   );
+
+  if (quickRepliesIndex !== -1) {
+    const quickRepliesMessage = messages.splice(quickRepliesIndex, 1)[0];
+    messages.push(quickRepliesMessage);
+  }
+  const generatedMessages: any[] = [];
+
+  for (const {
+    type,
+    buttons,
+    text,
+    cards = [],
+    quickReplies,
+    image = '',
+  } of messages) {
+    const botData = generateBotData({
+      type,
+      buttons,
+      text,
+      cards,
+      quickReplies,
+      image,
+    });
+
+    if (type === 'text' && !buttons?.length) {
+      generatedMessages.push({
+        text,
+        botData,
+      });
+    }
+
+    if (type === 'text' && !!buttons?.length) {
+      generatedMessages.push({
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'button',
+            text,
+            buttons: generateButtons(buttons),
+          },
+        },
+        botData,
+      });
+    }
+
+    if (type === 'card' && cards?.length > 0) {
+      generatedMessages.push({
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'generic',
+            elements: cards.map(
+              ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
+                title,
+                subtitle,
+                image_url: readFileUrl(image),
+                buttons: generateButtons(buttons),
+              }),
+            ),
+          },
+        },
+        botData,
+      });
+    }
+
+    if (type === 'quickReplies') {
+      generatedMessages.push({
+        text: text || '',
+        quick_replies: quickReplies.map((quickReply) => ({
+          content_type: 'text',
+          title: quickReply?.text || '',
+          payload: generatePayloadString(
+            conversation,
+            quickReply,
+            customer?.erxesApiId,
+          ),
+        })),
+        botData,
+      });
+    }
+
+    if (type === 'image') {
+      generatedMessages.push({
+        attachment: {
+          type: 'image',
+          payload: {
+            url: readFileUrl(image),
+          },
+        },
+        botData,
+      });
+    }
+  }
 
   return generatedMessages;
 };
@@ -258,9 +289,9 @@ const generateBotData = ({
   type,
   buttons,
   text,
-  cards = [],
+  cards,
   quickReplies,
-  image = '',
+  image,
 }) => {
   let botData: any[] = [];
 
@@ -351,7 +382,7 @@ const actionCreateMessage = async (
   }
   const { recipientId, senderId, botId } = conversation;
 
-  const customer = await models.Customers.findOne({ userId: recipientId });
+  const customer = await models.Customers.findOne({ userId: senderId });
 
   if (!customer) {
     return;
@@ -367,7 +398,11 @@ const actionCreateMessage = async (
       senderId,
     );
 
-    for (const message of messages) {
+    if (!messages?.length) {
+      return;
+    }
+
+    for (const { botData, ...message } of messages) {
       const resp = await sendReply(
         models,
         'me/messages',
@@ -389,7 +424,7 @@ const actionCreateMessage = async (
         internal: false,
         mid: resp.message_id,
         botId,
-        botData: generateBotData(message),
+        botData,
         fromBot: true,
       });
 

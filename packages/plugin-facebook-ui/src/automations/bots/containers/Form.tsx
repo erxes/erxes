@@ -1,7 +1,9 @@
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { mutations, queries } from '../graphql';
-import { ButtonMutate, EmptyState, Spinner } from '@erxes/ui/src';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import FormCompnent from '../components/Form';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';

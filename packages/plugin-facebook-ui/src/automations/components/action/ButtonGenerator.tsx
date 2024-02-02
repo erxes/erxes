@@ -1,11 +1,9 @@
-import {
-  ActionButtons,
-  Alert,
-  Button,
-  FormControl,
-  Icon,
-  __,
-} from '@erxes/ui/src';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 import { ButtonRow, Container } from '../../styles';
 import Dropdown from 'react-bootstrap/Dropdown';

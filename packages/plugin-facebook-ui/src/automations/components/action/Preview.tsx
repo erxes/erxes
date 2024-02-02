@@ -1,4 +1,6 @@
-import { Button, Icon, __, readFile } from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __, readFile } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -163,9 +165,7 @@ function Preview({ messages }) {
     };
 
     const handleNextClick = () => {
-      // Assuming you have a total number of slides
-      const totalSlides =
-        cards.length; /* replace with the actual total number of slides */
+      const totalSlides = cards.length;
       setCurrentSlide((prevSlide) =>
         prevSlide < totalSlides - 1 ? prevSlide + 1 : totalSlides - 1,
       );

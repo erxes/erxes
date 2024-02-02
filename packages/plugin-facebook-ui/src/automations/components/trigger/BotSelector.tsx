@@ -2,13 +2,11 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import * as compose from 'lodash.flowright';
 import { QueryResponse } from '@erxes/ui/src/types';
-import {
-  CollapseContent,
-  ControlLabel,
-  Icon,
-  Spinner,
-  __,
-} from '@erxes/ui/src';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { __ } from '@erxes/ui/src/utils/core';
 import { BottomBarAction } from '../../styles';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import { gql } from '@apollo/client';

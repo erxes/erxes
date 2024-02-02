@@ -33,9 +33,9 @@ export const initBroker = async (cl) => {
       return;
     }
 
-    setTimeout(async () => {
-      await receiveTrigger({ models, subdomain, type, targets });
-    }, 10000);
+    // setTimeout(async () => {
+    await receiveTrigger({ models, subdomain, type, targets });
+    // }, 10000);
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {
