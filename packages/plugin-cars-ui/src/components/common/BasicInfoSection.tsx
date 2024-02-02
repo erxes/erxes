@@ -7,7 +7,7 @@ import {
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
-  Sidebar
+  Sidebar,
 } from '@erxes/ui/src';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -24,14 +24,41 @@ type Props = {
   remove: () => void;
 };
 
-class BasicInfoSection extends React.Component<Props> {
-  renderAction() {
-    const { remove } = this.props;
+const { Section } = Sidebar;
 
+const BasicInfoSection = (props: Props) => {
+  const { car, remove } = props;
+
+  const renderEditForm = () => {
+    const content = (props) => <CarForm {...props} car={car} />;
+
+    return (
+      <ModalTrigger
+        title="Edit basic info"
+        trigger={
+          <li>
+            <a href="#edit">{__('Edit')}</a>
+          </li>
+        }
+        size="lg"
+        content={content}
+      />
+    );
+  };
+
+  const renderImage = (item?: IAttachment) => {
+    if (!item) {
+      return null;
+    }
+
+    return <Attachment attachment={item} />;
+  };
+
+  const renderAction = () => {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -45,6 +72,7 @@ class BasicInfoSection extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
+            {renderEditForm()}
             <li>
               <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
@@ -54,42 +82,22 @@ class BasicInfoSection extends React.Component<Props> {
         </Dropdown>
       </Action>
     );
-  }
-
-  renderImage = (item: IAttachment) => {
-    if (!item) {
-      return null;
-    }
-
-    return <Attachment attachment={item} />;
   };
 
-  render() {
-    const { Section } = Sidebar;
-    const { car } = this.props;
+  return (
+    <Sidebar.Section>
+      <InfoWrapper>
+        <Name>{car.plateNumber}</Name>
 
-    const content = props => <CarForm {...props} car={car} />;
+        {renderAction()}
+      </InfoWrapper>
 
-    return (
-      <Sidebar.Section>
-        <InfoWrapper>
-          <Name>{car.plateNumber}</Name>
-          <ModalTrigger
-            title="Edit basic info"
-            trigger={<Icon icon="edit" />}
-            size="lg"
-            content={content}
-          />
-        </InfoWrapper>
-
-        {this.renderAction()}
-        {this.renderImage(car.attachment)}
-        <Section>
-          <DetailInfo car={car} />
-        </Section>
-      </Sidebar.Section>
-    );
-  }
-}
+      {renderImage(car.attachment)}
+      <Section>
+        <DetailInfo car={car} />
+      </Section>
+    </Sidebar.Section>
+  );
+};
 
 export default BasicInfoSection;

@@ -5,10 +5,8 @@ type Props = {
   id: string;
 };
 
-class CustomerSection extends React.Component<Props> {
-  render() {
-    return <CarSection mainType={'deal'} mainTypeId={this.props.id} />;
-  }
-}
+const CustomerSection = ({ id }: Props) => {
+  return <CarSection mainType={'deal'} mainTypeId={id} />;
+};
 
 export default CustomerSection;
