@@ -78,6 +78,7 @@ export const setCoverAmountAtom = atom(
 
 export const golomtResponseAtom = atom<string>("")
 export const tdbResponseAtom = atom<string>("")
+export const capitronResponseAtom = atom<string>("")
 
 // (Object.keys(rest) || []).map((pt) => ({
 //   _id: Math.random(),
@@ -140,6 +141,7 @@ export const resetCoverDetailAtom = atom(null, (get, set) => {
   set(descriptionAtom, "")
   set(golomtResponseAtom, "")
   set(tdbResponseAtom, "")
+  set(capitronResponseAtom, "")
 })
 
 export const description = atom<string>("")
