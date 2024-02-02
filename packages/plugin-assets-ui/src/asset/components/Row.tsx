@@ -8,9 +8,8 @@ import {
   Tip,
   router,
   __,
-  ActionButtons
+  ActionButtons,
 } from '@erxes/ui/src';
-import { Badge, ContainerBox, MoreContainer } from '../../style';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import AssetForm from '../containers/AssetForm';
 import AssignArticles from '../containers/actions/Assign';
@@ -23,24 +22,24 @@ type Props = {
   toggleBulk: (asset: IAsset, isChecked?: boolean) => void;
   assignKbArticles: (
     doc: { assetIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
 };
 
-function Row(props: Props) {
+const Row = (props: Props) => {
   const {
     asset,
     history,
     queryParams,
     isChecked,
     toggleBulk,
-    assignKbArticles
+    assignKbArticles,
   } = props;
 
   const { code, name, category, parent, childAssetCount, unitPrice } = asset;
 
   const renderKbAssignForm = () => {
-    const articleContent = articleProps => (
+    const articleContent = (articleProps) => (
       <AssignArticles
         {...articleProps}
         assignedArticleIds={asset.kbArticleIds}
@@ -73,11 +72,11 @@ function Row(props: Props) {
     history.push(`/settings/assets/detail/${asset._id}`);
   };
 
-  const onCellClick = e => {
+  const onCellClick = (e) => {
     e.stopPropagation();
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(asset, e.target.checked);
     }
@@ -90,7 +89,7 @@ function Row(props: Props) {
     router.setParams(history, { assetId: asset._id });
   };
 
-  const content = formProps => <AssetForm {...formProps} asset={asset} />;
+  const content = (formProps) => <AssetForm {...formProps} asset={asset} />;
 
   return (
     <tr onClick={onRowClick}>
@@ -133,6 +132,6 @@ function Row(props: Props) {
       </td>
     </tr>
   );
-}
+};
 
 export default Row;

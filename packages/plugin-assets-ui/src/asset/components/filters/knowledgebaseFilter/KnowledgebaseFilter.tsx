@@ -1,29 +1,6 @@
-import React from 'react';
-import {
-  Box,
-  Button,
-  DataWithLoader,
-  FieldStyle,
-  Icon,
-  ModalTrigger,
-  SidebarList,
-  Spinner,
-  Tip,
-  __,
-  router
-} from '@erxes/ui/src';
-import { ContainerBox, KbTopics } from '../../../../style';
-import {
-  KbArticlesContainer,
-  KbArticles,
-  KbTreeViewItem
-} from '../../../../style';
+import React, { useState, useEffect } from 'react';
+import { Box, SidebarList, __, router } from '@erxes/ui/src';
 
-import { generateParamsIds } from '../../../../common/utils';
-
-import { IAsset } from '../../../../common/types';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-// import CollapsibleList from '../../../common/CollapsibleList';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import KnowledgebaseAssignmentFilter from './AssignmentFilter';
 import ArticleFilter from '../../../containers/filters/ArticleFilter';
@@ -39,20 +16,17 @@ type Props = {
   loading: boolean;
 };
 
-function KnowledgebaseFilter({
-  queryParams,
-  history,
-  knowledgeBaseTopics,
-  loadedArticles,
-  loading
-}: Props) {
-  const [knowledgebase, setKnowledgebase] = React.useState<any[]>([]);
-  const [queryParamName, setQueryParamName] = React.useState<string>(
-    'knowledgebaseCategoryId'
+const KnowledgebaseFilter = (props: Props) => {
+  const { queryParams, history, knowledgeBaseTopics, loadedArticles, loading } =
+    props;
+
+  const [knowledgebase, setKnowledgebase] = useState<any[]>([]);
+  const [queryParamName, setQueryParamName] = useState<string>(
+    'knowledgebaseCategoryId',
   );
 
-  React.useEffect(() => {
-    const topics = knowledgeBaseTopics.flatMap(topic => {
+  useEffect(() => {
+    const topics = knowledgeBaseTopics.flatMap((topic) => {
       const { __typename, _id, title, categories } = topic;
 
       const topicInfo = {
@@ -60,15 +34,15 @@ function KnowledgebaseFilter({
         _id,
         name: title,
         parentId: null,
-        numOfCategories: categories.length
+        numOfCategories: categories.length,
       };
 
-      const categoryInfo = topic.categories.map(category => ({
+      const categoryInfo = topic.categories.map((category) => ({
         __typename: category.__typename,
         _id: category._id,
         name: category.title,
         numOfArticles: category.numOfArticles,
-        parentId: category.parentCategoryId || _id
+        parentId: category.parentCategoryId || _id,
       }));
 
       return [topicInfo, ...categoryInfo];
@@ -77,7 +51,7 @@ function KnowledgebaseFilter({
     setKnowledgebase(topics);
   }, [knowledgeBaseTopics.length]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       queryParams.knowledgebaseCategoryId === undefined ||
       queryParams.knowledgebaseCategoryId === null
@@ -87,18 +61,18 @@ function KnowledgebaseFilter({
   }, [queryParams.knowledgebaseCategoryId]);
 
   const categoryIds = (knowledgebase || [])
-    .filter(topic => topic.__typename === 'KnowledgeBaseCategory')
-    .map(category => category._id);
+    .filter((topic) => topic.__typename === 'KnowledgeBaseCategory')
+    .map((category) => category._id);
 
-  const getArticlesCategory = categoryId => {
+  const getArticlesCategory = (categoryId) => {
     return loadedArticles
-      .filter(article => article.categoryId === categoryId)
-      .map(article => article._id);
+      .filter((article) => article.categoryId === categoryId)
+      .map((article) => article._id);
   };
 
-  const handleClick = id => {
+  const handleClick = (id) => {
     const selectedCategory = knowledgebase.find(
-      category => category._id === id
+      (category) => category._id === id,
     );
 
     if (selectedCategory.__typename === 'KnowledgeBaseCategory') {
@@ -147,6 +121,6 @@ function KnowledgebaseFilter({
       )}
     </>
   );
-}
+};
 
 export default KnowledgebaseFilter;

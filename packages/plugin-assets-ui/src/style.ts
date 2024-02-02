@@ -27,7 +27,7 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     display:flex;
     flex-wrap:${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
     flex-direction:${({ row }) => (row ? 'row' : '')} ${({ column }) =>
-  column ? 'column' : ''};
+      column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
     place-content:${({ placeContentEnd }) => (placeContentEnd ? 'end' : '')};
@@ -253,9 +253,9 @@ export const MovementItemInfoContainer = styled.div`
 `;
 
 export const MovementItemConfigContainer = styledTS<{ flex?: string }>(
-  styled.div
+  styled.div,
 )`
-  flex: ${props => (props.flex ? props.flex : '1')};
+  flex: ${(props) => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 
   &:last-of-type {
@@ -333,4 +333,8 @@ export const KbTreeViewItem = styled.div`
 export const SelectAssignType = styled(InputBar)`
   max-width: 150px;
   margin-top: 30px;
+`;
+
+export const FilterContainer = styled.div`
+  padding: 10px 20px 20px;
 `;

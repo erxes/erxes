@@ -152,6 +152,7 @@ export type IMovementType = {
   movedAt?: string;
   userId?: string;
   user?: any;
+  items?: any;
 };
 
 export type IMovementItem = {

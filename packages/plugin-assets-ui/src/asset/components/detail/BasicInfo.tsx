@@ -14,7 +14,7 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import moment from 'moment';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -37,8 +37,10 @@ type Props = {
   history: any;
 };
 
-function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
-  const renderVendor = vendor => {
+const BasicInfo = (props: Props) => {
+  const { asset, remove, assignKbArticles, history } = props;
+
+  const renderVendor = (vendor) => {
     if (!vendor) {
       return (
         <li>
@@ -81,7 +83,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -117,7 +119,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
   };
 
   const renderEditForm = () => {
-    const content = props => <AssetForm {...props} asset={asset || {}} />;
+    const content = (props) => <AssetForm {...props} asset={asset || {}} />;
 
     return (
       <ModalTrigger
@@ -134,7 +136,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
   };
 
   const renderKbDetail = () => {
-    const content = props => (
+    const content = (props) => (
       <AssignArticles
         {...props}
         knowledgeData={asset?.knowledgeData}
@@ -183,7 +185,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
     return (
       <AssetContent
         dangerouslySetInnerHTML={{
-          __html: xss(asset.description)
+          __html: xss(asset.description),
         }}
       />
     );
@@ -204,19 +206,19 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
         {renderView(
           'Parent',
           asset.parent ? asset.parent.name : '',
-          asset.parent && changeAssetDetail()
+          asset.parent && changeAssetDetail(),
         )}
         {renderView('Unit price', (asset.unitPrice || 0).toLocaleString())}
         {renderVendor(asset.vendor)}
         {renderView(
           'Create At',
-          moment(asset.createdAt).format('YYYY-MM-DD HH:mm')
+          moment(asset.createdAt).format('YYYY-MM-DD HH:mm'),
         )}
         <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
       </SidebarList>
       {renderAssetContent()}
     </Sidebar.Section>
   );
-}
+};
 
 export default BasicInfo;

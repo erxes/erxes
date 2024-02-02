@@ -3,24 +3,30 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
-const AssetList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Assets" */ './asset/containers/List')
+const AssetList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "List - Assets" */ './asset/containers/List'),
 );
 
-const AssetMovements = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Assets" */ './movements/containers/List')
+const AssetMovements = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Assets" */ './movements/movements/containers/List'
+    ),
 );
 
-const AssetMovementItems = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Asset Movement Item" */ './movements/items/containers/List'
-  )
+const AssetMovementItems = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Asset Movement Item" */ './movements/assets/containers/List'
+    ),
 );
 
-const AssetDetail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Assets" */ './asset/containers/detail/Detail'
-  )
+const AssetDetail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Assets" */ './asset/containers/detail/Detail'
+    ),
 );
 
 const assets = ({ history, location }) => {
@@ -44,7 +50,7 @@ const detail = ({ history, location, match }) => {
   );
 };
 
-const movements = props => {
+const movements = (props) => {
   return (
     <AssetMovements
       {...props}
@@ -53,7 +59,7 @@ const movements = props => {
   );
 };
 
-const movementItems = props => {
+const movementItems = (props) => {
   return (
     <AssetMovementItems
       {...props}

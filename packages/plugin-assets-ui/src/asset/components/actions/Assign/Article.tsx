@@ -18,13 +18,10 @@ type Props = {
   setSelectedArticles: (articleIds: string[]) => void;
 };
 
-function Article({
-  objects,
-  article,
-  selectedArticles,
-  setSelectedArticles
-}: Props) {
-  const handleArticleSelect = articleId => {
+const Article = (props: Props) => {
+  const { article, selectedArticles, setSelectedArticles } = props;
+
+  const handleArticleSelect = (articleId) => {
     const newSelectedArticles = [...selectedArticles];
 
     if (newSelectedArticles.includes(articleId)) {
@@ -51,6 +48,6 @@ function Article({
       </ContainerBox>
     </KbArticles>
   );
-}
+};
 
 export default Article;

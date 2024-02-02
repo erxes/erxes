@@ -1,5 +1,5 @@
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { IAsset, IAssetCategory } from '../../common/types';
 import { breadcrumb } from '../../common/constant';
 import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
@@ -14,7 +14,7 @@ import {
   Button,
   ModalTrigger,
   Icon,
-  Alert
+  Alert,
 } from '@erxes/ui/src';
 import Row from './Row';
 import { Link } from 'react-router-dom';
@@ -35,7 +35,7 @@ type Props = {
   remove: (doc: { assetIds: string[] }, emptyBulk: () => void) => void;
   assignKbArticles: (
     doc: { assetIds: string[] },
-    emptyBulk: () => void
+    emptyBulk: () => void,
   ) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IAsset[], containerId: string) => void;
@@ -47,7 +47,7 @@ type Props = {
   mergeAssetLoading;
 };
 
-function List(props: Props) {
+const List = (props: Props) => {
   const {
     assets,
     assetsCount,
@@ -65,17 +65,17 @@ function List(props: Props) {
     currentCategory,
     currentParent,
     mergeAssets,
-    mergeAssetLoading
+    mergeAssetLoading,
   } = props;
 
-  const [search, setSearch] = React.useState(searchValue);
-  const timerRef = React.useRef<number | null>(null);
+  const [search, setSearch] = useState(searchValue);
+  const timerRef = useRef<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     emptyBulk();
   }, [assets.length]);
 
-  const handleSearch = e => {
+  const handleSearch = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -93,7 +93,7 @@ function List(props: Props) {
     toggleAll(assets, 'assets');
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
@@ -101,7 +101,7 @@ function List(props: Props) {
   };
 
   const renderRow = () => {
-    return assets.map(asset => (
+    return assets.map((asset) => (
       <Row
         history={history}
         key={asset._id}
@@ -114,11 +114,11 @@ function List(props: Props) {
     ));
   };
 
-  const renderFormContent = formProps => {
+  const renderFormContent = (formProps) => {
     return <AssetForm {...formProps} queryParams={queryParams} />;
   };
 
-  const assetsMerge = assetsProps => {
+  const assetsMerge = (assetsProps) => {
     return (
       <MergeAssets
         {...assetsProps}
@@ -129,7 +129,7 @@ function List(props: Props) {
     );
   };
 
-  const assignArticles = articlesProps => {
+  const assignArticles = (articlesProps) => {
     return (
       <AssignArticles
         {...articlesProps}
@@ -139,10 +139,10 @@ function List(props: Props) {
     );
   };
 
-  const removeAssets = selectedAssets => {
+  const removeAssets = (selectedAssets) => {
     const assetIds: string[] = [];
 
-    selectedAssets.forEach(selectedAsset => {
+    selectedAssets.forEach((selectedAsset) => {
       assetIds.push(selectedAsset._id);
     });
 
@@ -156,7 +156,7 @@ function List(props: Props) {
           .then(() => {
             removeAssets(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       };
@@ -265,9 +265,9 @@ function List(props: Props) {
   const sidebar = <Sidebar queryParams={queryParams} history={history} />;
 
   const leftActionBar = (
-    <Title>{`${currentCategory.name ||
-      currentParent.name ||
-      'All Assets'} (${assetsCount})`}</Title>
+    <Title>{`${
+      currentCategory.name || currentParent.name || 'All Assets'
+    } (${assetsCount})`}</Title>
   );
 
   return (
@@ -297,6 +297,6 @@ function List(props: Props) {
       footer={<Pagination count={assetsCount} />}
     />
   );
-}
+};
 
 export default List;

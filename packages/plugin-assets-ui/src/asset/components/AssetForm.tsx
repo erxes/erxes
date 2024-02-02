@@ -2,7 +2,6 @@ import {
   Button,
   Form as CommonForm,
   ControlLabel,
-  FlexContent,
   FlexItem,
   FormControl,
   FormGroup,
@@ -12,11 +11,7 @@ import {
   Uploader,
   extractAttachment,
 } from '@erxes/ui/src';
-import {
-  CommonFormGroup,
-  SelectWithAssetCategory,
-  SelectWithAssets,
-} from '../../common/utils';
+import { SelectWithAssetCategory, SelectWithAssets } from '../../common/utils';
 import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   FormWrapper,
@@ -32,10 +27,8 @@ import {
 } from '@erxes/ui/src/types';
 
 import CategoryForm from '../containers/CategoryForm';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 type Props = {
   asset?: IAsset;
@@ -47,28 +40,24 @@ type Props = {
   loading: boolean;
 };
 
-function AssetForm({
-  asset,
-  categories,
-  queryParams,
-  renderButton,
-  closeModal,
-}: Props) {
-  const [assetCount, setAssetCount] = React.useState<number>(0);
-  const [minimiumCount, setMinimiumCount] = React.useState<number>(0);
-  const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
+const AssetForm = (props: Props) => {
+  const { asset, categories, queryParams, renderButton, closeModal } = props;
+
+  const [assetCount, setAssetCount] = useState<number>(0);
+  const [minimiumCount, setMinimiumCount] = useState<number>(0);
+  const [attachment, setAttachment] = useState<IAttachment | undefined>(
     undefined,
   );
-  const [attachmentMore, setAttachmentMore] = React.useState<
+  const [attachmentMore, setAttachmentMore] = useState<
     IAttachment[] | undefined
   >(undefined);
-  const [vendorId, setVendorId] = React.useState<string>('');
-  const [parentId, setParentId] = React.useState<string>('');
-  const [categoryId, setCategoryId] = React.useState<string>('');
-  const [description, setDescription] = React.useState<string>('');
-  const [currentTab, setCurrentTab] = React.useState<string>('Category');
+  const [vendorId, setVendorId] = useState<string>('');
+  const [parentId, setParentId] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [currentTab, setCurrentTab] = useState<string>('Category');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (asset) {
       setAssetCount(asset ? asset.assetCount : 0);
       setMinimiumCount(asset ? asset.minimiumCount : 0);
@@ -122,8 +111,8 @@ function AssetForm({
     );
   };
 
-  const onChangeDescription = (content: string) => {
-    setDescription(content);
+  const onChangeDescription = (e) => {
+    setDescription(e.editor.getData());
   };
 
   const onComboEvent = (variable: string, e) => {
@@ -378,6 +367,6 @@ function AssetForm({
   };
 
   return <CommonForm renderContent={renderContent} />;
-}
+};
 
 export default AssetForm;

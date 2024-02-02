@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IAsset, IAssetDoc as IAssetDocc } from '../../../common/types';
 import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
@@ -19,8 +19,10 @@ type Props = {
   closeModal: () => void;
 };
 
-function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
-  const [selectedValues, setSelectedValues] = React.useState<any>({});
+const Merge = (props: Props) => {
+  const { objects, mergeAssetLoading, save, closeModal } = props;
+
+  const [selectedValues, setSelectedValues] = useState<any>({});
   const [asset1, asset2] = objects;
 
   const onSubmit = (e: React.FormEvent) => {
@@ -41,11 +43,11 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
     }
 
     save({
-      ids: objects.map(asset => asset._id),
+      ids: objects.map((asset) => asset._id),
       data: { ...values },
       callback: () => {
         closeModal();
-      }
+      },
     });
   };
 
@@ -80,7 +82,7 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
       <React.Fragment>
         <Title>{asset.name || 'Name'}</Title>
         <ul>
-          {properties.map(info => {
+          {properties.map((info) => {
             const key = info.field;
 
             if (!asset[key]) {
@@ -126,7 +128,7 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
     }
   };
 
-  const renderCategoryInfo = value => {
+  const renderCategoryInfo = (value) => {
     return (
       <Info>
         <InfoTitle>{__('Name')}: </InfoTitle>
@@ -135,7 +137,7 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
     );
   };
 
-  const renderParentInfo = value => {
+  const renderParentInfo = (value) => {
     return (
       <Info>
         <InfoTitle>{__('Name')}</InfoTitle>
@@ -144,7 +146,7 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
     );
   };
 
-  const renderVendorInfo = value => {
+  const renderVendorInfo = (value) => {
     return (
       <Info>
         <InfoTitle>{__('Info')}: </InfoTitle>
@@ -188,6 +190,6 @@ function MergeAssets({ objects, mergeAssetLoading, save, closeModal }: Props) {
       </ModalFooter>
     </form>
   );
-}
+};
 
-export default MergeAssets;
+export default Merge;

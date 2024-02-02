@@ -1,22 +1,20 @@
-import { Button, FormControl, Uploader, __ } from '@erxes/ui/src';
 import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-} from '@erxes/ui/src/styles/main';
+import { FormColumn } from '@erxes/ui/src/styles/main';
+import { FormWrapper } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
-import {
-  IAttachment,
-  IButtonMutateProps,
-  IFormProps,
-} from '@erxes/ui/src/types';
-
+import { IAttachment } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IFormProps } from '@erxes/ui/src/types';
 import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import Select from 'react-select-plus';
 import { extractAttachment } from '@erxes/ui/src/utils/core';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Button from '@erxes/ui/src/components/Button';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,19 +23,16 @@ type Props = {
   categories: IAssetCategoryTypes[];
 };
 
-function CategoryForm({
-  renderButton,
-  closeModal,
-  category,
-  categories,
-}: Props) {
-  const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
+const CategoryForm = (props: Props) => {
+  const { renderButton, closeModal, category } = props;
+
+  const [attachment, setAttachment] = useState<IAttachment | undefined>(
     undefined,
   );
-  const [status, setStatus] = React.useState<string>('');
-  const [parentId, setParentId] = React.useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [parentId, setParentId] = useState<string>('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (category) {
       setStatus(category.status || '');
       setParentId(category.parentId || '');
@@ -98,14 +93,15 @@ function CategoryForm({
 
         <FormWrapper>
           <FormColumn>
-            <CommonFormGroup label="Status">
-              <Select
+            <CommonFormGroup label="Status" required={true}>
+              {/* <Select
                 placeholder={__('Choose status')}
                 value={status}
                 options={ASSET_CATEGORY_STATUSES}
                 onChange={(option) => setStatus(option.value)}
+                clearable={false}
                 {...formProps}
-              />
+              /> */}
             </CommonFormGroup>
           </FormColumn>
           <FormColumn>
@@ -128,7 +124,7 @@ function CategoryForm({
             onChange={onChangeAttachment}
             defaultFileList={attachments}
             multiple={false}
-            single={false}
+            single={true}
           />
         </CommonFormGroup>
 
@@ -150,6 +146,6 @@ function CategoryForm({
   };
 
   return <CommonForm renderContent={renderForm} />;
-}
+};
 
 export default CategoryForm;

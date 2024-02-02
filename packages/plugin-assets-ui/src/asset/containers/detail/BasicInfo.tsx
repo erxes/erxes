@@ -8,27 +8,30 @@ import BasicInfo from '../../components/detail/BasicInfo';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../../graphql';
 
 type Props = {
   asset: IAsset;
   refetchQueries?: any[];
-  history: any;
-};
+} & IRouterProps;
 
-type FinalProps = {
-  currentUser: IUser;
-  assetsAssignKbArticles: any;
-} & Props &
-  IRouterProps &
-  AssetRemoveMutationResponse;
-
-const BasicInfoContainer = (props: FinalProps) => {
-  const { asset, assetsRemove, history } = props;
+const BasicInfoContainer = (props: Props) => {
+  const { asset, history } = props;
 
   const { _id } = asset;
+
+  const [assetsRemove] = useMutation<AssetRemoveMutationResponse>(
+    gql(mutations.assetsRemove),
+    {
+      refetchQueries: generateOptions(),
+    },
+  );
+
+  const [assetsAssignKbArticles] = useMutation(gql(mutations.assetsRemove), {
+    refetchQueries: generateOptions(),
+  });
 
   const remove = () => {
     assetsRemove({ variables: { assetIds: [_id] } })
@@ -42,8 +45,6 @@ const BasicInfoContainer = (props: FinalProps) => {
   };
 
   const assignKbArticles = ({ ids, data, callback }) => {
-    const { assetsAssignKbArticles } = props;
-
     assetsAssignKbArticles({
       variables: { ids, ...data },
     })
@@ -66,27 +67,9 @@ const BasicInfoContainer = (props: FinalProps) => {
   return <BasicInfo {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: [
-    'assets',
-    'assetCategories',
-    'assetsTotalCount',
-    'assetDetail',
-  ],
-});
+const generateOptions = () => {
+  return ['assets', 'assetCategories', 'assetsTotalCount', 'assetDetail'];
+};
 
-export default withProps<Props>(
-  compose(
-    graphql<{}, AssetRemoveMutationResponse, { assetIds: string[] }>(
-      gql(mutations.assetsRemove),
-      {
-        name: 'assetsRemove',
-        options: generateOptions,
-      },
-    ),
-    graphql(gql(mutations.assetsAssignKbArticles), {
-      name: 'assetsAssignKbArticles',
-      options: () => generateOptions(),
-    }),
-  )(BasicInfoContainer),
-);
+export default BasicInfoContainer;
+// export default withRouter<Props>(BasicInfoContainer);
