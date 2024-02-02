@@ -4,13 +4,13 @@ import {
   SidebarCounter,
   SidebarList,
   Table,
-  __
+  __,
 } from '@erxes/ui/src';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import _ from 'lodash';
 import * as moment from 'moment';
-import React from 'react';
+import React, { useState } from 'react';
 import { FinanceAmount, FlexRow } from '../../styles';
 import { IPos } from '../../types';
 import { ICover } from '../types';
@@ -21,27 +21,17 @@ type Props = {
   pos: IPos;
 };
 
-type State = {
-  note: string;
-};
+const CoverDetail = (props: Props) => {
+  const { cover, onChangeNote } = props;
 
-class CoverDetail extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [note, setNote] = useState(cover.note || '');
 
-    const { cover, pos } = this.props;
-
-    this.state = {
-      note: cover.note || ''
-    };
-  }
-
-  displayValue(cover, name) {
+  const displayValue = (cover, name) => {
     const value = _.get(cover, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
+  };
 
-  renderRow(label, value) {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FlexRow>
@@ -50,38 +40,20 @@ class CoverDetail extends React.Component<Props, State> {
         </FlexRow>
       </li>
     );
-  }
-
-  renderEditRow(label, key) {
-    const value = this.state[key];
-    const onChangeValue = e => {
-      this.setState({ [key]: Number(e.target.value) } as any);
-    };
-    return (
-      <li>
-        <FlexRow>
-          <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <FormControl type="number" onChange={onChangeValue} value={value} />
-        </FlexRow>
-      </li>
-    );
-  }
-
-  onChangeNote = e => {
-    const value = e.target.value;
-    this.setState({
-      note: value
-    });
   };
 
-  save = () => {
-    const { cover } = this.props;
+  const onChange = (e) => {
+    const value = e.target.value;
+    setNote(value);
+  };
+
+  const save = () => {
     const { note } = cover;
 
-    this.props.onChangeNote(this.props.cover._id || '', note || '');
+    onChangeNote(cover._id || '', note || '');
   };
 
-  generateLabel = customer => {
+  const generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
@@ -100,7 +72,7 @@ class CoverDetail extends React.Component<Props, State> {
     return value;
   };
 
-  renderDetail(det) {
+  const renderDetail = (det) => {
     if (!det) {
       return '';
     }
@@ -110,79 +82,69 @@ class CoverDetail extends React.Component<Props, State> {
     }
 
     return (det || '').toString();
-  }
+  };
 
-  render() {
-    const { cover } = this.props;
+  return (
+    <SidebarList>
+      {renderRow(
+        'Begin Date',
+        moment(cover.beginDate).format('YYYY-MM-DD HH:mm'),
+      )}
+      {renderRow('End Date', moment(cover.endDate).format('YYYY-MM-DD HH:mm'))}
+      {renderRow('User', cover.user.email)}
+      {renderRow('POS', cover.posName)}
 
-    return (
-      <SidebarList>
-        {this.renderRow(
-          'Begin Date',
-          moment(cover.beginDate).format('YYYY-MM-DD HH:mm')
-        )}
-        {this.renderRow(
-          'End Date',
-          moment(cover.endDate).format('YYYY-MM-DD HH:mm')
-        )}
-        {this.renderRow('User', cover.user.email)}
-        {this.renderRow('POS', cover.posName)}
+      {renderRow('Total Amount', displayValue(cover, 'totalAmount'))}
 
-        {this.renderRow(
-          'Total Amount',
-          this.displayValue(cover, 'totalAmount')
-        )}
+      {renderRow('Description', cover.description)}
 
-        {this.renderRow('Description', cover.description)}
-
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th colSpan={3}>{__('Type')}</th>
-              <th>{__('Summary')}</th>
-              <th>{__('Detail')}</th>
-            </tr>
-          </thead>
-          <tbody id="coverDetails">
-            {(cover.details || []).map(detail => (
-              <>
-                <tr key={detail._id}>
-                  <td colSpan={3}>{detail.paidType}</td>
-                  <td>
-                    {(detail.paidSummary || []).reduce(
-                      (sum, cur) => sum + cur.amount,
-                      0
-                    )}
-                  </td>
-                  <td>{this.renderDetail(detail.paidDetail)}</td>
-                </tr>
-                <tr key={`${detail._id}_head`}>
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th colSpan={3}>{__('Type')}</th>
+            <th>{__('Summary')}</th>
+            <th>{__('Detail')}</th>
+          </tr>
+        </thead>
+        <tbody id="coverDetails">
+          {(cover.details || []).map((detail) => (
+            <>
+              <tr key={detail._id}>
+                <td colSpan={3}>{detail.paidType}</td>
+                <td>
+                  {(detail.paidSummary || []).reduce(
+                    (sum, cur) => sum + cur.amount,
+                    0,
+                  )}
+                </td>
+                <td>{renderDetail(detail.paidDetail)}</td>
+              </tr>
+              <tr key={`${detail._id}_head`}>
+                <td></td>
+                <td>kind</td>
+                <td>kindOfVal</td>
+                <td>Value</td>
+                <td>amount</td>
+              </tr>
+              {(detail.paidSummary || []).map((s) => (
+                <tr key={`${detail._id}_${s._id || Math.random()}`}>
                   <td></td>
-                  <td>kind</td>
-                  <td>kindOfVal</td>
-                  <td>Value</td>
-                  <td>amount</td>
+                  <td>{s.kind}</td>
+                  <td>{s.kindOfVal}</td>
+                  <td>{s.value}</td>
+                  <td>{s.amount}</td>
                 </tr>
-                {(detail.paidSummary || []).map(s => (
-                  <tr key={`${detail._id}_${s._id || Math.random()}`}>
-                    <td></td>
-                    <td>{s.kind}</td>
-                    <td>{s.kindOfVal}</td>
-                    <td>{s.value}</td>
-                    <td>{s.amount}</td>
-                  </tr>
-                ))}
-              </>
-            ))}
-          </tbody>
-        </Table>
+              ))}
+            </>
+          ))}
+        </tbody>
+      </Table>
 
-        <Button btnStyle="success" size="small" onClick={this.save} icon="edit">
-          Save Note
-        </Button>
-      </SidebarList>
-    );
-  }
-}
+      <Button btnStyle="success" size="small" onClick={save} icon="edit">
+        Save Note
+      </Button>
+    </SidebarList>
+  );
+};
 
 export default CoverDetail;

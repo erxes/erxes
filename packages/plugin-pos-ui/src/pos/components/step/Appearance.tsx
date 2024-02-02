@@ -1,7 +1,7 @@
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import React from 'react';
+import React, { useState } from 'react';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { __, AvatarUpload, FormControl, FormGroup } from '@erxes/ui/src';
@@ -13,7 +13,7 @@ import {
   Block,
   LogoWrapper,
   ColorPickerWrap,
-  ColorChooserTile
+  ColorChooserTile,
 } from '../../../styles';
 
 interface IColor {
@@ -35,21 +35,16 @@ export interface IUIOptions {
 type Props = {
   onChange: (
     name: 'uiOptions' | 'logoPreviewUrl' | 'logoPreviewStyle',
-    value: any
+    value: any,
   ) => void;
   uiOptions?: IUIOptions;
   logoPreviewUrl: string;
 };
+const Appearance = (props: Props) => {
+  const { logoPreviewUrl, onChange } = props;
 
-type State = {
-  uiOptions: IUIOptions;
-};
-
-class Appearance extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    const uiOptions = props.uiOptions || {
+  const [uiOptions, setUiOptions] = useState(
+    props.uiOptions || {
       colors: {},
       logo: '',
       favIcon: '',
@@ -58,30 +53,20 @@ class Appearance extends React.Component<Props, State> {
       texts: {},
       kioskHeaderImage: '',
       mobileAppImage: '',
-      qrCodeImage: ''
-    };
+      qrCodeImage: '',
+    },
+  );
 
-    if (!uiOptions.colors) {
-      uiOptions.colors = {};
-    }
-
-    this.state = { uiOptions };
-  }
-
-  onChangeFunction = (name: any, value: any) => {
-    this.props.onChange(name, value);
+  const onChangeFunction = (name: any, value: any) => {
+    onChange(name, value);
   };
 
-  handleLogoChange = (id, url) => {
-    const { onChange } = this.props;
-    const { uiOptions } = this.state;
-
-    this.setState({ uiOptions: { ...uiOptions, [id]: url } });
+  const handleLogoChange = (id, url) => {
+    setUiOptions((prevOptions) => ({ ...prevOptions, [id]: url }));
     onChange('uiOptions', { ...uiOptions, [id]: url });
   };
 
-  renderUploadImage(id, title, desc) {
-    const { uiOptions } = this.state;
+  const renderUploadImage = (id, title, desc) => {
     return (
       <LogoWrapper>
         <FormGroup>
@@ -89,24 +74,22 @@ class Appearance extends React.Component<Props, State> {
           <p>{__(desc)}</p>
           <AvatarUpload
             avatar={uiOptions[id]}
-            onAvatarUpload={this.handleLogoChange.bind(this, id)}
+            onAvatarUpload={handleLogoChange.bind(this, id)}
           />
         </FormGroup>
       </LogoWrapper>
     );
-  }
+  };
 
-  renderInput = (key: string, title?: string, description?: string) => {
-    const { uiOptions } = this.state;
-
-    const onChangeInput = e => {
+  const renderInput = (key: string, title?: string, description?: string) => {
+    const onChangeInput = (e) => {
       const newUiOptions = {
         ...uiOptions,
-        texts: { ...uiOptions.texts, [key]: e.target.value }
+        texts: { ...uiOptions.texts, [key]: e.target.value },
       };
-      this.setState({ uiOptions: newUiOptions }, () => {
-        this.onChangeFunction('uiOptions', newUiOptions);
-      });
+
+      setUiOptions(newUiOptions);
+      onChangeFunction('uiOptions', newUiOptions);
     };
 
     const defaultValue = (uiOptions['texts'] || {})[key];
@@ -119,17 +102,15 @@ class Appearance extends React.Component<Props, State> {
     );
   };
 
-  renderPicker(group, key, title, colour) {
-    const { uiOptions } = this.state;
-
-    const onChangeColor = e => {
+  const renderPicker = (group, key, title, colour) => {
+    const onChangeColor = (e) => {
       const newUiOptions = {
         ...uiOptions,
-        [group]: { ...uiOptions[group], [key]: e.hex }
+        [group]: { ...uiOptions[group], [key]: e.hex },
       };
-      this.setState({ uiOptions: newUiOptions }, () => {
-        this.onChangeFunction('uiOptions', newUiOptions);
-      });
+
+      setUiOptions(newUiOptions);
+      onChangeFunction('uiOptions', newUiOptions);
     };
 
     const color =
@@ -160,77 +141,66 @@ class Appearance extends React.Component<Props, State> {
         </div>
       </FormGroup>
     );
-  }
+  };
 
-  render() {
-    return (
-      <FlexItem>
-        <LeftItem>
-          <Block>
-            <h4>{__('Logo and favicon')}</h4>
+  return (
+    <FlexItem>
+      <LeftItem>
+        <Block>
+          <h4>{__('Logo and favicon')}</h4>
+          <AppearanceRow>
+            {renderUploadImage('logo', 'Main Logo', 'Pos main logo PNG')}
+            {renderUploadImage(
+              'bgImage',
+              'Background Image',
+              'Pos background Image PNG',
+            )}
+            {renderUploadImage('favIcon', 'Favicon', '16x16px transparent PNG')}
+            {renderUploadImage(
+              'receiptIcon',
+              'Receipt icon',
+              '16x16px transparent PNG',
+            )}
+            {renderUploadImage(
+              'kioskHeaderImage',
+              'Kiosk header image',
+              'Kiosk header image PNG',
+            )}
+            {renderUploadImage(
+              'mobileAppImage',
+              'Mobile app image',
+              'Mobile app image PNG',
+            )}
+            {renderUploadImage(
+              'qrCodeImage',
+              'QR code image',
+              'QR code image PNG',
+            )}
+          </AppearanceRow>
+        </Block>
+        <Block>
+          <h4>{__('Main colors')}</h4>
+          <FormGroup>
+            <ControlLabel>{__('Colors')}</ControlLabel>
             <AppearanceRow>
-              {this.renderUploadImage('logo', 'Main Logo', 'Pos main logo PNG')}
-              {this.renderUploadImage(
-                'bgImage',
-                'Background Image',
-                'Pos background Image PNG'
-              )}
-              {this.renderUploadImage(
-                'favIcon',
-                'Favicon',
-                '16x16px transparent PNG'
-              )}
-              {this.renderUploadImage(
-                'receiptIcon',
-                'Receipt icon',
-                '16x16px transparent PNG'
-              )}
-              {this.renderUploadImage(
-                'kioskHeaderImage',
-                'Kiosk header image',
-                'Kiosk header image PNG'
-              )}
-              {this.renderUploadImage(
-                'mobileAppImage',
-                'Mobile app image',
-                'Mobile app image PNG'
-              )}
-              {this.renderUploadImage(
-                'qrCodeImage',
-                'QR code image',
-                'QR code image PNG'
-              )}
+              <ColorPickerWrap>
+                {renderPicker('colors', 'primary', 'Primary', '#6569df')}
+                {renderPicker('colors', 'secondary', 'Secondary', '#3fc7cc')}
+                {renderPicker('colors', 'third', 'Third', '#3fc700')}
+              </ColorPickerWrap>
             </AppearanceRow>
-          </Block>
-          <Block>
-            <h4>{__('Main colors')}</h4>
-            <FormGroup>
-              <ControlLabel>{__('Colors')}</ControlLabel>
-              <AppearanceRow>
-                <ColorPickerWrap>
-                  {this.renderPicker('colors', 'primary', 'Primary', '#6569df')}
-                  {this.renderPicker(
-                    'colors',
-                    'secondary',
-                    'Secondary',
-                    '#3fc7cc'
-                  )}
-                  {this.renderPicker('colors', 'third', 'Third', '#3fc700')}
-                </ColorPickerWrap>
-              </AppearanceRow>
-            </FormGroup>
-          </Block>
-          <Block>
-            <h4>{__('Infos')}</h4>
-            <FormGroup>
-              {this.renderInput('website', 'WebSite', '')}
-              {this.renderInput('phone', 'Phone', '')}
-            </FormGroup>
-          </Block>
-        </LeftItem>
-      </FlexItem>
-    );
-  }
-}
+          </FormGroup>
+        </Block>
+        <Block>
+          <h4>{__('Infos')}</h4>
+          <FormGroup>
+            {renderInput('website', 'WebSite', '')}
+            {renderInput('phone', 'Phone', '')}
+          </FormGroup>
+        </Block>
+      </LeftItem>
+    </FlexItem>
+  );
+};
 
 export default Appearance;

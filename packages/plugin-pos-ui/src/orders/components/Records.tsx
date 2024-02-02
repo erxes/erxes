@@ -6,7 +6,7 @@ import {
   Table,
   Wrapper,
   BarItems,
-  Button
+  Button,
 } from '@erxes/ui/src';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
@@ -18,8 +18,9 @@ import { IOrder } from '../types';
 import HeaderDescription from './MainHead';
 import RightMenu from './RightMenu';
 import Record from './Record';
+import { Title } from '@erxes/ui-settings/src/styles';
 
-interface IProps extends IRouterProps {
+type Props = {
   orders: IOrder[];
   count: number;
   loading: boolean;
@@ -34,22 +35,30 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   exportRecord: (headers: any) => void;
-}
+};
 
-class Orders extends React.Component<IProps, {}> {
-  private timer?: NodeJS.Timer = undefined;
+const Records = (props: Props) => {
+  const {
+    orders,
+    count,
+    exportRecord,
+    history,
+    loading,
+    queryParams,
+    onFilter,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+  } = props;
 
-  constructor(props) {
-    super(props);
-  }
-
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  tableHeaders = [
+  const tableHeaders = [
     { name: 'created_date', title: __('created date') },
     { name: 'created_time', title: __('created time') },
     { name: 'number', title: __('Number') },
@@ -74,40 +83,28 @@ class Orders extends React.Component<IProps, {}> {
     { name: 'discountType', title: __('Discount type') },
     { name: 'salePrice', title: __('Sale price') },
     { name: 'amount', title: __('Amount') },
-    { name: 'payType', title: __('Payment type') }
+    { name: 'payType', title: __('Payment type') },
   ];
 
-  render() {
-    const {
-      orders,
-      count,
-      exportRecord,
-      history,
-      loading,
-      queryParams,
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter
-    } = this.props;
-
+  const renderActionBar = () => {
     const rightMenuProps = {
       onFilter,
       onSelect,
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
+
+    const actionBarLeft = <Title>{__('Pos Records')}</Title>;
 
     const actionBarRight = (
       <BarItems>
-        {this.props.count > 0 && (
+        {count > 0 && (
           <Button
             icon="export"
             btnStyle="success"
-            onClick={exportRecord.bind(this.tableHeaders)}
+            onClick={exportRecord.bind(tableHeaders)}
           >
             {__(`Export`)}
           </Button>
@@ -117,23 +114,17 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
-    const header = (
-      <HeaderDescription
-        icon="/images/actions/26.svg"
-        title=""
-        summary={{}}
-        staticKeys={[]}
-        actionBar={actionBarRight}
-      />
-    );
+    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+  };
 
-    const mainContent = (
+  const renderContent = () => {
+    return (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
-              {this.tableHeaders.map(th => (
-                <th>
+              {tableHeaders.map((th) => (
+                <th key={th.name}>
                   <SortHandler
                     key={th.name}
                     sortField={th.name}
@@ -145,7 +136,7 @@ class Orders extends React.Component<IProps, {}> {
             </tr>
           </thead>
           <tbody id="orders">
-            {(orders || []).map(order => (
+            {(orders || []).map((order) => (
               <Record
                 order={order}
                 key={`${order._id}_${order.items._id}`}
@@ -157,30 +148,31 @@ class Orders extends React.Component<IProps, {}> {
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Pos Orders`)}
-            queryParams={queryParams}
-            submenu={menuPos}
-          />
-        }
-        mainHead={header}
-        footer={<Pagination count={count} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={(orders || []).length}
-            emptyText="Add in your first order!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      hasBorder={true}
+      header={
+        <Wrapper.Header
+          title={__(`Pos Orders`)}
+          queryParams={queryParams}
+          submenu={menuPos}
+        />
+      }
+      actionBar={renderActionBar()}
+      footer={<Pagination count={count} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={(orders || []).length}
+          emptyText="Add in your first order!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
-export default withRouter<IRouterProps>(Orders);
+export default Records;

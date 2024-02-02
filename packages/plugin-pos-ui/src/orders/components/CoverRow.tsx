@@ -13,16 +13,18 @@ type Props = {
   remove: (_id: string) => void;
 };
 
-class CoverRow extends React.Component<Props> {
-  displayValue(cover, name) {
+const CoverRow = (props: Props) => {
+  const { cover, remove } = props;
+
+  const displayValue = (cover, name) => {
     const value = _.get(cover, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
+  };
 
-  displayPaid(cover, key) {
+  const displayPaid = (cover, key) => {
     const { paidAmounts } = cover;
     const value = (
-      (paidAmounts || []).filter(pa => pa.title === key || pa.type === key) ||
+      (paidAmounts || []).filter((pa) => pa.title === key || pa.type === key) ||
       []
     ).reduce((sum, pa) => sum + pa.amount, 0);
     return (
@@ -30,53 +32,48 @@ class CoverRow extends React.Component<Props> {
         {(value || 0).toLocaleString()}
       </FinanceAmount>
     );
-  }
+  };
 
-  modalContent = _props => {
-    const { cover } = this.props;
+  const modalContent = (_props) => {
     return <Detail cover={cover} />;
   };
 
-  render() {
-    const { cover, remove } = this.props;
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const onRemove = () => {
+    remove(cover._id || '');
+  };
 
-    const onRemove = () => {
-      remove(cover._id || '');
-    };
+  const trigger = (
+    <tr>
+      <td key={'beginDate'}>{dayjs(cover.beginDate).format('lll')} </td>
+      <td key={'endDate'}>{dayjs(cover.endDate).format('lll')}</td>
+      <td key={'pos'}>{cover.posName}</td>
+      <td key={'user'}>{cover.user ? cover.user.email : ''}</td>
+      <td key={'actions'} onClick={onClick}>
+        <Button
+          btnStyle="warning"
+          size="small"
+          icon="external-link-alt"
+          onClick={onRemove}
+        >
+          Delete
+        </Button>
+      </td>
+    </tr>
+  );
 
-    const trigger = (
-      <tr>
-        <td key={'beginDate'}>{dayjs(cover.beginDate).format('lll')} </td>
-        <td key={'endDate'}>{dayjs(cover.endDate).format('lll')}</td>
-        <td key={'pos'}>{cover.posName}</td>
-        <td key={'user'}>{cover.user ? cover.user.email : ''}</td>
-        <td key={'actions'} onClick={onClick}>
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="external-link-alt"
-            onClick={onRemove}
-          >
-            Delete
-          </Button>
-        </td>
-      </tr>
-    );
-
-    return (
-      <ModalTrigger
-        title={`Order detail`}
-        trigger={trigger}
-        autoOpenKey="showProductModal"
-        content={this.modalContent}
-        size={'lg'}
-      />
-    );
-  }
-}
+  return (
+    <ModalTrigger
+      title={`Order detail`}
+      trigger={trigger}
+      autoOpenKey="showProductModal"
+      content={modalContent}
+      size={'lg'}
+    />
+  );
+};
 
 export default CoverRow;

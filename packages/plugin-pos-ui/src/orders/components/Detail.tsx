@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   __,
   FieldStyle,
   SidebarCounter,
   SidebarList,
-  Table
+  Table,
 } from '@erxes/ui/src';
 import { Alert } from '@erxes/ui/src/utils';
 import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
@@ -23,48 +23,43 @@ type Props = {
     _id: string,
     cashAmount: number,
     mobileAmount: number,
-    paidAmounts: any[]
+    paidAmounts: any[],
   ) => void;
   pos?: IPos;
 };
 
-type State = {
-  cashAmount: number;
-  mobileAmount: number;
-  paidAmounts: any[];
-};
+const Detail = (props: Props) => {
+  const { order, pos, onChangePayments } = props;
 
-class OrderDetail extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { order, pos } = this.props;
-    const paidAmounts: any[] = [...order.paidAmounts] || [];
-    const paidKeys: string[] = paidAmounts.map(pa => pa.type);
+  const initialPaidAmounts = () => {
+    const amounts = [...order.paidAmounts] || [];
+    const paidKeys = amounts.map((pa) => pa.type);
 
     for (const emptyType of (pos?.paymentTypes || []).filter(
-      pt => !paidKeys.includes(pt.type)
+      (pt) => !paidKeys.includes(pt.type),
     )) {
-      paidAmounts.push({
+      amounts.push({
         _id: Math.random().toString(),
         amount: 0,
-        type: emptyType.type
+        type: emptyType.type,
       });
     }
 
-    this.state = {
-      paidAmounts,
-      cashAmount: order.cashAmount,
-      mobileAmount: order.mobileAmount
-    };
-  }
+    return amounts;
+  };
 
-  displayValue(order, name) {
+  const [state, setState] = useState({
+    paidAmounts: initialPaidAmounts(),
+    cashAmount: order.cashAmount,
+    mobileAmount: order.mobileAmount,
+  });
+
+  const displayValue = (order, name) => {
     const value = _.get(order, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
+  };
 
-  renderRow(label, value) {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FlexRow>
@@ -73,12 +68,12 @@ class OrderDetail extends React.Component<Props, State> {
         </FlexRow>
       </li>
     );
-  }
+  };
 
-  renderEditRow(label, key) {
-    const value = this.state[key];
-    const onChangeValue = e => {
-      this.setState({ [key]: Number(e.target.value) } as any);
+  const renderEditRow = (label, key) => {
+    const value = state[key];
+    const onChangeValue = (e) => {
+      setState({ [key]: Number(e.target.value) } as any);
     };
     return (
       <li>
@@ -88,23 +83,22 @@ class OrderDetail extends React.Component<Props, State> {
         </FlexRow>
       </li>
     );
-  }
-
-  onChangePaidAmount = e => {
-    const { paidAmounts } = this.state;
-    const name = e.target.name;
-    const value = e.target.value;
-    this.setState({
-      paidAmounts: paidAmounts.map(pa =>
-        pa._id === name ? { ...pa, amount: value } : pa
-      )
-    });
   };
 
-  renderEditPaid() {
-    const { paidAmounts } = this.state;
-    return paidAmounts.map(paidAmount => {
-      const { pos } = this.props;
+  const onChangePaidAmount = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+
+    setState((prevState) => ({
+      ...prevState,
+      paidAmounts: prevState.paidAmounts.map((pa) =>
+        pa._id === name ? { ...pa, amount: value } : pa,
+      ),
+    }));
+  };
+
+  const renderEditPaid = () => {
+    return state.paidAmounts.map((paidAmount) => {
       const { paymentTypes } = pos || {};
 
       return (
@@ -112,47 +106,47 @@ class OrderDetail extends React.Component<Props, State> {
           <FlexRow key={paidAmount._id}>
             <FieldStyle>
               {__(
-                `${(
-                  (paymentTypes || []).find(
-                    pt => pt.type === paidAmount.type
-                  ) || {}
-                ).title || paidAmount.type}`
+                `${
+                  (
+                    (paymentTypes || []).find(
+                      (pt) => pt.type === paidAmount.type,
+                    ) || {}
+                  ).title || paidAmount.type
+                }`,
               )}
               :
             </FieldStyle>
             <FormControl
               type="number"
               name={paidAmount._id}
-              onChange={this.onChangePaidAmount}
+              onChange={onChangePaidAmount}
               value={paidAmount.amount || 0}
             />
           </FlexRow>
         </li>
       );
     });
-  }
+  };
 
-  renderDeliveryInfo() {
-    const { order } = this.props;
+  const renderDeliveryInfo = () => {
     const { deliveryInfo } = order;
     if (!deliveryInfo) {
       return <></>;
     }
 
-    return this.renderRow('Delivery info', deliveryInfo.description);
-  }
+    return renderRow('Delivery info', deliveryInfo.description);
+  };
 
-  save = () => {
-    const { order, onChangePayments } = this.props;
+  const save = () => {
     const { totalAmount } = order;
-    const { paidAmounts, cashAmount, mobileAmount } = this.state;
+    const { paidAmounts, cashAmount, mobileAmount } = state;
 
     if (
       cashAmount +
         mobileAmount +
         (paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
-          0
+          0,
         ) !==
       totalAmount
     ) {
@@ -162,14 +156,14 @@ class OrderDetail extends React.Component<Props, State> {
 
     onChangePayments &&
       onChangePayments(
-        this.props.order._id,
+        order._id,
         cashAmount,
         mobileAmount,
-        (paidAmounts || []).filter(pa => Number(pa.amount) !== 0)
+        (paidAmounts || []).filter((pa) => Number(pa.amount) !== 0),
       );
   };
 
-  generateLabel = customer => {
+  const generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
@@ -188,98 +182,88 @@ class OrderDetail extends React.Component<Props, State> {
     return value;
   };
 
-  renderReturnInfo() {
-    const { order } = this.props;
+  const renderReturnInfo = () => {
     if (!order.returnInfo || !order.returnInfo.returnAt) {
       return <></>;
     }
 
-    return this.renderRow(
+    return renderRow(
       'return Date',
-      dayjs(order.returnInfo.returnAt).format('lll')
+      dayjs(order.returnInfo.returnAt).format('lll'),
     );
-  }
+  };
 
-  render() {
-    const { order, pos } = this.props;
+  return (
+    <SidebarList>
+      {renderRow(
+        `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
+        order.customer ? generateLabel(order.customer) : '',
+      )}
+      {renderRow('Bill Number', order.number)}
+      {renderRow(
+        'Date',
+        dayjs(order.paidDate || order.createdAt).format('lll'),
+      )}
+      {renderDeliveryInfo()}
+      {order.syncErkhetInfo
+        ? renderRow('Erkhet Info', order.syncErkhetInfo)
+        : ''}
 
-    return (
-      <SidebarList>
-        {this.renderRow(
-          `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
-          order.customer ? this.generateLabel(order.customer) : ''
-        )}
-        {this.renderRow('Bill Number', order.number)}
-        {this.renderRow(
-          'Date',
-          dayjs(order.paidDate || order.createdAt).format('lll')
-        )}
-        {this.renderDeliveryInfo()}
-        {order.syncErkhetInfo
-          ? this.renderRow('Erkhet Info', order.syncErkhetInfo)
-          : ''}
+      {order.convertDealId
+        ? renderRow(
+            'Deal',
+            <Link to={order.dealLink || ''}>{order.deal?.name || 'deal'}</Link>,
+          )
+        : ''}
+      <>
+        {(order.putResponses || []).map((p) => {
+          return (
+            <DetailRow key={Math.random()}>
+              {renderRow('Bill ID', p.billId)}
+              {renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
+            </DetailRow>
+          );
+        })}
+      </>
 
-        {order.convertDealId
-          ? this.renderRow(
-              'Deal',
-              <Link to={order.dealLink || ''}>
-                {order.deal?.name || 'deal'}
-              </Link>
-            )
-          : ''}
-        <>
-          {(order.putResponses || []).map(p => {
-            return (
-              <DetailRow key={Math.random()}>
-                {this.renderRow('Bill ID', p.billId)}
-                {this.renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
-              </DetailRow>
-            );
-          })}
-        </>
-
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Product')}</th>
-              <th>{__('Count')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('Amount')}</th>
-              <th>{__('Diff')}</th>
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th>{__('Product')}</th>
+            <th>{__('Count')}</th>
+            <th>{__('Unit Price')}</th>
+            <th>{__('Amount')}</th>
+            <th>{__('Diff')}</th>
+          </tr>
+        </thead>
+        <tbody id="orderItems">
+          {(order.items || []).map((item) => (
+            <tr key={item._id}>
+              <td>{item.productName}</td>
+              <td>{item.count}</td>
+              <td>{item.unitPrice}</td>
+              <td>{item.count * item.unitPrice}</td>
+              <td>{item.discountAmount}</td>
             </tr>
-          </thead>
-          <tbody id="orderItems">
-            {(order.items || []).map(item => (
-              <tr key={item._id}>
-                <td>{item.productName}</td>
-                <td>{item.count}</td>
-                <td>{item.unitPrice}</td>
-                <td>{item.count * item.unitPrice}</td>
-                <td>{item.discountAmount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+          ))}
+        </tbody>
+      </Table>
 
-        {this.renderRow(
-          'Total Amount',
-          this.displayValue(order, 'totalAmount')
-        )}
-        {this.renderReturnInfo()}
-        {pos && (
-          <ul>
-            {this.renderEditRow('Cash Amount', 'cashAmount')}
-            {this.renderEditRow('Mobile Amount', 'mobileAmount')}
-            {this.renderEditPaid()}
-          </ul>
-        )}
+      {renderRow('Total Amount', displayValue(order, 'totalAmount'))}
+      {renderReturnInfo()}
+      {pos && (
+        <ul>
+          {renderEditRow('Cash Amount', 'cashAmount')}
+          {renderEditRow('Mobile Amount', 'mobileAmount')}
+          {renderEditPaid()}
+        </ul>
+      )}
 
-        <Button btnStyle="success" size="small" onClick={this.save} icon="edit">
-          Save Payments Change
-        </Button>
-      </SidebarList>
-    );
-  }
-}
+      <Button btnStyle="success" size="small" onClick={save} icon="edit">
+        Save Payments Change
+      </Button>
+    </SidebarList>
+  );
+};
 
-export default OrderDetail;
+export default Detail;

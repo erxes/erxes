@@ -14,16 +14,18 @@ type Props = {
   onReturnBill: (orderId: string) => void;
 };
 
-class PutResponseRow extends React.Component<Props> {
-  displayValue(order, name) {
+const Row = (props: Props) => {
+  const { order, otherPayTitles, onReturnBill } = props;
+
+  const displayValue = (order, name) => {
     const value = _.get(order, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
+  };
 
-  displayPaid(order, key) {
+  const displayPaid = (order, key) => {
     const { paidAmounts } = order;
     const value = (
-      (paidAmounts || []).filter(pa => pa.title === key || pa.type === key) ||
+      (paidAmounts || []).filter((pa) => pa.title === key || pa.type === key) ||
       []
     ).reduce((sum, pa) => sum + pa.amount, 0);
     return (
@@ -31,10 +33,9 @@ class PutResponseRow extends React.Component<Props> {
         {(value || 0).toLocaleString()}
       </FinanceAmount>
     );
-  }
+  };
 
-  returnBill = e => {
-    const { order, onReturnBill } = this.props;
+  const returnBill = (e) => {
     e.stopPropagation();
 
     const message = 'Are you sure?';
@@ -44,63 +45,57 @@ class PutResponseRow extends React.Component<Props> {
     });
   };
 
-  modalContent = _props => {
-    const { order } = this.props;
-
+  const modalContent = (_props) => {
     return <Detail orderId={order._id} posToken={order.posToken} />;
   };
 
-  render() {
-    const { order, otherPayTitles } = this.props;
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const trigger = (
+    <tr>
+      <td key={'BillID'}>{order.number} </td>
+      <td key={'Date'}>
+        {dayjs(order.paidDate || order.createdAt).format('lll')}
+      </td>
+      <td key={'cashAmount'}>{displayValue(order, 'cashAmount')}</td>
+      <td key={'mobileAmount'}>{displayValue(order, 'mobileAmount')}</td>
+      {otherPayTitles.map((key) => (
+        <td key={key}>{displayPaid(order, key)}</td>
+      ))}
+      <td key={'totalAmount'}>{displayValue(order, 'totalAmount')}</td>
+      <td key={'customer'}>{order.customerType}</td>
+      <td key={'pos'}>
+        {order.posName || ''}
+        {order.origin === 'kiosk' ? '*' : ''}
+      </td>
+      <td key={'type'}>{order.type || ''}</td>
+      <td key={'user'}>{order.user ? order.user.email : ''}</td>
+      <td key={'actions'} onClick={onClick}>
+        {!order.returnInfo?.returnAt && (
+          <Button
+            btnStyle="warning"
+            size="small"
+            icon="external-link-alt"
+            onClick={returnBill}
+          >
+            Return
+          </Button>
+        )}
+      </td>
+    </tr>
+  );
 
-    const trigger = (
-      <tr>
-        <td key={'BillID'}>{order.number} </td>
-        <td key={'Date'}>
-          {dayjs(order.paidDate || order.createdAt).format('lll')}
-        </td>
-        <td key={'cashAmount'}>{this.displayValue(order, 'cashAmount')}</td>
-        <td key={'mobileAmount'}>{this.displayValue(order, 'mobileAmount')}</td>
-        {otherPayTitles.map(key => (
-          <td key={key}>{this.displayPaid(order, key)}</td>
-        ))}
-        <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>
-        <td key={'customer'}>{order.customerType}</td>
-        <td key={'pos'}>
-          {order.posName || ''}
-          {order.origin === 'kiosk' ? '*' : ''}
-        </td>
-        <td key={'type'}>{order.type || ''}</td>
-        <td key={'user'}>{order.user ? order.user.email : ''}</td>
-        <td key={'actions'} onClick={onClick}>
-          {!order.returnInfo?.returnAt && (
-            <Button
-              btnStyle="warning"
-              size="small"
-              icon="external-link-alt"
-              onClick={this.returnBill}
-            >
-              Return
-            </Button>
-          )}
-        </td>
-      </tr>
-    );
+  return (
+    <ModalTrigger
+      title={`Order detail`}
+      trigger={trigger}
+      autoOpenKey="showProductModal"
+      content={modalContent}
+      size={'lg'}
+    />
+  );
+};
 
-    return (
-      <ModalTrigger
-        title={`Order detail`}
-        trigger={trigger}
-        autoOpenKey="showProductModal"
-        content={this.modalContent}
-        size={'lg'}
-      />
-    );
-  }
-}
-
-export default PutResponseRow;
+export default Row;

@@ -9,78 +9,54 @@ import {
   Sidebar,
   SidebarList,
   Tip,
-  Wrapper
+  Wrapper,
 } from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import { SidebarListItem } from '../../styles';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 
-const { Section } = Wrapper.Sidebar;
-
-interface IProps {
+type Props = {
   history: any;
   queryParams: any;
   productCategories: IProductCategory[];
   loading: boolean;
-}
+};
 
-class List extends React.Component<IProps> {
-  clearCategoryFilter = () => {
-    router.removeParams(this.props.history, 'categoryId');
+const { Section } = Wrapper.Sidebar;
+
+const CategoryList = (props: Props) => {
+  const { productCategories, queryParams, history, loading } = props;
+
+  const clearCategoryFilter = () => {
+    router.removeParams(history, 'categoryId');
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
+  const isActive = (id: string) => {
     const currentGroup = queryParams.categoryId || '';
 
     return currentGroup === id;
   };
 
-  renderContent() {
-    const { productCategories, queryParams } = this.props;
+  const onClick = (id: string) => {
+    router.removeParams(history, 'page');
+    router.setParams(history, { categoryId: id });
+  };
 
-    const otherParams = { ...queryParams };
-    delete otherParams.categoryId;
-    const qryString = queryString.stringify(otherParams);
+  const renderContent = () => {
+    return (
+      <CollapsibleList
+        items={productCategories}
+        loading={loading}
+        onClick={onClick}
+        queryParams={queryParams}
+        treeView={true}
+        keyCount="productCount"
+      />
+    );
+  };
 
-    const result: React.ReactNode[] = [];
-
-    for (const category of productCategories) {
-      const order = category.order;
-
-      const m = order.match(/[/]/gi);
-
-      let space = '';
-
-      if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
-      }
-
-      const name = category.isRoot ? (
-        `${category.name} (${category.productCount})`
-      ) : (
-        <span>
-          {category.name} ({category.productCount})
-        </span>
-      );
-
-      result.push(
-        <SidebarListItem
-          key={category._id}
-          isActive={this.isActive(category._id)}
-        >
-          <Link to={`?${qryString}&categoryId=${category._id}`}>
-            {space}
-            {name}
-          </Link>
-        </SidebarListItem>
-      );
-    }
-
-    return result;
-  }
-
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
@@ -93,8 +69,8 @@ class List extends React.Component<IProps> {
           {__('Categories')}
 
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+            {router.getParam(history, 'categoryId') && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
@@ -104,15 +80,13 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { loading } = this.props;
-
+  const renderCategoryList = () => {
     return (
       <SidebarList>
         <DataWithLoader
-          data={this.renderContent()}
+          data={renderContent()}
           loading={loading}
           emptyText="There is no product & service category"
           emptyIcon="folder-2"
@@ -120,18 +94,15 @@ class List extends React.Component<IProps> {
         />
       </SidebarList>
     );
-  }
+  };
+  return (
+    <Sidebar hasBorder={true}>
+      <Section>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+    </Sidebar>
+  );
+};
 
-  render() {
-    return (
-      <Sidebar wide={true}>
-        <Section maxHeight={488}>
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-      </Sidebar>
-    );
-  }
-}
-
-export default List;
+export default CategoryList;

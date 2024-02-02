@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import List from '../components/ProductList';
 import React from 'react';
 import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
@@ -17,60 +17,47 @@ type Props = {
   type?: string;
 };
 
-type FinalProps = {
-  posProductsQuery: PosProductsQueryResponse;
-} & Props &
-  IRouterProps;
+const ProductList = (props: Props) => {
+  const { type, history, queryParams } = props;
 
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
+  const posProductsQuery = useQuery(gql(queries.posProducts), {
+    variables: genParams({ queryParams } || {}),
+    fetchPolicy: 'network-only',
+  });
 
-class ProductListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      mergeProductLoading: false
-    };
-  }
-
-  onSearch = (search: string) => {
+  const onSearch = (search: string) => {
     if (!search) {
-      return router.removeParams(this.props.history, 'search');
+      return router.removeParams(history, 'search');
     }
-    router.removeParams(this.props.history, 'page');
-    router.setParams(this.props.history, { search });
+    router.removeParams(history, 'page');
+    router.setParams(history, { search });
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, 'page');
-    if (params[key] === values) {
-      return router.removeParams(this.props.history, key);
+  const onSelect = (values: string[] | string, key: string) => {
+    router.removeParams(history, 'page');
+    if (queryParams[key] === values) {
+      return router.removeParams(history, key);
     }
 
-    return router.setParams(this.props.history, { [key]: values });
+    return router.setParams(history, { [key]: values });
   };
 
-  onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(this.props.history, 'page');
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(history, 'page');
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(this.props.history, { [key]: filterParams[key] });
+        router.setParams(history, { [key]: filterParams[key] });
       } else {
-        router.removeParams(this.props.history, key);
+        router.removeParams(history, key);
       }
     }
 
     return router;
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
-
-    for (const param in params) {
+  const isFiltered = (): boolean => {
+    for (const param in queryParams) {
       if (FILTER_PARAMS.includes(param)) {
         return true;
       }
@@ -79,71 +66,51 @@ class ProductListContainer extends React.Component<FinalProps> {
     return false;
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    router.removeParams(history, ...Object.keys(queryParams));
   };
 
-  render() {
-    const { posProductsQuery, queryParams } = this.props;
+  if (posProductsQuery.loading) {
+    return <Spinner />;
+  }
 
-    if (posProductsQuery.loading) {
-      return <Spinner />;
-    }
+  const productList = (bulkProps) => {
     const products =
-      (posProductsQuery.posProducts && posProductsQuery.posProducts.products) ||
-      [];
+      (posProductsQuery && posProductsQuery?.data?.posProducts.products) || [];
     const totalCount =
-      (posProductsQuery.posProducts &&
-        posProductsQuery.posProducts.totalCount) ||
-      0;
+      (posProductsQuery && posProductsQuery?.data?.posProducts.totalCount) || 0;
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = queryParams.searchValue || '';
 
     const updatedProps = {
-      ...this.props,
+      ...props,
       queryParams,
       products,
       totalCount,
       loading: posProductsQuery.loading,
       searchValue,
 
-      onFilter: this.onFilter,
-      onSelect: this.onSelect,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered: isFiltered(),
+      clearFilter,
     };
 
-    const productList = props => {
-      return <List {...updatedProps} {...props} />;
-    };
+    return <List {...updatedProps} {...bulkProps} />;
+  };
 
-    const refetch = () => {
-      this.props.posProductsQuery.refetch();
-    };
+  const refetch = () => {
+    posProductsQuery.refetch();
+  };
 
-    return <Bulk content={productList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={productList} refetch={refetch} />;
+};
 
 export const genParams = ({ queryParams }) => ({
   ...generateParams({ queryParams }),
   searchValue: queryParams.searchValue,
-  categoryId: queryParams.categoryId
+  categoryId: queryParams.categoryId,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PosProductsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.posProducts),
-      {
-        name: 'posProductsQuery',
-        options: ({ queryParams }) => ({
-          variables: genParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(ProductListContainer)
-);
+export default ProductList;

@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, confirm, withProps, Bulk, router } from '@erxes/ui/src';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import {
   IRouterProps,
   PosListQueryResponse,
-  RemoveMutationResponse
+  RemoveMutationResponse,
 } from '../../types';
 
 import { queries, mutations } from '../graphql';
@@ -17,108 +17,77 @@ type Props = {
   history: any;
 };
 
-type FinalProps = {
-  posListQuery: PosListQueryResponse;
-} & RemoveMutationResponse &
-  IRouterProps &
-  Props;
+const ListContainer = (props: Props) => {
+  const { queryParams, history } = props;
 
-class ListContainer extends React.Component<FinalProps> {
-  componentDidMount() {
-    const { history } = this.props;
+  const shouldRefetchList = router.getParam(history, 'refetchList');
 
-    const shouldRefetchList = router.getParam(history, 'refetchList');
+  const posListQuery = useQuery<PosListQueryResponse>(gql(queries.posList), {
+    variables: {
+      ...router.generatePaginationParams(queryParams || {}),
+      status: queryParams.status,
+      sortField: queryParams.sortField,
+      sortDirection: queryParams.sortDirection
+        ? parseInt(queryParams.sortDirection, 10)
+        : undefined,
+    },
+    fetchPolicy: 'network-only',
+  });
 
+  const [posRemove] = useMutation<RemoveMutationResponse>(
+    gql(mutations.posRemove),
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [queryParams.page]);
+
+  useEffect(() => {
     if (shouldRefetchList) {
-      this.refetch();
+      refetch();
     }
-  }
+  }, [shouldRefetchList]);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.queryParams.page !== prevProps.queryParams.page) {
-      this.props.posListQuery.refetch();
-    }
-  }
-
-  refetch = () => {
-    const { posListQuery } = this.props;
-
+  const refetch = () => {
     posListQuery.refetch();
   };
 
-  render() {
-    const { posListQuery, removeMutation } = this.props;
+  const remove = (posId: string) => {
+    const message = 'Are you sure?';
 
-    const posList = posListQuery.posList || [];
+    confirm(message).then(() => {
+      posRemove({
+        variables: { _id: posId },
+      })
+        .then(() => {
+          // refresh queries
+          refetch();
 
-    const remove = (posId: string) => {
-      const message = 'Are you sure?';
-
-      confirm(message).then(() => {
-        removeMutation({
-          variables: { _id: posId }
+          Alert.success('You successfully deleted a pos.');
         })
-          .then(() => {
-            // refresh queries
-            this.refetch();
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    });
+  };
 
-            Alert.success('You successfully deleted a pos.');
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          });
-      });
-    };
+  const content = (bulkProps) => {
+    const posList = posListQuery?.data?.posList || [];
+    const totalCount = posList.length || 0;
 
     const updatedProps = {
-      ...this.props,
+      ...props,
       posList,
       remove,
       loading: posListQuery.loading,
-      refetch: this.refetch
+      totalCount,
+      refetch,
     };
 
-    const content = props => {
-      return <List {...updatedProps} {...props} />;
-    };
+    return <List {...updatedProps} {...bulkProps} />;
+  };
 
-    return <Bulk content={content} refetch={this.refetch} />;
-  }
-}
+  return <Bulk content={content} refetch={refetch} />;
+};
 
-export default withProps<Props>(
-  compose(
-    graphql<
-      Props,
-      PosListQueryResponse,
-      {
-        page?: number;
-        perPage?: number;
-        tag?: string;
-        brand?: string;
-        status?: string;
-      }
-    >(gql(queries.posList), {
-      name: 'posListQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            ...router.generatePaginationParams(queryParams || {}),
-            status: queryParams.status,
-            sortField: queryParams.sortField,
-            sortDirection: queryParams.sortDirection
-              ? parseInt(queryParams.sortDirection, 10)
-              : undefined
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<Props, RemoveMutationResponse, { _id: string }>(
-      gql(mutations.posRemove),
-      {
-        name: 'removeMutation'
-      }
-    )
-  )(ListContainer)
-);
+export default ListContainer;

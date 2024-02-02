@@ -1,6 +1,6 @@
 import CatProdItem from '../../components/productGroup/CatProdItem';
 import GroupForm from '../../components/productGroup/GroupForm';
-import React from 'react';
+import React, { useState } from 'react';
 import { CatProd, IPos, IProductGroup } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
@@ -11,7 +11,7 @@ import {
   Tip,
   ModalTrigger,
   __,
-  FormControl
+  FormControl,
 } from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import {
@@ -20,7 +20,7 @@ import {
   FlexColumn,
   FlexItem,
   Block,
-  BlockRow
+  BlockRow,
 } from '../../../styles';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
@@ -43,30 +43,25 @@ type State = {
   banFractions: boolean;
 };
 
-export default class ConfigStep extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const ConfigStep = (props: Props) => {
+  const { onChange, pos, groups, catProdMappings } = props;
 
-    const { groups = [], pos } = props;
+  const [state, setState] = useState<State>({
+    groups: props.groups || [],
+    currentMode: undefined,
+    mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
+    initialCategoryIds: (pos && pos.initialCategoryIds) || [],
+    kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
+    kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
+    isCheckRemainder: (pos && pos.isCheckRemainder) || false,
+    checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
+    banFractions: (pos && pos.banFractions) || false,
+  });
 
-    this.state = {
-      groups,
-      currentMode: undefined,
-      mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
-      initialCategoryIds: (pos && pos.initialCategoryIds) || [],
-      kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
-      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
-      isCheckRemainder: (pos && pos.isCheckRemainder) || false,
-      checkExcludeCategoryIds: (pos && pos.checkExcludeCategoryIds) || [],
-      banFractions: (pos && pos.banFractions) || false
-    };
-  }
+  const onSubmitGroup = (group: IProductGroup) => {
+    const newGroups = [...state.groups];
 
-  onSubmitGroup = (group: IProductGroup) => {
-    const { groups } = this.state;
-    const newGroups = [...groups];
-
-    const index = groups.findIndex(e => e._id === group._id);
+    const index = state.groups.findIndex((e) => e._id === group._id);
 
     if (index !== -1) {
       newGroups[index] = group;
@@ -74,20 +69,23 @@ export default class ConfigStep extends React.Component<Props, State> {
       newGroups.push(group);
     }
 
-    this.props.onChange('groups', newGroups);
+    onChange('groups', newGroups);
   };
 
-  renderGroupFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {
-    const content = props => (
-      <GroupForm {...props} group={group} onSubmit={this.onSubmitGroup} />
+  const renderGroupFormTrigger = (
+    trigger: React.ReactNode,
+    group?: IProductGroup,
+  ) => {
+    const content = (props) => (
+      <GroupForm {...props} group={group} onSubmit={onSubmitGroup} />
     );
 
     const title = group ? 'Edit group' : 'Add group';
 
     return <ModalTrigger title={title} trigger={trigger} content={content} />;
-  }
+  };
 
-  renderEditAction(group: IProductGroup) {
+  const renderEditAction = (group: IProductGroup) => {
     const trigger = (
       <Button btnStyle="link" style={{ float: 'right' }}>
         <Tip text={__('Edit')} placement="bottom">
@@ -96,17 +94,17 @@ export default class ConfigStep extends React.Component<Props, State> {
       </Button>
     );
 
-    return this.renderGroupFormTrigger(trigger, group);
-  }
+    return renderGroupFormTrigger(trigger, group);
+  };
 
-  renderRemoveAction(group: IProductGroup) {
+  const renderRemoveAction = (group: IProductGroup) => {
     const remove = () => {
-      let { groups } = this.state;
+      let newGroups = state.groups;
 
-      groups = groups.filter(e => e._id !== group._id);
+      newGroups = state.groups.filter((e) => e._id !== group._id);
 
-      this.setState({ groups });
-      this.props.onChange('groups', groups);
+      setState((prevState) => ({ ...prevState, groups: newGroups }));
+      onChange('groups', newGroups);
     };
 
     return (
@@ -116,9 +114,9 @@ export default class ConfigStep extends React.Component<Props, State> {
         </Tip>
       </Button>
     );
-  }
+  };
 
-  renderGroup(group: IProductGroup) {
+  const renderGroup = (group: IProductGroup) => {
     return (
       <FormGroup key={group._id}>
         <BlockRow>
@@ -127,36 +125,34 @@ export default class ConfigStep extends React.Component<Props, State> {
             <Description>{group.description}</Description>
           </ControlLabel>
           <ActionButtons>
-            {this.renderEditAction(group)}
-            {this.renderRemoveAction(group)}
+            {renderEditAction(group)}
+            {renderRemoveAction(group)}
           </ActionButtons>
         </BlockRow>
       </FormGroup>
     );
-  }
+  };
 
-  renderMapping(mapping: CatProd, index: number) {
-    const { pos, onChange } = this.props;
-
+  const renderMapping = (mapping: CatProd, index: number) => {
     const cleanFields = (cat: CatProd) => ({
       _id: cat._id,
       categoryId: cat.categoryId,
       productId: cat.productId,
       code: cat.code || '',
-      name: cat.name || ''
+      name: cat.name || '',
     });
 
     // for omitting react __typename field
-    const mappings = this.state.mappings.map(m => ({
+    const mappings = state.mappings.map((m) => ({
       _id: m._id,
       categoryId: m.categoryId,
       productId: m.productId,
       code: m.code || '',
-      name: m.name || ''
+      name: m.name || '',
     }));
 
     const editMapping = (item: CatProd) => {
-      const index = mappings.findIndex(i => i._id === item._id);
+      const index = mappings.findIndex((i) => i._id === item._id);
       const cleanItem = cleanFields(item);
 
       if (index !== -1) {
@@ -165,15 +161,15 @@ export default class ConfigStep extends React.Component<Props, State> {
         mappings.push(cleanItem);
       }
 
-      this.setState({ mappings });
+      setState((prevState) => ({ ...prevState, mappings }));
 
       onChange('pos', { ...pos, catProdMappings: mappings });
     };
 
     const removeMapping = (_id: string) => {
-      const excluded = mappings.filter(m => m._id !== _id);
+      const excluded = mappings.filter((m) => m._id !== _id);
 
-      this.setState({ mappings: excluded });
+      setState((prevState) => ({ ...prevState, mappings: excluded }));
 
       onChange('pos', { ...pos, catProdMappings: excluded });
     };
@@ -187,166 +183,146 @@ export default class ConfigStep extends React.Component<Props, State> {
         key={mapping._id}
       />
     );
-  }
+  };
 
-  onChangeValue = (name, value) => {
-    const { pos, onChange } = this.props;
-    this.setState({ [name]: value } as any);
+  const onChangeValue = (name, value) => {
+    setState((prevState) => ({ ...prevState, [name]: value }));
 
     onChange('pos', { ...pos, [name]: value });
   };
 
-  render() {
-    const { groups } = this.props;
-    const {
-      mappings = [],
-      initialCategoryIds,
-      kioskExcludeCategoryIds,
-      kioskExcludeProductIds,
-      isCheckRemainder,
-      checkExcludeCategoryIds,
-      banFractions
-    } = this.state;
+  const groupTrigger = (
+    <Button btnStyle="primary" icon="plus-circle">
+      Add group
+    </Button>
+  );
 
-    const groupTrigger = (
-      <Button btnStyle="primary" icon="plus-circle">
-        Add group
-      </Button>
-    );
+  const onClick = () => {
+    const m = state.mappings.slice();
 
-    const onClick = () => {
-      const m = mappings.slice();
+    m.push({
+      _id: Math.random().toString(),
+      categoryId: '',
+      productId: '',
+    });
 
-      m.push({
-        _id: Math.random().toString(),
-        categoryId: '',
-        productId: ''
-      });
+    setState((prevState) => ({ ...prevState, mappings: m }));
+  };
 
-      this.setState({ mappings: m });
-    };
+  return (
+    <FlexItem>
+      <FlexColumn>
+        <LeftItem>
+          <Block>
+            <h4>{__('Product Groups')}</h4>
+            <FormGroup>{groups.map((group) => renderGroup(group))}</FormGroup>
 
-    return (
-      <FlexItem>
-        <FlexColumn>
-          <LeftItem>
-            <Block>
-              <h4>{__('Product Groups')}</h4>
-              <FormGroup>
-                {groups.map(group => this.renderGroup(group))}
-              </FormGroup>
+            {renderGroupFormTrigger(groupTrigger)}
+          </Block>
 
-              {this.renderGroupFormTrigger(groupTrigger)}
-            </Block>
+          <Block>
+            <h4>{__('Initial product categories')}</h4>
+            <Description></Description>
+            <FormGroup>
+              <ControlLabel>Product Category</ControlLabel>
+              <SelectProductCategory
+                label="Choose product category"
+                name="productCategoryId"
+                initialValue={state.initialCategoryIds}
+                customOption={{
+                  value: '',
+                  label: '...Clear product category filter',
+                }}
+                onSelect={(categoryIds) =>
+                  onChangeValue('initialCategoryIds', categoryIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+          </Block>
 
-            <Block>
-              <h4>{__('Initial product categories')}</h4>
-              <Description></Description>
-              <FormGroup>
-                <ControlLabel>Product Category</ControlLabel>
-                <SelectProductCategory
-                  label="Choose product category"
-                  name="productCategoryId"
-                  initialValue={initialCategoryIds}
-                  customOption={{
-                    value: '',
-                    label: '...Clear product category filter'
-                  }}
-                  onSelect={categoryIds =>
-                    this.onChangeValue('initialCategoryIds', categoryIds)
-                  }
-                  multi={true}
-                />
-              </FormGroup>
-            </Block>
+          <Block>
+            <h4>{__('kiosk exclude products')}</h4>
+            <FormGroup>
+              <ControlLabel>Categories</ControlLabel>
+              <SelectProductCategory
+                label={'kiosk'}
+                name="kioskExcludeCategoryIds"
+                initialValue={state.kioskExcludeCategoryIds}
+                onSelect={(categoryIds) =>
+                  onChangeValue('kioskExcludeCategoryIds', categoryIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Products</ControlLabel>
+              <SelectProducts
+                label={'kiosk'}
+                name="kioskExcludeProductIds"
+                initialValue={state.kioskExcludeProductIds}
+                onSelect={(productIds) =>
+                  onChangeValue('kioskExcludeProductIds', productIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+          </Block>
 
-            <Block>
-              <h4>{__('kiosk exclude products')}</h4>
-              <FormGroup>
-                <ControlLabel>Categories</ControlLabel>
-                <SelectProductCategory
-                  label={'kiosk'}
-                  name="kioskExcludeCategoryIds"
-                  initialValue={kioskExcludeCategoryIds}
-                  onSelect={categoryIds =>
-                    this.onChangeValue('kioskExcludeCategoryIds', categoryIds)
-                  }
-                  multi={true}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Products</ControlLabel>
-                <SelectProducts
-                  label={'kiosk'}
-                  name="kioskExcludeProductIds"
-                  initialValue={kioskExcludeProductIds}
-                  onSelect={productIds =>
-                    this.onChangeValue('kioskExcludeProductIds', productIds)
-                  }
-                  multi={true}
-                />
-              </FormGroup>
-            </Block>
+          <Block>
+            <h4>{__('Product & category mappings')}</h4>
+            <Description>
+              Map a product to category. When a product within that category is
+              sold in pos system with "take" option, then the mapped product
+              will be added to the price.
+            </Description>
+            <FormGroup>
+              {state.mappings.map((item, index) => renderMapping(item, index))}
+            </FormGroup>
+            <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
+              Add mapping
+            </Button>
+          </Block>
 
-            <Block>
-              <h4>{__('Product & category mappings')}</h4>
-              <Description>
-                Map a product to category. When a product within that category
-                is sold in pos system with "take" option, then the mapped
-                product will be added to the price.
-              </Description>
-              <FormGroup>
-                {mappings.map((item, index) => this.renderMapping(item, index))}
-              </FormGroup>
-              <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
-                Add mapping
-              </Button>
-            </Block>
+          <Block>
+            <h4>{__('Remainder configs')}</h4>
+            <Description></Description>
+            <FormGroup>
+              <FormControl
+                checked={state.isCheckRemainder}
+                componentClass="checkbox"
+                onChange={(e) => {
+                  onChangeValue('isCheckRemainder', (e.target as any).checked);
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Exclude Categories</ControlLabel>
+              <SelectProductCategory
+                label={'kiosk'}
+                name="checkExcludeCategoryIds"
+                initialValue={state.checkExcludeCategoryIds}
+                onSelect={(categoryIds) =>
+                  onChangeValue('checkExcludeCategoryIds', categoryIds)
+                }
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Ban Fractions</ControlLabel>
+              <FormControl
+                checked={state.banFractions}
+                componentClass="checkbox"
+                onChange={(e) => {
+                  onChangeValue('banFractions', (e.target as any).checked);
+                }}
+              />
+            </FormGroup>
+          </Block>
+        </LeftItem>
+      </FlexColumn>
+    </FlexItem>
+  );
+};
 
-            <Block>
-              <h4>{__('Remainder configs')}</h4>
-              <Description></Description>
-              <FormGroup>
-                <FormControl
-                  checked={isCheckRemainder}
-                  componentClass="checkbox"
-                  onChange={e => {
-                    this.onChangeValue(
-                      'isCheckRemainder',
-                      (e.target as any).checked
-                    );
-                  }}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Exclude Categories</ControlLabel>
-                <SelectProductCategory
-                  label={'kiosk'}
-                  name="checkExcludeCategoryIds"
-                  initialValue={checkExcludeCategoryIds}
-                  onSelect={categoryIds =>
-                    this.onChangeValue('checkExcludeCategoryIds', categoryIds)
-                  }
-                  multi={true}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Ban Fractions</ControlLabel>
-                <FormControl
-                  checked={banFractions}
-                  componentClass="checkbox"
-                  onChange={e => {
-                    this.onChangeValue(
-                      'banFractions',
-                      (e.target as any).checked
-                    );
-                  }}
-                />
-              </FormGroup>
-            </Block>
-          </LeftItem>
-        </FlexColumn>
-      </FlexItem>
-    );
-  } // end render()
-}
+export default ConfigStep;
