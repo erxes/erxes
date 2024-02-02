@@ -23,7 +23,7 @@ import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
 import GeneralStep from './step/GeneralStep';
 import { Link } from 'react-router-dom';
-import React from 'react';
+import React, { useState } from 'react';
 import PermissionStep from './step/Permission';
 import PaymentsStep from './step/PaymentsStep';
 import { ALLOW_TYPES } from '../../constants';
@@ -39,33 +39,22 @@ type Props = {
   envs: any;
 };
 
-type State = {
-  name?: string;
-  description?: string;
-  pos: IPos;
-  slots: ISlot[];
-  groups: IProductGroup[];
-  logoPreviewStyle?: any;
-  logoPreviewUrl?: string;
-  uiOptions: IUIOptions;
-  carousel: string;
-  formData?: any;
-  isSkip: boolean;
-  ebarimtConfig: any;
-  erkhetConfig: any;
-  deliveryConfig: any;
-  cardsConfig: any;
-  checkRemainder: boolean;
-  allowTypes: string[];
-};
+const Pos = (props: Props) => {
+  const {
+    pos = {} as IPos,
+    loading,
+    isActionLoading,
+    groups,
+    save,
+    slots,
+    envs,
+  } = props;
 
-class Pos extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    const pos = props.pos || ({} as IPos);
-
-    const uiOptions = pos.uiOptions || {
+  const [state, setState] = useState({
+    pos,
+    carousel: 'pos',
+    groups: groups || [],
+    uiOptions: pos.uiOptions || {
       colors: {
         bodyColor: '#FFFFFF',
         headerColor: '#6569DF',
@@ -78,60 +67,40 @@ class Pos extends React.Component<Props, State> {
       kioskHeaderImage: '',
       mobileAppImage: '',
       qrCodeImage: '',
-    };
+    },
+    isSkip: false,
+    ebarimtConfig: pos.ebarimtConfig,
+    erkhetConfig: pos.erkhetConfig,
+    deliveryConfig: pos.deliveryConfig,
+    cardsConfig: pos.cardsConfig,
+    slots: slots || [],
+    checkRemainder: pos.checkRemainder || false,
+    allowTypes:
+      pos.allowTypes ||
+      ALLOW_TYPES.filter((at) => at.kind === 'sale').map((at) => at.value),
+  });
 
-    this.state = {
-      pos,
-      carousel: 'pos',
-      groups: props.groups || [],
-      uiOptions,
-      isSkip: false,
-      ebarimtConfig: pos.ebarimtConfig,
-      erkhetConfig: pos.erkhetConfig,
-      deliveryConfig: pos.deliveryConfig,
-      cardsConfig: pos.cardsConfig,
-      slots: props.slots || [],
-      checkRemainder: pos.checkRemainder || false,
-      allowTypes:
-        pos.allowTypes ||
-        ALLOW_TYPES.filter((at) => at.kind === 'sale').map((at) => at.value),
-    };
-  }
-
-  handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const {
-      pos = {} as IPos,
-      slots,
-      groups,
-      uiOptions,
-      checkRemainder,
-      ebarimtConfig,
-      erkhetConfig,
-      deliveryConfig,
-      cardsConfig,
-      allowTypes,
-    } = this.state;
-
-    if (!pos.name) {
+    if (!state.pos.name) {
       return Alert.error('Enter POS name');
     }
 
-    if (!pos.adminIds || !pos.adminIds.length) {
+    if (!state.pos.adminIds || !state.pos.adminIds.length) {
       return Alert.error('Choose admin users');
     }
 
-    if (!pos.cashierIds || !pos.cashierIds.length) {
+    if (!state.pos.cashierIds || !state.pos.cashierIds.length) {
       return Alert.error('Choose cashier users');
     }
 
-    const saveTypes = allowTypes.filter((at) => at);
+    const saveTypes = state.allowTypes.filter((at) => at);
     if (!saveTypes.length) {
       return Alert.error('Toggle at least one type');
     }
 
-    const cleanMappings = (pos.catProdMappings || []).map((m) => ({
+    const cleanMappings = (state.pos.catProdMappings || []).map((m) => ({
       _id: m._id,
       categoryId: m.categoryId,
       productId: m.productId,
@@ -139,7 +108,7 @@ class Pos extends React.Component<Props, State> {
       name: m.name || '',
     }));
 
-    const cleanSlot = (slots || []).map((m) => ({
+    const cleanSlot = (state.slots || []).map((m) => ({
       _id: m._id,
       code: m.code,
       name: m.name,
@@ -148,44 +117,44 @@ class Pos extends React.Component<Props, State> {
     }));
 
     let doc: any = {
-      name: pos.name,
-      description: pos.description,
-      pdomain: pos.pdomain,
-      erxesAppToken: pos.erxesAppToken,
-      productDetails: pos.productDetails || [],
+      name: state.pos.name,
+      description: state.pos.description,
+      pdomain: state.pos.pdomain,
+      erxesAppToken: state.pos.erxesAppToken,
+      productDetails: state.pos.productDetails || [],
       groups,
-      adminIds: pos.adminIds,
-      cashierIds: pos.cashierIds,
-      paymentIds: pos.paymentIds || [],
-      paymentTypes: pos.paymentTypes || [],
-      kioskMachine: pos.kioskMachine,
-      uiOptions,
-      ebarimtConfig,
-      erkhetConfig,
+      adminIds: state.pos.adminIds,
+      cashierIds: state.pos.cashierIds,
+      paymentIds: state.pos.paymentIds || [],
+      paymentTypes: state.pos.paymentTypes || [],
+      kioskMachine: state.pos.kioskMachine,
+      uiOptions: state.uiOptions,
+      ebarimtConfig: state.ebarimtConfig,
+      erkhetConfig: state.erkhetConfig,
       catProdMappings: cleanMappings,
       posSlots: cleanSlot,
-      isOnline: pos.isOnline,
-      onServer: pos.onServer,
-      waitingScreen: pos.waitingScreen,
-      kitchenScreen: pos.kitchenScreen,
-      branchId: pos.branchId,
-      departmentId: pos.departmentId,
-      allowBranchIds: pos.allowBranchIds,
-      beginNumber: pos.beginNumber,
-      maxSkipNumber: Number(pos.maxSkipNumber) || 0,
-      orderPassword: pos.orderPassword,
+      isOnline: state.pos.isOnline,
+      onServer: state.pos.onServer,
+      waitingScreen: state.pos.waitingScreen,
+      kitchenScreen: state.pos.kitchenScreen,
+      branchId: state.pos.branchId,
+      departmentId: state.pos.departmentId,
+      allowBranchIds: state.pos.allowBranchIds,
+      beginNumber: state.pos.beginNumber,
+      maxSkipNumber: Number(state.pos.maxSkipNumber) || 0,
+      orderPassword: state.pos.orderPassword,
       scopeBrandIds: pos.scopeBrandIds || [],
-      initialCategoryIds: pos.initialCategoryIds || [],
-      kioskExcludeCategoryIds: pos.kioskExcludeCategoryIds || [],
-      kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
-      deliveryConfig,
-      cardsConfig,
-      checkRemainder,
-      permissionConfig: pos.permissionConfig || {},
+      initialCategoryIds: state.pos.initialCategoryIds || [],
+      kioskExcludeCategoryIds: state.pos.kioskExcludeCategoryIds || [],
+      kioskExcludeProductIds: state.pos.kioskExcludeProductIds || [],
+      deliveryConfig: state.deliveryConfig,
+      cardsConfig: state.cardsConfig,
+      checkRemainder: state.checkRemainder,
+      permissionConfig: state.pos.permissionConfig || {},
       allowTypes: saveTypes,
-      isCheckRemainder: pos.isCheckRemainder,
-      checkExcludeCategoryIds: pos.checkExcludeCategoryIds || [],
-      banFractions: pos.banFractions,
+      isCheckRemainder: state.pos.isCheckRemainder,
+      checkExcludeCategoryIds: state.pos.checkExcludeCategoryIds || [],
+      banFractions: state.pos.banFractions,
     };
 
     if (!pos.isOnline) {
@@ -196,16 +165,16 @@ class Pos extends React.Component<Props, State> {
       };
     }
 
-    this.props.save(doc);
+    save(doc);
   };
 
-  onChange = (key: string, value: any) => {
-    this.setState({ [key]: value } as any);
+  const onChange = (key: string, value: any) => {
+    setState((prevState) => ({ ...prevState, [key]: value }));
   };
 
-  onChangeAppearance = (key: string, value: any) => {
-    let uiOptions = this.state.uiOptions || {};
-    const { pos = {} as IPos } = this.state || {};
+  const onChangeAppearance = (key: string, value: any) => {
+    let uiOptions = state.uiOptions || {};
+    const { pos = {} as IPos } = state || {};
     uiOptions[key] = value;
 
     if (uiOptions[key]) {
@@ -218,23 +187,21 @@ class Pos extends React.Component<Props, State> {
       pos.uiOptions = uiOptions;
     }
 
-    this.setState({ pos });
+    setState((prevState) => ({ ...prevState, pos }));
   };
 
-  onFormDocChange = (formData) => {
-    this.setState({ formData });
+  const onFormDocChange = (formData) => {
+    setState((prevState) => ({ ...prevState, formData }));
   };
 
-  onStepClick = (currentStepNumber) => {
-    const { isSkip } = this.state;
-
+  const onStepClick = (currentStepNumber) => {
     let carousel = 'form';
     switch (currentStepNumber) {
       case 1:
-        carousel = isSkip ? 'form' : 'callout';
+        carousel = state.isSkip ? 'form' : 'callout';
         break;
       case 2:
-        carousel = isSkip ? 'form' : 'callout';
+        carousel = state.isSkip ? 'form' : 'callout';
         break;
       case 7:
         carousel = 'success';
@@ -243,12 +210,10 @@ class Pos extends React.Component<Props, State> {
         break;
     }
 
-    return this.setState({ carousel });
+    return setState((prevState) => ({ ...prevState, carousel }));
   };
 
-  renderButtons = () => {
-    const { isActionLoading } = this.props;
-
+  const renderButtons = () => {
     const SmallLoader = ButtonMutate.SmallLoader;
 
     const cancelButton = (
@@ -267,7 +232,7 @@ class Pos extends React.Component<Props, State> {
           disabled={isActionLoading}
           btnStyle="success"
           icon={isActionLoading ? undefined : 'check-circle'}
-          onClick={this.handleSubmit}
+          onClick={handleSubmit}
         >
           {isActionLoading && <SmallLoader />}
           Save
@@ -276,142 +241,130 @@ class Pos extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { pos, slots, groups, uiOptions, checkRemainder, allowTypes } =
-      this.state;
-    const { envs } = this.props;
-    const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
+  const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
-    const name = pos.name || '';
-    const logoPreviewUrl = uiOptions.logo;
-
-    return (
-      <StepWrapper>
-        <Wrapper.Header title={__('Pos')} breadcrumb={breadcrumb} />
-        <Content>
-          <LeftContent>
-            <Steps>
-              <Step
-                img="/images/icons/erxes-12.svg"
-                title={`General`}
-                onClick={this.onStepClick}
-              >
-                <GeneralStep
-                  onChange={this.onChange}
-                  pos={pos}
-                  posSlots={slots}
-                  allowTypes={allowTypes}
-                  envs={envs}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-12.svg"
-                title={`Payments`}
-                onClick={this.onStepClick}
-              >
-                <PaymentsStep
-                  onChange={this.onChange}
-                  pos={pos}
-                  posSlots={slots}
-                  envs={envs}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-02.svg"
-                title={`Permission`}
-                onClick={this.onStepClick}
-              >
-                <PermissionStep
-                  onChange={this.onChange}
-                  pos={pos}
-                  envs={envs}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-10.svg"
-                title={`Product & Service`}
-                onClick={this.onStepClick}
-              >
-                <ConfigStep
-                  onChange={this.onChange}
-                  pos={pos}
-                  groups={groups}
-                  catProdMappings={pos.catProdMappings || []}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-04.svg"
-                title={'Appearance'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <Appearance
-                  onChange={this.onChange}
-                  uiOptions={uiOptions}
-                  logoPreviewUrl={logoPreviewUrl}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-14.svg"
-                title={'Screens Config'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <ScreensConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                  checkRemainder={checkRemainder}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-05.svg"
-                title={'ebarimt Config'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <EbarimtConfig onChange={this.onChange} pos={pos} />
-              </Step>
-              <Step
-                img="/images/icons/erxes-07.svg"
-                title={'finance Config'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <ErkhetConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                  checkRemainder={checkRemainder}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-09.svg"
-                title={'Delivery Config'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <DeliveryConfig onChange={this.onChange} pos={pos} />
-              </Step>
-              <Step
-                img="/images/icons/erxes-07.svg"
-                title={'Sync Cards'}
-                onClick={this.onStepClick}
-                noButton={true}
-              >
-                <CardsConfig onChange={this.onChange} pos={pos} />
-              </Step>
-            </Steps>
-            <ControlWrapper>
-              <Indicator>
-                {__('You are')} {pos ? 'editing' : 'creating'}{' '}
-                <strong>{name}</strong> {__('pos')}
-              </Indicator>
-              {this.renderButtons()}
-            </ControlWrapper>
-          </LeftContent>
-        </Content>
-      </StepWrapper>
-    );
-  } // end render()
-}
+  return (
+    <StepWrapper>
+      <Wrapper.Header title={__('Pos')} breadcrumb={breadcrumb} />
+      <Content>
+        <LeftContent>
+          <Steps>
+            <Step
+              img="/images/icons/erxes-12.svg"
+              title={`General`}
+              onClick={onStepClick}
+            >
+              <GeneralStep
+                onChange={onChange}
+                pos={state.pos}
+                posSlots={state.slots}
+                allowTypes={state.allowTypes}
+                envs={envs}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-12.svg"
+              title={`Payments`}
+              onClick={onStepClick}
+            >
+              <PaymentsStep
+                onChange={onChange}
+                pos={state.pos}
+                posSlots={state.slots}
+                envs={envs}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-02.svg"
+              title={`Permission`}
+              onClick={onStepClick}
+            >
+              <PermissionStep onChange={onChange} pos={state.pos} envs={envs} />
+            </Step>
+            <Step
+              img="/images/icons/erxes-10.svg"
+              title={`Product & Service`}
+              onClick={onStepClick}
+            >
+              <ConfigStep
+                onChange={onChange}
+                pos={state.pos}
+                groups={state.groups}
+                catProdMappings={state.pos.catProdMappings || []}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-04.svg"
+              title={'Appearance'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <Appearance
+                onChange={onChange}
+                uiOptions={state.uiOptions}
+                logoPreviewUrl={state.uiOptions.logo}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-14.svg"
+              title={'Screens Config'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <ScreensConfig
+                onChange={onChange}
+                pos={state.pos}
+                checkRemainder={state.checkRemainder}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-05.svg"
+              title={'ebarimt Config'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <EbarimtConfig onChange={onChange} pos={pos} />
+            </Step>
+            <Step
+              img="/images/icons/erxes-07.svg"
+              title={'finance Config'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <ErkhetConfig
+                onChange={onChange}
+                pos={state.pos}
+                checkRemainder={state.checkRemainder}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-09.svg"
+              title={'Delivery Config'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <DeliveryConfig onChange={onChange} pos={state.pos} />
+            </Step>
+            <Step
+              img="/images/icons/erxes-07.svg"
+              title={'Sync Cards'}
+              onClick={onStepClick}
+              noButton={true}
+            >
+              <CardsConfig onChange={onChange} pos={state.pos} />
+            </Step>
+          </Steps>
+          <ControlWrapper>
+            <Indicator>
+              {__('You are')} {state.pos ? 'editing' : 'creating'}{' '}
+              <strong>{state.pos.name || ''}</strong> {__('pos')}
+            </Indicator>
+            {renderButtons()}
+          </ControlWrapper>
+        </LeftContent>
+      </Content>
+    </StepWrapper>
+  );
+};
 
 export default Pos;

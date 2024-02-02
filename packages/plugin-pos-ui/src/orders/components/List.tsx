@@ -17,8 +17,9 @@ import Row from './Row';
 import { TableWrapper } from '../../styles';
 // import { withRouter } from 'react-router-dom';
 import { menuPos } from '../../constants';
+import { Title } from '@erxes/ui-settings/src/styles';
 
-interface IProps extends IRouterProps {
+type Props = {
   orders: IOrder[];
   loading: boolean;
   bulk: any[];
@@ -34,36 +35,32 @@ interface IProps extends IRouterProps {
   summary: any;
 
   onReturnBill: (orderId: string) => void;
-}
+} & IRouterProps;
 
-class Orders extends React.Component<IProps, {}> {
-  private timer?: NodeJS.Timer = undefined;
+const List = (props: Props) => {
+  const {
+    orders,
+    history,
+    loading,
+    queryParams,
+    onFilter,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    summary,
+    onReturnBill,
+  } = props;
 
-  constructor(props) {
-    super(props);
-  }
+  const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      orders,
-      history,
-      loading,
-      queryParams,
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      summary,
-      onReturnBill,
-    } = this.props;
-
+  const renderActionBar = () => {
     const rightMenuProps = {
       onFilter,
       onSelect,
@@ -73,29 +70,24 @@ class Orders extends React.Component<IProps, {}> {
       queryParams,
     };
 
+    const actionBarLeft = <Title>{__('Pos Orders')}</Title>;
+
     const actionBarRight = (
       <BarItems>
         <RightMenu {...rightMenuProps} />
       </BarItems>
     );
 
-    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+  };
+
+  const renderContent = () => {
     const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
       .filter((a) => !['_id'].includes(a))
       .filter((a) => !staticKeys.includes(a))
       .sort();
 
-    const header = (
-      <HeaderDescription
-        icon="/images/actions/26.svg"
-        title=""
-        summary={summary}
-        staticKeys={staticKeys}
-        actionBar={actionBarRight}
-      />
-    );
-
-    const mainContent = (
+    return (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -153,30 +145,25 @@ class Orders extends React.Component<IProps, {}> {
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Pos Orders`)}
-            queryParams={queryParams}
-            submenu={menuPos}
-          />
-        }
-        mainHead={header}
-        footer={<Pagination count={(summary || {}).count} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={(orders || []).length}
-            emptyText="Add in your first order!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={__(`Pos Orders`)} submenu={menuPos} />}
+      hasBorder={true}
+      actionBar={renderActionBar()}
+      footer={<Pagination count={(summary || {}).count || 0} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={(orders || []).length}
+          emptyText="Add in your first order!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
-export default Orders;
+export default List;

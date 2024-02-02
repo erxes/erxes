@@ -6,12 +6,13 @@ import {
   SortHandler,
   __,
   Table,
-  Wrapper
+  Wrapper,
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IPos } from '../../types';
 import Row from './Row';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   posList: IPos[];
@@ -23,21 +24,32 @@ type Props = {
   toggleBulk: (target: IPos, toAdd: boolean) => void; //*checkType
   toggleAll: (bulk: IPos[], name: string) => void; //*checkType
   loading: boolean;
+  totalCount: number;
   remove: (posId: string) => void;
   refetch?: () => void;
   counts: any; //*checkType
 };
 
-class List extends React.Component<Props, {}> {
-  onChange = () => {
-    const { toggleAll, posList } = this.props;
+const List = (props: Props) => {
+  const {
+    posList,
+    queryParams,
+    loading,
+    totalCount,
+    remove,
+    bulk,
+    toggleBulk,
+    toggleAll,
+  } = props;
+
+  queryParams.loadingMainQuery = loading;
+
+  const onChange = () => {
     toggleAll(posList, 'posList');
   };
 
-  renderRow() {
-    const { posList, remove, bulk, toggleBulk } = this.props;
-
-    return posList.map(pos => (
+  const renderRow = () => {
+    return posList.map((pos) => (
       <Row
         key={pos._id}
         isChecked={bulk.includes(pos)}
@@ -46,31 +58,30 @@ class List extends React.Component<Props, {}> {
         remove={remove}
       />
     ));
-  }
+  };
 
-  render() {
-    const { queryParams, loading, posList } = this.props;
-
-    queryParams.loadingMainQuery = loading;
-    let actionBarLeft: React.ReactNode;
+  const renderActionBar = () => {
+    const actionBarLeft = <Title>{__('Pos')}</Title>;
 
     const actionBarRight = (
       <Link to={`/pos/create`}>
-        <Button btnStyle="success" size="small" icon="plus-circle">
+        <Button btnStyle="success" icon="plus-circle">
           Create POS
         </Button>
       </Link>
     );
 
-    const actionBar = (
+    return (
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
         background="colorWhite"
       />
     );
+  };
 
-    const content = (
+  const renderContent = () => {
+    return (
       <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
@@ -88,55 +99,53 @@ class List extends React.Component<Props, {}> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{this.renderRow()}</tbody>
+        <tbody>{renderRow()}</tbody>
       </Table>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('POS')}
-            breadcrumb={[
-              { title: 'Settings', link: '/settings' },
-              { title: __('POS list') }
-            ]}
-            queryParams={queryParams}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={50} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            count={posList.length}
-            emptyContent={
-              <EmptyContent
-                content={{
-                  title: __('Getting Started with erxes POS'),
-                  description: __('replace description text'),
-                  steps: [
-                    {
-                      title: __('Create POS'),
-                      description: __(
-                        'Fill out the details and create your POS'
-                      ),
-                      url: `/pos/create`,
-                      urlText: 'Create POS'
-                    }
-                  ]
-                }}
-                maxItemWidth="360px"
-              />
-            }
-          />
-        }
-        hasBorder={true}
-        transparent={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('POS')}
+          breadcrumb={[
+            { title: 'Settings', link: '/settings' },
+            { title: __('POS list') },
+          ]}
+          queryParams={queryParams}
+        />
+      }
+      actionBar={renderActionBar()}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyContent={
+            <EmptyContent
+              content={{
+                title: __('Getting Started with erxes POS'),
+                description: __('replace description text'),
+                steps: [
+                  {
+                    title: __('Create POS'),
+                    description: __('Fill out the details and create your POS'),
+                    url: `/pos/create`,
+                    urlText: 'Create POS',
+                  },
+                ],
+              }}
+              maxItemWidth="360px"
+            />
+          }
+        />
+      }
+      hasBorder={true}
+      transparent={true}
+    />
+  );
+};
 
 export default List;

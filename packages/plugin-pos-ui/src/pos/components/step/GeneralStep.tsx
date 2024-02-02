@@ -1,6 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
-import React from 'react';
+import React, { useState } from 'react';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   __,
@@ -25,49 +25,47 @@ type Props = {
   envs: any;
 };
 
-type State = {
-  slots: ISlot[];
-  allowTypes: string[];
-};
+const GeneralStep = (props: Props) => {
+  const { pos, envs, onChange } = props;
 
-class GeneralStep extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [slots, setSlots] = useState<ISlot[]>(props.posSlots || []);
+  const [allowTypes, setAllowTypes] = useState<string[]>(props.allowTypes);
 
-    this.state = {
-      slots: props.posSlots || [],
-      allowTypes: props.allowTypes,
-    };
+  let name = 'POS name';
+  let description: any = 'description';
+
+  if (pos) {
+    name = pos.name;
+    description = pos.description;
   }
 
-  onChangeFunction = (name: any, value: any) => {
-    this.props.onChange(name, value);
+  const onChangeFunction = (name: any, value: any) => {
+    onChange(name, value);
   };
 
-  onChangeSwitchMain = (e) => {
-    const { pos } = this.props;
-
-    this.onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
+  const onChangeDepartments = (departmentId) => {
+    onChangeFunction('pos', { ...pos, departmentId });
   };
 
-  onChangeInput = (e) => {
-    const { pos } = this.props;
-    this.onChangeFunction('pos', {
+  const onChangeSwitchMain = (e) => {
+    onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
+  };
+
+  const onChangeInput = (e) => {
+    onChangeFunction('pos', {
       ...pos,
       [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
-  renderCauseOnline() {
-    const { pos } = this.props;
-
+  const renderCauseOnline = () => {
     const onChangeBranches = (branchId) => {
-      this.onChangeFunction('pos', { ...pos, branchId });
+      onChangeFunction('pos', { ...pos, branchId });
     };
 
     if (pos.isOnline) {
       const onChangeMultiBranches = (branchIds) => {
-        this.onChangeFunction('pos', {
+        onChangeFunction('pos', {
           ...pos,
           allowBranchIds: branchIds,
         });
@@ -111,7 +109,7 @@ class GeneralStep extends React.Component<Props, State> {
                 id="pdomain"
                 type="text"
                 value={pos.pdomain || ''}
-                onChange={this.onChangeInput}
+                onChange={onChangeInput}
               />
             </FormGroup>
           </BlockRow>
@@ -123,7 +121,7 @@ class GeneralStep extends React.Component<Props, State> {
                 maxLength={2}
                 type="text"
                 value={pos.beginNumber || ''}
-                onChange={this.onChangeInput}
+                onChange={onChangeInput}
               />
             </FormGroup>
           </BlockRow>
@@ -148,12 +146,10 @@ class GeneralStep extends React.Component<Props, State> {
         </BlockRow>
       </>
     );
-  }
+  };
 
-  renderToggleType() {
-    const { allowTypes } = this.state;
-
-    const onChange = (i: number, option) => {
+  const renderToggleType = () => {
+    const handleOnChange = (i: number, option) => {
       const newTypes = [...allowTypes];
       const preChosenInd = allowTypes.indexOf(option.value);
       if (preChosenInd >= 0) {
@@ -161,9 +157,8 @@ class GeneralStep extends React.Component<Props, State> {
       }
 
       newTypes[i] = option.value;
-      this.setState({ allowTypes: newTypes }, () => {
-        this.props.onChange('allowTypes', newTypes);
-      });
+      setAllowTypes(newTypes);
+      onChange('allowTypes', newTypes);
     };
 
     const chosenTypes: string[] = [];
@@ -179,165 +174,150 @@ class GeneralStep extends React.Component<Props, State> {
             ALLOW_TYPES.filter((at) => !chosenTypes.includes(at.value)),
           )}
           value={currentCh}
-          onChange={onChange.bind(this, i)}
+          onChange={handleOnChange.bind(this, i)}
+          clearable={false}
         />,
       );
       chosenTypes.push(currentCh);
     }
     return result;
-  }
+  };
 
-  render() {
-    const { pos, envs } = this.props;
+  return (
+    <FlexItem>
+      <FlexColumn>
+        <LeftItem>
+          <Block>
+            <h4>{__('Pos')}</h4>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel required={true}>Name</ControlLabel>
+                <FormControl
+                  id="name"
+                  type="text"
+                  value={name || ''}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
 
-    let name = 'POS name';
-    let description: any = 'description';
+              <FormGroup>
+                <ControlLabel>Description</ControlLabel>
+                <FormControl
+                  id="description"
+                  type="text"
+                  value={description || ''}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Max Skip number</ControlLabel>
+                <FormControl
+                  id="maxSkipNumber"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={pos.maxSkipNumber || 0}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Order Password</ControlLabel>
+                <FormControl
+                  id="orderPassword"
+                  value={pos.orderPassword || ''}
+                  onChange={onChangeInput}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Brand</ControlLabel>
+                <SelectBrands
+                  label={__('Choose brands')}
+                  onSelect={(brand) =>
+                    onChangeFunction('pos', {
+                      ...pos,
+                      scopeBrandIds: [brand],
+                    })
+                  }
+                  initialValue={pos.scopeBrandIds}
+                  multi={false}
+                  name="selectedBrands"
+                  customOption={{
+                    label: 'No Brand (noBrand)',
+                    value: '',
+                  }}
+                />
+              </FormGroup>
+            </BlockRow>
+          </Block>
 
-    if (pos) {
-      name = pos.name;
-      description = pos.description;
-    }
-
-    const onChangeDepartments = (departmentId) => {
-      this.onChangeFunction('pos', { ...pos, departmentId });
-    };
-
-    return (
-      <FlexItem>
-        <FlexColumn>
-          <LeftItem>
-            <Block>
-              <h4>{__('Pos')}</h4>
-              <BlockRow>
+          <Block>
+            <BlockRow>
+              <FormGroup>
+                <PosSlotPlan
+                  slots={slots}
+                  onSave={(slots) => {
+                    setSlots(slots);
+                    onChange('slots', slots);
+                  }}
+                  posId={pos._id}
+                />
+              </FormGroup>
+            </BlockRow>
+          </Block>
+          <Block>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel>Types:</ControlLabel>
+              </FormGroup>
+            </BlockRow>
+            <BlockRow>{renderToggleType()}</BlockRow>
+          </Block>
+          <Block>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel>Is Online</ControlLabel>
+                <Toggle
+                  id={'isOnline'}
+                  checked={pos && pos.isOnline ? true : false}
+                  onChange={onChangeSwitchMain}
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>,
+                  }}
+                />
+              </FormGroup>
+              {(!envs || !envs.ALL_AUTO_INIT) && (
                 <FormGroup>
-                  <ControlLabel required={true}>Name</ControlLabel>
-                  <FormControl
-                    id="name"
-                    type="text"
-                    value={name || ''}
-                    onChange={this.onChangeInput}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <ControlLabel>Description</ControlLabel>
-                  <FormControl
-                    id="description"
-                    type="text"
-                    value={description || ''}
-                    onChange={this.onChangeInput}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Max Skip number</ControlLabel>
-                  <FormControl
-                    id="maxSkipNumber"
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={pos.maxSkipNumber || 0}
-                    onChange={this.onChangeInput}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Order Password</ControlLabel>
-                  <FormControl
-                    id="orderPassword"
-                    value={pos.orderPassword || ''}
-                    onChange={this.onChangeInput}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Brand</ControlLabel>
-                  <SelectBrands
-                    label={__('Choose brands')}
-                    onSelect={(brand) =>
-                      this.onChangeFunction('pos', {
-                        ...pos,
-                        scopeBrandIds: [brand],
-                      })
-                    }
-                    initialValue={pos.scopeBrandIds}
-                    multi={false}
-                    name="selectedBrands"
-                    customOption={{
-                      label: 'No Brand (noBrand)',
-                      value: '',
-                    }}
-                  />
-                </FormGroup>
-              </BlockRow>
-            </Block>
-
-            <Block>
-              <BlockRow>
-                <FormGroup>
-                  <PosSlotPlan
-                    slots={this.state.slots}
-                    onSave={(slots) => {
-                      this.setState({ slots });
-                      this.props.onChange('slots', slots);
-                    }}
-                    posId={this.props.pos._id}
-                  />
-                </FormGroup>
-              </BlockRow>
-            </Block>
-            <Block>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel>Types:</ControlLabel>
-                </FormGroup>
-              </BlockRow>
-              <BlockRow>{this.renderToggleType()}</BlockRow>
-            </Block>
-            <Block>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel>Is Online</ControlLabel>
+                  <ControlLabel>On Server</ControlLabel>
                   <Toggle
-                    id={'isOnline'}
-                    checked={pos && pos.isOnline ? true : false}
-                    onChange={this.onChangeSwitchMain}
+                    id={'onServer'}
+                    checked={pos && pos.onServer ? true : false}
+                    onChange={onChangeSwitchMain}
                     icons={{
                       checked: <span>Yes</span>,
                       unchecked: <span>No</span>,
                     }}
                   />
                 </FormGroup>
-                {(!envs || !envs.ALL_AUTO_INIT) && (
-                  <FormGroup>
-                    <ControlLabel>On Server</ControlLabel>
-                    <Toggle
-                      id={'onServer'}
-                      checked={pos && pos.onServer ? true : false}
-                      onChange={this.onChangeSwitchMain}
-                      icons={{
-                        checked: <span>Yes</span>,
-                        unchecked: <span>No</span>,
-                      }}
-                    />
-                  </FormGroup>
-                )}
-                <FormGroup>
-                  <ControlLabel>Choose department</ControlLabel>
-                  <SelectDepartments
-                    label="Choose department"
-                    name="departmentId"
-                    initialValue={pos.departmentId}
-                    onSelect={onChangeDepartments}
-                    multi={false}
-                    customOption={{ value: '', label: 'No department...' }}
-                  />
-                </FormGroup>
-              </BlockRow>
-              {this.renderCauseOnline()}
-            </Block>
-          </LeftItem>
-        </FlexColumn>
-      </FlexItem>
-    );
-  }
-}
+              )}
+              <FormGroup>
+                <ControlLabel>Choose department</ControlLabel>
+                <SelectDepartments
+                  label="Choose department"
+                  name="departmentId"
+                  initialValue={pos.departmentId}
+                  onSelect={onChangeDepartments}
+                  multi={false}
+                  customOption={{ value: '', label: 'No department...' }}
+                />
+              </FormGroup>
+            </BlockRow>
+            {renderCauseOnline()}
+          </Block>
+        </LeftItem>
+      </FlexColumn>
+    </FlexItem>
+  );
+};
 
 export default GeneralStep;

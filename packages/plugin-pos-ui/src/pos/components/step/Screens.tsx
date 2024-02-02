@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IPos, IScreenConfig } from '../../../types';
 import {
   __,
   ControlLabel,
   FormControl,
   FormGroup,
-  Toggle
+  Toggle,
 } from '@erxes/ui/src';
 import {
   Block,
@@ -13,7 +13,7 @@ import {
   BlockRowUp,
   FlexColumn,
   FlexItem,
-  DomainRow
+  DomainRow,
 } from '../../../styles';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 
@@ -23,38 +23,30 @@ type Props = {
   checkRemainder: boolean;
 };
 
-class ScreensConfig extends React.Component<
-  Props,
-  { config: any; checkRemainder: boolean }
-> {
-  constructor(props: Props) {
-    super(props);
+const ScreensConfig = (props: Props) => {
+  const { pos, onChange } = props;
 
-    const { pos, checkRemainder } = props;
-    const config =
-      pos && pos.erkhetConfig
-        ? pos.erkhetConfig
-        : {
-            isSyncErkhet: false,
-            userEmail: '',
-            defaultPay: '',
-            getRemainder: false
-          };
+  const [config, setConfig] = useState<any>(
+    pos && pos.erkhetConfig
+      ? pos.erkhetConfig
+      : {
+          isSyncErkhet: false,
+          userEmail: '',
+          defaultPay: '',
+          getRemainder: false,
+        },
+  );
 
-    this.state = {
-      config,
-      checkRemainder
-    };
-  }
+  const [checkRemainder, setCheckRemainder] = useState<boolean>(
+    props.checkRemainder,
+  );
 
-  renderWaitingScreen() {
-    const { pos } = this.props;
-
+  const renderWaitingScreen = () => {
     let waitingScreen: IScreenConfig = {
       isActive: false,
       type: 'time',
       value: 0,
-      contentUrl: ''
+      contentUrl: '',
     };
 
     if (pos) {
@@ -62,7 +54,7 @@ class ScreensConfig extends React.Component<
         isActive: false,
         type: 'time',
         value: 0,
-        contentUrl: ''
+        contentUrl: '',
       };
     }
 
@@ -74,42 +66,42 @@ class ScreensConfig extends React.Component<
       );
     }
 
-    const onChangeType = e => {
+    const onChangeType = (e) => {
       e.preventDefault();
-      this.props.onChange('pos', {
+      onChange('pos', {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
-          type: e.target.value
-        }
+          type: e.target.value,
+        },
       });
     };
 
-    const onChangeValue = e => {
+    const onChangeValue = (e) => {
       e.preventDefault();
-      this.props.onChange('pos', {
+      onChange('pos', {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
-          value: e.target.value
-        }
+          value: e.target.value,
+        },
       });
     };
 
-    const onChangeContentUrl = e => {
+    const onChangeContentUrl = (e) => {
       e.preventDefault();
-      this.props.onChange('pos', {
+      onChange('pos', {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
-          contentUrl: e.target.value
-        }
+          contentUrl: e.target.value,
+        },
       });
     };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
-      { label: 'Count', value: 'count' }
+      { label: 'Count', value: 'count' },
     ];
 
     const valueTitle =
@@ -128,7 +120,7 @@ class ScreensConfig extends React.Component<
             required={true}
           >
             <option />
-            {typeOptions.map(option => (
+            {typeOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -158,26 +150,23 @@ class ScreensConfig extends React.Component<
         </DomainRow>
       </FormGroup>
     );
-  }
+  };
 
-  renderFilterProducts() {
-    const { pos } = this.props;
+  const renderFilterProducts = () => {
     const showType = pos.kitchenScreen.showType;
     if (showType !== 'filtered') {
       return <></>;
     }
 
     return <></>; // TODO: segment and category filter
-  }
+  };
 
-  renderKitchen() {
-    const { pos } = this.props;
-
+  const renderKitchen = () => {
     let kitchenScreen: IScreenConfig = {
       isActive: false,
       showType: '',
       type: 'time',
-      value: 0
+      value: 0,
     };
 
     if (pos) {
@@ -186,17 +175,15 @@ class ScreensConfig extends React.Component<
         isPrint: false,
         showType: '',
         type: 'time',
-        value: 0
+        value: 0,
       };
     }
 
     if (!kitchenScreen.isActive) {
-      const onChangeSwitchIsPrint = e => {
-        const { pos } = this.props;
-
-        this.props.onChange('pos', {
+      const onChangeSwitchIsPrint = (e) => {
+        onChange('pos', {
           ...pos,
-          kitchenScreen: { ...pos.kitchenScreen, isPrint: e.target.checked }
+          kitchenScreen: { ...pos.kitchenScreen, isPrint: e.target.checked },
         });
       };
 
@@ -212,7 +199,7 @@ class ScreensConfig extends React.Component<
               onChange={onChangeSwitchIsPrint}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </DomainRow>
@@ -220,40 +207,40 @@ class ScreensConfig extends React.Component<
       );
     }
 
-    const onChangeType = e => {
+    const onChangeType = (e) => {
       e.preventDefault();
       const name = e.target.name;
       const value = e.target.value;
-      this.props.onChange('pos', {
+      onChange('pos', {
         ...pos,
         kitchenScreen: {
           ...kitchenScreen,
-          [name]: value
-        }
+          [name]: value,
+        },
       });
     };
 
-    const onChangeValue = e => {
+    const onChangeValue = (e) => {
       e.preventDefault();
-      this.props.onChange('pos', {
+      onChange('pos', {
         ...pos,
         kitchenScreen: {
           ...kitchenScreen,
-          value: e.target.value
-        }
+          value: e.target.value,
+        },
       });
     };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
-      { label: 'Manual', value: 'manual' }
+      { label: 'Manual', value: 'manual' },
     ];
 
     const showOptions = [
       { label: 'All saved orders', value: '' },
       { label: 'Paid all orders', value: 'paid' },
       // { label: 'Orders containing certain products', value: 'filtered' },
-      { label: 'Defined orders only', value: 'click' }
+      { label: 'Defined orders only', value: 'click' },
     ];
 
     return (
@@ -268,13 +255,13 @@ class ScreensConfig extends React.Component<
             onChange={onChangeType}
             required={true}
           >
-            {showOptions.map(option => (
+            {showOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </FormControl>
-          {this.renderFilterProducts}
+          {renderFilterProducts}
           <br />
 
           <ControlLabel>Status change /leave/</ControlLabel>
@@ -287,7 +274,7 @@ class ScreensConfig extends React.Component<
             required={true}
           >
             <option />
-            {typeOptions.map(option => (
+            {typeOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -310,71 +297,66 @@ class ScreensConfig extends React.Component<
         </DomainRow>
       </FormGroup>
     );
-  }
+  };
 
-  onChangeSwitch = e => {
-    const { pos } = this.props;
-
-    this.props.onChange('pos', {
+  const onChangeSwitch = (e) => {
+    onChange('pos', {
       ...pos,
-      [e.target.id]: { ...pos[e.target.id], isActive: e.target.checked }
+      [e.target.id]: { ...pos[e.target.id], isActive: e.target.checked },
     });
   };
 
-  render() {
-    const { pos } = this.props;
-    return (
-      <FlexItem>
-        <FlexColumn>
-          <LeftItem>
-            <Block>
-              <h4>{__('Main')}</h4>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel>Kitchen screen</ControlLabel>
-                  <Toggle
-                    id={'kitchenScreen'}
-                    checked={
-                      pos && pos.kitchenScreen
-                        ? pos.kitchenScreen.isActive
-                        : false
-                    }
-                    onChange={this.onChangeSwitch}
-                    icons={{
-                      checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
-                    }}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Waiting screen</ControlLabel>
-                  <Toggle
-                    id={'waitingScreen'}
-                    checked={
-                      pos && pos.waitingScreen
-                        ? pos.waitingScreen.isActive
-                        : false
-                    }
-                    onChange={this.onChangeSwitch}
-                    icons={{
-                      checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
-                    }}
-                  />
-                </FormGroup>
-              </BlockRow>
-              <BlockRowUp>
-                {this.renderKitchen()}
-                {this.renderWaitingScreen()}
-              </BlockRowUp>
-            </Block>
+  return (
+    <FlexItem>
+      <FlexColumn>
+        <LeftItem>
+          <Block>
+            <h4>{__('Main')}</h4>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel>Kitchen screen</ControlLabel>
+                <Toggle
+                  id={'kitchenScreen'}
+                  checked={
+                    pos && pos.kitchenScreen
+                      ? pos.kitchenScreen.isActive
+                      : false
+                  }
+                  onChange={onChangeSwitch}
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>,
+                  }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Waiting screen</ControlLabel>
+                <Toggle
+                  id={'waitingScreen'}
+                  checked={
+                    pos && pos.waitingScreen
+                      ? pos.waitingScreen.isActive
+                      : false
+                  }
+                  onChange={onChangeSwitch}
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>,
+                  }}
+                />
+              </FormGroup>
+            </BlockRow>
+            <BlockRowUp>
+              {renderKitchen()}
+              {renderWaitingScreen()}
+            </BlockRowUp>
+          </Block>
 
-            <Block />
-          </LeftItem>
-        </FlexColumn>
-      </FlexItem>
-    );
-  }
-}
+          <Block />
+        </LeftItem>
+      </FlexColumn>
+    </FlexItem>
+  );
+};
 
 export default ScreensConfig;

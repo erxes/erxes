@@ -1,6 +1,6 @@
 import CategoryList from '../containers/CategoryList';
 import RightMenu from './RightMenu';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Row from './ProductRow';
 import {
   __,
@@ -8,17 +8,19 @@ import {
   DataWithLoader,
   EmptyState,
   FormControl,
+  Icon,
   Pagination,
   router,
   Table,
-  Wrapper
+  Wrapper,
 } from '@erxes/ui/src';
 import { IPosProduct } from '../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { menuPos } from '../../constants';
+import { InputBar, Title, FlexItem } from '@erxes/ui-settings/src/styles';
 
-interface IProps extends IRouterProps {
+type Props = {
   history: any;
   queryParams: any;
   products: IPosProduct[];
@@ -32,91 +34,65 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   onFilter: (filterParams: IQueryParams) => void;
-}
-
-type State = {
-  searchValue?: string;
 };
 
-class List extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer;
+const ProductList = (props: Props) => {
+  const {
+    products,
+    loading,
+    queryParams,
+    history,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    onFilter,
+    totalCount,
+  } = props;
 
-  constructor(props) {
-    super(props);
+  const timerRef = useRef<number | null>(null);
 
-    this.state = {
-      searchValue: this.props.queryParams.searchValue
-    };
-  }
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || '');
 
-  renderRow = () => {
-    const { products, history } = this.props;
-
-    return products.map(product => (
+  const renderRow = () => {
+    return products.map((product) => (
       <Row history={history} key={product._id} product={product} />
     ));
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
 
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
+    setSearchValue(value);
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.setParams(history, { searchValue: value });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
     e.target.value = tmpValue;
-  }
+  };
 
-  render() {
-    const {
-      loading,
-      queryParams,
-      history,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      onFilter,
-      totalCount
-    } = this.props;
-
-    const rightMenuProps = {
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      queryParams,
-      onFilter
-    };
-
-    let actionBarRight = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          defaultValue={queryParams.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+  const renderContent = () => {
+    if (totalCount === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
         />
-        <RightMenu {...rightMenuProps} />
-      </BarItems>
-    );
+      );
+    }
 
-    let content = (
+    return (
       <>
         <Table hover={true}>
           <thead>
@@ -142,42 +118,65 @@ class List extends React.Component<IProps, State> {
               <th>{__('Pos Amount')}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </>
     );
+  };
 
-    if (totalCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
+  const renderActionBar = () => {
+    const rightMenuProps = {
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter,
+      queryParams,
+      onFilter,
+    };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('POS of Products')} submenu={menuPos} />
-        }
-        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
-        leftSidebar={
-          <CategoryList queryParams={queryParams} history={history} />
-        }
-        footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-      />
+    const actionBarLeft = <Title>{__('Pos Products')}</Title>;
+
+    const actionBarRight = (
+      <BarItems>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={search}
+              defaultValue={searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
+        </InputBar>
+        <RightMenu {...rightMenuProps} />
+      </BarItems>
     );
-  }
-}
 
-export default List;
+    return <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />;
+  };
+
+  return (
+    <Wrapper
+      hasBorder={true}
+      header={
+        <Wrapper.Header title={__('POS of Products')} submenu={menuPos} />
+      }
+      actionBar={renderActionBar()}
+      leftSidebar={<CategoryList queryParams={queryParams} history={history} />}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+    />
+  );
+};
+
+export default ProductList;

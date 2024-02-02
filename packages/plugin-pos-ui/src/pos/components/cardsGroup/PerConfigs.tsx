@@ -4,13 +4,13 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { Alert, __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -21,157 +21,146 @@ type Props = {
   delete: (configKey: string) => void;
 };
 
-type State = {
-  config: any;
-  hasOpen: boolean;
-};
+const PerConfigs = (props: Props) => {
+  const { configKey, fieldsCombined, save } = props;
 
-class PerConfigs extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [config, setConfig] = useState<any>(props.config);
+  const [hasOpen, setHasOpen] = useState<boolean>(false);
 
-    this.state = {
-      config: props.config,
-      hasOpen: false
-    };
-  }
-
-  onChangeBranch = branchId => {
-    this.setState({ config: { ...this.state.config, branchId } });
+  const onChangeBranch = (branchId) => {
+    setConfig((prevConfig) => ({ ...prevConfig, branchId }));
   };
 
-  onChangeAsssignedUserIds = assignedUserIds => {
-    this.setState({ config: { ...this.state.config, assignedUserIds } });
+  const onChangeAsssignedUserIds = (assignedUserIds) => {
+    setConfig((prevConfig) => ({ ...prevConfig, assignedUserIds }));
   };
 
-  onChangeBoard = (boardId: string) => {
-    this.setState({ config: { ...this.state.config, boardId } });
+  const onChangeBoard = (boardId: string) => {
+    setConfig((prevConfig) => ({ ...prevConfig, boardId }));
   };
 
-  onChangePipeline = (pipelineId: string) => {
-    this.setState({ config: { ...this.state.config, pipelineId } });
+  const onChangePipeline = (pipelineId: string) => {
+    setConfig((prevConfig) => ({ ...prevConfig, pipelineId }));
   };
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ config: { ...this.state.config, stageId } });
+  const onChangeStage = (stageId: string) => {
+    setConfig((prevConfig) => ({ ...prevConfig, stageId }));
   };
 
-  onMapCustomFieldChange = option => {
+  const onMapCustomFieldChange = (option) => {
     const value = !option ? '' : option.value.toString();
-    this.setState({
-      config: { ...this.state.config, deliveryMapField: value }
-    });
+    setConfig((prevConfig) => ({ ...prevConfig, mapCustomField: value }));
   };
 
-  onSave = e => {
+  const onSave = (e) => {
     e.preventDefault();
-    const { configKey } = this.props;
-    const { config } = this.state;
 
     if (!config.branchId) {
       return Alert.error('Please select the branch!');
     }
 
-    this.props.save(configKey, config);
+    save(configKey, config);
   };
 
-  onDelete = e => {
+  const onDelete = (e) => {
     e.preventDefault();
 
-    this.props.delete(this.props.configKey);
+    props.delete(configKey);
   };
 
-  onChangeInput = e => {
-    const { config } = this.state;
-    this.setState({ config: { ...config, [e.target.name]: e.target.value } });
+  const onChangeInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+
+    setConfig((prevConfig) => ({
+      ...prevConfig,
+      [name]: value,
+    }));
   };
 
-  render() {
-    const { fieldsCombined } = this.props;
-    const { config } = this.state;
-    return (
-      <CollapseContent title={__(config.title || 'new Config')}>
-        <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
-          <FormControl
-            defaultValue={config['title']}
-            name="title"
-            onChange={this.onChangeInput}
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
+  return (
+    <CollapseContent title={__(config.title || 'new Config')}>
+      <FormGroup>
+        <ControlLabel>{'Title'}</ControlLabel>
+        <FormControl
+          defaultValue={config['title']}
+          name="title"
+          onChange={onChangeInput}
+          required={true}
+          autoFocus={true}
+        />
+      </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Choose Branch</ControlLabel>
-          <SelectBranches
-            label={__('Choose branch')}
-            name="branchIds"
-            multi={false}
-            initialValue={config.branchId}
-            onSelect={this.onChangeBranch}
-          />
-        </FormGroup>
+      <FormGroup>
+        <ControlLabel>Choose Branch</ControlLabel>
+        <SelectBranches
+          label={__('Choose branch')}
+          name="branchIds"
+          multi={false}
+          initialValue={config.branchId}
+          onSelect={onChangeBranch}
+        />
+      </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Choose Stage</ControlLabel>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            stageId={config.stageId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-            onChangeStage={this.onChangeStage}
-          />
-        </FormGroup>
+      <FormGroup>
+        <ControlLabel>Choose Stage</ControlLabel>
+        <BoardSelectContainer
+          type="deal"
+          autoSelectStage={false}
+          boardId={config.boardId}
+          pipelineId={config.pipelineId}
+          stageId={config.stageId}
+          onChangeBoard={onChangeBoard}
+          onChangePipeline={onChangePipeline}
+          onChangeStage={onChangeStage}
+        />
+      </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Choose assigned users</ControlLabel>
-          <SelectTeamMembers
-            label={__('Choose team member')}
-            name="assignedUserIds"
-            initialValue={config.assignedUserIds}
-            onSelect={this.onChangeAsssignedUserIds}
-          />
-        </FormGroup>
+      <FormGroup>
+        <ControlLabel>Choose assigned users</ControlLabel>
+        <SelectTeamMembers
+          label={__('Choose team member')}
+          name="assignedUserIds"
+          initialValue={config.assignedUserIds}
+          onSelect={onChangeAsssignedUserIds}
+        />
+      </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('Choose map field')}</ControlLabel>
-          <Select
-            name="deliveryMapField"
-            value={config.mapCustomField}
-            onChange={this.onMapCustomFieldChange}
-            options={(fieldsCombined || []).map(f => ({
-              value: f.name,
-              label: f.label
-            }))}
-          />
-        </FormGroup>
+      <FormGroup>
+        <ControlLabel>{__('Choose map field')}</ControlLabel>
+        <Select
+          name="deliveryMapField"
+          value={config.mapCustomField}
+          onChange={onMapCustomFieldChange}
+          options={(fieldsCombined || []).map((f) => ({
+            value: f.name,
+            label: f.label,
+          }))}
+        />
+      </FormGroup>
 
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          icon="cancel-1"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-          <Button
-            btnStyle="primary"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.stageId ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="primary"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.stageId ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
+
 export default PerConfigs;

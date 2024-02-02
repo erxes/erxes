@@ -17,8 +17,9 @@ import RightMenu from './RightMenu';
 import { TableWrapper } from '../../styles';
 // import { withRouter } from 'react-router-dom';
 import { menuPos } from '../../constants';
+import { Title } from '@erxes/ui-settings/src/styles';
 
-interface IProps extends IRouterProps {
+type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
@@ -28,31 +29,30 @@ interface IProps extends IRouterProps {
   isFiltered: boolean;
   clearFilter: () => void;
   summary: any;
-}
+};
 
-class Orders extends React.Component<IProps, {}> {
-  constructor(props) {
-    super(props);
-  }
+const Summary = (props: Props) => {
+  const {
+    queryParams,
+    loading,
+    onFilter,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    summary,
+  } = props;
 
-  moveCursorAtTheEnd = (e) => {
+  const { amounts, columns } = summary;
+  const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      queryParams,
-      loading,
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      summary,
-    } = this.props;
-
+  const renderActionBar = () => {
     const rightMenuProps = {
       onFilter,
       onSelect,
@@ -68,9 +68,7 @@ class Orders extends React.Component<IProps, {}> {
         <FormControl
           value={queryParams.groupField}
           componentClass="select"
-          onChange={(e) =>
-            this.props.onFilter({ groupField: (e.target as any).value })
-          }
+          onChange={(e) => onFilter({ groupField: (e.target as any).value })}
         >
           <option value="">Undefined</option>
           <option value="date">Date</option>
@@ -81,24 +79,18 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
-    const { amounts, columns } = summary;
-    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+    const actionBarLeft = <Title>{__('Pos Summary')}</Title>;
+
+    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+  };
+
+  const renderContent = () => {
     const otherPayTitles = (columns ? Object.keys(columns) || [] : [])
       .filter((a) => !['_id'].includes(a))
       .filter((a) => !staticKeys.includes(a))
       .sort();
 
-    const header = (
-      <HeaderDescription
-        icon="/images/actions/26.svg"
-        title=""
-        summary={{}}
-        staticKeys={staticKeys}
-        actionBar={actionBarRight}
-      />
-    );
-
-    const mainContent = (
+    return (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -140,30 +132,31 @@ class Orders extends React.Component<IProps, {}> {
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Pos Orders`)}
-            queryParams={queryParams}
-            submenu={menuPos}
-          />
-        }
-        mainHead={header}
-        footer={<Pagination count={amounts.length} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={amounts.length}
-            emptyText="Add in your first order!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      hasBorder={true}
+      header={
+        <Wrapper.Header
+          title={__(`Pos Orders`)}
+          queryParams={queryParams}
+          submenu={menuPos}
+        />
+      }
+      actionBar={renderActionBar()}
+      footer={<Pagination count={amounts.length} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={amounts.length}
+          emptyText="Add in your first order!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
-export default Orders;
+export default Summary;

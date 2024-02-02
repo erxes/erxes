@@ -3,7 +3,7 @@ import {
   ControlLabel,
   FormControl,
   Icon,
-  SelectTeamMembers
+  SelectTeamMembers,
 } from '@erxes/ui/src';
 import {
   CustomRangeContainer,
@@ -11,13 +11,13 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
+  TabContent,
 } from '../../styles';
 import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
 import RTG from 'react-transition-group';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled, __ } from '@erxes/ui/src/utils/core';
@@ -29,7 +29,7 @@ const SelectCustomers = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    )
+    ),
 );
 
 const SelectCompanies = asyncComponent(
@@ -37,7 +37,7 @@ const SelectCompanies = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    )
+    ),
 );
 
 type Props = {
@@ -49,71 +49,49 @@ type Props = {
   clearFilter: () => void;
 };
 
-type StringState = {
-  currentTab: string;
-};
+const RightMenu = (props: Props) => {
+  const { isFiltered, queryParams, onFilter, onSearch, onSelect, clearFilter } =
+    props;
 
-type State = {
-  showMenu: boolean;
-  filterParams: IQueryParams;
-} & StringState;
+  const wrapperRef = useRef(null);
 
-export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
+  const [currentTab, setCurrentTab] = useState<string>('Filter');
+  const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [filterParams, setFilterParams] = useState<IQueryParams>(
+    queryParams || {},
+  );
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'Filter',
-      showMenu: false,
-
-      filterParams: this.props.queryParams
-    };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-  }
-
-  setFilter = () => {
-    const { filterParams } = this.state;
-    this.props.onFilter(filterParams);
+  const setFilter = () => {
+    onFilter(filterParams);
   };
 
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
-
-  toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
   };
 
-  onSearch = (e: React.KeyboardEvent<Element>) => {
+  const handleSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '');
+      onSearch(target.value || '');
     }
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
+  const handleSelect = (values: string[] | string, key: string) => {
+    setFilterParams((prevState) => ({ ...prevState, [key]: String(values) }));
   };
 
-  onChangeInput = e => {
+  const onChangeInput = (e) => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
 
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [name]: value } });
+    setFilterParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
-
+  const renderLink = (label: string, key: string, value: string) => {
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -123,27 +101,24 @@ export default class RightMenu extends React.Component<Props, State> {
         {selected && <Icon icon="check-1" size={14} />}
       </FilterButton>
     );
-  }
-
-  onChangeRangeFilter = (kind, date) => {
-    const { filterParams } = this.state;
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ filterParams: { ...filterParams, [kind]: cDate } });
   };
 
-  renderSpecials() {
+  const onChangeRangeFilter = (kind, date) => {
+    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
+    setFilterParams((prevState) => ({ ...prevState, [kind]: cDate }));
+  };
+
+  const renderSpecials = () => {
     return (
       <>
-        {this.renderLink('Only Today', 'paidDate', 'today')}
-        {this.renderLink('Only Me', 'userId', 'me')}
-        {this.renderLink('No Pos', 'userId', 'nothing')}
+        {renderLink('Only Today', 'paidDate', 'today')}
+        {renderLink('Only Me', 'userId', 'me')}
+        {renderLink('No Pos', 'userId', 'nothing')}
       </>
     );
-  }
+  };
 
-  renderRange(dateType: string) {
-    const { filterParams } = this.state;
-
+  const renderRange = (dateType: string) => {
     const lblStart = `${dateType}StartDate`;
     const lblEnd = `${dateType}EndDate`;
 
@@ -161,7 +136,7 @@ export default class RightMenu extends React.Component<Props, State> {
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblStart)}
+              onChange={onChangeRangeFilter.bind(this, lblStart)}
               viewMode={'days'}
               className={'filterDate'}
             />
@@ -176,7 +151,7 @@ export default class RightMenu extends React.Component<Props, State> {
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
+              onChange={onChangeRangeFilter.bind(this, lblEnd)}
               viewMode={'days'}
               className={'filterDate'}
             />
@@ -184,20 +159,18 @@ export default class RightMenu extends React.Component<Props, State> {
         </CustomRangeContainer>
       </>
     );
-  }
+  };
 
-  renderFilter() {
-    const { filterParams } = this.state;
-
+  const renderFilter = () => {
     return (
       <FilterBox>
         <FormControl
           name={'search'}
           defaultValue={filterParams.search}
           placeholder={__('Number ...')}
-          onKeyPress={this.onSearch}
+          onKeyPress={handleSearch}
           autoFocus={true}
-          onChange={this.onChangeInput}
+          onChange={onChangeInput}
         />
 
         {isEnabled('contacts') && (
@@ -206,7 +179,7 @@ export default class RightMenu extends React.Component<Props, State> {
               label="Filter by customer"
               name="customerId"
               initialValue={filterParams.customerId}
-              onSelect={this.onSelect}
+              onSelect={handleSelect}
               customOption={{ value: '', label: '...Clear customer filter' }}
               multi={false}
             />
@@ -214,7 +187,7 @@ export default class RightMenu extends React.Component<Props, State> {
               label="Filter by company"
               name="customerId"
               initialValue={filterParams.customerId}
-              onSelect={this.onSelect}
+              onSelect={handleSelect}
               customOption={{ value: '', label: '...Clear company filter' }}
               multi={false}
             />
@@ -225,7 +198,7 @@ export default class RightMenu extends React.Component<Props, State> {
           label="Choose users"
           name="userId"
           initialValue={filterParams.userId}
-          onSelect={this.onSelect}
+          onSelect={handleSelect}
           customOption={{ value: '', label: '...Clear user filter' }}
           multi={false}
         />
@@ -234,7 +207,7 @@ export default class RightMenu extends React.Component<Props, State> {
           label="Choose pos"
           name="posId"
           initialValue={filterParams.posId}
-          onSelect={this.onSelect}
+          onSelect={handleSelect}
           customOption={{ value: '', label: '...Clear user filter' }}
           multi={false}
         />
@@ -244,10 +217,10 @@ export default class RightMenu extends React.Component<Props, State> {
           multi={true}
           placeholder={__('Choose types')}
           value={filterParams.types}
-          onChange={types => {
-            this.onSelect(
-              (types || []).map(t => t.value),
-              'types'
+          onChange={(types) => {
+            handleSelect(
+              (types || []).map((t) => t.value),
+              'types',
             );
           }}
           options={ALLOW_TYPES}
@@ -258,10 +231,10 @@ export default class RightMenu extends React.Component<Props, State> {
           multi={true}
           placeholder={__('Choose status')}
           value={filterParams.statuses}
-          onChange={statuses => {
-            this.onSelect(
-              (statuses || []).map(t => t.value),
-              'statuses'
+          onChange={(statuses) => {
+            handleSelect(
+              (statuses || []).map((t) => t.value),
+              'statuses',
             );
           }}
           options={ALLOW_STATUSES}
@@ -272,33 +245,33 @@ export default class RightMenu extends React.Component<Props, State> {
           multi={true}
           placeholder={__('Exclude status')}
           value={filterParams.excludeStatuses}
-          onChange={statuses => {
-            this.onSelect(
-              (statuses || []).map(t => t.value),
-              'excludeStatuses'
+          onChange={(statuses) => {
+            handleSelect(
+              (statuses || []).map((t) => t.value),
+              'excludeStatuses',
             );
           }}
           options={ALLOW_STATUSES}
         />
 
-        {this.renderRange('created')}
-        {this.renderRange('paid')}
+        {renderRange('created')}
+        {renderRange('paid')}
 
-        {this.renderSpecials()}
+        {renderSpecials()}
       </FilterBox>
     );
-  }
+  };
 
-  renderTabContent() {
+  const renderTabContent = () => {
     return (
       <>
-        <TabContent>{this.renderFilter()}</TabContent>
+        <TabContent>{renderFilter()}</TabContent>
         <MenuFooter>
           <Button
             block={true}
             btnStyle="success"
             uppercase={false}
-            onClick={this.setFilter}
+            onClick={setFilter}
             icon="filter"
           >
             {__('Filter')}
@@ -306,42 +279,39 @@ export default class RightMenu extends React.Component<Props, State> {
         </MenuFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    const { showMenu } = this.state;
-    const { isFiltered } = this.props;
-
-    return (
-      <div ref={this.setWrapperRef}>
-        {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
+  return (
+    <div ref={wrapperRef}>
+      {isFiltered && (
         <Button
-          btnStyle="simple"
+          btnStyle="warning"
+          icon="times-circle"
           uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
+          onClick={clearFilter}
         >
-          {showMenu ? __('Hide Filter') : __('Show Filter')}
+          {__('Clear Filter')}
         </Button>
+      )}
+      <Button
+        btnStyle="simple"
+        uppercase={false}
+        icon="bars"
+        onClick={toggleMenu}
+      >
+        {showMenu ? __('Hide Filter') : __('Show Filter')}
+      </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
-      </div>
-    );
-  }
-}
+      <RTG.CSSTransition
+        in={showMenu}
+        timeout={300}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
+      </RTG.CSSTransition>
+    </div>
+  );
+};
+
+export default RightMenu;
