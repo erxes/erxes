@@ -1,10 +1,6 @@
 import client from '@erxes/ui/src/apolloClient';
-import { Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { IAsset } from '../../../common/types';
 import { queries } from '../../graphql';
 import AssignArticles from '../../components/actions/Assign/Assign';
@@ -16,31 +12,28 @@ type Props = {
   assignedArticleIds?: string[];
   closeModal: () => void;
   assetId?: string;
-};
+} & { assetKbDetail: any };
 
-type FinalProps = {
-  knowledgeBaseTopics: any;
-  assetKbDetail: any;
-} & Props;
-
-function AssignContainer(props: FinalProps) {
-  const { assignedArticleIds, knowledgeBaseTopics, assetKbDetail } = props;
+const AssignContainer = (props: Props) => {
+  const { assignedArticleIds, assetKbDetail } = props;
 
   const [articles, setArticles] = React.useState<any>([]);
 
-  const loadArticles = categoryIds => {
+  const knowledgeBaseTopics = useQuery(gql(queries.knowledgeBaseTopics));
+
+  const loadArticles = (categoryIds) => {
     client
       .query({
         query: gql(queries.knowledgeBaseArticles),
         fetchPolicy: 'network-only',
-        variables: { categoryIds, perPage: 500 }
+        variables: { categoryIds, perPage: 500 },
       })
       .then(({ data }) => {
         const kbArticles = data.knowledgeBaseArticles || [];
-        const articleIds = articles.map(article => article._id);
+        const articleIds = articles.map((article) => article._id);
 
         const uniqueArticles = kbArticles.filter(
-          kbArticle => !articleIds.includes(kbArticle._id)
+          (kbArticle) => !articleIds.includes(kbArticle._id),
         );
 
         setArticles([...articles, ...uniqueArticles]);
@@ -52,20 +45,14 @@ function AssignContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    kbTopics: knowledgeBaseTopics.knowledgeBaseTopics || [],
+    kbTopics: knowledgeBaseTopics?.data?.knowledgeBaseTopics || [],
     loadArticles,
-    loadedArticles: articles,
+    loadedArticles: articles || [],
     selectedArticleIds: [...selectedArticleIds],
-    loading: knowledgeBaseTopics.loading
+    loading: knowledgeBaseTopics.loading,
   };
 
   return <AssignArticles {...updatedProps} />;
-}
+};
 
-export default withProps<Props>(
-  compose(
-    graphql(gql(queries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopics'
-    })
-  )(AssignContainer)
-);
+export default AssignContainer;

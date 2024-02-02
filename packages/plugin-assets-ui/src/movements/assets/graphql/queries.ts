@@ -6,7 +6,7 @@ import {
   dateFilterParams,
   dateFilterParamsDef,
   movementFilterParams,
-  movementFilterParamsDef
+  movementFilterParamsDef,
 } from '../../../common/graphql/movement';
 
 const itemsType = `

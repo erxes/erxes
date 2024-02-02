@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Column, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { IAsset } from '../../../../common/types';
 import Select from 'react-select-plus';
 import Topic from './Topic';
@@ -10,7 +10,7 @@ import { SelectAssignType } from '../../../../style';
 
 export const ASSIGN_TYPE = [
   { label: 'Add', value: 'add' },
-  { label: 'Subtract', value: 'subtract' }
+  { label: 'Subtract', value: 'subtract' },
 ];
 
 type Props = {
@@ -23,44 +23,44 @@ type Props = {
   selectedArticleIds?: string[];
 };
 
-function AssignArticles(props: Props) {
+const Assign = (props: Props) => {
   const { objects, kbTopics, save, closeModal, selectedArticleIds } = props;
 
-  const [assignType, setAssignType] = React.useState<string>('add');
-  const [selectedArticles, setSelectedArticles] = React.useState<string[]>(
-    selectedArticleIds || []
+  const [assignType, setAssignType] = useState<string>('add');
+  const [selectedArticles, setSelectedArticles] = useState<string[]>(
+    selectedArticleIds || [],
   );
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     save({
-      ids: (objects || []).map(asset => asset._id),
+      ids: (objects || []).map((asset) => asset._id),
       data: {
         action: assignType,
-        articleIds: selectedArticles
+        articleIds: selectedArticles,
       },
       callback: () => {
         setAssignType(assignType);
         setSelectedArticles(selectedArticleIds || []);
         closeModal();
-      }
+      },
     });
   };
 
   const renderTopics = () => {
-    return kbTopics.map(topic => {
+    return kbTopics.map((topic) => {
       const updatedProps = {
         ...props,
         topic,
         selectedArticles,
-        setSelectedArticles
+        setSelectedArticles,
       };
       return <Topic key={topic._id} {...updatedProps} />;
     });
   };
 
-  const onChangeAction = option => {
+  const onChangeAction = (option) => {
     setAssignType(option.value);
   };
 
@@ -77,6 +77,7 @@ function AssignArticles(props: Props) {
                 value={assignType}
                 options={ASSIGN_TYPE}
                 onChange={onChangeAction}
+                clearable={false}
               />
             </SelectAssignType>
           )}
@@ -96,6 +97,6 @@ function AssignArticles(props: Props) {
       </FormWrapper>
     </form>
   );
-}
+};
 
-export default AssignArticles;
+export default Assign;

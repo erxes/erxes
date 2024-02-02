@@ -8,8 +8,10 @@ type Props = {
   history: any;
 };
 
-function KnowledgebaseAssignmentFilter({ queryParams, history }: Props) {
-  const handleWithKnowledge = type => {
+const AssignmentFilter = (props: Props) => {
+  const { queryParams, history } = props;
+
+  const handleWithKnowledge = (type) => {
     router.setParams(history, { state: type });
     router.removeParams(history, 'page');
   };
@@ -17,7 +19,7 @@ function KnowledgebaseAssignmentFilter({ queryParams, history }: Props) {
   const renderTypeContent = () => {
     return (
       <SidebarList>
-        {checkKnowledge.map(type => (
+        {checkKnowledge.map((type) => (
           <li key={Math.random()}>
             <a
               href="#filter"
@@ -43,6 +45,6 @@ function KnowledgebaseAssignmentFilter({ queryParams, history }: Props) {
       {renderTypeContent()}
     </Box>
   );
-}
+};
 
-export default KnowledgebaseAssignmentFilter;
+export default AssignmentFilter;

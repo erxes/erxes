@@ -3,9 +3,9 @@ import {
   dateFilterParams,
   dateFilterParamsDef,
   commonFilterParams,
-  commonFilterParamsDef
-} from '../../common/graphql/movement';
-import { listParams, listParamDefs } from '../../asset/graphql/queries';
+  commonFilterParamsDef,
+} from '../../../common/graphql/movement';
+import { listParams, listParamDefs } from '../../../asset/graphql/queries';
 
 const fieldAviableEnabledContacts = `
     branch
@@ -102,5 +102,5 @@ export default {
   movementDetail,
   movementsTotalCount,
   itemsCurrentLocation,
-  assets
+  assets,
 };

@@ -9,13 +9,13 @@ import {
   ModalTrigger,
   SelectTeamMembers,
   Table,
-  __
+  __,
 } from '@erxes/ui/src';
 
 import {
   ContentColumn,
   ItemRow,
-  ItemText
+  ItemText,
 } from '@erxes/ui-cards/src/deals/styles';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
@@ -24,21 +24,21 @@ import {
   DateContainer,
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
 } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import _loadash from 'lodash';
-import React from 'react';
-import { IMovementItem, IMovementType } from '../../common/types';
-import { CommonFormGroup, CommonItemRow } from '../../common/utils';
+import React, { useState, useEffect } from 'react';
+import { IMovementItem, IMovementType } from '../../../common/types';
+import { CommonFormGroup, CommonItemRow } from '../../../common/utils';
 import {
   ContainerBox,
   MovementItemContainer,
-  MovementTableWrapper
-} from '../../style';
+  MovementTableWrapper,
+} from '../../../style';
 import AssetChooser from '../containers/Chooser';
 import { queries } from '../graphql';
 import MovementItems from './MovementItem';
@@ -58,42 +58,33 @@ type General = {
   teamMemberId?: string;
 };
 
-type State = {
-  variables: IMovementItem[];
-  currentItems: string[];
-  description: string;
-  movedAt: string;
-  selectedItemsIds: string[];
-  general: General;
-  checkedItems: string[];
-};
+const Form = (props: Props) => {
+  const { closeModal, renderButton, detail, assetId } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [variables, setVariables] = useState<IMovementItem[]>([]);
+  const [currentItems, setCurrentItems] = useState<string[]>([]);
+  const [description, setDescription] = useState<string>('');
+  const [movedAt, setMovedAt] = useState<string>('');
+  const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
+  const [general, setGeneral] = useState<General>({});
+  const [checkedItems, setCheckedItems] = useState<string[]>([]);
 
-    this.assetChooser = this.assetChooser.bind(this);
-    this.changeCurrentItem = this.changeCurrentItem.bind(this);
+  useEffect(() => {
+    if (detail) {
+      setVariables(detail.items || []);
+      setDescription(detail.description || '');
+      setMovedAt(detail.movedAt || '');
+      setSelectedItemsIds(
+        detail?.items && detail.items.map((item) => item.assetId),
+      );
+    }
 
-    const { detail, assetId } = props;
+    if (assetId) {
+      setCurrentItems([assetId]);
+    }
+  }, []);
 
-    const selectedItemsIds =
-      detail?.items && detail.items.map(item => item.assetId);
-
-    this.state = {
-      variables: detail?.items || [],
-      selectedItemsIds: selectedItemsIds || [],
-      description: detail?.description || '',
-      movedAt: detail?.movedAt || '',
-      currentItems: [assetId],
-      general: {},
-      checkedItems: []
-    };
-  }
-
-  generateDoc() {
-    const { variables, movedAt, description } = this.state;
-    const { detail } = this.props;
+  const generateDoc = () => {
     const items = variables.map(
       ({
         assetId,
@@ -101,47 +92,47 @@ class Form extends React.Component<Props, State> {
         departmentId,
         customerId,
         companyId,
-        teamMemberId
+        teamMemberId,
       }) => ({
         assetId,
         branchId,
         departmentId,
         customerId,
         companyId,
-        teamMemberId
-      })
+        teamMemberId,
+      }),
     );
     const doc = { items, description, movedAt };
     if (!_loadash.isEmpty(detail)) {
       return { _id: detail._id, doc };
     }
     return { ...doc };
-  }
+  };
 
-  assetChooser(props) {
-    const handleSelect = datas => {
-      const selectedItemsIds = datas.map(data => data._id);
+  const assetChooser = (props) => {
+    const handleSelect = (datas) => {
+      const newSelectedItemsIds = datas.map((data) => data._id);
       client
         .query({
           query: gql(queries.itemsCurrentLocation),
           fetchPolicy: 'network-only',
-          variables: { assetIds: selectedItemsIds }
+          variables: { assetIds: newSelectedItemsIds },
         })
-        .then(res => {
+        .then((res) => {
           const { currentAssetMovementItems } = res.data;
-          this.setState({ selectedItemsIds });
+          setSelectedItemsIds(newSelectedItemsIds);
 
-          const selectedItems = datas.map(data => ({
+          const selectedItems = datas.map((data) => ({
             assetId: data._id,
             assetDetail: {
               _id: data._id,
-              name: data.name
-            }
+              name: data.name,
+            },
           }));
 
-          const newVariables = selectedItems.map(selectedItem => {
+          const newVariables = selectedItems.map((selectedItem) => {
             const newItem = currentAssetMovementItems.find(
-              item => item.assetId === selectedItem.assetId
+              (item) => item.assetId === selectedItem.assetId,
             );
             if (newItem) {
               return newItem;
@@ -149,39 +140,33 @@ class Form extends React.Component<Props, State> {
             return selectedItem;
           });
 
-          this.setState({ variables: newVariables });
+          setVariables(newVariables);
         });
     };
 
     const updatedProps = {
       ...props,
       handleSelect,
-      selectedAssetIds: this.state.selectedItemsIds
+      selectedAssetIds: selectedItemsIds,
     };
 
     return <AssetChooser {...updatedProps} />;
-  }
+  };
 
-  assetChooserTrigger = (<Button>Select Assets</Button>);
+  const renderChooser = (trigger) => {
+    const chooserTrigger = trigger ? trigger : <Button>Select Assets</Button>;
 
-  assetChooserContent(trigger) {
     return (
       <ModalTrigger
         title="Select Assets"
-        content={this.assetChooser}
-        trigger={trigger}
+        content={assetChooser}
+        trigger={chooserTrigger}
         size="lg"
       />
     );
-  }
+  };
 
-  renderChooser() {
-    return <>{this.assetChooserContent(this.assetChooserTrigger)}</>;
-  }
-
-  renderInfoSelection(label, asset, value) {
-    let { variables } = this.state;
-
+  const renderInfoSelection = (label, asset, value) => {
     let Selection;
     let field;
     let text = '';
@@ -211,13 +196,13 @@ class Form extends React.Component<Props, State> {
       text = asset?.customer?.primaryEmail;
     }
 
-    const handleChange = selected => {
-      variables = variables.map(item =>
+    const handleChange = (selected) => {
+      const newVariables = variables.map((item) =>
         item.assetId === asset.assetId
           ? { ...item, [field]: selected === '' ? null : selected }
-          : item
+          : item,
       );
-      this.setState({ variables });
+      setVariables(newVariables);
     };
 
     return (
@@ -236,65 +221,61 @@ class Form extends React.Component<Props, State> {
         </ContentColumn>
       </ItemRow>
     );
-  }
+  };
 
-  changeCurrentItem(id: string) {
-    const { currentItems } = this.state;
-
+  const changeCurrentItem = (id: string) => {
     if (currentItems.includes(id)) {
-      const newCurrentItems = currentItems.filter(item => item !== id);
-      return this.setState({ currentItems: newCurrentItems });
+      const newCurrentItems = currentItems.filter((item) => item !== id);
+      return setCurrentItems(newCurrentItems);
     }
 
-    this.setState(prev => ({ currentItems: [...prev.currentItems, id] }));
-  }
-
-  handleGeneralDate = e => {
-    this.setState({ movedAt: e });
+    setCurrentItems((prevCurrentItems) => [...prevCurrentItems, id]);
   };
 
-  handleGeneralDescription = e => {
+  const handleGeneralDate = (e) => {
+    setMovedAt(e);
+  };
+
+  const handleGeneralDescription = (e) => {
     const { value } = e.currentTarget as HTMLInputElement;
 
-    this.setState({ description: value });
+    setDescription(value);
   };
 
-  handleChangeRowItem = (prevItemId, newItem) => {
-    const { variables } = this.state;
-    const newVariables = variables.map(item =>
-      item.assetId === prevItemId ? newItem : item
+  const handleChangeRowItem = (prevItemId, newItem) => {
+    const newVariables = variables.map((item) =>
+      item.assetId === prevItemId ? newItem : item,
     );
-    const removedSeletedItemIds = this.state.selectedItemsIds.filter(
-      item => item !== prevItemId
+    const removedSeletedItemIds = selectedItemsIds.filter(
+      (item) => item !== prevItemId,
     );
-    this.setState({
-      variables: newVariables,
-      selectedItemsIds: [...removedSeletedItemIds, newItem.assetId]
-    });
+
+    setVariables(newVariables);
+    setSelectedItemsIds([...removedSeletedItemIds, newItem.assetId]);
   };
 
-  renderGeneral() {
-    const { variables, general, checkedItems } = this.state;
-
+  const renderGeneral = () => {
     const handleGeneralOptions = (value, field) => {
-      this.setState({ currentItems: [] });
+      setCurrentItems([]);
 
-      const newVariables = variables.map(item =>
+      const newVariables = variables.map((item) =>
         checkedItems.includes(item.assetId)
           ? { ...item, [field]: value === '' ? null : value }
-          : item
+          : item,
       );
-      this.setState({
-        variables: newVariables,
-        general: { ...general, [field]: value === '' ? null : value }
-      });
+
+      setVariables(newVariables);
+      setGeneral((prevGeneral) => ({
+        ...prevGeneral,
+        [field]: value === '' ? null : value,
+      }));
     };
 
     return (
       <CollapseContent
         title="General Location Configrations"
         description={__(
-          'If you want to change the location generally of your selected assets, you should click checkboxes below.'
+          'If you want to change the location generally of your selected assets, you should click checkboxes below.',
         )}
       >
         <BarItems>
@@ -365,66 +346,55 @@ class Form extends React.Component<Props, State> {
         </BarItems>
       </CollapseContent>
     );
-  }
+  };
 
-  renderRow() {
-    const {
-      variables,
-      currentItems,
-      selectedItemsIds,
-      checkedItems
-    } = this.state;
-    const removeRow = id => {
-      const newVariables = variables.filter(item => item.assetId !== id);
-      const newSelectedItems = selectedItemsIds.filter(itemId => itemId !== id);
+  const renderRow = () => {
+    const removeRow = (id) => {
+      const newVariables = variables.filter((item) => item.assetId !== id);
+      const newSelectedItems = selectedItemsIds.filter(
+        (itemId) => itemId !== id,
+      );
       if (currentItems.includes(id)) {
-        const newCurrentItems = currentItems.filter(item => item !== id);
-        this.setState({ currentItems: newCurrentItems });
+        const newCurrentItems = currentItems.filter((item) => item !== id);
+        setCurrentItems(newCurrentItems);
       }
-      this.setState({
-        variables: newVariables,
-        selectedItemsIds: newSelectedItems
-      });
+
+      setVariables(newVariables);
+      setSelectedItemsIds(newSelectedItems);
     };
     const onChangeCheckedItems = (id: string) => {
       if (checkedItems.includes(id)) {
-        return this.setState({
-          checkedItems: checkedItems.filter(item => item !== id)
-        });
+        return setCheckedItems(checkedItems.filter((item) => item !== id));
       }
-      return this.setState({ checkedItems: [...checkedItems, id] });
+      return setCheckedItems([...checkedItems, id]);
     };
 
-    return variables.map(item => (
+    return variables.map((item) => (
       <MovementItems
         key={item.assetId}
         item={item}
         current={currentItems.includes(item.assetId) ? item.assetId : ''}
-        changeCurrent={this.changeCurrentItem}
+        changeCurrent={changeCurrentItem}
         removeRow={removeRow}
         selectedItems={selectedItemsIds}
         isChecked={checkedItems.includes(item.assetId)}
         onChangeBulkItems={onChangeCheckedItems}
-        handleChangeRowItem={this.handleChangeRowItem}
+        handleChangeRowItem={handleChangeRowItem}
       >
-        {this.renderInfoSelection('Branches', item, item['branchId'])}
-        {this.renderInfoSelection('Departments', item, item['departmentId'])}
-        {this.renderInfoSelection('Customer', item, item['customerId'])}
-        {this.renderInfoSelection('Company', item, item['companyId'])}
-        {this.renderInfoSelection('Team Member', item, item['teamMemberId'])}
+        {renderInfoSelection('Branches', item, item['branchId'])}
+        {renderInfoSelection('Departments', item, item['departmentId'])}
+        {renderInfoSelection('Customer', item, item['customerId'])}
+        {renderInfoSelection('Company', item, item['companyId'])}
+        {renderInfoSelection('Team Member', item, item['teamMemberId'])}
       </MovementItems>
     ));
-  }
+  };
 
-  renderList() {
-    const { variables, checkedItems } = this.state;
-
+  const renderList = () => {
     const onChange = () => {
-      const { checkedItems } = this.state;
-      const newCheckedItems = variables.map(item => item.assetId);
-      this.setState({
-        checkedItems: checkedItems.length > 0 ? [] : newCheckedItems
-      });
+      const newCheckedItems = variables.map((item) => item.assetId);
+
+      setCheckedItems(checkedItems.length > 0 ? [] : newCheckedItems);
     };
 
     return (
@@ -451,15 +421,14 @@ class Form extends React.Component<Props, State> {
               <th>{__('Team Member')}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </MovementTableWrapper>
     );
-  }
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, detail } = this.props;
+  };
+
+  const renderContent = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
-    const { movedAt, description, variables } = this.state;
 
     return (
       <ContainerBox column gap={20}>
@@ -469,7 +438,7 @@ class Form extends React.Component<Props, State> {
               <DateContainer>
                 <DateControl
                   placeholder="Select Date"
-                  onChange={this.handleGeneralDate}
+                  onChange={handleGeneralDate}
                   value={movedAt}
                 />
               </DateContainer>
@@ -480,7 +449,7 @@ class Form extends React.Component<Props, State> {
               <FormControl
                 type="text"
                 name="description"
-                onChange={this.handleGeneralDescription}
+                onChange={handleGeneralDescription}
                 value={description}
                 required
               />
@@ -488,13 +457,11 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
         </FormWrapper>
 
-        {variables.length > 0 && this.renderGeneral()}
-        {this.renderList()}
+        {variables.length > 0 && renderGeneral()}
+        {renderList()}
 
         <ContainerBox justifyCenter>
-          {this.assetChooserContent(
-            <Button icon="plus-circle">{__('Add Asset')}</Button>
-          )}
+          {renderChooser(<Button icon="plus-circle">{__('Add Asset')}</Button>)}
         </ContainerBox>
         {renderButton && (
           <ModalFooter>
@@ -503,19 +470,18 @@ class Form extends React.Component<Props, State> {
             </Button>
             {renderButton({
               text: 'Movement',
-              values: this.generateDoc(),
+              values: generateDoc(),
               isSubmitted,
               callback: closeModal,
-              object: !_loadash.isEmpty(detail)
+              object: !_loadash.isEmpty(detail),
             })}
           </ModalFooter>
         )}
       </ContainerBox>
     );
   };
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default Form;

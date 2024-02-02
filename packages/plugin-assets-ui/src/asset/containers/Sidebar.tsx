@@ -1,90 +1,72 @@
-import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import * as compose from 'lodash.flowright';
-// import List from '../components/List';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { mutations, queries } from '../graphql';
 import {
   IAssetCategoryQeuryResponse,
-  IAssetCategoriesTotalCountResponse
+  IAssetCategoriesTotalCountResponse,
 } from '../../common/types';
 import { Alert, confirm } from '@erxes/ui/src';
 import Sidebar from '../components/Sidebar';
 
 type Props = { history?: any; queryParams: any };
 
-type FinalProps = {
-  assetCategories: IAssetCategoryQeuryResponse;
-  assetCategoryRemove: any;
-  assetCategoriesTotalCount: IAssetCategoriesTotalCountResponse;
-} & Props;
+const SidebarContainer = (props: Props) => {
+  const { queryParams, history } = props;
 
-function SidebarContainer(props: FinalProps) {
-  const {
-    assetCategories,
-    assetCategoriesTotalCount,
-    assetCategoryRemove,
-    queryParams,
-    history
-  } = props;
+  const assetCategoriesQuery = useQuery<IAssetCategoryQeuryResponse>(
+    gql(queries.assetCategory),
+    {
+      variables: {
+        status: queryParams?.status,
+        parentId: queryParams?.parentId,
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
 
-  const removeAssetCategory = _id => {
+  const assetCategoriesTotalCountQuery =
+    useQuery<IAssetCategoriesTotalCountResponse>(
+      gql(queries.assetCategoriesTotalCount),
+    );
+
+  const [assetCategoryRemove] = useMutation(
+    gql(mutations.assetCategoryRemove),
+    {
+      refetchQueries: ['assetCategories', 'assetCategoryTotalCount', 'assets'],
+    },
+  );
+
+  const removeAssetCategory = (_id) => {
     confirm().then(() => {
       assetCategoryRemove({ variables: { _id } })
         .then(() => {
-          assetCategories.refetch();
+          assetCategoriesQuery.refetch();
           Alert.success(`You successfully deleted a asset category`);
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
   };
 
   const refetchCategory = () => {
-    assetCategories.refetch();
-    assetCategoriesTotalCount.refetch();
+    assetCategoriesQuery.refetch();
+    assetCategoriesTotalCountQuery.refetch();
   };
 
   const updateProps = {
-    assetCategories: assetCategories.assetCategories || [],
-    totalCount: assetCategoriesTotalCount.assetCategoriesTotalCount || 0,
-    loading: assetCategories.loading,
+    assetCategories: assetCategoriesQuery?.data?.assetCategories || [],
+    totalCount:
+      assetCategoriesTotalCountQuery?.data?.assetCategoriesTotalCount || 0,
+    loading:
+      assetCategoriesQuery.loading || assetCategoriesTotalCountQuery.loading,
     remove: removeAssetCategory,
     refetchAssetCategories: refetchCategory,
     queryParams,
-    history
+    history,
   };
 
   return <Sidebar {...updateProps} />;
-}
-
-const getRefetchQueries = () => {
-  return ['assetCategories', 'assetCategoryTotalCount', 'assets'];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.assetCategory), {
-      name: 'assetCategories',
-      options: ({ queryParams }) => ({
-        variables: {
-          status: queryParams?.status,
-          parentId: queryParams?.parentId
-        },
-        refetchQueries: getRefetchQueries(),
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, IAssetCategoriesTotalCountResponse>(
-      gql(queries.assetCategoriesTotalCount),
-      {
-        name: 'assetCategoriesTotalCount'
-      }
-    ),
-    graphql<Props>(gql(mutations.assetCategoryRemove), {
-      name: 'assetCategoryRemove'
-    })
-  )(SidebarContainer)
-);
+export default SidebarContainer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
@@ -11,14 +11,16 @@ type Props = {
   history: any;
 };
 
-function StatusFilter({ queryParams, history }: Props) {
-  React.useEffect(() => {
+const StatusFilter = (props: Props) => {
+  const { queryParams, history } = props;
+
+  useEffect(() => {
     if (queryParams.status === undefined || queryParams.status === null) {
       router.removeParams(history, 'assetCategoryId');
     }
   }, [queryParams.status]);
 
-  const onClick = value => {
+  const onClick = (value) => {
     router.setParams(history, { status: value });
     router.removeParams(history, 'assetId');
     router.removeParams(history, 'assetCategoryId');
@@ -45,11 +47,11 @@ function StatusFilter({ queryParams, history }: Props) {
                 </a>
               </li>
             );
-          }
+          },
         )}
       </SidebarList>
     </Box>
   );
-}
+};
 
 export default StatusFilter;

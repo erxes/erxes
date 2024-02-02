@@ -19,27 +19,28 @@ type Props = {
   queryParams: any;
   history: any;
 };
+const Sidebar = (props: Props) => {
+  const {
+    assetCategories,
+    totalCount,
+    loading,
+    remove,
+    refetchAssetCategories,
+    queryParams,
+    history,
+  } = props;
 
-function Sidebar({
-  assetCategories,
-  totalCount,
-  loading,
-  remove,
-  refetchAssetCategories,
-  queryParams,
-  history
-}: Props) {
   const trigger = (
     <Button btnStyle="success" block={true} icon="plus-circle">
       Add Category
     </Button>
   );
 
-  const content = props => {
+  const content = (props) => {
     const updatedProps = {
       ...props,
       refetchAssetCategories,
-      categories: assetCategories
+      categories: assetCategories,
     };
 
     return <CategoryForm {...updatedProps} />;
@@ -64,7 +65,7 @@ function Sidebar({
       remove,
       refetchAssetCategories,
       queryParams,
-      history
+      history,
     };
 
     return <CategoryFilter {...updatedProps} />;
@@ -85,6 +86,6 @@ function Sidebar({
       {isEnabled('knowledgebase') && renderKnowledgebaseFilter()}
     </Wrapper.Sidebar>
   );
-}
+};
 
 export default Sidebar;

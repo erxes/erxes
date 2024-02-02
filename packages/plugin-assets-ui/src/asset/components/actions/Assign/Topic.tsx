@@ -19,29 +19,29 @@ type Props = {
   setSelectedArticles: (selectedArticles: string[]) => void;
 };
 
-function Topic(props: Props) {
+const Topic = (props: Props) => {
   const {
     topic,
     loadArticles,
     loadedArticles,
     selectedArticles,
-    setSelectedArticles
+    setSelectedArticles,
   } = props;
 
-  const categoryIds = (topic?.categories || []).map(category => category._id);
+  const categoryIds = (topic?.categories || []).map((category) => category._id);
   const articleIds = (loadedArticles || [])
-    .filter(article => article.topicId === topic._id)
-    .map(article => article._id);
+    .filter((article) => article.topicId === topic._id)
+    .map((article) => article._id);
 
   const [topicsToShow, setTopicsToShow] = React.useState<string[]>([]);
 
   const checked =
     !!articleIds?.length &&
-    articleIds.every(articleId => selectedArticles.includes(articleId));
+    articleIds.every((articleId) => selectedArticles.includes(articleId));
 
   const handleTopicSelect = () => {
     if (topicsToShow.includes(topic._id)) {
-      const updateTopicIds = topicsToShow.filter(id => id !== topic._id);
+      const updateTopicIds = topicsToShow.filter((id) => id !== topic._id);
       return setTopicsToShow(updateTopicIds);
     }
 
@@ -61,10 +61,10 @@ function Topic(props: Props) {
 
     return (
       <KbCategoriesContainer>
-        {topic.categories.map(category => {
+        {topic.categories.map((category) => {
           const updatedProps = {
             ...props,
-            category
+            category,
           };
 
           return <Category key={category._id} {...updatedProps} />;
@@ -74,9 +74,9 @@ function Topic(props: Props) {
   };
 
   const handleAllCategoriesSelect = () => {
-    if (articleIds.every(articleId => selectedArticles.includes(articleId))) {
+    if (articleIds.every((articleId) => selectedArticles.includes(articleId))) {
       const updatedSelectedArticleIds = selectedArticles.filter(
-        articleId => !articleIds.includes(articleId)
+        (articleId) => !articleIds.includes(articleId),
       );
       return setSelectedArticles(updatedSelectedArticleIds);
     }
@@ -102,6 +102,6 @@ function Topic(props: Props) {
       {topicsToShow.includes(topic._id) && renderCategories()}
     </>
   );
-}
+};
 
 export default Topic;
