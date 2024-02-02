@@ -1,18 +1,18 @@
 import * as compose from 'lodash.flowright';
-import Form from '../components/EditForm';
+import From from '../../components/label/LabelsForm';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IDayLabel } from '../types';
-import { mutations } from '../graphql';
+import { ISPLabel } from '../../types';
+import { mutations } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
-  dayLabel: IDayLabel;
+  spLabel?: ISPLabel;
   closeModal: () => void;
 };
 
-const EditFormContainer = (props: Props) => {
+const FormContainer = (props: Props) => {
   const renderButton = ({
     values,
     isSubmitted,
@@ -21,14 +21,16 @@ const EditFormContainer = (props: Props) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.dayLabelEdit}
+        mutation={object ? mutations.spLabelsEdit : mutations.spLabelsAdd}
         variables={values}
         callback={callback}
-        refetchQueries={['dayLabels', 'dayLabelsCount']}
+        refetchQueries={['spLabels', 'spLabelsCount']}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully updated a day labels`}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
       />
     );
   };
@@ -38,7 +40,7 @@ const EditFormContainer = (props: Props) => {
     renderButton,
   };
 
-  return <Form {...updatedProps} />;
+  return <From {...updatedProps} />;
 };
 
-export default EditFormContainer;
+export default FormContainer;

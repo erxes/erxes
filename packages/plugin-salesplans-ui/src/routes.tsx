@@ -3,10 +3,11 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const LabelConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './settings/containers/LabelsList'
-  )
+const LabelConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ './settings/containers/label/LabelsList'
+    ),
 );
 
 const labelsList = ({ location, history }) => {
@@ -18,10 +19,11 @@ const labelsList = ({ location, history }) => {
   );
 };
 
-const TimeConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './settings/containers/TimesList'
-  )
+const TimeConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ './settings/containers/time/TimesList'
+    ),
 );
 
 const timesList = ({ location, history }) => {
@@ -33,20 +35,25 @@ const timesList = ({ location, history }) => {
   );
 };
 
-const YearPlans = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './plans/containers/YearPlanList'
-  )
+const YearPlans = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ './plans/containers/YearPlanList'
+    ),
 );
 
-const DayPlans = asyncComponent(() =>
-  import(/* webpackChunkName: 'Sales Plans' */ './plans/containers/DayPlanList')
+const DayPlans = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ './plans/containers/DayPlanList'
+    ),
 );
 
-const DayLabels = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './dayLabels/containers/DayLabelList'
-  )
+const DayLabels = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ './dayLabels/containers/DayLabelList'
+    ),
 );
 
 const yearPlanList = ({ location, history }) => {

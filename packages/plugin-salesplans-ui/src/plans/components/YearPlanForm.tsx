@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
@@ -11,11 +11,11 @@ import {
   ControlLabel,
   Form as CommonForm,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 
 type Props = {
@@ -23,120 +23,96 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  yearPlanParams: IYearPlanParams;
-};
+const YearPlanForm = (props: Props) => {
+  const { renderButton, closeModal } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [yearPlanParams, setYearPlanParams] = useState<IYearPlanParams>({
+    year: new Date().getFullYear(),
+  });
 
-    this.state = {
-      yearPlanParams: {
-        year: new Date().getFullYear()
-      }
-    };
-  }
-
-  generateDoc = (values: { _id?: string }) => {
+  const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
-    const { yearPlanParams } = this.state;
     yearPlanParams.year = Number(yearPlanParams.year);
 
     return {
       ...finalValues,
-      ...yearPlanParams
+      ...yearPlanParams,
     };
   };
 
-  onInputChange = e => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      yearPlanParams: { ...this.state.yearPlanParams, [name]: value }
-    });
+    setYearPlanParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  onSelectChange = (name, value) => {
-    this.setState({
-      yearPlanParams: { ...this.state.yearPlanParams, [name]: value }
-    });
+  const onSelectChange = (name, value) => {
+    setYearPlanParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  onAfterSave = () => {
-    this.props.closeModal();
-  };
-
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
-    const { yearPlanParams } = this.state;
 
     return (
       <>
-        <ScrollWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
-            <FormControl
-              {...formProps}
-              type="number"
-              name="year"
-              defaultValue={new Date().getFullYear()}
-              autoFocus={true}
-              required={true}
-              onChange={this.onInputChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Branch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="selectedBranchId"
-              initialValue={''}
-              onSelect={branchId => this.onSelectChange('branchId', branchId)}
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Department</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentId"
-              initialValue={''}
-              onSelect={departmentId =>
-                this.onSelectChange('departmentId', departmentId)
-              }
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Product Category</ControlLabel>
-            <SelectProductCategory
-              label="Choose product category"
-              name="productCategoryId"
-              initialValue={''}
-              onSelect={categoryId =>
-                this.onSelectChange('productCategoryId', categoryId)
-              }
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Or Product</ControlLabel>
-            <SelectProducts
-              label="Choose product"
-              name="productId"
-              initialValue={''}
-              onSelect={productId =>
-                this.onSelectChange('productId', productId)
-              }
-              multi={false}
-            />
-          </FormGroup>
-        </ScrollWrapper>
+        <FormGroup>
+          <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
+          <FormControl
+            {...formProps}
+            type="number"
+            name="year"
+            defaultValue={new Date().getFullYear()}
+            autoFocus={true}
+            required={true}
+            onChange={onInputChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="selectedBranchId"
+            initialValue={''}
+            onSelect={(branchId) => onSelectChange('branchId', branchId)}
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentId"
+            initialValue={''}
+            onSelect={(departmentId) =>
+              onSelectChange('departmentId', departmentId)
+            }
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Product Category</ControlLabel>
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={''}
+            onSelect={(categoryId) =>
+              onSelectChange('productCategoryId', categoryId)
+            }
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Or Product</ControlLabel>
+          <SelectProducts
+            label="Choose product"
+            name="productId"
+            initialValue={''}
+            onSelect={(productId) => onSelectChange('productId', productId)}
+            multi={false}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -148,19 +124,17 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: this.onAfterSave,
-            object: yearPlanParams
+            callback: closeModal,
+            object: yearPlanParams,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
-export default Form;
+export default YearPlanForm;

@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import DayLabels from '../components/DayLabelList';
@@ -12,7 +12,7 @@ import {
   DayLabelsQueryResponse,
   DayLabelsRemoveMutationResponse,
   DayLabelsCountQueryResponse,
-  DayLabelsEditMutationResponse
+  DayLabelsEditMutationResponse,
 } from '../types';
 
 type Props = {
@@ -21,84 +21,85 @@ type Props = {
   type?: string;
 };
 
-type FinalProps = {
-  dayLabelQuery: DayLabelsQueryResponse;
-  dayLabelsCountQuery: DayLabelsCountQueryResponse;
-} & Props &
-  DayLabelsEditMutationResponse &
-  DayLabelsRemoveMutationResponse;
+const DayLabelList = (props: Props) => {
+  const { queryParams } = props;
 
-class DayLabelsContainer extends React.Component<FinalProps> {
-  render() {
-    const {
-      dayLabelQuery,
-      dayLabelsCountQuery,
-      queryParams,
-      dayLabelEdit,
-      dayLabelsRemove
-    } = this.props;
+  const dayLabelQuery = useQuery<DayLabelsQueryResponse>(
+    gql(queries.dayLabels),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
 
-    if (dayLabelQuery.loading || dayLabelsCountQuery.loading) {
-      return <Spinner />;
-    }
+  const dayLabelsCountQuery = useQuery<DayLabelsCountQueryResponse>(
+    gql(queries.dayLabelsCount),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
 
-    // edit row action
-    const edit = (doc: IDayLabel) => {
-      dayLabelEdit({
-        variables: { ...doc }
+  const [dayLabelsRemove] = useMutation<DayLabelsRemoveMutationResponse>(
+    gql(mutations.dayLabelsRemove),
+    {
+      refetchQueries: ['dayLabels', 'dayLabelsCount'],
+    },
+  );
+
+  // // edit row action
+  // const edit = (doc: IDayLabel) => {
+  //   dayLabelEdit({
+  //     variables: { ...doc }
+  //   })
+  //     .then(() => {
+  //       Alert.success('You successfully updated a labels');
+  //       dayLabelQuery.refetch();
+  //     })
+  //     .catch(e => {
+  //       Alert.error(e.message);
+  //     });
+  // };
+
+  // remove action
+  const remove = ({ dayLabelIds }, emptyBulk) => {
+    dayLabelsRemove({
+      variables: { _ids: dayLabelIds },
+    })
+      .then(() => {
+        emptyBulk();
+        Alert.success('You successfully deleted a day label');
       })
-        .then(() => {
-          Alert.success('You successfully updated a labels');
-          dayLabelQuery.refetch();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-    // remove action
-    const remove = ({ dayLabelIds }, emptyBulk) => {
-      dayLabelsRemove({
-        variables: { _ids: dayLabelIds }
-      })
-        .then(() => {
-          emptyBulk();
-          Alert.success('You successfully deleted a day label');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+  const dayLabels = dayLabelQuery?.data?.dayLabels || [];
+  const totalCount = dayLabelsCountQuery?.data?.dayLabelsCount || 0;
+  const loading = dayLabelQuery.loading || dayLabelsCountQuery.loading;
 
-    const dayLabels = dayLabelQuery.dayLabels || [];
-    const totalCount = dayLabelsCountQuery.dayLabelsCount || 0;
+  const updatedProps = {
+    ...props,
+    queryParams,
+    dayLabels,
+    totalCount,
+    loading,
+    // edit,
+    remove,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      queryParams,
-      dayLabels,
-      totalCount,
-      edit,
-      remove
-    };
+  const dayLabelList = (bulkProps) => (
+    <DayLabels {...updatedProps} {...bulkProps} />
+  );
 
-    const dayLabelList = props => <DayLabels {...updatedProps} {...props} />;
+  const refetch = () => {
+    dayLabelQuery.refetch();
+    dayLabelsCountQuery.refetch();
+  };
 
-    const refetch = () => {
-      this.props.dayLabelQuery.refetch();
-    };
-
-    return <Bulk content={dayLabelList} refetch={refetch} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['dayLabels', 'dayLabelsCount'];
+  return <Bulk content={dayLabelList} refetch={refetch} />;
 };
-
-const options = () => ({
-  refetchQueries: getRefetchQueries()
-});
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -110,43 +111,7 @@ const generateParams = ({ queryParams }) => ({
   labelId: queryParams.labelId,
   dateType: queryParams.dateType,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  endDate: queryParams.endDate,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<{ queryParams: any }, DayLabelsQueryResponse>(
-      gql(queries.dayLabels),
-      {
-        name: 'dayLabelQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{ queryParams: any }, DayLabelsCountQueryResponse>(
-      gql(queries.dayLabelsCount),
-      {
-        name: 'dayLabelsCountQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, DayLabelsEditMutationResponse, {}>(
-      gql(mutations.dayLabelEdit),
-      {
-        name: 'dayLabelEdit'
-      }
-    ),
-    graphql<Props, DayLabelsRemoveMutationResponse, { dayLabelIds: string[] }>(
-      gql(mutations.dayLabelsRemove),
-      {
-        name: 'dayLabelsRemove',
-        options
-      }
-    )
-  )(DayLabelsContainer)
-);
+export default DayLabelList;
