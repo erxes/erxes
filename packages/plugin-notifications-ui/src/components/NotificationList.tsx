@@ -2,14 +2,14 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { __, Alert, router } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { INotification } from '@erxes/ui-notifications/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import NotificationRow from '@erxes/ui-notifications/src/components/NotificationRow';
 import { NotifList } from '@erxes/ui-notifications/src/components/styles';
+import { Alert, __, router } from '@erxes/ui/src/utils';
 
 type Props = {
   notifications: INotification[];
@@ -18,25 +18,19 @@ type Props = {
   count: number;
 } & IRouterProps;
 
-type State = {
-  filterByUnread: boolean;
-};
+const NotificationList = (props: Props) => {
+  const { notifications, markAsRead, loading, count, history } = props;
 
-class NotificationList extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [filterByUnread, setFilterByUnread] = useState<boolean>(true);
 
-    this.state = { filterByUnread: true };
-  }
-
-  markAllRead = isPageRead => {
+  const markAllRead = (isPageRead) => {
     if (!isPageRead) {
-      return this.props.markAsRead();
+      return markAsRead();
     }
 
     const unreadNotifications: string[] = [];
 
-    this.props.notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       if (!notification.isRead) {
         unreadNotifications.push(notification._id);
       }
@@ -47,21 +41,16 @@ class NotificationList extends React.Component<Props, State> {
       return;
     }
 
-    this.props.markAsRead(unreadNotifications);
+    markAsRead(unreadNotifications);
   };
 
-  filterByUnread = () => {
-    const { filterByUnread } = this.state;
-
-    this.setState({ filterByUnread: !filterByUnread }, () => {
-      router.setParams(this.props.history, { requireRead: filterByUnread });
-    });
+  const handleFilterByUnread = () => {
+    setFilterByUnread(!filterByUnread);
+    router.setParams(history, { requireRead: filterByUnread });
   };
 
-  render() {
-    const { notifications, count, markAsRead, loading } = this.props;
-
-    const content = (
+  const renderContent = () => {
+    return (
       <NotifList>
         {notifications.map((notif, key) => (
           <NotificationRow
@@ -73,14 +62,16 @@ class NotificationList extends React.Component<Props, State> {
         ))}
       </NotifList>
     );
+  };
 
+  const renderActionBar = () => {
     const actionBarLeft = (
       <FormControl
         id="isFilter"
         componentClass="checkbox"
-        onClick={this.filterByUnread}
+        onClick={handleFilterByUnread}
       >
-        {__('Show unread')}
+        <label htmlFor="isFilter">{__('Show unread')}</label>
       </FormControl>
     );
 
@@ -88,16 +79,14 @@ class NotificationList extends React.Component<Props, State> {
       <div>
         <Button
           btnStyle="primary"
-          size="small"
-          onClick={this.markAllRead.bind(this, true)}
+          onClick={markAllRead.bind(this, true)}
           icon="window-maximize"
         >
           Mark Page Read
         </Button>
         <Button
           btnStyle="success"
-          size="small"
-          onClick={this.markAllRead.bind(this, false)}
+          onClick={markAllRead.bind(this, false)}
           icon="eye"
         >
           Mark All Read
@@ -105,33 +94,31 @@ class NotificationList extends React.Component<Props, State> {
       </div>
     );
 
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
-    );
+    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Notifications')}
-            breadcrumb={[{ title: __('Notifications') }]}
-          />
-        }
-        actionBar={actionBar}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            count={count}
-            emptyText="Looks like you are all caught up!"
-            emptyImage="/images/actions/17.svg"
-          />
-        }
-        center={true}
-        footer={<Pagination count={count} />}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Notifications')}
+          breadcrumb={[{ title: __('Notifications') }]}
+        />
+      }
+      actionBar={renderActionBar()}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={count}
+          emptyText="Looks like you are all caught up!"
+          emptyImage="/images/actions/17.svg"
+        />
+      }
+      hasBorder={true}
+      footer={<Pagination count={count} />}
+    />
+  );
+};
 
 export default withRouter<Props>(NotificationList);

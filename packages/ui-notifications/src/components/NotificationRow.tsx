@@ -3,7 +3,7 @@ import {
   Content,
   CreatedDate,
   CreatedUser,
-  InfoSection
+  InfoSection,
 } from './styles';
 
 import { INotification } from '../types';
@@ -17,80 +17,19 @@ import dayjs from 'dayjs';
 import { withRouter } from 'react-router-dom';
 import xss from 'xss';
 
-interface IProps extends IRouterProps {
+type Props = {
   notification: INotification;
   markAsRead: (notificationIds?: string[]) => void;
   createdUser?: IUser;
   isList?: boolean;
-}
+} & IRouterProps;
 
-class NotificationRow extends React.Component<IProps> {
-  markAsRead = () => {
-    const { notification, markAsRead } = this.props;
+const NotificationRow = (props: Props) => {
+  const { notification, isList, markAsRead, history } = props;
+  const { isRead, createdUser, notifType } = notification;
+  const classes = classNames({ unread: !isRead });
 
-    if (!notification.isRead) {
-      markAsRead([notification._id]);
-    }
-
-    const params = notification.link.split('?');
-
-    this.props.history.replace({
-      pathname: params[0],
-      state: { from: 'notification' },
-      search: `?${params[1]}`
-    });
-  };
-
-  getTitle = (title, user) => {
-    if (!user) {
-      return title.replace('{userName}', '');
-    }
-
-    if (!user.details || user.details.fullName) {
-      return title.replace('{userName}', user.email);
-    }
-
-    return title.replace('{userName}', user.details.fullName);
-  };
-
-  renderContent(content: string, type: string) {
-    if (!type.includes('conversation')) {
-      return <b> {content}</b>;
-    }
-
-    return (
-      <Content
-        dangerouslySetInnerHTML={{ __html: xss(content) }}
-        isList={this.props.isList}
-      />
-    );
-  }
-
-  renderCreatedUser() {
-    const { notification, isList } = this.props;
-    const { createdUser } = notification;
-
-    let name = 'system';
-
-    if (createdUser) {
-      name = createdUser.details
-        ? createdUser.details.fullName || ''
-        : createdUser.username || createdUser.email;
-    }
-
-    return (
-      <CreatedUser isList={isList}>
-        {name}
-        <span>
-          {notification.action}
-          {this.renderContent(notification.content, notification.notifType)}
-        </span>
-      </CreatedUser>
-    );
-  }
-
-  getIcon() {
-    const { notifType } = this.props.notification;
+  const getIcon = () => {
     let icon = 'user-check';
 
     if (notifType.includes('conversation')) {
@@ -113,31 +52,84 @@ class NotificationRow extends React.Component<IProps> {
     }
 
     return icon;
-  }
+  };
 
-  render() {
-    const { notification, isList } = this.props;
-    const { isRead, createdUser } = notification;
-    const classes = classNames({ unread: !isRead });
+  const handleMarkAsRead = () => {
+    if (!notification.isRead) {
+      markAsRead([notification._id]);
+    }
+
+    const params = notification.link.split('?');
+
+    history.replace({
+      pathname: params[0],
+      state: { from: 'notification' },
+      search: `?${params[1]}`,
+    });
+  };
+
+  const getTitle = (title, user) => {
+    if (!user) {
+      return title.replace('{userName}', '');
+    }
+
+    if (!user.details || user.details.fullName) {
+      return title.replace('{userName}', user.email);
+    }
+
+    return title.replace('{userName}', user.details.fullName);
+  };
+
+  const renderContent = (content: string, type: string) => {
+    if (!type.includes('conversation')) {
+      return <b> {content}</b>;
+    }
 
     return (
-      <li className={classes} onClick={this.markAsRead}>
-        <AvatarSection>
-          <NameCard.Avatar
-            user={createdUser}
-            size={30}
-            icon={<RoundedBackgroundIcon icon={this.getIcon()} />}
-          />
-        </AvatarSection>
-        <InfoSection>
-          {this.renderCreatedUser()}
-          <CreatedDate isList={isList}>
-            {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
-          </CreatedDate>
-        </InfoSection>
-      </li>
+      <Content
+        dangerouslySetInnerHTML={{ __html: xss(content) }}
+        isList={isList}
+      />
     );
-  }
-}
+  };
 
-export default withRouter<IProps>(NotificationRow);
+  const renderCreatedUser = () => {
+    let name = 'system';
+
+    if (createdUser) {
+      name = createdUser.details
+        ? createdUser.details.fullName || ''
+        : createdUser.username || createdUser.email;
+    }
+
+    return (
+      <CreatedUser isList={isList}>
+        {name}
+        <span>
+          {notification.action}
+          {renderContent(notification.content, notification.notifType)}
+        </span>
+      </CreatedUser>
+    );
+  };
+
+  return (
+    <li className={classes} onClick={handleMarkAsRead}>
+      <AvatarSection>
+        <NameCard.Avatar
+          user={createdUser}
+          size={30}
+          icon={<RoundedBackgroundIcon icon={getIcon()} />}
+        />
+      </AvatarSection>
+      <InfoSection>
+        {renderCreatedUser()}
+        <CreatedDate isList={isList}>
+          {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
+        </CreatedDate>
+      </InfoSection>
+    </li>
+  );
+};
+
+export default withRouter<Props>(NotificationRow);
