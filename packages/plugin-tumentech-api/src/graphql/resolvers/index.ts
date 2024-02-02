@@ -11,10 +11,10 @@ import { CustomerAccount } from './accounts';
 import { DriverGroup } from './driverGroup';
 import { CarCategory, Cars as Car, Participant, Topup } from './tumentech';
 import { TumentechDeal } from './tumentechDeal';
-
+import { Advertisement } from './advertisement';
 const resolvers: any = async () => ({
   ...customScalars,
-
+  Advertisement,
   Car,
   CarCategory,
   Participant,
@@ -29,7 +29,7 @@ const resolvers: any = async () => ({
   TumentechDeal,
 
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;
