@@ -22,6 +22,8 @@ export interface IAdvertisement {
   period: string;
 
   createdAt: Date;
+
+  filterCarCategoryIds: string[];
 }
 
 export interface IAdvertisementDocument extends IAdvertisement, Document {
@@ -33,6 +35,7 @@ export const AdvertisementSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     driverId: field({ type: String, label: 'Driver id' }),
     carIds: field({ type: [String], label: 'Car ids' }),
+    filterCarCategoryIds: field({ type: [String], label: 'Car ids' }),
     productCategoryIds: field({ type: [String], label: 'Product ids' }),
     type: field({ type: String, label: 'төрөл' }),
     status: field({ type: String, label: 'төлөв', default: 'open' }),

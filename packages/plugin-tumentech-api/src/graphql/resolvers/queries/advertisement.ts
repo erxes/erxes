@@ -23,7 +23,7 @@ const advertisementQuery = {
       period,
       page,
       perPage,
-      carCategoryId,
+      filterCarCategoryIds,
     }: {
       driverId: string;
       carIds: [string];
@@ -40,7 +40,7 @@ const advertisementQuery = {
       shift: string;
       period: string;
 
-      carCategoryId: string;
+      filterCarCategoryIds: [string];
       page?: number;
       perPage?: number;
     },
@@ -55,7 +55,7 @@ const advertisementQuery = {
       filter.carIds = { $in: carIds };
     }
     if (productCategoryIds) {
-      filter.categoryIds = { $in: productCategoryIds };
+      filter.productCategoryIds = { $in: productCategoryIds };
     }
     if (status) {
       filter.status = status;
@@ -99,19 +99,19 @@ const advertisementQuery = {
       filter.period = period;
     }
 
-    if (carCategoryId) {
-      // carCategoryId: field({ type: String, label: 'Category', index: true }),
-      // parentCarCategoryId:
+    if (filterCarCategoryIds?.length > 0) {
+      const carCategory = await models.CarCategories.find({
+        _id: { $in: filterCarCategoryIds },
+      });
 
-      const carCategory = await models.CarCategories.findById(carCategoryId);
-      const isParentCarCategoryId = carCategory?.parentId ? false : true;
+      const _ids = carCategory.map((d) => d._id);
+      const carFilter = {
+        $or: [
+          { parentCarCategoryId: { $in: _ids } },
+          { carCategoryId: { $in: _ids } },
+        ],
+      };
 
-      let carFilter = {};
-      if (isParentCarCategoryId) {
-        carFilter = { parentCarCategoryId: carCategoryId };
-      } else {
-        carFilter = { carCategoryId: carCategoryId };
-      }
       const carList = await models.Cars.find(carFilter).lean();
       filter.carIds = { $in: carList.map((x) => x?._id) };
     }

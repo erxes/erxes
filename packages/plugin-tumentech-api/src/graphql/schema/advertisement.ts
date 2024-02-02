@@ -22,7 +22,7 @@ type Advertisement @key(fields: "_id") @cacheControl(maxAge: 3) {
   generalPlace: String
   shift: String
   period: String
-
+  filterCarCategoryIds :[String]
   createdAt : Date
 
   cars: [Car]
@@ -56,7 +56,9 @@ endEnd: Date,
 
 generalPlace: String,
 shift: String,
-period: String
+period: String,
+
+filterCarCategoryIds: [String]
 `;
 
 const filters = `
@@ -77,7 +79,7 @@ endDate: Date,
 generalPlace: String,
 shift: String,
 period: String
-carCategoryId: String
+filterCarCategoryIds: [String]
 `;
 export const queries = `
     advertisements(${filters}, page: Int, perPage: Int): AdvertisementListResponse

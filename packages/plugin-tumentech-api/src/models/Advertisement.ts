@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
+import { sendCardsMessage, sendClientPortalMessage } from '../messageBroker';
 import {
   IAdvertisement,
   IAdvertisementDocument,
@@ -29,8 +29,7 @@ export const loadAdvertisementClass = (models: IModels) => {
     }
 
     public static async createAdvertisement(doc: IAdvertisement) {
-      console.log('this works');
-      return models.Advertisement.create(doc);
+      return await models.Advertisement.create(doc);
     }
 
     public static async updateAdvertisement(doc: IAdvertisementEdit) {
@@ -39,11 +38,11 @@ export const loadAdvertisementClass = (models: IModels) => {
         { $set: { ...doc } },
       );
 
-      return models.Advertisement.findOne({ _id: doc._id });
+      return await models.Advertisement.findOne({ _id: doc._id });
     }
 
     public static async removeAdvertisement(doc: IAdvertisement) {
-      return models.Advertisement.remove(doc);
+      return await models.Advertisement.remove(doc);
     }
   }
 
