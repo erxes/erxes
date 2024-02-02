@@ -1,11 +1,13 @@
+import React, { useState } from 'react';
+
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+
 import { IEmailTemplate } from '../types';
 
 type Props = {
@@ -13,25 +15,22 @@ type Props = {
   contentType?: string;
 } & ICommonFormProps;
 
-type State = {
-  content: string;
-};
+const Form = (props: Props) => {
+  const { object, contentType } = props;
 
-class Form extends React.Component<Props & ICommonFormProps, State> {
-  constructor(props: Props) {
-    super(props);
+  const [content, setContent] = useState<string>(
+    (object && object.content) || '',
+  );
 
-    this.state = {
-      content: (props.object && props.object.content) || ''
-    };
-  }
-
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
+  const onEditorChange = (e) => {
+    setContent(e.editor.getData());
   };
 
-  generateDoc = (values: { _id?: string; name: string; content: string }) => {
-    const { object } = this.props;
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    content: string;
+  }) => {
     const finalValues = values;
 
     if (object) {
@@ -41,12 +40,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content
+      content: content,
     };
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as IEmailTemplate);
+  const renderContent = (formProps: IFormProps) => {
+    const { _id, name } = object || ({} as IEmailTemplate);
 
     return (
       <>
@@ -55,7 +54,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name}
+            defaultValue={name}
             type="text"
             required={true}
             autoFocus={true}
@@ -65,34 +64,30 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <EditorCK
-            content={this.state.content}
-            onChange={this.onEditorChange}
+            content={content}
+            onChange={onEditorChange}
             autoGrow={true}
             isSubmitted={formProps.isSaved}
-            name={`emailTemplates_${object._id || 'create'}`}
-            contentType={this?.props?.contentType}
+            name={`emailTemplates_${_id || 'create'}`}
+            contentType={contentType}
           />
         </FormGroup>
       </>
     );
   };
 
-  render() {
-    const { object } = this.props;
-
-    return (
-      <CommonForm
-        {...this.props}
-        name="email template"
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={object}
-        createdAt={
-          object && object.modifiedAt !== object.createdAt && object.createdAt
-        }
-      />
-    );
-  }
-}
+  return (
+    <CommonForm
+      {...props}
+      name="email template"
+      renderContent={renderContent}
+      generateDoc={generateDoc}
+      object={object}
+      createdAt={
+        object && object.modifiedAt !== object.createdAt && object.createdAt
+      }
+    />
+  );
+};
 
 export default Form;

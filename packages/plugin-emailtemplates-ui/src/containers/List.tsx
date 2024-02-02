@@ -1,8 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { graphql } from '@apollo/client/react/hoc';
-import { commonListComposer } from '@erxes/ui/src/utils';
+import { confirm } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '@erxes/ui-emailtemplates/src/types';
@@ -10,7 +9,7 @@ import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import {
   ICommonFormProps,
-  ICommonListProps
+  ICommonListProps,
 } from '@erxes/ui-settings/src/common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 
@@ -29,73 +28,87 @@ export type EmailTemplatesQueryResponse = {
   refetch: () => void;
 };
 
-type Props = ICommonListProps &
-  ICommonFormProps & {
-    queryParams: any;
-    history: any;
-    renderButton: (props: IButtonMutateProps) => JSX.Element;
-    listQuery: any;
+type Props = {
+  queryParams: any;
+  history: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  listQuery: any;
+} & ICommonListProps &
+  ICommonFormProps;
+
+const EmailListContainer = (props: Props) => {
+  const { queryParams } = props;
+
+  const listQuery = useQuery<EmailTemplatesQueryResponse>(
+    gql(queries.emailTemplates),
+    {
+      variables: {
+        searchValue: queryParams.searchValue,
+        status: queryParams.status,
+        ...generatePaginationParams(queryParams),
+      },
+    },
+  );
+
+  const totalCountQuery = useQuery<EmailTemplatesTotalCountQueryResponse>(
+    gql(queries.totalCount),
+    {
+      variables: {
+        searchValue: queryParams.searchValue,
+      },
+    },
+  );
+
+  const [emailTemplatesRemove] = useMutation(
+    gql(mutations.emailTemplatesRemove),
+    {
+      refetchQueries: ['emailTemplates', 'emailTemplatesTotalCount'],
+    },
+  );
+  const [emailTemplatesDuplicate] = useMutation(
+    gql(mutations.emailTemplatesDuplicate),
+    {
+      refetchQueries: ['emailTemplates', 'emailTemplatesTotalCount'],
+    },
+  );
+
+  const remove = (id: string) => {
+    confirm().then(() => {
+      emailTemplatesRemove({
+        variables: { _id: id },
+      })
+        .then(() => {
+          Alert.success('Successfully deleted a template');
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    });
   };
 
-class EmailListContainer extends React.Component<Props> {
-  duplicate = (id: string) => {
-    client
-      .mutate({
-        mutation: gql(mutations.emailTemplatesDuplicate),
-        variables: { _id: id }
-      })
+  const duplicate = (id: string) => {
+    client;
+    emailTemplatesDuplicate({
+      variables: { _id: id },
+    })
       .then(() => {
         Alert.success('Successfully duplicated a template');
-
-        this.props.refetch();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  render() {
-    return <List {...this.props} duplicate={this.duplicate} />;
-  }
-}
+  const updatedProps = {
+    ...props,
+    remove,
+    duplicate,
+    objects: listQuery?.data?.emailTemplates || [],
+    totalCount: totalCountQuery?.data?.emailTemplatesTotalCount || 0,
+    loading: listQuery.loading || totalCountQuery.loading,
+  };
 
-export default commonListComposer<Props>({
-  text: 'email template',
-  label: 'emailTemplates',
-  stringEditMutation: mutations.emailTemplatesEdit,
-  stringAddMutation: mutations.emailTemplatesAdd,
+  return <List {...updatedProps} />;
+};
 
-  gqlListQuery: graphql(gql(queries.emailTemplates), {
-    name: 'listQuery',
-    options: ({ queryParams }: { queryParams: any }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          searchValue: queryParams.searchValue,
-          status: queryParams.status,
-          ...generatePaginationParams(queryParams)
-        }
-      };
-    }
-  }),
-  gqlTotalCountQuery: graphql(gql(queries.totalCount), {
-    name: 'totalCountQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        searchValue: queryParams.searchValue
-      }
-    })
-  }),
-  gqlAddMutation: graphql(gql(mutations.emailTemplatesAdd), {
-    name: 'addMutation'
-  }),
-
-  gqlEditMutation: graphql(gql(mutations.emailTemplatesEdit), {
-    name: 'editMutation'
-  }),
-
-  gqlRemoveMutation: graphql(gql(mutations.emailTemplatesRemove), {
-    name: 'removeMutation'
-  }),
-  ListComponent: EmailListContainer
-});
+export default EmailListContainer;
