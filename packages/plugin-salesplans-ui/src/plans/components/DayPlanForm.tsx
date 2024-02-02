@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
@@ -11,11 +11,11 @@ import {
   ControlLabel,
   DateControl,
   Form as CommonForm,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import moment from 'moment';
@@ -26,138 +26,116 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  dayPlanParams: IDayPlanParams;
-};
+const DayPlanForm = (props: Props) => {
+  const { history, renderButton, closeModal } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [dayPlanParams, setDayPlanParams] = useState<IDayPlanParams>({
+    date: new Date(),
+  });
 
-    this.state = {
-      dayPlanParams: {
-        date: new Date()
-      }
-    };
-  }
-
-  generateDoc = (values: { _id?: string }) => {
+  const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
-    const { dayPlanParams } = this.state;
 
     const strVal = moment(dayPlanParams.date).format('YYYY/MM/DD');
 
     return {
       ...finalValues,
       ...dayPlanParams,
-      date: new Date(strVal)
+      date: new Date(strVal),
     };
   };
 
-  onInputChange = e => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, [name]: value }
-    });
+    setDayPlanParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  onSelectChange = (name, value) => {
-    this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, [name]: value }
-    });
+  const onSelectChange = (name, value) => {
+    setDayPlanParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  onSelectDate = value => {
-    this.setState({
-      dayPlanParams: {
-        ...this.state.dayPlanParams,
-        date: new Date(moment(value).format('YYYY/MM/DD'))
-      }
-    });
+  const onSelectDate = (value) => {
+    setDayPlanParams((prevState) => ({
+      ...prevState,
+      date: new Date(moment(value).format('YYYY/MM/DD')),
+    }));
   };
 
-  onAfterSave = () => {
-    router.removeParams(this.props.history, 'page');
-    router.setParams(this.props.history, {
-      ...this.state.dayPlanParams,
-      date: moment(this.state.dayPlanParams.date).format('YYYY/MM/DD')
+  const onAfterSave = () => {
+    router.removeParams(history, 'page');
+    router.setParams(history, {
+      ...dayPlanParams,
+      date: moment(dayPlanParams.date).format('YYYY/MM/DD'),
     });
-    this.props.closeModal();
+    closeModal();
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
-    const { dayPlanParams } = this.state;
 
     return (
       <>
-        <ScrollWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
-            <DateContainer>
-              <DateControl
-                name="createdAtFrom"
-                placeholder="Choose date"
-                value={
-                  dayPlanParams.date ||
-                  new Date(moment(new Date()).format('YYYY/MM/DD'))
-                }
-                onChange={this.onSelectDate}
-              />
-            </DateContainer>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Branch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="selectedBranchId"
-              initialValue={''}
-              onSelect={branchId => this.onSelectChange('branchId', branchId)}
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Department</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentId"
-              initialValue={''}
-              onSelect={departmentId =>
-                this.onSelectChange('departmentId', departmentId)
+        <FormGroup>
+          <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
+          <DateContainer>
+            <DateControl
+              name="createdAtFrom"
+              placeholder="Choose date"
+              value={
+                dayPlanParams.date ||
+                new Date(moment(new Date()).format('YYYY/MM/DD'))
               }
-              multi={false}
+              onChange={onSelectDate}
             />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Product Category</ControlLabel>
-            <SelectProductCategory
-              label="Choose product category"
-              name="productCategoryId"
-              initialValue={''}
-              onSelect={categoryId =>
-                this.onSelectChange('productCategoryId', categoryId)
-              }
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Or Product</ControlLabel>
-            <SelectProducts
-              label="Choose product"
-              name="productId"
-              initialValue={''}
-              onSelect={productId =>
-                this.onSelectChange('productId', productId)
-              }
-              multi={false}
-            />
-          </FormGroup>
-        </ScrollWrapper>
+          </DateContainer>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="selectedBranchId"
+            initialValue={''}
+            onSelect={(branchId) => onSelectChange('branchId', branchId)}
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentId"
+            initialValue={''}
+            onSelect={(departmentId) =>
+              onSelectChange('departmentId', departmentId)
+            }
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Product Category</ControlLabel>
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={''}
+            onSelect={(categoryId) =>
+              onSelectChange('productCategoryId', categoryId)
+            }
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Or Product</ControlLabel>
+          <SelectProducts
+            label="Choose product"
+            name="productId"
+            initialValue={''}
+            onSelect={(productId) => onSelectChange('productId', productId)}
+            multi={false}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -169,19 +147,17 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: this.onAfterSave,
-            object: dayPlanParams
+            callback: onAfterSave,
+            object: dayPlanParams,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
-export default Form;
+export default DayPlanForm;

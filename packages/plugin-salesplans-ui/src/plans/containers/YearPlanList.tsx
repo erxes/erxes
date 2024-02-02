@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
 import YearPlans from '../components/YearPlanList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
@@ -12,7 +12,7 @@ import {
   YearPlansRemoveMutationResponse,
   YearPlansCountQueryResponse,
   YearPlansSumQueryResponse,
-  YearPlansEditMutationResponse
+  YearPlansEditMutationResponse,
 } from '../types';
 
 type Props = {
@@ -21,86 +21,104 @@ type Props = {
   type?: string;
 };
 
-type FinalProps = {
-  yearPlanQuery: YearPlansQueryResponse;
-  yearPlansCountQuery: YearPlansCountQueryResponse;
-  yearPlansSumQuery: YearPlansSumQueryResponse;
-} & Props &
-  YearPlansEditMutationResponse &
-  YearPlansRemoveMutationResponse;
+const YearPlanListContainer = (props: Props) => {
+  const { queryParams } = props;
 
-class YearPlansContainer extends React.Component<FinalProps> {
-  render() {
-    const {
-      yearPlanQuery,
-      yearPlansCountQuery,
-      yearPlansSumQuery,
-      queryParams,
-      yearPlanEdit,
-      yearPlansRemove
-    } = this.props;
+  const yearPlanQuery = useQuery<YearPlansQueryResponse>(
+    gql(queries.yearPlans),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
+  const yearPlansCountQuery = useQuery<YearPlansCountQueryResponse>(
+    gql(queries.yearPlansCount),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
+  const yearPlansSumQuery = useQuery<YearPlansSumQueryResponse>(
+    gql(queries.yearPlansSum),
+    {
+      variables: generateParams({ queryParams }),
+      fetchPolicy: 'network-only',
+    },
+  );
 
-    // edit row action
-    const edit = (doc: IYearPlan) => {
-      yearPlanEdit({
-        variables: { ...doc }
+  const [yearPlanEdit] = useMutation<YearPlansEditMutationResponse>(
+    gql(mutations.yearPlanEdit),
+    {
+      refetchQueries: ['yearPlans', 'yearPlansCount', 'yearPlansSum'],
+    },
+  );
+  const [yearPlansRemove] = useMutation<YearPlansRemoveMutationResponse>(
+    gql(mutations.yearPlansRemove),
+    {
+      refetchQueries: ['yearPlans', 'yearPlansCount', 'yearPlansSum'],
+    },
+  );
+
+  // edit row action
+  const edit = (doc: IYearPlan) => {
+    yearPlanEdit({
+      variables: { ...doc },
+    })
+      .then(() => {
+        Alert.success('You successfully updated a day plan');
       })
-        .then(() => {
-          Alert.success('You successfully updated a day plan');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-    // remove action
-    const remove = ({ yearPlanIds }, emptyBulk) => {
-      yearPlansRemove({
-        variables: { _ids: yearPlanIds }
+  // remove action
+  const remove = ({ yearPlanIds }, emptyBulk) => {
+    yearPlansRemove({
+      variables: { _ids: yearPlanIds },
+    })
+      .then(() => {
+        emptyBulk();
+
+        Alert.success('You successfully deleted a day plan');
       })
-        .then(() => {
-          emptyBulk();
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-          Alert.success('You successfully deleted a day plan');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
-    const searchValue = this.props.queryParams.searchValue || '';
-    const yearPlans = yearPlanQuery.yearPlans || [];
-    const totalCount = yearPlansCountQuery.yearPlansCount || 0;
-    const totalSum = yearPlansSumQuery.yearPlansSum || {};
+  const yearPlanList = (bulkProps) => {
+    const searchValue = queryParams.searchValue || '';
+    const yearPlans = yearPlanQuery?.data?.yearPlans || [];
+    const totalCount = yearPlansCountQuery?.data?.yearPlansCount || 0;
+    const totalSum = yearPlansSumQuery?.data?.yearPlansSum || {};
+    const loading =
+      yearPlanQuery.loading ||
+      yearPlansCountQuery.loading ||
+      yearPlansSumQuery.loading;
 
     const updatedProps = {
-      ...this.props,
+      ...props,
       queryParams,
       yearPlans,
       totalCount,
+      loading,
       totalSum,
       edit,
       remove,
-      searchValue
+      searchValue,
     };
 
-    const yearPlanList = props => <YearPlans {...updatedProps} {...props} />;
+    return <YearPlans {...updatedProps} {...bulkProps} />;
+  };
 
-    const refetch = () => {
-      this.props.yearPlanQuery.refetch();
-    };
+  const refetch = () => {
+    yearPlanQuery.refetch();
+    yearPlansCountQuery.refetch();
+  };
 
-    return <Bulk content={yearPlanList} refetch={refetch} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['yearPlans', 'yearPlansCount', 'yearPlansSum'];
+  return <Bulk content={yearPlanList} refetch={refetch} />;
 };
-
-const options = () => ({
-  refetchQueries: getRefetchQueries()
-});
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -116,54 +134,7 @@ const generateParams = ({ queryParams }) => ({
   maxValue: queryParams.maxValue,
   dateType: queryParams.dateType,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  endDate: queryParams.endDate,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<{ queryParams: any }, YearPlansQueryResponse>(
-      gql(queries.yearPlans),
-      {
-        name: 'yearPlanQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{ queryParams: any }, YearPlansCountQueryResponse>(
-      gql(queries.yearPlansCount),
-      {
-        name: 'yearPlansCountQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{ queryParams: any }, YearPlansSumQueryResponse>(
-      gql(queries.yearPlansSum),
-      {
-        name: 'yearPlansSumQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, YearPlansEditMutationResponse, {}>(
-      gql(mutations.yearPlanEdit),
-      {
-        name: 'yearPlanEdit',
-        options
-      }
-    ),
-    graphql<Props, YearPlansRemoveMutationResponse, { yearPlanIds: string[] }>(
-      gql(mutations.yearPlansRemove),
-      {
-        name: 'yearPlansRemove',
-        options
-      }
-    )
-  )(YearPlansContainer)
-);
+export default YearPlanListContainer;

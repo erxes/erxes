@@ -10,15 +10,16 @@ import {
   DataWithLoader,
   FormControl,
   ModalTrigger,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { IDayLabel } from '../types';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { menuSalesplans } from '../../constants';
+import { FlexRow, Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   dayLabels: IDayLabel[];
   totalCount: number;
+  loading: boolean;
   isAllSelected: boolean;
   toggleAll: (targets: IDayLabel[], containerId: string) => void;
   history: any;
@@ -31,71 +32,65 @@ type Props = {
   searchValue: string;
 };
 
-type State = {};
+const DayLabelList = (props: Props) => {
+  const {
+    queryParams,
+    history,
+    dayLabels,
+    totalCount,
+    bulk,
+    loading,
 
-class DayLabels extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+    remove,
+    toggleBulk,
+    toggleAll,
+    emptyBulk,
+    isAllSelected,
+  } = props;
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {};
-  }
-
-  onChange = () => {
-    const { toggleAll, dayLabels } = this.props;
+  const onChange = () => {
     toggleAll(dayLabels, 'dayLabels');
   };
 
-  renderRow = () => {
-    const { dayLabels, history, toggleBulk, bulk, edit } = this.props;
-
-    return dayLabels.map(dayLabel => (
+  const renderRow = () => {
+    return dayLabels.map((dayLabel) => (
       <Row
         key={dayLabel._id}
         history={history}
         dayLabel={dayLabel}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(dayLabel)}
-        edit={edit}
       />
     ));
   };
 
-  modalContent = props => {
+  const modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeDayLabels = dayLabels => {
+  const removeDayLabels = (dayLabels) => {
     const dayLabelIds: string[] = [];
 
-    dayLabels.forEach(dayLabel => {
+    dayLabels.forEach((dayLabel) => {
       dayLabelIds.push(dayLabel._id);
     });
 
-    this.props.remove({ dayLabelIds }, this.props.emptyBulk);
+    remove({ dayLabelIds }, emptyBulk);
   };
 
-  actionBarRight() {
-    const { bulk } = this.props;
-
+  const actionBarRight = () => {
     if (bulk.length) {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeDayLabels(bulk);
+            removeDayLabels(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
       return (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="cancel-1"
-          onClick={onClick}
-        >
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
           Remove
         </Button>
       );
@@ -108,22 +103,19 @@ class DayLabels extends React.Component<Props, State> {
     );
 
     return (
-      <BarItems>
+      <FlexRow>
         <ModalTrigger
-          size={'lg'}
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
-          content={this.modalContent}
+          content={modalContent}
         />
-      </BarItems>
+      </FlexRow>
     );
-  }
+  };
 
-  render() {
-    const { isAllSelected, totalCount, queryParams, history } = this.props;
-
-    const content = (
+  const renderContent = () => {
+    return (
       <Table hover={true}>
         <thead>
           <tr>
@@ -131,7 +123,7 @@ class DayLabels extends React.Component<Props, State> {
               <FormControl
                 checked={isAllSelected}
                 componentClass="checkbox"
-                onChange={this.onChange}
+                onChange={onChange}
               />
             </th>
             <th>{__('Date')}</th>
@@ -141,40 +133,40 @@ class DayLabels extends React.Component<Props, State> {
             <th>{__('')}</th>
           </tr>
         </thead>
-        <tbody>{this.renderRow()}</tbody>
+        <tbody>{renderRow()}</tbody>
       </Table>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Sales Year plans')}
-            submenu={menuSalesplans}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Day labels')}</Title>}
-            right={this.actionBarRight()}
-          />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            count={totalCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        footer={<Pagination count={totalCount} />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Sales Year plans')}
+          submenu={menuSalesplans}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Day labels')}</Title>}
+          right={actionBarRight()}
+        />
+      }
+      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      footer={<Pagination count={totalCount} />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
-export default DayLabels;
+export default DayLabelList;

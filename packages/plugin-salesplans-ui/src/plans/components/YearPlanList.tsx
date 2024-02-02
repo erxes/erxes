@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Row from './YearPlanRow';
 import Sidebar from './YearPlanSidebar';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
@@ -7,19 +7,26 @@ import {
   Button,
   DataWithLoader,
   FormControl,
+  Icon,
   ModalTrigger,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { IYearPlan } from '../types';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import Form from '../containers/YearPlanForm';
 import { menuSalesplans, MONTHS } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { TableWrapper } from '../../styles';
+import {
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title,
+} from '@erxes/ui-settings/src/styles';
 
 type Props = {
   yearPlans: IYearPlan[];
   totalCount: number;
+  loading: boolean;
   totalSum: any;
   isAllSelected: boolean;
   toggleAll: (targets: IYearPlan[], containerId: string) => void;
@@ -33,53 +40,54 @@ type Props = {
   searchValue: string;
 };
 
-type State = {
-  searchValue: string;
-};
+const YearPlanList = (props: Props) => {
+  const {
+    yearPlans,
+    totalCount,
+    loading,
+    totalSum,
+    isAllSelected,
+    toggleAll,
+    history,
+    queryParams,
+    bulk,
+    emptyBulk,
+    toggleBulk,
+    remove,
+    edit,
+    searchValue,
+  } = props;
 
-class YearPlans extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+  const [search, setSearch] = useState<string>(searchValue || '');
+  const timerRef = useRef<number | null>(null);
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue || ''
-    };
-  }
-
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const handleSearch = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
+    setSearch(value);
 
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.setParams(history, { searchValue: value });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = '';
     e.target.value = tmpValue;
-  }
+  };
 
-  onChange = () => {
-    const { toggleAll, yearPlans } = this.props;
+  const onChange = () => {
     toggleAll(yearPlans, 'yearPlans');
   };
 
-  renderRow = () => {
-    const { yearPlans, history, toggleBulk, bulk, edit } = this.props;
-
-    return yearPlans.map(yearPlan => (
+  const renderRow = () => {
+    return yearPlans.map((yearPlan) => (
       <Row
         key={yearPlan._id}
         history={history}
@@ -91,40 +99,33 @@ class YearPlans extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  const modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeYearPlans = yearPlans => {
+  const removeYearPlans = (yearPlans) => {
     const yearPlanIds: string[] = [];
 
-    yearPlans.forEach(yearPlan => {
+    yearPlans.forEach((yearPlan) => {
       yearPlanIds.push(yearPlan._id);
     });
 
-    this.props.remove({ yearPlanIds }, this.props.emptyBulk);
+    remove({ yearPlanIds }, emptyBulk);
   };
 
-  actionBarRight() {
-    const { bulk } = this.props;
-
+  const actionBarRight = () => {
     if (bulk.length) {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeYearPlans(bulk);
+            removeYearPlans(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
       return (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="cancel-1"
-          onClick={onClick}
-        >
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
           Remove
         </Button>
       );
@@ -137,36 +138,32 @@ class YearPlans extends React.Component<Props, State> {
     );
 
     return (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
+      <FlexRow>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={handleSearch}
+              value={searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
+        </InputBar>
         <ModalTrigger
-          size={'lg'}
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
-          content={this.modalContent}
+          content={modalContent}
         />
-      </BarItems>
+      </FlexRow>
     );
-  }
+  };
 
-  render() {
-    const {
-      isAllSelected,
-      totalCount,
-      totalSum,
-      queryParams,
-      history
-    } = this.props;
-
-    const content = (
+  const renderContent = () => {
+    return (
       <TableWrapper>
         <Table hover={true}>
           <thead>
@@ -175,7 +172,7 @@ class YearPlans extends React.Component<Props, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th rowSpan={2}>{__('Year')}</th>
@@ -183,7 +180,7 @@ class YearPlans extends React.Component<Props, State> {
               <th rowSpan={2}>{__('Department')}</th>
               <th rowSpan={2}>{__('Product')}</th>
               <th>{__('Uom')}</th>
-              {MONTHS.map(m => (
+              {MONTHS.map((m) => (
                 <th key={m}>{m}</th>
               ))}
               <th>{__('Sum')}</th>
@@ -191,53 +188,53 @@ class YearPlans extends React.Component<Props, State> {
             </tr>
             <tr>
               <th>{__('Sum')}:</th>
-              {MONTHS.map(m => (
+              {MONTHS.map((m) => (
                 <th key={m}>{totalSum[m]}</th>
               ))}
               <th>
                 {Object.values(totalSum).reduce(
                   (sum, i) => Number(sum) + Number(i),
-                  0
+                  0,
                 )}
               </th>
               <th>{__('')}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Sales Year plans')}
-            submenu={menuSalesplans}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Sales Year plans')}</Title>}
-            right={this.actionBarRight()}
-          />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            count={totalCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        footer={<Pagination count={totalCount} />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Sales Year plans')}
+          submenu={menuSalesplans}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__('Sales Year plans')}</Title>}
+          right={actionBarRight()}
+        />
+      }
+      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      footer={<Pagination count={totalCount} />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
-export default YearPlans;
+export default YearPlanList;
