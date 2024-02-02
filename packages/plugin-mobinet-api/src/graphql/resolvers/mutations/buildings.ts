@@ -7,7 +7,18 @@ import {
 import { findCenter } from '../utils';
 
 const mutations = {
-  buildingsAdd: async (_root, doc: IBuilding, { models }: IContext) => {
+  buildingsAdd: async (
+    _root,
+    doc: IBuilding,
+    { models, subdomain }: IContext,
+  ) => {
+    doc.customFieldsData = await sendCommonMessage({
+      serviceName: 'forms',
+      subdomain,
+      action: 'fields.prepareCustomFieldsData',
+      data: doc.customFieldsData,
+      isRPC: true,
+    });
     return models.Buildings.createBuilding(doc);
   },
 

@@ -1,8 +1,4 @@
-import {
-  MessageArgs,
-  MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
+import { MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
 
@@ -205,6 +201,15 @@ export const sendProductsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
+    ...args,
+  });
+};
+
+export const sendFormsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'forms',
     ...args,
   });
 };

@@ -1,6 +1,6 @@
 import {
   AddMessageMutationVariables,
-  IConversation
+  IConversation,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { Alert, __, readFile, uploadHandler } from 'coreui/utils';
 import {
@@ -14,12 +14,12 @@ import {
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled,
-  SmallEditor
+  SmallEditor,
 } from '@erxes/ui-inbox/src/inbox/styles';
 import {
   getPluginConfig,
   isEnabled,
-  loadDynamicComponent
+  loadDynamicComponent,
 } from '@erxes/ui/src/utils/core';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -29,7 +29,7 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
@@ -37,16 +37,15 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 
 type Props = {
   conversation: IConversation;
   currentUser: IUser;
   sendMessage: (
     message: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    callback: (error: Error) => void,
   ) => void;
   onSearchChange: (value: string) => void;
   showInternal: boolean;
@@ -55,7 +54,6 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   refetchMessages: () => void;
   refetchDetail: () => void;
-  refetchResponseTemplates: (content: string) => void;
   mentionSuggestion?: MentionSuggestionParams;
 };
 
@@ -78,8 +76,8 @@ const Editor = asyncComponent(
   {
     height: '137px',
     width: '100%',
-    color: '#fff'
-  }
+    color: '#fff',
+  },
 );
 
 class RespondBox extends React.Component<Props, State> {
@@ -96,7 +94,7 @@ class RespondBox extends React.Component<Props, State> {
       content: '',
       mentionedUserIds: [],
       loading: {},
-      timer: undefined
+      timer: undefined,
     };
   }
   isContentWritten() {
@@ -110,12 +108,8 @@ class RespondBox extends React.Component<Props, State> {
     return true;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { sending, content, responseTemplate } = this.state;
-
-    if (responseTemplate && responseTemplate === prevState.responseTemplate) {
-      this.setState({ responseTemplate: '' });
-    }
+  componentDidUpdate(prevState) {
+    const { sending, content } = this.state;
 
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });
@@ -125,13 +119,13 @@ class RespondBox extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
-        isInactive: !this.checkIsActive(nextProps.conversation)
+        isInactive: !this.checkIsActive(nextProps.conversation),
       });
     }
 
     if (this.props.showInternal !== nextProps.showInternal) {
       this.setState({
-        isInternal: nextProps.showInternal
+        isInternal: nextProps.showInternal,
       });
     }
   }
@@ -160,7 +154,7 @@ class RespondBox extends React.Component<Props, State> {
       this.setState({
         timer: setTimeout(() => {
           this.props.refetchResponseTemplates(textContent);
-        }, 1000)
+        }, 1000),
       });
     }
 
@@ -171,15 +165,6 @@ class RespondBox extends React.Component<Props, State> {
         Alert.warning(__('You have reached maximum number of characters'));
       }
     }
-  };
-
-  // save mentioned user to state
-  onAddMention = (mentionedUserIds: string[]) => {
-    this.setState({ mentionedUserIds });
-  };
-
-  onSearchChange = (value: string) => {
-    this.props.onSearchChange(value);
   };
 
   checkIsActive(conversation: IConversation) {
@@ -206,9 +191,6 @@ class RespondBox extends React.Component<Props, State> {
     e.preventDefault();
 
     this.addMessage();
-
-    // redrawing editor after send button, so editor content will be reseted
-    this.setState({ editorKey: `${this.state.editorKey}Key` });
   };
 
   onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
@@ -216,11 +198,13 @@ class RespondBox extends React.Component<Props, State> {
       return null;
     }
 
+    this.onEditorContentChange(responseTemplate.content);
+
     return this.setState({
       responseTemplate: responseTemplate.content,
 
       // set attachment from response template files
-      attachments: responseTemplate.files || []
+      attachments: responseTemplate.files || [],
     });
   };
 
@@ -241,7 +225,7 @@ class RespondBox extends React.Component<Props, State> {
       afterUpload: ({ status }) => {
         if (status === 'ok') {
           const remainedAttachments = this.state.attachments.filter(
-            a => a.url !== url
+            (a) => a.url !== url,
           );
 
           this.setState({ attachments: remainedAttachments });
@@ -255,7 +239,7 @@ class RespondBox extends React.Component<Props, State> {
         delete loading[url];
 
         this.setState({ loading });
-      }
+      },
     });
   };
 
@@ -274,8 +258,8 @@ class RespondBox extends React.Component<Props, State> {
         this.setState({
           attachments: [
             ...this.state.attachments,
-            Object.assign({ url: response }, fileInfo)
-          ]
+            Object.assign({ url: response }, fileInfo),
+          ],
         });
         // remove preview
         if (setAttachmentPreview) {
@@ -287,7 +271,7 @@ class RespondBox extends React.Component<Props, State> {
         if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
         }
-      }
+      },
     });
   };
 
@@ -310,13 +294,7 @@ class RespondBox extends React.Component<Props, State> {
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
-    const {
-      isInternal,
-      attachments,
-      content,
-      // mentionedUserIds,
-      extraInfo
-    } = this.state;
+    const { isInternal, attachments, content, extraInfo } = this.state;
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
@@ -324,11 +302,11 @@ class RespondBox extends React.Component<Props, State> {
       contentType: 'text',
       internal: isInternal,
       attachments,
-      mentionedUserIds: getParsedMentions(useGenerateJSON(this.state.content))
+      mentionedUserIds: getParsedMentions(useGenerateJSON(this.state.content)),
     };
     if (this.state.content && !this.state.sending) {
       this.setState({ sending: true });
-      sendMessage(message, error => {
+      sendMessage(message, (error) => {
         if (error) {
           return Alert.error(error.message);
         }
@@ -338,7 +316,7 @@ class RespondBox extends React.Component<Props, State> {
           attachments: [],
           content: '',
           sending: false,
-          mentionedUserIds: []
+          mentionedUserIds: [],
         });
       });
     }
@@ -347,14 +325,14 @@ class RespondBox extends React.Component<Props, State> {
   toggleForm = () => {
     this.setState(
       {
-        isInternal: !this.state.isInternal
+        isInternal: !this.state.isInternal,
       },
       () => {
         localStorage.setItem(
           `showInternalState-${this.props.conversation._id}`,
-          String(this.state.isInternal)
+          String(this.state.isInternal),
         );
-      }
+      },
     );
   };
 
@@ -364,13 +342,13 @@ class RespondBox extends React.Component<Props, State> {
     if (attachments.length > 0) {
       return (
         <AttachmentIndicator>
-          {attachments.map(attachment => (
+          {attachments.map((attachment) => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
                     style={{
-                      backgroundImage: `url(${readFile(attachment.url)})`
+                      backgroundImage: `url(${readFile(attachment.url)})`,
                     }}
                   />
                 )}
@@ -402,7 +380,7 @@ class RespondBox extends React.Component<Props, State> {
       return (
         <Mask id="mask" onClick={this.hideMask}>
           {__(
-            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
+            'Customer is offline Click to hide and send messages and they will receive them the next time they are online',
           )}
         </Mask>
       );
@@ -412,7 +390,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderEditor() {
-    const { isInternal, responseTemplate } = this.state;
+    const { isInternal } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -422,7 +400,7 @@ class RespondBox extends React.Component<Props, State> {
     }
 
     const placeholder = __(
-      `To send your ${type} press Enter and Shift + Enter to add a new line`
+      `To send your ${type} press Enter and Shift + Enter to add a new line`,
     );
 
     return (
@@ -430,17 +408,11 @@ class RespondBox extends React.Component<Props, State> {
         currentConversation={conversation._id}
         defaultContent={this.getUnsendMessage(conversation._id)}
         integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
         onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
         placeholder={placeholder}
         showMentions={isInternal}
         mentionSuggestion={this.props.mentionSuggestion}
-        responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
         content={this.state.content}
       />
     );
@@ -545,7 +517,7 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation } = this.props;
     const { isInternal, isInactive, extraInfo } = this.state;
 
-    const setExtraInfo = value => {
+    const setExtraInfo = (value) => {
       this.setState({ extraInfo: value });
     };
 
@@ -553,17 +525,17 @@ class RespondBox extends React.Component<Props, State> {
 
     const integrations = getPluginConfig({
       pluginName: integration.kind.split('-')[0],
-      configName: 'inboxIntegrations'
+      configName: 'inboxIntegrations',
     });
 
     let dynamicComponent = null;
 
     if (integrations && integrations.length > 0) {
-      const entry = integrations.find(s => s.kind === integration.kind);
+      const entry = integrations.find((s) => s.kind === integration.kind);
 
       if (entry && entry.components && entry.components.length > 0) {
         const name = entry.components.find(
-          el => el === 'inboxConversationDetailRespondBoxMask'
+          (el) => el === 'inboxConversationDetailRespondBoxMask',
         );
 
         if (name) {
@@ -571,7 +543,7 @@ class RespondBox extends React.Component<Props, State> {
             hideMask: this.hideMask,
             extraInfo,
             setExtraInfo,
-            conversationId: conversation._id
+            conversationId: conversation._id,
           });
         }
       }

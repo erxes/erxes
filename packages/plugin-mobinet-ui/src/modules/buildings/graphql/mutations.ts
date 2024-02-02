@@ -10,6 +10,7 @@ const variables = `
     $serviceStatus: ServiceStatus
     $suhId: String
     $networkType: NetworkType
+    $customFieldsData: JSON
 `;
 
 const fields = `
@@ -24,6 +25,7 @@ const fields = `
     serviceStatus: $serviceStatus
     suhId: $suhId
     networkType: $networkType
+    customFieldsData: $customFieldsData
 `;
 
 const addMutation = `

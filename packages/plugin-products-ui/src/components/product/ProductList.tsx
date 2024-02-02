@@ -58,20 +58,20 @@ class List extends React.Component<IProps, State> {
 
     this.state = {
       searchValue: this.props.searchValue,
-      checked: false
+      checked: false,
     };
   }
 
   renderRow = () => {
     const { products, history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
+    return products.map((product) => (
       <Row
         history={history}
         key={product._id}
         product={product}
         toggleBulk={toggleBulk}
-        isChecked={(bulk || []).map(b => b._id).includes(product._id)}
+        isChecked={(bulk || []).map((b) => b._id).includes(product._id)}
       />
     ));
   };
@@ -86,17 +86,17 @@ class List extends React.Component<IProps, State> {
     }
   };
 
-  removeProducts = products => {
+  removeProducts = (products) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       productIds.push(product._id);
     });
 
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -119,7 +119,7 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
-  onChangeChecked = e => {
+  onChangeChecked = (e) => {
     const { bulk, history } = this.props;
     const checked = e.target.checked;
 
@@ -128,7 +128,7 @@ class List extends React.Component<IProps, State> {
       this.setState({ searchValue: '' });
       router.removeParams(history, 'page', 'searchValue', 'categoryId');
       router.setParams(history, {
-        ids: (bulk || []).map(b => b._id).join(',')
+        ids: (bulk || []).map((b) => b._id).join(','),
       });
     } else {
       this.setState({ checked: false });
@@ -137,12 +137,8 @@ class List extends React.Component<IProps, State> {
   };
 
   renderContent = () => {
-    const {
-      productsCount,
-      loading,
-      isAllSelected,
-      currentCategory
-    } = this.props;
+    const { productsCount, loading, isAllSelected, currentCategory } =
+      this.props;
 
     if (loading) {
       return <Spinner objective={true} />;
@@ -194,12 +190,12 @@ class List extends React.Component<IProps, State> {
       emptyBulk,
       currentCategory,
       mergeProducts,
-      mergeProductLoading
+      mergeProductLoading,
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
+      { title: __('Product & Service') },
     ];
 
     const trigger = (
@@ -208,9 +204,9 @@ class List extends React.Component<IProps, State> {
       </Button>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const modalContent = (props) => <Form {...props} />;
 
-    const productsMerge = props => {
+    const productsMerge = (props) => {
       return (
         <ProductsMerge
           {...props}
@@ -228,7 +224,7 @@ class List extends React.Component<IProps, State> {
             .then(() => {
               this.removeProducts(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -295,7 +291,7 @@ class List extends React.Component<IProps, State> {
               contentType={`products:product`}
             />
           )}
-          <Link to="/settings/importHistories?type=product">
+          <Link to="/settings/importHistories?type=products:product">
             <Button btnStyle="simple" icon="arrow-from-right">
               {__('Import items')}
             </Button>
@@ -312,8 +308,9 @@ class List extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{`${currentCategory.name ||
-        'All products'} (${productsCount})`}</Title>
+      <Title>{`${
+        currentCategory.name || 'All products'
+      } (${productsCount})`}</Title>
     );
 
     return (
@@ -330,9 +327,9 @@ class List extends React.Component<IProps, State> {
             icon="/images/actions/30.svg"
             title={'Product & Service'}
             description={`${__(
-              'All information and know-how related to your business products and services are found here'
+              'All information and know-how related to your business products and services are found here',
             )}.${__(
-              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
+              'Create and add in unlimited products and servicess so that you and your team members can edit and share',
             )}`}
           />
         }

@@ -80,7 +80,7 @@ const ControlsGroupWrapper = styled.div<{
       $isActive ? rgba(colors.colorSecondary, 0.05) : 'transparent'};
     border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
-
+    padding: 0 0.4rem;
     button {
       border: none;
       height: 100%;

@@ -14,6 +14,7 @@ type Props = {
   building: IBuilding;
   assets: any[];
   onUpdate: (data: any) => void;
+  refetch: () => void;
 };
 
 const BuildingDetail = (props: Props) => {
@@ -24,9 +25,9 @@ const BuildingDetail = (props: Props) => {
   const breadcrumb = [
     {
       title: __('Buildings'),
-      link: '/mobinet/building/list'
+      link: '/mobinet/building/list',
     },
-    { title: name }
+    { title: name },
   ];
 
   const content = (
@@ -52,7 +53,7 @@ const BuildingDetail = (props: Props) => {
       header={<Wrapper.Header title={name} breadcrumb={breadcrumb} />}
       mainHead={
         <UserHeader>
-          <InfoSection building={building} />
+          <InfoSection building={building} refetch={props.refetch} />
           {/* <ActionSection customer={customer} /> */}
           {/* action section */}
           {/* </InfoSection> */}

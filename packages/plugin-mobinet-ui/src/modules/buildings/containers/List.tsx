@@ -9,6 +9,26 @@ import {
   BuildingsByBoundsQueryResponse,
 } from '../types';
 import { ICoordinates } from '../../../types';
+import { CityListQueryResponse } from '../../cities/types';
+import { IQueryParams } from '@erxes/ui/src/types';
+
+const generateParams = (queryParams) => {
+  return {
+    ...router.generatePaginationParams(queryParams || {}),
+    searchValue: queryParams?.searchValue,
+    sortField: queryParams?.sortField,
+    sortDirection: queryParams?.sortDirection
+      ? parseInt(queryParams?.sortDirection, 10)
+      : undefined,
+
+    cityId: queryParams?.cityId,
+    quarterId: queryParams?.quarterId,
+    districtId: queryParams?.districtId,
+    name: queryParams?.name,
+    serviceStatus: queryParams?.serviceStatus,
+    networkType: queryParams?.networkType,
+  };
+};
 
 type Props = {
   refetch: () => void;
@@ -22,8 +42,7 @@ export default function BuildingContainer(props: Props) {
     gql(queries.listQuery),
     {
       variables: {
-        ...router.generatePaginationParams(props.queryParams || {}),
-        cityId: props.queryParams.city,
+        ...generateParams(props.queryParams || {}),
       },
       fetchPolicy: 'network-only',
       skip: props.viewType !== 'list',

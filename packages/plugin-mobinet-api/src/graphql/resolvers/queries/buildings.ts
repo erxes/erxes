@@ -1,9 +1,9 @@
 import { paginate } from '@erxes/api-utils/src';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import { ServiceStatus } from '../../../models/definitions/buildings';
 
-const buildQuery = (params: any) => {
+const buildQuery = async (params: any, models: IModels) => {
   const {
     searchValue,
     cityId,
@@ -11,6 +11,7 @@ const buildQuery = (params: any) => {
     quarterId,
     customQuery,
     networkType,
+    serviceStatus,
   } = params;
   const filter: any = {};
 
@@ -19,11 +20,20 @@ const buildQuery = (params: any) => {
   }
 
   if (cityId) {
-    filter.cityId = cityId;
+    const districts = await models.Districts.find({ cityId }).select('_id');
+    const ones = await models.Quarters.find({
+      districtId: { $in: districts.map((d) => d._id) },
+    }).select('_id');
+
+    filter.quarterId = { $in: ones.map((d) => d._id) };
   }
 
   if (districtId) {
-    filter.districtId = districtId;
+    const ones = await models.Quarters.find({
+      districtId: districtId,
+    }).select('_id');
+
+    filter.quarterId = { $in: ones.map((d) => d._id) };
   }
 
   if (quarterId) {
@@ -33,13 +43,16 @@ const buildQuery = (params: any) => {
   if (networkType) {
     filter.networkType = networkType;
   }
+  if (serviceStatus) {
+    filter.serviceStatus = serviceStatus;
+  }
 
   return { ...filter, ...customQuery };
 };
 
 const queries = {
   buildingList: async (_root, params, { models }: IContext) => {
-    const filter: any = buildQuery(params);
+    const filter: any = await buildQuery(params, models);
     const { page, perPage } = params;
 
     return {
@@ -55,7 +68,7 @@ const queries = {
   },
 
   buildings: async (_root, params, { models }: IContext) => {
-    const filter: any = buildQuery(params);
+    const filter: any = await buildQuery(params, models);
     const { page, perPage } = params;
 
     return paginate(models.Buildings.find(filter).lean(), {

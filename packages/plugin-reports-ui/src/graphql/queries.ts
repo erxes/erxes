@@ -66,6 +66,7 @@ const reportsList = `
           order
           chartType
           filter
+          dimension
           defaultFilter {
             fieldName
             filterValue
@@ -85,12 +86,6 @@ const reportsList = `
 
       totalCount
     }
-  }
-`;
-
-const totalCount = `
-  query reportssTotalCount{
-    reportssTotalCount
   }
 `;
 
@@ -142,6 +137,7 @@ const reportDetail = `
           layout
           vizState
           filter
+          dimension
           defaultFilter {
             fieldName
             filterValue
@@ -172,8 +168,8 @@ query reportsCountByTags {
 `;
 
 const reportChartGetResult = `
-query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON){
-  reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter )
+query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON, $dimension: JSON){
+  reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter , dimension: $dimension)
 }
 `;
 
@@ -181,15 +177,34 @@ const reportServicesList = `
 query reportServicesList{
   reportServicesList
 }`;
+
+const brands = `
+  query allBrands{
+    allBrands{
+      _id
+      name
+    }
+  }
+`;
+
+const integrations = `
+  query integrations($kind: String, $brandId: String) {
+    integrations(kind: $kind, brandId: $brandId) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
   reportsList,
-  totalCount,
-
+  brands,
+  integrations,
   reportTemplatesList,
   reportChartTemplatesList,
   reportDetail,
   reportsCountByTags,
 
   reportChartGetResult,
-  reportServicesList
+  reportServicesList,
 };

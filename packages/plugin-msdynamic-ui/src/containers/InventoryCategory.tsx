@@ -4,7 +4,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
   ToCheckCategoriesMutationResponse,
-  ToSyncCategoriesMutationResponse
+  ToSyncCategoriesMutationResponse,
 } from '../types';
 import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
@@ -38,8 +38,8 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   }
 
   const setSyncStatusTrue = (data: any, categories: any, action: string) => {
-    data[action].items = data[action].items.map(i => {
-      if (categories.find(c => c.code === i.code)) {
+    data[action].items = data[action].items.map((i) => {
+      if (categories.find((c) => c.code === i.code)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -49,9 +49,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   };
 
   const setSyncStatus = (data: any, action: string) => {
-    const createData = data[action].items.map(d => ({
+    const createData = data[action].items.map((d) => ({
       ...d,
-      syncStatus: false
+      syncStatus: false,
     }));
     data[action].items = createData;
 
@@ -61,20 +61,20 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   const toCheckCategory = () => {
     setLoading(true);
     props
-      .toCheckProductCategories({
-        variables: { brandId }
+      .toCheckMsdProductCategories({
+        variables: { brandId },
       })
-      .then(response => {
-        const data = response.data.toCheckProductCategories;
+      .then((response) => {
+        const data = response.data.toCheckMsdProductCategories;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckProductCategories);
+        setItems(response.data.toCheckMsdProductCategories);
         setLoading(false);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -83,12 +83,12 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   const toSyncCategory = (action: string, categories: any[]) => {
     setLoading(true);
     props
-      .toSyncProductCategories({
+      .toSyncMsdProductCategories({
         variables: {
           brandId,
           action,
-          categories
-        }
+          categories,
+        },
       })
       .then(() => {
         setLoading(false);
@@ -100,7 +100,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
         setSyncStatusTrue(data, categories, action.toLowerCase());
         setItems(data);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -112,7 +112,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     items,
     setBrand,
     toCheckCategory,
-    toSyncCategory
+    toSyncCategory,
   };
 
   const content = () => <InventoryCategory {...updatedProps} />;
@@ -125,14 +125,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckCategoriesMutationResponse, {}>(
       gql(mutations.toCheckCategories),
       {
-        name: 'toCheckProductCategories'
-      }
+        name: 'toCheckMsdProductCategories',
+      },
     ),
     graphql<Props, ToSyncCategoriesMutationResponse, {}>(
       gql(mutations.toSyncCategories),
       {
-        name: 'toSyncProductCategories'
-      }
-    )
-  )(InventoryCategoryContainer)
+        name: 'toSyncMsdProductCategories',
+      },
+    ),
+  )(InventoryCategoryContainer),
 );

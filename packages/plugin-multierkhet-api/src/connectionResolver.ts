@@ -17,17 +17,20 @@ export interface IContext extends IMainContext {
 
 export let models: IModels | null = null;
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+): IModels => {
   models = {} as IModels;
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'multierkhet_configs',
-    loadConfigClass(models)
+    loadConfigClass(models, subdomain),
   );
 
   models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
     'multierkhet_synclogs',
-    loadSyncLogClass(models)
+    loadSyncLogClass(models, subdomain),
   );
 
   return models;
@@ -35,5 +38,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
 export const generateModels = createGenerateModels<IModels>(
   models,
-  loadClasses
+  loadClasses,
 );

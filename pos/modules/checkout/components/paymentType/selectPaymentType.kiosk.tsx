@@ -13,7 +13,7 @@ import useHandlePayment from "../../hooks/useHandlePayment"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 
 const SelectPaymentType = () => {
-  const { paymentIds, khan, tdb, golomt } = usePossiblePaymentTerms()
+  const { paymentIds, khan, tdb, golomt, capitron } = usePossiblePaymentTerms()
 
   const { notPaidAmount, setCurrentAmount } = useHandlePayment()
 
@@ -40,8 +40,9 @@ const SelectPaymentType = () => {
             {!!khan && (
               <PaymentType type={BANK_CARD_TYPES.KHANBANK}>Kартаар</PaymentType>
             )}
-            {!!tdb && (
-              <PaymentType type={BANK_CARD_TYPES.TDB}>Kартаар</PaymentType>
+            {!!tdb && <PaymentType type={tdb.type}>Kартаар</PaymentType>}
+            {!!capitron && (
+              <PaymentType type={capitron.type}>Kартаар</PaymentType>
             )}
             {!!golomt && (
               <PaymentType type={BANK_CARD_TYPES.GOLOMT}>Kартаар</PaymentType>

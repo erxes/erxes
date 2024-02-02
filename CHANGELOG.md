@@ -1,3 +1,41 @@
+# [1.6.0-rc.7](https://github.com/erxes/erxes/compare/1.6.0-rc.6...1.6.0-rc.7) (2024-02-02)
+
+# [1.6.0-rc.6](https://github.com/erxes/erxes/compare/1.6.0-rc.5...1.6.0-rc.6) (2024-02-02)
+
+# [1.6.0-rc.5](https://github.com/erxes/erxes/compare/1.6.0-rc.4...1.6.0-rc.5) (2024-02-01)
+
+# [1.6.0-rc.4](https://github.com/erxes/erxes/compare/1.6.0-rc.3...1.6.0-rc.4) (2024-02-01)
+
+
+
+# [1.6.0-rc.2](https://github.com/erxes/erxes/compare/1.6.0-rc.1...1.6.0-rc.2) (2024-01-31)
+
+
+
+
+
+# [1.6.0-rc.1](https://github.com/erxes/erxes/compare/1.6.0-rc.0...1.6.0-rc.1) (2024-01-29)
+
+# [1.6.0-rc.0](https://github.com/erxes/erxes/compare/1.5.10...1.6.0-rc.0) (2024-01-25)
+
+
+### Bug Fixes
+
+* **core:** Enforce jpg file extension during Cloudflare Images upload if provided extension is .JPG or .JPEG ([9045a98](https://github.com/erxes/erxes/commit/9045a986f88e187cc2a8249508cfea84751c0e56))
+* posclient products sort by unitPrice ([deacf8f](https://github.com/erxes/erxes/commit/deacf8fea0c02d3eedba72101404c5b5ff7a9eee))
+* **viber:** save inbox conversationId on viber conversation ([#4903](https://github.com/erxes/erxes/issues/4903)) ([67d0a28](https://github.com/erxes/erxes/commit/67d0a288e770c728590df9e1014ef80a2ad06654))
+
+
+### Features
+
+* **engage:** introduce client portal notification type in engage plugin ([#4915](https://github.com/erxes/erxes/issues/4915)) ([c7999e8](https://github.com/erxes/erxes/commit/c7999e8c1b7171f1c83899210bae41a6bfbe7711))
+* syncerkhet sync products with weight ([d86acf3](https://github.com/erxes/erxes/commit/d86acf3286d2a40f56b3f9bd5cbeffb2202eed29))
+* **xyp:** set customer properties from xypdan data ([#4910](https://github.com/erxes/erxes/issues/4910)) ([b6abdf9](https://github.com/erxes/erxes/commit/b6abdf9df11d9b7c09414d5c792c07d157d15077))
+
+
+
+## [1.5.10](https://github.com/erxes/erxes/compare/1.5.9...1.5.10) (2024-01-17)
+
 ## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
 
 

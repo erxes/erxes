@@ -129,6 +129,7 @@ enum NetworkType {
           `
         : ''
     }
+    customFieldsData: JSON
   }
 
   type BuildingListResponse {
@@ -155,6 +156,7 @@ const mutationParams = `
     serviceStatus: ServiceStatus
     networkType: NetworkType
     suhId: String
+    customFieldsData: JSON
 `;
 
 export const mutations = `
@@ -181,6 +183,7 @@ const qryParams = `
     perPage: Int
     customQuery: JSON
     networkType: NetworkType
+    serviceStatus: ServiceStatus
 `;
 
 export const queries = `

@@ -27,6 +27,7 @@ const report_chart_params = `
   $serviceName: String
   $templateType: String
   $filter: JSON
+  $dimension: JSON
 `;
 
 const report_chart_params_def = `
@@ -35,6 +36,7 @@ const report_chart_params_def = `
   layout: $layout
   vizState: $vizState
   filter: $filter
+  dimension: $dimension
   serviceName: $serviceName
   templateType: $templateType
 `;
@@ -98,5 +100,5 @@ export default {
   reportsEdit,
   reportChartsAdd,
   reportChartsEdit,
-  reportChartsRemove
+  reportChartsRemove,
 };

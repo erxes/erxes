@@ -17,21 +17,21 @@ const BuildingDetailContainer = (props: Props) => {
 
   const detailQry = useQuery(gql(queries.detailQuery), {
     variables: {
-      _id: id
+      _id: id,
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const assetsQuery: any = useQuery(gql(queries.assets), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const onUpdate = (data: any) => {
     updateBuilding({
       variables: {
         _id: id,
-        ...data
-      }
+        ...data,
+      },
     }).then(() => {
       detailQry.refetch();
     });
@@ -51,7 +51,8 @@ const BuildingDetailContainer = (props: Props) => {
     ...props,
     onUpdate,
     building: detailQry.data.buildingDetail || ({} as any),
-    assets: (assetsQuery.data || {}).assets || []
+    assets: (assetsQuery.data || {}).assets || [],
+    refetch: detailQry.refetch,
   };
 
   return <BuildingDetail {...updatedProps} />;
