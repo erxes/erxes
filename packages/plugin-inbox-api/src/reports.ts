@@ -233,8 +233,6 @@ const chartTemplates = [
           endDate,
         );
 
-        console.log(dateFilter);
-
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
         }
@@ -1274,13 +1272,7 @@ const chartTemplates = [
               const startOfThisWeek = dayjs(NOW).startOf('week').toDate();
               const endOfThisWeek = dayjs(NOW).endOf('week').toDate();
 
-              console.log(dayjs(startOfThisWeek).format('YYYY-MM-DD hh:mm'));
-              console.log(dayjs(endOfThisWeek).format('YYYY-MM-DD hh:mm'));
-
-              console.log(startOfThisWeek, endOfThisWeek, ' ````````````````');
-
               const dates = getDates(startOfThisWeek, endOfThisWeek);
-              console.log(dates);
             }
 
             if (dateRange === 'lastWeek') {
