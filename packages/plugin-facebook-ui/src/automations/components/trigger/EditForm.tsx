@@ -9,7 +9,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 import { Features, TriggerItem, TriggersList } from '../../styles';
 import DirectMessageForm from './DirectMessage';
-import PersistenceMenu from './PersistenceMenu';
+import PersistentMenu from './PersistentMenu';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
@@ -50,7 +50,7 @@ function EditForm({
       case 'direct':
         return <DirectMessageForm {...updatedProps} />;
       case 'persistentMenu':
-        return <PersistenceMenu {...updatedProps} botId={botId} />;
+        return <PersistentMenu {...updatedProps} botId={botId} />;
 
       default:
         return null;

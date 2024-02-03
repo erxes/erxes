@@ -154,6 +154,18 @@ export const ImagePreview = styled.div`
     display: block;
     width: 100%;
   }
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    > i {
+      display: flex;
+      width: 100%;
+      place-content: center;
+    }
+  }
 `;
 
 export const UploadWrapper = styled.div`
@@ -242,10 +254,15 @@ export const Card = styled.div`
   padding: 10px;
   margin: 5px 0;
 
+  .extraContent {
+    overflow-wrap: anywhere;
+  }
+
   > p,
   > span {
     overflow-wrap: break-word;
     margin: 0 5px;
+    font-weight: ${typography.fontWeightMedium};
   }
 
   > span {

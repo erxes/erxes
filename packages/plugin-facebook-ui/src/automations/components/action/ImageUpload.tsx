@@ -11,9 +11,17 @@ type Props = {
   label?: string;
   alertText?: string;
   fileType?: string;
+  previewIcon?: string;
 };
 
-function ImageUploader({ onUpload, src, label, alertText, fileType }: Props) {
+function ImageUploader({
+  onUpload,
+  src,
+  label,
+  alertText,
+  fileType,
+  previewIcon,
+}: Props) {
   const [uploadPreview, setUploadPreview] = useState(null as any);
   const [previewUrl, setPreviewUrl] = useState(src);
   const [previewStyle, setPreviewStyle] = useState({});
@@ -73,7 +81,7 @@ function ImageUploader({ onUpload, src, label, alertText, fileType }: Props) {
       <UploadWrapper>
         <label>
           <div>
-            <Icon icon="export" size={30} />
+            <Icon icon="export" size={30}></Icon>
             <p>{label || 'Upload Image'}</p>
           </div>
           <input type="file" accept={fileType} onChange={handleImageChange} />
@@ -84,13 +92,20 @@ function ImageUploader({ onUpload, src, label, alertText, fileType }: Props) {
 
   return (
     <ImagePreview>
-      <img alt="image" style={previewStyle} src={readFile(previewUrl)} />
+      {previewIcon && previewUrl ? (
+        <div>
+          <Icon icon={previewIcon} size={36} />
+          <p>{previewUrl}</p>
+        </div>
+      ) : (
+        <img alt="image" style={previewStyle} src={readFile(previewUrl)} />
+      )}
       <label>
         <div>
           <Icon icon="export" size={30} />
           <p>{label || 'Upload Image'}</p>
         </div>
-        <input type="file" onChange={handleImageChange} />
+        <input type="file" accept={fileType} onChange={handleImageChange} />
       </label>
       {renderUploadLoader()}
     </ImagePreview>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TriggerItem } from '../../styles';
-import PersistenceMenu from './PersistenceMenu';
+import PersistentMenu from './PersistentMenu';
 import { Column, Flex } from '@erxes/ui/src/styles/main';
 import { CustomChip, OPERATOR_TYPES } from './DirectMessage';
 import { colors } from '@erxes/ui/src/styles';
@@ -13,7 +13,7 @@ const MessagesContent = ({ constant, config }) => {
 
   const renderPersistentMenuContent = ({ persistentMenuIds }) => {
     return (
-      <PersistenceMenu
+      <PersistentMenu
         botId={botId}
         onChange={() => {}}
         persistentMenuIds={persistentMenuIds}
@@ -68,11 +68,9 @@ const MessagesContent = ({ constant, config }) => {
       <TriggerItem key={cond.type} small withoutHover>
         <div>
           <label>{label}</label>
-          <p>
-            {description}
-            <Dropdown.Divider />
-            {renderConditionContent(cond.type, cond)}
-          </p>
+          <p>{description}</p>
+          <Dropdown.Divider />
+          {renderConditionContent(cond.type, cond)}
         </div>
       </TriggerItem>
     );

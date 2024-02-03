@@ -153,7 +153,7 @@ export const loadBotClass = (models: IModels) => {
               title: text,
               payload: JSON.stringify({
                 botId: bot._id,
-                persistenceMenuId: _id,
+                persistentMenuId: _id,
               }),
             });
           }

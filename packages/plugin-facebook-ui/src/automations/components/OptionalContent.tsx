@@ -3,6 +3,7 @@ import { readFile } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import { Card } from '../styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   action: any;
@@ -17,15 +18,41 @@ const LinkIcon = styled.a`
 function OptionalContent({ action, handle }: Props) {
   const { messages = [] } = action?.config || {};
 
+  const renderExtraContent = ({ children, icon }) => {
+    return (
+      <Flex className="extraContent">
+        <Icon icon={icon} /> {children}
+      </Flex>
+    );
+  };
+
   const renderCard = ({
     text = '',
     title = '',
     subtitle = '',
     buttons = [],
     image = '',
-  }) => {
+    audio = '',
+    video = '',
+    attachments = [],
+  }: any) => {
     return (
       <Card>
+        {!!attachments?.length &&
+          renderExtraContent({
+            icon: 'attach',
+            children: attachments.map(({ name }) => <p>{name}</p>),
+          })}
+        {video &&
+          renderExtraContent({
+            icon: 'film',
+            children: video,
+          })}
+        {audio &&
+          renderExtraContent({
+            icon: 'music-1',
+            children: audio,
+          })}
         {image && <img src={readFile(image)} alt={image} />}
         <p>{text || title}</p>
         <span>{subtitle}</span>
@@ -55,7 +82,11 @@ function OptionalContent({ action, handle }: Props) {
     cards,
     image,
     quickReplies,
-  }) => {
+    audio,
+    video,
+    attachments,
+    input,
+  }: any) => {
     switch (type) {
       case 'text':
         return renderCard({ text, buttons });
@@ -65,6 +96,21 @@ function OptionalContent({ action, handle }: Props) {
         return renderCard({ text, buttons: quickReplies });
       case 'image':
         return renderCard({ image });
+      case 'video':
+        return renderCard({ video });
+      case 'audio':
+        return renderCard({ audio });
+      case 'attachments':
+        return renderCard({ attachments });
+      case 'input':
+        return renderCard({
+          text: input.text,
+          subtitle: `Input expires in: ${input.value} ${input.timeType}`,
+          buttons: [
+            { _id: 'ifReply', text: 'If Reply' },
+            { _id: 'ifNotReply', text: 'If Not Reply' },
+          ],
+        });
 
       default:
         return null;

@@ -100,13 +100,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 />
               </FormGroup>
               <ControlLabel>
-                {__('Persistence Menu')}
-                <HelpPopover title="A Persistence Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
+                {__('Persistent Menu')}
+                <HelpPopover title="A Persistent Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
               </ControlLabel>
               <ButtonsGenerator
                 _id=""
                 buttons={doc.persistentMenus || []}
-                addButtonLabel="Add Persistence Menu"
+                addButtonLabel="Add Persistent Menu"
                 onChange={(_id, _name, values) =>
                   setDoc({ ...doc, persistentMenus: values })
                 }

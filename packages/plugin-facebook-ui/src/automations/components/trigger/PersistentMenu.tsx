@@ -23,16 +23,16 @@ type FinalProps = {
 
 const renderSelectedMenus = (persistentMenus: any[], ids: string[]) => {
   return (
-    <div style={{ color: colors.colorPrimary }}>
+    <span style={{ color: colors.colorPrimary }}>
       {persistentMenus
         .filter((menu) => ids.includes(menu._id))
         .map((persistentMenu) => persistentMenu.text)
         .join(',')}
-    </div>
+    </span>
   );
 };
 
-function PersistenceMenuSelector({
+function PersistentMenuSelector({
   botQueryResponse,
   persistentMenuIds = [],
   onChange,
@@ -55,7 +55,6 @@ function PersistenceMenuSelector({
       ? persistentMenuIds.filter((id) => id !== _id)
       : [...persistentMenuIds, _id];
 
-    console.log({ _id, updatedMenuIds });
     onChange('persistentMenuIds', updatedMenuIds);
   };
 
@@ -84,5 +83,5 @@ export default withProps<Props>(
       }),
       skip: ({ botId }) => !botId,
     }),
-  )(PersistenceMenuSelector),
+  )(PersistentMenuSelector),
 );

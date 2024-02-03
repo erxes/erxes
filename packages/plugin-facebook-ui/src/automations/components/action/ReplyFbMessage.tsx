@@ -1,14 +1,21 @@
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { IAction } from '@erxes/ui-automations/src/types';
-import Alert from '@erxes/ui/src/utils/Alert/index';
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import colors from '@erxes/ui/src/styles/colors';
 import dimensions from '@erxes/ui/src/styles/dimensions';
-import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  Column,
+  Flex,
+  FlexCenter,
+  ModalFooter,
+} from '@erxes/ui/src/styles/main';
+import Alert from '@erxes/ui/src/utils/Alert/index';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -25,6 +32,8 @@ import ButtonsGenerator from './ButtonGenerator';
 import Cards from './Cards';
 import ImageUploader from './ImageUpload';
 import PreviewWidget from './Preview';
+import { Message } from './types';
+import { TimeSetter } from './utils';
 
 export const TabAction = styled.div`
   padding-left: ${dimensions.unitSpacing}px;
@@ -35,6 +44,21 @@ export const TabAction = styled.div`
     cursor: pointer;
   }
 `;
+
+const checkIsAbleAddMessage = (messages, type) => {
+  if (
+    type === 'input' &&
+    messages.find((message) => message.type === 'input')
+  ) {
+    throw new Error(
+      'You cannot add multiple input messages on more than one in action',
+    );
+  }
+
+  if (messages?.length === 5) {
+    throw new Error('You can only 5 messages per action');
+  }
+};
 
 type Props = {
   onSave: () => void;
@@ -51,7 +75,7 @@ function ReplyFbMessage({
   triggerType,
 }: Props) {
   const [config, setConfig] = useState(activeAction?.config || {});
-  const { messages = [] } = config;
+  const { messages = [] as Message[] } = config;
 
   const handleChange = (_id, name, value) => {
     const updateMessages = messages.map((message) =>
@@ -143,56 +167,99 @@ function ReplyFbMessage({
 
   const renderAudio = ({ _id, audio }) => {
     const handleUpload = (response) => {
-      handleChange(_id, 'audio', response[0]);
+      handleChange(_id, 'audio', response);
     };
     return (
       <div>
         <ImageUploader
-          src={audio?.url}
+          src={audio}
           onUpload={handleUpload}
           label="Upload Audio"
-          fileType="audio"
+          fileType="audio/*"
+          previewIcon="music-1"
         />
       </div>
     );
   };
-  const renderVideo = () => {};
-  const renderAttachements = () => {};
-  const renderInput = () => {};
+  const renderVideo = ({ _id, video }) => {
+    const handleUpload = (response) => {
+      handleChange(_id, 'video', response);
+    };
+    return (
+      <div>
+        <ImageUploader
+          src={video}
+          onUpload={handleUpload}
+          label="Upload Video"
+          fileType="video/*"
+          previewIcon="film"
+        />
+      </div>
+    );
+  };
+  const renderAttachements = ({ _id, attachments }) => {
+    return (
+      <div>
+        <Uploader
+          defaultFileList={attachments || []}
+          onChange={(attachments) =>
+            handleChange(_id, 'attachments', attachments)
+          }
+        />
+      </div>
+    );
+  };
+  const renderInput = ({ _id, input }) => {
+    console.log('dsfsghg');
+    const onChange = (name, value) => {
+      handleChange(_id, 'input', { ...input, [name]: value });
+    };
 
-  const renderComponent = ({
-    type,
-    _id,
-    text,
-    buttons,
-    cards,
-    quickReplies,
-    image,
-    audio,
-  }) => {
+    return (
+      <div>
+        <FormGroup>
+          <ControlLabel>{__('Text')}</ControlLabel>
+          <FormControl
+            defaultValue={input.text || ''}
+            onChange={(e) =>
+              onChange('text', (e.currentTarget as HTMLInputElement).value)
+            }
+          />
+        </FormGroup>
+        <Flex>
+          <FlexCenter>
+            <ControlLabel>{'User Input expires in:   '}</ControlLabel>
+            <TimeSetter input={input} onChange={onChange} />
+          </FlexCenter>
+        </Flex>
+      </div>
+    );
+  };
+
+  const renderComponent = ({ type, ...props }: Message) => {
     switch (type) {
       case 'text':
-        return renderText({ _id, text, buttons });
+        return renderText(props);
       case 'image':
-        return renderImage({ _id, image });
+        return renderImage(props);
       case 'card':
-        return renderCards({ _id, cards });
+        return renderCards(props);
       case 'quickReplies':
-        return renderQuickReplies({ _id, text, quickReplies });
+        return renderQuickReplies(props);
       case 'audio':
-        return renderAudio({ _id, audio });
+        return renderAudio(props);
       case 'video':
-        return renderVideo();
+        return renderVideo(props);
       case 'attachments':
-        return renderAttachements();
+        return renderAttachements(props);
       case 'input':
-        return renderInput();
+        return renderInput(props);
       default:
         return null;
     }
   };
 
-  const renderContent = (props) => {
+  const renderContent = (props: Message) => {
     const { _id } = props;
 
     const removeMessage = () => {
@@ -239,8 +306,10 @@ function ReplyFbMessage({
     const addMessage = (type) => {
       const initialValues = INITIAL_OBJ_ACTIONS[type];
 
-      if (messages.length === 5) {
-        return Alert.error('You can add only 5 messages per action');
+      try {
+        checkIsAbleAddMessage(messages, type);
+      } catch (error) {
+        return Alert.error(error.message);
       }
 
       const updateMessages = messages.concat({
