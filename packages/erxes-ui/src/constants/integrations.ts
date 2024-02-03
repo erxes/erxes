@@ -110,21 +110,18 @@ export const FORM_SUCCESS_ACTIONS = {
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
-  { name: 'styles', items: ['Font', 'FontSize'] },
-  {
-    name: 'other',
-    items: [
-      'TextColor',
-      'BGColor',
-      'Bold',
-      'Italic',
-      'Underline',
-      'NumberedList',
-      'BulletedList',
-      'Link',
-    ],
-  },
-  { name: 'clear', items: ['RemoveFormat'] },
+  'fontSize',
+  '|',
+  'color',
+  'highlight',
+  'bold',
+  'italic',
+  'underline',
+  'orderedList',
+  'bulletList',
+  '|',
+  'link',
+  'unlink',
 ];
 
 export const INTEGRATIONS = [

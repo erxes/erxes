@@ -1,15 +1,15 @@
 import * as compose from 'lodash.flowright';
 
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { IEditorProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
 type Props = {
-  contentType: String;
+  contentType: string;
 } & IEditorProps;
 
 type FinalProps = {
@@ -31,7 +31,7 @@ const EditorContainer = (props: FinalProps) => {
     label: 'Attributes'
   };
 
-  return <EditorCK {...props} insertItems={insertItems} />;
+  return <RichTextEditor {...props} placeholderProp={insertItems} />;
 };
 
 export default withProps<Props>(

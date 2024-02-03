@@ -2,13 +2,13 @@ import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/S
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -83,18 +83,17 @@ class FieldForm extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   };
 
-  onEditorChange = e => {
+  onEditorChange = (content: string) => {
     const { field } = this.state;
-    const content = e.editor.getData();
 
     field.content = content;
 
     this.setState({ field });
   };
 
-  onDescChange = e => {
+  onDescChange = (content: string) => {
     const { field } = this.state;
-    const description = e.editor.getData();
+    const description = content;
 
     field.description = description;
 
@@ -434,24 +433,18 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel htmlFor="description">Field description</ControlLabel>
-            <EditorCK
+            <RichTextEditor
               content={field.description || ''}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Source',
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'source',
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
               autoGrow={true}
               autoGrowMinHeight={120}
@@ -684,24 +677,18 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="html">HTML:</ControlLabel>
-        <EditorCK
+        <RichTextEditor
           content={field.content || ''}
           toolbar={[
-            {
-              name: 'basicstyles',
-              items: [
-                'Source',
-                'Bold',
-                'Italic',
-                'NumberedList',
-                'BulletedList',
-                'Link',
-                'Unlink',
-                '-',
-                'Image',
-                'EmojiPanel'
-              ]
-            }
+            'source',
+            'bold',
+            'italic',
+            'orderedList',
+            'bulletList',
+            'link',
+            'unlink',
+            '|',
+            'image'
           ]}
           autoFocus={true}
           autoGrow={true}

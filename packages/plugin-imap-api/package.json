@@ -12,5 +12,8 @@
     "node-imap": "^0.9.6",
     "nodemailer": "^6.8.0",
     "redlock" : "4.2.0"
+  },
+  "devDependencies": {
+    "@types/node-imap" : "^0.9.3"
   }
 }
