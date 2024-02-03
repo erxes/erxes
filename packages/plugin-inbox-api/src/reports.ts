@@ -32,15 +32,85 @@ const checkFilterParam = (param: any) => {
 };
 
 const getDates = (startDate: Date, endDate: Date) => {
-  const dates: Date[] = [];
+  const result: { start: Date; end: Date }[] = [];
   let currentDate = new Date(startDate);
 
+  // Loop through each day between start and end dates
   while (currentDate <= endDate) {
-    dates.push(new Date(currentDate));
+    // Calculate the start date of the current day (00:00:00)
+    let startOfDay = new Date(currentDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    // Calculate the end date of the current day (23:59:59)
+    let endOfDay = new Date(currentDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Add the start and end dates of the current day to the result array
+    result.push({ start: startOfDay, end: endOfDay });
+
+    // Move to the next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  return dates;
+  return result;
+};
+
+const getMonths = (startDate: Date, endDate: Date) => {
+  // Initialize an array to store the results
+  const result: { start: Date; end: Date }[] = [];
+
+  // Clone the start date to avoid modifying the original date
+  let currentDate = new Date(startDate);
+
+  // Loop through each month between start and end dates
+  while (currentDate <= endDate) {
+    // Get the year and month of the current date
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Calculate the start date of the current month
+    const startOfMonth = new Date(year, month, 1);
+
+    // Calculate the end date of the current month
+    const endOfMonth = new Date(year, month + 1, 0);
+
+    // Add the start and end dates of the current month to the result array
+    result.push({ start: startOfMonth, end: endOfMonth });
+
+    // Move to the next month
+    currentDate.setMonth(month + 1);
+  }
+
+  return result;
+};
+
+const getWeeks = (startDate: Date, endDate: Date) => {
+  // Initialize an array to store the results
+  const result: { start: Date; end: Date }[] = [];
+
+  // Clone the start date to avoid modifying the original date
+  let currentDate = new Date(startDate);
+
+  // Move to the first day of the week (Sunday)
+  currentDate.setDate(currentDate.getDate() - currentDate.getDay());
+
+  // Loop through each week between start and end dates
+  while (currentDate <= endDate) {
+    // Calculate the start date of the current week
+    const startOfWeek = new Date(currentDate);
+
+    // Calculate the end date of the current week (Saturday)
+    const endOfWeek = new Date(currentDate);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+    // Add the start and end dates of the current week to the result array
+    result.push({ start: startOfWeek, end: endOfWeek });
+
+    // Move to the next week
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  return result;
 };
 
 // integrationTypess
@@ -720,74 +790,6 @@ const chartTemplates = [
         const { startDate, endDate } = filter;
         const dateFilter = returnDateRange(dateRange, startDate, endDate);
 
-        // const NOW = new Date();
-        // const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
-        // const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
-        // const startOfYesterday = new Date(
-        //   dayjs(NOW).add(-1, 'day').toDate().setHours(0, 0, 0, 0)
-        // );
-
-        // switch (dateRange) {
-        //   case 'today':
-        //     dateFilter['$gte'] = startOfToday;
-        //     dateFilter['$lte'] = endOfToday;
-        //     break;
-        //   case 'yesterday':
-        //     dateFilter['$gte'] = startOfYesterday;
-        //     dateFilter['$lte'] = startOfToday;
-        //   case 'thisWeek':
-        //     dateFilter['$gte'] = dayjs(NOW).startOf('week').toDate();
-        //     dateFilter['$lte'] = dayjs(NOW).endOf('week').toDate();
-        //     break;
-
-        //   case 'lastWeek':
-        //     dateFilter['$gte'] = dayjs(NOW)
-        //       .add(-1, 'week')
-        //       .startOf('week')
-        //       .toDate();
-        //     dateFilter['$lte'] = dayjs(NOW)
-        //       .add(-1, 'week')
-        //       .endOf('week')
-        //       .toDate();
-        //     break;
-        //   case 'lastMonth':
-        //     dateFilter['$gte'] = dayjs(NOW)
-        //       .add(-1, 'month')
-        //       .startOf('month')
-        //       .toDate();
-        //     dateFilter['$lte'] = dayjs(NOW)
-        //       .add(-1, 'month')
-        //       .endOf('month')
-        //       .toDate();
-        //     break;
-        //   case 'thisMonth':
-        //     dateFilter['$gte'] = dayjs(NOW).startOf('month').toDate();
-        //     dateFilter['$lte'] = dayjs(NOW).endOf('month').toDate();
-        //     break;
-        //   case 'thisYear':
-        //     dateFilter['$gte'] = dayjs(NOW).startOf('year').toDate();
-        //     dateFilter['$lte'] = dayjs(NOW).endOf('year').toDate();
-        //     break;
-        //   case 'lastYear':
-        //     dateFilter['$gte'] = dayjs(NOW)
-        //       .add(-1, 'year')
-        //       .startOf('year')
-        //       .toDate();
-        //     dateFilter['$lte'] = dayjs(NOW)
-        //       .add(-1, 'year')
-        //       .endOf('year')
-        //       .toDate();
-        //     break;
-
-        //   case 'customDate':
-        //     dateFilter['$gte'] = filter.startDate;
-        //     dateFilter['$lte'] = filter.endDate;
-        //     break;
-        //   //all
-        //   default:
-        //     break;
-        // }
-
         if (Object.keys(dateFilter).length) {
           matchfilter['createdAt'] = dateFilter;
         }
@@ -1244,7 +1246,6 @@ const chartTemplates = [
       }
 
       // frequency
-
       if (dimensionX === 'frequency') {
         const convosCountByDateRange =
           (await models?.Conversations.find(matchfilter)) || [];
@@ -1255,29 +1256,23 @@ const chartTemplates = [
             data.push(convosCountByDateRange.length);
           }
 
-          // { label: 'All time', value: 'all' },
-          // { label: 'Today', value: 'today' },
-          // { label: 'Yesterday', value: 'yesterday' },
-          // { label: 'This Week', value: 'thisWeek' },
-          // { label: 'Last Week', value: 'lastWeek' },
-          // { label: 'This Month', value: 'thisMonth' },
-          // { label: 'Last Month', value: 'lastMonth' },
-          // { label: 'This Year', value: 'thisYear' },
-          // { label: 'Last Year', value: 'lastYear' },
-          // { label: 'Custom Date', value: 'customDate' }
+          const getDateRange = returnDateRange(
+            dateRange,
+            filter.startDate,
+            filter.endDate,
+          );
 
           if (dateRange.toLowerCase().includes('week')) {
-            if (dateRange === 'thisWeek') {
-              dayjs().set;
-              const startOfThisWeek = dayjs(NOW).startOf('week').toDate();
-              const endOfThisWeek = dayjs(NOW).endOf('week').toDate();
-
-              const dates = getDates(startOfThisWeek, endOfThisWeek);
-            }
-
-            if (dateRange === 'lastWeek') {
-              // const startOfLastWeek = dayjs(NOW).
-            }
+            const { $gte, $lte } = getDateRange;
+            const dates = getDates($gte, $lte);
+          }
+          if (dateRange.toLowerCase().includes('month')) {
+            const { $gte, $lte } = getDateRange;
+            const dates = getWeeks($gte, $lte);
+          }
+          if (dateRange.toLowerCase().includes('year')) {
+            const { $gte, $lte } = getDateRange;
+            const months = getMonths($gte, $lte);
           }
         }
 
