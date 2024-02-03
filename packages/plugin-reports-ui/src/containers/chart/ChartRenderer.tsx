@@ -101,8 +101,6 @@ const ChartRendererList = (props: FinalProps) => {
     loading: reportChartGetResultQuery.loading,
   };
 
-  console.log(filter, 'chart filter ');
-
   return <ChartRenderer {...finalProps} />;
 };
 

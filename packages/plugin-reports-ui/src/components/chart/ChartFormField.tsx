@@ -35,12 +35,8 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (e) => {
-    console.log('on select ', e);
-
     if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
-
-      console.log(arr, ' arr');
 
       onChange(arr);
       setFieldValue(arr);
@@ -96,21 +92,6 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-
-    // case 'tags':
-    //   return (
-    //     <div>
-    //       <ControlLabel>{fieldLabel}</ControlLabel>
-
-    //       <SelectTags
-    //         tagsType='reports:reports'
-    //         multi={multi}
-    //         label={fieldLabel}
-    //         onSelect={onChange}
-    //         initialValue={fieldValue}
-    //       />
-    //     </div>
-    //   );
 
     case 'branches':
       return (
