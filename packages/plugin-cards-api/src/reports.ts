@@ -4,6 +4,7 @@ import {
   sendCoreMessage,
   sendTagsMessage,
   sendContactsMessage,
+  sendCardsMessage,
 } from './messageBroker';
 import * as dayjs from 'dayjs';
 
@@ -31,6 +32,7 @@ const reportTemplates = [
       'DealsOpenByCurrentStage',
       'DealsClosedWonAllTimeByRep',
       'DealRevenueByStage',
+      'DealsSales',
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
   },
@@ -1473,6 +1475,62 @@ const chartTemplates = [
     ],
   },
   {
+    templateType: 'DealsSales',
+    name: 'Deals sales',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const { pipelineIds, boardIds, departmentIds } = filter;
+      console.log(departmentIds, 'departmentIds');
+      let pipelineUsers;
+      let filterUserIds: any = [];
+
+      // if (pipelineIds && pipelineIds.length) {
+      const findPipeline = await sendCardsMessage({
+        subdomain,
+        action: 'pipelines.find',
+        data: {
+          _id: { $in: filter.pipelineIds },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+      console.log(findPipeline, 'findPipeline');
+      pipelineUsers = findPipeline;
+      filterUserIds = findPipeline.map((user) => user._id);
+    },
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'userIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select users',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'pipelines',
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'boards',
+        fieldLabel: 'Select board',
+      },
+    ],
+  },
+  {
     templateType: 'DealRevenueByStage',
     name: 'Deal revenue by stage',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
@@ -1624,7 +1682,90 @@ const chartTemplates = [
     },
     filterTypes: [],
   },
-
+  // {
+  //   templateType: 'DealsSales',
+  //   name: 'Deals Sales',
+  //   chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+  //   // Bar Chart Table
+  //   getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+  //     const { pipelineId, boardId } = filter;
+  //     console.log(pipelineId);
+  //     if (pipelineId && pipelineId.length) {
+  //       const findPipeline = await sendCoreMessage({
+  //         subdomain,
+  //         action: 'pipelines.find',
+  //         data: {
+  //           query: {
+  //             _id: { $in: pipelineId }
+  //           }
+  //         },
+  //         isRPC: true,
+  //         defaultValue: []
+  //       });
+  //     }
+  //     // const stages = await models?.Stages.find({
+  //     //   $and: [
+  //     //     { type: 'deal' },
+  //     //     {
+  //     //       $or: [
+  //     //         { probability: { $lt: 0 } }, // Less than 0%
+  //     //         { probability: { $gte: 100 } } // Greater than or equal to 100%
+  //     //       ]
+  //     //     }
+  //     //   ]
+  //     // }).lean();
+  //     // if (stages) {
+  //     //   const openDealsCounts = await Promise.all(
+  //     //     stages.map(async (stage) => {
+  //     //       const openDealsCount = await models?.Deals.countDocuments({
+  //     //         stageId: stage._id,
+  //     //         status: 'active' // Assuming 'active' is the status for open deals
+  //     //       });
+  //     //       const stageDetails = await models?.Stages.findById(
+  //     //         stage._id
+  //     //       ).lean();
+  //     //       return {
+  //     //         stageId: stage._id,
+  //     //         stageName: stageDetails?.name, // Include other relevant stage information
+  //     //         count: openDealsCount
+  //     //       };
+  //     //     })
+  //     //   );
+  //     //   const setData = Object.values(openDealsCounts).map((t: any) => t.count);
+  //     //   const setLabels = Object.values(openDealsCounts).map(
+  //     //     (t: any) => t.stageName
+  //     //   );
+  //     //   const title = 'Deals open by current stage';
+  //     //   const datasets = { title, data: setData, labels: setLabels };
+  //     //   return datasets;
+  //     // } else {
+  //     //   throw new Error('No deal stages found');
+  //     // }
+  //   },
+  //   filterTypes: [
+  //     {
+  //       fieldName: 'dateRange',
+  //       fieldType: 'select',
+  //       multi: true,
+  //       fieldOptions: DATE_RANGE_TYPES,
+  //       fieldLabel: 'Select date range'
+  //     },
+  //     {
+  //       fieldName: 'pipelineId',
+  //       fieldType: 'select',
+  //       multi: true,
+  //       fieldQuery: 'pipelines',
+  //       fieldLabel: 'Select pipeline'
+  //     },
+  //     {
+  //       fieldName: 'boardId',
+  //       fieldType: 'select',
+  //       multi: true,
+  //       fieldQuery: 'boards',
+  //       fieldLabel: 'Select boards'
+  //     }
+  //   ]
+  // },
   {
     templateType: 'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
     name: 'Closed revenue by month with deal total and closed revenue breakdown',
