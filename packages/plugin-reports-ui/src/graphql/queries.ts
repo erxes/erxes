@@ -178,7 +178,7 @@ query reportServicesList{
   reportServicesList
 }`;
 
-const brands = `
+const allBrands = `
   query allBrands{
     allBrands{
       _id
@@ -196,9 +196,19 @@ const integrations = `
   }
 `;
 
+const tags = `  
+  query tags($type: String, $perPage:Int ) {
+    tags(type: $type, perPage: $perPage) {
+      _id
+      name
+      colorCode
+    }
+  }
+`;
+
 export default {
   reportsList,
-  brands,
+  allBrands,
   integrations,
   reportTemplatesList,
   reportChartTemplatesList,
@@ -207,4 +217,5 @@ export default {
 
   reportChartGetResult,
   reportServicesList,
+  tags,
 };

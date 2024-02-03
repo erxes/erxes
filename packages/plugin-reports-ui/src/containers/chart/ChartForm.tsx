@@ -49,8 +49,6 @@ const ChartFormList = (props: FinalProps) => {
   };
 
   const chartsEdit = (values, callback) => {
-    console.log(values);
-
     reportChartsEditMutation({ variables: values });
     if (callback) {
       callback();
