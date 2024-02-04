@@ -8,3 +8,9 @@ export const actionCreateComment = async (
 ) => {
   return null;
 };
+
+export const checkCommentTrigger = (subdomain, { target, config }) => {
+  console.log({ target, config });
+
+  return false;
+};

@@ -32,6 +32,7 @@ const detail = `
         createdAt
         page
         pageId
+        profileUrl
         persistentMenus {
           _id,text,type,link
         }
@@ -39,8 +40,15 @@ const detail = `
     }
 `;
 
+const getPosts = `
+    query Query($botId: String) {
+  facebookGetBotPosts(botId: $botId)
+}
+`;
+
 export default {
   list,
   totalCount,
   detail,
+  getPosts,
 };

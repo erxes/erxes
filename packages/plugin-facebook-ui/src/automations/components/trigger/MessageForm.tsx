@@ -1,7 +1,7 @@
 import { ITrigger } from '@erxes/ui-segments/src/types';
 import React, { useState } from 'react';
 import BotSelector from './BotSelector';
-import EditForm from './EditForm';
+import EditForm from './MessageEditForm';
 
 type Props = {
   activeTrigger: ITrigger;
@@ -10,7 +10,7 @@ type Props = {
   triggerConst: any;
 };
 
-function TriggerForm({
+function MessageForm({
   activeTrigger,
   addConfig,
   closeModal,
@@ -42,4 +42,4 @@ function TriggerForm({
   );
 }
 
-export default TriggerForm;
+export default MessageForm;

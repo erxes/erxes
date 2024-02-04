@@ -1,14 +1,24 @@
 import React from 'react';
 import ReplyFbMessage from './components/action/ReplyFbMessage';
 import OptionalContent from './components/OptionalContent';
-import TriggerForm from './components/trigger/TriggerForm';
+import MessageForm from './components/trigger/MessageForm';
 import TriggerContent from './components/trigger/Content';
+import CommnetForm from './components/trigger/CommentForm';
 
 const Automations = (props) => {
-  const { componentType, activeAction } = props;
+  const { componentType, activeAction, activeTrigger } = props || {};
 
   if (componentType === 'triggerForm') {
-    return <TriggerForm {...props} />;
+    const [_serviceName, contentType] = activeTrigger?.type.split(':');
+
+    switch (contentType) {
+      case 'messages':
+        return <MessageForm {...props} />;
+      case 'comments':
+        return <CommnetForm {...props} />;
+      default:
+        return null;
+    }
   }
 
   if (componentType === 'triggerContent') {

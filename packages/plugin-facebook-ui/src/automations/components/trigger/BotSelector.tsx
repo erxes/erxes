@@ -21,7 +21,7 @@ const BotAvatar = styled(Avatar)`
   border-radius: 50%;
 `;
 
-const BotCollapseContent = styled(CollapseContent)`
+export const BorderedCollapseContent = styled(CollapseContent)`
   border: 1px solid #e6e6e6;
 `;
 
@@ -47,7 +47,7 @@ function BotSelector({ botId, bots, onSelect }) {
   };
 
   return (
-    <BotCollapseContent
+    <BorderedCollapseContent
       open={isOpen}
       transparent
       beforeTitle={
@@ -63,7 +63,7 @@ function BotSelector({ botId, bots, onSelect }) {
           {name}
         </BottomBarAction>
       ))}
-    </BotCollapseContent>
+    </BorderedCollapseContent>
   );
 }
 

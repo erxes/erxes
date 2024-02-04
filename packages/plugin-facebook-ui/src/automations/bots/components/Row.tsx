@@ -6,9 +6,10 @@ import React from 'react';
 type Props = {
   bot: any;
   remove: (_id: string) => void;
+  repair: (_id: string) => void;
 };
 
-function Row({ bot, remove }: Props) {
+function Row({ bot, remove, repair }: Props) {
   return (
     <tr key={bot._id}>
       <td>{__(bot?.name || '-')}</td>
@@ -23,7 +24,12 @@ function Row({ bot, remove }: Props) {
           />
           <Button
             btnStyle="link"
-            icon="times-circle"
+            icon="edit-3"
+            onClick={() => repair(bot._id)}
+          />
+          <Button
+            btnStyle="link"
+            icon="redo"
             onClick={remove.bind(this, bot._id)}
           />
         </ActionButtons>

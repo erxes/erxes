@@ -126,6 +126,10 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
       }
   }
 
+  .triggerContent:empty {
+    display: none;
+  }
+
   .triggerContent {
     background-color:${rgba(colors.colorPrimary, 0.12)};
     border-radius: 5px;

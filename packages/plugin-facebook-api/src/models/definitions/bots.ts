@@ -9,9 +9,10 @@ interface IPersistentMenus {
 }
 export interface IBot {
   name: string;
-  integrationId: string;
   accountId: string;
+  uid: string;
   pageId: string;
+  token: string;
   status: string;
   persistentMenus: IPersistentMenus[];
 }
@@ -30,9 +31,10 @@ const persistentMenuSchema = new Schema({
 export const botSchema = new Schema({
   _id: field({ pkey: true }),
   name: { type: String },
-  integrationId: { type: String },
   accountId: { type: String },
+  uid: { type: String },
   pageId: { type: String },
+  token: { type: String },
   persistentMenus: { type: [persistentMenuSchema] },
   createdAt: { type: Date, default: Date.now() },
 });

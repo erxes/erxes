@@ -15,12 +15,17 @@ type FinalProps = {
   listQueryResponse;
   totalCountQueryResponse;
   removeMutation;
+  repairMutation;
 } & Props;
 
 class List extends React.Component<FinalProps> {
   render() {
-    const { listQueryResponse, totalCountQueryResponse, removeMutation } =
-      this.props;
+    const {
+      listQueryResponse,
+      totalCountQueryResponse,
+      removeMutation,
+      repairMutation,
+    } = this.props;
 
     if (listQueryResponse?.loading) {
       return <Spinner objective />;
@@ -38,12 +43,23 @@ class List extends React.Component<FinalProps> {
           });
       });
     };
+    const repair = (_id: string) => {
+      repairMutation({ variables: { _id } })
+        .then(() => {
+          listQueryResponse.refetch();
+          Alert.success('You successfully removed bot');
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    };
 
     const updatedProps = {
       list: listQueryResponse?.facebootMessengerBots || [],
       totalCount:
         totalCountQueryResponse?.facebootMessengerBotsTotalCount || [],
       remove,
+      repair,
     };
 
     return <ListComponent {...updatedProps} />;
@@ -63,6 +79,12 @@ export default withProps<Props>(
     }),
     graphql(gql(mutations.removeBot), {
       name: 'removeMutation',
+    }),
+    graphql(gql(mutations.removeBot), {
+      name: 'removeMutation',
+    }),
+    graphql(gql(mutations.repairBot), {
+      name: 'repairMutation',
     }),
   )(List),
 );

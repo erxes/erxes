@@ -121,6 +121,7 @@ export const queries = `
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
   facebootMessengerBot(_id:String):FacebookMessengerBot
+  facebookGetBotPosts(botId:String):JSON
 `;
 
 export const mutations = `
@@ -128,6 +129,7 @@ export const mutations = `
   facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerRemoveBot(_id:String):JSON
+  facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment

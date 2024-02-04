@@ -8,70 +8,9 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
+import React from 'react';
 import { queries } from '../../graphql';
-
-type Props = {
-  onSelect: (value: string, name: string) => void;
-  initialValue?: string | string[];
-  name: string;
-  filterParams?: any;
-};
-
-export function SelectAccount({
-  name,
-  initialValue,
-  onSelect,
-  filterParams,
-}: Props) {
-  const [accountId, setAccountId] = useState(initialValue || '');
-
-  const { error, loading, data } = useQuery(gql(queries.facebookGetAccounts), {
-    variables: {
-      ...filterParams,
-      kind: 'facebook',
-    },
-  });
-
-  if (error) {
-    return <EmptyState icon="info-circle" text={error.message} />;
-  }
-
-  if (loading) {
-    return <Spinner objective />;
-  }
-
-  const accounts = data?.facebookGetAccounts || [];
-
-  const handleSelect = (accountId) => {
-    setAccountId(accountId);
-    onSelect(accountId, name);
-  };
-
-  return (
-    <AccountBox>
-      <AccountTitle>{__('Linked Accounts')}</AccountTitle>
-      {accounts.map((account) => (
-        <AccountItem key={account._id}>
-          <span>{account.name}</span>
-
-          <div>
-            <Button
-              onClick={() =>
-                handleSelect(accountId !== account._id ? account._id : null)
-              }
-              btnStyle={accountId === account._id ? 'primary' : 'simple'}
-            >
-              {accountId === account._id
-                ? __('Selected')
-                : __('Select This Account')}
-            </Button>
-          </div>
-        </AccountItem>
-      ))}
-    </AccountBox>
-  );
-}
+import client from '@erxes/ui/src/apolloClient';
 
 export function SelectAccountPages({
   initialValue,
@@ -121,10 +60,28 @@ export function SelectAccountPages({
             onClick={() => handleSelectPage(id)}
             btnStyle={initialValue === id ? 'primary' : 'simple'}
           >
-            {initialValue === id ? __('Selected') : __('Select This Account')}
+            {initialValue === id ? __('Selected') : __('Select This Page')}
           </Button>
         </AccountItem>
       ))}
     </AccountBox>
   );
 }
+
+export const fetchPageDetail = async (account, pageId) => {
+  if (!account) return null;
+
+  let name;
+  let profileUrl;
+
+  await fetch(
+    `https://graph.facebook.com/v13.0/${pageId}?fields=name,picture&access_token=${account.token}`,
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      name = data.name;
+      profileUrl = data?.picture?.data?.url;
+    });
+
+  return { profileUrl, name };
+};

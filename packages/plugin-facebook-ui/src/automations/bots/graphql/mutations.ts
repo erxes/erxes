@@ -30,4 +30,10 @@ const removeBot = `
     }
 `;
 
-export default { addBot, updateBot, removeBot };
+const repairBot = `
+  mutation FacebookMessengerRepairBot($id: String) {
+    facebookMessengerRepairBot(_id: $id)
+  }
+`;
+
+export default { addBot, updateBot, removeBot, repairBot };

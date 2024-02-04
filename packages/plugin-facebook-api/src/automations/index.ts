@@ -1,5 +1,5 @@
 import { generateModels } from '../connectionResolver';
-import { actionCreateComment } from './comments';
+import { actionCreateComment, checkCommentTrigger } from './comments';
 import { actionCreateMessage, checkMessageTrigger } from './messages';
 
 export default {
@@ -91,6 +91,8 @@ export default {
     switch (collectionType) {
       case 'messages':
         return checkMessageTrigger(subdomain, data);
+      case 'comments':
+        return checkCommentTrigger(subdomain, data);
       default:
         return false;
     }

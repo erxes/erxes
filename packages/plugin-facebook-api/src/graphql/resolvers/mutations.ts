@@ -32,7 +32,7 @@ const facebookMutations = {
   async facebookMessengerUpdateBot(
     _root,
     { _id, ...args },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.Bots.updateBot(_id, args);
   },
@@ -40,10 +40,13 @@ const facebookMutations = {
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.Bots.removeBot(_id);
   },
+  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
+  },
   async facebookChangeCommentStatus(
     _root,
     params: ICommentStatusParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { commentId } = params;
     const comment = await models.Comments.findOne({ commentId });
@@ -54,7 +57,7 @@ const facebookMutations = {
 
     await models.Comments.updateOne(
       { commentId },
-      { $set: { isResolved: comment.isResolved ? false : true } }
+      { $set: { isResolved: comment.isResolved ? false : true } },
     );
 
     return models.Comments.findOne({ _id: comment._id });
@@ -63,7 +66,7 @@ const facebookMutations = {
   async facebookReplyToComment(
     _root,
     params: IReplyParams,
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const { commentId, content, attachments, conversationId } = params;
 
@@ -72,8 +75,8 @@ const facebookMutations = {
     const post = await models.Posts.findOne({
       $or: [
         { erxesApiId: conversationId },
-        { postId: comment ? comment.postId : '' }
-      ]
+        { postId: comment ? comment.postId : '' },
+      ],
     });
 
     if (!post) {
@@ -92,14 +95,14 @@ const facebookMutations = {
       attachment = {
         type: 'file',
         payload: {
-          url: attachments[0].url
-        }
+          url: attachments[0].url,
+        },
       };
     }
 
     let data = {
       message: content,
-      attachment_url: attachment.url
+      attachment_url: attachment.url,
     };
 
     const id = comment ? comment.commentId : post.postId;
@@ -107,7 +110,7 @@ const facebookMutations = {
     if (comment && comment.commentId) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
-        attachment_url: attachment.url
+        attachment_url: attachment.url,
       };
     }
 
@@ -116,7 +119,7 @@ const facebookMutations = {
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
+        data: { query: { _id: conversationId } },
       });
 
       await sendReply(
@@ -124,7 +127,7 @@ const facebookMutations = {
         `${id}/comments`,
         data,
         recipientId,
-        inboxConversation && inboxConversation.integrationId
+        inboxConversation && inboxConversation.integrationId,
       );
 
       sendInboxMessage({
@@ -136,15 +139,15 @@ const facebookMutations = {
           conversations: [inboxConversation],
           type: 'conversationStateChange',
           mobile: true,
-          messageContent: content
-        }
+          messageContent: content,
+        },
       });
 
       return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
 };
 
 export default facebookMutations;

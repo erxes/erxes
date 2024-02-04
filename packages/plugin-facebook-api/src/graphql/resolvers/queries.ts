@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getPageList } from '../../utils';
+import { fetchPagePosts, getPageList } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -251,6 +251,16 @@ const facebookQueries = {
 
   facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
     return models.Posts.findOne({ erxesApiId });
+  },
+
+  async facebookGetBotPosts(_root, { botId }, { models }: IContext) {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    return await fetchPagePosts(bot.pageId, bot.token);
   },
 
   async facebookHasTaggedMessages(

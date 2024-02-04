@@ -1,26 +1,29 @@
-import Button from '@erxes/ui/src/components/Button';
-import HelpPopover from '@erxes/ui/src/components/HelpPopover';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __ } from '@erxes/ui/src/utils/core';
 import {
   Content,
   MessengerPreview,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
-import { PageHeader } from '@erxes/ui/src/layout/styles';
-import Step from '@erxes/ui/src/components/step/Step';
 import Steps from '@erxes/ui/src/components//step/Steps';
+import Button from '@erxes/ui/src/components/Button';
+import HelpPopover from '@erxes/ui/src/components/HelpPopover';
+import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Step from '@erxes/ui/src/components/step/Step';
 import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
+import { PageHeader } from '@erxes/ui/src/layout/styles';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
+import React, { useEffect, useState } from 'react';
+import Accounts from '../../../containers/Accounts';
 import ButtonsGenerator from '../../components/action/ButtonGenerator';
 import { Padding } from '../../styles';
-import { Features } from '../styles';
-import { SelectAccount, SelectAccountPages } from '../utils';
+import { EmulatorWrapper, Features, MobileEmulator } from '../styles';
+import { SelectAccountPages, fetchPageDetail } from '../utils';
+import { Avatar } from '@erxes/ui-cards/src/boards/styles/item';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -49,6 +52,20 @@ function removeNullAndTypename(obj) {
 
 function Form({ renderButton, bot, returnToList }: Props) {
   const [doc, setDoc] = useState(bot || {});
+  const [selectedAccount, setAccount] = useState(null as any);
+  const [isLastStep, setLastStep] = useState(false);
+
+  useEffect(() => {
+    if (!bot && selectedAccount) {
+      fetchPageDetail(selectedAccount, doc.pageId).then((response) => {
+        setDoc({
+          ...doc,
+          profileUrl: response?.profileUrl,
+          page: { ...doc.page, name: response?.name },
+        });
+      });
+    }
+  }, [doc.pageId]);
 
   const generateDoc = (values) => {
     return { ...removeNullAndTypename(doc || {}), ...values };
@@ -58,22 +75,35 @@ function Form({ renderButton, bot, returnToList }: Props) {
     const { isSubmitted, values } = formProps;
 
     const onSelect = (value, name) => {
+      console.log({ name, value });
       setDoc({ ...doc, [name]: value });
     };
 
     return (
       <>
         <Steps>
-          <Step title="Select Account" img="/images/icons/erxes-01.svg">
+          <Step
+            title="Select Account"
+            img="/images/icons/erxes-01.svg"
+            onClick={() => setLastStep(false)}
+          >
             <Padding>
-              <SelectAccount
-                initialValue={doc?.accountId}
-                name="accountId"
-                onSelect={onSelect}
+              <Accounts
+                kind="facebook"
+                selectedAccountId={doc?.accountId}
+                onRemove={() => null}
+                onSelect={(accountId, account) => {
+                  console.log(account);
+                  onSelect(accountId, 'accountId'), setAccount(account);
+                }}
               />
             </Padding>
           </Step>
-          <Step title="Select Your Page" img="/images/icons/erxes-04.svg">
+          <Step
+            title="Select Your Page"
+            img="/images/icons/erxes-04.svg"
+            onClick={() => setLastStep(false)}
+          >
             <Padding>
               <Features isToggled={doc?.accountId}>
                 <FormGroup>
@@ -87,7 +117,12 @@ function Form({ renderButton, bot, returnToList }: Props) {
               </Features>
             </Padding>
           </Step>
-          <Step title="Bot Setup" img="/images/icons/erxes-24.svg" noButton>
+          <Step
+            title="Bot Setup"
+            img="/images/icons/erxes-24.svg"
+            noButton
+            onClick={() => setLastStep(true)}
+          >
             <Padding>
               <FormGroup>
                 <ControlLabel>{__('Name')}</ControlLabel>
@@ -153,7 +188,75 @@ function Form({ renderButton, bot, returnToList }: Props) {
         <Content>
           <CommonForm renderContent={renderContent} />
           <MessengerPreview>
-            <Preview fullHeight>Hello world</Preview>
+            <Preview fullHeight>
+              <EmulatorWrapper>
+                <MobileEmulator disabled={!doc?.pageId} isLastStep={isLastStep}>
+                  <div className="top-bar">
+                    <div className="dynamic-island" />
+                  </div>
+                  <div className="profile">
+                    <Avatar
+                      src={
+                        doc?.profileUrl
+                          ? doc.profileUrl
+                          : '/images/erxes-bot.svg'
+                      }
+                    />
+                    <p>{doc?.page ? doc?.page?.name : 'Profile Name'}</p>
+                  </div>
+                  {!isLastStep ? (
+                    <>
+                      <div className="getStarted">
+                        <span>tap to send</span>
+                        <button>Get Started</button>
+                      </div>
+                      <span>
+                        {`You started a chat with ${
+                          doc?.page ? doc?.page?.name : '{ Profile Name }'
+                        }. We use information from
+                    this chat to improve your experience.`}
+                        <br />
+                        <a
+                          href={`https://www.facebook.com/profile.php?id=${doc?.pageId}#`}
+                          target="_blank"
+                        >
+                          Learn about business chats and your privacy.
+                        </a>
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="content">
+                        <div className="inputField">
+                          <input type="text" />
+                          <button>
+                            <Icon icon="send" />
+                          </button>
+                        </div>
+                        <div className="message-row">
+                          <Avatar
+                            src={
+                              doc?.profileUrl
+                                ? doc.profileUrl
+                                : '/images/erxes-bot.svg'
+                            }
+                          />
+                          <span>{'Get Started'}</span>
+                        </div>
+                      </div>
+                      <div className="persistentMenu">
+                        <div className="dragger" />
+                        <ul>
+                          {(doc?.persistentMenus || []).map((menu) => (
+                            <li>{menu.text || ''}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </>
+                  )}
+                </MobileEmulator>
+              </EmulatorWrapper>
+            </Preview>
           </MessengerPreview>
         </Content>
       </StepWrapper>

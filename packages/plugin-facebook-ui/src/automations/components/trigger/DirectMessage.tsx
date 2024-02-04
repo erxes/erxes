@@ -87,11 +87,13 @@ type Condtion = {
 type Props = {
   conditions: Condtion[];
   onChange: (name: string, value: Condtion[]) => void;
+  label: string;
 };
 
 export default function DirectMessageForm({
   conditions: propCondtions,
   onChange,
+  label,
 }: Props) {
   const [conditions, setConditions] = useState(propCondtions || []);
 
@@ -179,7 +181,7 @@ export default function DirectMessageForm({
       <CondtionContainer>
         <DrawerDetail key={_id}>
           <FormGroup>
-            <ControlLabel>{__('Message')}</ControlLabel>
+            <ControlLabel>{__(label || 'Message')}</ControlLabel>
             <Select
               value={operator}
               onChange={({ value }) =>
