@@ -35,6 +35,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         {
           startPlace: { $eq: '' },
         },
+        {
+          startPlace: { $eq: null },
+        },
         { startPlace: params.startPlace },
       ],
     });
@@ -44,6 +47,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         { startPlace: { $exists: false } },
         {
           startPlace: { $eq: '' },
+        },
+        {
+          startPlace: { $eq: null },
         },
       ],
     });
@@ -59,6 +65,8 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
           startBegin: {
             $lte: params.startEnd,
             $gte: params.startBegin,
+            // $lte: new Date(params.startEnd).toISOString(),
+            // $gte: new Date(params.startBegin).toISOString(),
           },
         },
       ],
@@ -75,6 +83,8 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
           endBegin: {
             $lte: params.endEnd,
             $gte: params.endBegin,
+            // $lte: new Date(params.endEnd),
+            // $gte: new Date(params.endBegin),
           },
         },
       ],
@@ -88,6 +98,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         {
           endPlace: { $eq: '' },
         },
+        {
+          endPlace: { $eq: null },
+        },
         { endPlace: params.endPlace },
       ],
     });
@@ -97,6 +110,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         { endPlace: { $exists: false } },
         {
           endPlace: { $eq: '' },
+        },
+        {
+          endPlace: { $eq: null },
         },
       ],
     });
@@ -109,6 +125,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         {
           generalPlace: { $eq: '' },
         },
+        {
+          generalPlace: { $eq: null },
+        },
         { generalPlace: params.generalPlace },
       ],
     });
@@ -118,6 +137,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         { generalPlace: { $exists: false } },
         {
           generalPlace: { $eq: '' },
+        },
+        {
+          generalPlace: { $eq: null },
         },
       ],
     });
@@ -129,6 +151,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         {
           shift: { $eq: '' },
         },
+        {
+          shift: { $eq: null },
+        },
         { shift: params.shift },
       ],
     });
@@ -138,6 +163,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         { shift: { $exists: false } },
         {
           shift: { $eq: '' },
+        },
+        {
+          shift: { $eq: null },
         },
       ],
     });
@@ -149,6 +177,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         {
           period: { $eq: '' },
         },
+        {
+          period: { $eq: null },
+        },
         { period: params.period },
       ],
     });
@@ -158,6 +189,9 @@ const buildSearch = async (params: IAdvertisement, models: IModels) => {
         { period: { $exists: false } },
         {
           period: { $eq: '' },
+        },
+        {
+          period: { $eq: null },
         },
       ],
     });
@@ -212,6 +246,7 @@ const advertisementMutations = {
       return ads;
     }
     const searchFilter = await buildSearch(ads, models);
+
     // order вебээс оруулж өгсөн хадгалсан зараас шүүх
     const list = await models.Advertisement.find(searchFilter);
 
