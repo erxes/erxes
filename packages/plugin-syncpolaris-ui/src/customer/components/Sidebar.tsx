@@ -32,7 +32,7 @@ const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
-class SyncHistorySidebar extends React.Component<Props, State> {
+class UserSidebar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -159,4 +159,4 @@ class SyncHistorySidebar extends React.Component<Props, State> {
   }
 }
 
-export default SyncHistorySidebar;
+export default UserSidebar;

@@ -22,13 +22,10 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class loanContainer extends React.Component<FinalProps, {}> {
+class loanContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
-
-    this.state = {};
   }
-
   render() {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;

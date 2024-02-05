@@ -15,7 +15,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-class Customer extends React.Component<IProps, {}> {
+class Customer extends React.Component<IProps> {
   constructor(props) {
     super(props);
   }
@@ -29,27 +29,25 @@ class Customer extends React.Component<IProps, {}> {
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
           <tr>
-            {tablehead.map((p) => (
-              <th key={p}>{p || ''}</th>
+            {tablehead.map((head) => (
+              <th key={head}>{head || ''}</th>
             ))}
           </tr>
         </thead>
         <tbody id="customers">
-          {(syncHistories || []).map((item) => (
-            <tr key={item._id}>
-              <td>{dayjs(item.createdAt).format('lll')}</td>
-              <td>{item.createdUser?.email}</td>
-              <td>{item.content}</td>
+          {(syncHistories || []).map((customer) => (
+            <tr key={customer._id}>
+              <td>{dayjs(customer.createdAt).format('lll')}</td>
+              <td>{customer.createdUser?.email}</td>
+              <td>{customer.content}</td>
               <td>
-                {(item.responseStr || '').includes('timedout')
-                  ? item.responseStr
-                  : '' ||
-                    `
-                    ${item.responseData?.extra_info?.warnings || ''}
-                    ${item.responseData?.message || ''}
-                    ${item.error || ''}
-                    ${typeof (item.responseData?.error || '') === 'string'}
-                    `}
+                {(customer.responseStr || '').includes('timedout')
+                  ? customer.responseStr
+                  : `
+                        ${customer.responseData?.extra_info?.warnings || ''}
+                        ${customer.responseData?.message || ''}
+                        ${customer.error || ''}
+                        `}
               </td>
             </tr>
           ))}

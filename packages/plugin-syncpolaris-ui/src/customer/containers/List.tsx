@@ -22,11 +22,10 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class CustomerContainer extends React.Component<FinalProps, {}> {
+class CustomerContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
   }
-
   render() {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;

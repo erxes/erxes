@@ -15,11 +15,10 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-class loan extends React.Component<IProps, {}> {
+class loan extends React.Component<IProps> {
   constructor(props) {
     super(props);
   }
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
@@ -45,12 +44,10 @@ class loan extends React.Component<IProps, {}> {
               <td>
                 {(loanAcnt.responseStr || '').includes('timedout')
                   ? loanAcnt.responseStr
-                  : '' ||
-                    `
-                    ${loanAcnt.responseData?.extra_info?.warnings || ''}
-                    ${loanAcnt.responseData?.message || ''}
-                    ${loanAcnt.error || ''}
-                    ${typeof (loanAcnt.responseData?.error || '') === 'string'}
+                  : `
+                      ${loanAcnt.responseData?.extra_info?.warnings || ''}
+                      ${loanAcnt.responseData?.message || ''}
+                      ${loanAcnt.error || ''}
                   `}
               </td>
             </tr>

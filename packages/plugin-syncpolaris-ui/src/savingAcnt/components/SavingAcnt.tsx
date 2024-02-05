@@ -15,10 +15,11 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-class SavingAcnt extends React.Component<IProps, {}> {
+class SavingAcnt extends React.Component<IProps> {
   constructor(props) {
     super(props);
   }
+
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
@@ -43,12 +44,11 @@ class SavingAcnt extends React.Component<IProps, {}> {
               <td>
                 {(saving.responseStr || '').includes('timedout')
                   ? saving.responseStr
-                  : '' ||
-                    `
+                  : `
                     ${saving.responseData?.extra_info?.warnings || ''}
                     ${saving.responseData?.message || ''}
                     ${saving.error || ''}
-                    ${typeof (saving.responseData?.error || '') === 'string'}
+                    ${saving.responseData?.error || ''}
                   `}
               </td>
             </tr>

@@ -22,11 +22,9 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class transactionContainer extends React.Component<FinalProps, {}> {
+class transactionContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
-
-    this.state = {};
   }
 
   render() {

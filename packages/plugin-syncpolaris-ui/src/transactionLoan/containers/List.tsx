@@ -6,7 +6,7 @@ import {
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Transaction from '../components/Transaction';
+import TransactionLoan from '../components/TransactionLoan';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -25,8 +25,6 @@ type FinalProps = {
 class transactionLoanContainer extends React.Component<FinalProps, {}> {
   constructor(props) {
     super(props);
-
-    this.state = {};
   }
 
   render() {
@@ -42,7 +40,7 @@ class transactionLoanContainer extends React.Component<FinalProps, {}> {
       totalCount,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
-    return <Transaction {...updatedProps} />;
+    return <TransactionLoan {...updatedProps} />;
   }
 }
 

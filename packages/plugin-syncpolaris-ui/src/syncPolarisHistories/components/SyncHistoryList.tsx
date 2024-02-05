@@ -13,20 +13,10 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
 }
-class SyncHistoryList extends React.Component<IProps, {}> {
+class SyncHistoryList extends React.Component<IProps> {
   constructor(props) {
     super(props);
   }
-
-  moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
-
-  rowContent = (props, item) => {
-    return <>{item.responseStr}</>;
-  };
 
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
@@ -43,7 +33,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
             ))}
           </tr>
         </thead>
-        <tbody id="orders">
+        <tbody id="SyncHistories">
           {(syncHistories || []).map((item) => (
             <tr key={item._id}>
               <td>{dayjs(item.createdAt).format('lll')}</td>
@@ -53,19 +43,10 @@ class SyncHistoryList extends React.Component<IProps, {}> {
               <td>
                 {(item.responseStr || '').includes('timedout')
                   ? item.responseStr
-                  : '' ||
-                    `
+                  : `
                         ${item.responseData?.extra_info?.warnings || ''}
                         ${item.responseData?.message || ''}
                         ${item.error || ''}
-                        ${
-                          typeof (item.responseData?.error || '') ===
-                            'string' &&
-                          typeof (item.responseData?.error || '').replace(
-                            'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                            '',
-                          )
-                        }
                         `}
               </td>
             </tr>
@@ -73,7 +54,6 @@ class SyncHistoryList extends React.Component<IProps, {}> {
         </tbody>
       </Table>
     );
-
     return (
       <Wrapper
         header={

@@ -15,11 +15,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-class TransactionAcnt extends React.Component<IProps, {}> {
-  constructor(props) {
-    super(props);
-  }
-
+class TransactionAcnt extends React.Component<IProps> {
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
@@ -51,19 +47,12 @@ class TransactionAcnt extends React.Component<IProps, {}> {
               <td>
                 {(transactionSaving.responseStr || '').includes('timedout')
                   ? transactionSaving.responseStr
-                  : '' ||
-                    `
-                        ${
-                          transactionSaving.responseData?.extra_info
-                            ?.warnings || ''
-                        }
+                  : `${
+                      transactionSaving.responseData?.extra_info?.warnings || ''
+                    }
                         ${transactionSaving.responseData?.message || ''}
                         ${transactionSaving.error || ''}
-                        ${
-                          typeof (
-                            transactionSaving.responseData?.error || ''
-                          ) === 'string'
-                        }
+                        ${transactionSaving.responseData?.error || ''}
                       `}
               </td>
             </tr>

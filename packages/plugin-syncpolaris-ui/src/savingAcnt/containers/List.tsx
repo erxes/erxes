@@ -10,7 +10,6 @@ import Saving from '../components/SavingAcnt';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -23,11 +22,9 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class savingContainer extends React.Component<FinalProps, {}> {
+class savingContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
-
-    this.state = {};
   }
 
   render() {
