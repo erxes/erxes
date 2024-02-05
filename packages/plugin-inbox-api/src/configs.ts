@@ -30,6 +30,7 @@ import { NOTIFICATION_MODULES } from './constants';
 import payment from './payment';
 import reports from './reports';
 import app from '@erxes/api-utils/src/app';
+import exporter from './exporter';
 
 export let mainDb;
 export let debug;
@@ -63,6 +64,7 @@ export default {
     dashboards,
     notificationModules: NOTIFICATION_MODULES,
     payment,
+    exporter,
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -139,7 +141,7 @@ export default {
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

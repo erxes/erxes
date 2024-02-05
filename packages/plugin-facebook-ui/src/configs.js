@@ -121,7 +121,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      components: ['inboxConversationDetail']
+      components: ['inboxConversationDetailRespondBoxMask']
     },
     {
       name: 'Facebook Messenger',

@@ -1,7 +1,7 @@
 import { Transform } from 'stream';
 import {
   IValidationResponse,
-  IVisitorContact
+  IVisitorContact,
 } from './models/definitions/customers';
 import { debug } from './configs';
 import { getEnv } from '@erxes/api-utils/src';
@@ -10,11 +10,11 @@ import fetch from 'node-fetch';
 
 export const validateSingle = async (
   subdomain: string,
-  contact: IVisitorContact
+  contact: IVisitorContact,
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
-    defaultValue: 'http://localhost:4100'
+    defaultValue: 'http://localhost:4100',
   });
   if (!EMAIL_VERIFIER_ENDPOINT) {
     return;
@@ -38,32 +38,32 @@ export const validateSingle = async (
     await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-single`, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (e) {
     debug.error(
-      `An error occurred while sending request to the email verifier. Error: ${e.message}`
+      `An error occurred while sending request to the email verifier. Error: ${e.message}`,
     );
   }
 };
 
 export const updateContactValidationStatus = async (
   { Customers }: IModels,
-  data: IValidationResponse
+  data: IValidationResponse,
 ) => {
   const { email, phone, status } = data;
 
   if (email) {
     await Customers.updateMany(
       { primaryEmail: email },
-      { $set: { emailValidationStatus: status } }
+      { $set: { emailValidationStatus: status } },
     );
   }
 
   if (phone) {
     await Customers.updateMany(
       { primaryPhone: phone },
-      { $set: { phoneValidationStatus: status } }
+      { $set: { phoneValidationStatus: status } },
     );
   }
 };
@@ -71,11 +71,11 @@ export const updateContactValidationStatus = async (
 export const validateBulk = async (
   models: IModels,
   subdomain: string,
-  verificationType: string
+  verificationType: string,
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
-    defaultValue: ''
+    defaultValue: '',
   });
 
   const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -95,19 +95,21 @@ export const validateBulk = async (
         emails.push(customer.primaryEmail);
 
         callback();
-      }
+      },
     });
 
-    const customersEmailStream = (models.Customers.find(
-      {
-        primaryEmail: { $exists: true, $ne: null },
-        $or: [
-          { emailValidationStatus: 'unknown' },
-          { emailValidationStatus: { $exists: false } }
-        ]
-      },
-      { primaryEmail: 1, _id: 0 }
-    ).limit(1000) as any).stream();
+    const customersEmailStream = (
+      models.Customers.find(
+        {
+          primaryEmail: { $exists: true, $ne: null },
+          $or: [
+            { emailValidationStatus: 'unknown' },
+            { emailValidationStatus: { $exists: false } },
+          ],
+        },
+        { primaryEmail: 1, _id: 0 },
+      ).limit(1000) as any
+    ).stream();
 
     return new Promise((resolve, reject) => {
       const pipe = customersEmailStream.pipe(customerTransformerToEmailStream);
@@ -117,7 +119,7 @@ export const validateBulk = async (
           await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
             method: 'POST',
             body: JSON.stringify({ emails, hostname: callback_url }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           });
         } catch (e) {
           return reject(e);
@@ -137,19 +139,21 @@ export const validateBulk = async (
       phones.push(customer.primaryPhone);
 
       callback();
-    }
+    },
   });
 
-  const customersStream = (models.Customers.find(
-    {
-      primaryPhone: { $exists: true, $ne: null },
-      $or: [
-        { phoneValidationStatus: 'unknown' },
-        { phoneValidationStatus: { $exists: false } }
-      ]
-    },
-    { primaryPhone: 1, _id: 0 }
-  ).limit(1000) as any).stream();
+  const customersStream = (
+    models.Customers.find(
+      {
+        primaryPhone: { $exists: true, $ne: null },
+        $or: [
+          { phoneValidationStatus: 'unknown' },
+          { phoneValidationStatus: { $exists: false } },
+        ],
+      },
+      { primaryPhone: 1, _id: 0 },
+    ).limit(1000) as any
+  ).stream();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
@@ -159,7 +163,7 @@ export const validateBulk = async (
         await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
           method: 'POST',
           body: JSON.stringify({ phones, hostname: callback_url }),
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       } catch (e) {
         return reject(e);
@@ -172,7 +176,7 @@ export const validateBulk = async (
 export const updateContactsValidationStatus = async (
   models: IModels,
   type: string,
-  data: []
+  data: [],
 ) => {
   if (type === 'email') {
     const bulkOps: Array<{
@@ -186,8 +190,8 @@ export const updateContactsValidationStatus = async (
       bulkOps.push({
         updateMany: {
           filter: { primaryEmail: email },
-          update: { emailValidationStatus: status }
-        }
+          update: { emailValidationStatus: status },
+        },
       });
     }
     await models.Customers.bulkWrite(bulkOps);
@@ -204,8 +208,8 @@ export const updateContactsValidationStatus = async (
     phoneBulkOps.push({
       updateMany: {
         filter: { primaryPhone: phone },
-        update: { phoneValidationStatus: status }
-      }
+        update: { phoneValidationStatus: status },
+      },
     });
   }
   await models.Customers.bulkWrite(phoneBulkOps);

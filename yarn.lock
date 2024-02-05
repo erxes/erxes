@@ -6842,6 +6842,13 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
+"@types/node-imap@^0.9.3":
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/@types/node-imap/-/node-imap-0.9.3.tgz#730f71ccf9a4988a798dd25207cd61d351b69710"
+  integrity sha512-PIATiaiyk6815QgCm1Obq7M37e23usWvZUKpHBMYVhYfUFPU+R7SXlhirrDHtIKIRRLU2RX0EY/jPYzFsS9r5g==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "17.0.45"
   resolved "https://registry.npmjs.org/@types/node/-/node-17.0.45.tgz"

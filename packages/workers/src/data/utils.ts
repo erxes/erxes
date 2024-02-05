@@ -61,14 +61,14 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
   });
 };
 
-export const createAWS = async () => {
+export const createAWS = async (subdomain) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
-  } = await getFileUploadConfigs();
+  } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -96,12 +96,12 @@ export const createAWS = async () => {
   return new AWS.S3(options);
 };
 
-export const createCFR2 = async () => {
+export const createCFR2 = async (subdomain) => {
   const {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
     CLOUDFLARE_SECRET_ACCESS_KEY,
-  } = await getFileUploadConfigs();
+  } = await getFileUploadConfigs(subdomain);
 
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
@@ -126,8 +126,8 @@ export const createCFR2 = async () => {
   return new AWS.S3(options);
 };
 
-export const getImportCsvInfo = async (fileName: string) => {
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+export const getImportCsvInfo = async (subdomain, fileName: string) => {
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
   const service: any = await getService('core');
 
@@ -177,9 +177,11 @@ export const getImportCsvInfo = async (fileName: string) => {
         });
     } else {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
-        await getFileUploadConfigs();
+        await getFileUploadConfigs(subdomain);
       const s3 =
-        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
+        UPLOAD_SERVICE_TYPE === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
@@ -214,8 +216,8 @@ export const getImportCsvInfo = async (fileName: string) => {
   });
 };
 
-export const getCsvHeadersInfo = async (fileName: string) => {
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
   return new Promise(async (resolve) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -246,10 +248,12 @@ export const getCsvHeadersInfo = async (fileName: string) => {
       });
     } else {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
-        await getFileUploadConfigs();
+        await getFileUploadConfigs(subdomain);
 
       const s3 =
-        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
+        UPLOAD_SERVICE_TYPE === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;

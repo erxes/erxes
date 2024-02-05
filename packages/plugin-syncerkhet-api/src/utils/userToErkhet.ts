@@ -1,16 +1,14 @@
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
 
 export const userToErkhet = async (
-  subdomain,
   models,
+  mainConfig,
   syncLog,
   params,
-  action
+  action,
 ) => {
   const user = params.updatedDocument || params.object;
   const oldUser = params.object;
-
-  const config = await getConfig(subdomain, 'ERKHET', {});
 
   let sendData = {};
 
@@ -21,9 +19,9 @@ export const userToErkhet = async (
       firstName: user.details?.firstName,
       lastName: user.details?.lastName,
       email: user.email || '',
-      employeeId: user.employeeId
-    }
+      employeeId: user.employeeId,
+    },
   };
 
-  toErkhet(models, syncLog, config, sendData, 'user-change');
+  toErkhet(models, syncLog, mainConfig, sendData, 'user-change');
 };

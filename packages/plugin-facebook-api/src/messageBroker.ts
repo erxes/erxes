@@ -11,26 +11,20 @@ import {
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage,
-} from '@erxes/api-utils/src/core';
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  InterMessage,
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
-};
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'facebook:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -44,7 +38,32 @@ export const initBroker = async (cl) => {
       };
     },
   );
+  consumeRPCQueue(
+    'facebook:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const models = await generateModels(subdomain);
+      const details = JSON.parse(doc.data);
 
+      const integration = await models.Integrations.findOne({
+        erxesApiId: integrationId,
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.',
+        };
+      }
+      await models.Integrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+
+      return {
+        status: 'success',
+      };
+    },
+  );
   // listen for rpc queue =========
   consumeRPCQueue(
     'facebook:api_to_integrations',
@@ -65,7 +84,9 @@ export const initBroker = async (cl) => {
         }
 
         if (type === 'facebook') {
-          response = { data: await handleFacebookMessage(models, data) };
+          response = {
+            data: await handleFacebookMessage(models, data, subdomain),
+          };
         }
 
         if (action === 'getConfigs') {
@@ -119,7 +140,7 @@ export const initBroker = async (cl) => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.Posts.getPost({ erxesApiId }, true),
+        data: await models.PostConversations.findOne({ erxesApiId }, true),
         status: 'success',
       };
     },
@@ -141,12 +162,12 @@ export const initBroker = async (cl) => {
       const models = await generateModels(subdomain);
 
       if (kind === 'facebook') {
-        return facebookCreateIntegration(models, doc);
+        return await facebookCreateIntegration(models, doc);
       }
 
       return {
         status: 'error',
-        data: 'Wrong kind',
+        errorMessage: 'Wrong kind',
       };
     },
   );
@@ -193,16 +214,12 @@ export const initBroker = async (cl) => {
   );
 };
 
-export default function () {
-  return client;
-}
-
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});
+export const getFileUploadConfigs = async (subdomain) =>
+  sendRPCMessage('core:getFileUploadConfigs', { subdomain });

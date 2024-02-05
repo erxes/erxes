@@ -1,5 +1,8 @@
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {
@@ -15,14 +18,12 @@ import {
 import { conversationConvertToCard, createBoardItem } from './models/utils';
 import { getCardItem } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -98,8 +99,8 @@ export const initBroker = async (cl) => {
 
     if (!itemId || !type || !user || !processId) {
       return {
-        status: 'failed',
-        data: 'you must provide some params',
+        status: 'error',
+        errorMessage: 'you must provide some params',
       };
     }
     const collection = objModels[type];
@@ -135,8 +136,8 @@ export const initBroker = async (cl) => {
 
     if (!parent) {
       return {
-        status: 'failde',
-        data: null,
+        status: 'error',
+        errorMessage: 'Parent not found',
       };
     }
 
@@ -616,7 +617,10 @@ export const initBroker = async (cl) => {
       });
 
       if (!item) {
-        return '';
+        return {
+          status: 'error',
+          errorMessage: 'Item not found',
+        };
       }
 
       const stage = await models.Stages.getStage(item.stageId);
@@ -643,7 +647,10 @@ export const initBroker = async (cl) => {
       }
 
       if (!pipelineId) {
-        return {};
+        return {
+          status: 'error',
+          errorMessage: 'Pipeline not found',
+        };
       }
 
       return {
@@ -690,7 +697,7 @@ export const initBroker = async (cl) => {
       data: { dealId, action, dataId, doc, productsData },
     }) => {
       graphqlPubsub.publish('productsDataChanged', {
-        pipelinesChanged: {
+        productsDataChanged: {
           _id: dealId,
           proccessId: Math.random(),
           action,
@@ -769,7 +776,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -778,7 +785,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalNotes',
@@ -786,7 +793,9 @@ export const sendInternalNotesMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -794,7 +803,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -803,7 +812,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -812,7 +821,7 @@ export const sendEngagesMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -821,7 +830,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -830,7 +839,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -838,7 +847,9 @@ export const sendNotificationsMessage = async (
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
@@ -846,7 +857,7 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -855,7 +866,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'loyalties',
@@ -863,9 +874,7 @@ export const sendLoyaltiesMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
@@ -884,17 +893,11 @@ export const fetchSegment = (
     isRPC: true,
   });
 
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
-};
-
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

@@ -1,3 +1,4 @@
+import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
 import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
@@ -8,7 +9,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 export const callproCreateIntegration = async (
   models: IModels,
   { integrationId, data },
-) => {
+): Promise<RPSuccess> => {
   const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
 
   // Check existing Integration

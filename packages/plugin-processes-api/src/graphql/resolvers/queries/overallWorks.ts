@@ -2,7 +2,7 @@ import {
   escapeRegExp,
   getPureDate,
   getToday,
-  getTomorrow
+  getTomorrow,
 } from '@erxes/api-utils/src/core';
 import { sendProductsMessage } from '../../../messageBroker';
 // import {
@@ -34,7 +34,7 @@ const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IParam,
-  commonQuerySelector
+  commonQuerySelector,
 ) => {
   const {
     search,
@@ -49,7 +49,7 @@ const generateFilter = async (
     jobCategoryId,
     productCategoryId,
     productIds,
-    vendorIds
+    vendorIds,
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -93,17 +93,17 @@ const generateFilter = async (
       subdomain,
       action: 'count',
       data: { categoryId: productCategoryId },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
-      isRPC: true
+      isRPC: true,
     });
 
-    filterProductIds = products.map(pr => pr._id);
+    filterProductIds = products.map((pr) => pr._id);
     hasFilterProductIds = true;
   }
 
@@ -112,7 +112,7 @@ const generateFilter = async (
       subdomain,
       action: 'count',
       data: { query: { vendorId: { $in: vendorIds } } },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
@@ -121,12 +121,12 @@ const generateFilter = async (
       data: {
         limit,
         query: { vendorId: { $in: vendorIds } },
-        fields: { _id: 1 }
+        fields: { _id: 1 },
       },
-      isRPC: true
+      isRPC: true,
     });
 
-    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    filterProductIds = filterProductIds.concat(products.map((pr) => pr._id));
     hasFilterProductIds = true;
   }
 
@@ -141,16 +141,16 @@ const generateFilter = async (
 
   if (jobCategoryId) {
     const category = await models.JobCategories.findOne({
-      _id: jobCategoryId
+      _id: jobCategoryId,
     }).lean();
     const categories = await models.JobCategories.find(
       { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-      { _id: 1 }
+      { _id: 1 },
     ).lean();
     const jobRefers = await models.JobRefers.find({
-      categoryId: { $in: categories.map(c => c._id) }
+      categoryId: { $in: categories.map((c) => c._id) },
     }).lean();
-    selector.typeId = { $in: jobRefers.map(jr => jr._id) };
+    selector.typeId = { $in: jobRefers.map((jr) => jr._id) };
   }
 
   if (jobReferId) {
@@ -177,13 +177,13 @@ const overallWorkQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector, subdomain }: IContext
+    { models, commonQuerySelector, subdomain }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     const { page = 0, perPage = 0 } = params;
@@ -205,8 +205,8 @@ const overallWorkQueries = {
           resultProducts: 1,
           type: 1,
           typeId: 1,
-          count: 1
-        }
+          count: 1,
+        },
       },
       {
         $group: {
@@ -216,19 +216,19 @@ const overallWorkQueries = {
             outBranchId: '$outBranchId',
             outDepartmentId: '$outDepartmentId',
             type: '$type',
-            typeId: '$typeId'
+            typeId: '$typeId',
           },
           needProducts: { $push: '$needProducts' },
           resultProducts: { $push: '$resultProducts' },
           workIds: { $push: '$_id' },
-          count: { $sum: '$count' }
-        }
+          count: { $sum: '$count' },
+        },
       },
       {
-        $skip: (_page - 1) * _limit
+        $skip: (_page - 1) * _limit,
       },
       {
-        $limit: _limit
+        $limit: _limit,
       },
       {
         $project: {
@@ -244,16 +244,16 @@ const overallWorkQueries = {
               '_',
               '$_id.outBranchId',
               '_',
-              '$_id.outDepartmentId'
-            ]
+              '$_id.outDepartmentId',
+            ],
           },
           key: '$_id',
           needProducts: 1,
           resultProducts: 1,
           workIds: 1,
-          count: 1
-        }
-      }
+          count: 1,
+        },
+      },
     ]);
 
     return groupedWorks;
@@ -265,13 +265,13 @@ const overallWorkQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector, subdomain }: IContext
+    { models, commonQuerySelector, subdomain }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     const groupedWorks = await models.Works.aggregate([
@@ -282,8 +282,8 @@ const overallWorkQueries = {
           inBranchId: 1,
           inDepartmentId: 1,
           outBranchId: 1,
-          outDepartmentId: 1
-        }
+          outDepartmentId: 1,
+        },
       },
       {
         $group: {
@@ -293,10 +293,10 @@ const overallWorkQueries = {
             outBranchId: '$outBranchId',
             outDepartmentId: '$outDepartmentId',
             type: '$type',
-            typeId: '$typeId'
-          }
-        }
-      }
+            typeId: '$typeId',
+          },
+        },
+      },
     ]);
     return groupedWorks.length;
   },
@@ -304,7 +304,7 @@ const overallWorkQueries = {
   async overallWorkDetail(
     _root,
     params: IParam,
-    { models, commonQuerySelector, subdomain }: IContext
+    { models, commonQuerySelector, subdomain }: IContext,
   ) {
     const {
       inBranchId,
@@ -312,7 +312,7 @@ const overallWorkQueries = {
       outBranchId,
       outDepartmentId,
       type,
-      jobReferId
+      jobReferId,
     } = params;
 
     if (!type) {
@@ -353,7 +353,7 @@ const overallWorkQueries = {
       subdomain,
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     const groupedWorks = await models.Works.aggregate([
@@ -371,8 +371,8 @@ const overallWorkQueries = {
           resultProducts: 1,
           type: 1,
           typeId: 1,
-          count: 1
-        }
+          count: 1,
+        },
       },
       {
         $group: {
@@ -382,13 +382,13 @@ const overallWorkQueries = {
             outBranchId: '$outBranchId',
             outDepartmentId: '$outDepartmentId',
             type: '$type',
-            typeId: '$typeId'
+            typeId: '$typeId',
           },
           needProducts: { $push: '$needProducts' },
           resultProducts: { $push: '$resultProducts' },
           workIds: { $push: '$_id' },
-          count: { $sum: '$count' }
-        }
+          count: { $sum: '$count' },
+        },
       },
       {
         $project: {
@@ -404,16 +404,16 @@ const overallWorkQueries = {
               '_',
               '$_id.outDepartmentId',
               '_',
-              '$_id.typeId'
-            ]
+              '$_id.typeId',
+            ],
           },
           key: '$_id',
           needProducts: 1,
           resultProducts: 1,
           workIds: 1,
-          count: 1
-        }
-      }
+          count: 1,
+        },
+      },
     ]);
 
     if (!groupedWorks.length) {
@@ -427,8 +427,8 @@ const overallWorkQueries = {
       let resultData = [];
 
       for (const work of groupedWorks) {
-        needData = needData.concat(work.needProducts.map(w => w));
-        resultData = resultData.concat(work.resultProducts.map(w => w));
+        needData = needData.concat(work.needProducts.map((w) => w));
+        resultData = resultData.concat(work.resultProducts.map((w) => w));
       }
       overallWork.needProducts = needData;
       overallWork.resultProducts = resultData;
@@ -444,18 +444,18 @@ const overallWorkQueries = {
       subdomain,
       overallWork.needProducts,
       overallWork.key.inBranchId,
-      overallWork.key.inDepartmentId
+      overallWork.key.inDepartmentId,
     );
 
     overallWork.resultProductsData = await getProductsDataOnOwork(
       subdomain,
       overallWork.resultProducts,
       overallWork.key.outBranchId,
-      overallWork.key.outDepartmentId
+      overallWork.key.outDepartmentId,
     );
 
     return overallWork;
-  }
+  },
 };
 
 // checkPermission(overallWorkQueries, 'overalWorks', 'showWorks');

@@ -7,7 +7,7 @@ import {
 import { getConfig } from '../../../utils';
 
 const msdynamicCheckMutations = {
-  async toCheckProducts(
+  async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -118,7 +118,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckPrices(
+  async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -215,7 +215,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckProductCategories(
+  async toCheckMsdProductCategories(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -311,7 +311,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckCustomers(
+  async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,

@@ -1,4 +1,4 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
 
@@ -6,14 +6,12 @@ import { generateModels } from './connectionResolver';
 import { sendRPCMessage } from './messageBrokerErkhet';
 import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
 import { getPostData, orderDeleteToErkhet } from './utils/orders';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('multierkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
@@ -212,7 +210,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -221,7 +219,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -230,7 +228,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -238,7 +236,9 @@ export const sendCardsMessage = async (
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
     ...args,
@@ -246,7 +246,7 @@ export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendEbarimtMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
@@ -254,7 +254,9 @@ export const sendEbarimtMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -262,14 +264,10 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

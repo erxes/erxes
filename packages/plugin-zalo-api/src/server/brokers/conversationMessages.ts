@@ -10,11 +10,12 @@ import {
 } from '../controllers';
 import { zaloSend } from '../../zalo';
 import { generateAttachmentUrl } from '../../utils';
-
-export const conversationMessagesBroker = ({
-  consumeRPCQueue,
+import {
   consumeQueue,
-}) => {
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
+
+export const conversationMessagesBroker = () => {
   consumeRPCQueue(
     'zalo:conversationMessages.find',
     async ({ subdomain, data }) => {

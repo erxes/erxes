@@ -1,17 +1,21 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
 import { beforeResolverHandlers } from './beforeResolvers';
 import {
   consumeSalesPlans,
   removeFromSalesPlans,
 } from './utils/consumeSalesPlans';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-  const { consumeQueue, consumeRPCQueue } = cl;
+export const initBroker = async () => {
   consumeQueue(
     'processes:createWorks',
     async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {
@@ -60,7 +64,6 @@ export const initBroker = async (cl) => {
       data: await beforeResolverHandlers(models, data),
       status: 'success',
     };
-    return;
   });
 
   consumeRPCQueue(
@@ -108,7 +111,7 @@ export const initBroker = async (cl) => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -116,7 +119,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -125,7 +128,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -134,7 +137,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inventories',
@@ -143,7 +146,7 @@ export const sendInventoriesMessage = async (
 };
 
 export const sendSalesplansMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'salesplans',
@@ -151,13 +154,11 @@ export const sendSalesplansMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
   });
 };
-
-export default function () {
-  return client;
-}

@@ -9,7 +9,7 @@ import {
   IUnitDocument,
   IBranchDocument,
   branchSchema,
-  IStructureDocument
+  IStructureDocument,
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 import { checkCodeDuplication } from './utils';
@@ -21,7 +21,7 @@ export interface IStructureModel extends Model<IStructureDocument> {
   updateStructure(
     _id: string,
     doc: any,
-    user: IUserDocument
+    user: IUserDocument,
   ): IStructureDocument;
   removeStructure(_id: string): IStructureDocument;
 }
@@ -48,7 +48,7 @@ export const loadStructureClass = (models: IModels) => {
       const structure = await models.Structures.create({
         ...doc,
         createdAt: new Date(),
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       return structure;
@@ -60,15 +60,15 @@ export const loadStructureClass = (models: IModels) => {
     public static async updateStructure(
       _id: string,
       doc: any,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       await models.Structures.update(
         { _id },
         {
           ...doc,
           updatedAt: new Date(),
-          updatedBy: user._id
-        }
+          updatedBy: user._id,
+        },
       );
 
       return models.Structures.findOne({ _id });
@@ -103,7 +103,7 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
   updateDepartment(
     _id: string,
     doc: any,
-    user: IUserDocument
+    user: IUserDocument,
   ): IDepartmentDocument;
   removeDepartments(ids?: string[]): IDepartmentDocument;
 }
@@ -130,7 +130,7 @@ export const loadDepartmentClass = (models: IModels) => {
       await checkCodeDuplication(models.Departments, doc.code);
 
       const parent = await models.Departments.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
@@ -138,13 +138,13 @@ export const loadDepartmentClass = (models: IModels) => {
       const department = await models.Departments.create({
         ...doc,
         createdAt: new Date(),
-        createdBy: user._id
+        createdBy: user._id,
       });
       await models.UserMovements.manageStructureUsersMovement({
         userIds: department.userIds || [],
         contentType: 'department',
         contentTypeId: department._id,
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       return department;
@@ -157,7 +157,7 @@ export const loadDepartmentClass = (models: IModels) => {
     public static async updateDepartment(
       _id: string,
       doc: any,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       const department = await models.Departments.getDepartment({ _id });
       if (department?.code !== doc.code) {
@@ -165,7 +165,7 @@ export const loadDepartmentClass = (models: IModels) => {
       }
 
       const parent = await models.Departments.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       });
 
       if (parent && parent?.parentId === _id) {
@@ -174,7 +174,7 @@ export const loadDepartmentClass = (models: IModels) => {
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
       const children = await models.Departments.find({
-        order: { $regex: new RegExp(`^${escapeRegExp(department.order)}`) }
+        order: { $regex: new RegExp(`^${escapeRegExp(department.order)}`) },
       });
 
       for (const child of children) {
@@ -184,11 +184,11 @@ export const loadDepartmentClass = (models: IModels) => {
 
         await models.Departments.updateOne(
           {
-            _id: child._id
+            _id: child._id,
           },
           {
-            $set: { order }
-          }
+            $set: { order },
+          },
         );
       }
 
@@ -196,15 +196,15 @@ export const loadDepartmentClass = (models: IModels) => {
         userIds: doc.userIds || [],
         contentType: 'department',
         contentTypeId: _id,
-        createdBy: user._id
+        createdBy: user._id,
       });
       await models.Departments.update(
         { _id },
         {
           ...doc,
           updatedAt: new Date(),
-          updatedBy: user._id
-        }
+          updatedBy: user._id,
+        },
       );
 
       return models.Departments.findOne({ _id });
@@ -217,10 +217,10 @@ export const loadDepartmentClass = (models: IModels) => {
     public static async removeDepartments(ids: string[]) {
       const departments = await models.Departments.find({ _id: { $in: ids } });
 
-      const departmentIds = departments.map(department => department._id);
+      const departmentIds = departments.map((department) => department._id);
       const userMovements = await models.UserMovements.find({
         contentType: 'department',
-        contentTypeId: { $in: departmentIds }
+        contentTypeId: { $in: departmentIds },
       });
 
       if (!!userMovements.length) {
@@ -228,18 +228,18 @@ export const loadDepartmentClass = (models: IModels) => {
           {
             $or: [
               { _id: { $in: departmentIds } },
-              { parentId: { $in: departmentIds } }
-            ]
+              { parentId: { $in: departmentIds } },
+            ],
           },
-          { $set: { status: STRUCTURE_STATUSES.DELETED } }
+          { $set: { status: STRUCTURE_STATUSES.DELETED } },
         );
       }
 
       return await models.Departments.deleteMany({
         $or: [
           { _id: { $in: departmentIds } },
-          { parentId: { $in: departmentIds } }
-        ]
+          { parentId: { $in: departmentIds } },
+        ],
       });
     }
   }
@@ -278,7 +278,7 @@ export const loadUnitClass = (models: IModels) => {
       const unit = await models.Units.create({
         ...doc,
         createdAt: new Date(),
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       return unit;
@@ -293,8 +293,8 @@ export const loadUnitClass = (models: IModels) => {
         {
           ...doc,
           updatedAt: new Date(),
-          updatedBy: user._id
-        }
+          updatedBy: user._id,
+        },
       );
 
       return models.Units.findOne({ _id });
@@ -306,7 +306,7 @@ export const loadUnitClass = (models: IModels) => {
     public static async removeUnits(ids: string) {
       const units = await models.Units.find({ _id: { $in: ids } });
 
-      const unitIds = units.map(unit => unit._id);
+      const unitIds = units.map((unit) => unit._id);
 
       return await models.Units.deleteMany({ _id: { $in: unitIds } });
     }
@@ -346,7 +346,7 @@ export const loadBranchClass = (models: IModels) => {
       await checkCodeDuplication(models.Branches, doc.code);
 
       const parent = await models.Branches.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
@@ -354,14 +354,14 @@ export const loadBranchClass = (models: IModels) => {
       const branch = await models.Branches.create({
         ...doc,
         createdAt: new Date(),
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       await models.UserMovements.manageStructureUsersMovement({
         userIds: branch.userIds || [],
         contentType: 'branch',
         contentTypeId: branch._id,
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       return branch;
@@ -373,7 +373,7 @@ export const loadBranchClass = (models: IModels) => {
     public static async updateBranch(
       _id: string,
       doc: any,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       const branch = await models.Branches.getBranch({ _id });
 
@@ -390,7 +390,7 @@ export const loadBranchClass = (models: IModels) => {
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
       const children = await models.Branches.find({
-        order: { $regex: new RegExp(`^${escapeRegExp(branch.order)}`) }
+        order: { $regex: new RegExp(`^${escapeRegExp(branch.order)}`) },
       });
 
       for (const child of children) {
@@ -400,18 +400,18 @@ export const loadBranchClass = (models: IModels) => {
 
         await models.Branches.updateOne(
           {
-            _id: child._id
+            _id: child._id,
           },
           {
-            $set: { order }
-          }
+            $set: { order },
+          },
         );
       }
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'branch',
         contentTypeId: _id,
-        createdBy: user._id
+        createdBy: user._id,
       });
 
       await models.Branches.update(
@@ -419,8 +419,8 @@ export const loadBranchClass = (models: IModels) => {
         {
           ...doc,
           updatedAt: new Date(),
-          updatedBy: user._id
-        }
+          updatedBy: user._id,
+        },
       );
 
       return models.Branches.findOne({ _id });
@@ -433,23 +433,26 @@ export const loadBranchClass = (models: IModels) => {
     public static async removeBranches(ids: string[]) {
       const branches = await models.Branches.find({ _id: { $in: ids } });
 
-      const branchIds = branches.map(branch => branch._id);
+      const branchIds = branches.map((branch) => branch._id);
       const userMovements = await models.UserMovements.find({
         contentType: 'branch',
-        contentTypeId: { $in: branchIds }
+        contentTypeId: { $in: branchIds },
       });
 
       if (!!userMovements.length) {
         return await models.Branches.updateMany(
           {
-            $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+            $or: [
+              { _id: { $in: branchIds } },
+              { parentId: { $in: branchIds } },
+            ],
           },
-          { $set: { status: STRUCTURE_STATUSES.DELETED } }
+          { $set: { status: STRUCTURE_STATUSES.DELETED } },
         );
       }
 
       return await models.Branches.deleteMany({
-        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }],
       });
     }
   }

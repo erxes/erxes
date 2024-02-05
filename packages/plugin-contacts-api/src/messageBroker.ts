@@ -6,7 +6,11 @@ import {
 } from './utils';
 
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
 import {
   AWS_EMAIL_STATUSES,
@@ -14,10 +18,11 @@ import {
   MODULE_NAMES,
 } from './constants';
 import { updateContactsField } from './utils';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { putCreateLog } from './logUtils';
-
-export let client;
+import {
+  consumeRPCQueue,
+  consumeQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 const createOrUpdate = async ({
   collection,
@@ -69,11 +74,7 @@ const createOrUpdate = async ({
   return collection.bulkWrite(operations);
 };
 
-export const initBroker = (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = () => {
   consumeRPCQueue('contacts:customers.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -498,7 +499,7 @@ export const initBroker = (cl) => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -506,7 +507,9 @@ export const sendSegmentsMessage = async (
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,
@@ -514,7 +517,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -523,7 +526,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -532,7 +535,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendEngagesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -541,7 +544,7 @@ export const sendEngagesMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -549,7 +552,9 @@ export const sendInternalNotesMessage = async (
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
     ...args,
@@ -557,7 +562,7 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -565,16 +570,14 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -594,11 +597,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
-
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
-};
-
-export default function () {
-  return client;
-}

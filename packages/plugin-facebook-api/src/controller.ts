@@ -23,7 +23,7 @@ const init = async (app) => {
 
     const { erxesApiId } = req.query;
 
-    const post = await models.Posts.getPost({ erxesApiId }, true);
+    const post = await models.PostConversations.findOne({ erxesApiId }, true);
 
     return res.json({ ...post });
   });
@@ -80,8 +80,6 @@ const init = async (app) => {
     const models = await generateModels(subdomain);
 
     const data = req.body;
-
-    // console.log('Facebook receive data', data);
 
     if (data.object !== 'page') {
       return;

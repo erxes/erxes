@@ -1,5 +1,12 @@
-import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  InterMessage,
+  init as initBrokerCore,
+} from '@erxes/api-utils/src/messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
@@ -16,7 +23,7 @@ import {
   sendMobileNotification,
 } from './data/utils';
 
-import * as serviceDiscovery from './serviceDiscovery';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 import logUtils from './logUtils';
 import internalNotes from './internalNotes';
@@ -25,18 +32,23 @@ import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import imports from './imports';
 import exporter from './exporter';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  consumeRPCQueueMq,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async () => {
-  client = await initBrokerCore();
-
-  // do not receive messages in crons worker
-  const { consumeQueue, consumeRPCQueue, consumeRPCQueueMq } = client;
+export const initBroker = async (): Promise<void> => {
+  await initBrokerCore();
 
   consumeQueue(
     'core:manage-installation-notification',
-    async ({ subdomain, type, name, message }) => {
+    async ({
+      subdomain,
+      type,
+      name,
+      message,
+    }: InterMessage & { [others: string]: any }) => {
       const models = await generateModels(subdomain);
 
       if (type === 'uninstall' && message === 'done') {
@@ -221,11 +233,6 @@ export const initBroker = async () => {
     },
   );
 
-  // graphql subscriptions call =========
-  consumeQueue('callPublish', (params) => {
-    graphqlPubsub.publish(params.name, params.data);
-  });
-
   // listen for rpc queue =========
   consumeQueue(
     'core:registerOnboardHistory',
@@ -259,7 +266,10 @@ export const initBroker = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      return await models.Configs.createOrUpdateConfig(data);
+      return {
+        status: 'success',
+        data: await models.Configs.createOrUpdateConfig(data),
+      };
     },
   );
 
@@ -586,7 +596,6 @@ export const initBroker = async () => {
 
   logConsumers({
     name: 'core',
-    consumeRPCQueue,
     getActivityContent: logUtils.getActivityContent,
     collectItems: logUtils.collectItems,
     getSchemalabels: logUtils.getSchemaLabels,
@@ -594,13 +603,11 @@ export const initBroker = async () => {
 
   internalNoteConsumers({
     name: 'core',
-    consumeRPCQueue,
     generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
   });
 
   formConsumers({
     name: 'core',
-    consumeRPCQueue,
     systemFields: forms.systemFields,
   });
 
@@ -635,33 +642,20 @@ export const initBroker = async () => {
     data: await exporter.getExportDocs(args),
   }));
 
-  consumeRPCQueueMq('core:isServiceEnabled', async (args) => ({
+  consumeRPCQueueMq('core:isServiceEnabled', async ({ data }) => ({
     status: 'success',
-    data: await serviceDiscovery.isEnabled(args),
+    data: await isEnabled(data),
   }));
-
-  return client;
 };
 
-interface IISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  defaultValue?;
-  serviceName: string;
-}
-
-export const sendCommonMessage = async (
-  args: IISendMessageArgs,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -670,7 +664,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -678,35 +672,43 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
     ...args,
   });
 };
 
-export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
     ...args,
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendInboxMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
     ...args,
@@ -725,7 +727,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
-
-export default function () {
-  return client;
-}

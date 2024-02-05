@@ -28,6 +28,7 @@ const queries = `
 const mutations = `
   xypDataAdd(${params}):XypData
   xypDataUpdate( _id: String!,${params}):XypData
+  xypDataCreateOrUpdate(${params}):XypData
   xypConvertToCustomeFields( _id: String!):String
 `;
 
