@@ -15,6 +15,20 @@ export const types = (tagsAvailable) => `
   }
 
 
+
+  type Dashboard {
+    _id: String!
+    items: [JSON]
+  }
+
+
+  type InsightSection {
+    _id: String!
+    type: String!
+    items: [JSON]
+  }
+
+
   type Report {
     _id: String!
     name: String
@@ -34,6 +48,8 @@ export const types = (tagsAvailable) => `
 
     createdAt:Date
     createdBy: User
+    
+    sectionId: String
   }
 
   enum VisibilityType {
