@@ -4,7 +4,6 @@ import {
   getCustomer,
   getDepositAccount,
   getLoanContract,
-  getLoanProduct,
 } from '../utils';
 import { IPolarisLoanGive } from './types';
 
@@ -23,11 +22,6 @@ export const createLoanGive = async (subdomain, transaction) => {
   );
 
   const loanContract = await getLoanContract(subdomain, transaction.contractId);
-
-  const loanContractType = await getLoanProduct(
-    subdomain,
-    loanContract.contractTypeId,
-  );
 
   const loanGive: IPolarisLoanGive = {
     txnAcntCode: loanContract.number,

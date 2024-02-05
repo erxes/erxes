@@ -1,18 +1,8 @@
-import {
-  getConfig,
-  getCustomer,
-  getSavingProduct,
-  fetchPolaris,
-} from './utils';
+import { getCustomer, fetchPolaris } from './utils';
 
 export const savingToPolaris = async (subdomain: string, params) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
-
   const savingContract = params.object;
-  const loanProduct = await getSavingProduct(
-    subdomain,
-    savingContract.contractTypeId,
-  );
+
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
   //console.log('savingContract:',savingContract)
@@ -61,7 +51,6 @@ export const savingToPolaris = async (subdomain: string, params) => {
 };
 
 export const getSavingAcntTransaction = async (subdomain, params) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
   const savingTransactionParams = params.updatedDocument || params.object;
   let sendData = {};
 

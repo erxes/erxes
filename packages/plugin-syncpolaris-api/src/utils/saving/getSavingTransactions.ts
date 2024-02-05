@@ -1,9 +1,4 @@
-import {
-  getConfig,
-  getCustomer,
-  getSavingProduct,
-  fetchPolaris,
-} from '../utils';
+import { getCustomer, getSavingProduct, fetchPolaris } from '../utils';
 
 export const savingToPolaris = async (subdomain: string, params) => {
   const savingContract = params.object;
@@ -59,7 +54,6 @@ export const savingToPolaris = async (subdomain: string, params) => {
 };
 
 export const getSavingAcntTransaction = async (subdomain, params) => {
-  const config = await getConfig(subdomain, 'POLARIS', {});
   const savingTransactionParams = params.updatedDocument || params.object;
   let sendData = {};
 

@@ -50,12 +50,6 @@ export const fetchPolaris = async (args: IParams) => {
 };
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
-  // return {
-  //   apiUrl: 'http://202.131.242.158:4139/nesWeb/NesFront',
-  //   company: '15',
-  //   role: '45',
-  //   token: 'MSk9sGO9h0bsPhTN4H7sa9phiJYylH',
-  // };
   return await sendCommonMessage({
     subdomain,
     action: 'getConfig',
