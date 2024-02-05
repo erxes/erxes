@@ -5517,6 +5517,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/node-imap@^0.9.3":
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/@types/node-imap/-/node-imap-0.9.3.tgz#730f71ccf9a4988a798dd25207cd61d351b69710"
+  integrity sha512-PIATiaiyk6815QgCm1Obq7M37e23usWvZUKpHBMYVhYfUFPU+R7SXlhirrDHtIKIRRLU2RX0EY/jPYzFsS9r5g==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "20.11.13"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.13.tgz#188263ee2c8d590e181d3f5bfa7e485a932957cb"
