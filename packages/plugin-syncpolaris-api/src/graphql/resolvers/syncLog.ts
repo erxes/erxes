@@ -9,26 +9,6 @@ export default {
   async content(syncLog: ISyncLogDocument, _) {
     const { contentType, contentId } = syncLog;
 
-    if (contentType === 'cards:deal') {
-      const info =
-        syncLog.consumeData.updatedDocument ||
-        syncLog.consumeData.object ||
-        syncLog.consumeData;
-      return info.number || info.name || contentId;
-    }
-
-    if (contentType === 'cards:purchase') {
-      const info =
-        syncLog.consumeData.updatedDocument ||
-        syncLog.consumeData.object ||
-        syncLog.consumeData;
-      return info.number || info.name || contentId;
-    }
-
-    if (contentType === 'pos:order') {
-      return syncLog.consumeData.number || contentId;
-    }
-
     if (contentType === 'contacts:customer') {
       const info = syncLog.consumeData.object;
       return (
@@ -38,16 +18,6 @@ export default {
         `${info.firstName || ''}${info.lastName && ` ${info.lastName}`}` ||
         contentId
       );
-    }
-
-    if (contentType === 'contacts:company') {
-      const info = syncLog.consumeData.object;
-      return info.code || info.primaryName || contentId;
-    }
-
-    if (contentType === 'products:product') {
-      const info = syncLog.consumeData.object;
-      return info.code || info.name || contentId;
     }
 
     if (contentType === 'loans:transaction') {
