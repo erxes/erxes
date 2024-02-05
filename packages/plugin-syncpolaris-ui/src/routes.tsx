@@ -38,17 +38,9 @@ const TransactionSaving = asyncComponent(
 const TransactionLoan = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "transaction" */ './transactionSaving/containers/List'
+      /* webpackChunkName: "transaction" */ './transactionLoan/containers/List'
     ),
 );
-
-const DepositAcnt = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "depositAcnt" */ './depositAcnt/containers/List'
-    ),
-);
-
 const LoanAcnt = asyncComponent(
   () => import(/* webpackChunkName: "loanAcnt" */ './loanAcnt/containers/List'),
 );
@@ -82,14 +74,7 @@ const transactionLoanList = ({ location, history }) => {
     />
   );
 };
-const depositAcntList = ({ location, history }) => {
-  return (
-    <DepositAcnt
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
+
 const savingAcntList = ({ location, history }) => {
   return (
     <SavingAcnt
@@ -149,12 +134,6 @@ const routes = () => {
         exact={true}
         path="/saving-acnt"
         component={savingAcntList}
-      />
-      <Route
-        key="/deposit-account"
-        exact={true}
-        path="/deposit-acnt"
-        component={depositAcntList}
       />
       <Route
         key="/loan-account"

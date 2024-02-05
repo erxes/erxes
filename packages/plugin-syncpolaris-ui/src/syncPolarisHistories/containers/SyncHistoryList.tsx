@@ -12,7 +12,6 @@ import SyncHistoryList from '../components//SyncHistoryList';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../graphql';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -90,5 +89,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(withRouter<IRouterProps>(SyncHistoryListContainer)),
+  )(SyncHistoryListContainer),
 );

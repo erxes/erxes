@@ -86,5 +86,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(withRouter<IRouterProps>(savingContainer)),
+  )(savingContainer),
 );
