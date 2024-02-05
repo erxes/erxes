@@ -12,6 +12,21 @@ const INBOX_TAG_TYPE = 'inbox:conversation';
 
 const NOW = new Date();
 
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 const reportTemplates = [
   {
     serviceType: 'inbox',
@@ -32,7 +47,7 @@ const checkFilterParam = (param: any) => {
 };
 
 const getDates = (startDate: Date, endDate: Date) => {
-  const result: { start: Date; end: Date }[] = [];
+  const result: { start: Date; end: Date; label: string }[] = [];
   let currentDate = new Date(startDate);
 
   // Loop through each day between start and end dates
@@ -46,7 +61,11 @@ const getDates = (startDate: Date, endDate: Date) => {
     endOfDay.setHours(23, 59, 59, 999);
 
     // Add the start and end dates of the current day to the result array
-    result.push({ start: startOfDay, end: endOfDay });
+    result.push({
+      start: startOfDay,
+      end: endOfDay,
+      label: dayjs(startOfDay).format('M/D dd'),
+    });
 
     // Move to the next day
     currentDate.setDate(currentDate.getDate() + 1);
@@ -57,7 +76,7 @@ const getDates = (startDate: Date, endDate: Date) => {
 
 const getMonths = (startDate: Date, endDate: Date) => {
   // Initialize an array to store the results
-  const result: { start: Date; end: Date }[] = [];
+  const result: { start: Date; end: Date; label: string }[] = [];
 
   // Clone the start date to avoid modifying the original date
   let currentDate = new Date(startDate);
@@ -75,7 +94,11 @@ const getMonths = (startDate: Date, endDate: Date) => {
     const endOfMonth = new Date(year, month + 1, 0);
 
     // Add the start and end dates of the current month to the result array
-    result.push({ start: startOfMonth, end: endOfMonth });
+    result.push({
+      start: startOfMonth,
+      end: endOfMonth,
+      label: MONTH_NAMES[startOfMonth.getMonth()],
+    });
 
     // Move to the next month
     currentDate.setMonth(month + 1);
@@ -86,11 +109,11 @@ const getMonths = (startDate: Date, endDate: Date) => {
 
 const getWeeks = (startDate: Date, endDate: Date) => {
   // Initialize an array to store the results
-  const result: { start: Date; end: Date }[] = [];
+  const result: { start: Date; end: Date; label: string }[] = [];
 
   // Clone the start date to avoid modifying the original date
   let currentDate = new Date(startDate);
-
+  let weekIndex = 1;
   // Move to the first day of the week (Sunday)
   currentDate.setDate(currentDate.getDate() - currentDate.getDay());
 
@@ -103,11 +126,17 @@ const getWeeks = (startDate: Date, endDate: Date) => {
     const endOfWeek = new Date(currentDate);
     endOfWeek.setDate(endOfWeek.getDate() + 6);
 
+    const dateFormat = 'M/D';
+    const label = `Week${weekIndex} ${dayjs(startOfWeek).format(
+      dateFormat,
+    )} - ${dayjs(endOfWeek).format(dateFormat)}`;
+
     // Add the start and end dates of the current week to the result array
-    result.push({ start: startOfWeek, end: endOfWeek });
+    result.push({ start: startOfWeek, end: endOfWeek, label });
 
     // Move to the next week
     currentDate.setDate(currentDate.getDate() + 7);
+    weekIndex++;
   }
 
   return result;
@@ -221,6 +250,25 @@ const returnDateRange = (dateRange: string, startDate: Date, endDate: Date) => {
   }
 
   return {};
+};
+
+const returnDateRanges = (dateRange: string, $gte: Date, $lte: Date) => {
+  let dateRanges;
+
+  if (dateRange.toLowerCase().includes('week')) {
+    dateRanges = getDates($gte, $lte);
+  }
+  if (dateRange.toLowerCase().includes('month')) {
+    dateRanges = getWeeks($gte, $lte);
+  }
+  if (dateRange.toLowerCase().includes('year')) {
+    dateRanges = getMonths($gte, $lte);
+  }
+
+  if (dateRange === 'customDate') {
+  }
+
+  return dateRanges;
 };
 
 const chartTemplates = [
@@ -1262,23 +1310,62 @@ const chartTemplates = [
             filter.endDate,
           );
 
-          if (dateRange.toLowerCase().includes('week')) {
-            const { $gte, $lte } = getDateRange;
-            const dates = getDates($gte, $lte);
-          }
-          if (dateRange.toLowerCase().includes('month')) {
-            const { $gte, $lte } = getDateRange;
-            const dates = getWeeks($gte, $lte);
-          }
-          if (dateRange.toLowerCase().includes('year')) {
-            const { $gte, $lte } = getDateRange;
-            const months = getMonths($gte, $lte);
-          }
+          const { $gte, $lte } = getDateRange;
+
+          const dateRanges = returnDateRanges(dateRange, $gte, $lte);
+
+          const convosCountByGivenDateRanges =
+            await models?.Conversations.aggregate([
+              // Match documents within the specified date ranges
+              {
+                $match: {
+                  createdAt: {
+                    $gte,
+                    $lte,
+                  },
+                },
+              },
+              // Project additional fields or reshape documents if needed
+              // {
+              //     $project: {
+              //         // Projected fields
+              //     }
+              // },
+              // Group documents by date range
+              {
+                $group: {
+                  _id: {
+                    $switch: {
+                      branches: dateRanges.map((range, index) => {
+                        return {
+                          case: {
+                            $and: [
+                              { $gte: ['$createdAt', range.start] },
+                              { $lte: ['$createdAt', range.end] },
+                            ],
+                          },
+                          then: range.start,
+                        };
+                      }),
+                      default: -1,
+                    },
+                  },
+                  count: { $sum: 1 }, // Calculate document count in each group
+                  // Additional aggregations if needed
+                },
+              },
+            ]);
+
+          data.push(
+            ...(convosCountByGivenDateRanges?.map((c) => c.count) || ''),
+          );
+
+          labels.push(...dateRanges.map((m) => m.label));
+
+          const title = `Conversations count of ${dateRange}`;
+
+          return { title, labels, data };
         }
-
-        const title = `Conversations count of ${dateRange}`;
-
-        return { title, labels, data };
       }
 
       // team members
