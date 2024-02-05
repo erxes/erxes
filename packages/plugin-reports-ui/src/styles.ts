@@ -412,6 +412,7 @@ const RightDrawerContainer = styled(RightMenuContainer)`
   width: 500px;
   padding: ${dimensions.unitSpacing}px;
   z-index: 10;
+  top: 0;
 `;
 
 const Description = styled.div`
@@ -456,7 +457,7 @@ const ChartTitle = styled.div`
   }
   span {
     font-weight:500; 
-    display:none;
+    /* display:none; */
     cursor:pointer;
     margin-right: 0.5rem;
   }
@@ -500,6 +501,177 @@ const MarginY = styledTS<{ margin: number }>(styled.div)`
   margin: ${(props) => props.margin}px 0;
 `;
 
+const DetailBox = styled.ul`
+  display: grid;
+  column-gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 30px);
+  list-style-type: none;
+  align-items: center;
+  margin: 0 5px;
+  padding: unset;
+
+  > li {
+    text-align: left;
+
+    &:nth-child(10) {
+      grid-column: span 3;
+    }
+  }
+`;
+
+const DetailBoxContainer = styled.div`
+  border: 1px solid #eee;
+  border-radius: 5px;
+
+  margin: 0 20px;
+  padding: 5px 10px;
+
+  > div {
+    margin-top: 10px;
+    padding: 0 5px;
+  }
+`;
+
+const FormContent = styled.div`
+  padding: 10px 15px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  height: calc(100vh - 74px);
+
+  > div {
+    > label {
+      margin-bottom: 5px;
+    }
+
+    > div {
+      > input {
+        border: 1px solid #eee;
+        border-radius: 5px;
+        padding: 10px 5px;
+
+        &:focus {
+          border-color: ${colors.borderDarker};
+        }
+      }
+    }
+
+    .Select-control {
+      margin-bottom: 7px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+
+      .Select-value,
+      .Select-placeholder {
+        margin-left: 5px;
+      }
+    }
+
+    .Select.is-focused > .Select-control,
+    .Select.is-open > .Select-control {
+      border-color: ${colors.borderDarker};
+    }
+
+    .Select--multi .Select-multi-value-wrapper {
+      padding: 0 5px 0 5px;
+      border-radius: 5px;
+    }
+
+    .Select-menu-outer {
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+  }
+`;
+
+const FormFooter = styled.footer`
+  display: flex;
+  padding: 10px 15px;
+
+  > button {
+    width: 100%;
+  }
+`;
+
+const TemplateBox = styledTS<{ showMore: boolean }>(styled.div)`
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  border-radius: 3px;
+  border: 1px solid #eee;
+
+
+  &:before {
+    content: '\\ec35';
+    font-family: 'erxes';
+    position: absolute;
+    color: ${colors.colorCoreDarkBlue};
+    font-size: 196px;
+    transform: rotate(10deg);
+    right: -15%;
+    bottom: -80px;
+    opacity: 0.06;
+  }
+
+  display: flex;
+  justify-content: flex-start;
+  border-style: dashed;
+  border-width: 2px;
+
+  &:before {
+    content: '';
+  }
+
+  &:hover {
+    border-color: ${colors.borderDarker};
+    cursor: pointer;
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  > a,
+  > div {
+    flex-basis: 90%;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 70%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 90%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 80%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 80%;
+    }
+  }
+
+  > button {
+    width: 100%;
+    color: black;
+  }
+
+  > ul {
+    ${(props) => props.showMore && 'height: 88px'};
+    transition: 0.5s ease;
+    overflow: hidden;
+    margin: unset;
+    padding: unset;
+    width: 100%;
+  }
+`;
+
 export {
   DragField,
   CenterBar,
@@ -527,4 +699,9 @@ export {
   FlexRow,
   DateName,
   MarginY,
+  DetailBox,
+  DetailBoxContainer,
+  FormContent,
+  FormFooter,
+  TemplateBox,
 };

@@ -89,11 +89,13 @@ const ChartRenderer = (props: IChartProps) => {
     }
   }, [chartData, chartType]);
 
-  return (
-    <div style={{ width: `auto`, height: `${chartHeight}px` }}>
-      <canvas ref={chartRef} />
-    </div>
-  );
+  // return (
+  //   <div style={{ width: `auto`, height: `${chartHeight}px` }}>
+  //     <canvas ref={chartRef} />
+  //   </div>
+  // );
+
+  return <>Chart</>;
 };
 
 export default ChartRenderer;
