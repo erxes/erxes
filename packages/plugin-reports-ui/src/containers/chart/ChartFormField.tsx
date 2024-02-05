@@ -2,6 +2,7 @@ import React from 'react';
 import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
 import { gql, useQuery } from '@apollo/client';
+import { IFieldLogic } from '../../types';
 
 export type IFilterType = {
   fieldName: string;
@@ -13,10 +14,12 @@ export type IFilterType = {
   fieldLabelVariable?: string;
   fieldQueryVariables?: any;
   multi?: boolean;
+  logics?: IFieldLogic[];
 };
 
 type Props = {
   filterType: IFilterType;
+  fieldValues?: any;
   setFilter: (fieldName: string, value: any) => void;
   initialValue?: any;
   // for customDate date option
@@ -37,6 +40,7 @@ const ChartFormFieldList = (props: Props) => {
     fieldValueVariable,
     fieldLabelVariable,
     fieldQueryVariables,
+    logics,
   } = filterType;
 
   const queryExists = queries[`${fieldQuery}`];
@@ -91,6 +95,7 @@ const ChartFormFieldList = (props: Props) => {
       fieldQuery={fieldQuery}
       multi={multi}
       fieldOptions={fieldOptions ? fieldOptions : queryFieldOptions}
+      fieldLogics={logics}
       fieldLabel={fieldLabel}
       onChange={onChange}
       {...props}

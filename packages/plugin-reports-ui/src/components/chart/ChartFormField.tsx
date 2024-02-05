@@ -1,4 +1,5 @@
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src/utils';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -6,6 +7,7 @@ import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import { MarginY } from '../../styles';
 import DateRange from '../datepicker/DateRange';
+import { IFieldLogic } from '../../types';
 
 type Props = {
   fieldType: string;
@@ -18,6 +20,8 @@ type Props = {
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
   endDate?: Date;
+  fieldValues?: any;
+  fieldLogics?: IFieldLogic[];
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -25,14 +29,38 @@ const ChartFormField = (props: Props) => {
     fieldType,
     fieldOptions,
     fieldLabel,
+    fieldLogics,
     initialValue,
     multi,
     onChange,
     setFilter,
     startDate,
     endDate,
+    fieldValues,
   } = props;
   const [fieldValue, setFieldValue] = useState(initialValue);
+
+  const checkLogic = () => {
+    if (!fieldLogics) {
+      return true;
+    }
+
+    console.log(fieldValues, ' heheh');
+
+    for (const logic of fieldLogics) {
+      const { logicFieldName, logicFieldValue } = logic;
+      if (!fieldValues[logicFieldName]) {
+        return false;
+      }
+
+      if (fieldValues[logicFieldName] !== logicFieldValue) {
+        return false;
+      }
+    }
+
+    Alert.error(`Please ${fieldLabel}`);
+    return true;
+  };
 
   const onSelect = (e) => {
     if (multi && Array.isArray(e)) {
@@ -61,6 +89,10 @@ const ChartFormField = (props: Props) => {
       setFilter('brandIds', brandIds);
     }
   };
+
+  if (!checkLogic()) {
+    return <></>;
+  }
 
   switch (fieldQuery) {
     case 'users':

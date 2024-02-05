@@ -127,7 +127,7 @@ const getWeeks = (startDate: Date, endDate: Date) => {
     endOfWeek.setDate(endOfWeek.getDate() + 6);
 
     const dateFormat = 'M/D';
-    const label = `Week${weekIndex} ${dayjs(startOfWeek).format(
+    const label = `Week ${weekIndex} ${dayjs(startOfWeek).format(
       dateFormat,
     )} - ${dayjs(endOfWeek).format(dateFormat)}`;
 
@@ -164,6 +164,12 @@ const DATERANGE_TYPES = [
   { label: 'This Year', value: 'thisYear' },
   { label: 'Last Year', value: 'lastYear' },
   { label: 'Custom Date', value: 'customDate' },
+];
+
+const CUSTOM_DATE_FREQUENCY_TYPES = [
+  { label: 'By week', value: 'byWeek' },
+  { label: 'By month', value: 'byMonth' },
+  { label: 'By date', value: 'byDate' },
 ];
 
 const INTEGRATION_TYPES = [
@@ -252,7 +258,12 @@ const returnDateRange = (dateRange: string, startDate: Date, endDate: Date) => {
   return {};
 };
 
-const returnDateRanges = (dateRange: string, $gte: Date, $lte: Date) => {
+const returnDateRanges = (
+  dateRange: string,
+  $gte: Date,
+  $lte: Date,
+  customDateFrequencyType?: string,
+) => {
   let dateRanges;
 
   if (dateRange.toLowerCase().includes('week')) {
@@ -266,7 +277,23 @@ const returnDateRanges = (dateRange: string, $gte: Date, $lte: Date) => {
   }
 
   if (dateRange === 'customDate') {
+    if (customDateFrequencyType) {
+      switch (customDateFrequencyType) {
+        case 'byMonth':
+          console.log('byMonth');
+          dateRanges = getMonths($gte, $lte);
+          break;
+        case 'byWeek':
+          console.log('byWeek ', $gte, $lte);
+          dateRanges = getWeeks($gte, $lte);
+          break;
+      }
+    }
+
+    dateRanges = getDates($gte, $lte);
   }
+
+  console.log(dateRange, dateRanges);
 
   return dateRanges;
 };
@@ -1312,7 +1339,12 @@ const chartTemplates = [
 
           const { $gte, $lte } = getDateRange;
 
-          const dateRanges = returnDateRanges(dateRange, $gte, $lte);
+          const dateRanges = returnDateRanges(
+            dateRange,
+            $gte,
+            $lte,
+            filter.customDateFrequencyType,
+          );
 
           const convosCountByGivenDateRanges =
             await models?.Conversations.aggregate([
@@ -1385,6 +1417,21 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
+      {
+        fieldName: 'customDateFrequencyType',
+        fieldType: 'select',
+
+        logics: [
+          {
+            logicFieldName: 'dateRange',
+            logicFieldValue: 'customDate',
+          },
+        ],
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
       {
         fieldName: 'status',
         fieldType: 'select',
