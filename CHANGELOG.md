@@ -1,3 +1,15 @@
+# [1.6.0-rc.8](https://github.com/erxes/erxes/compare/1.6.0-rc.7...1.6.0-rc.8) (2024-02-05)
+
+# [1.6.0-rc.7](https://github.com/erxes/erxes/compare/1.6.0-rc.6...1.6.0-rc.7) (2024-02-02)
+
+# [1.6.0-rc.6](https://github.com/erxes/erxes/compare/1.6.0-rc.5...1.6.0-rc.6) (2024-02-02)
+
+# [1.6.0-rc.5](https://github.com/erxes/erxes/compare/1.6.0-rc.4...1.6.0-rc.5) (2024-02-01)
+
+# [1.6.0-rc.4](https://github.com/erxes/erxes/compare/1.6.0-rc.3...1.6.0-rc.4) (2024-02-01)
+
+
+
 # [1.6.0-rc.2](https://github.com/erxes/erxes/compare/1.6.0-rc.1...1.6.0-rc.2) (2024-01-31)
 
 

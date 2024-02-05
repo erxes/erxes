@@ -38,7 +38,6 @@ import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
 import ContractsCustomFields from './ContractsCustomFields';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;

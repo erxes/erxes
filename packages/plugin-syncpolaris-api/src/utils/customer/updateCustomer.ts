@@ -17,7 +17,7 @@ export const updateCustomer = async (subdomain, params) => {
     familyName: data.familyName,
     email: data.emails?.join(','),
     mobile: data.phones?.join(','),
-    birthDate: data.birthDate ?? '1995-02-27 00:00:00',
+    birthDate: data.birthDate,
 
     custSegCode: '81',
     isVatPayer: data.isVatPayer ?? 1,
@@ -28,7 +28,7 @@ export const updateCustomer = async (subdomain, params) => {
     isCompanyCustomer: data.isCompanyCustomer ?? '1',
     industryId: data.industryId ?? '2',
     birthPlaceId: data.birthPlaceId ?? 161204,
-    shortName: data.shortName ?? 'shortName',
+    shortName: data.shortName ?? '',
     registerMaskCode: '3',
     registerCode: data.registerCode ?? '',
     countryCode: '496',
