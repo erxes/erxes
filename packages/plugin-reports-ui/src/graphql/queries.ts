@@ -178,7 +178,7 @@ query reportServicesList{
   reportServicesList
 }`;
 
-const brands = `
+const allBrands = `
   query allBrands{
     allBrands{
       _id
@@ -196,9 +196,47 @@ const integrations = `
   }
 `;
 
+const tags = `  
+  query tags($type: String, $perPage:Int ) {
+    tags(type: $type, perPage: $perPage) {
+      _id
+      name
+      colorCode
+    }
+  }
+`;
+
+const boards = `
+  query boards($type: String!) {
+    boards(type: $type) {
+      _id
+      name
+
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+
+const pipelines = `
+  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+      _id
+      name
+      boardId
+      state
+      startDate
+      endDate
+      itemsTotalCount
+    }
+  }
+`;
+
 export default {
   reportsList,
-  brands,
+  allBrands,
   integrations,
   reportTemplatesList,
   reportChartTemplatesList,
@@ -207,4 +245,7 @@ export default {
 
   reportChartGetResult,
   reportServicesList,
+  tags,
+  boards,
+  pipelines,
 };
