@@ -115,6 +115,12 @@ export const types = (tagsAvailable) => `
     charts: [ReportChart]
     totalCount: Int
   }
+
+  input ReportChartsAddParams {
+    reportTemplateType: String
+    serviceName: String!
+    chartTemplateTypes: [JSON]
+  }
 `;
 
 const queryParams = `
@@ -182,4 +188,5 @@ export const mutations = `
   reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON
   reportChartsEdit(_id: String!, ${report_chart_common_params}): ReportChart
-`;
+  reportChartsAddMany( charts: [ReportChartsAddParams] ,reportId: String!): [ReportChart] 
+  `;

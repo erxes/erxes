@@ -1,15 +1,15 @@
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
 } from '@erxes/ui/src/styles/main';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
 import React, { useEffect, useState } from 'react';
 import { __, readFile } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Uploader } from '@erxes/ui/src/components';
@@ -27,13 +27,13 @@ function Form(props: Props) {
   const [data, setData] = useState({} as any);
 
   useEffect(() => {
-    entryValues.forEach(val => {
-      setData(dat => ({
+    entryValues.forEach((val) => {
+      setData((dat) => ({
         ...dat,
         [val.fieldCode]: {
           fieldCode: val.fieldCode,
-          value: val.value
-        }
+          value: val.value,
+        },
       }));
     });
   }, []);
@@ -43,7 +43,7 @@ function Form(props: Props) {
   const submit = () => {
     const values = [] as any;
 
-    fields.map(field => {
+    fields.map((field) => {
       const key = field.code;
 
       if (data[key]) {
@@ -53,19 +53,19 @@ function Form(props: Props) {
 
     const doc = {
       contentTypeId: contentType._id,
-      values
+      values,
     } as any;
 
     save(doc.contentTypeId, doc.values);
   };
 
   const onChange = (fieldCode: string, value: any) => {
-    setData(dat => ({
+    setData((dat) => ({
       ...dat,
       [fieldCode]: {
         fieldCode,
-        value
-      }
+        value,
+      },
     }));
   };
 
@@ -76,9 +76,9 @@ function Form(props: Props) {
     switch (field.type) {
       case 'textarea':
         input = (
-          <EditorCK
+          <RichTextEditor
             content={value}
-            onChange={e => onChange(field.code, e.editor.getData())}
+            onChange={(content) => onChange(field.code, content)}
             height={250}
           />
         );
@@ -102,8 +102,8 @@ function Form(props: Props) {
                     {
                       name: field.code,
                       url: value,
-                      type: 'image'
-                    }
+                      type: 'image',
+                    },
                   ]
                 : []
             }
@@ -155,7 +155,7 @@ function Form(props: Props) {
     <>
       <FormWrapper>
         <FormColumn>
-          {fields.map(field => {
+          {fields.map((field) => {
             return renderField(field);
           })}
         </FormColumn>

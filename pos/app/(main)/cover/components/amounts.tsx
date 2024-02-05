@@ -4,14 +4,15 @@ import { useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 
-import Khaan from "./Khaan"
+import Capitron from "./capitron"
 import CashAmounts from "./cash-amounts"
 import CustomAmounts from "./custom-amounts"
 import Description from "./description"
 import Golomt from "./golomt"
+import Khaan from "./Khaan"
 import Tdb from "./tdb"
 
-const { KHANBANK, GOLOMT, TDB } = BANK_CARD_TYPES
+const { KHANBANK, GOLOMT, TDB, CAPITRON } = BANK_CARD_TYPES
 
 const Amounts = () => {
   const isFetched = useAtomValue(isCoverAmountsFetchedAtom)
@@ -33,6 +34,7 @@ const Amounts = () => {
         {showBank(KHANBANK) && <Khaan />}
         {showBank(GOLOMT) && <Golomt />}
         {showBank(TDB) && <Tdb />}
+        {showBank(CAPITRON) && <Capitron />}
       </div>
     </div>
   )

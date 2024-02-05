@@ -6,20 +6,20 @@ import {
   FormControl,
   FormGroup,
   DateControl,
-  Uploader
+  Uploader,
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-  MainStyleDateContainer as DateContainer
+  MainStyleDateContainer as DateContainer,
 } from '@erxes/ui/src/styles/eindex';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 import { IDonateCampaign, IDonateCampaignAward } from '../types';
 import Select from 'react-select-plus';
@@ -42,7 +42,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      donateCampaign: this.props.donateCampaign || {}
+      donateCampaign: this.props.donateCampaign || {},
     };
   }
 
@@ -63,30 +63,30 @@ class Form extends React.Component<Props, State> {
 
     // Modify the maxScore property in the copy
     updatedDonateCampaign.maxScore = Number(
-      updatedDonateCampaign.maxScore || 0
+      updatedDonateCampaign.maxScore || 0,
     );
 
     // Create a sorted copy of the awards array
     const sortedAwards =
       (updatedDonateCampaign.awards &&
         [...updatedDonateCampaign.awards].sort(
-          (a, b) => (a?.minScore || 0) - (b?.minScore || 0)
+          (a, b) => (a?.minScore || 0) - (b?.minScore || 0),
         )) ||
       [];
 
     return {
       ...finalValues,
       ...updatedDonateCampaign,
-      awards: sortedAwards // Assign the sorted array to the awards property
+      awards: sortedAwards, // Assign the sorted array to the awards property
     };
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (content: string) => {
     this.setState({
       donateCampaign: {
         ...this.state.donateCampaign,
-        description: e.editor.getData()
-      }
+        description: content,
+      },
     });
   };
 
@@ -94,8 +94,8 @@ class Form extends React.Component<Props, State> {
     this.setState({
       donateCampaign: {
         ...this.state.donateCampaign,
-        attachment: files.length ? files[0] : undefined
-      }
+        attachment: files.length ? files[0] : undefined,
+      },
     });
   };
 
@@ -103,27 +103,27 @@ class Form extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map(el => el.value);
+      value = values.map((el) => el.value);
     }
 
     this.setState({
-      donateCampaign: { ...this.state.donateCampaign, [name]: value }
+      donateCampaign: { ...this.state.donateCampaign, [name]: value },
     });
   };
 
   onDateInputChange = (type: string, date) => {
     this.setState({
-      donateCampaign: { ...this.state.donateCampaign, [type]: date }
+      donateCampaign: { ...this.state.donateCampaign, [type]: date },
     });
   };
 
-  onInputChange = e => {
+  onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
     this.setState({
-      donateCampaign: { ...this.state.donateCampaign, [name]: value }
+      donateCampaign: { ...this.state.donateCampaign, [name]: value },
     });
   };
 
@@ -133,39 +133,39 @@ class Form extends React.Component<Props, State> {
     awards.push({
       _id: Math.random().toString(),
       minScore: 0,
-      voucherCampaignId: ''
+      voucherCampaignId: '',
     });
     donateCampaign.awards = awards;
     this.setState({ donateCampaign });
   };
 
-  onRemoveAward = awardId => {
+  onRemoveAward = (awardId) => {
     const { donateCampaign } = this.state;
     const { awards = [] } = donateCampaign;
-    donateCampaign.awards = awards.filter(a => a._id !== awardId);
+    donateCampaign.awards = awards.filter((a) => a._id !== awardId);
     this.setState({ donateCampaign });
   };
 
   renderAward = (award: IDonateCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { donateCampaign } = this.state;
-      const awards = (donateCampaign.awards || []).map(a =>
-        a._id === award._id ? { ...a, [key]: value } : a
+      const awards = (donateCampaign.awards || []).map((a) =>
+        a._id === award._id ? { ...a, [key]: value } : a,
       );
       this.setState({
         donateCampaign: {
           ...donateCampaign,
-          awards
-        }
+          awards,
+        },
       });
     };
-    const onChangeMinScore = e => {
+    const onChangeMinScore = (e) => {
       e.preventDefault();
       const value = e.target.value;
       changeAward('minScore', value);
     };
 
-    const onChangeVoucherCampaign = selected => {
+    const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
       changeAward('voucherCampaignId', value);
     };
@@ -188,9 +188,9 @@ class Form extends React.Component<Props, State> {
           <Select
             placeholder={__('Choose voucher')}
             value={award.voucherCampaignId}
-            options={this.props.voucherCampaigns.map(voucher => ({
+            options={this.props.voucherCampaigns.map((voucher) => ({
               label: `${voucher.title}`,
-              value: voucher._id
+              value: voucher._id,
             }))}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
@@ -209,9 +209,9 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  renderAwards = formProps => {
-    return (this.state.donateCampaign.awards || []).map(award =>
-      this.renderAward(award, formProps)
+  renderAwards = (formProps) => {
+    return (this.state.donateCampaign.awards || []).map((award) =>
+      this.renderAward(award, formProps),
     );
   };
 
@@ -292,7 +292,7 @@ class Form extends React.Component<Props, State> {
                     value={donateCampaign.finishDateOfUse}
                     onChange={this.onDateInputChange.bind(
                       this,
-                      'finishDateOfUse'
+                      'finishDateOfUse',
                     )}
                   />
                 </DateContainer>
@@ -327,27 +327,21 @@ class Form extends React.Component<Props, State> {
           <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
-            <EditorCK
+            <RichTextEditor
               content={donateCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`donateCampaign_description_${donateCampaign.description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
             />
           </FormGroup>
@@ -378,7 +372,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: donateCampaign
+            object: donateCampaign,
           })}
         </ModalFooter>
       </>
