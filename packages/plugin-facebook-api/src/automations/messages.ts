@@ -5,7 +5,11 @@ import { sendInboxMessage } from '../messageBroker';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
-import { generateBotData, generatePayloadString } from './utils';
+import {
+  generateBotData,
+  generatePayloadString,
+  checkContentConditions,
+} from './utils';
 
 const generateMessages = async (
   config: any,
@@ -145,33 +149,6 @@ const generateMessages = async (
   return generatedMessages;
 };
 
-const checkDirectMessageConditions = (content: string, conditions: any[]) => {
-  for (const cond of conditions || []) {
-    const keywords = (cond?.keywords || [])
-      .map((keyword) => keyword.text)
-      .filter((keyword) => keyword);
-
-    switch (cond?.operator || '') {
-      case 'every':
-        return keywords.every((keyword) => content.includes(keyword));
-      case 'some':
-        return keywords.some((keyword) => content.includes(keyword));
-      case 'isEqual':
-        return keywords.some((keyword) => keyword === content);
-      case 'isContains':
-        return keywords.some((keyword) =>
-          content.match(new RegExp(keyword, 'i')),
-        );
-      case 'startWith':
-        return keywords.some((keyword) => content.startsWith(keyword));
-      case 'endWith':
-        return keywords.some((keyword) => content.endsWith(keyword));
-      default:
-        return;
-    }
-  }
-};
-
 export const checkMessageTrigger = (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
   if (target.botId !== botId) {
@@ -198,10 +175,7 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
 
       if (type === 'direct' && directMessageCondtions?.length > 0) {
         if (
-          checkDirectMessageConditions(
-            target?.content || '',
-            directMessageCondtions,
-          )
+          checkContentConditions(target?.content || '', directMessageCondtions)
         ) {
           console.log({ result: true });
           return true;

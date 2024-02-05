@@ -41,9 +41,15 @@ const detail = `
 `;
 
 const getPosts = `
-    query Query($botId: String) {
-  facebookGetBotPosts(botId: $botId)
-}
+  query FacebookGetBotPosts($botId: String) {
+    facebookGetBotPosts(botId: $botId)
+  }
+`;
+
+const getPost = `
+  query FacebookGetBotPost($botId: String,$postId: String) {
+    facebookGetBotPost(botId: $botId,postId: $postId)
+  }
 `;
 
 export default {
@@ -51,4 +57,5 @@ export default {
   totalCount,
   detail,
   getPosts,
+  getPost,
 };

@@ -393,8 +393,18 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   return messages;
 };
 
-export const fetchPagePosts = async (pageId, accessToken) => {
-  const fields = 'message,created_time,full_picture,picture';
+export const fetchPagePost = async (postId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${postId}?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response || null;
+};
+
+export const fetchPagePosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
 
   const response = await graphRequest.get(
     `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,

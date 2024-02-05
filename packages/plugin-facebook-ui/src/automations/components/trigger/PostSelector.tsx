@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import Tip from '@erxes/ui/src/components/Tip';
 import { ActivityDate } from '@erxes/ui-log/src/activityLogs/styles';
@@ -18,12 +18,14 @@ import {
 } from '@erxes/ui-emailtemplates/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
+import Info from '@erxes/ui/src/components/Info';
 
 const PostImage = styled(TemplateBox)`
   > img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 6px 6px 0 0;
   }
 
   > div {
@@ -36,6 +38,15 @@ const PostImage = styled(TemplateBox)`
     color:${colors.colorLightGray}
   }
 `;
+const PostsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const PostWrapper = styled(Template)`
+  cursor: pointer;
+`;
 
 type Props = {
   botId: string;
@@ -43,18 +54,26 @@ type Props = {
 };
 
 type FinalProps = {
-  botPostsQueryResponse: { facebookGetBotPosts: any[] } & QueryResponse;
+  botPostsQueryResponse: { facebookGetBotPosts: Post[] } & QueryResponse;
 } & Props;
 
-function PostList({ botPostsQueryResponse, onSelect }: FinalProps) {
-  const { facebookGetBotPosts, loading } = botPostsQueryResponse;
+type Post = {
+  id: string;
+  full_picture?: string;
+  created_time?: string;
+  message: string;
+  permalink_url: string;
+};
 
-  if (loading) {
-    return <Spinner objective />;
-  }
-
-  return (facebookGetBotPosts || []).map((post) => (
-    <Template key={post.id} onClick={() => onSelect(post.id, post)}>
+function renderPost(
+  post: Post,
+  onSelect?: (postId: string, post: Post) => void,
+) {
+  return (
+    <PostWrapper
+      key={post.id}
+      onClick={() => onSelect && onSelect(post.id, post)}
+    >
       <PostImage>
         {post?.full_picture ? (
           <img src={post?.full_picture} />
@@ -76,10 +95,66 @@ function PostList({ botPostsQueryResponse, onSelect }: FinalProps) {
               </ActivityDate>
             </Tip>
           </TemplateInfo>
+          <a href={post.permalink_url} target="_blank">
+            See post in Facebook
+          </a>
         </div>
       </TemplateBoxInfo>
-    </Template>
-  ));
+    </PostWrapper>
+  );
+}
+
+function PostList({ botPostsQueryResponse, onSelect }: FinalProps) {
+  const { facebookGetBotPosts, loading } = botPostsQueryResponse;
+
+  if (loading) {
+    return <Spinner objective />;
+  }
+
+  return (
+    <PostsWrapper>
+      {(facebookGetBotPosts || []).map((post) => renderPost(post, onSelect))}
+    </PostsWrapper>
+  );
+}
+
+export function Post({
+  botId,
+  postId,
+  onlyLink,
+}: {
+  botId: string;
+  postId: string;
+  onlyLink?: boolean;
+}) {
+  const { error, loading, data } = useQuery(gql(queries.getPost), {
+    variables: {
+      botId,
+      postId,
+    },
+    skip: !botId || !postId,
+    fetchPolicy: 'network-only',
+  });
+
+  if (loading) {
+    return <Spinner objective />;
+  }
+
+  if (error) {
+    return <Info> {error.message}</Info>;
+  }
+
+  const { facebookGetBotPost } = data;
+
+  if (onlyLink) {
+    return (
+      <a href={facebookGetBotPost?.permalink_url} target="_blank">
+        See post in Facebook
+      </a>
+    );
+  }
+
+  return renderPost((facebookGetBotPost || {}) as Post);
 }
 
 export default withProps<Props>(

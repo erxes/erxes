@@ -122,6 +122,7 @@ export const queries = `
   facebootMessengerBotsTotalCount:Int
   facebootMessengerBot(_id:String):FacebookMessengerBot
   facebookGetBotPosts(botId:String):JSON
+  facebookGetBotPost(botId:String,postId:String):JSON
 `;
 
 export const mutations = `

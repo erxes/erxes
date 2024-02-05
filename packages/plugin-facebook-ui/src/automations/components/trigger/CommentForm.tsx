@@ -14,7 +14,8 @@ import {
 import DirectMessageForm from './DirectMessage';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { Features, Padding } from '../../styles';
-import PostSelector from './PostSelector';
+import PostSelector, { Post } from './PostSelector';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 
 type Props = {
   activeTrigger: ITrigger;
@@ -34,7 +35,7 @@ const POST_TYPE = [
   },
 ];
 
-const postSelector = (botId, onChange) => {
+const postSelector = (botId, onChange, postId?) => {
   const trigger = <Button block>{__('Select Post')}</Button>;
 
   const content = ({ closeModal }) => {
@@ -47,16 +48,20 @@ const postSelector = (botId, onChange) => {
   };
 
   return (
-    <ModalTrigger trigger={trigger} content={content} hideHeader title="" />
+    <>
+      {botId && postId && <Post postId={postId} botId={botId} />}
+      <ModalTrigger
+        trigger={trigger}
+        content={content}
+        hideHeader
+        title=""
+        size="xl"
+      />
+    </>
   );
 };
 
-function CommnetForm({
-  activeTrigger,
-  addConfig,
-  closeModal,
-  triggerConst,
-}: Props) {
+function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
   const [config, setConfig] = useState(
     activeTrigger.config || { postType: 'specific' },
   );
@@ -70,50 +75,75 @@ function CommnetForm({
   };
 
   const handleChange = (name, value) => {
+    console.log({ name, value });
     setConfig({ ...config, [name]: value });
   };
 
   return (
     <DrawerDetail>
-      <BotSelector
-        botId={config.botId}
-        onSelect={(botId) => handleChange('botId', botId)}
-      />
-      <Features isToggled={config.botId}>
-        <Select
-          options={POST_TYPE}
-          value={config?.postType}
-          onChange={({ value }) => handleChange('postType', value)}
+      <Common
+        closeModal={closeModal}
+        addAction={addConfig}
+        activeAction={activeTrigger}
+        config={config}
+      >
+        <BotSelector
+          botId={config.botId}
+          onSelect={(botId) => handleChange('botId', botId)}
         />
-
-        {postSelector(config.botId, handleChange)}
-
-        <Padding>
-          <Flex style={{ justifyContent: 'space-between' }}>
-            <ControlLabel>
-              {__(
-                `comment contains ${
-                  config?.checkContent ? 'specific' : 'any'
-                } words`,
-              )}
-            </ControlLabel>
-            <Toggle
-              checked={config?.checkContent}
-              onChange={() =>
-                handleChange('checkContent', !config?.checkContent)
-              }
+        <Features isToggled={config.botId}>
+          <FormGroup>
+            <Select
+              options={POST_TYPE}
+              value={config?.postType}
+              onChange={({ value }) => handleChange('postType', value)}
             />
-          </Flex>
-        </Padding>
-        {config?.checkContent && (
-          <DirectMessageForm
-            conditions={config.conditions}
-            onChange={handleChange}
-            label="Comment"
-          />
-        )}
-      </Features>
-      {/* </BorderedCollapseContent> */}
+          </FormGroup>
+
+          {config.postType === 'specific' &&
+            postSelector(config.botId, handleChange, config.postId)}
+
+          <Padding>
+            <Flex style={{ justifyContent: 'space-between' }}>
+              <ControlLabel>
+                {__(
+                  `comment contains ${
+                    config?.checkContent ? 'specific' : 'any'
+                  } words`,
+                )}
+              </ControlLabel>
+              <Toggle
+                checked={config?.checkContent}
+                onChange={() =>
+                  handleChange('checkContent', !config?.checkContent)
+                }
+              />
+            </Flex>
+          </Padding>
+          {config?.checkContent && (
+            <DirectMessageForm
+              conditions={config.conditions}
+              onChange={handleChange}
+              label="Comment"
+            />
+          )}
+
+          <Padding>
+            <Flex style={{ justifyContent: 'space-between' }}>
+              <ControlLabel>
+                {__('Track first level comments only')}
+              </ControlLabel>
+              <Toggle
+                checked={config?.onlyFirstLevel}
+                onChange={() =>
+                  handleChange('onlyFirstLevel', !config?.onlyFirstLevel)
+                }
+              />
+            </Flex>
+          </Padding>
+        </Features>
+        {/* </BorderedCollapseContent> */}
+      </Common>
     </DrawerDetail>
   );
 }

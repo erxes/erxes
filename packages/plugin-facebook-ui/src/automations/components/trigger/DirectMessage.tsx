@@ -43,7 +43,7 @@ export const CustomChip = styled.span`
 
 const CondtionContainer = styled.div`
   display: grid;
-  grid-template-columns: 95% 5%;
+  grid-template-columns: 92% 5%;
   gap:10px;
   opacity: 1;
   transition: opacity 0.3s ease;

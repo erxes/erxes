@@ -6,6 +6,30 @@ import { CustomChip, OPERATOR_TYPES } from './DirectMessage';
 import { colors } from '@erxes/ui/src/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { Post } from './PostSelector';
+
+const renderDirectMessageContent = ({ conditions }) => {
+  return (
+    <Column>
+      {conditions.map((cond, i) => {
+        const operator = OPERATOR_TYPES.find(
+          ({ value }) => value === cond.operator,
+        );
+        return (
+          <div key={cond._id}>
+            {i !== 0 && <CustomChip>{__('Or')}</CustomChip>}
+            <Flex>
+              <p>{`${operator?.label}:`}</p>
+              <span style={{ color: colors.colorPrimary }}>
+                {(cond?.keywords || []).map(({ text }) => text).join(',')}
+              </span>
+            </Flex>
+          </div>
+        );
+      })}
+    </Column>
+  );
+};
 
 const MessagesContent = ({ constant, config }) => {
   const { conditions, botId } = config || {};
@@ -19,29 +43,6 @@ const MessagesContent = ({ constant, config }) => {
         persistentMenuIds={persistentMenuIds}
         displaySelectedContent
       />
-    );
-  };
-
-  const renderDirectMessageContent = ({ conditions }) => {
-    return (
-      <Column>
-        {conditions.map((cond, i) => {
-          const operator = OPERATOR_TYPES.find(
-            ({ value }) => value === cond.operator,
-          );
-          return (
-            <>
-              {i !== 0 && <CustomChip>{__('Or')}</CustomChip>}
-              <Flex>
-                <p>{`${operator?.label}:`}</p>
-                <span style={{ color: colors.colorPrimary }}>
-                  {(cond?.keywords || []).map(({ text }) => text).join(',')}
-                </span>
-              </Flex>
-            </>
-          );
-        })}
-      </Column>
     );
   };
 
@@ -77,6 +78,19 @@ const MessagesContent = ({ constant, config }) => {
   });
 };
 
+function CommentContent({ config }) {
+  return (
+    <TriggerItem small withoutHover>
+      <div>
+        {config?.botId && config?.postId && (
+          <Post botId={config?.botId} postId={config?.postId} onlyLink />
+        )}
+        {renderDirectMessageContent({ conditions: config?.conditions || [] })}
+      </div>
+    </TriggerItem>
+  );
+}
+
 export default function TriggerContent({ triggerType, constant, config }) {
   const updatedProps = {
     constant,
@@ -85,6 +99,10 @@ export default function TriggerContent({ triggerType, constant, config }) {
 
   if (triggerType.includes('messages')) {
     return <MessagesContent {...updatedProps} />;
+  }
+
+  if (triggerType.includes('comments')) {
+    return <CommentContent {...updatedProps} />;
   }
 
   return <></>;

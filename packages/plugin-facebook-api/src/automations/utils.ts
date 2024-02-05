@@ -78,3 +78,30 @@ export const generateBotData = ({
 
   return botData;
 };
+
+export const checkContentConditions = (content: string, conditions: any[]) => {
+  for (const cond of conditions || []) {
+    const keywords = (cond?.keywords || [])
+      .map((keyword) => keyword.text)
+      .filter((keyword) => keyword);
+
+    switch (cond?.operator || '') {
+      case 'every':
+        return keywords.every((keyword) => content.includes(keyword));
+      case 'some':
+        return keywords.some((keyword) => content.includes(keyword));
+      case 'isEqual':
+        return keywords.some((keyword) => keyword === content);
+      case 'isContains':
+        return keywords.some((keyword) =>
+          content.match(new RegExp(keyword, 'i')),
+        );
+      case 'startWith':
+        return keywords.some((keyword) => content.startsWith(keyword));
+      case 'endWith':
+        return keywords.some((keyword) => content.endsWith(keyword));
+      default:
+        return;
+    }
+  }
+};
