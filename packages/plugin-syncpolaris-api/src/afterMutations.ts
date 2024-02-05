@@ -58,47 +58,45 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
   let response: any;
 
-  console.log('type+----->', type, action);
-
   try {
     switch (type) {
       case 'contacts:customer':
-        if (action === 'create' || !preSuccessValue)
-          response = await createCustomer(subdomain, params);
-        else if (action === 'update')
-          response = await updateCustomer(subdomain, params);
+        response = await customerMethod(
+          action,
+          preSuccessValue,
+          subdomain,
+          params,
+        );
         break;
       case 'savings:contract':
-        if (action === 'create' || !preSuccessValue) {
-          if (params.object.isDeposit === true) {
-            response = await createDeposit(subdomain, params);
-          } else response = await createSaving(subdomain, params);
-        } else if (action === 'update') {
-          if (params.object.isDeposit === true) {
-            response = await updateDeposit(subdomain, params);
-          } else response = await updateSaving(subdomain, params);
-        }
+        response = await savingContractMethod(
+          action,
+          preSuccessValue,
+          subdomain,
+          params,
+        );
         break;
       case 'savings:transaction':
-        if (params.object.transactionType === 'income') {
-          response = await incomeSaving(subdomain, params);
-        } else if (params.object.transactionType === 'outcome')
-          response = await outcomeSaving(subdomain, params);
+        response = await savingsTransactionMethod(
+          action,
+          preSuccessValue,
+          subdomain,
+          params,
+        );
         break;
       case 'loans:contract':
-        if (action === 'create' || !preSuccessValue)
-          response = await createLoan(subdomain, params);
-        else if (action === 'update')
-          response = await updateLoan(subdomain, params);
+        response = await loansContractMethod(
+          action,
+          preSuccessValue,
+          subdomain,
+          params,
+        );
         break;
       case 'loans:classification':
         response = await createChangeClassification(subdomain, params);
         break;
       case 'loans:transaction':
-        if (params.object.transactionType === 'income') {
-          response = await createLoanRepayment(subdomain, params);
-        } else if (params.object.transactionType === 'outcome')
-          response = await createLoanGive(subdomain, params);
+        response = await loansTransactionMethod(subdomain, params);
         break;
     }
     await models.SyncLogs.updateOne(
@@ -115,5 +113,53 @@ export const afterMutationHandlers = async (subdomain, params) => {
     );
   }
 };
+
+async function customerMethod(action, preSuccessValue, subdomain, params) {
+  if (action === 'create' || !preSuccessValue)
+    return await createCustomer(subdomain, params);
+  else if (action === 'update') return await updateCustomer(subdomain, params);
+}
+
+async function savingContractMethod(
+  action,
+  preSuccessValue,
+  subdomain,
+  params,
+) {
+  if (action === 'create' || !preSuccessValue) {
+    if (params.object.isDeposit === true) {
+      return await createDeposit(subdomain, params);
+    } else return await createSaving(subdomain, params);
+  } else if (action === 'update') {
+    if (params.object.isDeposit === true) {
+      return await updateDeposit(subdomain, params);
+    } else return await updateSaving(subdomain, params);
+  }
+}
+
+async function savingsTransactionMethod(
+  action,
+  preSuccessValue,
+  subdomain,
+  params,
+) {
+  if (params.object.transactionType === 'income') {
+    return await incomeSaving(subdomain, params);
+  } else if (params.object.transactionType === 'outcome')
+    return await outcomeSaving(subdomain, params);
+}
+
+async function loansContractMethod(action, preSuccessValue, subdomain, params) {
+  if (action === 'create' || !preSuccessValue)
+    return await createLoan(subdomain, params);
+  else if (action === 'update') return await updateLoan(subdomain, params);
+}
+
+async function loansTransactionMethod(subdomain, params) {
+  if (params.object.transactionType === 'income') {
+    return await createLoanRepayment(subdomain, params);
+  } else if (params.object.transactionType === 'outcome')
+    return await createLoanGive(subdomain, params);
+}
 
 export default allowTypes;
