@@ -2,8 +2,6 @@ import { generateModels } from './connectionResolver';
 import { createCustomer } from './utils/customer/createCustomer';
 import { updateCustomer } from './utils/customer/updateCustomer';
 import { createDeposit } from './utils/deposit/createDeposit';
-import { incomeDeposit } from './utils/deposit/incomeDeposit';
-import { outcomeDeposit } from './utils/deposit/outcomeDeposit';
 import { updateDeposit } from './utils/deposit/updateDeposit';
 import { createChangeClassification } from './utils/loan/changeClassification';
 import { createLoan } from './utils/loan/createLoan';
@@ -71,23 +69,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
           response = await updateCustomer(subdomain, params);
         break;
       case 'savings:contract':
-        const savingContract = params.object;
-        console.log('savingContract', savingContract);
         if (action === 'create' || !preSuccessValue) {
-          if (savingContract.isDeposit === true) {
+          if (params.object.isDeposit === true) {
             response = await createDeposit(subdomain, params);
           } else response = await createSaving(subdomain, params);
         } else if (action === 'update') {
-          if (savingContract.isDeposit === true) {
+          if (params.object.isDeposit === true) {
             response = await updateDeposit(subdomain, params);
           } else response = await updateSaving(subdomain, params);
         }
         break;
       case 'savings:transaction':
-        const savingTransaction = params.object;
-        if (savingTransaction.transactionType === 'income') {
+        if (params.object.transactionType === 'income') {
           response = await incomeSaving(subdomain, params);
-        } else if (savingTransaction.transactionType === 'outcome')
+        } else if (params.object.transactionType === 'outcome')
           response = await outcomeSaving(subdomain, params);
         break;
       case 'loans:contract':
@@ -100,10 +95,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
         response = await createChangeClassification(subdomain, params);
         break;
       case 'loans:transaction':
-        const loanTransaction = params.object;
-        if (loanTransaction.transactionType === 'income') {
+        if (params.object.transactionType === 'income') {
           response = await createLoanRepayment(subdomain, params);
-        } else if (loanTransaction.transactionType === 'outcome')
+        } else if (params.object.transactionType === 'outcome')
           response = await createLoanGive(subdomain, params);
         break;
     }
