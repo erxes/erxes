@@ -1,15 +1,7 @@
-import {
-  __,
-  DataWithLoader,
-  Pagination,
-  Table,
-  Wrapper,
-  ModalTrigger,
-} from '@erxes/ui/src';
+import { __, DataWithLoader, Pagination, Table, Wrapper } from '@erxes/ui/src';
 import dayjs from 'dayjs';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import { menuSyncpolaris } from '../../constants';
 import SyncHistorySidebar from './syncHistorySidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
@@ -21,7 +13,6 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
 }
-
 class SyncHistoryList extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
@@ -54,36 +45,30 @@ class SyncHistoryList extends React.Component<IProps, {}> {
         </thead>
         <tbody id="orders">
           {(syncHistories || []).map((item) => (
-            <ModalTrigger
-              title="Sync polaris information"
-              trigger={
-                <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
-                  <td>{item.createdUser?.email}</td>
-                  <td>{item.contentType}</td>
-                  <td>{item.content}</td>
-                  <td>
-                    {(item.responseStr || '').includes('timedout')
-                      ? item.responseStr
-                      : '' ||
-                        `
-                      ${item.responseData?.extra_info?.warnings || ''}
-                      ${item.responseData?.message || ''}
-                      ${item.error || ''}
-                      ${
-                        typeof (item.responseData?.error || '') === 'string' &&
-                        typeof (item.responseData?.error || '').replace(
-                          'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                          '',
-                        )
-                      }
-                      `}
-                  </td>
-                </tr>
-              }
-              size="xl"
-              content={(props) => this.rowContent(props, item)}
-            />
+            <tr key={item._id}>
+              <td>{dayjs(item.createdAt).format('lll')}</td>
+              <td>{item.createdUser?.email}</td>
+              <td>{item.contentType}</td>
+              <td>{item.content}</td>
+              <td>
+                {(item.responseStr || '').includes('timedout')
+                  ? item.responseStr
+                  : '' ||
+                    `
+                        ${item.responseData?.extra_info?.warnings || ''}
+                        ${item.responseData?.message || ''}
+                        ${item.error || ''}
+                        ${
+                          typeof (item.responseData?.error || '') ===
+                            'string' &&
+                          typeof (item.responseData?.error || '').replace(
+                            'ЕБаримт руу илгээгдээгүй түр баримт болно.',
+                            '',
+                          )
+                        }
+                        `}
+              </td>
+            </tr>
           ))}
         </tbody>
       </Table>

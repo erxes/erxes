@@ -10,7 +10,6 @@ import Customer from '../components/Customer';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -26,8 +25,6 @@ type FinalProps = {
 class CustomerContainer extends React.Component<FinalProps, {}> {
   constructor(props) {
     super(props);
-
-    this.state = {};
   }
 
   render() {
@@ -86,5 +83,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(withRouter<IRouterProps>(CustomerContainer)),
+  )(CustomerContainer),
 );

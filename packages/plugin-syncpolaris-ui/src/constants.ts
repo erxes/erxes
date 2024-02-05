@@ -4,6 +4,5 @@ export const menuSyncpolaris = [
   { title: 'Transaction loan', link: '/transaction-loan' },
   { title: 'Transaction saving', link: '/transaction-saving' },
   { title: 'Saving account', link: '/saving-acnt' },
-  { title: 'Deposit account', link: '/deposit-acnt' },
   { title: 'Loan-account', link: '/loan-acnt' },
 ];

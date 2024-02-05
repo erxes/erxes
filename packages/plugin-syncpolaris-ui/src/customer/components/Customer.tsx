@@ -1,13 +1,6 @@
 import React from 'react';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import {
-  __,
-  Wrapper,
-  DataWithLoader,
-  Pagination,
-  Table,
-  ModalTrigger,
-} from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 
 import Sidebar from './Sidebar';
 import { menuSyncpolaris } from '../../constants';
@@ -20,42 +13,17 @@ interface IProps extends IRouterProps {
   totalCount: number;
   history: any;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 class Customer extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
   }
-
-  moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
-
-  rowContent = (item) => {
-    return <>{item.responseStr}</>;
-  };
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = [
-      'Date',
-      'Email',
-      'Fullname',
-      'FirstName',
-      'LastName',
-      'Content',
-      'error',
-    ];
+    const tablehead = ['Date', 'Email', 'content', 'error'];
 
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -66,24 +34,24 @@ class Customer extends React.Component<IProps, {}> {
             ))}
           </tr>
         </thead>
-        <tbody id="orders">
+        <tbody id="customers">
           {(syncHistories || []).map((item) => (
-            <ModalTrigger
-              title="Customer information"
-              trigger={
-                <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
-                  <td>{item.createdUser?.email}</td>
-                  <td>{item.createdUser?.details?.fullName}</td>
-                  <td>{item.createdUser?.details?.firstName}</td>
-                  <td>{item.createdUser?.details?.lastName}</td>
-                  <td>{item.content}</td>
-                  <td>{item.error}</td>
-                </tr>
-              }
-              size="xl"
-              content={(props) => this.rowContent(item)}
-            />
+            <tr key={item._id}>
+              <td>{dayjs(item.createdAt).format('lll')}</td>
+              <td>{item.createdUser?.email}</td>
+              <td>{item.content}</td>
+              <td>
+                {(item.responseStr || '').includes('timedout')
+                  ? item.responseStr
+                  : '' ||
+                    `
+                    ${item.responseData?.extra_info?.warnings || ''}
+                    ${item.responseData?.message || ''}
+                    ${item.error || ''}
+                    ${typeof (item.responseData?.error || '') === 'string'}
+                    `}
+              </td>
+            </tr>
           ))}
         </tbody>
       </Table>

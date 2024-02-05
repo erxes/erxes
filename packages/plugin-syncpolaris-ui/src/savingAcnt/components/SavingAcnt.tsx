@@ -1,18 +1,10 @@
 import React from 'react';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import {
-  __,
-  Wrapper,
-  DataWithLoader,
-  Pagination,
-  Table,
-  ModalTrigger,
-} from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 
-import Sidebar from './Sidebar';
+import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 interface IProps extends IRouterProps {
@@ -21,41 +13,16 @@ interface IProps extends IRouterProps {
   totalCount: number;
   history: any;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 class SavingAcnt extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
   }
-
-  moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
-
-  rowContent = (props, item) => {
-    return <>{item.responseStr}</>;
-  };
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
-
-    const tablehead = [
-      'Date',
-      'Email',
-      'Fullname',
-      'FirstName',
-      'LastName',
-      'Content',
-    ];
+    const tablehead = ['Date', 'Contant number', 'Status', 'Deposit', 'Error'];
 
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -67,23 +34,24 @@ class SavingAcnt extends React.Component<IProps, {}> {
           </tr>
         </thead>
         <tbody id="orders">
-          {(syncHistories || []).map((item) => (
-            // tslint:disable-next-line:jsx-key
-            <ModalTrigger
-              title="saving account information"
-              trigger={
-                <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
-                  <td>{item.createdUser?.email}</td>
-                  <td>{item.createdUser?.details?.fullName}</td>
-                  <td>{item.createdUser?.details?.firstName}</td>
-                  <td>{item.createdUser?.details?.lastName}</td>
-                  <td>{item.content}</td>
-                </tr>
-              }
-              size="xl"
-              content={(props) => this.rowContent(props, item)}
-            />
+          {(syncHistories || []).map((saving) => (
+            <tr key={saving._id}>
+              <td>{dayjs(saving.createdAt).format('lll')}</td>
+              <td>{saving.consumeData?.object?.number}</td>
+              <td>{saving.consumeData?.object?.status}</td>
+              <td>{saving.consumeData?.object?.isDeposit ? 'Deposit' : ''}</td>
+              <td>
+                {(saving.responseStr || '').includes('timedout')
+                  ? saving.responseStr
+                  : '' ||
+                    `
+                    ${saving.responseData?.extra_info?.warnings || ''}
+                    ${saving.responseData?.message || ''}
+                    ${saving.error || ''}
+                    ${typeof (saving.responseData?.error || '') === 'string'}
+                  `}
+              </td>
+            </tr>
           ))}
         </tbody>
       </Table>
@@ -98,17 +66,10 @@ class SavingAcnt extends React.Component<IProps, {}> {
             submenu={menuSyncpolaris}
           />
         }
-        leftSidebar={
-          <Sidebar
-            queryParams={queryParams}
-            history={history}
-            loading={loading}
-          />
-        }
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__(`Saving accounts (${totalCount})`)}</Title>}
-            // right={actionBarRight}
             background="colorWhite"
             wideSpacing={true}
           />
@@ -129,4 +90,4 @@ class SavingAcnt extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(SavingAcnt);
+export default SavingAcnt;

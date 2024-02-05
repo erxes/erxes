@@ -12,8 +12,8 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import { SidebarList as List, Wrapper } from '@erxes/ui/src/layout';
 import { IQueryParams } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { CustomRangeContainer, FilterContainer } from '../../styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { CustomRangeContainer, FilterContainer } from '../styles';
 import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
 
 interface Props {
@@ -92,17 +92,6 @@ class SyncHistorySidebar extends React.Component<Props, State> {
         </Section.Title>
         <FilterContainer>
           <List id="SettingsSidebar">
-            <FormGroup>
-              <ControlLabel>User</ControlLabel>
-              <SelectTeamMembers
-                label="Choose users"
-                name="userId"
-                initialValue={filterParams.userId}
-                onSelect={(userId) => this.setFilter('userId', userId)}
-                customOption={{ value: '', label: '...Clear user filter' }}
-                multi={false}
-              />
-            </FormGroup>
             <CustomRangeContainer>
               <FormGroup>
                 <ControlLabel required={true}>{__(`Start Date`)}</ControlLabel>
@@ -133,6 +122,26 @@ class SyncHistorySidebar extends React.Component<Props, State> {
                 </EndDateContainer>
               </FormGroup>
             </CustomRangeContainer>
+            <FormGroup>
+              <ControlLabel>Search Datas</ControlLabel>
+              <FormControl
+                name="searchConsume"
+                onChange={(e) =>
+                  this.setFilter('searchConsume', (e.target as any).value)
+                }
+                defaultValue={filterParams.searchConsume}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Search Error</ControlLabel>
+              <FormControl
+                name="searchError"
+                onChange={(e) =>
+                  this.setFilter('searchError', (e.target as any).value)
+                }
+                defaultValue={filterParams.searchError}
+              />
+            </FormGroup>
           </List>
           <Button
             block={true}

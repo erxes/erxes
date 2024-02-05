@@ -1,18 +1,10 @@
 import React from 'react';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import {
-  __,
-  Wrapper,
-  DataWithLoader,
-  Pagination,
-  Table,
-  ModalTrigger,
-} from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 
-import Sidebar from './Sidebar';
+import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 interface IProps extends IRouterProps {
@@ -21,12 +13,6 @@ interface IProps extends IRouterProps {
   totalCount: number;
   history: any;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 class loan extends React.Component<IProps, {}> {
@@ -34,28 +20,11 @@ class loan extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
-
-  rowContent = (props, item) => {
-    return <>{item.responseStr}</>;
-  };
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = [
-      'Date',
-      'Email',
-      'Fullname',
-      'FirstName',
-      'LastName',
-      'Content',
-    ];
+    const tablehead = ['Date', 'Number', 'Status', 'Content', 'Error'];
 
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
@@ -66,24 +35,25 @@ class loan extends React.Component<IProps, {}> {
             ))}
           </tr>
         </thead>
-        <tbody id="orders">
-          {(syncHistories || []).map((item) => (
-            // tslint:disable-next-line:jsx-key
-            <ModalTrigger
-              title="loan account information"
-              trigger={
-                <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
-                  <td>{item.createdUser?.email}</td>
-                  <td>{item.createdUser?.details?.fullName}</td>
-                  <td>{item.createdUser?.details?.firstName}</td>
-                  <td>{item.createdUser?.details?.lastName}</td>
-                  <td>{item.content}</td>
-                </tr>
-              }
-              size="xl"
-              content={(props) => this.rowContent(props, item)}
-            />
+        <tbody id="loans">
+          {(syncHistories || []).map((loanAcnt) => (
+            <tr key={loanAcnt._id}>
+              <td>{dayjs(loanAcnt.createdAt).format('lll')}</td>
+              <td>{loanAcnt.consumeData?.object?.number}</td>
+              <td>{loanAcnt.consumeData?.object?.status}</td>
+              <td>{loanAcnt.content}</td>
+              <td>
+                {(loanAcnt.responseStr || '').includes('timedout')
+                  ? loanAcnt.responseStr
+                  : '' ||
+                    `
+                    ${loanAcnt.responseData?.extra_info?.warnings || ''}
+                    ${loanAcnt.responseData?.message || ''}
+                    ${loanAcnt.error || ''}
+                    ${typeof (loanAcnt.responseData?.error || '') === 'string'}
+                  `}
+              </td>
+            </tr>
           ))}
         </tbody>
       </Table>
@@ -98,13 +68,7 @@ class loan extends React.Component<IProps, {}> {
             submenu={menuSyncpolaris}
           />
         }
-        leftSidebar={
-          <Sidebar
-            queryParams={queryParams}
-            history={history}
-            loading={loading}
-          />
-        }
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__(`loan accounts (${totalCount})`)}</Title>}
@@ -129,4 +93,4 @@ class loan extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(loan);
+export default loan;
