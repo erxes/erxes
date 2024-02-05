@@ -1,11 +1,10 @@
-
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext } from '../../connectionResolver';
 import {
   IChart,
   IChartDocument,
   IReport,
-  IReportDocument
+  IReportDocument,
 } from '../../models/definitions/reports';
 
 const reportsMutations = {
@@ -15,18 +14,19 @@ const reportsMutations = {
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     if (doc.reportTemplateType) {
-      if(!doc.serviceName) {
+      if (!doc.serviceName) {
         throw new Error(`doc.serviceName is ${doc.serviceName}`);
       }
       const service = await getService(doc.serviceName);
 
-      const reportTemplate = service.config?.meta?.reports?.reportTemplates?.find(
-        t => t.serviceType === doc.reportTemplateType
-      );
+      const reportTemplate =
+        service.config?.meta?.reports?.reportTemplates?.find(
+          (t) => t.serviceType === doc.reportTemplateType,
+        );
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
@@ -35,26 +35,26 @@ const reportsMutations = {
       let getChartTemplates;
 
       if (charts) {
-        getChartTemplates = chartTemplates?.filter(t =>
-          charts.includes(t.templateType)
+        getChartTemplates = chartTemplates?.filter((t) =>
+          charts.includes(t.templateType),
         );
       } else {
         // create with default charts
-        getChartTemplates = chartTemplates?.filter(t =>
-          reportTemplate.charts.includes(t.templateType)
+        getChartTemplates = chartTemplates?.filter((t) =>
+          reportTemplate.charts.includes(t.templateType),
         );
       }
 
       if (getChartTemplates) {
         await models.Charts.insertMany(
-          getChartTemplates.map(c => {
+          getChartTemplates.map((c) => {
             return {
               serviceName,
               chartType: c.chartTypes[0],
               reportId: report._id,
-              ...c
+              ...c,
             };
-          })
+          }),
         );
       }
     }
@@ -64,7 +64,7 @@ const reportsMutations = {
   async reportsEdit(
     _root,
     { _id, ...doc }: IReportDocument,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     if (doc.charts) {
       const { charts } = doc;
@@ -77,7 +77,7 @@ const reportsMutations = {
     return models.Reports.updateReport(_id, {
       ...doc,
       updatedAt: new Date(),
-      updatedBy: user._id
+      updatedBy: user._id,
     });
   },
   async reportsRemove(_root, _id: string, { models }: IContext) {
@@ -91,16 +91,70 @@ const reportsMutations = {
   async reportChartsAdd(_root, doc: IChart, { models }: IContext) {
     return models.Charts.createChart(doc);
   },
+
+  async reportChartsAddMany(_root, doc: any, { models }: IContext) {
+    const { charts, reportId } = doc;
+    const insertManyDocs: any[] = [];
+    const totalChartsDict: { [serviceName: string]: any } = {};
+
+    if (charts) {
+      for (const chartParams of charts) {
+        const { serviceName, chartTemplateTypes } = chartParams;
+        if (!serviceName) {
+          throw new Error(`serviceName is required!`);
+        }
+
+        if (serviceName in totalChartsDict) {
+          totalChartsDict[serviceName] = [
+            ...totalChartsDict[serviceName],
+            ...chartTemplateTypes,
+          ];
+          continue;
+        }
+        totalChartsDict[serviceName] = chartTemplateTypes;
+      }
+
+      for (const serviceName of Object.keys(totalChartsDict)) {
+        const totalCharts = totalChartsDict[serviceName];
+
+        if (totalCharts.length) {
+          const service = await getService(serviceName);
+
+          const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+          const getChartTemplates = chartTemplates?.filter((t) =>
+            totalCharts.includes(t.templateType),
+          );
+
+          if (getChartTemplates.length) {
+            insertManyDocs.push(
+              ...getChartTemplates.map((c) => ({
+                serviceName,
+                reportId,
+                chartType: c.chartTypes[0],
+                ...c,
+              })),
+            );
+          }
+        }
+      }
+    }
+
+    if (insertManyDocs.length) {
+      return await models.Charts.insertMany(insertManyDocs);
+    }
+  },
+
   async reportChartsEdit(
     _root,
     { _id, ...doc }: IChartDocument,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Charts.updateChart(_id, { ...doc });
   },
   reportChartsRemove(_root, _id: string, { models }: IContext) {
     return models.Charts.removeChart(_id);
-  }
+  },
 };
 
 export default reportsMutations;

@@ -336,18 +336,22 @@ export const fetchLogs = async (models: IModels, params) => {
     filter.createdAt = { $lte: new Date(end) };
   }
 
-  if (userId) {
-    filter.createdBy = userId;
-  }
-  if (action) {
-    filter.action = action;
-  }
   if (type) {
     filter.type = type;
   }
+
+  if (action) {
+    filter.action = action;
+  }
+
+  if (userId) {
+    filter.createdBy = userId;
+  }
+
   if (desc) {
     filter.description = { $regex: desc, $options: '$i' };
   }
+
   if (objectId) {
     filter.objectId = objectId;
   }

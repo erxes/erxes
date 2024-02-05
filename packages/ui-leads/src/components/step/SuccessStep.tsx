@@ -5,9 +5,9 @@ import {
 } from '@erxes/ui/src/components/step/style';
 import { __, readFile, uploadHandler } from '@erxes/ui/src/utils';
 
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -91,8 +91,8 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onEditorChange = (e, propName) => {
-    this.props.onChange(propName, e.editor.getData());
+  onEditorChange = propName => (content: string) => {
+    this.props.onChange(propName, content);
   };
 
   findTemplate = id => {
@@ -208,9 +208,9 @@ class SuccessStep extends React.Component<Props, State> {
         )}
         <FormGroup>
           <label>Message</label>
-          <EditorCK
+          <RichTextEditor
             content={leadData.userEmailContent || ''}
-            onChange={e => this.onEditorChange(e, 'userEmailContent')}
+            onChange={this.onEditorChange('userEmailContent')}
             height={500}
             name={`lead_user_email_${editorSubName}`}
           />
@@ -247,9 +247,9 @@ class SuccessStep extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <label>Message</label>
-          <EditorCK
+          <RichTextEditor
             content={leadData.adminEmailContent || ''}
-            onChange={e => this.onEditorChange(e, 'adminEmailContent')}
+            onChange={this.onEditorChange('adminEmailContent')}
             height={500}
             name={`lead_admin_email_${editorSubName}`}
           />

@@ -40,6 +40,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
+      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
+      if (!mainConfigs || !Object.keys(mainConfigs || {}).length) {
+        return;
+      }
+
       const saleConfigs = await models.Configs.getConfig(
         'stageInSaleConfig',
         {},
@@ -49,8 +54,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         'stageInReturnConfig',
         {},
       );
-
-      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
 
       // return
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
@@ -115,23 +118,25 @@ export const afterMutationHandlers = async (subdomain, params) => {
           ebarimtResponses.push(resp);
         }
 
-        await graphqlPubsub.publish('multierkhetResponded', {
-          multierkhetResponded: {
-            userId: user._id,
-            responseId: ebarimtResponses.map((er) => er._id).join('-'),
-            sessionCode: user.sessionCode || '',
-            content: ebarimtResponses.map((er) => ({
-              ...er.ebarimt,
-              _id: er._id,
-              error: er.error,
-              success: Boolean(er.message) ? 'false' : 'true',
-              message:
-                typeof er.message === 'string'
-                  ? er.message
-                  : er.message?.message || er.message?.error || '',
-            })),
-          },
-        });
+        if (ebarimtResponses.length) {
+          await graphqlPubsub.publish('multierkhetResponded', {
+            multierkhetResponded: {
+              userId: user._id,
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
+              sessionCode: user.sessionCode || '',
+              content: ebarimtResponses.map((er) => ({
+                ...er.ebarimt,
+                _id: er._id,
+                error: er.error,
+                success: Boolean(er.message) ? 'false' : 'true',
+                message:
+                  typeof er.message === 'string'
+                    ? er.message
+                    : er.message?.message || er.message?.error || '',
+              })),
+            },
+          });
+        }
         return;
       }
 
@@ -145,11 +150,26 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const configs = {};
         for (const brandId of brandIds) {
+          const mainConfig = mainConfigs[brandId];
+          const saleConfig = brandRules[brandId];
+          if (
+            !mainConfig ||
+            !saleConfig ||
+            !mainConfig.apiKey ||
+            !mainConfig.apiSecret ||
+            !mainConfig.apiToken
+          ) {
+            continue;
+          }
           configs[brandId] = {
             ...mainConfigs[brandId],
             ...brandRules[brandId],
             hasPayment: saleConfigs[destinationStageId].hasPayment,
           };
+        }
+
+        if (!Object.keys(configs)) {
+          return;
         }
 
         const postDatas = (await getPostData(
@@ -180,23 +200,26 @@ export const afterMutationHandlers = async (subdomain, params) => {
           ebarimtResponses.push(response);
         }
 
-        await graphqlPubsub.publish('multierkhetResponded', {
-          multierkhetResponded: {
-            userId: user._id,
-            responseId: ebarimtResponses.map((er) => er._id).join('-'),
-            sessionCode: user.sessionCode || '',
-            content: ebarimtResponses.map((er) => ({
-              response: er,
-              _id: er._id,
-              error: er.error,
-              success: er.success,
-              message:
-                typeof er.message === 'string'
-                  ? er.message
-                  : er.message?.message || er.message?.error || '',
-            })),
-          },
-        });
+        if (ebarimtResponses.length) {
+          await graphqlPubsub.publish('multierkhetResponded', {
+            multierkhetResponded: {
+              userId: user._id,
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
+              sessionCode: user.sessionCode || '',
+              content: ebarimtResponses.map((er) => ({
+                response: er,
+                _id: er._id,
+                error: er.error,
+                success: er.success,
+                message:
+                  typeof er.message === 'string'
+                    ? er.message
+                    : er.message?.message || er.message?.error || '',
+              })),
+            },
+          });
+        }
+
         return;
       }
       return;

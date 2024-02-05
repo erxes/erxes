@@ -9,7 +9,7 @@ import {
   Uploader,
   DataWithLoader
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -71,11 +71,11 @@ class CreateForm extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (content: string) => {
     this.setState({
       assignmentCampaign: {
         ...this.state.assignmentCampaign,
-        description: e.editor.getData()
+        description: content
       }
     });
   };
@@ -238,27 +238,21 @@ class CreateForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={assignmentCampaign.description || ''}
             onChange={this.onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
             toolbar={[
-              {
-                name: 'basicstyles',
-                items: [
-                  'Bold',
-                  'Italic',
-                  'NumberedList',
-                  'BulletedList',
-                  'Link',
-                  'Unlink',
-                  '-',
-                  'Image',
-                  'EmojiPanel'
-                ]
-              }
+              'bold',
+              'italic',
+              'orderedList',
+              'bulletList',
+              'link',
+              'unlink',
+              '|',
+              'image'
             ]}
           />
         </FormGroup>

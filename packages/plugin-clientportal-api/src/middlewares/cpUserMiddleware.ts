@@ -8,7 +8,7 @@ import { generateModels } from '../connectionResolver';
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -28,12 +28,13 @@ export default async function cpUserMiddleware(
       'clientPortalLogin',
       'clientPortalLogout',
       'clientPortalLoginWithPhone',
+      'clientPortalLoginWithMailOTP',
       'clientPortalLoginWithSocialPay',
       'clientPortalRegister',
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail'
+      'clientPortalKnowledgeBaseTopicDetail',
     ].includes(operationName)
   ) {
     return next();
@@ -53,7 +54,7 @@ export default async function cpUserMiddleware(
     // verify user token and retrieve stored user information
     const verifyResult: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || ''
+      process.env.JWT_TOKEN_SECRET || '',
     );
 
     const { userId } = verifyResult;

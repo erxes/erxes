@@ -12,12 +12,12 @@ export default {
     const { posToken } = data.data;
     const pos = await models.Pos.getPos({ token: posToken });
 
-    sendPosclientMessage({
+    await sendPosclientMessage({
       subdomain,
       action: 'paymentCallbackClient',
       data,
       pos,
-      isRPC: false
+      isRPC: false,
     });
-  }
+  },
 };

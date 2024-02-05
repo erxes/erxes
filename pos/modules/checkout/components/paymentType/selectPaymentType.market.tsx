@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import usePaymentLabel from "../../hooks/usePaymentLabel"
 import { useCheckNotSplit } from "../../hooks/usePaymentType"
 import usePossiblePaymentTerms from "../../hooks/usePossiblePaymentTerms"
 
@@ -22,10 +23,12 @@ const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
     paymentIds,
     khan,
     tdb,
+    capitron,
     golomt,
     mappedPts,
     notPaidAmount,
   } = usePossiblePaymentTerms()
+  const { getLabel } = usePaymentLabel()
   const type = useAtomValue(currentPaymentTypeAtom)
   const { handleSetType } = useCheckNotSplit()
   const [open, setOpen] = useState(false)
@@ -66,17 +69,22 @@ const SelectPaymentType = ({ onSelect }: { onSelect?: () => void }) => {
               value={BANK_CARD_TYPES.KHANBANK}
               disabled={disabledTerms}
             >
-              Хаан банк
+              {getLabel(BANK_CARD_TYPES.KHANBANK)}
             </SelectItem>
           )}
           {!!tdb && (
-            <SelectItem value={BANK_CARD_TYPES.TDB} disabled={disabledTerms}>
-              ХXБанк
+            <SelectItem value={tdb.type} disabled={disabledTerms}>
+              {getLabel(tdb.type)}
+            </SelectItem>
+          )}
+          {!!capitron && (
+            <SelectItem value={capitron.type} disabled={disabledTerms}>
+              {getLabel(capitron.type)}
             </SelectItem>
           )}
           {!!golomt && (
             <SelectItem value={BANK_CARD_TYPES.GOLOMT} disabled={disabledTerms}>
-              Голомт банк
+              {getLabel(BANK_CARD_TYPES.GOLOMT)}
             </SelectItem>
           )}
           {mappedPts.map((payment) => (
