@@ -287,6 +287,10 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
+  getMainValue(key, name, value) {
+    return key === name ? value : this.state[key];
+  }
+
   customGraphicChange(repayment, name, value) {
     if (
       (name === 'repayment' && repayment === 'custom') ||
@@ -301,25 +305,23 @@ class ContractForm extends React.Component<Props, State> {
           name === 'startDate')) ||
       name === 'skipAmountCalcMonth'
     ) {
-      const tenor = Number(name === 'tenor' ? value : this.state.tenor);
-      const leaseAmount = Number(
-        name === 'leaseAmount' ? value : this.state.leaseAmount,
-      );
+      const tenor = Number(this.getMainValue('tenor', name, value));
+      const leaseAmount = Number(this.getMainValue('leaseAmount', name, value));
       const customPayment = Number(
-        (name === 'customPayment' ? value : this.state.customPayment) ?? 0,
+        this.getMainValue('customPayment', name, value),
       );
       const customInterest = Number(
-        (name === 'customInterest' ? value : this.state.customInterest) ?? 0,
+        this.getMainValue('customInterest', name, value),
       );
-      const isPayFirstMonth =
-        name === 'isPayFirstMonth' ? value : this.state.isPayFirstMonth;
-      const interestRate =
-        name === 'interestRate' ? value : this.state.interestRate;
-      const startDate = name === 'startDate' ? value : this.state.startDate;
-      const scheduleDays =
-        name === 'scheduleDays' ? value : this.state.scheduleDays;
-      const skipAmountCalcMonth =
-        name === 'skipAmountCalcMonth' ? value : this.state.skipAmountCalcMonth;
+      const isPayFirstMonth = this.getMainValue('isPayFirstMonth', name, value);
+      const interestRate = this.getMainValue('interestRate', name, value);
+      const startDate = this.getMainValue('startDate', name, value);
+      const scheduleDays = this.getMainValue('scheduleDays', name, value);
+      const skipAmountCalcMonth = this.getMainValue(
+        'skipAmountCalcMonth',
+        name,
+        value,
+      );
 
       let schedules: LoanSchedule[] = generateCustomGraphic({
         dateRange: scheduleDays,
