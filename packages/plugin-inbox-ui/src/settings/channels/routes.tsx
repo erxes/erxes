@@ -1,11 +1,20 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
-const Channels = asyncComponent(() =>
-  import(/* webpackChunkName: "Channels - Settings" */ './containers/Channels')
+const Channels = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Channels - Settings" */ './containers/Channels'
+    ),
 );
 
-const routes = () => <Route path='/settings/channels/' component={Channels} />;
+const routes = () => {
+  return (
+    <Routes>
+      <Route path="/settings/channels/" element={Channels} />
+    </Routes>
+  );
+};
 
 export default routes;

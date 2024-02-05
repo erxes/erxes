@@ -1,43 +1,44 @@
+import { Route, Routes, useLocation } from 'react-router-dom';
+
+import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
 
-const VideoCall = asyncComponent(() =>
-  import(/* webpackChunkName: "VideoCall" */ './components/VideoCall')
+const VideoCall = asyncComponent(
+  () => import(/* webpackChunkName: "VideoCall" */ './components/VideoCall'),
 );
 
-const Recording = asyncComponent(() =>
-  import(/* webpackChunkName: "Recording" */ './components/Recording')
+const Recording = asyncComponent(
+  () => import(/* webpackChunkName: "Recording" */ './components/Recording'),
 );
 
-const videoCall = ({ location }) => {
+const VideoCallComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <VideoCall queryParams={queryParams} />;
 };
 
-const recording = ({ location }) => {
+const RecordingComponent = () => {
+  const location = useLocation();
   const link = location.search ? location.search.toString().substring(6) : '';
 
   return <Recording link={link} />;
 };
 
 const routes = () => (
-  <>
+  <Routes>
     <Route
       key="/videoCall"
-      exact={true}
       path="/videoCall"
-      component={videoCall}
+      element={<VideoCallComponent />}
     />
     <Route
       key="/videoCall/recording"
-      exact={true}
       path="/videoCall/recording"
-      component={recording}
+      element={<RecordingComponent />}
     />
-  </>
+  </Routes>
 );
 
 export default routes;

@@ -1,5 +1,6 @@
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -19,7 +20,7 @@ const EditBooking = asyncComponent(
     import(/* webpackChunkName: "EditBooking" */ './containers/EditBooking'),
 );
 
-const bookings = (history) => {
+const Bookings = (history) => {
   const { location } = history;
 
   const queryParams = queryString.parse(location.search);
@@ -27,12 +28,9 @@ const bookings = (history) => {
   return <List queryParams={queryParams} history={history} />;
 };
 
-const createBooking = () => {
-  return <CreateBooking />;
-};
-
-const editBooking = ({ match, location }) => {
-  const { contentTypeId } = match.params;
+const EditBookingComponent = () => {
+  const location = useLocation();
+  const { contentTypeId } = useParams();
 
   const queryParams = queryString.parse(location.search);
 
@@ -42,21 +40,19 @@ const editBooking = ({ match, location }) => {
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route exact={true} key="/bookings" path="/bookings" component={bookings} />
+  <Routes>
+    <Route key="/bookings" path="/bookings" element={<Bookings />} />
     <Route
-      exact={true}
       key="/bookings/create"
       path="/bookings/create"
-      component={createBooking}
+      element={<CreateBooking />}
     />
     <Route
-      exact={true}
       key="/bookings/edit/:contentTypeId"
       path="/bookings/edit/:contentTypeId"
-      component={editBooking}
+      element={<EditBookingComponent />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;
