@@ -10,29 +10,29 @@ import styledTS from 'styled-components-ts';
 
 const types = {
   default: {
-    color: colors.colorSecondary
+    color: colors.colorSecondary,
   },
   primary: {
-    color: colors.colorPrimaryDark
+    color: colors.colorPrimaryDark,
   },
   success: {
-    color: colors.colorCoreGreen
+    color: colors.colorCoreGreen,
   },
   danger: {
-    color: colors.colorCoreRed
+    color: colors.colorCoreRed,
   },
   warning: {
-    color: colors.colorCoreYellow
+    color: colors.colorCoreYellow,
   },
   simple: {
-    color: colors.colorCoreGray
-  }
+    color: colors.colorCoreGray,
+  },
 };
 
 const LabelStyled = styledTS<{
-  lblColor: string;
-  isLightColor?: boolean;
-  shake?: boolean;
+  $lblColor: string;
+  $isLightColor?: boolean;
+  $shake?: boolean;
 }>(styled.span)`
   border-radius: 5px;
   padding: 3px 9px;
@@ -41,19 +41,23 @@ const LabelStyled = styledTS<{
   font-size: 8px;
   display: inline-block;
   line-height: 1.32857143;
-  background: ${props =>
-    props.isLightColor
-      ? rgba(props.lblColor, 0.2)
-      : rgba(props.lblColor, 0.15)};
-  color: ${props =>
-    props.isLightColor ? darken(props.lblColor, 50) : props.lblColor};
+  background: ${(props) =>
+    props.$isLightColor
+      ? rgba(props.$lblColor, 0.2)
+      : rgba(props.$lblColor, 0.15)};
+  color: ${(props) =>
+    props.$isLightColor ? darken(props.$lblColor, 50) : props.$lblColor};
   border: none;
   font-weight: 600;
-  animation: ${props =>
-    props.shake ? `${animationShake} 3.5s ease infinite` : 'none'};
+  animation: ${(props) =>
+    props.$shake
+      ? css`
+          ${animationShake} 3.5s ease infinite
+        `
+      : 'none'};
 
-  ${props =>
-    props.shake &&
+  ${(props) =>
+    props.$shake &&
     css`
       background: ${colors.colorCoreRed};
       color: ${colors.colorWhite};
@@ -82,35 +86,30 @@ type Props = {
   ignoreTrans?: boolean;
 };
 
-class Label extends React.Component<Props> {
-  render() {
-    const {
-      ignoreTrans,
-      children,
-      lblColor,
-      lblStyle = 'default',
-      shake = false
-    } = this.props;
+const Label: React.FC<Props> = ({
+  ignoreTrans,
+  children,
+  lblColor,
+  lblStyle = 'default',
+  shake = false,
+}) => {
+  const updatedProps = {
+    $lblColor: lblColor ? lblColor : types[lblStyle].color,
+    $shake: shake,
+    $isLightColor: lblColor
+      ? color(lblColor ?? '')?.isLight()
+      : color(types[lblStyle].color)?.isLight(),
+  };
 
-    const updatedProps = {
-      ...this.props,
-      lblColor: lblColor ? lblColor : types[lblStyle].color,
-      shake,
-      isLightColor: lblColor
-        ? color(lblColor).isLight()
-        : color(types[lblStyle].color).isLight()
-    };
+  let content;
 
-    let content;
-
-    if (ignoreTrans) {
-      content = children;
-    } else if (typeof children === 'string') {
-      content = __(children);
-    }
-
-    return <LabelStyled {...updatedProps}>{content}</LabelStyled>;
+  if (ignoreTrans) {
+    content = children;
+  } else if (typeof children === 'string') {
+    content = __(children);
   }
-}
+
+  return <LabelStyled {...updatedProps}>{content}</LabelStyled>;
+};
 
 export default Label;
