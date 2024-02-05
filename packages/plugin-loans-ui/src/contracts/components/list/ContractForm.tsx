@@ -37,7 +37,10 @@ import { LEASE_TYPES } from '../../../contractTypes/constants';
 import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
-import ContractsCustomFields from './ContractsCustomFields';
+
+const onFieldClick = (e) => {
+  e.target.select();
+};
 
 type Props = {
   currentUser: IUser;
@@ -408,10 +411,6 @@ class ContractForm extends React.Component<Props, State> {
     });
   };
 
-  onFieldClick = (e) => {
-    e.target.select();
-  };
-
   checkValidation = (): any => {
     const errors: any = {};
 
@@ -549,7 +548,7 @@ class ContractForm extends React.Component<Props, State> {
                   name: 'contractNumber',
                   value: this.state.contractNumber,
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
 
               {this.state.useFee &&
@@ -561,7 +560,7 @@ class ContractForm extends React.Component<Props, State> {
                   fixed: 2,
                   value: this.state.feeAmount || 0,
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
 
               {this.state.useMargin &&
@@ -575,7 +574,7 @@ class ContractForm extends React.Component<Props, State> {
                   required: true,
                   errors: this.checkValidation(),
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
               {this.props.currentUser?.configs?.loansConfig
                 ?.organizationType === ORGANIZATION_TYPE.BBSB && (
@@ -661,7 +660,7 @@ class ContractForm extends React.Component<Props, State> {
                   fixed: 2,
                   value: this.state.downPayment || 0,
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
             </FormColumn>
             <FormColumn>
@@ -916,7 +915,7 @@ class ContractForm extends React.Component<Props, State> {
                   value: this.state.commitmentInterest || 0,
                   errors: this.checkValidation(),
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
             </FormColumn>
             <FormColumn>
@@ -960,7 +959,7 @@ class ContractForm extends React.Component<Props, State> {
                 value: this.state.interestRate || 0,
                 errors: this.checkValidation(),
                 onChange: this.onChangeField,
-                onClick: this.onFieldClick,
+                onClick: onFieldClick,
               })}
               {this.state.repayment === 'custom' &&
                 this.renderFormGroup('Custom Interest', {
@@ -971,7 +970,7 @@ class ContractForm extends React.Component<Props, State> {
                   name: 'customInterest',
                   value: this.state.customInterest || 0,
                   onChange: this.onChangeField,
-                  onClick: this.onFieldClick,
+                  onClick: onFieldClick,
                 })}
               {this.state.leaseType === LEASE_TYPES.FINANCE &&
                 this.renderFormGroup('Is Pay First Month', {
@@ -1124,16 +1123,6 @@ class ContractForm extends React.Component<Props, State> {
           })}
         </ModalFooter>
       </>
-    );
-  };
-
-  renderCustom = () => {
-    return (
-      <ContractsCustomFields
-        isDetail={true}
-        contract={{ ...this.props.contract, ...this.state } as any}
-        collapseCallback={console.log}
-      />
     );
   };
 
