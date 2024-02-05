@@ -257,7 +257,7 @@ const advertisementMutations = {
         erxesCustomerId: {
           $in: list.map((d) => d.driverId),
         },
-        clientPortalId: process.env.WEB_CP_ID || '',
+        // clientPortalId: process.env.WEB_CP_ID || '',
         // '6T-06zPDAEZgwlh4thhDn',
       },
       isRPC: true,
