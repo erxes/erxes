@@ -7,7 +7,7 @@ import { InsuranceCategory, Risk } from '../../../gql/types';
 
 type Props = {
   value: string | string[];
-  onChange: (categoryId: string, risks: Risk[]) => void;
+  onChange: (category: InsuranceCategory, risks: Risk[]) => void;
 };
 
 const Container = (props: Props) => {

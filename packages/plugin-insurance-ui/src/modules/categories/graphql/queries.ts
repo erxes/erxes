@@ -47,7 +47,7 @@ const GET_CATEGORIES = gql`
     ) {
       _id
       name
-
+      code
       risks {
         _id
         name
@@ -58,5 +58,5 @@ const GET_CATEGORIES = gql`
 
 export default {
   CATEGORY_LIST,
-  GET_CATEGORIES
+  GET_CATEGORIES,
 };
