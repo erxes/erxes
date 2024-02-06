@@ -90,7 +90,6 @@ class PopoverContent extends React.Component<Props, State> {
 
   renderItems() {
     const { responseTemplates } = this.props;
-    console.log(responseTemplates, 'responseTemplates');
 
     if (responseTemplates.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
@@ -123,18 +122,17 @@ class PopoverContent extends React.Component<Props, State> {
       </PopoverLoadMore>
     );
   };
-  // Assuming this is inside a React component
+
   fetchTemplates = () => {
     const { responseTemplates = [] } = this.props;
 
     const perPage = 10;
     const page = Math.round((responseTemplates || []).length / perPage + 1);
 
-    // Ensure searchValue and brandId are not undefined before passing them to the function
-    const searchValue = this.state.searchValue || ''; // Providing a default value if it's undefined
-    const brandId = this.state.brandId || ''; // Providing a default value if it's undefined
+    const searchValue = this.state.searchValue || '';
+    undefined;
+    const brandId = this.state.brandId || '';
 
-    // Call refetchResponseTemplates with the necessary parameters
     this.props.refetchResponseTemplates(searchValue, brandId, page, perPage);
   };
 
@@ -142,7 +140,7 @@ class PopoverContent extends React.Component<Props, State> {
     const { brands } = this.props;
 
     const onChangeSearchValue = (e) => {
-      const searchValue = e.target.value; // Assuming searchValue is extracted from the event
+      const searchValue = e.target.value;
 
       const textContent = searchValue.toLowerCase().replace(/<[^>]+>/g, '');
       if (textContent) {
@@ -159,13 +157,12 @@ class PopoverContent extends React.Component<Props, State> {
           }, 1000),
         });
       }
-      this.setState({ searchValue }); // Update the state with the new searchValue
-      // this.props.refetchResponseTemplates(searchValue, '', 1, 20);
+      this.setState({ searchValue });
     };
 
     const onChangeBrand = (e) => {
-      const brandId = e.target.value; // Assuming brandId is extracted from the event
-      this.setState({ brandId }); // Update the state with the new brandId
+      const brandId = e.target.value;
+      this.setState({ brandId });
       this.props.refetchResponseTemplates('', brandId, 1, 20);
     };
     return (
