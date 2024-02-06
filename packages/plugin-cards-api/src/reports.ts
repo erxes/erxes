@@ -116,6 +116,7 @@ const STAGE = [
 ];
 
 const PIPELINE_TYPE = 'deal';
+const PIPELINE_TYPE_TICKET = 'ticket';
 const reportTemplates = [
   {
     serviceType: 'deal',
@@ -186,13 +187,9 @@ const chartTemplates = [
     templateType: 'TicketsStageDateRange',
     name: 'Stage Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string,
-    ) => {
-      const { dateRange, startDate, endDate } = filter;
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
+        filter;
 
       const matchfilter = {};
       if (dateRange) {
@@ -206,7 +203,12 @@ const chartTemplates = [
           matchfilter['createdAt'] = dateFilter;
         }
       }
-
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
       const board = await models?.Boards.find({
         type: 'ticket',
       }).lean();
@@ -239,7 +241,7 @@ const chartTemplates = [
             stageId: {
               $in: stageId,
             },
-            createdAt: matchfilter,
+            ...matchfilter,
           },
         };
       } else {
@@ -294,18 +296,67 @@ const chartTemplates = [
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
       },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'stageIds',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"pipelineId": "$pipelineIds"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select stages',
+      },
     ],
   },
   {
     templateType: 'TicketsCardCountAssignedUser',
     name: 'Tickets Count and  AssignedUser',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string,
-    ) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
+        filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
       const board = await models?.Boards.find({
         type: 'ticket',
@@ -341,6 +392,7 @@ const chartTemplates = [
           assignedUserIds: {
             $in: selectedUserIds,
           },
+          ...matchfilter,
         },
       };
 
@@ -396,6 +448,39 @@ const chartTemplates = [
         fieldType: 'select',
         fieldQuery: 'users',
         fieldLabel: 'Select assigned user',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'stageIds',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"pipelineId": "$pipelineIds"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select stages',
       },
     ],
   },
@@ -473,6 +558,45 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'stageIds',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"pipelineId": "$pipelineIds"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select stages',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user',
       },
     ],
   },
@@ -1591,6 +1715,28 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
     ],
   },
   {
@@ -2670,8 +2816,39 @@ const chartTemplates = [
     name: 'Ticket average time to close over time',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async () => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        pipelineIds,
+        boardIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = { $in: assignedUserIds };
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+
       const ticket = await models?.Tickets.find({
+        ...matchfilter,
         isComplete: true,
       }).lean();
       if (!ticket || ticket.length === 0) {
@@ -2694,7 +2871,45 @@ const chartTemplates = [
 
       return datasets;
     },
-    filterTypes: [],
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+    ],
   },
   {
     templateType: 'TicketsCustom',
@@ -2706,7 +2921,8 @@ const chartTemplates = [
       currentUser: IUserDocument,
       getDefaultPipelineId?: string,
     ) => {
-      const { dateRange, startDate, endDate } = filter;
+      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
+        filter;
 
       const matchfilter = {};
       if (dateRange) {
@@ -2720,6 +2936,16 @@ const chartTemplates = [
           matchfilter['createdAt'] = dateFilter;
         }
       }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+      if (userIds) {
+        matchfilter['assignedUserIds'] = { $in: userIds };
+      }
+
       let tickets;
       const query =
         Object.keys(matchfilter).length > 0 ? { ...matchfilter } : {};
@@ -2836,16 +3062,26 @@ const chartTemplates = [
         fieldLabel: 'Select date range',
       },
       {
-        fieldName: 'customFieldsData',
+        fieldName: 'pipelineIds',
         fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
         multi: true,
-        fieldLabel: 'Select customers',
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'name',
+        fieldName: 'boardIds',
         fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
         multi: true,
-        fieldLabel: 'Select name',
+        isAll: true,
+        fieldLabel: 'Select boards',
       },
     ],
   },
@@ -2854,17 +3090,51 @@ const chartTemplates = [
     name: 'Ticket closed totals by rep',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        pipelineIds,
+        boardIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = { $in: assignedUserIds };
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
       let tickets;
 
       try {
         if (selectedUserIds.length === 0) {
           // No selected users, so get all tickets
-          tickets = await models?.Tickets.find({ isComplete: true }).lean();
+          tickets = await models?.Tickets.find({
+            isComplete: true,
+            ...matchfilter,
+          }).lean();
         } else {
           // Filter tickets based on selectedUserIds
           tickets = await models?.Tickets.find({
+            ...matchfilter,
             assignedUserIds: { $in: selectedUserIds },
             isComplete: true,
           }).lean();
@@ -2944,6 +3214,36 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
     ],
   },
   {
@@ -2951,7 +3251,37 @@ const chartTemplates = [
     name: 'Ticket totals by status',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        pipelineIds,
+        boardIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = { $in: assignedUserIds };
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+
       const tickets = await models?.Tickets.find({}).lean();
       const ticketTotalsByStatus = calculateTicketTotalsByStatus(tickets);
       // Convert the counts object to an array of objects with ownerId and count
@@ -2971,7 +3301,45 @@ const chartTemplates = [
       return datasets;
     },
 
-    filterTypes: [],
+    filterTypes: [
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+    ],
   },
   {
     templateType: 'TicketTotalsByLabelPriorityTag',
@@ -3086,8 +3454,40 @@ const chartTemplates = [
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
 
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
-      const totalTicked = await models?.Tickets.find({}).sort({
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        pipelineIds,
+        boardIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = { $in: assignedUserIds };
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+
+      const totalTicked = await models?.Tickets.find({
+        ...matchfilter,
+      }).sort({
         createdAt: -1,
       });
 
@@ -3127,10 +3527,41 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'createdAt',
+        fieldName: 'dateRange',
         fieldType: 'select',
-        fieldQuery: 'createdAt',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
       },
     ],
   },
@@ -3139,25 +3570,41 @@ const chartTemplates = [
     name: 'Ticket average time to close by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
-      const selectedUserIds = filter.assignedUserIds || [];
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
+        filter;
+
+      const selectedUserIds = userIds || [];
+      let matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+      if (userIds) {
+        matchfilter['assignedUserIds'] = { $in: selectedUserIds };
+      }
       let tickets;
       try {
-        if (selectedUserIds.length === 0) {
-          // No selected users, so get all tickets
-          tickets = await models?.Tickets.find({
-            isComplete: true,
-          })
-            .lean()
-            .limit(30);
-        } else {
-          // Filter tickets based on selectedUserIds
-          tickets = await models?.Tickets.find({
-            assignedUserIds: {
-              $in: selectedUserIds,
-            },
-            isComplete: true,
-          }).lean();
+        tickets = await models?.Tickets.find({
+          isComplete: true,
+          ...matchfilter,
+        }).lean();
+        // Check if the returned value is not an array
+        if (!Array.isArray(tickets)) {
+          throw new Error('Invalid data: tickets is not an array.');
         }
 
         // Check if the returned value is not an array
@@ -3231,10 +3678,41 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
+        fieldName: 'userIds',
         fieldType: 'select',
+        multi: true,
         fieldQuery: 'users',
-        fieldLabel: 'Select assigned user',
+        fieldLabel: 'Select assignedUserIds',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
       },
     ],
   },
@@ -3269,9 +3747,33 @@ const chartTemplates = [
     name: 'Ticket average time to close',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Table
-    getChartResult: async () => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
+        filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = { $in: pipelineIds };
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = { $in: boardIds };
+      }
+      if (userIds) {
+        matchfilter['assignedUserIds'] = { $in: userIds };
+      }
       const ticket = await models?.Tickets.find({
         isComplete: true,
+        ...matchfilter,
       }).lean();
       if (!ticket || ticket.length === 0) {
         console.error(
@@ -3294,7 +3796,45 @@ const chartTemplates = [
 
       return datasets;
     },
-    filterTypes: [],
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+    ],
   },
 
   {
