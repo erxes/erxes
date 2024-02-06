@@ -205,7 +205,7 @@ const saveMessages = async (
       conversationId = _id;
     }
 
-    await models.Messages.create({
+    const conversationMessage = await models.Messages.create({
       inboxIntegrationId: integration.inboxId,
       inboxConversationId: conversationId,
       createdAt: msg.date,
@@ -230,6 +230,7 @@ const saveMessages = async (
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
+        _id: conversationMessage._id,
         content: msg.html,
         conversationId,
       },

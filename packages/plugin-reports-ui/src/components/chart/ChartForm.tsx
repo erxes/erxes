@@ -68,8 +68,6 @@ const ChartForm = (props: Props) => {
     serviceNames,
   } = props;
 
-  console.log(chart);
-
   const [name, setName] = useState(chart?.name || '');
 
   const [serviceName, setServiceName] = useState(chart?.serviceName || '');
@@ -156,7 +154,9 @@ const ChartForm = (props: Props) => {
     }
 
     filters[fieldName] = value;
+
     setFilters({ ...filters });
+    return;
   };
 
   const renderFilterTypes = filterTypes.length ? (

@@ -343,6 +343,7 @@ export const getOrCreateComment = async (
             subdomain,
             action: 'conversationClientMessageInserted',
             data: {
+              _id: comment._id,
               integrationId: integration.erxesApiId,
               conversationId: erxesApiId,
             },

@@ -8,9 +8,8 @@ import {
   IReportDocument,
   reportSchema,
   chartSchema,
-  IChartEdit
+  IChartEdit,
 } from './definitions/reports';
-import { Z_ASCII } from 'zlib';
 
 export interface IReportModel extends Model<IReportDocument> {
   getReport(_id: string): Promise<IReportDocument>;
