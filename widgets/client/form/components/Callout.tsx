@@ -1,8 +1,8 @@
-import * as React from "react";
-import { AppConsumer } from "../../messenger/containers/AppContext";
-import { readFile } from "../../utils";
-import { ICallout } from "../types";
-import TopBar from "./TopBar";
+import * as React from 'react';
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { readFile } from '../../utils';
+import { ICallout } from '../types';
+import TopBar from './TopBar';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
@@ -25,7 +25,12 @@ class Callout extends React.Component<Props> {
     }
 
     return (
-      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
+      <img
+        onLoad={this.props.setHeight}
+        src={readFile(image)}
+        style={{ maxWidth: this.props.configs.imgSize }}
+        alt={title}
+      />
     );
   }
 
@@ -43,12 +48,12 @@ class Callout extends React.Component<Props> {
     const { configs, onSubmit, color } = this.props;
     const defaultConfig = {
       skip: false,
-      title: "",
-      buttonText: "",
-      body: "",
-      featuredImage: ""
+      title: '',
+      buttonText: '',
+      body: '',
+      featuredImage: '',
     };
-    const { skip, title = "", buttonText, body, featuredImage = "" } =
+    const { skip, title = '', buttonText, body, featuredImage = '' } =
       configs || defaultConfig;
 
     if (skip) {

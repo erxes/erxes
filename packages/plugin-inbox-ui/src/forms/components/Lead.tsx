@@ -184,8 +184,18 @@ class Lead extends React.Component<Props, State> {
       formData,
       channelIds,
       departmentIds,
-      visibility
+      visibility,
+      calloutBtnText,
+      bodyValue,
+      isSkip
     } = this.state;
+
+    if (
+      (formData.numberOfPages && formData.numberOfPages < 1) ||
+      !formData.numberOfPages
+    ) {
+      return Alert.error('Number of pages must be greathan or equal to 1');
+    }
 
     if (!title) {
       return Alert.error('Enter a Form name');
@@ -193,6 +203,24 @@ class Lead extends React.Component<Props, State> {
 
     if (!formData.title) {
       return Alert.error('Enter a Form title');
+    }
+
+    if (!isSkip) {
+      if (!calloutTitle) {
+        return Alert.error('Enter a Callout title');
+      }
+
+      if (!bodyValue) {
+        return Alert.error('Enter a Callout body');
+      }
+
+      if (!calloutBtnText) {
+        return Alert.error('Enter a Callout button text');
+      }
+    }
+
+    if (!formData.type) {
+      return Alert.error('Add a field to a form');
     }
 
     if (!brand) {
@@ -226,7 +254,7 @@ class Lead extends React.Component<Props, State> {
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
-          calloutImgSize: this.state.calloutImgSize,
+          imgSize: this.state.calloutImgSize,
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),

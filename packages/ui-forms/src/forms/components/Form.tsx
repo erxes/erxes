@@ -98,8 +98,10 @@ class Form extends React.Component<Props, State> {
       const value = (e.currentTarget as HTMLInputElement).value;
 
       this.setState({ [name]: value } as any, () => {
-        if (onDocChange) {
-          onDocChange(this.state);
+        if (name === 'numberOfPages' && value !== '-') {
+          if (onDocChange) {
+            onDocChange(this.state);
+          }
         }
       });
     };
@@ -119,7 +121,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
-            componentClass="textarea"
+            componentClass="textinput"
             name="description"
             value={description}
             onChange={onChangeField}
@@ -134,6 +136,7 @@ class Form extends React.Component<Props, State> {
             onChange={onChangeField}
             type={'number'}
             min={1}
+            useNumberFormat={true}
           />
         </FormGroup>
 

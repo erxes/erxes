@@ -97,11 +97,11 @@ class CommonPreview extends React.Component<Props, {}> {
       }
     };
 
-    if (numberOfPages === 1) {
+    if (numberOfPages == 1) {
       return button(btnText);
     }
 
-    if (currentPage === 1 && numberOfPages > 1) {
+    if (currentPage == 1 && numberOfPages > 1) {
       return button('Next', onNextClick);
     }
 
@@ -125,7 +125,7 @@ class CommonPreview extends React.Component<Props, {}> {
   renderProgress() {
     const { theme, color, numberOfPages = 1, currentPage = 1 } = this.props;
 
-    if (numberOfPages === 1) {
+    if (numberOfPages <= 1) {
       return null;
     }
 

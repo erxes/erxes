@@ -32,7 +32,7 @@ class StyleSheetStep extends React.Component<Props, {}> {
             </p>
             <FormControl
               id="css"
-              componentClass="textarea"
+              componentClass="textInput"
               value={css}
               onChange={this.onChange}
             />
