@@ -10,6 +10,7 @@ import {
   generatePayloadString,
   checkContentConditions,
 } from './utils';
+import * as moment from 'moment';
 
 const generateMessages = async (
   config: any,
@@ -63,6 +64,7 @@ const generateMessages = async (
     image = '',
     video = '',
     audio = '',
+    input,
   } of messages) {
     const botData = generateBotData({
       type,
@@ -75,22 +77,24 @@ const generateMessages = async (
 
     if (['text', 'input'].includes(type) && !buttons?.length) {
       generatedMessages.push({
-        text,
+        text: input ? input.text : text,
         botData,
+        inputData: input,
       });
     }
 
-    if (type === 'text' && !!buttons?.length) {
+    if (['text', 'input'].includes(type) && !!buttons?.length) {
       generatedMessages.push({
         attachment: {
           type: 'template',
           payload: {
             template_type: 'button',
-            text,
+            text: input ? input.text : text,
             buttons: generateButtons(buttons),
           },
         },
         botData,
+        inputData: input,
       });
     }
 
@@ -165,10 +169,11 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
       if (type === 'getStarted' && target.content === 'Get Started') {
         return true;
       }
+
       if (type === 'persistentMenu' && target?.payload) {
         const { persistentMenuId } = target.payload || {};
 
-        if ((persistentMenuIds || []).includes(persistentMenuId)) {
+        if ((persistentMenuIds || []).includes(String(persistentMenuId))) {
           return true;
         }
       }
@@ -177,14 +182,70 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
         if (
           checkContentConditions(target?.content || '', directMessageCondtions)
         ) {
-          console.log({ result: true });
           return true;
         }
-        console.log({ result: false });
       }
     }
     continue;
   }
+};
+
+const generateObjectToWait = ({
+  messages = [],
+  optionalConnects = [],
+  conversation,
+  customer,
+}: {
+  messages: any[];
+  optionalConnects: any[];
+  conversation: { _id: string } & IConversation;
+  customer: ICustomer;
+}) => {
+  const obj: any = {};
+  const general: any = {
+    conversationId: conversation._id,
+    customerId: customer.erxesApiId,
+  };
+  let propertyName = 'payload.btnId';
+
+  if (messages.some((msg) => msg.type === 'input')) {
+    const inputMessageConfig =
+      messages.find((msg) => msg.type === 'input')?.input || {};
+
+    if (inputMessageConfig.timeType === 'day') {
+      obj.startWaitingDate = moment()
+        .add(inputMessageConfig.value || 0, 'day')
+        .toDate();
+    }
+
+    if (inputMessageConfig.timeType === 'hour') {
+      obj.startWaitingDate = moment()
+        .add(inputMessageConfig.value || 0, 'hour')
+        .toDate();
+    }
+    if (inputMessageConfig.timeType === 'minute') {
+      obj.startWaitingDate = moment()
+        .add(inputMessageConfig.value || 0, 'minute')
+        .toDate();
+    }
+
+    const actionIdIfNotReply =
+      optionalConnects.find(
+        (connect) => connect?.optionalConnectId === 'ifNotReply',
+      )?.actionId || null;
+
+    obj.waitingActionId = actionIdIfNotReply;
+
+    propertyName = 'botId';
+  }
+
+  return {
+    ...obj,
+    objToCheck: {
+      propertyName,
+      general,
+    },
+  };
 };
 
 export const actionCreateMessage = async (
@@ -228,7 +289,18 @@ export const actionCreateMessage = async (
       return;
     }
 
-    for (const { botData, ...message } of messages) {
+    for (const { botData, inputData, ...message } of messages) {
+      await sendReply(
+        models,
+        'me/messages',
+        {
+          recipient: { id: senderId },
+          sender_action: 'typing_on',
+        },
+        recipientId,
+        integration.erxesApiId,
+      );
+
       const resp = await sendReply(
         models,
         'me/messages',
@@ -274,19 +346,12 @@ export const actionCreateMessage = async (
 
     return {
       result,
-      objToWait: {
-        objToCheck: {
-          propertyName: (config?.messages || []).some(
-            (msg) => msg.type === 'input',
-          )
-            ? 'content'
-            : 'payload.btnId',
-          general: {
-            conversationId: conversation._id,
-            customerId: customer.erxesApiId,
-          },
-        },
-      },
+      objToWait: generateObjectToWait({
+        messages: config?.messages || [],
+        conversation,
+        customer,
+        optionalConnects,
+      }),
     };
   } catch (error) {
     debugError(error.message);

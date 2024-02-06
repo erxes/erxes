@@ -1,6 +1,27 @@
 import { generateModels } from '../connectionResolver';
 import { actionCreateComment, checkCommentTrigger } from './comments';
 import { actionCreateMessage, checkMessageTrigger } from './messages';
+import {
+  replacePlaceHolders,
+  setProperty,
+} from '@erxes/api-utils/src/automations';
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+
+const getItems = (
+  subdomain: string,
+  module: string,
+  execution: any,
+  triggerType: string,
+) => {
+  const { target } = execution;
+  if (module === triggerType) {
+    return [target];
+  }
+};
+
+const getRelatedValue = () => {
+  return false;
+};
 
 export default {
   constants: {
@@ -57,7 +78,7 @@ export default {
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, actionType, collectionType },
+    data: { action, execution, actionType, collectionType, triggerType },
   }) => {
     const models = await generateModels(subdomain);
 
@@ -83,7 +104,48 @@ export default {
       }
     }
 
+    if (actionType === 'set-property') {
+      const { module, rules } = action.config;
+      const relatedItems = await getItems(
+        subdomain,
+        module,
+        execution,
+        triggerType,
+      );
+
+      return setProperty({
+        models,
+        subdomain,
+        getRelatedValue,
+        module,
+        rules,
+        execution,
+        sendCommonMessage,
+        relatedItems,
+        triggerType,
+      });
+    }
+
     return;
+  },
+  replacePlaceHolders: async ({
+    subdomain,
+    data: { target, config, relatedValueProps },
+  }) => {
+    const models = generateModels(subdomain);
+
+    const content = await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: config,
+      target,
+      relatedValueProps,
+    });
+
+    console.log({ content });
+
+    return content;
   },
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;

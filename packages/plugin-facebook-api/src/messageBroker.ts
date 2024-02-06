@@ -212,6 +212,26 @@ export const initBroker = async () => {
       };
     },
   );
+
+  consumeRPCQueue(
+    'facebook:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      // need to check pos-order or pos
+
+      let filter;
+
+      if (module.includes('contacts')) {
+        if (target.customerId) {
+          filter = { _id: target.customerId };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter,
+      };
+    },
+  );
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {

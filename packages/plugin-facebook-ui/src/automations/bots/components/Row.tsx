@@ -22,14 +22,10 @@ function Row({ bot, remove, repair }: Props) {
             btnStyle="link"
             icon="edit-3"
           />
+          <Button btnStyle="link" icon="redo" onClick={() => repair(bot._id)} />
           <Button
             btnStyle="link"
-            icon="edit-3"
-            onClick={() => repair(bot._id)}
-          />
-          <Button
-            btnStyle="link"
-            icon="redo"
+            icon="times"
             onClick={remove.bind(this, bot._id)}
           />
         </ActionButtons>

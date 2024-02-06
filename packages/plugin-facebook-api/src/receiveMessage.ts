@@ -10,7 +10,10 @@ import { IChannelData } from './types';
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
-    return JSON.parse(message?.payload || '{}')?.botId;
+    const payload = JSON.parse(message?.payload || '{}');
+    if (payload.botId) {
+      return payload.botId;
+    }
   }
 
   const bot = await models.Bots.findOne({ pageId: recipientId });
@@ -47,8 +50,6 @@ const receiveMessage = async (
   if (message.quick_reply) {
     message.payload = message.quick_reply.payload;
   }
-
-  console.log({ message });
 
   const integration = await models.Integrations.getIntegration({
     $and: [

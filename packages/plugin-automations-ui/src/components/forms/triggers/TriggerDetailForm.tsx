@@ -36,7 +36,6 @@ function TriggerDetailForm(props: Props) {
   };
 
   const renderContent = () => {
-    console.log({ triggerConst });
     if (currentTab === 'reenrollment') {
       return (
         <ReEnrollmentContainer

@@ -9,7 +9,7 @@ export const replacePlaceHolders = async ({
   isRelated = true,
   getRelatedValue,
   relatedValueProps,
-  complexFields
+  complexFields,
 }: {
   models;
   subdomain: string;
@@ -34,13 +34,13 @@ export const replacePlaceHolders = async ({
                 subdomain,
                 target,
                 targetKey,
-                relatedValueProps
+                relatedValueProps,
               ))) ||
             target[targetKey];
 
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ ${targetKey} }}`,
-            replaceValue
+            replaceValue,
           );
         }
 
@@ -59,7 +59,7 @@ export const replacePlaceHolders = async ({
         if (actionData[actionDataKey].includes(`{{ now }}`)) {
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ now }}`,
-            new Date()
+            new Date(),
           );
         }
 
@@ -68,7 +68,7 @@ export const replacePlaceHolders = async ({
           const tomorrow = today.setDate(today.getDate() + 1);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ tomorrow }}`,
-            tomorrow
+            tomorrow,
           );
         }
         if (actionData[actionDataKey].includes(`{{ nextWeek }}`)) {
@@ -76,7 +76,7 @@ export const replacePlaceHolders = async ({
           const nextWeek = today.setDate(today.getDate() + 7);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ nextWeek }}`,
-            nextWeek
+            nextWeek,
           );
         }
         if (actionData[actionDataKey].includes(`{{ nextMonth }}`)) {
@@ -84,13 +84,13 @@ export const replacePlaceHolders = async ({
           const nextMonth = today.setDate(today.getDate() + 30);
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ nextMonth }}`,
-            nextMonth
+            nextMonth,
           );
         }
 
         for (const complexFieldKey of [
           'customFieldsData',
-          'trackedData'
+          'trackedData',
         ].concat(complexFields || [])) {
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
@@ -104,21 +104,21 @@ export const replacePlaceHolders = async ({
                   subdomain,
                   target,
                   `${complexFieldKey}.${fieldId}`,
-                  relatedValueProps
+                  relatedValueProps,
                 )) || target[targetKey];
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
                 `{{ ${complexFieldKey}.${fieldId} }}`,
-                replaceValue
+                replaceValue,
               );
             } else {
               const complexFieldData = target[complexFieldKey].find(
-                cfd => cfd.field === fieldId
+                (cfd) => cfd.field === fieldId,
               );
 
               actionData[actionDataKey] = actionData[actionDataKey].replace(
                 `{{ ${complexFieldKey}.${fieldId} }}`,
-                complexFieldData ? complexFieldData.value : ''
+                complexFieldData ? complexFieldData.value : '',
               );
             }
           }
@@ -142,18 +142,18 @@ export const OPERATORS = {
   MULTIPLY: 'multiply',
   DIVIDE: 'divide',
   PERCENT: 'percent',
-  ALL: ['set', 'concat', 'add', 'subtract', 'multiply', 'divide', 'percent']
+  ALL: ['set', 'concat', 'add', 'subtract', 'multiply', 'divide', 'percent'],
 };
 
 const convertOp1 = (relatedItem, field) => {
   if (
-    ['customFieldsData', 'trackedData'].some(complexField =>
-      field.includes(complexField)
+    ['customFieldsData', 'trackedData'].some((complexField) =>
+      field.includes(complexField),
     )
   ) {
     const [complexFieldKey, nestedComplexFieldKey] = field.split('.');
     return (relatedItem[complexFieldKey] || []).find(
-      nestedObj => nestedObj.field === nestedComplexFieldKey
+      (nestedObj) => nestedObj.field === nestedComplexFieldKey,
     )?.value;
   }
 
@@ -182,7 +182,7 @@ const getPerValue = async (args: {
     serviceName,
     triggerType,
     sendCommonMessage,
-    execution
+    execution,
   } = args;
   let { field, operator, value } = rule;
 
@@ -204,10 +204,10 @@ const getPerValue = async (args: {
           data: {
             execution,
             target,
-            config: { value }
+            config: { value },
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         })
       )?.value || value;
   }
@@ -221,7 +221,7 @@ const getPerValue = async (args: {
       getRelatedValue,
       actionData: { config: value },
       target,
-      isRelated: op1Type === 'string' ? true : false
+      isRelated: op1Type === 'string' ? true : false,
     })
   ).config;
 
@@ -232,12 +232,7 @@ const getPerValue = async (args: {
   if (field.includes('Ids')) {
     //
     const set = [
-      new Set(
-        (updatedValue || '')
-          .trim()
-          .replace(/, /g, ',')
-          .split(',') || []
-      )
+      new Set((updatedValue || '').trim().replace(/, /g, ',').split(',') || []),
     ];
     updatedValue = [...set];
   }
@@ -248,7 +243,7 @@ const getPerValue = async (args: {
       OPERATORS.SUBTRACT,
       OPERATORS.MULTIPLY,
       OPERATORS.DIVIDE,
-      OPERATORS.PERCENT
+      OPERATORS.PERCENT,
     ].includes(operator)
   ) {
     op1 = op1 || 0;
@@ -305,7 +300,7 @@ export const setProperty = async ({
   getRelatedValue,
   relatedItems,
   sendCommonMessage,
-  triggerType
+  triggerType,
 }: {
   models;
   subdomain;
@@ -339,7 +334,7 @@ export const setProperty = async ({
         triggerType,
         serviceName,
         sendCommonMessage,
-        execution
+        execution,
       });
 
       if (rule.forwardTo) {
@@ -358,26 +353,38 @@ export const setProperty = async ({
         if (rule.field.includes(complexFieldKey)) {
           const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
 
+          const field = await sendCommonMessage({
+            subdomain,
+            serviceName: 'forms',
+            action: 'fields.findOne',
+            data: {
+              query: { _id: fieldId },
+            },
+            isRPC: true,
+            defaultValue: {},
+          });
+
           const complexFieldData = await sendCommonMessage({
             subdomain,
             serviceName: 'forms',
             action: 'fields.generateTypedItem',
             data: {
               field: fieldId,
-              value
+              value,
+              type: field?.type,
             },
-            isRPC: true
+            isRPC: true,
           });
 
           if (
             (relatedItem[complexFieldKey] || []).find(
-              obj => obj.field === fieldId
+              (obj) => obj.field === fieldId,
             )
           ) {
             selectorDoc[`${complexFieldKey}.field`] = fieldId;
 
             const complexFieldDataKeys = Object.keys(complexFieldData).filter(
-              key => key !== 'field'
+              (key) => key !== 'field',
             );
 
             for (const complexFieldDataKey of complexFieldDataKeys) {
@@ -406,7 +413,7 @@ export const setProperty = async ({
       serviceName,
       action: `${pluralFormation(collectionType)}.updateMany`,
       data: { selector: { _id: relatedItem._id, ...selectorDoc }, modifier },
-      isRPC: true
+      isRPC: true,
     });
 
     for (const service of servicesToForward) {
@@ -418,8 +425,8 @@ export const setProperty = async ({
           target,
           collectionType,
           setDoc,
-          pushDoc
-        }
+          pushDoc,
+        },
       });
     }
 
@@ -432,10 +439,10 @@ export const setProperty = async ({
       _id: relatedItem._id,
       rules: (Object as any)
         .values(setDoc)
-        .map(v => String(v))
-        .join(', ')
+        .map((v) => String(v))
+        .join(', '),
     });
   }
 
-  return { module, fields: rules.map(r => r.field).join(', '), result };
+  return { module, fields: rules.map((r) => r.field).join(', '), result };
 };

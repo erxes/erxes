@@ -31,8 +31,8 @@ const removeBot = `
 `;
 
 const repairBot = `
-  mutation FacebookMessengerRepairBot($id: String) {
-    facebookMessengerRepairBot(_id: $id)
+  mutation FacebookMessengerRepairBot($_id: String) {
+    facebookMessengerRepairBot(_id: $_id)
   }
 `;
 

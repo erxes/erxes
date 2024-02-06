@@ -428,8 +428,6 @@ export const receiveTrigger = async ({
     return;
   }
 
-  console.log({ targets });
-
   for (const target of targets) {
     for (const automation of automations) {
       for (const trigger of automation.triggers) {

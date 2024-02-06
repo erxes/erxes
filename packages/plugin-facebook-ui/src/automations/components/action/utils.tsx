@@ -9,6 +9,7 @@ import styled from 'styled-components';
 const timeTypes = [
   { label: 'Minutes', value: 'minutes' },
   { label: 'Hours', value: 'hours' },
+  { label: 'Minutes', value: 'minute' },
 ];
 
 const Container = styled(Flex)`
@@ -18,7 +19,10 @@ const Container = styled(Flex)`
 }
 `;
 
-export function TimeSetter({ input: { value, timeType }, onChange }) {
+export function TimeSetter({
+  input: { value, timeType = 'minute' },
+  onChange,
+}) {
   const OverLay = () => (
     <Popover id="help-popover">
       <Wrapper>

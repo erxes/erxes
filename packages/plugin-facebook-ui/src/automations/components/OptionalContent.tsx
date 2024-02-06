@@ -16,7 +16,8 @@ const LinkIcon = styled.a`
 `;
 
 function OptionalContent({ action, handle }: Props) {
-  const { messages = [] } = action?.config || {};
+  const { automation, config } = action || {};
+  const { messages = [] } = config || {};
 
   const renderExtraContent = ({ children, icon }) => {
     return (
@@ -87,6 +88,11 @@ function OptionalContent({ action, handle }: Props) {
     attachments,
     input,
   }: any) => {
+    const botId = automation.triggers.find(
+      (trigger) =>
+        trigger.type.includes('facebook') && !!trigger?.config?.botId,
+    ).config.botId;
+
     switch (type) {
       case 'text':
         return renderCard({ text, buttons });
@@ -107,7 +113,7 @@ function OptionalContent({ action, handle }: Props) {
           text: input.text,
           subtitle: `Input expires in: ${input.value} ${input.timeType}`,
           buttons: [
-            { _id: 'ifReply', text: 'If Reply' },
+            { _id: botId, text: 'If Reply' },
             { _id: 'ifNotReply', text: 'If Not Reply' },
           ],
         });

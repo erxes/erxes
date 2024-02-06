@@ -210,7 +210,7 @@ export const loadBotClass = (models: IModels) => {
               {
                 type: 'postback',
                 title: 'Get Started',
-                payload: botId,
+                payload: JSON.stringify({ botId: botId }),
               },
               ...generatedPersistentMenus,
             ],

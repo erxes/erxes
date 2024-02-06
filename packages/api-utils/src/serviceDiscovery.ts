@@ -20,7 +20,10 @@ if (!ENABLED_SERVICES_JSON) {
   );
 }
 
-const enabledServices = JSON.parse(ENABLED_SERVICES_JSON) || [];
+const enabledServices =
+  JSON.parse(
+    '["contacts","inbox","forms","automations","segments","facebook","logs","integrations"]',
+  ) || [];
 
 if (!Array.isArray(enabledServices)) {
   throw new Error(
