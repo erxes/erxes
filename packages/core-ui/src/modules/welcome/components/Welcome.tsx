@@ -11,7 +11,7 @@ import {
   BoxContent,
   VideoLink,
   Card,
-  VideoFrame
+  VideoFrame,
 } from '../styles';
 import Button from '@erxes/ui/src/components/Button';
 import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
@@ -97,11 +97,11 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
         </h1>
         <div>
           {__(
-            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.'
+            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.',
           )}
           <br />
           {__(
-            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. '
+            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. ',
           )}
         </div>
       </Header>
@@ -112,7 +112,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     handleOpen: () => void,
     image?: string,
-    isOpen?: boolean
+    isOpen?: boolean,
   ) => {
     const percentage = Math.floor((active / 5) * 100);
     const icon = isOpen ? 'angle-down' : 'angle-right';
@@ -148,7 +148,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     url: string,
-    icon: string
+    icon: string,
   ) => {
     return (
       <LinkedButton href={url} target="_blank">
@@ -165,13 +165,13 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          {DOCS.slice(0, 2).map(item =>
-            renderDocContent(item.title, item.desc, item.url, item.icon)
+          {DOCS.slice(0, 2).map((item) =>
+            renderDocContent(item.title, item.desc, item.url, item.icon),
           )}
         </Boxes>
         <Boxes>
-          {DOCS.slice(2, 4).map(item =>
-            renderDocContent(item.title, item.desc, item.url, item.icon)
+          {DOCS.slice(2, 4).map((item) =>
+            renderDocContent(item.title, item.desc, item.url, item.icon),
           )}
         </Boxes>
       </WidgetBackgrounds>
@@ -179,7 +179,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   };
 
   const renderSetup = () => {
-    return SETUP.map(item => {
+    return SETUP.map((item) => {
       const { url, title, icon, btnText, action } = item;
       const [isOpen, setIsOpen] = useState(false);
       const isComplete =
@@ -194,8 +194,8 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       const dropdownIcon = isComplete
         ? 'check'
         : isOpen
-        ? 'uparrow'
-        : 'downarrow-2';
+          ? 'uparrow'
+          : 'downarrow-2';
 
       return (
         <Setup key={title}>
@@ -229,7 +229,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     icon: string,
-    url: string
+    url: string,
   ) => {
     return (
       <Dropdown alignRight={true}>
@@ -264,7 +264,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   const renderGuide = () => {
     return (
       <WidgetBackgrounds>
-        {VIDEO.map(item => {
+        {VIDEO.map((item) => {
           return renderVideo(item.title, item.desc, item.icon, item.url);
         })}
       </WidgetBackgrounds>

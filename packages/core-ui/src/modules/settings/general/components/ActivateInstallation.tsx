@@ -4,7 +4,7 @@ import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from 'modules/common/components/form';
 import Info from 'modules/common/components/Info';
 import { Alert } from 'modules/common/utils';
@@ -22,18 +22,18 @@ const ActivateInstallation = () => {
       .query({
         query: gql(queries.checkActivateInstallation),
         variables: {
-          hostname
-        }
+          hostname,
+        },
       })
       .then(() => {
         setActivated(true);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log('while checking activation: ', e.message);
       });
   }, [hostname]);
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
 
     client
@@ -41,8 +41,8 @@ const ActivateInstallation = () => {
         mutation: gql(mutations.activateInstallation),
         variables: {
           token,
-          hostname
-        }
+          hostname,
+        },
       })
       .then(() => {
         Alert.info('Successfully activated');
@@ -54,7 +54,7 @@ const ActivateInstallation = () => {
       });
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     setToken(e.target.value);
   };
 

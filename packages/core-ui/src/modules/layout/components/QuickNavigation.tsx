@@ -15,16 +15,18 @@ import { UserHelper, DropNav } from '../styles';
 import BrandChooser from './BrandChooser';
 import { pluginsOfTopNavigations } from 'pluginUtils';
 
-const Signature = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-  )
+const Signature = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+    ),
 );
 
-const ChangePassword = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
-  )
+const ChangePassword = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+    ),
 );
 
 const UserInfo = styled.div`
@@ -85,23 +87,23 @@ const QuickNavigation = ({
   showBrands,
   selectedBrands,
   onChangeBrands,
-  version
+  release,
 }: {
   logout: () => void;
   currentUser: IUser;
   showBrands: boolean;
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
-  version: string;
+  release: string;
 }) => {
-  const passContent = props => <ChangePassword {...props} />;
-  const signatureContent = props => <Signature {...props} />;
+  const passContent = (props) => <ChangePassword {...props} />;
+  const signatureContent = (props) => <Signature {...props} />;
 
   const brands = currentUser.brands || [];
 
-  const brandOptions = brands.map(brand => ({
+  const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || ''
+    label: brand.name || '',
   }));
 
   let brandsCombo;
@@ -175,9 +177,9 @@ const QuickNavigation = ({
             <Dropdown.Divider />
 
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
-            {version ? (
+            {release ? (
               <Version>
-                <span>version</span> <span>{version}</span>
+                <span>version</span> <span>{release}</span>
               </Version>
             ) : null}
           </Dropdown.Menu>

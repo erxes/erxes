@@ -28,31 +28,42 @@ import {
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import {
-  getService,
-  getServices,
-  isEnabled,
-  join,
-  leave,
-} from '@erxes/api-utils/src/serviceDiscovery';
+
 import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
-import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import {
+  authCookieOptions,
+  connectionOptions,
+  getSubdomain,
+} from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
 import imports from './imports';
 import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
+// import { handleCoreLogin, handleMagiclink, ssocallback } from './saas';
 import dashboards from './dashboards';
-import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import {
+  getEnabledServices,
+  getService,
+  getServices,
+  isEnabled,
+  leave,
+  join,
+} from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 
-const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN, CLIENT_PORTAL_DOMAINS } =
-  process.env;
+const {
+  JWT_TOKEN_SECRET,
+  WIDGETS_DOMAIN,
+  DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
+  VERSION,
+} = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -211,7 +222,7 @@ app.post(
   '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
-    if (!req.headers.userid) {
+    if (!req.user) {
       return res.end('forbidden');
     }
 
@@ -250,6 +261,11 @@ app.get(
 app.post('/upload-file', uploader);
 
 app.post('/upload-file&responseType=json', uploader);
+
+// magic link
+// app.get('/ml-callback', (req: any, res) => handleMagiclink(req, res));
+// app.get('/core-login', (req: any, res) => handleCoreLogin(req, res));
+// app.get('/sso-callback', ssocallback);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -300,6 +316,10 @@ httpServer.listen(PORT, async () => {
 
   await initBroker();
 
+  if (VERSION && VERSION === 'saas') {
+    await mongoose.connect(MONGO_URL, connectionOptions);
+  }
+
   init()
     .then(() => {
       telemetry.trackCli('server_started');
@@ -325,10 +345,11 @@ httpServer.listen(PORT, async () => {
       imports,
       exporter,
       dashboards,
+      cronjobs: { handle10MinutelyJobAvailable: true },
     },
   });
 
-  debugInit(`GraphQL Server is now running on ${PORT}`);
+  debugInit(`GraphQL Server is now running on  ${PORT}`);
 });
 
 // GRACEFULL SHUTDOWN

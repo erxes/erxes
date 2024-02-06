@@ -7,8 +7,8 @@ export default {
         icon: 'users',
         label: 'Team member',
         description:
-          'Start with a blank workflow that enralls and is triggered off team members'
-      }
-    ]
-  }
+          'Start with a blank workflow that enralls and is triggered off team members',
+      },
+    ],
+  },
 };

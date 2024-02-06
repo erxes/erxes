@@ -24,6 +24,8 @@ const MainLayoutContainer = (props: FinalProps) => {
     return null;
   }
 
+  console.log(enabledServicesQuery, 'enabledServicesQuery');
+
   const enabledServices = enabledServicesQuery.enabledServices || {};
   return (
     <AppProvider currentUser={currentUser} plugins={plugins}>
@@ -50,8 +52,8 @@ export default withProps<Props>(
           enabledServices
         }`),
       {
-        name: 'enabledServicesQuery'
-      }
-    )
-  )<FinalProps>(MainLayoutContainer)
+        name: 'enabledServicesQuery',
+      },
+    ),
+  )<FinalProps>(MainLayoutContainer),
 );

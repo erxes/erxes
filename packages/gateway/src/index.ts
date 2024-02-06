@@ -1,3 +1,4 @@
+import * as serverTiming from 'server-timing';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -10,6 +11,7 @@ import {
   setBeforeResolvers,
   setAfterQueries,
 } from './redis';
+
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import {
@@ -24,10 +26,30 @@ import {
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 
-const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
-  process.env;
+import { connectionOptions } from '@erxes/api-utils/src/core';
+import * as mongoose from 'mongoose';
+
+const {
+  DOMAIN,
+  WIDGETS_DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
+  ALLOWED_ORIGINS,
+  PORT,
+  MONGO_URL,
+  VERSION,
+} = process.env;
+
+if (!MONGO_URL) {
+  throw new Error('MONGO_URL is not defined');
+}
 
 (async () => {
+  if (VERSION && VERSION === 'saas') {
+    await mongoose.connect(MONGO_URL, connectionOptions);
+  }
+
+  app.use((serverTiming as any)());
+
   app.use(cookieParser());
 
   app.use(userMiddleware);
@@ -43,7 +65,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
     ],
   };
 
-  app.use(cors(corsOptions));
+  app.use(cors());
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
 
