@@ -1,12 +1,14 @@
 # Dependencies
 /node_modules
 
+
 # Production
 /build
 
 # Generated files
 .docusaurus
 .cache-loader
+.vscode
 
 # Misc
 .DS_Store
