@@ -11,7 +11,7 @@ module.exports.devStop = async () => {
   execSync("pm2 delete all");
 };
 
-module.exports.devCmd = async (program) => {
+module.exports.devCmd = async program => {
   const configs = await fse.readJSON(filePath("configs.json"));
   const be_env = configs.be_env || {};
   const commonOptions = program.bash ? { interpreter: "/bin/bash" } : {};
@@ -69,7 +69,7 @@ module.exports.devCmd = async (program) => {
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
         ...commonEnv,
         ...((configs.core || {}).extra_env || {}),
-        OTEL_SERVICE_NAME: "plugin-core-api"
+        OTEL_SERVICE_NAME: "plugin-core-api",
       },
     },
   ];
@@ -113,8 +113,8 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         ...be_env,
-        OTEL_SERVICE_NAME: "widgets"
-      }
+        OTEL_SERVICE_NAME: "widgets",
+      },
     });
   }
 
@@ -133,9 +133,9 @@ module.exports.devCmd = async (program) => {
         );
       }
 
-      const uiConfigs = require(filePath(
-        `../packages/plugin-${plugin.name}-ui/src/configs.js`
-      ));
+      const uiConfigs = require(
+        filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`)
+      );
 
       if (plugin.ui === "remote") {
         if (uiConfigs.url) {
@@ -178,7 +178,7 @@ module.exports.devCmd = async (program) => {
         PORT: plugin.port || port,
         ...commonEnv,
         ...(plugin.extra_env || {}),
-        OTEL_SERVICE_NAME: `plugin-${plugin.name}-api`
+        OTEL_SERVICE_NAME: `plugin-${plugin.name}-api`,
       },
     });
   }
@@ -195,7 +195,7 @@ module.exports.devCmd = async (program) => {
         PORT: 3700,
         ...commonEnv,
         ...((configs.workers || {}).envs || {}),
-        OTEL_SERVICE_NAME: "workers"
+        OTEL_SERVICE_NAME: "workers",
       },
     });
   }
@@ -214,7 +214,7 @@ module.exports.devCmd = async (program) => {
         PORT: 4300,
         ...commonEnv,
         ...((configs.dashboard || {}).envs || {}),
-        OTEL_SERVICE_NAME: "dashboard"
+        OTEL_SERVICE_NAME: "dashboard",
       },
     });
   }
@@ -231,7 +231,7 @@ module.exports.devCmd = async (program) => {
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
       ...commonEnv,
       ...((configs.gateway || {}).extra_env || {}),
-      OTEL_SERVICE_NAME: "gateway"
+      OTEL_SERVICE_NAME: "gateway",
     },
   });
 
@@ -240,7 +240,7 @@ module.exports.devCmd = async (program) => {
     filePath("ecosystem.config.js"),
     `
       module.exports = {
-        apps: ${JSON.stringify(apps,null,2)}
+        apps: ${JSON.stringify(apps, null, 2)}
       }
     `
   );
