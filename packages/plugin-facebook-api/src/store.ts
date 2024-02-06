@@ -322,6 +322,54 @@ export const getOrCreateComment = async (
     if (!comment_conversations && !comment_conversations_reply) {
       throw new Error('No matching documents found.');
     }
+    if (comment_conversations || comment_conversations_reply) {
+      if (comment_conversations) {
+        await models.CommentConversation.updateOne(
+          { comment_id: comment_conversations.comment_id },
+          { $set: { erxesApiId: erxesApiId } },
+        );
+      }
+      if (comment_conversations_reply) {
+        await models.CommentConversationReply.updateOne(
+          { comment_id: comment_conversations_reply.comment_id },
+          { $set: { erxesApiId: erxesApiId } },
+        );
+      }
+      try {
+        if (erxesApiId) {
+          const inboxIntegration = await sendInboxMessage({
+            subdomain,
+            action: 'conversationClientMessageInserted',
+            data: {
+              _id: comment._id,
+              integrationId: integration.erxesApiId,
+              conversationId: erxesApiId,
+            },
+          });
+          graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
+            conversationMessageInserted: {
+              _id: comment._id,
+              content: commentParams.message,
+              createdAt: new Date(),
+              customerId: customer.erxesApiId,
+              conversationId: erxesApiId,
+            },
+            comment,
+            integration: inboxIntegration,
+          });
+        } else {
+          console.log('Warning: The comment is undefined.');
+        }
+      } catch (e) {
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation message duplication'
+            : e,
+        );
+      }
+    } else {
+      console.log('No matching documents found.');
+    }
 
     if (comment_conversations) {
       await models.CommentConversation.updateOne(

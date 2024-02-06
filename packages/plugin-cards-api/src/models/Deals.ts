@@ -60,7 +60,7 @@ export const loadDealClass = (models: IModels, subdomain: string) => {
       );
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd);
+        doc.productsData = doc.productsData.filter((pd) => pd && pd.productId);
       }
 
       await models.Deals.updateOne({ _id }, { $set: doc, searchText });

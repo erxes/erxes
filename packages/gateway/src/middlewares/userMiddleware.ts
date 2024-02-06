@@ -190,7 +190,10 @@ export default async function userMiddleware(
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
     }
   } catch (e) {
-    console.error(e);
+    if (e instanceof jwt.TokenExpiredError) {
+    } else {
+      console.error(e);
+    }
   }
 
   generateBase64(req);
