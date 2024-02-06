@@ -77,8 +77,6 @@ const ChartFormField = (props: Props) => {
     const { startDate, endDate } = dateRange;
 
     if (setFilter) {
-      console.log('setFilter');
-
       setFilter('startDate', startDate);
       setFilter('endDate', endDate);
     }

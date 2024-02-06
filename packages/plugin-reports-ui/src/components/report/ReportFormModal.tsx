@@ -36,9 +36,6 @@ const ReportFormModal = (props: Props) => {
     chartsOfReportTemplate,
   } = props;
 
-  // console.log(chartTemplates, ' c templates');
-  console.log(chartTemplates, ' charts');
-
   const [totalFilters, setTotalFilters] = useState<any[]>([{}]);
   const [visibility, setVisibility] = useState('public');
   const [userIds, setUserIds] = useState([]);

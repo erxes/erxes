@@ -18,8 +18,6 @@ const CommonForm = (props: Props) => {
   );
   const [showModal, setShowModal] = useState(false);
 
-  console.log(serviceName, ' service name');
-
   return (
     <MarginX margin={20}>
       <ModalTrigger
