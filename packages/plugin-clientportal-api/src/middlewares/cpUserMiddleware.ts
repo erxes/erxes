@@ -2,7 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-
+import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
 import { generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
@@ -40,11 +40,7 @@ export default async function cpUserMiddleware(
     return next();
   }
 
-  const authHeader = req.headers.authorization;
-
-  const token = req.cookies['client-auth-token']
-    ? req.cookies['client-auth-token']
-    : authHeader && authHeader.split(' ')[1];
+  const token = extractClientportalToken(req);
 
   if (!token) {
     return next();
