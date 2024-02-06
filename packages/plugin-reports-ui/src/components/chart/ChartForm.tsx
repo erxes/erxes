@@ -147,7 +147,7 @@ const ChartForm = (props: Props) => {
       return;
     }
 
-    if (!value.length) {
+    if (Array.isArray(value) && !value.length) {
       delete filters[fieldName];
       setFilters({ ...filters });
       return;

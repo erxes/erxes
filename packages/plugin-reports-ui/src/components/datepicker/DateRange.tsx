@@ -45,6 +45,8 @@ const DateRange = (props: Props) => {
       return;
     }
 
+    console.log('save', dateRange);
+
     onSaveButton(dateRange);
     closePopover();
   };

@@ -45,8 +45,6 @@ const ChartFormField = (props: Props) => {
       return true;
     }
 
-    console.log(fieldValues, ' heheh');
-
     for (const logic of fieldLogics) {
       const { logicFieldName, logicFieldValue } = logic;
       if (!fieldValues[logicFieldName]) {
@@ -79,6 +77,8 @@ const ChartFormField = (props: Props) => {
     const { startDate, endDate } = dateRange;
 
     if (setFilter) {
+      console.log('setFilter');
+
       setFilter('startDate', startDate);
       setFilter('endDate', endDate);
     }

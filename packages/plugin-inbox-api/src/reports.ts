@@ -51,7 +51,7 @@ const getDates = (startDate: Date, endDate: Date) => {
   let currentDate = new Date(startDate);
 
   // Loop through each day between start and end dates
-  while (currentDate <= endDate) {
+  while (dayjs(currentDate) <= dayjs(endDate)) {
     // Calculate the start date of the current day (00:00:00)
     let startOfDay = new Date(currentDate);
     startOfDay.setHours(0, 0, 0, 0);
@@ -82,7 +82,7 @@ const getMonths = (startDate: Date, endDate: Date) => {
   let currentDate = new Date(startDate);
 
   // Loop through each month between start and end dates
-  while (currentDate <= endDate) {
+  while (dayjs(currentDate) <= dayjs(endDate)) {
     // Get the year and month of the current date
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -118,7 +118,7 @@ const getWeeks = (startDate: Date, endDate: Date) => {
   currentDate.setDate(currentDate.getDate() - currentDate.getDay());
 
   // Loop through each week between start and end dates
-  while (currentDate <= endDate) {
+  while (dayjs(currentDate) <= dayjs(endDate)) {
     // Calculate the start date of the current week
     const startOfWeek = new Date(currentDate);
 
@@ -243,8 +243,8 @@ const returnDateRange = (dateRange: string, startDate: Date, endDate: Date) => {
       $lte = dayjs(NOW).add(-1, 'year').endOf('year').toDate();
       break;
     case 'customDate':
-      $gte = startDate;
-      $lte = endDate;
+      $gte = new Date(startDate);
+      $lte = new Date(endDate);
       break;
     // all
     default:
@@ -280,20 +280,16 @@ const returnDateRanges = (
     if (customDateFrequencyType) {
       switch (customDateFrequencyType) {
         case 'byMonth':
-          console.log('byMonth');
           dateRanges = getMonths($gte, $lte);
-          break;
+          return dateRanges;
         case 'byWeek':
-          console.log('byWeek ', $gte, $lte);
           dateRanges = getWeeks($gte, $lte);
-          break;
+          return dateRanges;
       }
     }
-
+    // by date
     dateRanges = getDates($gte, $lte);
   }
-
-  console.log(dateRange, dateRanges);
 
   return dateRanges;
 };
@@ -1388,10 +1384,10 @@ const chartTemplates = [
               },
             ]);
 
-          data.push(
-            ...(convosCountByGivenDateRanges?.map((c) => c.count) || ''),
-          );
+          const getCountsArray =
+            convosCountByGivenDateRanges?.map((c) => c.count) || [];
 
+          data.push(...getCountsArray);
           labels.push(...dateRanges.map((m) => m.label));
 
           const title = `Conversations count of ${dateRange}`;
