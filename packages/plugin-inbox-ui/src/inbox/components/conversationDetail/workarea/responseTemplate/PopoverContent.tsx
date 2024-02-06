@@ -44,6 +44,7 @@ type State = {
   brandId?: string;
   searchValue: string;
   options: IResponseTemplate[];
+  timer: NodeJS.Timer | undefined;
 };
 
 class PopoverContent extends React.Component<Props, State> {
@@ -54,6 +55,7 @@ class PopoverContent extends React.Component<Props, State> {
       searchValue: props.searchValue,
       brandId: props.brandId,
       options: props.responseTemplates,
+      timer: undefined,
     };
   }
 
@@ -141,8 +143,24 @@ class PopoverContent extends React.Component<Props, State> {
 
     const onChangeSearchValue = (e) => {
       const searchValue = e.target.value; // Assuming searchValue is extracted from the event
+
+      const textContent = searchValue.toLowerCase().replace(/<[^>]+>/g, '');
+      if (textContent) {
+        const { timer } = this.state;
+
+        if (timer) {
+          clearTimeout(timer);
+          this.setState({ timer: undefined });
+        }
+
+        this.setState({
+          timer: setTimeout(() => {
+            this.props.refetchResponseTemplates(textContent, '', 1, 20);
+          }, 1000),
+        });
+      }
       this.setState({ searchValue }); // Update the state with the new searchValue
-      this.props.refetchResponseTemplates(searchValue, '', 1, 20);
+      // this.props.refetchResponseTemplates(searchValue, '', 1, 20);
     };
 
     const onChangeBrand = (e) => {
