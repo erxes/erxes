@@ -24,7 +24,7 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/pl:facebook/fblogin`,
+    `${DOMAIN}/gateway/pl:facebook/fblogin`,
   );
 
   const conf = {

@@ -32,9 +32,7 @@ export const initBroker = async () => {
       return;
     }
 
-    // setTimeout(async () => {
     await receiveTrigger({ models, subdomain, type, targets });
-    // }, 10000);
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {
