@@ -70,9 +70,7 @@ const automationQueries = {
     const filter = generateFilter(params);
 
     const automations = paginate(
-      models.Automations.find(filter)
-        .sort({ createdAt: -1 })
-        .lean(),
+      models.Automations.find(filter).sort({ createdAt: -1 }).lean(),
       { perPage, page }
     );
 
@@ -241,9 +239,11 @@ const automationQueries = {
         }
 
         if (!!pluginConstants?.emailRecipientTypes?.length) {
-          const updatedEmailRecipIentTypes = pluginConstants.emailRecipientTypes.map(
-            eRT => ({ ...eRT, serviceName })
-          );
+          const updatedEmailRecipIentTypes =
+            pluginConstants.emailRecipientTypes.map(eRT => ({
+              ...eRT,
+              serviceName
+            }));
           constants.actionsConst = constants.actionsConst.map(actionConst =>
             actionConst.type === 'sendEmail'
               ? {

@@ -22,13 +22,12 @@ import TemplateForm from '../../containers/forms/TemplateForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import {
   ActionBarButtonsWrapper,
-  BackButton,
-  BackIcon,
   CenterBar,
   RightDrawerContainer,
   Title,
   ToggleWrapper
 } from '../../styles';
+import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
 import {
   AutomationConstants,
   IAutomation,
@@ -96,9 +95,7 @@ class Editor extends React.Component<Props, State> {
   }
 
   getNewId = (checkIds: string[]) => {
-    let newId = Math.random()
-      .toString(36)
-      .slice(-8);
+    let newId = Math.random().toString(36).slice(-8);
 
     if (checkIds.includes(newId)) {
       newId = this.getNewId(checkIds);
@@ -152,7 +149,8 @@ class Editor extends React.Component<Props, State> {
           label: t.label,
           description: t.description,
           actionId: t.actionId,
-          position: t.position
+          position: t.position,
+          isCustom: t.isCustom
         })),
         actions: actions.map(a => ({
           id: a.id,
@@ -348,6 +346,10 @@ class Editor extends React.Component<Props, State> {
 
     if (currentTab === 'triggers') {
       if (showTrigger && activeTrigger) {
+        const triggerConst = triggersConst.find(
+          triggersConst => triggersConst.type === activeTrigger.type
+        );
+
         return (
           <>
             <BackIcon onClick={onBack}>
@@ -359,6 +361,7 @@ class Editor extends React.Component<Props, State> {
                 addConfig={this.addTrigger}
                 closeModal={onBack}
                 contentId={selectedContentId}
+                triggerConst={triggerConst || ({} as ITrigger)}
               />
             </ScrolledContent>
           </>

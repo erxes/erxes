@@ -7,8 +7,6 @@ import { IAction } from '@erxes/ui-automations/src/types';
 import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
-  BackButton,
-  BackIcon,
   CenterBar,
   Container,
   RightDrawerContainer,
@@ -17,6 +15,7 @@ import {
   ZoomActions,
   ZoomIcon
 } from '../../styles';
+import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { Alert, __ } from 'coreui/utils';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
@@ -430,9 +429,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   getNewId = (checkIds: string[]) => {
-    let newId = Math.random()
-      .toString(36)
-      .slice(-8);
+    let newId = Math.random().toString(36).slice(-8);
 
     if (checkIds.includes(newId)) {
       newId = this.getNewId(checkIds);
@@ -536,8 +533,8 @@ class AutomationForm extends React.Component<Props, State> {
 
     return `
       <div class="note-badge note-badge-${key}" title=${__(
-      'Notes'
-    )} id="${key}">
+        'Notes'
+      )} id="${key}">
         <i class="icon-notes"></i>
       </div>
     `;
@@ -565,8 +562,8 @@ class AutomationForm extends React.Component<Props, State> {
             <div>
               <i class="icon-notes add-note" title=${__('Write Note')}></i>
               <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
-      'Delete control'
-    )}></i>
+                'Delete control'
+              )}></i>
             </div>
           </div>
           <div>

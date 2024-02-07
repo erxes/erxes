@@ -351,6 +351,17 @@ export const setProperty = async ({
         if (rule.field.includes(complexFieldKey)) {
           const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
 
+          const field = await sendCommonMessage({
+            subdomain,
+            serviceName: 'forms',
+            action: 'fields.findOne',
+            data: {
+              query: { _id: fieldId },
+            },
+            isRPC: true,
+            defaultValue: {},
+          });
+
           const complexFieldData = await sendCommonMessage({
             subdomain,
             serviceName: 'forms',
@@ -358,6 +369,7 @@ export const setProperty = async ({
             data: {
               field: fieldId,
               value,
+              type: field?.type,
             },
             isRPC: true,
           });

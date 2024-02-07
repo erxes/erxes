@@ -91,7 +91,8 @@ const generateNode = (
     label,
     description,
     icon,
-    config
+    config,
+    isCustom
   } = node;
 
   return {
@@ -108,7 +109,7 @@ const generateNode = (
     },
     position: node?.position || generatNodePosition(nodes, node),
     isConnectable: true,
-    type: 'custom',
+    type: 'primary',
     style: {
       zIndex: -1
     }
