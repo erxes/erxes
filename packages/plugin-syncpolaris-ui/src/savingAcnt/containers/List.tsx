@@ -23,10 +23,6 @@ type FinalProps = {
   IRouterProps;
 
 class SavingContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;
