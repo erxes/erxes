@@ -363,6 +363,12 @@ export const getOrCreateComment = async (
           : error,
       );
     }
+    await putCreateLog(
+      models,
+      subdomain,
+      { type: 'comment', newData: comment, object: comment },
+      userId,
+    );
     return;
   } catch (error) {
     await models.CommentConversation.deleteOne({

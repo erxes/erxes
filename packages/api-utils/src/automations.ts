@@ -230,11 +230,9 @@ const getPerValue = async (args: {
   }
 
   if (field.includes('Ids')) {
-    //
-    const set = [
-      new Set((updatedValue || '').trim().replace(/, /g, ',').split(',') || []),
-    ];
-    updatedValue = [...set];
+    const ids: string[] =
+      (updatedValue || '').trim().replace(/, /g, ',').split(',') || [];
+    updatedValue = Array.from(new Set(ids));
   }
 
   if (

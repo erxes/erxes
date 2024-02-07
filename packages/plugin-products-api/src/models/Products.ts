@@ -173,14 +173,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         doc.customFieldsData,
       );
 
-      doc.customFieldsData = await initCustomField(
-        subdomain,
-        category,
-        doc.code || product.code,
-        product.customFieldsData,
-        doc.customFieldsData,
-      );
-
       await models.Products.updateOne({ _id }, { $set: doc });
 
       return await models.Products.findOne({ _id }).lean();
