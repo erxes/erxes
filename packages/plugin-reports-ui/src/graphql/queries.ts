@@ -1,6 +1,15 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 const tagsAvailable = isEnabled('tags') ? true : false;
 
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
 const userFields = `
   _id
   username
@@ -253,6 +262,14 @@ const pipelines = `
   }
 `;
 
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
+
 export default {
   reportsList,
   allBrands,
@@ -267,5 +284,6 @@ export default {
   tags,
   boards,
   pipelines,
+  pipelineLabels,
   stages,
 };
