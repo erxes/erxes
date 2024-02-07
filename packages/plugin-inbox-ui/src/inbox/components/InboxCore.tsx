@@ -44,7 +44,6 @@ class Inbox extends React.Component<Props> {
           title={'Conversation'}
           queryParams={queryParams}
           submenu={menuInbox}
-          additionalMenuItem={ReportsFormButton}
         />
         <Contents>
           <Sidebar
