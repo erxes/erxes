@@ -54,6 +54,7 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   refetchMessages: () => void;
   refetchDetail: () => void;
+  refetchResponseTemplates: (content: string) => void;
   mentionSuggestion?: MentionSuggestionParams;
 };
 
@@ -68,7 +69,7 @@ type State = {
   editorKey: string;
   loading: object;
   extraInfo?: any;
-  timer: NodeJS.Timer;
+  timer: NodeJS.Timer | undefined;
 };
 
 const Editor = asyncComponent(

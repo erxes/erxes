@@ -388,6 +388,11 @@ export const itemsEdit = async (
     });
   }
 
+  // exclude [null]
+  if (doc.tagIds && doc.tagIds.length) {
+    doc.tagIds = doc.tagIds.filter((ti) => ti);
+  }
+
   putUpdateLog(
     models,
     subdomain,
