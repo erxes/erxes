@@ -95,11 +95,8 @@ function EditForm({
       setActiveItem(!activeItem ? type : '');
     };
 
-    const handleCheck = (e) => {
-      onChangeCondtion(type, {
-        ...condition,
-        isSelected: !condition?.isSelected,
-      });
+    const handleCheck = (isSelected) => {
+      onChangeCondtion(type, { ...condition, isSelected });
     };
 
     const isDisabled = type !== 'getStarted' && !Object.keys(condition).length;
@@ -107,21 +104,13 @@ function EditForm({
     return (
       <div key={type}>
         <TriggerItem>
-          <Tip
-            text={
-              isDisabled
-                ? 'Please provide configuration of condition before click'
-                : ''
-            }
-          >
-            <FormControl
-              color={colors.colorCoreBlue}
-              componentClass="radio"
-              checked={condition?.isSelected}
-              onChange={handleCheck}
-              disabled={isDisabled}
-            />
-          </Tip>
+          <FormControl
+            color={colors.colorCoreBlue}
+            componentClass="radio"
+            checked={condition?.isSelected}
+            onClick={() => handleCheck(!condition?.isSelected)}
+            disabled={isDisabled}
+          />
           <Icon icon={icon} />
           <div onClick={handleClick}>
             <label>{label}</label>
