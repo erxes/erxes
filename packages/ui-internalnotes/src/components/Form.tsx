@@ -86,9 +86,9 @@ class Form extends React.PureComponent<Prop, State> {
       <EditorActions>
         {content && (
           <Button
-            icon='cancel-1'
-            btnStyle='simple'
-            size='small'
+            icon="cancel-1"
+            btnStyle="simple"
+            size="small"
             onClick={callback}
           >
             Cancel
@@ -96,9 +96,9 @@ class Form extends React.PureComponent<Prop, State> {
         )}
         <Button
           onClick={this.clearContent}
-          btnStyle='warning'
-          size='small'
-          icon='eraser-1'
+          btnStyle="warning"
+          size="small"
+          icon="eraser-1"
         >
           Discard
         </Button>
@@ -106,8 +106,8 @@ class Form extends React.PureComponent<Prop, State> {
         <Button
           disabled={isActionLoading}
           onClick={this.onSend}
-          btnStyle='success'
-          size='small'
+          btnStyle="success"
+          size="small"
           icon={isActionLoading ? undefined : 'message'}
         >
           {isActionLoading && <SmallLoader />}

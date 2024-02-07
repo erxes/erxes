@@ -353,7 +353,7 @@ class Editor extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBack}>
-              <Icon icon='angle-left' size={20} /> {__('Back to triggers')}
+              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
             </BackIcon>
             <ScrolledContent>
               <TriggerDetailForm
@@ -383,7 +383,7 @@ class Editor extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon='angle-left' size={20} /> {__('Back to actions')}
+              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -421,17 +421,17 @@ class Editor extends React.Component<Props, State> {
     return (
       <>
         <Button
-          btnStyle='primary'
-          size='small'
-          icon='plus-circle'
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, { type: 'triggers' })}
         >
           Add a Trigger
         </Button>
         <Button
-          btnStyle='primary'
-          size='small'
-          icon='plus-circle'
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, { type: 'actions' })}
         >
           Add an Action
@@ -447,18 +447,18 @@ class Editor extends React.Component<Props, State> {
       <FlexContent>
         <Link to={`/automations`}>
           <BackButton>
-            <Icon icon='angle-left' size={20} />
+            <Icon icon="angle-left" size={20} />
           </BackButton>
         </Link>
         <Title>
           <FormControl
-            name='name'
+            name="name"
             value={name}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
           />
-          <Icon icon='edit-alt' size={16} />
+          <Icon icon="edit-alt" size={16} />
         </Title>
         <CenterBar>
           <Tabs full={true}>
@@ -539,13 +539,13 @@ class Editor extends React.Component<Props, State> {
     };
 
     const trigger = (
-      <Button btnStyle='primary' size='small' icon={'check-circle'}>
+      <Button btnStyle="primary" size="small" icon={'check-circle'}>
         Save as a template
       </Button>
     );
 
     return (
-      <ModalTrigger content={content} trigger={trigger} title='' hideHeader />
+      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
     );
   }
 
@@ -563,8 +563,8 @@ class Editor extends React.Component<Props, State> {
           {this.renderButtons()}
           {this.renderTemplateModal()}
           <Button
-            btnStyle='success'
-            size='small'
+            btnStyle="success"
+            size="small"
             icon={'check-circle'}
             onClick={this.handleSubmit}
           >
@@ -645,7 +645,7 @@ class Editor extends React.Component<Props, State> {
           <RTG.CSSTransition
             in={showDrawer}
             timeout={300}
-            classNames='slide-in-right'
+            classNames="slide-in-right"
             unmountOnExit={true}
           >
             <RightDrawerContainer>

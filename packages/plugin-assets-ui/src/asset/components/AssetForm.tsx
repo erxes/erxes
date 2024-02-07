@@ -115,7 +115,7 @@ function AssetForm({
 
     return (
       <ModalTrigger
-        title='Add Asset Category'
+        title="Add Asset Category"
         trigger={trigger}
         content={content}
       />
@@ -163,7 +163,7 @@ function AssetForm({
       (object.attachmentMore && extractAttachment(object.attachmentMore)) || [];
 
     const addCategoryTrigger = (
-      <Button btnStyle='primary' uppercase={false} icon='plus-circle'>
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add category
       </Button>
     );
@@ -185,8 +185,8 @@ function AssetForm({
           <FormGroup>
             <ControlLabel required={true}>Parent</ControlLabel>
             <SelectWithAssets
-              label='Choose Asset'
-              name='parentId'
+              label="Choose Asset"
+              name="parentId"
               multi={false}
               initialValue={object.parentId}
               onSelect={handleSelect}
@@ -211,8 +211,8 @@ function AssetForm({
           <ControlLabel required={true}>Category</ControlLabel>
           <FormWrapper>
             <SelectWithAssetCategory
-              label='Choose Asset Category'
-              name='categoryId'
+              label="Choose Asset Category"
+              name="categoryId"
               multi={false}
               initialValue={categoryDefaultValue()}
               onSelect={handleSelect}
@@ -232,7 +232,7 @@ function AssetForm({
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name='name'
+                name="name"
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -248,7 +248,7 @@ function AssetForm({
               </p>
               <FormControl
                 {...formProps}
-                name='code'
+                name="code"
                 defaultValue={object.code}
                 required={true}
               />
@@ -258,8 +258,8 @@ function AssetForm({
             <FormGroup>
               <ControlLabel>Vendor</ControlLabel>
               <SelectCompanies
-                label='Choose an vendor'
-                name='vendorId'
+                label="Choose an vendor"
+                name="vendorId"
                 customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={object.vendorId}
                 onSelect={onComboEvent.bind(this, 'vendorId')}
@@ -272,14 +272,14 @@ function AssetForm({
                 <ControlLabel required={true}>Unit price</ControlLabel>
                 <p>
                   Please ensure you have set the default currency in the{' '}
-                  <a href='/settings/general'> {'General Settings'}</a> of the
+                  <a href="/settings/general"> {'General Settings'}</a> of the
                   System Configuration.
                 </p>
               </div>
               <FormControl
                 {...formProps}
-                type='number'
-                name='unitPrice'
+                type="number"
+                name="unitPrice"
                 defaultValue={object.unitPrice}
                 required={true}
                 min={0}
@@ -357,9 +357,9 @@ function AssetForm({
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
             uppercase={false}
           >
             Close

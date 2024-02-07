@@ -153,15 +153,15 @@ class EmailForm extends React.Component<Props, State> {
     const optionRenderer = option => (
       <FlexContent>
         {!option.disabled ? (
-          <Tip placement='auto' text='Email verified'>
+          <Tip placement="auto" text="Email verified">
             <VerifyCheck>
-              <Icon icon='check-circle' />
+              <Icon icon="check-circle" />
             </VerifyCheck>
           </Tip>
         ) : (
-          <Tip placement='auto' text='Email not verified'>
+          <Tip placement="auto" text="Email not verified">
             <VerifyCancel>
-              <Icon icon='times-circle' />
+              <Icon icon="times-circle" />
             </VerifyCancel>
           </Tip>
         )}
@@ -205,14 +205,14 @@ class EmailForm extends React.Component<Props, State> {
           <ControlLabel>Send to the following email as test:</ControlLabel>
           <HelpPopover>Only one email address must be typed</HelpPopover>
           <FormControl
-            type='text'
+            type="text"
             onChange={onChange}
             defaultValue={testEmail}
           />
           <Button
             disabled={testEmail ? false : true}
-            btnStyle='primary'
-            icon='send'
+            btnStyle="primary"
+            icon="send"
             onClick={sendAsTest}
           >
             Send
@@ -243,11 +243,11 @@ class EmailForm extends React.Component<Props, State> {
 
     return (
       <FlexItem>
-        <FlexPad direction='column' overflow='auto'>
+        <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover title='The email address is not verified (x) by Amazon Ses services.'>
+              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
                 <div>
                   If you want to verify your email:
                   <ol>
@@ -319,7 +319,7 @@ class EmailForm extends React.Component<Props, State> {
           {this.renderTestEmailSection()}
         </FlexPad>
 
-        <FlexItem overflow='auto' count='2'>
+        <FlexItem overflow="auto" count="2">
           <EditorContainer>
             <ControlLabel>Content:</ControlLabel>
             <RichTextEditor

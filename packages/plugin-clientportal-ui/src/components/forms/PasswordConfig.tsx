@@ -142,8 +142,8 @@ const PasswordConfig = (props: Props) => {
         <ControlLabel required={true}>SMS Content</ControlLabel>
         <FlexContent>
           <FormControl
-            id='content'
-            name='smsContent'
+            id="content"
+            name="smsContent"
             value={config.smsContent}
             onChange={onChange}
           />
@@ -155,8 +155,8 @@ const PasswordConfig = (props: Props) => {
         <p>{__('Forgot password mail subject')}</p>
         <FlexContent>
           <FormControl
-            id='emailSubject'
-            name='emailSubject'
+            id="emailSubject"
+            name="emailSubject"
             value={config.emailSubject}
             onChange={onChange}
           />

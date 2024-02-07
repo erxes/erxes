@@ -276,7 +276,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     return (
       <BoardHeader>
         <FormGroup>
-          <div className='header-row'>
+          <div className="header-row">
             <ControlLabel required={required}>{label}</ControlLabel>
             <div>
               {this.renderSelect()}

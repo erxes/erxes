@@ -52,10 +52,10 @@ function GenerateButtons({
   buttons = [],
   onChange,
   emptyMessage,
-  extraActions,
+  extraActions
 }: Props) {
   const [_buttons, setButtons] = useState(
-    buttons as { text: string; _id: string; isEditing?: boolean }[],
+    buttons as { text: string; _id: string; isEditing?: boolean }[]
   );
 
   useEffect(() => {
@@ -66,14 +66,14 @@ function GenerateButtons({
     return _buttons.map(({ _id, text }) => ({ _id, text }));
   };
 
-  const onChangeButtons = (buttons) => {
+  const onChangeButtons = buttons => {
     onChange(buttons);
   };
 
   const renderButton = (button: any) => {
     const onChange = (name, value) => {
-      const updateButtons = _buttons.map((btn) =>
-        btn._id === button._id ? { ...btn, [name]: value } : btn,
+      const updateButtons = _buttons.map(btn =>
+        btn._id === button._id ? { ...btn, [name]: value } : btn
       );
 
       setButtons(updateButtons);
@@ -83,13 +83,13 @@ function GenerateButtons({
       onChange('isEditing', true);
     };
 
-    const handleEdit = (e) => {
+    const handleEdit = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       onChange('text', value);
     };
 
-    const onSave = (e) => {
+    const onSave = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       e.preventDefault();
@@ -103,7 +103,7 @@ function GenerateButtons({
 
     const onRemove = () => {
       const updateButtons = generateButtons().filter(
-        (btn) => btn._id !== button._id,
+        btn => btn._id !== button._id
       );
 
       onChangeButtons(updateButtons);
@@ -117,7 +117,7 @@ function GenerateButtons({
             onChange={handleEdit}
             value={button.text}
             onBlur={onSave}
-            onKeyPress={(e) => e.key === 'Enter' && onSave(e)}
+            onKeyPress={e => e.key === 'Enter' && onSave(e)}
           />
         ) : (
           button.text
@@ -145,7 +145,7 @@ function GenerateButtons({
   const handleAddButton = () => {
     onChangeButtons([
       ...generateButtons(),
-      { _id: Math.random().toString(), text: '', isEditing: true },
+      { _id: Math.random().toString(), text: '', isEditing: true }
     ]);
   };
 

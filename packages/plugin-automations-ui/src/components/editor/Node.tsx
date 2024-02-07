@@ -64,7 +64,7 @@ export const ScratchNode = ({ data }: Props) => {
 
   return (
     <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
-      <Icon icon='file-plus' size={25} />
+      <Icon icon="file-plus" size={25} />
       <p>{__('How do you want to trigger this automation')}?</p>
     </CommonScratchNode>
   );
@@ -83,7 +83,7 @@ const renderTriggerContent = (
 
   if (!!constant?.isCustom) {
     return (
-      <div className='triggerContent'>
+      <div className="triggerContent">
         {renderDynamicComponent(
           {
             componentType: 'triggerContent',
@@ -160,11 +160,11 @@ export default memo(({ id, data }: Props) => {
     };
 
     const trigger = (
-      <i className='icon-notes add-note' title={__('Write Note')}></i>
+      <i className="icon-notes add-note" title={__('Write Note')}></i>
     );
 
     return (
-      <ModalTrigger content={content} trigger={trigger} title='' hideHeader />
+      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
     );
   };
 
@@ -185,7 +185,7 @@ export default memo(({ id, data }: Props) => {
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
-        type='source'
+        type="source"
         position={Position.Right}
         onClick={handleOnClick.bind(this, {
           optionId: `${id}-${optionalId}-right`,
@@ -204,7 +204,7 @@ export default memo(({ id, data }: Props) => {
     );
 
     return (
-      <div className='optional-connects'>
+      <div className="optional-connects">
         {renderDynamicComponent(
           {
             componentType: 'optionalContent',
@@ -230,12 +230,12 @@ export default memo(({ id, data }: Props) => {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <div className='header'>
-          <div className='custom-menu'>
+        <div className="header">
+          <div className="custom-menu">
             <div>
               {renderNote()}
               <i
-                className='icon-trash-alt delete-control'
+                className="icon-trash-alt delete-control"
                 onClick={removeNode}
                 title={__('Delete')}
               ></i>
@@ -262,7 +262,7 @@ export default memo(({ id, data }: Props) => {
           showHandler(data, option) && (
             <Handle
               key={option.id}
-              type='source'
+              type="source"
               position={option.position}
               id={option.id}
               onClick={handleOnClick.bind(this, { optionId: option.id })}

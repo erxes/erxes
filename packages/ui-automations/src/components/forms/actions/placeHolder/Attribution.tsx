@@ -110,13 +110,13 @@ export default class Attribution extends React.Component<Props, State> {
     console.log({ last: filterAttrs });
 
     return (
-      <Popover id='attribute-popover'>
+      <Popover id="attribute-popover">
         <Attributes>
           <React.Fragment>
             <FormGroup>
               <ControlLabel>{__('Search')}</ControlLabel>
               <FormControl
-                placeholder='type a search'
+                placeholder="type a search"
                 value={searchValue}
                 onChange={onSearch}
               />
@@ -144,14 +144,14 @@ export default class Attribution extends React.Component<Props, State> {
         ref={overlay => {
           this.overlay = overlay;
         }}
-        trigger='click'
-        placement='top'
+        trigger="click"
+        placement="top"
         overlay={this.renderContent()}
         rootClose={true}
         container={this}
       >
         <span>
-          {__('Attribution')} <Icon icon='angle-down' />
+          {__('Attribution')} <Icon icon="angle-down" />
         </span>
       </OverlayTrigger>
     );

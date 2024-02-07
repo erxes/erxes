@@ -90,7 +90,7 @@ function Appearance({
       <FormGroup>
         <ColorChooserTile>{label}</ColorChooserTile>
         <Select
-          placeholder='Please select a font'
+          placeholder="Please select a font"
           value={value}
           options={generateOptions()}
           onChange={handleSelect}
@@ -113,14 +113,14 @@ function Appearance({
         <ColorChooserTile>{__(label)}</ColorChooserTile>
         <div>
           <OverlayTrigger
-            trigger='click'
+            trigger="click"
             rootClose={true}
-            placement='bottom'
+            placement="bottom"
             overlay={
               <Popover id={name}>
                 <TwitterPicker
-                  width='266px'
-                  triangle='hide'
+                  width="266px"
+                  triangle="hide"
                   color={{ hex: value || COLORS[0] }}
                   onChange={handleChange}
                   colors={COLORS}
@@ -328,7 +328,7 @@ function Appearance({
               content={headerHtml}
               onChange={onHeaderChange}
               height={200}
-              name='clientportal-header'
+              name="clientportal-header"
             />
           </FormGroup>
         </FlexContent>
@@ -341,7 +341,7 @@ function Appearance({
               content={footerHtml}
               onChange={onFooterChange}
               height={200}
-              name='clientportal-footer'
+              name="clientportal-footer"
             />
           </FormGroup>
         </FlexContent>

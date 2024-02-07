@@ -80,7 +80,7 @@ class PageForm extends React.Component<Props, State> {
               <ControlLabel required={true}>{__('Title')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='title'
+                name="title"
                 defaultValue={object.title}
                 required={true}
                 autoFocus={true}
@@ -92,7 +92,7 @@ class PageForm extends React.Component<Props, State> {
               <ControlLabel>{__('Code')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='code'
+                name="code"
                 defaultValue={object.code}
               />
             </FormGroup>
@@ -104,7 +104,7 @@ class PageForm extends React.Component<Props, State> {
               <ControlLabel>{__('Thumbnail')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='thumbnail'
+                name="thumbnail"
                 defaultValue={object.thumbnail}
               />
             </FormGroup>
@@ -114,8 +114,8 @@ class PageForm extends React.Component<Props, State> {
               <ControlLabel>{__('List Order')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='listOrder'
-                type='number'
+                name="listOrder"
+                type="number"
                 defaultValue={object.listOrder}
               />
             </FormGroup>
@@ -126,8 +126,8 @@ class PageForm extends React.Component<Props, State> {
           <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='description'
-            componentClass='textarea'
+            name="description"
+            componentClass="textarea"
             defaultValue={object.description}
           />
         </FormGroup>
@@ -145,10 +145,10 @@ class PageForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             {__('Cancel')}
           </Button>

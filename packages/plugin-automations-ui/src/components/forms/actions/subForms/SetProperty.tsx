@@ -210,8 +210,8 @@ class SetProperty extends React.Component<Props, State> {
           </FormGroup>
 
           <PlaceHolderInput
-            inputName='value'
-            label='Value'
+            inputName="value"
+            label="Value"
             config={rule}
             onChange={onChangeValue}
             triggerType={triggerType}
@@ -235,10 +235,10 @@ class SetProperty extends React.Component<Props, State> {
 
           <Tip text={'Delete'}>
             <Button
-              btnStyle='simple'
-              size='small'
+              btnStyle="simple"
+              size="small"
               onClick={this.removeRule.bind(this, rule.id)}
-              icon='times'
+              icon="times"
             />
           </Tip>
         </GroupWrapper>
@@ -270,10 +270,10 @@ class SetProperty extends React.Component<Props, State> {
         {this.renderPerValue()}
 
         <Button
-          btnStyle='simple'
-          type='button'
+          btnStyle="simple"
+          type="button"
           onClick={this.addRule}
-          icon='add'
+          icon="add"
         >
           {__('Add Rule')}
         </Button>

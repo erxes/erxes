@@ -154,12 +154,12 @@ class WidgetForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Channel:</ControlLabel>
           <FormControl
-            componentClass='select'
+            componentClass="select"
             onChange={this.onChannelChange}
             defaultValue={this.state.channel}
           >
-            <option value='email'>{__('Email')}</option>
-            <option value='messenger'>{__('Messenger')}</option>
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
           </FormControl>
         </FormGroup>
       </Half>
@@ -193,7 +193,7 @@ class WidgetForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Brand:</ControlLabel>
 
-              <FormControl id='brandId' componentClass='select' required={true}>
+              <FormControl id="brandId" componentClass="select" required={true}>
                 <option />
                 {this.props.brands.map((b, index) => (
                   <option key={`brand-${index}`} value={b._id}>
@@ -209,8 +209,8 @@ class WidgetForm extends React.Component<Props, State> {
                     <ControlLabel required={true}>Messenger kind:</ControlLabel>
 
                     <FormControl
-                      id='messengerKind'
-                      componentClass='select'
+                      id="messengerKind"
+                      componentClass="select"
                       required={true}
                     >
                       <option />
@@ -227,9 +227,9 @@ class WidgetForm extends React.Component<Props, State> {
                     <ControlLabel>Sent as:</ControlLabel>
 
                     <FormControl
-                      id='sentAs'
+                      id="sentAs"
                       defaultValue={this.state.sentAs}
-                      componentClass='select'
+                      componentClass="select"
                       onChange={this.onSentAsChange}
                     >
                       {this.props.sentAsChoices.map((t, index) => (
@@ -266,7 +266,7 @@ class WidgetForm extends React.Component<Props, State> {
         <Half>
           <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
-            <FormControl id='emailSubject' type='text' required={true} />
+            <FormControl id="emailSubject" type="text" required={true} />
           </FormGroup>
 
           <FormGroup>
@@ -303,8 +303,8 @@ class WidgetForm extends React.Component<Props, State> {
             <ControlLabel required={true}>Title:</ControlLabel>
             <FormControl
               autoFocus={true}
-              id='title'
-              type='text'
+              id="title"
+              type="text"
               required={true}
             />
           </FormGroup>
@@ -313,10 +313,10 @@ class WidgetForm extends React.Component<Props, State> {
         {this.renderFormContent()}
 
         <ModalFooter>
-          <Button btnStyle='simple' icon='times-circle' onClick={this.close}>
+          <Button btnStyle="simple" icon="times-circle" onClick={this.close}>
             Close
           </Button>
-          <Button type='submit' btnStyle='success' icon='message'>
+          <Button type="submit" btnStyle="success" icon="message">
             Send
           </Button>
         </ModalFooter>

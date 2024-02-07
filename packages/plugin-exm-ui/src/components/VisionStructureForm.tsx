@@ -77,7 +77,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        name='exm'
+        name="exm"
         renderButton={this.props.renderButton}
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}

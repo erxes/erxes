@@ -67,9 +67,9 @@ const Description = (props: DescProps) => {
     return (
       <EditorActions>
         <Button
-          icon='times-circle'
-          btnStyle='simple'
-          size='small'
+          icon="times-circle"
+          btnStyle="simple"
+          size="small"
           onClick={toggleEdit}
         >
           Cancel
@@ -77,9 +77,9 @@ const Description = (props: DescProps) => {
         {item.description !== description && (
           <Button
             onClick={onSend}
-            btnStyle='success'
-            size='small'
-            icon='check-circle'
+            btnStyle="success"
+            size="small"
+            icon="check-circle"
           >
             Save
           </Button>
@@ -93,7 +93,7 @@ const Description = (props: DescProps) => {
       <ContentWrapper isEditing={edit}>
         <TitleRow>
           <ControlLabel>
-            <Icon icon='align-left-justify' />
+            <Icon icon="align-left-justify" />
             {__('Description')}
           </ControlLabel>
         </TitleRow>
@@ -187,7 +187,7 @@ const Left = (props: Props) => {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon='label-alt' />
+              <Icon icon="label-alt" />
               {__('Labels')}
             </ControlLabel>
           </TitleRow>
@@ -199,7 +199,7 @@ const Left = (props: Props) => {
       <FormGroup>
         <TitleRow>
           <ControlLabel>
-            <Icon icon='paperclip' />
+            <Icon icon="paperclip" />
             {__('Attachments')}
           </ControlLabel>
         </TitleRow>

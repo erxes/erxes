@@ -132,7 +132,7 @@ class EditForm extends React.Component<Props, State> {
           <ControlLabel required={true}>title</ControlLabel>
           <FormControl
             {...formProps}
-            name='title'
+            name="title"
             defaultValue={assignmentCampaign.title}
             autoFocus={true}
             required={true}
@@ -148,7 +148,7 @@ class EditForm extends React.Component<Props, State> {
                 <DateControl
                   {...formProps}
                   required={true}
-                  name='startDate'
+                  name="startDate"
                   placeholder={__('Start date')}
                   value={assignmentCampaign.startDate}
                   onChange={this.onDateInputChange.bind(this, 'startDate')}
@@ -164,7 +164,7 @@ class EditForm extends React.Component<Props, State> {
                 <DateControl
                   {...formProps}
                   required={true}
-                  name='endDate'
+                  name="endDate"
                   placeholder={__('End date')}
                   value={assignmentCampaign.endDate}
                   onChange={this.onDateInputChange.bind(this, 'endDate')}
@@ -180,7 +180,7 @@ class EditForm extends React.Component<Props, State> {
                 <DateControl
                   {...formProps}
                   required={true}
-                  name='finishDateOfUse'
+                  name="finishDateOfUse"
                   placeholder={__('Finish date of use')}
                   value={assignmentCampaign.finishDateOfUse}
                   onChange={this.onDateInputChange.bind(
@@ -197,8 +197,8 @@ class EditForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
-                name='segmentIds'
-                label='Choose segments'
+                name="segmentIds"
+                label="Choose segments"
                 initialValue={this.state.assignmentCampaign.segmentIds}
                 contentTypes={['contacts:customer', 'contacts:lead']}
                 multi={true}
@@ -221,7 +221,7 @@ class EditForm extends React.Component<Props, State> {
               label: `${voucher.title}`,
               value: voucher._id
             }))}
-            name='voucherCampaignId'
+            name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
             loadingPlaceholder={__('Loading...')}
           />
@@ -275,9 +275,9 @@ class EditForm extends React.Component<Props, State> {
         <FormFooter>
           <Link to={`/erxes-plugin-loyalty/settings/assignment`}>
             <Button
-              btnStyle='simple'
+              btnStyle="simple"
               onClick={() => {}}
-              icon='times-circle'
+              icon="times-circle"
               uppercase={false}
             >
               Close
@@ -325,8 +325,8 @@ class EditForm extends React.Component<Props, State> {
           <DataWithLoader
             data={content}
             loading={false}
-            emptyText='There is no data'
-            emptyImage='/images/actions/5.svg'
+            emptyText="There is no data"
+            emptyImage="/images/actions/5.svg"
           />
         }
         leftSidebar={<Sidebar />}

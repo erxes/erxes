@@ -163,7 +163,7 @@ class SuccessStep extends React.Component<Props, State> {
           </ControlLabel>
           <p>{__('Verification button would be added to the email.')}</p>
           <Toggle
-            id='saveAsCustomer'
+            id="saveAsCustomer"
             checked={this.props.verifyEmail || false}
             onChange={(e: any) => {
               this.onChangeFunction('verifyEmail', e.target.checked);
@@ -177,8 +177,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Send from</label>
           <FormControl
-            type='text'
-            id='fromEmail'
+            type="text"
+            id="fromEmail"
             defaultValue={leadData.fromEmail}
             onChange={fromEmailOnChange}
           />
@@ -186,8 +186,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
-            type='text'
-            id='userEmailTitle'
+            type="text"
+            id="userEmailTitle"
             defaultValue={leadData.userEmailTitle}
             onChange={userEmailTitle}
           />
@@ -228,8 +228,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Admin emails</label>
           <FormControl
-            id='adminEmails'
-            type='text'
+            id="adminEmails"
+            type="text"
             defaultValue={
               leadData.adminEmails ? leadData.adminEmails.join(',') : ''
             }
@@ -239,9 +239,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
-            type='text'
+            type="text"
             defaultValue={leadData.adminEmailTitle}
-            id='adminEmailTitle'
+            id="adminEmailTitle"
             onChange={adminEmailTitle}
           />
         </FormGroup>
@@ -274,9 +274,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Redirect to this page after submission</ControlLabel>
           <FormControl
-            type='text'
+            type="text"
             defaultValue={leadData.redirectUrl}
-            id='redirectUrl'
+            id="redirectUrl"
             onChange={onChange}
           />
         </FormGroup>
@@ -317,9 +317,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
-            id='thankTitle'
-            type='text'
-            componentClass='textinput'
+            id="thankTitle"
+            type="text"
+            componentClass="textinput"
             defaultValue={thankTitle}
             onChange={onChangeTitle}
           />
@@ -327,9 +327,9 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Confirmation message</ControlLabel>
           <FormControl
-            id='thankContent'
-            type='text'
-            componentClass='textarea'
+            id="thankContent"
+            type="text"
+            componentClass="textarea"
             defaultValue={thankContent}
             onChange={onChangeContent}
           />
@@ -342,13 +342,13 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Confirm image size</ControlLabel>
           <FormControl
-            id='validation'
-            componentClass='select'
+            id="validation"
+            componentClass="select"
             value={successImageSize}
             onChange={onChangeImageWidth}
           >
-            <option value='100%'>{__('Full width')}</option>
-            <option value='50%'>{__('Half width')}</option>
+            <option value="100%">{__('Full width')}</option>
+            <option value="50%">{__('Half width')}</option>
           </FormControl>
         </FormGroup>
       </div>
@@ -405,13 +405,13 @@ class SuccessStep extends React.Component<Props, State> {
     if (!successImage) {
       return (
         <>
-          <Icon icon='plus' />
+          <Icon icon="plus" />
           {__('Upload')}
         </>
       );
     }
 
-    return <ImagePreview src={readFile(successImage)} alt='previewImage' />;
+    return <ImagePreview src={readFile(successImage)} alt="previewImage" />;
   }
 
   renderUploadImage() {
@@ -426,18 +426,18 @@ class SuccessStep extends React.Component<Props, State> {
       <ImageUpload>
         <label>
           <input
-            type='file'
+            type="file"
             onChange={onChange}
-            accept='image/x-png,image/jpeg'
+            accept="image/x-png,image/jpeg"
           />
           {this.renderImagePreview()}
         </label>
 
         {successImage && (
           <Button
-            btnStyle='link'
-            icon='cancel'
-            size='small'
+            btnStyle="link"
+            icon="cancel"
+            size="small"
             onClick={onClick}
           />
         )}
@@ -458,10 +458,10 @@ class SuccessStep extends React.Component<Props, State> {
               {__(`You can set only one confirmation message type at a time.`)}
             </p>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               defaultValue={successAction}
               onChange={this.handleSuccessActionChange}
-              id='successAction'
+              id="successAction"
             >
               {this.renderSelectOptions()}
             </FormControl>

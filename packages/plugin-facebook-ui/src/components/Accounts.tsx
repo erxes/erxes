@@ -63,14 +63,14 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     if (kind === 'facebook') {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon='facebook-official' />
+          <Icon icon="facebook-official" />
           {__('Continue with Facebook')}
         </FacebookButton>
       );
     }
 
     return (
-      <Button btnStyle='primary' icon='plus-circle' onClick={onAdd}>
+      <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
         Add Account
       </Button>
     );
@@ -92,7 +92,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts.length === 0) {
       return (
-        <EmptyState icon='user-6' text={__('There is no linked accounts')} />
+        <EmptyState icon="user-6" text={__('There is no linked accounts')} />
       );
     }
 
@@ -114,7 +114,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
-            btnStyle='danger'
+            btnStyle="danger"
           >
             {__('Remove')}
           </Button>

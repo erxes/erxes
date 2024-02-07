@@ -220,7 +220,7 @@ class Form extends React.Component<Props, State> {
     );
 
     return (
-      <ModalTrigger title='Add category' trigger={trigger} content={content} />
+      <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
   }
 
@@ -258,9 +258,9 @@ class Form extends React.Component<Props, State> {
               <AutoCompletionSelect
                 defaultValue={subUom.uom}
                 defaultOptions={(uoms || []).map(e => e.code)}
-                autoCompletionType='uoms'
-                placeholder='Enter an uom'
-                queryName='uoms'
+                autoCompletionType="uoms"
+                placeholder="Enter an uom"
+                queryName="uoms"
                 query={queries.uoms}
                 onChange={onChangeUom}
               />
@@ -271,11 +271,11 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Ratio</ControlLabel>
               <Row>
                 <FormControl
-                  name='ratio'
+                  name="ratio"
                   min={0}
                   value={subUom.ratio}
                   onChange={onChangeRatio}
-                  type='number'
+                  type="number"
                 />
               </Row>
             </FormGroup>
@@ -285,10 +285,10 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>~Inverse Ratio</ControlLabel>
               <Row>
                 <FormControl
-                  name='inverse'
+                  name="inverse"
                   value={Math.round((1 / (subUom.ratio || 1)) * 100) / 100}
                   onChange={onChangeRatio}
-                  type='number'
+                  type="number"
                 />
               </Row>
             </FormGroup>
@@ -296,9 +296,9 @@ class Form extends React.Component<Props, State> {
           <FormColumn>
             <Row>
               <Button
-                btnStyle='simple'
+                btnStyle="simple"
                 uppercase={false}
-                icon='cancel-1'
+                icon="cancel-1"
                 onClick={this.onClickMinusSub.bind(this, subUom._id)}
               />
             </Row>
@@ -455,7 +455,7 @@ class Form extends React.Component<Props, State> {
               </td>
               <td>
                 <FormControl
-                  name='name'
+                  name="name"
                   value={(variants[item] || {}).name || ''}
                   onChange={e =>
                     this.setState({
@@ -472,12 +472,12 @@ class Form extends React.Component<Props, State> {
               </td>
               <td>
                 <FormControl
-                  name='image'
-                  componentClass='select'
+                  name="image"
+                  componentClass="select"
                   value={((variants[item] || {}).image || {}).url || ''}
                   onChange={onChangePerImage.bind(this, item)}
                 >
-                  <option key={Math.random()} value=''>
+                  <option key={Math.random()} value="">
                     {' '}
                   </option>
                   {(attachmentMore || []).map(img => (
@@ -490,11 +490,11 @@ class Form extends React.Component<Props, State> {
               <td>
                 <ActionButtons>
                   <Button
-                    btnStyle='link'
+                    btnStyle="link"
                     onClick={() => this.onClickBarcode(item)}
                   >
-                    <Tip text={__('Delete')} placement='bottom'>
-                      <Icon icon='trash' />
+                    <Tip text={__('Delete')} placement="bottom">
+                      <Icon icon="trash" />
                     </Tip>
                   </Button>
                 </ActionButtons>
@@ -513,7 +513,7 @@ class Form extends React.Component<Props, State> {
     const object = product || ({} as IProduct);
 
     const trigger = (
-      <Button btnStyle='primary' uppercase={false} icon='plus-circle'>
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add category
       </Button>
     );
@@ -571,7 +571,7 @@ class Form extends React.Component<Props, State> {
               </p>
               <FormControl
                 {...formProps}
-                name='code'
+                name="code"
                 value={code}
                 required={true}
                 onChange={(e: any) => {
@@ -586,7 +586,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name='name'
+                name="name"
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -597,7 +597,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Short name</ControlLabel>
               <FormControl
                 {...formProps}
-                name='shortName'
+                name="shortName"
                 defaultValue={object.shortName}
                 required={false}
               />
@@ -607,8 +607,8 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Type</ControlLabel>
               <FormControl
                 {...formProps}
-                name='type'
-                componentClass='select'
+                name="type"
+                componentClass="select"
                 defaultValue={object.type}
                 required={true}
               >
@@ -645,13 +645,13 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
                 Please ensure you have set the default currency in the{' '}
-                <a href='/settings/general'> {'General Settings'}</a> of the
+                <a href="/settings/general"> {'General Settings'}</a> of the
                 System Configuration.
               </p>
               <FormControl
                 {...formProps}
-                type='number'
-                name='unitPrice'
+                type="number"
+                name="unitPrice"
                 defaultValue={object.unitPrice}
                 required={true}
                 min={0}
@@ -660,8 +660,8 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Vendor</ControlLabel>
               <SelectCompanies
-                label='Choose an vendor'
-                name='vendorId'
+                label="Choose an vendor"
+                name="vendorId"
                 customOption={{ value: '', label: 'No vendor chosen' }}
                 initialValue={vendorId}
                 onSelect={this.onComboEvent.bind(this, 'vendorId')}
@@ -672,8 +672,8 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Tax Type</ControlLabel>
               <FormControl
                 {...formProps}
-                name='taxType'
-                componentClass='select'
+                name="taxType"
+                componentClass="select"
                 onChange={this.onTaxChange}
                 defaultValue={taxType}
                 options={[
@@ -690,8 +690,8 @@ class Form extends React.Component<Props, State> {
 
               <FormControl
                 {...formProps}
-                name='taxCode'
-                componentClass='select'
+                name="taxCode"
+                componentClass="select"
                 onChange={this.onTaxChange}
                 defaultValue={taxCode}
                 options={(TAX_TYPES[taxType || ''] || {}).options || []}
@@ -706,7 +706,7 @@ class Form extends React.Component<Props, State> {
                 onSelect={brandIds => this.onChangeBrand(brandIds as string[])}
                 initialValue={scopeBrandIds}
                 multi={true}
-                name='selectedBrands'
+                name="selectedBrands"
               />
             </FormGroup>
             <FormGroup>
@@ -734,15 +734,15 @@ class Form extends React.Component<Props, State> {
               <Row>
                 <FormControl
                   {...formProps}
-                  name='barcodes'
+                  name="barcodes"
                   value={this.state.barcodeInput}
-                  autoComplete='off'
+                  autoComplete="off"
                   onChange={this.onChangeBarcodeInput}
                   onKeyDown={this.onKeyDownBarcodeInput}
                 />
                 <Button
-                  btnStyle='primary'
-                  icon='plus-circle'
+                  btnStyle="primary"
+                  icon="plus-circle"
                   onClick={() => this.updateBarcodes()}
                 >
                   Add barcode
@@ -777,16 +777,16 @@ class Form extends React.Component<Props, State> {
                 <AutoCompletionSelect
                   defaultValue={this.state.uom}
                   defaultOptions={(uoms || []).map(e => e.code)}
-                  autoCompletionType='uoms'
-                  placeholder='Enter an uom'
-                  queryName='uoms'
+                  autoCompletionType="uoms"
+                  placeholder="Enter an uom"
+                  queryName="uoms"
                   query={queries.uoms}
                   onChange={this.onChangeUom}
                 />
                 <Button
-                  btnStyle='primary'
+                  btnStyle="primary"
                   uppercase={false}
-                  icon='plus-circle'
+                  icon="plus-circle"
                   onClick={this.onClickAddSub}
                 >
                   {' '}
@@ -801,9 +801,9 @@ class Form extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
             uppercase={false}
           >
             Close

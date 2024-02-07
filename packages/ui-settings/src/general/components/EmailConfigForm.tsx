@@ -73,7 +73,7 @@ const EmailConfigForm = (props: Props) => {
             content={template}
             onChange={onEditorChange}
             autoGrow={true}
-            name='email_config'
+            name="email_config"
             isSubmitted={props.isSaved}
           />
         </ContentWrapper>
@@ -91,13 +91,13 @@ const EmailConfigForm = (props: Props) => {
 
   return (
     <>
-      <FlexRow alignItems='flex-start' justifyContent='space-between'>
+      <FlexRow alignItems="flex-start" justifyContent="space-between">
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
           <p>{emailText}</p>
 
           <FormControl
-            type='email'
+            type="email"
             rows={5}
             value={email}
             onChange={onChangeEmail}
@@ -109,14 +109,14 @@ const EmailConfigForm = (props: Props) => {
           <p>Choose "custom" to change the template of transactional emails.</p>
 
           <FormControl
-            componentClass='select'
+            componentClass="select"
             value={type}
             onChange={onChangeType}
           >
-            <option key='simple' value='simple'>
+            <option key="simple" value="simple">
               Simple
             </option>
-            <option key='custom' value='custom'>
+            <option key="custom" value="custom">
               Custom
             </option>
           </FormControl>

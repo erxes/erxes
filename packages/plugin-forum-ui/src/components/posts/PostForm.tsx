@@ -122,7 +122,7 @@ class PostForm extends React.Component<Props, State> {
 
     return (
       <>
-        <option key='null' value=''>
+        <option key="null" value="">
           No category
         </option>
         {categories &&
@@ -196,7 +196,7 @@ class PostForm extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='title'
+            name="title"
             defaultValue={object.title}
             required={true}
             autoFocus={true}
@@ -219,7 +219,7 @@ class PostForm extends React.Component<Props, State> {
                 <DateControl
                   value={this.state.createdAt}
                   required={false}
-                  name='createdAt'
+                  name="createdAt"
                   onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
                   placeholder={'End date'}
                   dateFormat={'YYYY-MM-DD'}
@@ -235,8 +235,8 @@ class PostForm extends React.Component<Props, State> {
               <ControlLabel required={true}>Choose the category</ControlLabel>
               <FormControl
                 {...formProps}
-                name='categoryId'
-                componentClass='select'
+                name="categoryId"
+                componentClass="select"
                 defaultValue={categoryId}
               >
                 {this.renderOptions()}
@@ -247,8 +247,8 @@ class PostForm extends React.Component<Props, State> {
                 <ControlLabel>Choose publisher</ControlLabel>
 
                 <SelectTeamMembers
-                  label='Choose publisher'
-                  name='selectedUser'
+                  label="Choose publisher"
+                  name="selectedUser"
                   multi={false}
                   initialValue={this.state.selectedUser}
                   onSelect={e => onUserChange(e)}
@@ -262,8 +262,8 @@ class PostForm extends React.Component<Props, State> {
           <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='description'
-            componentClass='textarea'
+            name="description"
+            componentClass="textarea"
             defaultValue={object.description}
           />
         </FormGroup>
@@ -287,9 +287,9 @@ class PostForm extends React.Component<Props, State> {
                 <ControlLabel>Multiple choice</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name='multipleChoice'
-                  className='toggle-message'
-                  componentClass='checkbox'
+                  name="multipleChoice"
+                  className="toggle-message"
+                  componentClass="checkbox"
                   checked={multipleChoice}
                   onChange={() => {
                     this.setState({ multipleChoice: !multipleChoice });
@@ -302,9 +302,9 @@ class PostForm extends React.Component<Props, State> {
                 <ControlLabel>Has end date</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name='hasEndDate'
-                  className='toggle-message'
-                  componentClass='checkbox'
+                  name="hasEndDate"
+                  className="toggle-message"
+                  componentClass="checkbox"
                   checked={hasEndDate}
                   onChange={() => {
                     this.setState({ hasEndDate: !hasEndDate });
@@ -318,7 +318,7 @@ class PostForm extends React.Component<Props, State> {
                   <DateControl
                     value={this.state.endDate}
                     required={false}
-                    name='endDate'
+                    name="endDate"
                     onChange={date => this.onChangeRangeFilter(date, 'endDate')}
                     placeholder={'End date'}
                     dateFormat={'YYYY-MM-DD'}
@@ -328,7 +328,7 @@ class PostForm extends React.Component<Props, State> {
             )}
           </FlexContent>
           <PollOptions
-            emptyMessage='There is no options'
+            emptyMessage="There is no options"
             onChangeOption={options => changeOption(options || [])}
             options={pollOptions}
           />
@@ -347,10 +347,10 @@ class PostForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             {__('Cancel')}
           </Button>

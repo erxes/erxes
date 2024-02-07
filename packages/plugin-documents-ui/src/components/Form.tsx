@@ -66,7 +66,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
             defaultValue={obj.name}
@@ -82,7 +82,7 @@ class Form extends React.Component<Props, State> {
               content={obj.content}
               onChange={this.onContentChange}
               height={200}
-              name='document-form'
+              name="document-form"
             />
           </div>
 
@@ -93,8 +93,8 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Replacer</ControlLabel>
 
           <FormControl
-            componentClass='textarea'
-            name='name'
+            componentClass="textarea"
+            name="name"
             required={true}
             defaultValue={obj.replacer}
             onChange={this.onChangeField.bind(this, 'replacer')}
@@ -105,13 +105,13 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Sub Type</ControlLabel>
 
           <FormControl
-            componentClass='select'
-            name='subType'
+            componentClass="select"
+            name="subType"
             value={subType}
             onChange={this.onChangeField.bind(this, 'subType')}
             {...formProps}
           >
-            <option key='' value='' />
+            <option key="" value="" />
             {(subTypes || []).map(e => (
               <option key={e} value={e}>
                 {e}
@@ -121,11 +121,11 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle='simple' type='button' onClick={closeModal}>
+          <Button btnStyle="simple" type="button" onClick={closeModal}>
             {__('Cancel')}
           </Button>
 
-          <Button onClick={this.onSave} btnStyle='success' type='button'>
+          <Button onClick={this.onSave} btnStyle="success" type="button">
             {__('Save')}
           </Button>
         </ModalFooter>
@@ -134,7 +134,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    return <CommonForm autoComplete='off' renderContent={this.renderContent} />;
+    return <CommonForm autoComplete="off" renderContent={this.renderContent} />;
   }
 }
 

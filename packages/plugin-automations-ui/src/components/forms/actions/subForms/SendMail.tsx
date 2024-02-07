@@ -90,12 +90,12 @@ class SendMail extends React.Component<Props, State> {
           <Chip
             key={customMail}
             onClick={removeMail.bind(this, customMail)}
-            frontContent={<Avatar src='/images/avatar-colored.svg' />}
+            frontContent={<Avatar src="/images/avatar-colored.svg" />}
           >
             {customMail}
           </Chip>
         ))}
-        <FormControl onKeyPress={onChange} placeholder='enter a some email' />
+        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
       </FormGroup>
     );
   }
@@ -130,8 +130,8 @@ class SendMail extends React.Component<Props, State> {
         <PlaceHolderInput
           config={config}
           triggerType={triggerType}
-          inputName='attributionMails'
-          label='Attribution Mails'
+          inputName="attributionMails"
+          label="Attribution Mails"
           attrTypes={['user', 'contact', 'segment']}
           attrWithSegmentConfig={triggerType === 'forms:form_submission'}
           triggerConfig={triggerConfig}
@@ -161,7 +161,7 @@ class SendMail extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{__('Segment based mails')}</ControlLabel>
         <FormControl
-          componentClass='checkbox'
+          componentClass="checkbox"
           checked={config[key]}
           onClick={() => onSelect(!config[key], key)}
         />
@@ -261,14 +261,14 @@ class SendMail extends React.Component<Props, State> {
       >
         <DrawerDetail>
           <BackIcon onClick={onBackAction}>
-            <Icon icon='angle-left' size={20} /> {__('Back')}
+            <Icon icon="angle-left" size={20} /> {__('Back')}
           </BackIcon>
           <FormGroup>
             <ControlLabel>{'From'}</ControlLabel>
             <SelectTeamMembers
-              name='fromUserId'
+              name="fromUserId"
               initialValue={config?.fromUserId}
-              label='Select from user'
+              label="Select from user"
               onSelect={onSelect}
               filterParams={{
                 status: 'Verified'
@@ -278,8 +278,8 @@ class SendMail extends React.Component<Props, State> {
           </FormGroup>
 
           <PlaceHolderInput
-            inputName='sender'
-            label='Sender'
+            inputName="sender"
+            label="Sender"
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -287,8 +287,8 @@ class SendMail extends React.Component<Props, State> {
           />
 
           <PlaceHolderInput
-            inputName='subject'
-            label='Email Subject'
+            inputName="subject"
+            label="Email Subject"
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -325,7 +325,7 @@ class SendMail extends React.Component<Props, State> {
     const { triggerType } = this.props;
 
     const trigger = (
-      <Button btnStyle='success' icon='plus-circle'>
+      <Button btnStyle="success" icon="plus-circle">
         {__('Add template')}
       </Button>
     );
@@ -341,10 +341,10 @@ class SendMail extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title='Add New'
+        title="Add New"
         content={content}
         trigger={trigger}
-        size='lg'
+        size="lg"
       />
     );
   }
@@ -372,8 +372,8 @@ class SendMail extends React.Component<Props, State> {
     if (!isEnabled('emailtemplates')) {
       return (
         <EmptyState
-          image='/images/actions/33.svg'
-          text=''
+          image="/images/actions/33.svg"
+          text=""
           extra={
             <span>
               The send email action is not available.
@@ -395,8 +395,8 @@ class SendMail extends React.Component<Props, State> {
           <ControlLabel>{__('Search')}</ControlLabel>
           <BarItems>
             <FormControl
-              name='searchValue'
-              placeholder='type a search'
+              name="searchValue"
+              placeholder="type a search"
               value={searchValue}
               onChange={onSearch}
             />

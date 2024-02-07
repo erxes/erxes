@@ -639,17 +639,17 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <>
         <Button
-          btnStyle='primary'
-          size='small'
-          icon='plus-circle'
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
           Add a Trigger
         </Button>
         <Button
-          btnStyle='primary'
-          size='small'
-          icon='plus-circle'
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
           Add an Action
@@ -672,8 +672,8 @@ class AutomationForm extends React.Component<Props, State> {
           {this.renderButtons()}
           {
             <Button
-              btnStyle='primary'
-              size='small'
+              btnStyle="primary"
+              size="small"
               icon={'check-circle'}
               onClick={this.handleTemplateModal}
             >
@@ -681,8 +681,8 @@ class AutomationForm extends React.Component<Props, State> {
             </Button>
           }
           <Button
-            btnStyle='success'
-            size='small'
+            btnStyle="success"
+            size="small"
             icon={'check-circle'}
             onClick={this.handleSubmit}
           >
@@ -700,18 +700,18 @@ class AutomationForm extends React.Component<Props, State> {
       <FlexContent>
         <Link to={`/automations`}>
           <BackButton>
-            <Icon icon='angle-left' size={20} />
+            <Icon icon="angle-left" size={20} />
           </BackButton>
         </Link>
         <Title>
           <FormControl
-            name='name'
+            name="name"
             value={name}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
           />
-          <Icon icon='edit-alt' size={16} />
+          <Icon icon="edit-alt" size={16} />
         </Title>
         <CenterBar>
           <Tabs full={true}>
@@ -755,7 +755,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBack}>
-              <Icon icon='angle-left' size={20} /> {__('Back to triggers')}
+              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
             </BackIcon>
             <ScrolledContent>
               <TriggerDetailForm
@@ -784,7 +784,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon='angle-left' size={20} /> {__('Back to actions')}
+              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -817,20 +817,20 @@ class AutomationForm extends React.Component<Props, State> {
   renderZoomActions() {
     return (
       <ZoomActions>
-        <div className='icon-wrapper'>
+        <div className="icon-wrapper">
           <ZoomIcon
             disabled={this.state.zoom >= 1}
             onMouseDown={this.onZoom.bind(this, 'zoomIn')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon='plus' />
+            <Icon icon="plus" />
           </ZoomIcon>
           <ZoomIcon
             disabled={this.state.zoom <= 0.399}
             onMouseDown={this.onZoom.bind(this, 'zoomOut')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon='minus' />{' '}
+            <Icon icon="minus" />{' '}
           </ZoomIcon>
         </div>
         <span>{`${this.state.percentage}%`}</span>
@@ -845,10 +845,10 @@ class AutomationForm extends React.Component<Props, State> {
       return (
         <Container>
           <div
-            className='trigger scratch'
+            className="trigger scratch"
             onClick={this.toggleDrawer.bind(this, 'triggers')}
           >
-            <Icon icon='file-plus' size={25} />
+            <Icon icon="file-plus" size={25} />
             <p>{__('How do you want to trigger this automation')}?</p>
           </div>
         </Container>
@@ -877,7 +877,7 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <Container>
         {this.renderZoomActions()}
-        <div id='canvas' />
+        <div id="canvas" />
       </Container>
     );
   }
@@ -1006,7 +1006,7 @@ class AutomationForm extends React.Component<Props, State> {
             <RTG.CSSTransition
               in={this.state.showDrawer}
               timeout={300}
-              classNames='slide-in-right'
+              classNames="slide-in-right"
               unmountOnExit={true}
             >
               <RightDrawerContainer>

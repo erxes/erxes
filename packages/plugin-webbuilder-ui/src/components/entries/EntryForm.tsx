@@ -117,7 +117,7 @@ function Form(props: Props) {
 
     return (
       <FormGroup key={field.code}>
-        <ControlLabel htmlFor='html'>{field.text}:</ControlLabel>
+        <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
         {input}
       </FormGroup>
     );
@@ -126,8 +126,8 @@ function Form(props: Props) {
   const renderButtons = () => {
     const cancelButton = (
       <Button
-        btnStyle='simple'
-        icon='times-circle'
+        btnStyle="simple"
+        icon="times-circle"
         onClick={closeModal}
         uppercase={false}
       >
@@ -140,7 +140,7 @@ function Form(props: Props) {
         {cancelButton}
 
         <Button
-          btnStyle='success'
+          btnStyle="success"
           icon={'check-circle'}
           uppercase={false}
           onClick={() => submit()}

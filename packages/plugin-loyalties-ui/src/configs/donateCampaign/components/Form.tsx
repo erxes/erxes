@@ -175,8 +175,8 @@ class Form extends React.Component<Props, State> {
         <FormColumn>
           <FormControl
             {...formProps}
-            name='minScore'
-            type='number'
+            name="minScore"
+            type="number"
             min={0}
             defaultValue={award.minScore}
             required={true}
@@ -192,16 +192,16 @@ class Form extends React.Component<Props, State> {
               label: `${voucher.title}`,
               value: voucher._id
             }))}
-            name='voucherCampaignId'
+            name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
             loadingPlaceholder={__('Loading...')}
           />
         </FormColumn>
         <Button
-          btnStyle='simple'
-          size='small'
+          btnStyle="simple"
+          size="small"
           onClick={this.onRemoveAward.bind(this, award._id)}
-          icon='times'
+          icon="times"
         >
           Remove lvl
         </Button>
@@ -220,7 +220,7 @@ class Form extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
 
     const trigger = (
-      <Button btnStyle='primary' uppercase={false} icon='plus-circle'>
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add category
       </Button>
     );
@@ -239,7 +239,7 @@ class Form extends React.Component<Props, State> {
             <ControlLabel required={true}>title</ControlLabel>
             <FormControl
               {...formProps}
-              name='title'
+              name="title"
               defaultValue={donateCampaign.title}
               autoFocus={true}
               required={true}
@@ -255,7 +255,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='startDate'
+                    name="startDate"
                     placeholder={__('Start date')}
                     value={donateCampaign.startDate}
                     onChange={this.onDateInputChange.bind(this, 'startDate')}
@@ -271,7 +271,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='endDate'
+                    name="endDate"
                     placeholder={__('End date')}
                     value={donateCampaign.endDate}
                     onChange={this.onDateInputChange.bind(this, 'endDate')}
@@ -287,7 +287,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='finishDateOfUse'
+                    name="finishDateOfUse"
                     placeholder={__('Finish date of use')}
                     value={donateCampaign.finishDateOfUse}
                     onChange={this.onDateInputChange.bind(
@@ -304,8 +304,8 @@ class Form extends React.Component<Props, State> {
             <ControlLabel required={true}>max Score</ControlLabel>
             <FormControl
               {...formProps}
-              name='maxScore'
-              type='number'
+              name="maxScore"
+              type="number"
               min={0}
               defaultValue={donateCampaign.maxScore}
               onChange={this.onInputChange}
@@ -318,7 +318,7 @@ class Form extends React.Component<Props, State> {
             <FormColumn>
               <ControlLabel required={true}>Voucher</ControlLabel>
             </FormColumn>
-            <Button btnStyle='simple' icon='add' onClick={this.onAddAward}>
+            <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
               {__('Add level')}
             </Button>
           </FormWrapper>
@@ -359,9 +359,9 @@ class Form extends React.Component<Props, State> {
         </ScrollWrapper>
         <ModalFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
             uppercase={false}
           >
             Close

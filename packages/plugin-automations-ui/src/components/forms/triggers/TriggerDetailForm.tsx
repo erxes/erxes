@@ -72,14 +72,14 @@ function TriggerDetailForm(props: Props) {
       addConfig(activeTrigger, activeTrigger.id);
     };
 
-    const trigger = <Button icon='settings' btnStyle='link' />;
+    const trigger = <Button icon="settings" btnStyle="link" />;
 
     const content = () => {
       return (
         <>
           <DateSettings onChange={onChange} config={config} />
           <ModalFooter>
-            <Button btnStyle='simple' onClick={onClear}>
+            <Button btnStyle="simple" onClick={onClear}>
               {__('Clear')}
             </Button>
           </ModalFooter>
@@ -89,7 +89,7 @@ function TriggerDetailForm(props: Props) {
 
     return (
       <ModalTrigger
-        title='Trigger Settings'
+        title="Trigger Settings"
         trigger={trigger}
         content={content}
         hideHeader={true}

@@ -82,7 +82,7 @@ class MessengerForm extends React.Component<Props, State> {
         <ControlLabel>Message type:</ControlLabel>
 
         <FormControl
-          componentClass='select'
+          componentClass="select"
           onChange={onChange}
           defaultValue={this.state.messenger.kind}
         >
@@ -134,7 +134,7 @@ class MessengerForm extends React.Component<Props, State> {
 
     return (
       <FlexItem>
-        <FlexPad overflow='auto' direction='column' count='3'>
+        <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>{__('Message:')}</ControlLabel>
             <RichTextEditor
@@ -150,7 +150,7 @@ class MessengerForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               onChange={onChangeFrom}
               value={this.state.fromUserId}
             >
@@ -166,7 +166,7 @@ class MessengerForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Brand:</ControlLabel>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               onChange={onChangeContent}
               defaultValue={this.state.messenger.brandId}
             >
@@ -184,7 +184,7 @@ class MessengerForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('Sent as:')}</ControlLabel>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               onChange={onChangeSentAs}
               defaultValue={this.state.messenger.sentAs}
             >
@@ -200,7 +200,7 @@ class MessengerForm extends React.Component<Props, State> {
           {/* {this.renderScheduler()} */}
         </FlexPad>
 
-        <FlexItem overflow='auto' count='2'>
+        <FlexItem overflow="auto" count="2">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
             content={this.props.content}

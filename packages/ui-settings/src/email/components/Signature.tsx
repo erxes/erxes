@@ -90,7 +90,7 @@ class Signature extends React.Component<Props, State> {
   renderSignatureEditor() {
     if (!this.state.currentId) {
       return (
-        <EmptyState text='Nothing selected' image='/images/actions/29.svg' />
+        <EmptyState text="Nothing selected" image="/images/actions/29.svg" />
       );
     }
 
@@ -122,12 +122,12 @@ class Signature extends React.Component<Props, State> {
       <div>
         <Info>{__('You can use Markdown to format your signature.')}</Info>
 
-        <form id='signature-form' onSubmit={this.handleSubmit}>
+        <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>
             <ControlLabel required={true}>Choose a brand</ControlLabel>
 
-            <FormControl componentClass='select' onChange={this.changeCurrent}>
-              <option value=''>------------</option>
+            <FormControl componentClass="select" onChange={this.changeCurrent}>
+              <option value="">------------</option>
 
               {this.props.signatures.map(signature => (
                 <option key={signature.brandId} value={signature.brandId}>
@@ -139,11 +139,11 @@ class Signature extends React.Component<Props, State> {
 
           {this.renderSignatureEditor()}
           <ModalFooter>
-            <Button btnStyle='simple' onClick={this.close} icon='times-circle'>
+            <Button btnStyle="simple" onClick={this.close} icon="times-circle">
               Close
             </Button>
 
-            <Button btnStyle='success' type='submit' icon='check-circle'>
+            <Button btnStyle="success" type="submit" icon="check-circle">
               Save
             </Button>
           </ModalFooter>

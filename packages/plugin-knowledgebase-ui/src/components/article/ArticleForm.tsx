@@ -230,8 +230,8 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormControl
           {...formProps}
-          name='topicId'
-          componentClass='select'
+          name="topicId"
+          componentClass="select"
           required={true}
           placeholder={__('Choose knowledgebase')}
           value={self.state.topicId}
@@ -260,8 +260,8 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormControl
           {...formProps}
-          name='categoryId'
-          componentClass='select'
+          name="categoryId"
+          componentClass="select"
           placeholder={__('Choose category')}
           value={self.state.categoryId}
           options={self.generateOptions(categories)}
@@ -283,7 +283,7 @@ class ArticleForm extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Brand id')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='brandId'
+            name="brandId"
             required={true}
             defaultValue={form.brandId}
             onChange={(e: any) =>
@@ -296,7 +296,7 @@ class ArticleForm extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Form id')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='formId'
+            name="formId"
             required={true}
             defaultValue={form.formId}
             onChange={(e: any) =>
@@ -305,8 +305,8 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Button size='small' btnStyle='danger' onClick={remove}>
-          <Icon icon='cancel-1' />
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );
@@ -332,7 +332,7 @@ class ArticleForm extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='title'
+            name="title"
             defaultValue={object.title}
             required={true}
             autoFocus={true}
@@ -343,7 +343,7 @@ class ArticleForm extends React.Component<Props, State> {
           <ControlLabel>{__('Summary')}</ControlLabel>
           <FormControl
             {...formProps}
-            name='summary'
+            name="summary"
             defaultValue={object.summary}
           />
         </FormGroup>
@@ -368,8 +368,8 @@ class ArticleForm extends React.Component<Props, State> {
               <ControlLabel required={true}>{__('Status')}</ControlLabel>
               <FormControl
                 {...formProps}
-                name='status'
-                componentClass='select'
+                name="status"
+                componentClass="select"
                 placeholder={__('Select')}
                 defaultValue={object.status || 'draft'}
                 required={true}
@@ -414,7 +414,7 @@ class ArticleForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('File url')}</ControlLabel>
               <FormControl
-                placeholder='Url'
+                placeholder="Url"
                 value={attachment.url || ''}
                 onChange={(e: any) =>
                   this.onChangeAttachment('url', e.target.value)
@@ -424,7 +424,7 @@ class ArticleForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('File name')}</ControlLabel>
               <FormControl
-                placeholder='Name'
+                placeholder="Name"
                 value={attachment.name || ''}
                 onChange={(e: any) =>
                   this.onChangeAttachment('name', e.target.value)
@@ -436,9 +436,9 @@ class ArticleForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('File size (byte)')}</ControlLabel>
               <FormControl
-                placeholder='Size (byte)'
+                placeholder="Size (byte)"
                 value={attachment.size || ''}
-                type='number'
+                type="number"
                 onChange={(e: any) =>
                   this.onChangeAttachment('size', parseInt(e.target.value, 10))
                 }
@@ -447,7 +447,7 @@ class ArticleForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('File type')}</ControlLabel>
               <FormControl
-                componentClass='select'
+                componentClass="select"
                 value={attachment.type || ''}
                 onChange={(e: any) =>
                   this.onChangeAttachment('type', e.target.value)
@@ -463,7 +463,7 @@ class ArticleForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('File duration (sec)')}</ControlLabel>
               <FormControl
-                placeholder='Duration'
+                placeholder="Duration"
                 value={attachment.duration || 0}
                 onChange={(e: any) =>
                   this.onChangeAttachment(
@@ -485,10 +485,10 @@ class ArticleForm extends React.Component<Props, State> {
           </Forms>
 
           <Button
-            btnStyle='simple'
-            size='small'
+            btnStyle="simple"
+            size="small"
             onClick={this.addErxesForm}
-            icon='add'
+            icon="add"
           >
             Add another form
           </Button>
@@ -507,10 +507,10 @@ class ArticleForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             {__('Cancel')}
           </Button>
