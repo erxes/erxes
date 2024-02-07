@@ -2,7 +2,6 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
-import { getDefaultHighWaterMark } from 'stream';
 
 const MMSTOMINS = 60000;
 
@@ -36,12 +35,12 @@ const reportTemplates = [
     charts: [
       'averageFirstResponseTime',
       'averageCloseTime',
-      'conversationsCount',
       'closedConversationsCountByRep',
       'conversationsCountByTag',
       'conversationsCountBySource',
       'conversationsCountByRep',
       'conversationsCountByStatus',
+      'conversationsCount',
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
   },
@@ -58,13 +57,6 @@ const DIMENSION_OPTIONS = [
   { label: 'Frequency (day, week, month)', value: 'frequency' },
   { label: 'Status', value: 'status' },
 ];
-
-// Chat conversation closed totals by rep
-// Chat conversation totals by Tag
-// Chat conversation totals by source
-// Chat conversation totals by rep
-// Chat conversation totals by chatflow
-// Chat conversation totals by status
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -619,14 +611,11 @@ const chartTemplates = [
         closedAt: { $exists: true },
       };
 
-      const { departmentIds, branchIds, userIds } = filter;
-
-      const dimensionX = dimension.x;
+      const { departmentIds, branchIds, userIds, tagIds, brandIds } = filter;
 
       let departmentUsers;
       let filterUserIds: any = [];
       const integrationsDict = {};
-      let totalIntegrations;
 
       if (checkFilterParam(departmentIds)) {
         const findDepartmentUsers = await sendCoreMessage({
@@ -659,6 +648,11 @@ const chartTemplates = [
 
       if (checkFilterParam(userIds)) {
         filterUserIds = filter.userIds;
+      }
+
+      // filter by tags
+      if (checkFilterParam(tagIds)) {
+        matchfilter['conversationMessages.tagIds'] = { $in: tagIds };
       }
 
       // filter by source
@@ -824,7 +818,7 @@ const chartTemplates = [
       const matchfilter = {};
       const filterStatus = filter.status;
 
-      let title = `${filterStatus} conversations' count`;
+      let title = `Total closed conversations count by rep`;
 
       const {
         departmentIds,
@@ -910,7 +904,7 @@ const chartTemplates = [
       }
 
       // filter by source
-      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+      if (integrationTypes && !integrationTypes.includes('all')) {
         const { integrationTypes } = filter;
 
         integrationFindQuery['kind'] = { $in: integrationTypes };
@@ -994,21 +988,6 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'customDateFrequencyType',
-        fieldType: 'select',
-
-        logics: [
-          {
-            logicFieldName: 'dateRange',
-            logicFieldValue: 'customDate',
-          },
-        ],
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
-        fieldLabel: 'Select frequency type',
-      },
-      {
         fieldName: 'userIds',
         fieldType: 'select',
         multi: true,
@@ -1041,6 +1020,8 @@ const chartTemplates = [
         fieldName: 'brandIds',
         fieldType: 'select',
         fieldQuery: 'allBrands',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
         multi: true,
         fieldLabel: 'Select brands',
       },
@@ -1182,7 +1163,7 @@ const chartTemplates = [
 
       const matchfilter = {};
 
-      const { dateRange } = filter;
+      const { dateRange, status } = filter;
 
       const groupByQuery = {
         $group: {
@@ -1204,23 +1185,14 @@ const chartTemplates = [
         }
       }
 
-      // filter by source
-      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
-        const { integrationTypes } = filter;
-
-        integrationFindQuery['kind'] = { $in: integrationTypes };
-
-        const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
-
-        const integrationIds: string[] = [];
-
-        for (const integration of integrations) {
-          integrationsDict[integration._id] = integration.kind;
-          integrationIds.push(integration._id);
+      // filter by status
+      if (status && status !== 'all') {
+        if (status === 'unassigned') {
+          matchfilter['assignedUserId'] = null;
+        } else {
+          //open or closed
+          matchfilter['status'] = status;
         }
-
-        matchfilter['integrationId'] = { $in: integrationIds };
       }
 
       const convosCountBySource = await models?.Conversations.aggregate([
@@ -1268,12 +1240,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'integrationTypes',
+        fieldName: 'status',
         fieldType: 'select',
-        multi: true,
-        fieldQuery: 'integrations',
-        fieldOptions: INTEGRATION_TYPES,
-        fieldLabel: 'Select source',
+        multi: false,
+        fieldOptions: STATUS_TYPES,
+        fieldDefaultValue: 'all',
+        fieldLabel: 'Select conversation status',
       },
       {
         fieldName: 'dateRange',
@@ -1540,6 +1512,8 @@ const chartTemplates = [
         fieldName: 'brandIds',
         fieldType: 'select',
         fieldQuery: 'allBrands',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
         multi: true,
         fieldLabel: 'Select brands',
       },
@@ -2362,6 +2336,8 @@ const chartTemplates = [
         fieldName: 'brandIds',
         fieldType: 'select',
         fieldQuery: 'allBrands',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
         multi: true,
         fieldLabel: 'Select brands',
       },
