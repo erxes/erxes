@@ -4,6 +4,8 @@ import OptionalContent from './components/OptionalContent';
 import MessageForm from './components/trigger/MessageForm';
 import TriggerContent from './components/trigger/Content';
 import CommnetForm from './components/trigger/CommentForm';
+import Label from '@erxes/ui/src/components/Label';
+import Tip from '@erxes/ui/src/components/Tip';
 
 const Automations = (props) => {
   const { componentType, activeAction, activeTrigger } = props || {};
@@ -45,7 +47,16 @@ const Automations = (props) => {
 
   if (componentType === 'historyActionResult') {
     const { result } = props;
-    return <>{JSON.stringify(result || {})}</>;
+
+    if (result?.error) {
+      return (
+        <Tip text={result?.error}>
+          <Label lblStyle="danger">{'Error'}</Label>
+        </Tip>
+      );
+    }
+
+    return <Label lblStyle="success">{'Sent'}</Label>;
   }
   if (componentType === 'historyName') {
     return <>{'-'}</>;
