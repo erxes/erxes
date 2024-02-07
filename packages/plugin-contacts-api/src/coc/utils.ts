@@ -25,7 +25,7 @@ export const getEsTypes = (contentType: string) => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath((name) => {
+  schema.eachPath(name => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -448,7 +448,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       if (typeof this.params.ids === 'string') {
         this.params.ids = [this.params.ids];
       }
-      this.idsFilter(this.params.ids.filter((id) => id));
+      this.idsFilter(this.params.ids.filter(id => id));
     }
 
     // filter by search value
@@ -560,7 +560,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       return response && response.count ? response.count : 0;
     }
 
-    const list = response.hits.hits.map((hit) => {
+    const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
         ...hit._source
