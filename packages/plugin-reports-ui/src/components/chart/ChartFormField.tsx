@@ -3,7 +3,7 @@ import { Alert } from '@erxes/ui/src/utils';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import { MarginY } from '../../styles';
 import DateRange from '../datepicker/DateRange';
@@ -22,6 +22,7 @@ type Props = {
   endDate?: Date;
   fieldValues?: any;
   fieldLogics?: IFieldLogic[];
+  fieldDefaultValue?: any;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -37,7 +38,16 @@ const ChartFormField = (props: Props) => {
     startDate,
     endDate,
     fieldValues,
+    fieldDefaultValue,
   } = props;
+
+  useEffect(() => {
+    if (fieldDefaultValue) {
+      setFieldValue(fieldDefaultValue);
+      onChange(fieldDefaultValue);
+    }
+  }, [fieldDefaultValue]);
+
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const checkLogic = () => {

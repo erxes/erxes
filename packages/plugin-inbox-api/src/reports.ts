@@ -1504,6 +1504,7 @@ const chartTemplates = [
         fieldType: 'select',
         multi: false,
         fieldOptions: STATUS_TYPES,
+        fieldDefaultValue: 'all',
         fieldLabel: 'Select conversation status',
       },
       {
@@ -2324,6 +2325,7 @@ const chartTemplates = [
         fieldType: 'select',
         multi: false,
         fieldOptions: STATUS_TYPES,
+        fieldDefaultValue: 'all',
         fieldLabel: 'Select conversation status',
       },
 

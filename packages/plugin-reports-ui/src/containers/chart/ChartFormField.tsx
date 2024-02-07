@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
 import { gql, useQuery } from '@apollo/client';
@@ -13,6 +13,7 @@ export type IFilterType = {
   fieldValueVariable?: string;
   fieldLabelVariable?: string;
   fieldQueryVariables?: any;
+  fieldDefaultValue: any;
   multi?: boolean;
   logics?: IFieldLogic[];
 };
@@ -40,6 +41,7 @@ const ChartFormFieldList = (props: Props) => {
     fieldValueVariable,
     fieldLabelVariable,
     fieldQueryVariables,
+    fieldDefaultValue,
     logics,
   } = filterType;
 
@@ -72,15 +74,13 @@ const ChartFormFieldList = (props: Props) => {
     switch (fieldType) {
       case 'select':
         const value =
-          fieldQuery &&
-          (fieldQuery.includes('user') ||
-            fieldQuery.includes('department') ||
-            fieldQuery.includes('branch') ||
-            fieldQuery.includes('integration') ||
-            !input.value)
+          !input.value ||
+          fieldQuery?.includes('user') ||
+          fieldQuery?.includes('department') ||
+          fieldQuery?.includes('branch') ||
+          fieldQuery?.includes('integration')
             ? input
             : input.value;
-
         setFilter(fieldName, value);
 
         return;
@@ -97,6 +97,7 @@ const ChartFormFieldList = (props: Props) => {
       fieldOptions={fieldOptions ? fieldOptions : queryFieldOptions}
       fieldLogics={logics}
       fieldLabel={fieldLabel}
+      fieldDefaultValue={fieldDefaultValue}
       onChange={onChange}
       {...props}
     />
