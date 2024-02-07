@@ -219,7 +219,26 @@ const boards = `
     }
   }
 `;
-
+const stages = `
+  query stages($pipelineId: String!, $isAll: Boolean) {
+    stages(pipelineId: $pipelineId, isAll: $isAll) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
 const pipelines = `
   query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
     pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
@@ -248,4 +267,5 @@ export default {
   tags,
   boards,
   pipelines,
+  stages,
 };
