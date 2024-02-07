@@ -1,4 +1,3 @@
-import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { IType } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';

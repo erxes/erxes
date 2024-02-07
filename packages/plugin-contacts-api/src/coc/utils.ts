@@ -6,6 +6,7 @@ import { COC_LEAD_STATUS_TYPES } from '../constants';
 import {
   fetchSegment,
   sendCoreMessage,
+  sendFormsMessage,
   sendInboxMessage,
   sendSegmentsMessage,
   sendTagsMessage,
@@ -477,14 +478,98 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     action = 'search',
     unlimited?: boolean,
   ): Promise<any> {
-    const { page = 0, perPage = 0 } = this.params;
+    const {
+      page = 0,
+      perPage = 0,
+      sortField,
+      sortDirection,
+      searchValue,
+    } = this.params;
+    const paramKeys = Object.keys(this.params).join(',');
 
+    const _page = Number(page || 1);
     let _limit = Number(perPage || 20);
 
     if (unlimited) {
       _limit = 10000;
     }
 
-    return this.findAllMongo(_limit);
+    if (
+      !unlimited &&
+      page === 1 &&
+      perPage === 20 &&
+      (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
+    ) {
+      return this.findAllMongo(_limit);
+    }
+
+    const queryOptions: any = {
+      query: {
+        bool: {
+          must: this.positiveList,
+          must_not: this.negativeList,
+        },
+      },
+    };
+
+    let totalCount = 0;
+
+    if (action === 'search') {
+      const totalCountResponse = await fetchEs({
+        subdomain: this.subdomain,
+        action: 'count',
+        index: this.contentType,
+        body: queryOptions,
+        defaultValue: 0,
+      });
+
+      totalCount = totalCountResponse.count;
+
+      queryOptions.from = (_page - 1) * _limit;
+      queryOptions.size = _limit;
+
+      const esTypes = getEsTypes(this.contentType);
+
+      let fieldToSort = sortField || 'createdAt';
+
+      if (!esTypes[fieldToSort] || esTypes[fieldToSort] === 'email') {
+        fieldToSort = `${fieldToSort}.keyword`;
+      }
+
+      if (!searchValue) {
+        queryOptions.sort = {
+          [fieldToSort]: {
+            order: sortDirection
+              ? sortDirection === -1
+                ? 'desc'
+                : 'asc'
+              : 'desc',
+          },
+        };
+      }
+    }
+
+    const response = await fetchEs({
+      subdomain: this.subdomain,
+      action,
+      index: this.contentType,
+      body: queryOptions,
+    });
+
+    if (action === 'count') {
+      return response && response.count ? response.count : 0;
+    }
+
+    const list = response.hits.hits.map((hit) => {
+      return {
+        _id: hit._id,
+        ...hit._source,
+      };
+    });
+
+    return {
+      list,
+      totalCount,
+    };
   }
 }

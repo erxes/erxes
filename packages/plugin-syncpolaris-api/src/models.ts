@@ -1,6 +1,4 @@
-import * as _ from 'underscore';
-import { model } from 'mongoose';
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 export const typeSchema = new Schema({
   name: String,

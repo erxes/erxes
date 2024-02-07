@@ -11,7 +11,6 @@ import { getDepositBalance } from './utils/deposit/getDepositBalance';
 export const initBroker = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
-    return;
   });
 
   consumeQueue('syncpolaris:send', async ({ data }) => {

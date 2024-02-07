@@ -1,6 +1,5 @@
 import {
   fetchPolaris,
-  getCustomer,
   getDepositAccount,
   getLoanContract,
   getLoanProduct,

@@ -1,5 +1,4 @@
 import {
-  getConfig,
   getCustomer,
   getSavingProduct,
   fetchPolaris,

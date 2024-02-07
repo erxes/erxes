@@ -19,7 +19,6 @@ import { __ } from '@erxes/ui/src/utils';
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
-  loading: boolean;
 };
 
 type State = {

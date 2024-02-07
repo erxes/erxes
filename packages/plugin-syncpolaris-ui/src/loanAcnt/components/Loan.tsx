@@ -15,10 +15,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 
-class loan extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
+class Loan extends React.Component<IProps> {
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
@@ -90,4 +87,4 @@ class loan extends React.Component<IProps> {
   }
 }
 
-export default loan;
+export default Loan;

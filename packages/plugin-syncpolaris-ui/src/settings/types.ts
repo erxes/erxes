@@ -1,4 +1,3 @@
-import { QueryResponse } from '@erxes/ui/src/types';
 export interface ISyncpolaris {
   _id: string;
   name?: string;

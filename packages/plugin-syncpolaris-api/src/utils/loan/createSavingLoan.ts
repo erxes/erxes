@@ -8,7 +8,6 @@ import {
   customFieldToObject,
   getSavingContract,
 } from '../utils';
-import { activeLoan } from './activeLoan';
 
 export const createLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;

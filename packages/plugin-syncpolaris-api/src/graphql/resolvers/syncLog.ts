@@ -15,7 +15,7 @@ export default {
         info.code ||
         info.primaryEmail ||
         info.primaryPhone ||
-        `${info.firstName || ''}${info.lastName && ` ${info.lastName}`}` ||
+        `${info.firstName ?? ''}${info.lastName ?? ''}` ||
         contentId
       );
     }

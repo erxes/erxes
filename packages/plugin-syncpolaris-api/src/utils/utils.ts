@@ -124,22 +124,22 @@ export const updateSavingNumber = async (subdomain, _id, number) => {
   });
 };
 
-export const getUser = async (subdomain, _id) => {
+export const getUser = async (subdomain, id) => {
   return await sendCommonMessage({
     subdomain,
     action: 'users.findOne',
     serviceName: 'core',
-    data: { _id },
+    data: { _id: id },
     isRPC: true,
   });
 };
 
-export const getLoanContract = async (subdomain, _id) => {
+export const getLoanContract = async (subdomain, id) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'users.findOne',
-    serviceName: 'core',
-    data: { _id },
+    action: 'contract.findOne',
+    serviceName: 'loans',
+    data: { _id: id },
     isRPC: true,
   });
 };
@@ -205,8 +205,8 @@ export const customFieldToObject = async (
 
 export const objectToCustomField = async (
   subdomain,
-  customFieldType,
   object,
+  customFieldType: CustomFieldType,
 ) => {
   const fields = await sendCommonMessage({
     subdomain,

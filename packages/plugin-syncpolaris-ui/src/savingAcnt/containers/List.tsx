@@ -22,7 +22,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class savingContainer extends React.Component<FinalProps> {
+class SavingContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
   }
@@ -83,5 +83,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(savingContainer),
+  )(SavingContainer),
 );

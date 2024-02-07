@@ -227,10 +227,6 @@ class ContractForm extends React.Component<Props, State> {
     });
   };
 
-  onFieldClick = (e) => {
-    e.target.select();
-  };
-
   checkValidation = (): any => {
     const errors: any = {};
 

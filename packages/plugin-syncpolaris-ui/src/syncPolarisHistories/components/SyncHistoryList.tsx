@@ -14,10 +14,6 @@ interface IProps extends IRouterProps {
   queryParams: any;
 }
 class SyncHistoryList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;

@@ -1,5 +1,4 @@
-import { fetchPolaris, getClassificationCode, getLoanContract } from '../utils';
-import { IPolarisClassification } from './types';
+import { fetchPolaris, getLoanContract } from '../utils';
 
 export const getLoanCollaterials = async (subdomain, params) => {
   const loanContract = await getLoanContract(subdomain, params.contractId);

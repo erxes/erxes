@@ -22,11 +22,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class transactionLoanContainer extends React.Component<FinalProps, {}> {
-  constructor(props) {
-    super(props);
-  }
-
+class TransactionLoanContainer extends React.Component<FinalProps, {}> {
   render() {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;
@@ -84,5 +80,5 @@ export default withProps<Props>(
         }),
       },
     ),
-  )(transactionLoanContainer),
+  )(TransactionLoanContainer),
 );

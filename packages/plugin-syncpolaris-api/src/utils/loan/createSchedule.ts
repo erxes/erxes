@@ -1,11 +1,25 @@
 import { fetchPolaris } from '../utils';
 
+const getMethod = (method) => {
+  switch (method) {
+    case 'equal':
+      return '1';
+    case 'fixed':
+      return '3';
+    case 'custom':
+      return '4';
+
+    default:
+      break;
+  }
+};
+
 export const createLoanSchedule = async (subdomain: string, contract: any) => {
   const sendData = [
     contract.number,
     contract.startDate,
     contract.leaseAmount,
-    '1',
+    getMethod(contract.repayment),
     'M',
     null,
     contract.scheduleDays?.[0],

@@ -16,10 +16,6 @@ interface IProps extends IRouterProps {
 }
 
 class SavingAcnt extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
