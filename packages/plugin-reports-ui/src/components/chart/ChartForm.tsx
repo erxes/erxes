@@ -78,6 +78,7 @@ const ChartForm = (props: Props) => {
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
   const [dimension, setDimension] = useState<any>(chart?.dimension || {});
+  const [dimensions, setDimensions] = useState<any>([]);
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -87,6 +88,9 @@ const ChartForm = (props: Props) => {
     if (findChartTemplate) {
       setChartTypes(findChartTemplate.chartTypes);
       setFilterTypes(findChartTemplate.filterTypes);
+      if (findChartTemplate.dimensions) {
+        setDimensions(findChartTemplate.dimensions);
+      }
     }
   }, [[...chartTemplates]]);
 
@@ -179,7 +183,7 @@ const ChartForm = (props: Props) => {
 
   const renderDimensionSelection = (
     <Select
-      options={DIMENSION_OPTIONS}
+      options={dimensions}
       value={dimension?.x}
       onChange={(sel) => setDimension({ x: sel.value })}
     />
@@ -270,10 +274,14 @@ const ChartForm = (props: Props) => {
                       placeholder={__(`Choose type`)}
                     />
                   </FormGroup>
-                  <FormGroup>
-                    <ControlLabel>Dimension</ControlLabel>
-                    {renderDimensionSelection}
-                  </FormGroup>
+                  {dimensions.length ? (
+                    <FormGroup>
+                      <ControlLabel>Dimension</ControlLabel>
+                      {renderDimensionSelection}
+                    </FormGroup>
+                  ) : (
+                    <></>
+                  )}
                   <FormGroup>{renderFilterTypes}</FormGroup>
                 </>
               ) : (

@@ -37,10 +37,34 @@ const reportTemplates = [
       'averageFirstResponseTime',
       'averageCloseTime',
       'conversationsCount',
+      'closedConversationsCountByRep',
+      'conversationsCountByTag',
+      'conversationsCountBySource',
+      'conversationsCountByRep',
+      'conversationsCountByStatus',
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
   },
 ];
+
+const DIMENSION_OPTIONS = [
+  { label: 'Team members', value: 'teamMember' },
+  { label: 'Departments', value: 'department' },
+  { label: 'Branches', value: 'branch' },
+  { label: 'Source/Channel', value: 'source' },
+  { label: 'Brands', value: 'brand' },
+  { label: 'Tags', value: 'tag' },
+  { label: 'Labels', value: 'label' },
+  { label: 'Frequency (day, week, month)', value: 'frequency' },
+  { label: 'Status', value: 'status' },
+];
+
+// Chat conversation closed totals by rep
+// Chat conversation totals by Tag
+// Chat conversation totals by source
+// Chat conversation totals by rep
+// Chat conversation totals by chatflow
+// Chat conversation totals by status
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -565,14 +589,6 @@ const chartTemplates = [
         fieldLabel: 'Select source',
       },
       {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -581,6 +597,14 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
       },
     ],
   },
@@ -762,12 +786,263 @@ const chartTemplates = [
         fieldLabel: 'Select source',
       },
       {
+        fieldName: 'tagIds',
+        fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
+        multi: true,
+        fieldLabel: 'Select tags',
+      },
+      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATERANGE_TYPES,
         fieldLabel: 'Select date range',
+      },
+    ],
+  },
+  {
+    templateType: 'closedConversationsCountByRep',
+    name: 'Total closed conversations count by rep',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+      const filterStatus = filter.status;
+
+      let title = `${filterStatus} conversations' count`;
+
+      const {
+        departmentIds,
+        branchIds,
+        userIds,
+        brandIds,
+        dateRange,
+        integrationTypes,
+        tagIds,
+      } = filter;
+
+      let filterUserIds: any = [];
+      const integrationsDict = {};
+
+      if (checkFilterParam(departmentIds)) {
+        const findDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: filter.departmentIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        filterUserIds = findDepartmentUsers.map((user) => user._id);
+      }
+
+      if (checkFilterParam(branchIds)) {
+        const findBranchUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { branchIds: { $in: filter.branchIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        filterUserIds.push(...findBranchUsers.map((user) => user._id));
+      }
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      // if team members selected, go by team members
+      if (checkFilterParam(userIds)) {
+        filterUserIds = userIds;
+      }
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      // filter by status
+      if (filterStatus && filterStatus !== 'all') {
+        if (filterStatus === 'unassigned') {
+          matchfilter['assignedUserId'] = null;
+        } else {
+          //open or closed
+          matchfilter['status'] = filterStatus;
+        }
+      }
+
+      const integrationFindQuery = {};
+
+      // filter integrations by brands
+      if (checkFilterParam(brandIds)) {
+        integrationFindQuery['brandId'] = { $in: filter.brandIds };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds = integrations.map((i) => i._id);
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      // filter by source
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
+
+        integrationFindQuery['kind'] = { $in: integrationTypes };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds: string[] = [];
+
+        for (const integration of integrations) {
+          integrationsDict[integration._id] = integration.kind;
+          integrationIds.push(integration._id);
+        }
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      let userIdGroup;
+
+      matchfilter['closedUserId'] =
+        filter && (filter.userIds || filter.departmentIds || filter.branchIds)
+          ? {
+              $exists: true,
+              $in: filterUserIds,
+            }
+          : { $exists: true };
+
+      userIdGroup = {
+        $group: {
+          _id: '$closedUserId',
+          conversationsCount: { $sum: 1 },
+        },
+      };
+
+      const usersWithConvosCount = await models?.Conversations.aggregate([
+        {
+          $match: matchfilter,
+        },
+        userIdGroup,
+      ]);
+
+      const getUserIds: string[] =
+        usersWithConvosCount?.map((r) => r._id) || [];
+
+      const getTotalUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: getUserIds } },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const usersMap = {};
+      for (const user of getTotalUsers) {
+        usersMap[user._id] = {
+          fullName:
+            user.details?.fullName ||
+            `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
+          departmentIds: user.departmentIds,
+          branchIds: user.branchIds,
+        };
+      }
+
+      // team members
+      if (usersWithConvosCount) {
+        for (const user of usersWithConvosCount) {
+          if (!usersMap[user._id]) {
+            continue;
+          }
+
+          data.push(user.conversationsCount);
+          labels.push(usersMap[user._id].fullName);
+        }
+      }
+
+      const datasets = { title, data, labels };
+
+      return datasets;
+    },
+    filterTypes: [
+      {
+        fieldName: 'customDateFrequencyType',
+        fieldType: 'select',
+
+        logics: [
+          {
+            logicFieldName: 'dateRange',
+            logicFieldValue: 'customDate',
+          },
+        ],
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
+        fieldLabel: 'Select frequency type',
+      },
+      {
+        fieldName: 'userIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select users',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'integrationTypes',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'integrations',
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source',
+      },
+      {
+        fieldName: 'brandIds',
+        fieldType: 'select',
+        fieldQuery: 'allBrands',
+        multi: true,
+        fieldLabel: 'Select brands',
       },
       {
         fieldName: 'tagIds',
@@ -779,11 +1054,627 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select tags',
       },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ],
+  },
+  {
+    templateType: 'conversationsCountByTag',
+    name: 'Total conversations count by tag',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+
+      const { dateRange, tagIds } = filter;
+
+      let groupByQuery;
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      const query = checkFilterParam(tagIds) ? { _id: { $in: tagIds } } : {};
+
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          ...query,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const tagsMap: { [key: string]: string } = {};
+
+      for (const tag of tags) {
+        tagsMap[tag._id] = tag.name;
+      }
+
+      groupByQuery = {
+        $group: {
+          _id: '$tagIds',
+          conversationsCount: { $sum: 1 },
+        },
+      };
+
+      const convosCountByTag = await models?.Conversations.aggregate([
+        {
+          $match: { ...matchfilter, integrationId: { $exists: true } },
+        },
+        { $unwind: '$tagIds' },
+        groupByQuery,
+      ]);
+
+      if (convosCountByTag) {
+        for (const convo of convosCountByTag) {
+          data.push(convo.conversationsCount);
+          labels.push(tagsMap[convo._id]);
+        }
+      }
+
+      const title = 'Total conversations count by tag';
+
+      return { title, labels, data };
+    },
+    filterTypes: [
+      {
+        fieldName: 'tagIds',
+        fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
+        multi: true,
+        fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ],
+  },
+  {
+    templateType: 'conversationsCountBySource',
+    name: 'Total conversations count by source',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+
+      const { dateRange } = filter;
+
+      const groupByQuery = {
+        $group: {
+          _id: '$integrationId',
+          conversationsCount: { $sum: 1 },
+        },
+      };
+
+      const integrationFindQuery = {};
+      const integrationsDict = {};
+      const sourcesDict = {};
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      // filter by source
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
+
+        integrationFindQuery['kind'] = { $in: integrationTypes };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds: string[] = [];
+
+        for (const integration of integrations) {
+          integrationsDict[integration._id] = integration.kind;
+          integrationIds.push(integration._id);
+        }
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      const convosCountBySource = await models?.Conversations.aggregate([
+        {
+          $match: { ...matchfilter, integrationId: { $exists: true } },
+        },
+        groupByQuery,
+      ]);
+
+      const integrations = await models?.Integrations.find({});
+
+      if (integrations) {
+        for (const i of integrations) {
+          integrationsDict[i._id] = i.kind;
+        }
+      }
+
+      if (convosCountBySource) {
+        for (const convo of convosCountBySource) {
+          const integrationId = convo._id;
+          if (!integrationsDict[integrationId]) {
+            continue;
+          }
+          const integrationKind = integrationsDict[integrationId];
+
+          if (!sourcesDict[integrationKind]) {
+            sourcesDict[integrationKind] = convo.conversationsCount;
+            continue;
+          }
+
+          //increment
+          const getOldCount = sourcesDict[integrationKind];
+          const increment = getOldCount + convo.conversationsCount;
+          sourcesDict[integrationKind] = increment;
+        }
+
+        for (const source of Object.keys(sourcesDict)) {
+          labels.push(source);
+          data.push(sourcesDict[source]);
+        }
+      }
+
+      const title = 'Conversations count by source';
+      return { title, labels, data };
+    },
+    filterTypes: [
+      {
+        fieldName: 'integrationTypes',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'integrations',
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ],
+  },
+  {
+    templateType: 'conversationsCountByRep',
+    name: 'Total conversations count by rep',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+
+      const { departmentIds, branchIds, userIds, brandIds, dateRange, tagIds } =
+        filter;
+
+      let groupByQuery;
+      let userIdGroup;
+      let departmentUsers;
+      let filterUserIds: any = [];
+      const integrationsDict = {};
+      const integrationFindQuery = {};
+      const filterStatus = filter.status;
+      const title = 'Total conversations count by rep';
+
+      if (checkFilterParam(departmentIds)) {
+        const findDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: filter.departmentIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        departmentUsers = findDepartmentUsers;
+        filterUserIds = findDepartmentUsers.map((user) => user._id);
+      }
+
+      if (checkFilterParam(branchIds)) {
+        const findBranchUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { branchIds: { $in: filter.branchIds } },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+
+        filterUserIds.push(...findBranchUsers.map((user) => user._id));
+      }
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      // if team members selected, go by team members
+      if (checkFilterParam(userIds)) {
+        filterUserIds = userIds;
+      }
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+
+      // filter integrations by brands
+      if (checkFilterParam(brandIds)) {
+        integrationFindQuery['brandId'] = { $in: filter.brandIds };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds = integrations.map((i) => i._id);
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      // filter by source
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
+
+        integrationFindQuery['kind'] = { $in: integrationTypes };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds: string[] = [];
+
+        for (const integration of integrations) {
+          integrationsDict[integration._id] = integration.kind;
+          integrationIds.push(integration._id);
+        }
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      if (filterStatus === 'open' || filterStatus === 'all') {
+        matchfilter['assignedUserId'] =
+          filter &&
+          ((userIds && userIds.length) ||
+            (departmentIds && departmentIds.length) ||
+            (branchIds && branchIds.length))
+            ? {
+                $exists: true,
+                $in: filterUserIds,
+              }
+            : { $exists: true, $ne: null };
+
+        userIdGroup = {
+          $group: {
+            _id: '$assignedUserId',
+            conversationsCount: {
+              $sum: 1,
+            },
+          },
+        };
+      }
+      if (filterStatus === 'closed') {
+        matchfilter['closedUserId'] =
+          filter && (filter.userIds || filter.departmentIds || filter.branchIds)
+            ? {
+                $exists: true,
+                $in: filterUserIds,
+              }
+            : { $exists: true };
+
+        userIdGroup = {
+          $group: {
+            _id: '$closedUserId',
+            conversationsCount: { $sum: 1 },
+          },
+        };
+      }
+
+      if (filterStatus === 'unassigned') {
+        const totalUnassignedConvosCount =
+          (await models?.Conversations.count(matchfilter)) || 0;
+
+        data.push(totalUnassignedConvosCount);
+        labels.push('Total unassigned conversations');
+
+        return { title, data, labels };
+      }
+
+      const usersWithConvosCount = await models?.Conversations.aggregate([
+        {
+          $match: matchfilter,
+        },
+        userIdGroup,
+      ]);
+
+      const getUserIds: string[] =
+        usersWithConvosCount?.map((r) => r._id) || [];
+
+      const getTotalUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: getUserIds } },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const usersMap = {};
+      for (const user of getTotalUsers) {
+        usersMap[user._id] = {
+          fullName:
+            user.details?.fullName ||
+            `${user.details?.firstName || ''} ${user.details?.lastName || ''}`,
+          departmentIds: user.departmentIds,
+          branchIds: user.branchIds,
+        };
+      }
+
+      if (usersWithConvosCount) {
+        for (const user of usersWithConvosCount) {
+          if (!usersMap[user._id]) {
+            continue;
+          }
+
+          data.push(user.conversationsCount);
+          labels.push(usersMap[user._id].fullName);
+        }
+      }
+
+      return { title, labels, data };
+    },
+    filterTypes: [
+      {
+        fieldName: 'status',
+        fieldType: 'select',
+        multi: false,
+        fieldOptions: STATUS_TYPES,
+        fieldLabel: 'Select conversation status',
+      },
+      {
+        fieldName: 'userIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select users',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'integrationTypes',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'integrations',
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source',
+      },
+      {
+        fieldName: 'brandIds',
+        fieldType: 'select',
+        fieldQuery: 'allBrands',
+        multi: true,
+        fieldLabel: 'Select brands',
+      },
+      {
+        fieldName: 'tagIds',
+        fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
+        multi: true,
+        fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ],
+  },
+  {
+    templateType: 'conversationsCountByStatus',
+    name: 'Total conversations count by status',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const data: number[] = [];
+      const labels: string[] = [];
+
+      const matchfilter = {};
+
+      const { dateRange, tagIds } = filter;
+
+      let groupByQuery;
+      const integrationsDict = {};
+      const integrationFindQuery = {};
+
+      const title = 'Conversations count by status';
+
+      if (dateRange) {
+        const { startDate, endDate } = filter;
+        const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      // filter by tags
+      if (checkFilterParam(tagIds)) {
+        matchfilter['tagIds'] = { $in: tagIds };
+      }
+
+      // filter by source
+      if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
+        const { integrationTypes } = filter;
+
+        integrationFindQuery['kind'] = { $in: integrationTypes };
+
+        const integrations: any =
+          await models?.Integrations.find(integrationFindQuery);
+
+        const integrationIds: string[] = [];
+
+        for (const integration of integrations) {
+          integrationsDict[integration._id] = integration.kind;
+          integrationIds.push(integration._id);
+        }
+
+        matchfilter['integrationId'] = { $in: integrationIds };
+      }
+
+      groupByQuery = {
+        $group: {
+          _id: '$status',
+          conversationsCount: { $sum: 1 },
+        },
+      };
+
+      const convosCountByStatus = await models?.Conversations.aggregate([
+        {
+          $match: matchfilter,
+        },
+        groupByQuery,
+      ]);
+
+      if (convosCountByStatus) {
+        for (const convo of convosCountByStatus) {
+          data.push(convo.conversationsCount);
+          labels.push(convo._id);
+        }
+      }
+
+      return { title, data, labels };
+    },
+    filterTypes: [
+      {
+        fieldName: 'integrationTypes',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'integrations',
+        fieldOptions: INTEGRATION_TYPES,
+        fieldLabel: 'Select source',
+      },
+      {
+        fieldName: 'tagIds',
+        fieldType: 'select',
+        fieldQuery: 'tags',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
+        multi: true,
+        fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
     ],
   },
   {
     templateType: 'conversationsCount',
-    name: 'Conversations count by rep',
+    name: 'Conversations count',
     chartTypes: [
       'bar',
       'line',
@@ -1473,14 +2364,6 @@ const chartTemplates = [
         fieldLabel: 'Select brands',
       },
       {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATERANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -1490,7 +2373,16 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select tags',
       },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATERANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
     ],
+    dimensions: DIMENSION_OPTIONS,
   },
 ];
 
