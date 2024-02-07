@@ -221,5 +221,5 @@ export default {
   automationHistories,
   automationsTotalCount,
   automationConfigPrievewCount,
-  automationConstants,
+  automationConstants
 };

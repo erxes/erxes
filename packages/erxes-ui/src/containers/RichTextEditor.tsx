@@ -25,7 +25,7 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
   // check - FieldsCombinedByType
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
-    { value: 'customer.name', name: 'Name' },
+    { value: 'customer.name', name: 'Name' }
   ];
 
   if (contentType) {
@@ -34,14 +34,14 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
     items.splice(0);
 
     items = [{ name: capitalize(type) }].concat(
-      (combinedFields || []).map((field) => ({
+      (combinedFields || []).map(field => ({
         value: `${type}.${field.name}`,
-        name: field.label,
-      })),
+        name: field.label
+      }))
     );
   } else {
-    (combinedFields || []).forEach((field) =>
-      items.push({ value: `customer.${field.name}`, name: field.label }),
+    (combinedFields || []).forEach(field =>
+      items.push({ value: `customer.${field.name}`, name: field.label })
     );
   }
 
@@ -54,13 +54,13 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
 
     { name: 'Organization' },
     { value: 'brandName', name: 'BrandName' },
-    { value: 'domain', name: 'Domain' },
+    { value: 'domain', name: 'Domain' }
   ];
 
   return {
     items,
     title: 'Attributes',
-    label: 'Attributes',
+    label: 'Attributes'
   };
 };
 
@@ -96,7 +96,7 @@ const EditorContainer = (props: FinalProps) => {
         avatar:
           user.details &&
           user.details.avatar &&
-          readFile(user.details.avatar, 44),
+          readFile(user.details.avatar, 44)
       });
     }
     return mentionUsers;
@@ -118,7 +118,7 @@ const EditorContainer = (props: FinalProps) => {
       {...otherProps}
       showMentions={showMentions}
       {...(showMentions && {
-        mentionSuggestion: { getVariables, fetchMentions, extractFunction },
+        mentionSuggestion: { getVariables, fetchMentions, extractFunction }
       })}
       placeholderProp={placeholderItems}
     />
@@ -131,10 +131,10 @@ export default withProps<IEditorProps>(
       name: 'combinedFieldsQuery',
       options: ({ contentType }) => ({
         variables: {
-          contentType: contentType || 'customer',
-        },
+          contentType: contentType || 'customer'
+        }
       }),
-      skip: !isEnabled('segments'),
-    }),
-  )(EditorContainer),
+      skip: !isEnabled('segments')
+    })
+  )(EditorContainer)
 );

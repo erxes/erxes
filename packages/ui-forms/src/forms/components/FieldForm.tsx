@@ -22,7 +22,7 @@ import {
   LeftSection,
   Preview,
   PreviewSection,
-  ShowPreview,
+  ShowPreview
 } from '../styles';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
@@ -55,7 +55,7 @@ class FieldForm extends React.Component<Props, State> {
 
     const selectedOption = field.associatedField && {
       value: field.associatedField._id,
-      label: field.associatedField.text,
+      label: field.associatedField.text
     };
 
     let group =
@@ -72,13 +72,13 @@ class FieldForm extends React.Component<Props, State> {
     this.state = {
       field,
       selectedOption,
-      group,
+      group
     };
   }
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[],
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -100,17 +100,17 @@ class FieldForm extends React.Component<Props, State> {
     this.setState({ field });
   };
 
-  onPropertyGroupChange = (e) => {
+  onPropertyGroupChange = e => {
     this.setState({
-      group: (e.currentTarget as HTMLInputElement).value,
+      group: (e.currentTarget as HTMLInputElement).value
     });
   };
 
-  onChangeLocation = (options) => {
+  onChangeLocation = options => {
     this.setFieldAttrChanges('locationOptions', options);
   };
 
-  onChangeObjectListConfig = (objectListConfigs) => {
+  onChangeObjectListConfig = objectListConfigs => {
     this.setFieldAttrChanges('objectListConfigs', objectListConfigs);
   };
 
@@ -148,12 +148,12 @@ class FieldForm extends React.Component<Props, State> {
       field,
       selectedOption: {
         value: selectedField._id,
-        label: selectedField.text || '',
-      },
+        label: selectedField.text || ''
+      }
     });
   };
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.persist();
 
     const { field } = this.state;
@@ -163,7 +163,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[],
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
     field[attributeName] = value;
@@ -179,28 +179,28 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const validation = (e) =>
+    const validation = e =>
       this.onFieldChange(
         'validation',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+        <ControlLabel htmlFor='validation'>Validation:</ControlLabel>
 
         <FormControl
-          id="validation"
-          componentClass="select"
+          id='validation'
+          componentClass='select'
           value={field.validation || ''}
           onChange={validation}
         >
           <option />
-          <option value="email">{__('Email')}</option>
-          <option value="number">{__('Number')}</option>
-          <option value="datetime">{__('Date Time')}</option>
-          <option value="date">{__('Date')}</option>
-          <option value="phone">{__('Phone')}</option>
+          <option value='email'>{__('Email')}</option>
+          <option value='number'>{__('Number')}</option>
+          <option value='datetime'>{__('Date Time')}</option>
+          <option value='date'>{__('Date')}</option>
+          <option value='phone'>{__('Phone')}</option>
         </FormControl>
       </FormGroup>
     );
@@ -209,10 +209,10 @@ class FieldForm extends React.Component<Props, State> {
   renderOptions() {
     const { field } = this.state;
 
-    const onChange = (e) =>
+    const onChange = e =>
       this.onFieldChange(
         'options',
-        (e.currentTarget as HTMLInputElement).value.split('\n'),
+        (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
     if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
@@ -221,11 +221,11 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="type">Options:</ControlLabel>
+        <ControlLabel htmlFor='type'>Options:</ControlLabel>
 
         <FormControl
-          id="options"
-          componentClass="textarea"
+          id='options'
+          componentClass='textarea'
           value={(field.options || []).join('\n')}
           onChange={onChange}
         />
@@ -242,7 +242,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        <ControlLabel htmlFor='locationOptions'>Options:</ControlLabel>
         <LocationOptions
           locationOptions={field.locationOptions || []}
           onChange={this.onChangeLocation}
@@ -258,13 +258,13 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onDelete = (e) => {
+    const onDelete = e => {
       e.preventDefault();
       this.props.onDelete(field);
     };
 
     return (
-      <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
+      <Button btnStyle='danger' onClick={onDelete} icon='minus-circle-1'>
         Delete
       </Button>
     );
@@ -279,7 +279,7 @@ class FieldForm extends React.Component<Props, State> {
       return;
     }
 
-    const onChange = (e) => {
+    const onChange = e => {
       field.type = e.target.checked ? 'multiSelect' : 'select';
       this.setState({ field });
     };
@@ -287,14 +287,14 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <FlexRow>
-          <ControlLabel htmlFor="description">
+          <ControlLabel htmlFor='description'>
             {__('Select multiple values')}
           </ControlLabel>
           <Toggle
             defaultChecked={field.type === 'multiSelect'}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>,
+              unchecked: <span>No</span>
             }}
             onChange={onChange}
           />
@@ -312,7 +312,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="objectListConfigs">
+        <ControlLabel htmlFor='objectListConfigs'>
           Object List Configs:
         </ControlLabel>
         <ObjectListConfigs
@@ -327,7 +327,7 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = this.state;
     const { optionsValues } = this.props.field;
 
-    const handleChange = (e) => {
+    const handleChange = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       this.onFieldChange('optionsValues', value);
@@ -339,8 +339,8 @@ class FieldForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('Value')}</ControlLabel>
             <FormControl
-              id="FieldValue"
-              componentClass="textarea"
+              id='FieldValue'
+              componentClass='textarea'
               defaultValue={optionsValues}
               onChange={handleChange}
             />
@@ -364,13 +364,13 @@ class FieldForm extends React.Component<Props, State> {
       options.push({ label: i + 1, value: i + 1 });
     }
 
-    const onChange = (option) => {
+    const onChange = option => {
       this.onFieldChange('pageNumber', option.value);
     };
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
+        <ControlLabel htmlFor='pageNumber'>Page number</ControlLabel>
         <Select
           isRequired={true}
           value={field.pageNumber || 1}
@@ -386,7 +386,7 @@ class FieldForm extends React.Component<Props, State> {
     const { fields } = this.props;
     const { field } = this.state;
 
-    const onChange = (value) => {
+    const onChange = value => {
       this.setState({ field: value });
     };
 
@@ -401,13 +401,13 @@ class FieldForm extends React.Component<Props, State> {
     const { fields } = this.props;
     const { field } = this.state;
 
-    const text = (e) =>
+    const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
-    const toggle = (e) =>
+    const toggle = e =>
       this.onFieldChange(
         'isRequired',
-        (e.currentTarget as HTMLInputElement).checked,
+        (e.currentTarget as HTMLInputElement).checked
       );
 
     return (
@@ -418,13 +418,13 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
+            <ControlLabel htmlFor='text' required={true}>
               Field Label
             </ControlLabel>
 
             <FormControl
-              id="FieldLabel"
-              type="text"
+              id='FieldLabel'
+              type='text'
               value={field.text || ''}
               onChange={text}
               autoFocus={true}
@@ -432,7 +432,7 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel htmlFor="description">Field description</ControlLabel>
+            <ControlLabel htmlFor='description'>Field description</ControlLabel>
             <RichTextEditor
               content={field.description || ''}
               toolbar={[
@@ -444,7 +444,7 @@ class FieldForm extends React.Component<Props, State> {
                 'link',
                 'unlink',
                 '|',
-                'image',
+                'image'
               ]}
               autoGrow={true}
               autoGrowMinHeight={120}
@@ -459,14 +459,14 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <FlexRow>
-              <ControlLabel htmlFor="description">
+              <ControlLabel htmlFor='description'>
                 {__('Field is required')}
               </ControlLabel>
               <Toggle
                 defaultChecked={field.isRequired || false}
                 icons={{
                   checked: <span>Yes</span>,
-                  unchecked: <span>No</span>,
+                  unchecked: <span>No</span>
                 }}
                 onChange={toggle}
               />
@@ -492,7 +492,7 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderColumn()}
           {loadDynamicComponent('extendFormField', {
             field,
-            onChange: this.onFieldChange,
+            onChange: this.onFieldChange
           })}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
@@ -502,7 +502,7 @@ class FieldForm extends React.Component<Props, State> {
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields.filter(
-                (f) => !(field.subFieldIds || []).includes(f._id),
+                f => !(field.subFieldIds || []).includes(f._id)
               )}
               currentField={field}
               onFieldChange={this.onFieldChange}
@@ -525,9 +525,9 @@ class FieldForm extends React.Component<Props, State> {
 
           <Modal.Footer>
             <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
+              btnStyle='simple'
+              type='button'
+              icon='times-circle'
               onClick={onCancel}
             >
               Cancel
@@ -537,7 +537,7 @@ class FieldForm extends React.Component<Props, State> {
 
             <Button
               onClick={this.onSubmit}
-              btnStyle="success"
+              btnStyle='success'
               icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
             >
               {mode === 'update' ? 'Save' : 'Add to Form'}
@@ -550,7 +550,7 @@ class FieldForm extends React.Component<Props, State> {
             <FieldPreview field={field} otherFields={this.props.fields} />
 
             <ShowPreview>
-              <Icon icon="eye" /> {__('Field preview')}
+              <Icon icon='eye' /> {__('Field preview')}
             </ShowPreview>
           </Preview>
         </PreviewSection>
@@ -573,7 +573,7 @@ class FieldForm extends React.Component<Props, State> {
         'companyPhone',
         'html',
         'productCategory',
-        'parentField',
+        'parentField'
       ].includes(field.type)
     ) {
       return null;
@@ -584,8 +584,8 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
-            id="propertyGroup"
-            componentClass="select"
+            id='propertyGroup'
+            componentClass='select'
             defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
@@ -606,10 +606,10 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onCategoryChange = (e) => {
+    const onCategoryChange = e => {
       this.onFieldChange(
         'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
     };
 
@@ -618,13 +618,13 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Categories:</ControlLabel>
           <FormControl
-            id="productCategories"
-            componentClass="select"
+            id='productCategories'
+            componentClass='select'
             defaultValue={field.productCategoryId || ''}
             onChange={onCategoryChange}
           >
             <option>-</option>
-            {productCategories.map((category) => (
+            {productCategories.map(category => (
               <option key={category._id} value={category._id}>
                 {category.name}
               </option>
@@ -642,19 +642,19 @@ class FieldForm extends React.Component<Props, State> {
       return;
     }
 
-    const onChangeColumn = (e) =>
+    const onChangeColumn = e =>
       this.onFieldChange(
         'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10),
+        parseInt((e.currentTarget as HTMLInputElement).value, 10)
       );
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="validation">Field width:</ControlLabel>
+        <ControlLabel htmlFor='validation'>Field width:</ControlLabel>
 
         <FormControl
-          id="validation"
-          componentClass="select"
+          id='validation'
+          componentClass='select'
           value={field.column || ''}
           onChange={onChangeColumn}
         >
@@ -676,7 +676,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor="html">HTML:</ControlLabel>
+        <ControlLabel htmlFor='html'>HTML:</ControlLabel>
         <RichTextEditor
           content={field.content || ''}
           toolbar={[
@@ -688,7 +688,7 @@ class FieldForm extends React.Component<Props, State> {
             'link',
             'unlink',
             '|',
-            'image',
+            'image'
           ]}
           autoFocus={true}
           autoGrow={true}
@@ -706,20 +706,20 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const groupName = (e) =>
+    const groupName = e =>
       this.onFieldChange(
         'groupName',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
     return (
       <FormGroup>
-        <ControlLabel htmlFor="text" required={false}>
+        <ControlLabel htmlFor='text' required={false}>
           Group Name
         </ControlLabel>
         <p>Use with logic and group multiple fields</p>
         <FormControl
-          id="GroupName"
-          type="text"
+          id='GroupName'
+          type='text'
           value={field.groupName || ''}
           onChange={groupName}
           autoFocus={false}
@@ -745,7 +745,7 @@ class FieldForm extends React.Component<Props, State> {
           <SelectProperty
             queryParams={{ type: group }}
             defaultValue={defaultValue}
-            description="Any data collected through this field will copy to:"
+            description='Any data collected through this field will copy to:'
             onChange={this.onPropertyChange}
           />
         </FormGroup>
@@ -759,7 +759,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <Modal
         show={true}
-        size="xl"
+        size='xl'
         onHide={onCancel}
         animation={false}
         enforceFocus={false}
@@ -769,7 +769,7 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body id="ModalBody" className="md-padding">
+        <Modal.Body id='ModalBody' className='md-padding'>
           {this.renderContent()}
         </Modal.Body>
       </Modal>

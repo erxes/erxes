@@ -1,7 +1,7 @@
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
 import React, { useEffect, useState } from 'react';
@@ -27,13 +27,13 @@ function Form(props: Props) {
   const [data, setData] = useState({} as any);
 
   useEffect(() => {
-    entryValues.forEach((val) => {
-      setData((dat) => ({
+    entryValues.forEach(val => {
+      setData(dat => ({
         ...dat,
         [val.fieldCode]: {
           fieldCode: val.fieldCode,
-          value: val.value,
-        },
+          value: val.value
+        }
       }));
     });
   }, []);
@@ -43,7 +43,7 @@ function Form(props: Props) {
   const submit = () => {
     const values = [] as any;
 
-    fields.map((field) => {
+    fields.map(field => {
       const key = field.code;
 
       if (data[key]) {
@@ -53,19 +53,19 @@ function Form(props: Props) {
 
     const doc = {
       contentTypeId: contentType._id,
-      values,
+      values
     } as any;
 
     save(doc.contentTypeId, doc.values);
   };
 
   const onChange = (fieldCode: string, value: any) => {
-    setData((dat) => ({
+    setData(dat => ({
       ...dat,
       [fieldCode]: {
         fieldCode,
-        value,
-      },
+        value
+      }
     }));
   };
 
@@ -78,7 +78,7 @@ function Form(props: Props) {
         input = (
           <RichTextEditor
             content={value}
-            onChange={(content) => onChange(field.code, content)}
+            onChange={content => onChange(field.code, content)}
             height={250}
           />
         );
@@ -102,8 +102,8 @@ function Form(props: Props) {
                     {
                       name: field.code,
                       url: value,
-                      type: 'image',
-                    },
+                      type: 'image'
+                    }
                   ]
                 : []
             }
@@ -117,7 +117,7 @@ function Form(props: Props) {
 
     return (
       <FormGroup key={field.code}>
-        <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
+        <ControlLabel htmlFor='html'>{field.text}:</ControlLabel>
         {input}
       </FormGroup>
     );
@@ -126,8 +126,8 @@ function Form(props: Props) {
   const renderButtons = () => {
     const cancelButton = (
       <Button
-        btnStyle="simple"
-        icon="times-circle"
+        btnStyle='simple'
+        icon='times-circle'
         onClick={closeModal}
         uppercase={false}
       >
@@ -140,7 +140,7 @@ function Form(props: Props) {
         {cancelButton}
 
         <Button
-          btnStyle="success"
+          btnStyle='success'
           icon={'check-circle'}
           uppercase={false}
           onClick={() => submit()}
@@ -155,7 +155,7 @@ function Form(props: Props) {
     <>
       <FormWrapper>
         <FormColumn>
-          {fields.map((field) => {
+          {fields.map(field => {
             return renderField(field);
           })}
         </FormColumn>

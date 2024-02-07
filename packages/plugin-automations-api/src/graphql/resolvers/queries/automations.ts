@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendSegmentsMessage } from '../../../messageBroker';
@@ -71,14 +71,14 @@ const automationQueries = {
 
     const automations = paginate(
       models.Automations.find(filter).sort({ createdAt: -1 }).lean(),
-      { perPage, page },
+      { perPage, page }
     );
 
     const totalCount = await models.Automations.find(filter).countDocuments();
 
     return {
       list: automations,
-      totalCount,
+      totalCount
     };
   },
 
@@ -88,7 +88,7 @@ const automationQueries = {
   async automationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Automations.getAutomation(_id);
   },
@@ -99,10 +99,10 @@ const automationQueries = {
   automationNotes(
     _root,
     params: { automationId: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Notes.find({ automationId: params.automationId }).sort({
-      createdAt: -1,
+      createdAt: -1
     });
   },
 
@@ -118,7 +118,7 @@ const automationQueries = {
       triggerId,
       status,
       beginDate,
-      endDate,
+      endDate
     } = params;
 
     const filter: any = { automationId };
@@ -145,14 +145,14 @@ const automationQueries = {
 
     return paginate(models.Executions.find(filter).sort({ createdAt: -1 }), {
       page,
-      perPage,
+      perPage
     });
   },
 
   async automationConfigPrievewCount(
     _root,
     params: { config: any },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const config = params.config;
     if (!config) {
@@ -168,7 +168,7 @@ const automationQueries = {
       subdomain,
       action: 'findOne',
       data: { _id: contentId },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!segment) {
@@ -180,9 +180,9 @@ const automationQueries = {
       action: 'fetchSegment',
       data: {
         segmentId: segment._id,
-        options: { returnCount: true },
+        options: { returnCount: true }
       },
-      isRPC: true,
+      isRPC: true
     });
 
     return result;
@@ -191,7 +191,7 @@ const automationQueries = {
   async automationsTotalCount(
     _root,
     { status }: { status: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const filter: any = {};
 
@@ -214,7 +214,7 @@ const automationQueries = {
       triggersConst: [],
       triggerTypesConst: [],
       actionsConst: [...UI_ACTIONS],
-      propertyTypesConst: [],
+      propertyTypesConst: []
     };
 
     for (const serviceName of services) {
@@ -230,7 +230,7 @@ const automationQueries = {
           constants.triggerTypesConst.push(trigger.type);
           constants.propertyTypesConst.push({
             value: trigger.type,
-            label: trigger.label,
+            label: trigger.label
           });
         }
 
@@ -240,26 +240,26 @@ const automationQueries = {
 
         if (!!pluginConstants?.emailRecipientTypes?.length) {
           const updatedEmailRecipIentTypes =
-            pluginConstants.emailRecipientTypes.map((eRT) => ({
+            pluginConstants.emailRecipientTypes.map(eRT => ({
               ...eRT,
-              serviceName,
+              serviceName
             }));
-          constants.actionsConst = constants.actionsConst.map((actionConst) =>
+          constants.actionsConst = constants.actionsConst.map(actionConst =>
             actionConst.type === 'sendEmail'
               ? {
                   ...actionConst,
                   emailRecipientsConst: actionConst.emailRecipientsConst.concat(
-                    updatedEmailRecipIentTypes,
-                  ),
+                    updatedEmailRecipIentTypes
+                  )
                 }
-              : actionConst,
+              : actionConst
           );
         }
       }
     }
 
     return constants;
-  },
+  }
 };
 
 requireLogin(automationQueries, 'automationsMain');
@@ -269,7 +269,7 @@ requireLogin(automationQueries, 'automationDetail');
 checkPermission(automationQueries, 'automations', 'showAutomations', []);
 checkPermission(automationQueries, 'automationsMain', 'showAutomations', {
   list: [],
-  totalCount: 0,
+  totalCount: 0
 });
 
 export default automationQueries;

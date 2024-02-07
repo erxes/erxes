@@ -5,7 +5,7 @@ import styledTS from 'styled-components-ts';
 import styled from 'styled-components';
 
 export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
-  styled.div,
+  styled.div
 )`
   max-width: 300px;
   padding: 3px;
@@ -23,7 +23,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
   }
 
   .header {
-    background: ${(props) =>
+    background: ${props =>
       props.type === 'trigger'
         ? rgba(colors.colorPrimary, 0.12)
         : rgba(colors.colorCoreOrange, 0.12)};
@@ -50,7 +50,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
         flex-shrink: 0;
         margin-right: ${dimensions.unitSpacing}px;
         background: ${colors.colorWhite};
-        color: ${(props) =>
+        color: ${props =>
           props.type === 'trigger'
             ? colors.colorSecondary
             : `${colors.colorCoreOrange} !important`};
@@ -102,7 +102,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
   }
 
   .optional-connects {
-    background-color:${(props) =>
+    background-color:${props =>
       props.type === 'trigger'
         ? rgba(colors.colorPrimary, 0.12)
         : rgba(colors.colorCoreOrange, 0.12)};

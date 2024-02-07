@@ -12,7 +12,7 @@ import { renderDynamicComponent } from '../../utils';
 import {
   BRANCH_HANDLE_OPTIONS,
   DEFAULT_HANDLE_OPTIONS,
-  DEFAULT_HANDLE_STYLE,
+  DEFAULT_HANDLE_STYLE
 } from './constants';
 import { ScratchNode as CommonScratchNode, Trigger } from './styles';
 import { checkNote } from './utils';
@@ -40,7 +40,7 @@ type Props = {
     config: any;
     toggleDrawer: ({
       type,
-      awaitingActionId,
+      awaitingActionId
     }: {
       type: string;
       awaitingActionId?: string;
@@ -64,7 +64,7 @@ export const ScratchNode = ({ data }: Props) => {
 
   return (
     <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
-      <Icon icon="file-plus" size={25} />
+      <Icon icon='file-plus' size={25} />
       <p>{__('How do you want to trigger this automation')}?</p>
     </CommonScratchNode>
   );
@@ -74,24 +74,24 @@ const renderTriggerContent = (
   constants: any[] = [],
   nodeType,
   type,
-  config,
+  config
 ) => {
   if (nodeType !== 'trigger') {
     return null;
   }
-  const constant = (constants || []).find((c) => c.type === type);
+  const constant = (constants || []).find(c => c.type === type);
 
   if (!!constant?.isCustom) {
     return (
-      <div className="triggerContent">
+      <div className='triggerContent'>
         {renderDynamicComponent(
           {
             componentType: 'triggerContent',
             config,
             constant,
-            triggerType: type,
+            triggerType: type
           },
-          constant.type,
+          constant.type
         )}
       </div>
     );
@@ -115,7 +115,7 @@ export default memo(({ id, data }: Props) => {
 
   const handleOnClick = ({
     optionId,
-    isOptionalConnect,
+    isOptionalConnect
   }: {
     optionId: string;
     isOptionalConnect?: boolean;
@@ -125,7 +125,7 @@ export default memo(({ id, data }: Props) => {
         type: `actions`,
         awaitingActionId: isOptionalConnect
           ? optionId.replace('-right', '')
-          : id,
+          : id
       });
     }
   };
@@ -134,7 +134,7 @@ export default memo(({ id, data }: Props) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = (e) => {
+  const removeNode = e => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -145,7 +145,7 @@ export default memo(({ id, data }: Props) => {
 
       return (
         <CommonForm
-          renderContent={(formProps) => (
+          renderContent={formProps => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -160,11 +160,11 @@ export default memo(({ id, data }: Props) => {
     };
 
     const trigger = (
-      <i className="icon-notes add-note" title={__('Write Note')}></i>
+      <i className='icon-notes add-note' title={__('Write Note')}></i>
     );
 
     return (
-      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
+      <ModalTrigger content={content} trigger={trigger} title='' hideHeader />
     );
   };
 
@@ -174,22 +174,22 @@ export default memo(({ id, data }: Props) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      (c) => c.type === data[`${data.nodeType}Type`],
+      c => c.type === data[`${data.nodeType}Type`]
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = (optionalId) => (
+    const handle = optionalId => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
-        type="source"
+        type='source'
         position={Position.Right}
         onClick={handleOnClick.bind(this, {
           optionId: `${id}-${optionalId}-right`,
-          isOptionalConnect: true,
+          isOptionalConnect: true
         })}
         isConnectable
         style={{
@@ -198,20 +198,20 @@ export default memo(({ id, data }: Props) => {
           height: 15,
           backgroundColor: colors.colorWhite,
           border: `2px solid ${colors.colorCoreGray}`,
-          zIndex: 4,
+          zIndex: 4
         }}
       />
     );
 
     return (
-      <div className="optional-connects">
+      <div className='optional-connects'>
         {renderDynamicComponent(
           {
             componentType: 'optionalContent',
             data,
-            handle,
+            handle
           },
-          constant.type,
+          constant.type
         )}
       </div>
     );
@@ -230,12 +230,12 @@ export default memo(({ id, data }: Props) => {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <div className="header">
-          <div className="custom-menu">
+        <div className='header'>
+          <div className='custom-menu'>
             <div>
               {renderNote()}
               <i
-                className="icon-trash-alt delete-control"
+                className='icon-trash-alt delete-control'
                 onClick={removeNode}
                 title={__('Delete')}
               ></i>
@@ -252,17 +252,17 @@ export default memo(({ id, data }: Props) => {
           constants.triggersConst,
           data.nodeType,
           data.triggerType,
-          config,
+          config
         )}
 
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
-        (option) =>
+        option =>
           showHandler(data, option) && (
             <Handle
               key={option.id}
-              type="source"
+              type='source'
               position={option.position}
               id={option.id}
               onClick={handleOnClick.bind(this, { optionId: option.id })}
@@ -272,14 +272,14 @@ export default memo(({ id, data }: Props) => {
                 <div
                   style={{
                     ...option.labelStyle,
-                    color: option.style.background,
+                    color: option.style.background
                   }}
                 >
                   {option.label}
                 </div>
               )}
             </Handle>
-          ),
+          )
       )}
     </>
   );

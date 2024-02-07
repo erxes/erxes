@@ -56,7 +56,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
 
     this.state = {
-      config,
+      config
     };
   }
 
@@ -66,7 +66,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
   }
 
-  onSelect = (conf) => {
+  onSelect = conf => {
     const { inputName } = this.props;
     const { config } = this.state;
     config[inputName] = conf[inputName];
@@ -86,7 +86,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <SelectOption
         inputName={inputName}
         config={this.state.config}
-        setConfig={(conf) => this.onSelect(conf)}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
         options={options || []}
         isMulti={isMulti}
@@ -104,7 +104,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       <SelectDate
         inputName={inputName}
         config={this.state.config}
-        setConfig={(conf) => this.onSelect(conf)}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
       />
     );
@@ -136,7 +136,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       attrTypes,
       triggerConfig,
       fieldType,
-      attrWithSegmentConfig,
+      attrWithSegmentConfig
     } = this.props;
     if (excludeAttr || fieldType === 'stage') {
       return '';
@@ -145,19 +145,19 @@ class PlaceHolderInput extends React.Component<Props, State> {
     const updatedProps = {
       inputName: inputName,
       config: this.state.config,
-      setConfig: (conf) => this.onSelect(conf),
+      setConfig: conf => this.onSelect(conf),
       triggerType: this.props.triggerType,
       onlySet: this.getOnlySet(),
       fieldType: fieldType,
       attrType: attrType,
       attrTypes: attrTypes,
-      customAttributions: this.props.customAttributions,
+      customAttributions: this.props.customAttributions
     };
 
     if (attrWithSegmentConfig) {
       return (
         <AttriibutionForms segmentId={triggerConfig?.contentId}>
-          {(config) => {
+          {config => {
             return <Attribution {...updatedProps} attrConfig={config} />;
           }}
         </AttriibutionForms>
@@ -167,7 +167,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     return <Attribution {...updatedProps} />;
   }
 
-  onChange = (e) => {
+  onChange = e => {
     const { inputName, fieldType } = this.props;
     if (['select'].includes(fieldType || '')) {
       return;
@@ -181,7 +181,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     this.props.onChange(config);
   };
 
-  onKeyPress = (e) => {
+  onKeyPress = e => {
     const { fieldType } = this.props;
     if (['select'].includes(fieldType || '')) {
       return;
@@ -197,7 +197,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
   };
 
-  onKeyDown = (e) => {
+  onKeyDown = e => {
     if (e.keyCode === 8) {
       const { value } = e.currentTarget as HTMLInputElement;
       const { config, inputName } = this.props;
@@ -227,9 +227,9 @@ class PlaceHolderInput extends React.Component<Props, State> {
             component={plugin.automation}
             injectedProps={{
               ...this.props,
-              setConfig: (conf) => this.onSelect(conf),
+              setConfig: conf => this.onSelect(conf),
               triggerType: type,
-              componentType: 'selectBoard',
+              componentType: 'selectBoard'
             }}
           />
         );
@@ -247,7 +247,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       additionalContent,
       required,
       componentClass,
-      placeholder,
+      placeholder
     } = this.props;
 
     let converted: string = config[inputName] || '';
@@ -256,11 +256,11 @@ class PlaceHolderInput extends React.Component<Props, State> {
       const re = /(\[\[ \w* \]\])/gi;
 
       const ids = converted.match(re) || [];
-      const listById = ids.map((ch) => {
+      const listById = ids.map(ch => {
         const id = ch.replace('[[ ', '').replace(' ]]', '');
-        const option = options.find((o) => o.value === id) || {
+        const option = options.find(o => o.value === id) || {
           value: '',
-          label: '',
+          label: ''
         };
         return { byId: ch, byName: `[[ ${option.label} ]]` };
       });
@@ -276,7 +276,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     return (
       <BoardHeader>
         <FormGroup>
-          <div className="header-row">
+          <div className='header-row'>
             <ControlLabel required={required}>{label}</ControlLabel>
             <div>
               {this.renderSelect()}

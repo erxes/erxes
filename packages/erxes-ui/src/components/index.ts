@@ -140,5 +140,5 @@ export {
   withTableWrapper,
   Tabs,
   TabTitle,
-  Drawer,
+  Drawer
 };

@@ -2,11 +2,11 @@ import {
   Content,
   ContentWrapper,
   LeftContainer,
-  TitleRow,
+  TitleRow
 } from '../../styles/item';
 import {
   EditorActions,
-  EditorWrapper,
+  EditorWrapper
 } from '@erxes/ui-internalnotes/src/components/Form';
 import { IItem, IItemParams, IOptions } from '../../types';
 import React, { useEffect, useState } from 'react';
@@ -55,7 +55,7 @@ const Description = (props: DescProps) => {
   };
 
   const toggleEdit = () => {
-    setEdit((currentValue) => !currentValue);
+    setEdit(currentValue => !currentValue);
     setSubmit(false);
   };
 
@@ -67,9 +67,9 @@ const Description = (props: DescProps) => {
     return (
       <EditorActions>
         <Button
-          icon="times-circle"
-          btnStyle="simple"
-          size="small"
+          icon='times-circle'
+          btnStyle='simple'
+          size='small'
           onClick={toggleEdit}
         >
           Cancel
@@ -77,9 +77,9 @@ const Description = (props: DescProps) => {
         {item.description !== description && (
           <Button
             onClick={onSend}
-            btnStyle="success"
-            size="small"
-            icon="check-circle"
+            btnStyle='success'
+            size='small'
+            icon='check-circle'
           >
             Save
           </Button>
@@ -93,7 +93,7 @@ const Description = (props: DescProps) => {
       <ContentWrapper isEditing={edit}>
         <TitleRow>
           <ControlLabel>
-            <Icon icon="align-left-justify" />
+            <Icon icon='align-left-justify' />
             {__('Description')}
           </ControlLabel>
         </TitleRow>
@@ -104,7 +104,7 @@ const Description = (props: DescProps) => {
             dangerouslySetInnerHTML={{
               __html: item.description
                 ? xss(item.description)
-                : `${__('Add a more detailed description')}...`,
+                : `${__('Add a more detailed description')}...`
             }}
           />
         ) : (
@@ -124,7 +124,7 @@ const Description = (props: DescProps) => {
                 'link',
                 'unlink',
                 '|',
-                'image',
+                'image'
               ]}
             />
 
@@ -160,7 +160,7 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard,
     onChangeStage,
-    onChangeRefresh,
+    onChangeRefresh
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -187,7 +187,7 @@ const Left = (props: Props) => {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="label-alt" />
+              <Icon icon='label-alt' />
               {__('Labels')}
             </ControlLabel>
           </TitleRow>
@@ -199,7 +199,7 @@ const Left = (props: Props) => {
       <FormGroup>
         <TitleRow>
           <ControlLabel>
-            <Icon icon="paperclip" />
+            <Icon icon='paperclip' />
             {__('Attachments')}
           </ControlLabel>
         </TitleRow>

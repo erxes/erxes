@@ -9,14 +9,14 @@ import ReactFlow, {
   getOutgoers,
   updateEdge,
   useEdgesState,
-  useNodesState,
+  useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger,
+  ITrigger
 } from '../../types';
 import CustomNode, { ScratchNode } from './Node';
 import { generateEdges, generateNodes } from './utils';
@@ -29,7 +29,7 @@ type Props = {
   onConnection: ({
     sourceId,
     targetId,
-    type,
+    type
   }: {
     sourceId: string;
     targetId: string;
@@ -38,7 +38,7 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingActionId,
+    awaitingActionId
   }: {
     type: string;
     awaitingActionId?: string;
@@ -51,7 +51,7 @@ type Props = {
 
 const nodeTypes = {
   primary: CustomNode,
-  scratch: ScratchNode,
+  scratch: ScratchNode
 };
 
 const fitViewOptions = { padding: 4 };
@@ -65,10 +65,10 @@ function AutomationEditor({
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    generateEdges({ triggers, actions }),
+    generateEdges({ triggers, actions })
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    generateNodes({ triggers, actions }, props),
+    generateNodes({ triggers, actions }, props)
   );
 
   useEffect(() => {
@@ -78,8 +78,8 @@ function AutomationEditor({
   const resetNodes = () => {
     const updatedNodes: any[] = generateNodes({ triggers, actions }, props);
 
-    const mergedArray = updatedNodes.map((node1) => {
-      let node2 = nodes.find((o) => o.id === node1.id);
+    const mergedArray = updatedNodes.map(node1 => {
+      let node2 = nodes.find(o => o.id === node1.id);
 
       if (node2) {
         return { ...node1, position: { ...node1.position, ...node2.position } };
@@ -97,7 +97,7 @@ function AutomationEditor({
       ...params,
       sourceId: params.source,
       targetId: params.target,
-      type: source?.data?.nodeType,
+      type: source?.data?.nodeType
     };
 
     if (sourceHandle) {
@@ -112,9 +112,9 @@ function AutomationEditor({
   };
 
   const onConnect = useCallback(
-    (params) => {
-      const source = nodes.find((node) => node.id === params.source);
-      setEdges((eds) => {
+    params => {
+      const source = nodes.find(node => node.id === params.source);
+      setEdges(eds => {
         const updatedEdges = addEdge({ ...params }, eds);
 
         onConnection(generateConnect(params, source));
@@ -122,20 +122,20 @@ function AutomationEditor({
         return updatedEdges;
       });
     },
-    [nodes],
+    [nodes]
   );
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
     edgeUpdateSuccessful.current = true;
-    setEdges((els) => updateEdge(oldEdge, newConnection, els));
+    setEdges(els => updateEdge(oldEdge, newConnection, els));
   }, []);
 
   const onEdgeUpdateEnd = useCallback((_, edge) => {
     if (!edgeUpdateSuccessful.current) {
-      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      setEdges(eds => eds.filter(e => e.id !== edge.id));
       let info: any = { source: edge.source, target: undefined };
 
-      const sourceNode = nodes.find((n) => n.id === edge.source);
+      const sourceNode = nodes.find(n => n.id === edge.source);
 
       if (edge.sourceHandle.includes(sourceNode?.id)) {
         info.optionalConnectId = undefined;
@@ -153,8 +153,8 @@ function AutomationEditor({
   }, []);
 
   const isValidConnection = useCallback(
-    (connection) => {
-      const target = nodes.find((node) => node.id === connection.target);
+    connection => {
+      const target = nodes.find(node => node.id === connection.target);
       const hasCycle = (node, visited = new Set()) => {
         if (visited.has(node.id)) return false;
 
@@ -168,7 +168,7 @@ function AutomationEditor({
 
       return !hasCycle(target);
     },
-    [nodes, edges],
+    [nodes, edges]
   );
 
   const onPaneClick = () => {

@@ -16,7 +16,7 @@ import {
   SelectTeamMembers,
   TabTitle,
   Tabs,
-  __,
+  __
 } from '@erxes/ui/src';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import React from 'react';
@@ -50,13 +50,13 @@ class SendMail extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       selectedTab: 'general',
-      config: props?.activeAction?.config || null,
+      config: props?.activeAction?.config || null
     };
   }
 
   renderCustomMailInput() {
     const { config } = this.state;
-    const onChange = (e) => {
+    const onChange = e => {
       const { value } = e.currentTarget as HTMLInputElement;
       if (
         e.key === 'Enter' &&
@@ -65,37 +65,37 @@ class SendMail extends React.Component<Props, State> {
         this.setState({
           config: {
             ...config,
-            customMails: (config?.customMails || []).concat(value),
-          },
+            customMails: (config?.customMails || []).concat(value)
+          }
         });
         e.currentTarget.value = '';
       }
     };
 
-    const removeMail = (mail) => {
+    const removeMail = mail => {
       this.setState({
         config: {
           ...config,
           customMails: (config?.customMails || []).filter(
-            (value) => value !== mail,
-          ),
-        },
+            value => value !== mail
+          )
+        }
       });
     };
 
     return (
       <FormGroup>
         <ControlLabel>{__('Custom Mail')}</ControlLabel>
-        {(config?.customMails || []).map((customMail) => (
+        {(config?.customMails || []).map(customMail => (
           <Chip
             key={customMail}
             onClick={removeMail.bind(this, customMail)}
-            frontContent={<Avatar src="/images/avatar-colored.svg" />}
+            frontContent={<Avatar src='/images/avatar-colored.svg' />}
           >
             {customMail}
           </Chip>
         ))}
-        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
+        <FormControl onKeyPress={onChange} placeholder='enter a some email' />
       </FormGroup>
     );
   }
@@ -104,14 +104,14 @@ class SendMail extends React.Component<Props, State> {
     const { triggerType, triggerConfig } = this.props;
     const { config } = this.state;
 
-    const onChange = (updatedConfig) => {
+    const onChange = updatedConfig => {
       this.setState({
-        config: updatedConfig,
+        config: updatedConfig
       });
     };
 
-    const isAviableTriggerExcutor = ['contacts', 'user'].some((c) =>
-      triggerType.includes(c),
+    const isAviableTriggerExcutor = ['contacts', 'user'].some(c =>
+      triggerType.includes(c)
     );
 
     const customAttributions = isAviableTriggerExcutor
@@ -120,8 +120,8 @@ class SendMail extends React.Component<Props, State> {
             _id: String(Math.random()),
             label: 'Trigger Executors',
             name: 'triggerExecutors',
-            type: 'segment',
-          },
+            type: 'segment'
+          }
         ]
       : [];
 
@@ -130,8 +130,8 @@ class SendMail extends React.Component<Props, State> {
         <PlaceHolderInput
           config={config}
           triggerType={triggerType}
-          inputName="attributionMails"
-          label="Attribution Mails"
+          inputName='attributionMails'
+          label='Attribution Mails'
           attrTypes={['user', 'contact', 'segment']}
           attrWithSegmentConfig={triggerType === 'forms:form_submission'}
           triggerConfig={triggerConfig}
@@ -153,7 +153,7 @@ class SendMail extends React.Component<Props, State> {
     const { config } = this.state;
     const { triggerType } = this.props;
 
-    if (['contacts', 'user'].every((c) => !triggerType.includes(c))) {
+    if (['contacts', 'user'].every(c => !triggerType.includes(c))) {
       return null;
     }
 
@@ -161,7 +161,7 @@ class SendMail extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{__('Segment based mails')}</ControlLabel>
         <FormControl
-          componentClass="checkbox"
+          componentClass='checkbox'
           checked={config[key]}
           onClick={() => onSelect(!config[key], key)}
         />
@@ -180,9 +180,9 @@ class SendMail extends React.Component<Props, State> {
           value: config[name],
           label,
           name,
-          onSelect,
+          onSelect
         },
-        `${serviceName}:${type}`,
+        `${serviceName}:${type}`
       );
     }
 
@@ -199,7 +199,7 @@ class SendMail extends React.Component<Props, State> {
               label={label}
               onSelect={onSelect}
               filterParams={{
-                status: 'Verified',
+                status: 'Verified'
               }}
             />
           </FormGroup>
@@ -217,8 +217,8 @@ class SendMail extends React.Component<Props, State> {
     }
 
     if (selectedTab === 'static') {
-      return (emailRecipientsConst || []).map((emailRType) =>
-        this.renderRecipientTypeComponent(emailRType, onSelect),
+      return (emailRecipientsConst || []).map(emailRType =>
+        this.renderRecipientTypeComponent(emailRType, onSelect)
       );
     }
 
@@ -237,7 +237,7 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ config: { ...config, [name]: value } });
     };
 
-    const onChange = (e) => {
+    const onChange = e => {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
       this.setState({ config: { ...config, [name]: value } });
@@ -248,7 +248,7 @@ class SendMail extends React.Component<Props, State> {
       closeModal();
     };
 
-    const handleSelectTab = (name) => {
+    const handleSelectTab = name => {
       this.setState({ selectedTab: name });
     };
 
@@ -261,25 +261,25 @@ class SendMail extends React.Component<Props, State> {
       >
         <DrawerDetail>
           <BackIcon onClick={onBackAction}>
-            <Icon icon="angle-left" size={20} /> {__('Back')}
+            <Icon icon='angle-left' size={20} /> {__('Back')}
           </BackIcon>
           <FormGroup>
             <ControlLabel>{'From'}</ControlLabel>
             <SelectTeamMembers
-              name="fromUserId"
+              name='fromUserId'
               initialValue={config?.fromUserId}
-              label="Select from user"
+              label='Select from user'
               onSelect={onSelect}
               filterParams={{
-                status: 'Verified',
+                status: 'Verified'
               }}
               multi={false}
             />
           </FormGroup>
 
           <PlaceHolderInput
-            inputName="sender"
-            label="Sender"
+            inputName='sender'
+            label='Sender'
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -287,8 +287,8 @@ class SendMail extends React.Component<Props, State> {
           />
 
           <PlaceHolderInput
-            inputName="subject"
-            label="Email Subject"
+            inputName='subject'
+            label='Email Subject'
             config={config}
             onChange={() => null}
             onKeyPress={onChange}
@@ -325,7 +325,7 @@ class SendMail extends React.Component<Props, State> {
     const { triggerType } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
+      <Button btnStyle='success' icon='plus-circle'>
         {__('Add template')}
       </Button>
     );
@@ -333,7 +333,7 @@ class SendMail extends React.Component<Props, State> {
       const updatedProps = {
         closeModal,
         contentType: triggerType,
-        params: { searchValue: this.state.searchValue },
+        params: { searchValue: this.state.searchValue }
       };
 
       return <AddTemplateForm {...updatedProps} />;
@@ -341,10 +341,10 @@ class SendMail extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Add New"
+        title='Add New'
         content={content}
         trigger={trigger}
-        size="lg"
+        size='lg'
       />
     );
   }
@@ -353,9 +353,9 @@ class SendMail extends React.Component<Props, State> {
     const { searchValue, config } = this.state;
     const { actionsConst } = this.props;
     const { emailRecipientsConst = [] } =
-      actionsConst.find((action) => action.type === 'sendEmail') || {};
+      actionsConst.find(action => action.type === 'sendEmail') || {};
 
-    const onSearch = (e) => {
+    const onSearch = e => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -365,15 +365,15 @@ class SendMail extends React.Component<Props, State> {
       this.setState({ searchValue });
     };
 
-    const selectTemplate = (id) => {
+    const selectTemplate = id => {
       this.setState({ config: { ...config, templateId: id } });
     };
 
     if (!isEnabled('emailtemplates')) {
       return (
         <EmptyState
-          image="/images/actions/33.svg"
-          text=""
+          image='/images/actions/33.svg'
+          text=''
           extra={
             <span>
               The send email action is not available.
@@ -395,8 +395,8 @@ class SendMail extends React.Component<Props, State> {
           <ControlLabel>{__('Search')}</ControlLabel>
           <BarItems>
             <FormControl
-              name="searchValue"
-              placeholder="type a search"
+              name='searchValue'
+              placeholder='type a search'
               value={searchValue}
               onChange={onSearch}
             />

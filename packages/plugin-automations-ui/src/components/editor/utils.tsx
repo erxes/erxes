@@ -4,7 +4,7 @@ import { NodeType } from './types';
 
 export const generateEdges = ({
   actions,
-  triggers,
+  triggers
 }: {
   triggers: ITrigger[];
   actions: IAction[];
@@ -12,19 +12,19 @@ export const generateEdges = ({
   const generatedEdges: any = [];
 
   const commonStyle = {
-    strokeWidth: 2,
+    strokeWidth: 2
   };
 
   const commonEdgeDoc = {
     updatable: 'target',
     type: 'floating',
     sourceHandle: 'right',
-    targetHandle: 'left',
+    targetHandle: 'left'
   };
 
   for (const { type, edges } of [
     { type: 'trigger', edges: triggers },
-    { type: 'action', edges: actions },
+    { type: 'action', edges: actions }
   ]) {
     const targetField = type === 'trigger' ? 'actionId' : 'nextActionId';
 
@@ -36,8 +36,8 @@ export const generateEdges = ({
         target: edge[targetField],
         style: { ...commonStyle },
         data: {
-          type,
-        },
+          type
+        }
       };
 
       const { optionalConnects = [], ...config } = edge?.config || {};
@@ -50,7 +50,7 @@ export const generateEdges = ({
             ...edgeObj,
             id: `${type}-${edge.id}-${key}-${edgeObj.sourceHandle}`,
             sourceHandle: `${key}-${edgeObj.sourceHandle}`,
-            target: value,
+            target: value
           });
         }
         continue;
@@ -60,7 +60,7 @@ export const generateEdges = ({
         for (const {
           actionId,
           sourceId,
-          optionalConnectId,
+          optionalConnectId
         } of optionalConnects) {
           generatedEdges.push({
             ...edgeObj,
@@ -68,7 +68,7 @@ export const generateEdges = ({
             sourceHandle: `${sourceId}-${optionalConnectId}-${edgeObj.sourceHandle}`,
             target: actionId,
             animated: true,
-            style: { ...commonStyle },
+            style: { ...commonStyle }
           });
         }
       }
@@ -83,7 +83,7 @@ const generateNode = (
   node: IAction & ITrigger,
   nodeType: string,
   nodes: IAction[] & ITrigger[],
-  props: any,
+  props: any
 ) => {
   const {
     isAvailableOptionalConnect,
@@ -92,7 +92,7 @@ const generateNode = (
     description,
     icon,
     config,
-    isCustom,
+    isCustom
   } = node;
 
   return {
@@ -105,20 +105,20 @@ const generateNode = (
       [`${nodeType}Type`]: node.type,
       isAvailableOptionalConnect,
       config,
-      ...props,
+      ...props
     },
     position: node?.position || generatNodePosition(nodes, node),
     isConnectable: true,
     type: 'primary',
     style: {
-      zIndex: -1,
-    },
+      zIndex: -1
+    }
   };
 };
 
 export const generateNodes = (
   { actions, triggers }: { actions: IAction[]; triggers: ITrigger[] },
-  props,
+  props
 ) => {
   if (triggers.length === 0 && actions.length === 0) {
     return [
@@ -126,8 +126,8 @@ export const generateNodes = (
         id: 'scratch-node',
         type: 'scratch',
         data: { ...props },
-        position: { x: 0, y: 0 },
-      },
+        position: { x: 0, y: 0 }
+      }
     ];
   }
 
@@ -135,11 +135,11 @@ export const generateNodes = (
 
   for (const { type, nodes } of [
     { type: 'trigger', nodes: triggers },
-    { type: 'action', nodes: actions },
+    { type: 'action', nodes: actions }
   ]) {
     for (const node of nodes) {
       generatedNodes.push({
-        ...generateNode(node, type, nodes, props),
+        ...generateNode(node, type, nodes, props)
       });
     }
   }
@@ -149,11 +149,11 @@ export const generateNodes = (
 
 const generatNodePosition = (
   nodes: IAction[] & ITrigger[],
-  node: IAction & ITrigger,
+  node: IAction & ITrigger
 ) => {
   const targetField = node.type === 'trigger' ? 'actionId' : 'nextActionId';
 
-  const prevNode = nodes.find((n) => n[targetField] === node.id);
+  const prevNode = nodes.find(n => n[targetField] === node.id);
 
   if (!prevNode) {
     return { x: 0, y: 0 };
@@ -163,7 +163,7 @@ const generatNodePosition = (
 
   return {
     x: position?.x + 500,
-    y: position?.y,
+    y: position?.y
   };
 };
 
@@ -171,7 +171,7 @@ export const checkNote = (automationNotes, activeId: string) => {
   const item = activeId.split('-');
   const type = item[0];
 
-  return (automationNotes || []).filter((note) => {
+  return (automationNotes || []).filter(note => {
     if (type === 'trigger' && note.triggerId !== item[1]) {
       return null;
     }

@@ -23,20 +23,20 @@ const PasswordConfig = (props: Props) => {
       verifyByOTP: false,
       emailSubject: 'Reset your password',
       emailContent: ' {{ link }} ',
-      smsContent: ' {{ link }} ',
-    },
+      smsContent: ' {{ link }} '
+    }
   );
 
   const [editorAttrs, setEditorAttrs] = React.useState<any>(
     config.verifyByOTP
       ? {
           value: 'code',
-          name: 'Code',
+          name: 'Code'
         }
       : {
           value: 'link',
-          name: 'Link',
-        },
+          name: 'Link'
+        }
   );
 
   const onChangeToggle = (value: boolean) => {
@@ -45,24 +45,24 @@ const PasswordConfig = (props: Props) => {
         ...config,
         verifyByOTP: value,
         smsContent: config.smsContent.replace('{{ link }}', '{{ code }}'),
-        emailContent: config.emailContent.replace('{{ link }}', '{{ code }}'),
+        emailContent: config.emailContent.replace('{{ link }}', '{{ code }}')
       });
 
       setEditorAttrs({
         value: 'code',
-        name: 'Code',
+        name: 'Code'
       });
     } else {
       setConfig({
         ...config,
         verifyByOTP: value,
         smsContent: config.smsContent.replace('{{ code }}', '{{ link }}'),
-        emailContent: config.emailContent.replace('{{ code }}', '{{ link }}'),
+        emailContent: config.emailContent.replace('{{ code }}', '{{ link }}')
       });
 
       setEditorAttrs({
         value: 'link',
-        name: 'Link',
+        name: 'Link'
       });
     }
 
@@ -77,7 +77,7 @@ const PasswordConfig = (props: Props) => {
     props.onChange('passwordVerificationConfig', config);
   };
 
-  const onChange = (e) => {
+  const onChange = e => {
     const { name, value } = e.currentTarget;
     if (name === 'smsContent') {
       let content = value;
@@ -132,7 +132,7 @@ const PasswordConfig = (props: Props) => {
             onChange={() => onChangeToggle(!config.verifyByOTP)}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>,
+              unchecked: <span>No</span>
             }}
           />
         </FormGroup>
@@ -142,8 +142,8 @@ const PasswordConfig = (props: Props) => {
         <ControlLabel required={true}>SMS Content</ControlLabel>
         <FlexContent>
           <FormControl
-            id="content"
-            name="smsContent"
+            id='content'
+            name='smsContent'
             value={config.smsContent}
             onChange={onChange}
           />
@@ -155,8 +155,8 @@ const PasswordConfig = (props: Props) => {
         <p>{__('Forgot password mail subject')}</p>
         <FlexContent>
           <FormControl
-            id="emailSubject"
-            name="emailSubject"
+            id='emailSubject'
+            name='emailSubject'
             value={config.emailSubject}
             onChange={onChange}
           />
@@ -175,7 +175,7 @@ const PasswordConfig = (props: Props) => {
             placeholderProp={{
               items: [editorAttrs],
               title: 'Attributes',
-              label: 'Attributes',
+              label: 'Attributes'
             }}
           />
         </FlexContent>

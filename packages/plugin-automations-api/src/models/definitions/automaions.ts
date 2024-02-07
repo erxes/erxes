@@ -70,9 +70,9 @@ export const triggerSchema = new Schema(
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
     description: { type: String, optional: true },
-    isCustom: { type: Boolean, optional: true },
+    isCustom: { type: Boolean, optional: true }
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const actionSchema = new Schema(
@@ -85,9 +85,9 @@ export const actionSchema = new Schema(
     position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true },
+    description: { type: String, optional: true }
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const automationSchema = new Schema({
@@ -98,10 +98,10 @@ export const automationSchema = new Schema({
   createdAt: {
     type: Date,
     default: new Date(),
-    label: 'Created date',
+    label: 'Created date'
   },
   createdBy: { type: String },
   updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
   updatedBy: { type: String },
-  tagIds: { type: [String], label: 'Tag Ids', optional: true },
+  tagIds: { type: [String], label: 'Tag Ids', optional: true }
 });

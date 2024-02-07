@@ -13,7 +13,7 @@ import {
   Title,
   ToggleWrapper,
   ZoomActions,
-  ZoomIcon,
+  ZoomIcon
 } from '../../styles';
 import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
 import { ScrolledContent } from '@erxes/ui-automations/src/styles';
@@ -33,7 +33,7 @@ import {
   noEndPoint,
   sourceEndpoint,
   targetEndpoint,
-  yesEndPoint,
+  yesEndPoint
 } from '../../utils';
 
 import TemplateForm from '../../containers/forms/TemplateForm';
@@ -121,11 +121,11 @@ class AutomationForm extends React.Component<Props, State> {
       zoom: 1,
       percentage: 100,
       activeAction: {} as IAction,
-      automationNotes,
+      automationNotes
     };
   }
 
-  setWrapperRef = (node) => {
+  setWrapperRef = node => {
     this.wrapperRef = node;
   };
 
@@ -183,17 +183,17 @@ class AutomationForm extends React.Component<Props, State> {
       HoverPaintStyle: connectorHoverStyle,
       EndpointStyle: { radius: 10 },
       EndpointHoverStyle: hoverPaintStyle,
-      Container: 'canvas',
+      Container: 'canvas'
     });
 
     const { triggers, actions } = this.state;
 
     instance.bind('ready', () => {
-      instance.bind('connection', (info) => {
+      instance.bind('connection', info => {
         this.onConnection(info);
       });
 
-      instance.bind('connectionDetached', (info) => {
+      instance.bind('connectionDetached', info => {
         this.onDettachConnection(info);
       });
 
@@ -213,7 +213,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     // hover action control ===================
-    jquery('#canvas .control').hover((event) => {
+    jquery('#canvas .control').hover(event => {
       event.preventDefault();
 
       jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
@@ -222,7 +222,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     // delete control ===================
-    jquery('#canvas').on('click', '.delete-control', (event) => {
+    jquery('#canvas').on('click', '.delete-control', event => {
       event.preventDefault();
 
       const item = event.currentTarget.id;
@@ -233,19 +233,19 @@ class AutomationForm extends React.Component<Props, State> {
 
       if (type === 'action') {
         return this.setState({
-          actions: actions.filter((action) => action.id !== splitItem[1]),
+          actions: actions.filter(action => action.id !== splitItem[1])
         });
       }
 
       if (type === 'trigger') {
         return this.setState({
-          triggers: triggers.filter((trigger) => trigger.id !== splitItem[1]),
+          triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
         });
       }
     });
 
     // add note ===================
-    jquery('#canvas').on('click', '.add-note', (event) => {
+    jquery('#canvas').on('click', '.add-note', event => {
       event.preventDefault();
 
       this.handleNoteModal();
@@ -265,7 +265,7 @@ class AutomationForm extends React.Component<Props, State> {
         _id: automation._id,
         name,
         status: isActive ? 'active' : 'draft',
-        triggers: triggers.map((t) => ({
+        triggers: triggers.map(t => ({
           id: t.id,
           type: t.type,
           config: t.config,
@@ -273,9 +273,9 @@ class AutomationForm extends React.Component<Props, State> {
           label: t.label,
           description: t.description,
           actionId: t.actionId,
-          style: jquery(`#trigger-${t.id}`).attr('style'),
+          style: jquery(`#trigger-${t.id}`).attr('style')
         })),
-        actions: actions.map((a) => ({
+        actions: actions.map(a => ({
           id: a.id,
           type: a.type,
           nextActionId: a.nextActionId,
@@ -283,8 +283,8 @@ class AutomationForm extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
-          style: jquery(`#action-${a.id}`).attr('style'),
-        })),
+          style: jquery(`#action-${a.id}`).attr('style')
+        }))
       };
 
       return finalValues;
@@ -296,7 +296,7 @@ class AutomationForm extends React.Component<Props, State> {
   handleNoteModal = (item?) => {
     this.setState({
       showNoteForm: !this.state.showNoteForm,
-      editNoteForm: item ? true : false,
+      editNoteForm: item ? true : false
     });
   };
 
@@ -304,11 +304,11 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showTemplateForm: !this.state.showTemplateForm });
   };
 
-  switchActionbarTab = (type) => {
+  switchActionbarTab = type => {
     this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
-  onToggle = (e) => {
+  onToggle = e => {
     const isActive = e.target.checked;
 
     this.setState({ isActive });
@@ -320,7 +320,7 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
-  onAddActionConfig = (config) => {
+  onAddActionConfig = config => {
     const { activeAction } = this.state;
 
     activeAction.config = config;
@@ -373,7 +373,7 @@ class AutomationForm extends React.Component<Props, State> {
       showAction: false,
       currentTab: 'triggers',
       selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger),
+      activeTrigger: trigger ? trigger : ({} as ITrigger)
     });
   };
 
@@ -383,11 +383,11 @@ class AutomationForm extends React.Component<Props, State> {
       showDrawer: true,
       showTrigger: false,
       currentTab: 'actions',
-      activeAction: action ? action : ({} as IAction),
+      activeAction: action ? action : ({} as IAction)
     });
   };
 
-  onConnection = (info) => {
+  onConnection = info => {
     const { triggers, actions } = this.state;
 
     connection(triggers, actions, info, info.targetId.replace('action-', ''));
@@ -395,7 +395,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  onDettachConnection = (info) => {
+  onDettachConnection = info => {
     const { triggers, actions } = this.state;
 
     connection(triggers, actions, info, undefined);
@@ -403,7 +403,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  handleClickOutside = (event) => {
+  handleClickOutside = event => {
     const isInModal = Array.from(event.path).some((element: any) => {
       return element.classList && element.classList.contains('modal');
     });
@@ -443,9 +443,9 @@ class AutomationForm extends React.Component<Props, State> {
 
     let trigger: any = {
       ...data,
-      id: this.getNewId(triggers.map((t) => t.id)),
+      id: this.getNewId(triggers.map(t => t.id))
     };
-    const triggerIndex = triggers.findIndex((t) => t.id === triggerId);
+    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
       trigger = activeTrigger;
@@ -469,12 +469,12 @@ class AutomationForm extends React.Component<Props, State> {
   addAction = (data: IAction, actionId?: string, config?: any) => {
     const { actions } = this.state;
 
-    let action: any = { ...data, id: this.getNewId(actions.map((a) => a.id)) };
+    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
 
     let actionIndex = -1;
 
     if (actionId) {
-      actionIndex = actions.findIndex((a) => a.id === actionId);
+      actionIndex = actions.findIndex(a => a.id === actionId);
 
       if (actionIndex !== -1) {
         action = actions[actionIndex];
@@ -501,7 +501,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  onClickNote = (activeId) => {
+  onClickNote = activeId => {
     this.setState({ activeId }, () => {
       this.handleNoteModal(activeId);
     });
@@ -511,7 +511,7 @@ class AutomationForm extends React.Component<Props, State> {
     const item = activeId.split('-');
     const type = item[0];
 
-    return (this.state.automationNotes || []).filter((note) => {
+    return (this.state.automationNotes || []).filter(note => {
       if (type === 'trigger' && note.triggerId !== item[1]) {
         return null;
       }
@@ -533,7 +533,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return `
       <div class="note-badge note-badge-${key}" title=${__(
-        'Notes',
+        'Notes'
       )} id="${key}">
         <i class="icon-notes"></i>
       </div>
@@ -542,7 +542,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderCount(item: ITrigger | IAction) {
     const {
-      constants: { triggerTypesConst },
+      constants: { triggerTypesConst }
     } = this.props;
 
     if (item.count && triggerTypesConst.includes(item.type)) {
@@ -562,7 +562,7 @@ class AutomationForm extends React.Component<Props, State> {
             <div>
               <i class="icon-notes add-note" title=${__('Write Note')}></i>
               <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
-                'Delete control',
+                'Delete control'
               )}></i>
             </div>
           </div>
@@ -577,13 +577,13 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
-    jquery('#canvas').on('dblclick', `#${idElm}`, (event) => {
+    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       onClick(item);
     });
 
-    jquery('#canvas').on('click', `.note-badge-${idElm}`, (event) => {
+    jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
       event.preventDefault();
 
       this.onClickNote(event.currentTarget.id);
@@ -591,7 +591,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     if (key === 'trigger') {
       instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.5],
+        anchor: [1, 0.5]
       });
 
       if (instance.getSelector(`#${idElm}`).length > 0) {
@@ -599,7 +599,7 @@ class AutomationForm extends React.Component<Props, State> {
           cursor: 'move',
           stop(params) {
             item.style = jquery(`#${idElm}`).attr('style');
-          },
+          }
         });
       }
     }
@@ -607,18 +607,18 @@ class AutomationForm extends React.Component<Props, State> {
     if (key === 'action') {
       if (item.type === 'if') {
         instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left'],
+          anchor: ['Left']
         });
 
         instance.addEndpoint(idElm, yesEndPoint);
         instance.addEndpoint(idElm, noEndPoint);
       } else {
         instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left'],
+          anchor: ['Left']
         });
 
         instance.addEndpoint(idElm, sourceEndpoint, {
-          anchor: ['Right'],
+          anchor: ['Right']
         });
       }
 
@@ -626,7 +626,7 @@ class AutomationForm extends React.Component<Props, State> {
         cursor: 'move',
         stop(params) {
           item.style = jquery(`#${idElm}`).attr('style');
-        },
+        }
       });
     }
   };
@@ -639,17 +639,17 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <>
         <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
+          btnStyle='primary'
+          size='small'
+          icon='plus-circle'
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
           Add a Trigger
         </Button>
         <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
+          btnStyle='primary'
+          size='small'
+          icon='plus-circle'
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
           Add an Action
@@ -672,8 +672,8 @@ class AutomationForm extends React.Component<Props, State> {
           {this.renderButtons()}
           {
             <Button
-              btnStyle="primary"
-              size="small"
+              btnStyle='primary'
+              size='small'
               icon={'check-circle'}
               onClick={this.handleTemplateModal}
             >
@@ -681,8 +681,8 @@ class AutomationForm extends React.Component<Props, State> {
             </Button>
           }
           <Button
-            btnStyle="success"
-            size="small"
+            btnStyle='success'
+            size='small'
             icon={'check-circle'}
             onClick={this.handleSubmit}
           >
@@ -700,18 +700,18 @@ class AutomationForm extends React.Component<Props, State> {
       <FlexContent>
         <Link to={`/automations`}>
           <BackButton>
-            <Icon icon="angle-left" size={20} />
+            <Icon icon='angle-left' size={20} />
           </BackButton>
         </Link>
         <Title>
           <FormControl
-            name="name"
+            name='name'
             value={name}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
           />
-          <Icon icon="edit-alt" size={16} />
+          <Icon icon='edit-alt' size={16} />
         </Title>
         <CenterBar>
           <Tabs full={true}>
@@ -740,11 +740,11 @@ class AutomationForm extends React.Component<Props, State> {
       showAction,
       activeTrigger,
       activeAction,
-      selectedContentId,
+      selectedContentId
     } = this.state;
 
     const {
-      constants: { triggersConst, actionsConst, propertyTypesConst },
+      constants: { triggersConst, actionsConst, propertyTypesConst }
     } = this.props;
 
     const onBack = () => this.setState({ showTrigger: false });
@@ -755,7 +755,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBack}>
-              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
+              <Icon icon='angle-left' size={20} /> {__('Back to triggers')}
             </BackIcon>
             <ScrolledContent>
               <TriggerDetailForm
@@ -784,7 +784,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
+              <Icon icon='angle-left' size={20} /> {__('Back to actions')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -794,7 +794,7 @@ class AutomationForm extends React.Component<Props, State> {
               triggerConfig={getTriggerConfig(
                 actions,
                 triggers,
-                activeAction.id,
+                activeAction.id
               )}
               actionsConst={actionsConst}
               propertyTypesConst={propertyTypesConst}
@@ -817,20 +817,20 @@ class AutomationForm extends React.Component<Props, State> {
   renderZoomActions() {
     return (
       <ZoomActions>
-        <div className="icon-wrapper">
+        <div className='icon-wrapper'>
           <ZoomIcon
             disabled={this.state.zoom >= 1}
             onMouseDown={this.onZoom.bind(this, 'zoomIn')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon="plus" />
+            <Icon icon='plus' />
           </ZoomIcon>
           <ZoomIcon
             disabled={this.state.zoom <= 0.399}
             onMouseDown={this.onZoom.bind(this, 'zoomOut')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon="minus" />{' '}
+            <Icon icon='minus' />{' '}
           </ZoomIcon>
         </div>
         <span>{`${this.state.percentage}%`}</span>
@@ -845,10 +845,10 @@ class AutomationForm extends React.Component<Props, State> {
       return (
         <Container>
           <div
-            className="trigger scratch"
+            className='trigger scratch'
             onClick={this.toggleDrawer.bind(this, 'triggers')}
           >
-            <Icon icon="file-plus" size={25} />
+            <Icon icon='file-plus' size={25} />
             <p>{__('How do you want to trigger this automation')}?</p>
           </div>
         </Container>
@@ -857,7 +857,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const {
       automation,
-      constants: { triggersConst, actionsConst },
+      constants: { triggersConst, actionsConst }
     } = this.props;
 
     if (!this.state.isActionTab) {
@@ -877,7 +877,7 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <Container>
         {this.renderZoomActions()}
-        <div id="canvas" />
+        <div id='canvas' />
       </Container>
     );
   }
@@ -927,7 +927,7 @@ class AutomationForm extends React.Component<Props, State> {
       >
         <Modal.Body>
           <Form
-            renderContent={(formProps) => (
+            renderContent={formProps => (
               <NoteFormContainer
                 formProps={formProps}
                 automationId={automation ? automation._id : ''}
@@ -960,7 +960,7 @@ class AutomationForm extends React.Component<Props, State> {
       >
         <Modal.Body>
           <Form
-            renderContent={(formProps) => (
+            renderContent={formProps => (
               <TemplateForm
                 formProps={formProps}
                 closeModal={this.handleTemplateModal}
@@ -986,7 +986,7 @@ class AutomationForm extends React.Component<Props, State> {
               title={`${(automation && automation.name) || 'Automation'}`}
               breadcrumb={[
                 { title: __('Automations'), link: '/automations' },
-                { title: `${(automation && automation.name) || ''}` },
+                { title: `${(automation && automation.name) || ''}` }
               ]}
             />
             <PageContent
@@ -1006,7 +1006,7 @@ class AutomationForm extends React.Component<Props, State> {
             <RTG.CSSTransition
               in={this.state.showDrawer}
               timeout={300}
-              classNames="slide-in-right"
+              classNames='slide-in-right'
               unmountOnExit={true}
             >
               <RightDrawerContainer>

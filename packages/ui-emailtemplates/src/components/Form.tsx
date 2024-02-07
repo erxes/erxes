@@ -22,7 +22,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || '',
+      content: (props.object && props.object.content) || ''
     };
   }
 
@@ -41,7 +41,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content,
+      content: this.state.content
     };
   };
 
@@ -54,9 +54,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name='name'
             defaultValue={object.name}
-            type="text"
+            type='text'
             required={true}
             autoFocus={true}
           />
@@ -83,7 +83,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        name="email template"
+        name='email template'
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={object}

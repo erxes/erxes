@@ -59,7 +59,7 @@ function TriggerDetailForm(props: Props) {
   };
 
   const renderSettings = () => {
-    const onChange = (config) => {
+    const onChange = config => {
       activeTrigger.config = config;
       addConfig(activeTrigger, activeTrigger.id, config);
     };
@@ -72,14 +72,14 @@ function TriggerDetailForm(props: Props) {
       addConfig(activeTrigger, activeTrigger.id);
     };
 
-    const trigger = <Button icon="settings" btnStyle="link" />;
+    const trigger = <Button icon='settings' btnStyle='link' />;
 
     const content = () => {
       return (
         <>
           <DateSettings onChange={onChange} config={config} />
           <ModalFooter>
-            <Button btnStyle="simple" onClick={onClear}>
+            <Button btnStyle='simple' onClick={onClear}>
               {__('Clear')}
             </Button>
           </ModalFooter>
@@ -89,7 +89,7 @@ function TriggerDetailForm(props: Props) {
 
     return (
       <ModalTrigger
-        title="Trigger Settings"
+        title='Trigger Settings'
         trigger={trigger}
         content={content}
         hideHeader={true}
@@ -101,9 +101,9 @@ function TriggerDetailForm(props: Props) {
     let Component = renderDynamicComponent(
       {
         ...props,
-        componentType: 'triggerForm',
+        componentType: 'triggerForm'
       },
-      activeTrigger.type,
+      activeTrigger.type
     );
 
     if (Component) {

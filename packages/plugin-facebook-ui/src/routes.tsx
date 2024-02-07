@@ -9,14 +9,14 @@ const CreateFacebook = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Settings CreateFacebook" */ './containers/Form'
-    ),
+    )
 );
 
 const MessengerBotForm = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Settings Messenger Bots" */ './automations/bots/containers/Form'
-    ),
+    )
 );
 
 const createFacebook = ({ location, history }) => {
@@ -45,30 +45,30 @@ const auth = ({ location }) => (
 const routes = () => (
   <React.Fragment>
     <Route
-      key="/settings/integrations/createFacebook"
+      key='/settings/integrations/createFacebook'
       exact={true}
-      path="/settings/integrations/createFacebook"
+      path='/settings/integrations/createFacebook'
       component={createFacebook}
     />
 
     <Route
-      key="/settings/fb-authorization"
+      key='/settings/fb-authorization'
       exact={true}
-      path="/settings/fb-authorization"
+      path='/settings/fb-authorization'
       component={auth}
     />
 
     <Route
-      key="/settings/facebook-messenger-bot"
+      key='/settings/facebook-messenger-bot'
       exact={true}
-      path="/settings/facebook-messenger-bot/edit/:id"
+      path='/settings/facebook-messenger-bot/edit/:id'
       component={fbMessengerBot}
     />
 
     <Route
-      key="/settings/facebook-messenger-bot"
+      key='/settings/facebook-messenger-bot'
       exact={true}
-      path="/settings/facebook-messenger-bot/create"
+      path='/settings/facebook-messenger-bot/create'
       component={fbMessengerBot}
     />
   </React.Fragment>

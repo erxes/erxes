@@ -17,7 +17,7 @@ import {
   ColorChooserTile,
   ColorPickerWrap,
   FlexRow,
-  LogoWrapper,
+  LogoWrapper
 } from '../../styles';
 import { Styles } from '../../types';
 
@@ -37,7 +37,7 @@ type Item = {
 };
 
 const generateOptions = () =>
-  FONTS.map((item) => ({ label: item.label, value: item.value }));
+  FONTS.map(item => ({ label: item.label, value: item.value }));
 
 function Appearance({
   styles = {},
@@ -45,7 +45,7 @@ function Appearance({
   icon = '',
   logo = '',
   headerHtml = '',
-  footerHtml = '',
+  footerHtml = ''
 }: Props) {
   const {
     bodyColor,
@@ -62,7 +62,7 @@ function Appearance({
     baseColor,
     baseFont,
     headingColor,
-    headingFont,
+    headingFont
   } = styles || ({} as Styles);
 
   const handleAvatarUploader = (name: string, url: string) => {
@@ -72,7 +72,7 @@ function Appearance({
   function renderSelect({
     value,
     label,
-    name,
+    name
   }: {
     value?: string;
     label: string;
@@ -90,7 +90,7 @@ function Appearance({
       <FormGroup>
         <ColorChooserTile>{label}</ColorChooserTile>
         <Select
-          placeholder="Please select a font"
+          placeholder='Please select a font'
           value={value}
           options={generateOptions()}
           onChange={handleSelect}
@@ -100,7 +100,7 @@ function Appearance({
   }
 
   function renderColor({ label, name, value }: Item) {
-    const handleChange = (e) => {
+    const handleChange = e => {
       const currentStyles = { ...styles };
 
       currentStyles[name] = e.hex;
@@ -113,14 +113,14 @@ function Appearance({
         <ColorChooserTile>{__(label)}</ColorChooserTile>
         <div>
           <OverlayTrigger
-            trigger="click"
+            trigger='click'
             rootClose={true}
-            placement="bottom"
+            placement='bottom'
             overlay={
               <Popover id={name}>
                 <TwitterPicker
-                  width="266px"
-                  triangle="hide"
+                  width='266px'
+                  triangle='hide'
                   color={{ hex: value || COLORS[0] }}
                   onChange={handleChange}
                   colors={COLORS}
@@ -150,7 +150,7 @@ function Appearance({
               <p>{__('Business portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
-                onAvatarUpload={(logoUrl) =>
+                onAvatarUpload={logoUrl =>
                   handleAvatarUploader('logo', logoUrl)
                 }
               />
@@ -161,7 +161,7 @@ function Appearance({
               <p>{__('16x16px transparent PNG')}.</p>
               <AvatarUpload
                 avatar={icon}
-                onAvatarUpload={(iconUrl) =>
+                onAvatarUpload={iconUrl =>
                   handleAvatarUploader('icon', iconUrl)
                 }
               />
@@ -183,32 +183,32 @@ function Appearance({
               {renderColor({
                 label: 'Body',
                 name: 'bodyColor',
-                value: bodyColor,
+                value: bodyColor
               })}
               {renderColor({
                 label: 'Header',
                 name: 'headerColor',
-                value: headerColor,
+                value: headerColor
               })}
               {renderColor({
                 label: 'Footer',
                 name: 'footerColor',
-                value: footerColor,
+                value: footerColor
               })}
               {renderColor({
                 label: 'Help Center',
                 name: 'helpColor',
-                value: helpColor,
+                value: helpColor
               })}
               {renderColor({
                 label: 'Background',
                 name: 'backgroundColor',
-                value: backgroundColor,
+                value: backgroundColor
               })}
               {renderColor({
                 label: 'Active tab',
                 name: 'activeTabColor',
-                value: activeTabColor,
+                value: activeTabColor
               })}
             </ColorPickerWrap>
           </FlexContent>
@@ -228,12 +228,12 @@ function Appearance({
               {renderSelect({
                 label: 'Base font',
                 name: 'baseFont',
-                value: baseFont,
+                value: baseFont
               })}
               {renderColor({
                 label: 'Base Color',
                 name: 'baseColor',
-                value: baseColor,
+                value: baseColor
               })}
             </ColorPickerWrap>
           </FormGroup>
@@ -244,12 +244,12 @@ function Appearance({
               {renderSelect({
                 label: 'Heading font',
                 name: 'headingFont',
-                value: headingFont,
+                value: headingFont
               })}
               {renderColor({
                 label: 'Heading Color',
                 name: 'headingColor',
-                value: headingColor,
+                value: headingColor
               })}
             </ColorPickerWrap>
           </FormGroup>
@@ -261,12 +261,12 @@ function Appearance({
               {renderColor({
                 label: 'Link text',
                 name: 'linkColor',
-                value: linkColor,
+                value: linkColor
               })}
               {renderColor({
                 label: 'Link hover text',
                 name: 'linkHoverColor',
-                value: linkHoverColor,
+                value: linkHoverColor
               })}
             </ColorPickerWrap>
           </FormGroup>
@@ -284,17 +284,17 @@ function Appearance({
             {renderColor({
               label: 'Primary action button',
               name: 'primaryBtnColor',
-              value: primaryBtnColor,
+              value: primaryBtnColor
             })}
             {renderColor({
               label: 'Secondary action button',
               name: 'secondaryBtnColor',
-              value: secondaryBtnColor,
+              value: secondaryBtnColor
             })}
             {renderColor({
               label: 'Heading divider & Input focus glow',
               name: 'dividerColor',
-              value: dividerColor,
+              value: dividerColor
             })}
           </ColorPickerWrap>
         </FlexContent>
@@ -328,7 +328,7 @@ function Appearance({
               content={headerHtml}
               onChange={onHeaderChange}
               height={200}
-              name="clientportal-header"
+              name='clientportal-header'
             />
           </FormGroup>
         </FlexContent>
@@ -341,7 +341,7 @@ function Appearance({
               content={footerHtml}
               onChange={onFooterChange}
               height={200}
-              name="clientportal-footer"
+              name='clientportal-footer'
             />
           </FormGroup>
         </FlexContent>
