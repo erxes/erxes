@@ -181,7 +181,7 @@ class Form extends React.Component<Props, State> {
         <FormColumn>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             defaultValue={award.name}
             required={true}
             onChange={onChangeName}
@@ -195,7 +195,7 @@ class Form extends React.Component<Props, State> {
               label: `${voucher.title}`,
               value: voucher._id
             }))}
-            name='voucherCampaignId'
+            name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
             loadingPlaceholder={__('Loading...')}
           />
@@ -203,8 +203,8 @@ class Form extends React.Component<Props, State> {
         <FormColumn>
           <FormControl
             {...formProps}
-            name='count'
-            type='number'
+            name="count"
+            type="number"
             min={0}
             defaultValue={award.count}
             required={true}
@@ -212,10 +212,10 @@ class Form extends React.Component<Props, State> {
           />
         </FormColumn>
         <Button
-          btnStyle='simple'
-          size='small'
+          btnStyle="simple"
+          size="small"
           onClick={this.onRemoveAward.bind(this, award._id)}
-          icon='times'
+          icon="times"
         >
           Remove lvl
         </Button>
@@ -265,7 +265,7 @@ class Form extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
 
     const trigger = (
-      <Button btnStyle='primary' uppercase={false} icon='plus-circle'>
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add category
       </Button>
     );
@@ -284,7 +284,7 @@ class Form extends React.Component<Props, State> {
             <ControlLabel required={true}>title</ControlLabel>
             <FormControl
               {...formProps}
-              name='title'
+              name="title"
               defaultValue={lotteryCampaign.title}
               autoFocus={true}
               required={true}
@@ -300,7 +300,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='startDate'
+                    name="startDate"
                     placeholder={__('Start date')}
                     value={lotteryCampaign.startDate}
                     onChange={this.onDateInputChange.bind(this, 'startDate')}
@@ -316,7 +316,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='endDate'
+                    name="endDate"
                     placeholder={__('End date')}
                     value={lotteryCampaign.endDate}
                     onChange={this.onDateInputChange.bind(this, 'endDate')}
@@ -332,7 +332,7 @@ class Form extends React.Component<Props, State> {
                   <DateControl
                     {...formProps}
                     required={true}
-                    name='finishDateOfUse'
+                    name="finishDateOfUse"
                     placeholder={__('Finish Date of Use')}
                     value={lotteryCampaign.finishDateOfUse}
                     onChange={this.onDateInputChange.bind(
@@ -351,8 +351,8 @@ class Form extends React.Component<Props, State> {
                 <ControlLabel required={true}>buy Score</ControlLabel>
                 <FormControl
                   {...formProps}
-                  name='buyScore'
-                  type='number'
+                  name="buyScore"
+                  type="number"
                   min={0}
                   defaultValue={lotteryCampaign.buyScore}
                   onChange={this.onInputChange}
@@ -377,23 +377,23 @@ class Form extends React.Component<Props, State> {
                     { value: '0-zZ', label: '[0-9][a-z][A-Z]' }
                   ]}
                   value={this.state.perFormatType}
-                  name='perFormatType'
+                  name="perFormatType"
                   onChange={this.onSelectPerFormat}
                   placeholder={__('Choose allow chars')}
                 />
               </FormColumn>
               <FormColumn>
                 <FormControl
-                  type='number'
+                  type="number"
                   min={1}
                   max={9}
-                  name='perFormatLen'
+                  name="perFormatLen"
                   defaultValue={this.state.perFormatLen}
                   onChange={this.onChangePerLen}
                 />
               </FormColumn>
               <FormColumn>
-                <Button btnStyle='simple' onClick={this.onAddFormat}>
+                <Button btnStyle="simple" onClick={this.onAddFormat}>
                   {__('Add format')}
                 </Button>
               </FormColumn>
@@ -401,7 +401,7 @@ class Form extends React.Component<Props, State> {
               <FormColumn>
                 <FormControl
                   {...formProps}
-                  name='numberFormat'
+                  name="numberFormat"
                   value={lotteryCampaign.numberFormat}
                   onKeyDown={this.numberFormatKey}
                   onChange={this.onInputChange}
@@ -420,7 +420,7 @@ class Form extends React.Component<Props, State> {
             <FormColumn>
               <ControlLabel required={true}>Count</ControlLabel>
             </FormColumn>
-            <Button btnStyle='simple' icon='add' onClick={this.onAddAward}>
+            <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
               {__('Add level')}
             </Button>
           </FormWrapper>
@@ -461,9 +461,9 @@ class Form extends React.Component<Props, State> {
         </ScrollWrapper>
         <ModalFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
             uppercase={false}
           >
             Close

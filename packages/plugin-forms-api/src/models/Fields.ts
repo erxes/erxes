@@ -3,6 +3,7 @@ import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import validator from 'validator';
 
+
 import { IModels } from '../connectionResolver';
 import { sendCommonMessage, sendContactsMessage } from '../messageBroker';
 import {
