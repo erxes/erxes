@@ -110,6 +110,7 @@ export const types = () => `
     leaseType: String
     commitmentInterest:Float
     endDate:Date
+    customFieldsData: JSON
   }
 
 
@@ -237,6 +238,7 @@ const commonFields = `
   commitmentInterest: Float
   endDate: Date
   savingContractId: String
+  customFieldsData: JSON
 `;
 
 const interestCorrectionFields = `

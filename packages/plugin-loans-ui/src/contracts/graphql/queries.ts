@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
 const contractFields = `
@@ -276,6 +276,7 @@ export const contractDetailFields = `
   }
   hasTransaction
   nextPayment
+  customFieldsData
 `;
 
 export const contractDetail = `
@@ -380,5 +381,5 @@ export default {
   closeInfo,
   documents,
   contractsAlert,
-  savingContracts
+  savingContracts,
 };
