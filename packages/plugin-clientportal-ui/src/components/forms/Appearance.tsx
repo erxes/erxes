@@ -1,5 +1,5 @@
 import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
@@ -302,12 +302,12 @@ function Appearance({
     );
   };
 
-  const onHeaderChange = e => {
-    handleFormChange('headerHtml', e.editor.getData());
+  const onHeaderChange = (content: string) => {
+    handleFormChange('headerHtml', content);
   };
 
-  const onFooterChange = e => {
-    handleFormChange('footerHtml', e.editor.getData());
+  const onFooterChange = (content: string) => {
+    handleFormChange('footerHtml', content);
   };
 
   return (
@@ -324,7 +324,7 @@ function Appearance({
           <FormGroup>
             <ControlLabel>Header html</ControlLabel>
 
-            <EditorCK
+            <RichTextEditor
               content={headerHtml}
               onChange={onHeaderChange}
               height={200}
@@ -337,7 +337,7 @@ function Appearance({
           <FormGroup>
             <ControlLabel>Footer html</ControlLabel>
 
-            <EditorCK
+            <RichTextEditor
               content={footerHtml}
               onChange={onFooterChange}
               height={200}

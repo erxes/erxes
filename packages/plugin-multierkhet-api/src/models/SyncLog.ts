@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   syncLogSchema,
   ISyncLog,
-  ISyncLogDocument
+  ISyncLogDocument,
 } from './definitions/syncLog';
 
 export interface ISyncLogModel extends Model<ISyncLogDocument> {
@@ -12,7 +12,7 @@ export interface ISyncLogModel extends Model<ISyncLogDocument> {
   syncLogsRemove(_ids: string[]): Promise<JSON>;
 }
 
-export const loadSyncLogClass = (models: IModels) => {
+export const loadSyncLogClass = (models: IModels, _subdomain) => {
   class SyncLog {
     public static async syncLogsAdd(doc: ISyncLog) {
       return models.SyncLogs.create({ ...doc });

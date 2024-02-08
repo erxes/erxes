@@ -6,7 +6,7 @@ import { EditorState } from '@tiptap/pm/state';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import Icon from '../../Icon';
 import TableMenuControls from './TableMenuControls';

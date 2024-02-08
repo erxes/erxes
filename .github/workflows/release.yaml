@@ -7,7 +7,7 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get release version
         id: get_release_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
@@ -22,11 +22,9 @@ jobs:
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/erxes:master  
 
-          docker tag erxes/erxes:master  erxes/erxes:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/erxes:master --tag  erxes/erxes:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/erxes:${GITHUB_REF#refs/tags/} 
 
           aws s3 cp s3://erxes-master-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
 
@@ -36,673 +34,547 @@ jobs:
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/core:master  
 
-          docker tag erxes/core:master  erxes/core:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/core:master --tag  erxes/core:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/core:${GITHUB_REF#refs/tags/}
       - name: gateway
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/gateway:master  
 
-          docker tag erxes/gateway:master  erxes/gateway:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/gateway:master --tag  erxes/gateway:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/gateway:${GITHUB_REF#refs/tags/}
       - name: crons
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/crons:master  
 
-          docker tag erxes/crons:master  erxes/crons:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/crons:master --tag  erxes/crons:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/crons:${GITHUB_REF#refs/tags/}
       - name: workers
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/workers:master  
 
-          docker tag erxes/workers:master  erxes/workers:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/workers:master --tag  erxes/workers:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/workers:${GITHUB_REF#refs/tags/}
       - name: essyncer
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/essyncer:master  
 
-          docker tag erxes/essyncer:master  erxes/essyncer:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/essyncer:master --tag  erxes/essyncer:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/essyncer:${GITHUB_REF#refs/tags/}
       - name: widgets
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/widgets:master  
 
-          docker tag erxes/widgets:master  erxes/widgets:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/widgets:master --tag  erxes/widgets:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/widgets:${GITHUB_REF#refs/tags/}
       - name: client-portal
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/client-portal:master  
 
-          docker tag erxes/client-portal:master  erxes/client-portal:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/client-portal:master --tag  erxes/client-portal:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/client-portal:${GITHUB_REF#refs/tags/}
 
       - name: exm-web
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/exm:master  
 
-          docker tag erxes/exm:master  erxes/exm:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/exm:master --tag  erxes/exm:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/exm:${GITHUB_REF#refs/tags/}
 
       - name: pos-ui
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/pos-ui:master  
 
-          docker tag erxes/pos-ui:master  erxes/pos-ui:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/pos-ui:master --tag  erxes/pos-ui:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/pos-ui:${GITHUB_REF#refs/tags/}
 
       - name: plugin-inbox-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-inbox-api:master  
 
-          docker tag erxes/plugin-inbox-api:master  erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-inbox-api:master --tag  erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/}
       - name: plugin-automations-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-automations-api:master  
 
-          docker tag erxes/plugin-automations-api:master  erxes/plugin-automations-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-automations-api:master --tag  erxes/plugin-automations-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-automations-api:${GITHUB_REF#refs/tags/}
       - name: plugin-cards-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-cards-api:master  
 
-          docker tag erxes/plugin-cards-api:master  erxes/plugin-cards-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-cards-api:master --tag  erxes/plugin-cards-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-cards-api:${GITHUB_REF#refs/tags/}
       - name: plugin-clientportal-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-clientportal-api:master  
 
-          docker tag erxes/plugin-clientportal-api:master  erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-clientportal-api:master --tag  erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/}
       - name: plugin-contacts-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-contacts-api:master  
 
-          docker tag erxes/plugin-contacts-api:master  erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-contacts-api:master --tag  erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/}
       - name: plugin-dashboard-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-dashboard-api:master  
 
-          docker tag erxes/plugin-dashboard-api:master  erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-dashboard-api:master --tag  erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/}
       - name: plugin-emailtemplates-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-emailtemplates-api:master  
 
-          docker tag erxes/plugin-emailtemplates-api:master  erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-emailtemplates-api:master --tag  erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/}
       - name: plugin-engages-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-engages-api:master  
 
-          docker tag erxes/plugin-engages-api:master  erxes/plugin-engages-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-engages-api:master --tag  erxes/plugin-engages-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-engages-api:${GITHUB_REF#refs/tags/}
       - name: plugin-forms-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-forms-api:master  
 
-          docker tag erxes/plugin-forms-api:master  erxes/plugin-forms-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-forms-api:master --tag  erxes/plugin-forms-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-forms-api:${GITHUB_REF#refs/tags/}
       - name: plugin-integrations-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-integrations-api:master  
 
-          docker tag erxes/plugin-integrations-api:master  erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-integrations-api:master --tag  erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/}
       - name: plugin-internalnotes-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-internalnotes-api:master  
 
-          docker tag erxes/plugin-internalnotes-api:master  erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-internalnotes-api:master --tag  erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/}
       - name: plugin-knowledgebase-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-knowledgebase-api:master  
 
-          docker tag erxes/plugin-knowledgebase-api:master  erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-knowledgebase-api:master --tag  erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/}
       - name: plugin-logs-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-logs-api:master  
 
-          docker tag erxes/plugin-logs-api:master  erxes/plugin-logs-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-logs-api:master --tag  erxes/plugin-logs-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-logs-api:${GITHUB_REF#refs/tags/}
       - name: plugin-loyalties-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-loyalties-api:master  
 
-          docker tag erxes/plugin-loyalties-api:master  erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-loyalties-api:master --tag  erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-notifications-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-notifications-api:master  
 
-          docker tag erxes/plugin-notifications-api:master  erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-notifications-api:master --tag  erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-webhooks-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-webhooks-api:master  
 
-          docker tag erxes/plugin-webhooks-api:master  erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-webhooks-api:master --tag  erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-products-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-products-api:master  
 
-          docker tag erxes/plugin-products-api:master  erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-products-api:master --tag  erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-products-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-segments-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-segments-api:master  
 
-          docker tag erxes/plugin-segments-api:master  erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-segments-api:master --tag  erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-segments-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-tags-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-tags-api:master  
 
-          docker tag erxes/plugin-tags-api:master  erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-tags-api:master --tag  erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-tags-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-webbuilder-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-webbuilder-api:master  
 
-          docker tag erxes/plugin-webbuilder-api:master  erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-webbuilder-api:master --tag  erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-documents-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-documents-api:master  
 
-          docker tag erxes/plugin-documents-api:master  erxes/plugin-documents-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-documents-api:master --tag  erxes/plugin-documents-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-documents-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-chats-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-chats-api:master  
 
-          docker tag erxes/plugin-chats-api:master  erxes/plugin-chats-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-chats-api:master --tag  erxes/plugin-chats-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-chats-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-ebarimt-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-ebarimt-api:master  
 
-          docker tag erxes/plugin-ebarimt-api:master  erxes/plugin-ebarimt-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-ebarimt-api:master --tag  erxes/plugin-ebarimt-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-ebarimt-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-exm-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-exm-api:master  
 
-          docker tag erxes/plugin-exm-api:master  erxes/plugin-exm-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-exm-api:master --tag  erxes/plugin-exm-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-exm-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-exmfeed-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-exmfeed-api:master  
 
-          docker tag erxes/plugin-exmfeed-api:master  erxes/plugin-exmfeed-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-exmfeed-api:master --tag  erxes/plugin-exmfeed-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-exmfeed-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-pos-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-pos-api:master  
 
-          docker tag erxes/plugin-pos-api:master  erxes/plugin-pos-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-pos-api:master --tag  erxes/plugin-pos-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-pos-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-reactions-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-reactions-api:master  
 
-          docker tag erxes/plugin-reactions-api:master  erxes/plugin-reactions-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-reactions-api:master --tag  erxes/plugin-reactions-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-reactions-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-syncerkhet-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-syncerkhet-api:master  
 
-          docker tag erxes/plugin-syncerkhet-api:master  erxes/plugin-syncerkhet-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-syncerkhet-api:master --tag  erxes/plugin-syncerkhet-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-syncerkhet-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-salesplans-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-salesplans-api:master  
 
-          docker tag erxes/plugin-salesplans-api:master  erxes/plugin-salesplans-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-salesplans-api:master --tag  erxes/plugin-salesplans-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-salesplans-api:${GITHUB_REF#refs/tags/}
       - name: plugin-processes-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-processes-api:master  
 
-          docker tag erxes/plugin-processes-api:master  erxes/plugin-processes-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-processes-api:master --tag  erxes/plugin-processes-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-processes-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-inventories-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-inventories-api:master  
 
-          docker tag erxes/plugin-inventories-api:master  erxes/plugin-inventories-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-inventories-api:master --tag  erxes/plugin-inventories-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-inventories-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-posclient-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-posclient-api:master  
 
-          docker tag erxes/plugin-posclient-api:master  erxes/plugin-posclient-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-posclient-api:master --tag  erxes/plugin-posclient-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-posclient-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-imap-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-imap-api:master  
 
-          docker tag erxes/plugin-imap-api:master  erxes/plugin-imap-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-imap-api:master --tag  erxes/plugin-imap-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-imap-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-goals-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-goals-api:master  
 
-          docker tag erxes/plugin-goals-api:master  erxes/plugin-goals-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-goals-api:master --tag  erxes/plugin-goals-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-goals-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-msdynamic-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-msdynamic-api:master  
 
-          docker tag erxes/plugin-msdynamic-api:master  erxes/plugin-msdynamic-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-msdynamic-api:master --tag  erxes/plugin-msdynamic-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-msdynamic-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-facebook-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-facebook-api:master  
 
-          docker tag erxes/plugin-facebook-api:master  erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-facebook-api:master --tag  erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-ecommerce-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-ecommerce-api:master  
 
-          docker tag erxes/plugin-ecommerce-api:master  erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-ecommerce-api:master --tag  erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-cars-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-cars-api:master  
 
-          docker tag erxes/plugin-cars-api:master  erxes/plugin-cars-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-cars-api:master --tag  erxes/plugin-cars-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-cars-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-pricing-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-pricing-api:master  
 
-          docker tag erxes/plugin-pricing-api:master  erxes/plugin-pricing-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-pricing-api:master --tag  erxes/plugin-pricing-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-pricing-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-assets-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-assets-api:master  
 
-          docker tag erxes/plugin-assets-api:master  erxes/plugin-assets-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-assets-api:master --tag  erxes/plugin-assets-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-assets-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-payment-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-payment-api:master  
 
-          docker tag erxes/plugin-payment-api:master  erxes/plugin-payment-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-payment-api:master --tag  erxes/plugin-payment-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-payment-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-timeclock-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-timeclock-api:master  
 
-          docker tag erxes/plugin-timeclock-api:master  erxes/plugin-timeclock-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-timeclock-api:master --tag  erxes/plugin-timeclock-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-timeclock-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-loans-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-loans-api:master  
 
-          docker tag erxes/plugin-loans-api:master  erxes/plugin-loans-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-loans-api:master --tag  erxes/plugin-loans-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-loans-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-productplaces-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-productplaces-api:master  
 
-          docker tag erxes/plugin-productplaces-api:master  erxes/plugin-productplaces-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-productplaces-api:master --tag  erxes/plugin-productplaces-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-productplaces-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-savings-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-savings-api:master  
 
-          docker tag erxes/plugin-savings-api:master  erxes/plugin-savings-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-savings-api:master --tag  erxes/plugin-savings-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-savings-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-meetings-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-meetings-api:master  
 
-          docker tag erxes/plugin-meetings-api:master  erxes/plugin-meetings-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-meetings-api:master --tag  erxes/plugin-meetings-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-meetings-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-viber-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-viber-api:master  
 
-          docker tag erxes/plugin-viber-api:master  erxes/plugin-viber-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-viber-api:master --tag  erxes/plugin-viber-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-viber-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-xyp-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-xyp-api:master  
 
-          docker tag erxes/plugin-xyp-api:master  erxes/plugin-xyp-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-xyp-api:master --tag  erxes/plugin-xyp-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-xyp-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-zalo-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-zalo-api:master  
 
-          docker tag erxes/plugin-zalo-api:master  erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-zalo-api:master --tag  erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-zalo-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-riskassessment-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-riskassessment-api:master  
 
-          docker tag erxes/plugin-riskassessment-api:master  erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-riskassessment-api:master --tag  erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-riskassessment-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-forum-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-forum-api:master  
 
-          docker tag erxes/plugin-forum-api:master  erxes/plugin-forum-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-forum-api:master --tag  erxes/plugin-forum-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-forum-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-dailyco-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-dailyco-api:master  
 
-          docker tag erxes/plugin-dailyco-api:master  erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-dailyco-api:master --tag  erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-dailyco-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-reports-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-reports-api:master  
 
-          docker tag erxes/plugin-reports-api:master  erxes/plugin-reports-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-reports-api:master --tag  erxes/plugin-reports-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-reports-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-instagram-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          docker image pull erxes/plugin-instagram-api:master  
 
-          docker tag erxes/plugin-instagram-api:master  erxes/plugin-instagram-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-instagram-api:master --tag  erxes/plugin-instagram-api:${GITHUB_REF#refs/tags/} 
 
-          docker push erxes/plugin-instagram-api:${GITHUB_REF#refs/tags/}
 
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui

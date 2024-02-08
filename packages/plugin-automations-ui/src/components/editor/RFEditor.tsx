@@ -50,7 +50,7 @@ type Props = {
 };
 
 const nodeTypes = {
-  custom: CustomNode,
+  primary: CustomNode,
   scratch: ScratchNode
 };
 

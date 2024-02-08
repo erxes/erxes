@@ -11,13 +11,13 @@ export const TableImproved = Table.extend({
     return {
       ...this.parent?.(),
       align: {
-        parseHTML: element => element.getAttribute('align'),
-        renderHTML: attributes => {
+        parseHTML: (element) => element.getAttribute('align'),
+        renderHTML: (attributes) => {
           return {
-            align: attributes.align
+            align: attributes.align,
           };
-        }
-      }
+        },
+      },
     };
   },
   parseHTML() {
@@ -50,14 +50,14 @@ export const TableImproved = Table.extend({
               cellMinWidth: this.options.cellMinWidth,
               // @ts-expect-error incorrect type https://github.com/ueberdosis/tiptap/blob/b0198eb14b98db5ca691bd9bfe698ffaddbc4ded/packages/extension-table/src/table.ts#L253
               View: this.options.View,
-              lastColumnResizable: this.options.lastColumnResizable
-            })
+              lastColumnResizable: this.options.lastColumnResizable,
+            }),
           ]
         : []),
 
       tableEditing({
-        allowTableNodeSelection: this.options.allowTableNodeSelection
-      })
+        allowTableNodeSelection: this.options.allowTableNodeSelection,
+      }),
     ];
-  }
+  },
 });

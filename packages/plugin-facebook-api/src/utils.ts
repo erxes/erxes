@@ -12,6 +12,7 @@ import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -40,7 +41,29 @@ export const graphRequest = {
     return this.base('del', ...args);
   },
 };
+export const getPostDetails = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  postId: string,
+) => {
+  let pageAccessToken;
 
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugError(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error();
+  }
+
+  try {
+    const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while getting facebook post: ${e.message}`);
+    return null;
+  }
+};
 export const getPageList = async (
   models: IModels,
   accessToken?: string,
@@ -397,6 +420,26 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   }
 
   return messages;
+};
+
+export const fetchPagePost = async (postId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${postId}?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response || null;
+};
+
+export const fetchPagePosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response.data || [];
 };
 
 export const checkFacebookPages = async (models: IModels, pages: any) => {

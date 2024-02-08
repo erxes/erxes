@@ -1,6 +1,10 @@
 import { CONTRACT_STATUS } from './constants';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import {
+  customFieldSchema,
+  ICustomField,
+} from '@erxes/api-utils/src/definitions/common';
 
 export interface IContract {
   contractTypeId: string;
@@ -36,6 +40,7 @@ export interface IContract {
   interestGiveType: string;
   closeOrExtendConfig: string;
   depositAccount: string;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -48,132 +53,137 @@ export const contractSchema = schemaHooksWrapper(
     contractTypeId: field({
       type: String,
       label: 'Contract Type',
-      index: true
+      index: true,
     }),
     number: field({
       type: String,
       label: 'Number',
       optional: true,
-      index: true
+      index: true,
     }),
     status: field({
       type: String,
       label: 'Status',
       enum: CONTRACT_STATUS.ALL,
       required: true,
-      default: CONTRACT_STATUS.NORMAL
+      default: CONTRACT_STATUS.NORMAL,
     }),
     branchId: field({
       type: String,
       optional: true,
-      label: 'Branch Id'
+      label: 'Branch Id',
     }),
     description: field({
       type: String,
       optional: true,
-      label: 'Description'
+      label: 'Description',
     }),
     createdBy: field({ type: String, label: 'Created By' }),
     createdAt: field({
       type: Date,
       default: () => new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     savingAmount: field({
       type: Number,
       default: 0,
       optional: true,
-      label: 'Saving amount'
+      label: 'Saving amount',
     }),
     duration: field({
       type: Number,
       min: 0,
       max: 600,
-      label: 'Saving duration (in months)'
+      label: 'Saving duration (in months)',
     }),
     interestRate: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Saving Interest Rate'
+      label: 'Saving Interest Rate',
     }),
     closeInterestRate: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Saving Close Interest Rate'
+      label: 'Saving Close Interest Rate',
     }),
     startDate: field({ type: Date, label: 'Start Date' }),
     endDate: field({ type: Date, label: 'End Date' }),
     customerId: field({
       type: String,
       optional: true,
-      label: 'Customer ID'
+      label: 'Customer ID',
     }),
     customerType: field({
       type: String,
       optional: true,
-      label: 'Customer Type'
+      label: 'Customer Type',
     }),
     closeDate: field({
       type: Date,
       optional: true,
-      label: 'Close Date'
+      label: 'Close Date',
     }),
     closeType: field({
       type: String,
       optional: true,
-      label: 'Close Type'
+      label: 'Close Type',
     }),
     closeDescription: field({
       type: String,
       optional: true,
-      label: 'Close Description'
+      label: 'Close Description',
     }),
 
     dealId: field({
       type: String,
       optional: true,
-      label: 'contract relation of dealId'
+      label: 'contract relation of dealId',
     }),
     currency: field({
       type: String,
       default: 'MNT',
-      label: 'contract currency of saving'
+      label: 'contract currency of saving',
     }),
     storedInterest: field({
       type: Number,
       optional: true,
       default: 0,
-      label: 'Stored Interest'
+      label: 'Stored Interest',
     }),
     lastStoredDate: field({
       type: Date,
       optional: true,
-      label: 'Last Stored Date'
+      label: 'Last Stored Date',
     }),
     interestCalcType: field({ type: String, label: 'Interest calculate type' }),
     storeInterestInterval: field({
       type: String,
-      label: 'Interest store interval'
+      label: 'Interest store interval',
     }),
     isAllowIncome: field({ type: Boolean, label: 'Is Allow income' }),
     isAllowOutcome: field({ type: Boolean, label: 'Is Allow outcome' }),
     isDeposit: field({ type: Boolean, label: 'Is Deposit' }),
     interestGiveType: field({
       type: String,
-      label: 'Interest give type'
+      label: 'Interest give type',
     }),
     closeOrExtendConfig: field({
       type: String,
-      label: 'Close or extend config'
+      label: 'Close or extend config',
     }),
     depositAccount: field({
       type: String,
-      label: 'Deposit account'
-    })
+      label: 'Deposit account',
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
   }),
-  'erxes_contractSchema'
+  'erxes_contractSchema',
 );
 
 export interface ICloseVariable {

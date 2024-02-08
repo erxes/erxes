@@ -1,7 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FlexRow } from '../../styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -21,6 +21,9 @@ type Props = {
 
 const ContentWrapper = styled.div`
   margin-top: 20px;
+  > div {
+    border: 0.0625rem solid #eee;
+  }
 `;
 
 const EmailConfigForm = (props: Props) => {
@@ -54,11 +57,11 @@ const EmailConfigForm = (props: Props) => {
     });
   };
 
-  const onEditorChange = (e: any) => {
+  const onEditorChange = (content: string) => {
     setEmailConfig({
       type,
       email,
-      template: e.editor.getData()
+      template: content
     });
   };
 
@@ -66,7 +69,7 @@ const EmailConfigForm = (props: Props) => {
     if (type === 'custom') {
       return (
         <ContentWrapper>
-          <EditorCK
+          <RichTextEditor
             content={template}
             onChange={onEditorChange}
             autoGrow={true}

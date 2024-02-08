@@ -30,7 +30,6 @@ import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
-import { sendCommonMessage } from './messageBroker';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -535,7 +534,6 @@ export const prepareEngageCustomers = async (
     await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-
   // make sure email & phone are valid
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;

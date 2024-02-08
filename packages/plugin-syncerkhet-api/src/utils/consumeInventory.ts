@@ -1,4 +1,4 @@
-import { sendProductsMessage } from '../messageBroker';
+import { sendFormsMessage, sendProductsMessage } from '../messageBroker';
 import { getConfig } from './utils';
 
 export const consumeInventory = async (subdomain, doc, old_code, action) => {
@@ -7,7 +7,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     action: 'findOne',
     data: { code: old_code },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   if ((action === 'update' && old_code) || action === 'create') {
@@ -15,7 +15,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       subdomain,
       action: 'categories.findOne',
       data: { code: doc.category_code },
-      isRPC: true
+      isRPC: true,
     });
 
     const config = await getConfig(subdomain, 'ERKHET', {});
@@ -36,19 +36,46 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       description: eval('`' + config.consumeDescription + '`'),
       status: 'active',
       taxType: doc.vat_type || '',
-      taxCode: doc.vat_type_code || ''
+      taxCode: doc.vat_type_code || '',
     };
+
+    const weightField = await sendFormsMessage({
+      subdomain,
+      action: 'fields.findOne',
+      data: { query: { code: 'weight' } },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    if (weightField && weightField._id) {
+      const weightData = {
+        field: weightField._id,
+        value: doc.weight,
+        stringValue: doc.weight.toString(),
+        numberValue: Number(doc.weight),
+      };
+
+      if (product && product.customFieldsData) {
+        const otherFieldsData = (product.customFieldsData || []).filter(
+          (cfd) => cfd.field !== weightField._id,
+        );
+        otherFieldsData.push(weightData);
+        document.customFieldsData = otherFieldsData;
+      } else {
+        document.customFieldsData = [weightData];
+      }
+    }
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
       let subUoms = (product || {}).subUoms || [];
-      const subUomCodes = subUoms.map(u => u.uom);
+      const subUomCodes = subUoms.map((u) => u.uom);
 
       if (subUomCodes.includes(doc.sub_measure_unit_code)) {
-        subUoms = subUoms.filter(u => u.uom !== doc.sub_measure_unit_code);
+        subUoms = subUoms.filter((u) => u.uom !== doc.sub_measure_unit_code);
       }
       subUoms.unshift({
         uom: doc.sub_measure_unit_code,
-        ratio: doc.ratio_measure_unit
+        ratio: doc.ratio_measure_unit,
       });
 
       document.subUoms = subUoms;
@@ -59,14 +86,14 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         subdomain,
         action: 'updateProduct',
         data: { _id: product._id, doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendProductsMessage({
         subdomain,
         action: 'createProduct',
         data: { doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     }
   } else if (action === 'delete' && product) {
@@ -74,7 +101,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       subdomain,
       action: 'removeProducts',
       data: { _ids: [product._id] },
-      isRPC: true
+      isRPC: true,
     });
   }
 };
@@ -83,13 +110,13 @@ export const consumeInventoryCategory = async (
   subdomain,
   doc,
   old_code,
-  action
+  action,
 ) => {
   const productCategory = await sendProductsMessage({
     subdomain,
     action: 'categories.findOne',
     data: { code: old_code },
-    isRPC: true
+    isRPC: true,
   });
 
   if ((action === 'update' && old_code) || action === 'create') {
@@ -97,13 +124,13 @@ export const consumeInventoryCategory = async (
       subdomain,
       action: 'categories.findOne',
       data: { code: doc.parent_code },
-      isRPC: true
+      isRPC: true,
     });
 
     const document = {
       code: doc.code,
       name: doc.name,
-      order: doc.order
+      order: doc.order,
     };
 
     if (productCategory) {
@@ -116,10 +143,10 @@ export const consumeInventoryCategory = async (
             ...document,
             parentId: parentCategory
               ? parentCategory._id
-              : productCategory.parentId
-          }
+              : productCategory.parentId,
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendProductsMessage({
@@ -128,10 +155,10 @@ export const consumeInventoryCategory = async (
         data: {
           doc: {
             ...document,
-            parentId: parentCategory ? parentCategory._id : ''
-          }
+            parentId: parentCategory ? parentCategory._id : '',
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
     }
   } else if (action === 'delete' && productCategory) {
@@ -139,9 +166,9 @@ export const consumeInventoryCategory = async (
       subdomain,
       action: 'categories.removeProductCategory',
       data: {
-        _id: productCategory._id
+        _id: productCategory._id,
       },
-      isRPC: true
+      isRPC: true,
     });
   }
 };

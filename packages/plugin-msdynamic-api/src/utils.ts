@@ -1,6 +1,7 @@
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendFormsMessage,
   sendProductsMessage,
 } from './messageBroker';
 import * as moment from 'moment';
@@ -24,11 +25,80 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
     defaultValue: {},
   });
 
+  let customFieldData = [] as any;
+  let updateCustomFieldData;
+
   const brandIds = (company || {}).scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
       brandIds.push(config.brandId);
+    }
+
+    if (doc.Post_Code) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'post code',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.Post_Code,
+      });
+    }
+
+    if (doc.City) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'city',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.City,
+      });
+    }
+
+    if (doc.VAT_Registration_No) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'VAT',
+            contentType: 'contacts:company',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.VAT_Registration_No,
+      });
+    }
+
+    if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
+      updateCustomFieldData = await sendFormsMessage({
+        subdomain,
+        action: 'fields.prepareCustomFieldsData',
+        data: customFieldData,
+        isRPC: true,
+      });
     }
 
     const document: any = {
@@ -38,6 +108,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
       businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
+      customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
     };
 
@@ -68,6 +139,9 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
     defaultValue: {},
   });
 
+  let customFieldData = [] as any;
+  let updateCustomFieldData;
+
   const brandIds = (customer || {}).scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
@@ -75,11 +149,78 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
       brandIds.push(config.brandId);
     }
 
+    if (doc.Post_Code) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'post code',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.Post_Code,
+      });
+    }
+
+    if (doc.City) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'city',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.City,
+      });
+    }
+
+    if (doc.VAT_Registration_No) {
+      const foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            text: 'VAT',
+            contentType: 'contacts:customer',
+          },
+        },
+        isRPC: true,
+      });
+
+      customFieldData.push({
+        field: foundfield._id,
+        value: doc.VAT_Registration_No,
+      });
+    }
+
+    if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
+      updateCustomFieldData = await sendFormsMessage({
+        subdomain,
+        action: 'fields.prepareCustomFieldsData',
+        data: customFieldData,
+        isRPC: true,
+      });
+    }
+
     const document: any = {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
+      customFieldsData: updateCustomFieldData,
       scopeBrandIds: brandIds,
       state: 'customer',
     };
@@ -349,9 +490,26 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
 };
 
 export const customerToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+
+  const brand = await sendCoreMessage({
+    subdomain,
+    action: 'brands.findOne',
+    data: {
+      query: { name: 'Beverage' },
+    },
+    isRPC: true,
+  });
+
+  const config = configs[brand._id || 'noBrand'];
+
   const customer = params;
 
   let name = customer.primaryName || '';
+  let foundfield;
+  let sendVAT;
+  let sendCity;
+  let sendPostCode;
 
   name =
     name && customer.firstName
@@ -365,40 +523,69 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
   name = name ? name : '';
 
+  if (customer && customer.customFieldsData.length > 0) {
+    for (const field of customer.customFieldsData) {
+      foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            _id: field.field,
+          },
+        },
+        isRPC: true,
+      });
+
+      if (foundfield.text === 'VAT') {
+        sendVAT = field.value;
+      }
+
+      if (foundfield.text === 'city') {
+        sendCity = field.value;
+      }
+
+      if (foundfield.text === 'post code') {
+        sendPostCode = field.value;
+      }
+    }
+  }
+
+  const getCompanyName = await fetch(
+    `https://info.ebarimt.mn/rest/merchant/info?regno=${sendVAT}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  ).then((r) => r.json());
+
   const sendData: any = {
     Name: name,
-    Name_MN: name,
+    Name_MN: getCompanyName && getCompanyName.name ? getCompanyName.name : '',
     Phone_No: customer.primaryPhone || '',
     E_Mail: customer.primaryEmail || '',
     Mobile_Phone_No: customer.primaryPhone || '',
     Address: customer.primaryAddress || '',
+    Address_2: '',
     Country_Region_Code: 'MN',
-    City: 'Orkhon',
-    Post_Code: '61000',
-    Contact: '',
-    VAT_Registration_No: '2737329',
-    Gen_Bus_Posting_Group: 'DOMESTIC',
-    VAT_Bus_Posting_Group: 'DOMESTIC',
-    Customer_Posting_Group: 'TRADE',
-    Invoice_Disc_Code: 'BEV-00001',
-    Customer_Price_Group: 'ON TRADE',
-    Customer_Disc_Group: '',
-    Allow_Line_Disc: true,
+    City: sendCity || 'Ulaanbaatar',
+    Post_Code: sendPostCode || '',
+    VAT_Registration_No: sendVAT || '',
+    Gen_Bus_Posting_Group: config.genBusPostingGroup || 'DOMESTIC',
+    VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+    Customer_Posting_Group: config.customerPostingGroup || 'TRADE',
+    Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+    Customer_Disc_Group: config.customerDiscGroup || '',
+    Partner_Type: sendVAT?.length === 7 ? 'Company' : 'Person',
+    Payment_Terms_Code: config.paymentTermsCode || 'CASH',
+    Payment_Method_Code: config.paymentMethodCode || 'CASH',
+    Location_Code: config.locationCode || 'BEV-01',
     Prices_Including_VAT: true,
-    Partner_Type: 'Company',
-    Payment_Terms_Code: 'ENDOFMONTH',
-    Payment_Method_Code: 'BANK',
-    Location_Code: 'BEV-10',
-    Creation_Date: moment(new Date()).format('YYYY-MM-DD'),
+    Allow_Line_Disc: true,
   };
 
-  // EBarimt baihgui baina
-
   try {
-    const configs = await getConfig(subdomain, 'DYNAMIC', {});
-    // const config = configs[brandId || 'noBrand'];
-    const config = configs['ZCvn7uB96xPGpxCEtmrul'];
-
     let responseData;
 
     if (!config.customerApi || !config.username || !config.password) {
@@ -408,10 +595,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     const { customerApi, username, password } = config;
 
     const response = await fetch(
-      `${customerApi}?` +
-        new URLSearchParams({
-          filter: `Phone_No eq '${customer.primaryPhone}`,
-        }),
+      `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +604,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
-        body: JSON.stringify(sendData),
       },
     ).then((r) => r.json());
 
@@ -445,6 +628,191 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           sendStr: JSON.stringify(sendData),
           responseData,
           responseStr: JSON.stringify(responseData),
+        },
+      },
+    );
+  } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } },
+    );
+    console.log(e, 'error');
+  }
+};
+
+export const dealToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+  const config = configs[params.scopeBrandIds[0] || 'noBrand'];
+
+  const order = params;
+
+  try {
+    let responseData;
+    let customer;
+
+    if (
+      !config.customerApi ||
+      !config.salesApi ||
+      !config.salesLineApi ||
+      !config.username ||
+      !config.password
+    ) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { customerApi, salesApi, salesLineApi, username, password } = config;
+
+    if (order && order.customerId) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {},
+      });
+
+      if (order.customerType === 'company') {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: { _id: order.customerId },
+          isRPC: true,
+          defaultValue: {},
+        });
+      }
+    }
+
+    if (customer) {
+      const responseCustomer = await fetch(
+        `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+        },
+      ).then((r) => r.json());
+
+      if (responseCustomer.value.length === 0) {
+        responseData = await fetch(customerApi, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify('sendData'),
+        }).then((r) => r.json());
+
+        const brandIds = (customer || {}).scopeBrandIds || [];
+
+        if (
+          !brandIds.includes(params.scopeBrandIds[0]) &&
+          params.scopeBrandIds[0] !== 'noBrand'
+        ) {
+          brandIds.push(params.scopeBrandIds[0]);
+        }
+
+        if (order.customerType === 'company') {
+          await sendContactsMessage({
+            subdomain,
+            action: 'companies.updateCompany',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        } else {
+          await sendContactsMessage({
+            subdomain,
+            action: 'customers.updateCustomer',
+            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            isRPC: true,
+          });
+        }
+      }
+    }
+
+    const sendData: any = {
+      Sell_to_Customer_No: customer ? customer.code : 'BEV-00499',
+      Sell_to_Phone_No: customer ? customer.primaryPhone : '',
+      Sell_to_E_Mail: customer ? customer.primaryEmail : '',
+      External_Document_No: 'nemelt medeelel',
+      Responsibility_Center: config.responsibilityCenter || 'BEV-DIST',
+      Sync_Type: config.syncType || 'ECOMMERCE',
+      Mobile_Phone_No: customer ? customer.primaryPhone : '',
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+      Payment_Terms_Code: config.paymentTermsCode || '28TH',
+      Payment_Method_Code: config.paymentMethodCode || 'CASH',
+      Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+      Prices_Including_VAT: true,
+      BillType: config.billType || 'Receipt',
+      Location_Code: config.locationCode || 'BEV-01',
+      CustomerNo:
+        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
+        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
+    };
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+        },
+      },
+    );
+
+    const responseSale = await fetch(`${salesApi}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+      body: JSON.stringify(sendData),
+    }).then((res) => res.json());
+
+    if (order && order.items.length > 0 && responseSale) {
+      for (const item of order.items) {
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: item.productId },
+          isRPC: true,
+        });
+
+        const sendSalesLine: any = {
+          Document_No: responseSale.No,
+          Type: 'Item',
+          No: product ? product.code : '',
+          Quantity: item.count || 0,
+          Unit_Price: item.unitPrice || 0,
+          Location_Code: config.locationCode || 'BEV-01',
+        };
+
+        const responseSaleLine = await fetch(`${salesLineApi}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify(sendSalesLine),
+        }).then((res) => res.json());
+      }
+    }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData: responseSale,
+          responseStr: JSON.stringify(responseSale),
         },
       },
     );

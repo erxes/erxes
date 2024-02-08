@@ -33,6 +33,7 @@ type Props = {
   attrWithSegmentConfig?: boolean;
   required?: boolean;
   componentClass?: string;
+  placeholder?: string;
 };
 
 type State = {
@@ -75,13 +76,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const {
-      fieldType,
-      options,
-      inputName,
-      isMulti,
-      optionsAllowedTypes
-    } = this.props;
+    const { fieldType, options, inputName, isMulti, optionsAllowedTypes } =
+      this.props;
     if (!['select', ...(optionsAllowedTypes || [])].includes(fieldType || '')) {
       return '';
     }
@@ -250,7 +246,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
       fieldType = 'string',
       additionalContent,
       required,
-      componentClass
+      componentClass,
+      placeholder
     } = this.props;
 
     let converted: string = config[inputName] || '';
@@ -294,6 +291,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             name={inputName}
             value={converted}
             componentClass={componentClass}
+            placeholder={placeholder}
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
             onKeyDown={this.onKeyDown}

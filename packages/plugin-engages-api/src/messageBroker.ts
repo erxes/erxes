@@ -1,11 +1,9 @@
-import { sendMessage } from '@erxes/api-utils/src/core';
-import type {
-  MessageArgs,
-  MessageArgsOmitService,
-} from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+
 import { debug } from './configs';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
+
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 import {
@@ -18,7 +16,6 @@ export const initBroker = async () => {
     const models = await generateModels(subdomain);
 
     const { engageMessage, customerInfos = [] } = data;
-
     if (
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
@@ -69,8 +66,7 @@ export const initBroker = async () => {
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
     debug.info(`Receiving queue data ${JSON.stringify(data)}`);
-
-    const models = await generateModels(subdomain);
+    const models = (await generateModels(subdomain)) as IModels;
 
     try {
       const { action, data: realData } = data;
@@ -130,7 +126,7 @@ export const initBroker = async () => {
 
 export const removeEngageConversations = async (_id: string): Promise<any> => {
   // FIXME: This doesn't look like it should be calling consumeQueue
-  return consumeQueue('removeEngageConversations', _id);
+  // return consumeQueue('removeEngageConversations', _id);
 };
 
 export const sendContactsMessage = async (
@@ -203,4 +199,15 @@ export const sendEmailTemplatesMessage = async (
     serviceName: 'emailtemplates',
     ...args,
   });
+};
+
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
+    ...args,
+  });
+};
+
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook({ subdomain, data });
 };

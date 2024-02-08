@@ -1,15 +1,15 @@
 import { useEffect } from "react"
 import { useTDBTransaction } from "@/modules/checkout/hooks/useTDB"
 import useTransaction from "@/modules/checkout/hooks/useTransaction"
-
-import { BANK_CARD_TYPES } from "@/lib/constants"
+import { currentPaymentTypeAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 import TerminalUI from "./terminalUI"
 
 const TDBCardSheet = () => {
-  const { amount, _id, closePaymentSheet, handleAddPayment } = useTransaction(
-    BANK_CARD_TYPES.TDB
-  )
+  const type = useAtomValue(currentPaymentTypeAtom)
+  const { amount, _id, closePaymentSheet, handleAddPayment } =
+    useTransaction(type)
   const { TDBTransaction } = useTDBTransaction({
     onCompleted: handleAddPayment,
     onError: closePaymentSheet,

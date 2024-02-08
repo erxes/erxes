@@ -3,11 +3,17 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { __, Alert } from 'coreui/utils';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from '@erxes/ui-engage/src/constants';
+import {
+  MESSENGER_KINDS,
+  SENT_AS_CHOICES
+} from '@erxes/ui-engage/src/constants';
 import React from 'react';
-import EditorCK from '../containers/EditorCK';
+import RichTextEditor from '../containers/RichTextEditor';
 import MessengerPreview from '../containers/MessengerPreview';
-import { IEngageMessenger, IEngageScheduleDate } from '@erxes/ui-engage/src/types';
+import {
+  IEngageMessenger,
+  IEngageScheduleDate
+} from '@erxes/ui-engage/src/types';
 import Scheduler from './Scheduler';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import { IBrand } from '@erxes/ui/src/brands/types';
@@ -106,8 +112,8 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
-  onEditorChange = e => {
-    this.props.onChange('content', e.editor.getData());
+  onEditorChange = (content: string) => {
+    this.props.onChange('content', content);
   };
 
   render() {
@@ -131,14 +137,10 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>{__('Message:')}</ControlLabel>
-
-            <EditorCK
+            <RichTextEditor
               content={this.props.content}
               onChange={this.onEditorChange}
-              toolbar={[
-                { name: 'insert', items: ['strinsert'] },
-                ...MAIL_TOOLBARS_CONFIG
-              ]}
+              toolbar={MAIL_TOOLBARS_CONFIG}
               height={300}
               name={`engage_${messageKind}_${messenger.brandId}`}
               isSubmitted={this.props.isSaved}

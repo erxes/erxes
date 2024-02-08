@@ -1,20 +1,20 @@
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { BlockRow, ToggleWrap } from '../../styles';
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
-import { BlockRow, ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
-import PasswordConfig from './PasswordConfig';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import PasswordConfig from './PasswordConfig';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -51,30 +51,29 @@ function General({
   testUserPhone,
   testUserPassword,
   testUserOTP,
-  handleFormChange
+  handleFormChange,
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
-    otpConfig ? true : false
+    otpConfig ? true : false,
   );
 
   const [mailEnabled, setMailEnabled] = useState<boolean>(
-    mailConfig ? true : false
+    mailConfig ? true : false,
   );
 
-  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
-    boolean
-  >(manualVerificationConfig ? true : false);
+  const [manualVerificationEnabled, setManualVerificationEnabled] =
+    useState<boolean>(manualVerificationConfig ? true : false);
 
   const [userIds] = useState<string[]>(
-    manualVerificationConfig ? manualVerificationConfig.userIds : []
+    manualVerificationConfig ? manualVerificationConfig.userIds : [],
   );
 
   const [verifyCompany, setVerifyCompany] = useState<boolean>(
-    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false
+    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false,
   );
 
   const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
-    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
+    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false,
   );
 
   const smsConfigs = CONFIGURATIONS;
@@ -82,15 +81,15 @@ function General({
   if (isEnabled('mobinet')) {
     smsConfigs.push({
       value: 'mobinet',
-      label: 'mobinet'
+      label: 'mobinet',
     });
   }
 
-  const onSelectUsers = values => {
+  const onSelectUsers = (values) => {
     handleFormChange('manualVerificationConfig', {
       userIds: values,
       verifyCompany,
-      verifyCustomer
+      verifyCustomer,
     });
   };
 
@@ -102,11 +101,12 @@ function General({
         handleFormChange('otpConfig', null);
       } else {
         handleFormChange('otpConfig', {
+          emailSubject: 'OTP verification',
           smsTransporterType: '',
           codeLength: 4,
           content: 'Your verification code is {{ code }}',
           expireAfter: 1,
-          loginWithOTP: false
+          loginWithOTP: false,
         });
       }
     }
@@ -128,7 +128,7 @@ function General({
         handleFormChange('manualVerificationConfig', {
           userIds: [],
           verifyCustomer: false,
-          verifyCompany: false
+          verifyCompany: false,
         });
       }
     }
@@ -139,7 +139,7 @@ function General({
       handleFormChange('manualVerificationConfig', {
         userIds,
         verifyCompany: value,
-        verifyCustomer
+        verifyCustomer,
       });
     }
 
@@ -149,15 +149,15 @@ function General({
       handleFormChange('manualVerificationConfig', {
         userIds,
         verifyCompany,
-        verifyCustomer: value
+        verifyCustomer: value,
       });
     }
   };
 
-  const onChangeConfiguration = option => {
+  const onChangeConfiguration = (option) => {
     handleFormChange('otpConfig', {
       ...otpConfig,
-      smsTransporterType: option.value
+      smsTransporterType: option.value,
     });
   };
 
@@ -168,12 +168,12 @@ function General({
     formValueName,
     formValue,
     placeholder,
-    formProps
+    formProps,
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
         formValueName,
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -196,13 +196,14 @@ function General({
 
   const renderOtp = () => {
     const obj = otpConfig || {
+      emailSubject: 'OTP Verification',
       content: '',
       codeLength: 4,
       smsTransporterType: 'messagePro',
       loginWithOTP: false,
-      expireAfter: 1
+      expireAfter: 1,
     };
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -238,7 +239,7 @@ function General({
     };
 
     return (
-      <CollapseContent title={__('Mobile OTP')} compact={true} open={false}>
+      <CollapseContent title={__('OTP')} compact={true} open={false}>
         <ToggleWrap>
           <FormGroup>
             <ControlLabel>Enable OTP config</ControlLabel>
@@ -247,7 +248,7 @@ function General({
               onChange={() => onChangeToggle('otpEnabled', !otpEnabled)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -262,7 +263,7 @@ function General({
                 value={obj.smsTransporterType}
                 options={smsConfigs.filter((obj, index) => {
                   return (
-                    index === smsConfigs.findIndex(o => obj.value === o.value)
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
                   );
                 })}
                 name="SMS Configuration"
@@ -270,8 +271,20 @@ function General({
               />
             </FormGroup>
             <FormGroup>
+              <ControlLabel>emailSubject</ControlLabel>
+              <p>OTP email subject</p>
+              <FlexContent>
+                <FormControl
+                  id="emailSubject"
+                  name="emailSubject"
+                  value={obj.emailSubject}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+            <FormGroup>
               <ControlLabel required={true}>Content</ControlLabel>
-              <p>OTP message body</p>
+              <p>OTP body</p>
               <FlexContent>
                 <FormControl
                   id="content"
@@ -335,10 +348,10 @@ function General({
   const renderSocialPayConfig = () => {
     const config = socialpayConfig || {
       certId: '',
-      publicKey: ''
+      publicKey: '',
     };
 
-    const handleChange = e => {
+    const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -386,7 +399,7 @@ function General({
     const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
-      subject: `${name} - invitation`
+      subject: `${name} - invitation`,
     };
 
     const onChangeSubject = (e: React.FormEvent) => {
@@ -394,14 +407,12 @@ function General({
       handleFormChange('mailConfig', obj);
     };
 
-    const onEditorChange = e => {
-      const value = e.editor.getData();
-      const editorNumber: number =
-        e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+    const onEditorChange = (type: string) => (content: string) => {
+      const value = content;
 
-      if (editorNumber % 2 !== 0) {
+      if (type === 'registrationContent') {
         obj.registrationContent = value;
-      } else {
+      } else if (type === 'invitationContent') {
         obj.invitationContent = value;
       }
 
@@ -422,7 +433,7 @@ function General({
               onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -448,20 +459,20 @@ function General({
               </ControlLabel>
               <p>Registration mail body</p>
               <FlexContent>
-                <EditorCK
+                <RichTextEditor
                   content={obj.registrationContent || ''}
-                  onChange={onEditorChange}
+                  onChange={onEditorChange('registrationContent')}
                   height={300}
-                  name={'registrationContent'}
-                  insertItems={{
+                  name="registrationContent"
+                  placeholderProp={{
                     items: [
                       {
                         value: 'link',
-                        name: 'Link'
-                      }
+                        name: 'Link',
+                      },
                     ],
                     title: 'Attributes',
-                    label: 'Attributes'
+                    label: 'Attributes',
                   }}
                 />
               </FlexContent>
@@ -473,24 +484,24 @@ function General({
               </ControlLabel>
               <p>Invitation mail body</p>
               <FlexContent>
-                <EditorCK
+                <RichTextEditor
                   content={obj.invitationContent || ''}
-                  onChange={onEditorChange}
+                  onChange={onEditorChange('invitationContent')}
                   height={300}
-                  name={'invitationContent'}
-                  insertItems={{
+                  name="invitationContent"
+                  placeholderProp={{
                     items: [
                       {
                         value: 'link',
-                        name: 'Link'
+                        name: 'Link',
                       },
                       {
                         value: 'password',
-                        name: 'Password'
-                      }
+                        name: 'Password',
+                      },
                     ],
                     title: 'Attributes',
-                    label: 'Attributes'
+                    label: 'Attributes',
                   }}
                 />
               </FlexContent>
@@ -516,12 +527,12 @@ function General({
               onChange={() =>
                 onChangeToggle(
                   'manualVerificationEnabled',
-                  !manualVerificationEnabled
+                  !manualVerificationEnabled,
                 )
               }
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -551,7 +562,7 @@ function General({
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -567,7 +578,7 @@ function General({
                   }
                   icons={{
                     checked: <span>Yes</span>,
-                    unchecked: <span>No</span>
+                    unchecked: <span>No</span>,
                   }}
                 />
               </FormGroup>
@@ -617,7 +628,7 @@ function General({
               onChange={(e: any) =>
                 handleFormChange(
                   'tokenExpiration',
-                  Number(e.currentTarget.value)
+                  Number(e.currentTarget.value),
                 )
               }
             />
@@ -638,7 +649,7 @@ function General({
               onChange={(e: any) =>
                 handleFormChange(
                   'refreshTokenExpiration',
-                  Number(e.currentTarget.value)
+                  Number(e.currentTarget.value),
                 )
               }
             />
@@ -654,25 +665,25 @@ function General({
           {renderControl({
             label: 'Test User Email',
             formValueName: 'testUserEmail',
-            formValue: testUserEmail
+            formValue: testUserEmail,
           })}
           {renderControl({
             label: 'Test User Phone',
             formValueName: 'testUserPhone',
-            formValue: testUserPhone
+            formValue: testUserPhone,
           })}
         </BlockRow>
         <BlockRow>
           {renderControl({
             label: 'Test User Password',
             formValueName: 'testUserPassword',
-            formValue: testUserPassword
+            formValue: testUserPassword,
           })}
           {renderControl({
             label: 'Test User OTP',
             formProps: { type: 'number' },
             formValueName: 'testUserOTP',
-            formValue: testUserOTP
+            formValue: testUserOTP,
           })}
         </BlockRow>
       </CollapseContent>
@@ -693,22 +704,22 @@ function General({
         {renderControl({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
-          formValue: googleCredentials
+          formValue: googleCredentials,
         })}
         {renderControl({
           label: 'Google Client Id',
           formValueName: 'googleClientId',
-          formValue: googleClientId
+          formValue: googleClientId,
         })}
         {renderControl({
           label: 'Google Client Secret',
           formValueName: 'googleClientSecret',
-          formValue: googleClientSecret
+          formValue: googleClientSecret,
         })}
         {renderControl({
           label: 'Google Client Redirect Uri',
           formValueName: 'googleRedirectUri',
-          formValue: googleRedirectUri
+          formValue: googleRedirectUri,
         })}
       </CollapseContent>
       <CollapseContent
@@ -719,7 +730,7 @@ function General({
         {renderControl({
           label: 'Facebook App Id',
           formValueName: 'facebookAppId',
-          formValue: facebookAppId
+          formValue: facebookAppId,
         })}
       </CollapseContent>
       <CollapseContent
@@ -730,7 +741,7 @@ function General({
         {renderControl({
           label: 'Erxes App Token',
           formValueName: 'erxesAppToken',
-          formValue: erxesAppToken
+          formValue: erxesAppToken,
         })}
       </CollapseContent>
     </>

@@ -9,7 +9,7 @@ import {
   IChart,
   ReportChartFormMutationResponse,
   ReportChartTemplatesListQueryResponse,
-  reportServicesListQueryResponse
+  reportServicesListQueryResponse,
 } from '../../types';
 import { Alert, router } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
@@ -37,7 +37,7 @@ const ChartFormList = (props: FinalProps) => {
     reportChartsEditMutation,
     reportChartsRemoveMutation,
     toggleForm,
-    history
+    history,
   } = props;
 
   if (reportServicesListQuery.loading) {
@@ -56,14 +56,14 @@ const ChartFormList = (props: FinalProps) => {
     }
   };
 
-  const chartsAdd = values => {
+  const chartsAdd = (values) => {
     reportChartsAddMutation({ variables: values })
       .then(() => {
         Alert.success('Successfully added chart');
         removeReportChartParams();
         toggleForm();
       })
-      .catch(err => Alert.error(err.message));
+      .catch((err) => Alert.error(err.message));
   };
 
   const chartsRemove = (_id: string) => {
@@ -71,7 +71,7 @@ const ChartFormList = (props: FinalProps) => {
       .then(() => {
         Alert.success('Successfully removed chart');
       })
-      .catch(err => Alert.error(err.message));
+      .catch((err) => Alert.error(err.message));
   };
 
   const finalProps = {
@@ -81,7 +81,7 @@ const ChartFormList = (props: FinalProps) => {
     chartsRemove,
     serviceNames: reportServicesListQuery.reportServicesList || [],
     chartTemplates:
-      reportChartTemplatesListQuery?.reportChartTemplatesList || []
+      reportChartTemplatesListQuery?.reportChartTemplatesList || [],
   };
 
   return <ChartForm {...finalProps} />;
@@ -91,16 +91,16 @@ export default compose(
   graphql<Props, any, {}>(gql(queries.reportServicesList), {
     name: 'reportServicesListQuery',
     options: () => ({
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: 'network-only',
+    }),
   }),
   graphql<Props, any, {}>(gql(queries.reportChartTemplatesList), {
     name: 'reportChartTemplatesListQuery',
     options: ({ queryParams }) => ({
       variables: { serviceName: queryParams.serviceName },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
     }),
-    skip: ({ queryParams }) => !queryParams.serviceName
+    skip: ({ queryParams }) => !queryParams.serviceName,
   }),
 
   graphql<Props, any, {}>(gql(mutations.reportChartsAdd), {
@@ -111,11 +111,11 @@ export default compose(
         {
           query: gql(queries.reportDetail),
           variables: {
-            reportId
-          }
-        }
-      ]
-    })
+            reportId,
+          },
+        },
+      ],
+    }),
   }),
   graphql<Props, any, {}>(gql(mutations.reportChartsEdit), {
     name: 'reportChartsEditMutation',
@@ -125,10 +125,10 @@ export default compose(
         {
           query: gql(queries.reportDetail),
           variables: {
-            reportId
-          }
-        }
-      ]
-    })
-  })
+            reportId,
+          },
+        },
+      ],
+    }),
+  }),
 )(ChartFormList);

@@ -5,9 +5,10 @@ import {
   sendProductsMessage,
 } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
+import * as moment from 'moment';
 
 const msdynamicCheckMutations = {
-  async toCheckProducts(
+  async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -118,7 +119,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckPrices(
+  async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -189,8 +190,45 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: {
+            code: resProd.Item_No,
+          },
+          isRPC: true,
+        });
+
+        const currentDate = moment(new Date()).format('YYYY-MM-DD');
+        const date = moment(resProd.Ending_Date).format('YYYY-MM-DD');
+
         if (productCodes.includes(resProd.Item_No.replace(/\s/g, ''))) {
-          updatePrices.push(resProd);
+          if (resProd.Ending_Date === '0001-01-01') {
+            if (product && product.unitPrice === 0) {
+              updatePrices.push(resProd);
+            }
+
+            if (product && product.unitPrice > 0) {
+              if (product.unitPrice < resProd?.Unit_Price) {
+                updatePrices.push(resProd);
+              }
+            }
+          }
+
+          if (
+            resProd.Ending_Date !== '0001-01-01' &&
+            moment(date).isAfter(currentDate)
+          ) {
+            if (product && product.unitPrice === 0) {
+              updatePrices.push(resProd);
+            }
+
+            if (product && product.unitPrice > 0) {
+              if (product.unitPrice < resProd?.Unit_Price) {
+                updatePrices.push(resProd);
+              }
+            }
+          }
         } else {
           createPrices.push(resProd);
         }
@@ -215,7 +253,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckProductCategories(
+  async toCheckMsdProductCategories(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
@@ -311,7 +349,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckCustomers(
+  async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
     { subdomain }: IContext,
