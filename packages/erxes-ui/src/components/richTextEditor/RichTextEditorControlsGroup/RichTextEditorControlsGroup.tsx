@@ -38,19 +38,25 @@ export const RichTextEditorControlsGroup = (
         $isActive={isActive}
         $toolbarPlacement={toolbarPlacement}
       >
-        <DropdownButton
-          id="rte-controls-group-dropdown-button"
-          title={firstChild}
-          disabled={isSourceEnabled}
-        >
-          {React.Children.map(childrenArray, (child, index) => {
-            return (
-              <Dropdown.Item as="button" key={index}>
-                {child}
-              </Dropdown.Item>
-            );
-          })}
-        </DropdownButton>
+        <Dropdown>
+          <Dropdown.Toggle
+            as="span"
+            id="rte-controls-group-dropdown-button"
+            disabled={isSourceEnabled}
+          >
+            {firstChild}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {React.Children.map(childrenArray, (child, index) => {
+              return (
+                /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
+                <Dropdown.Item as="span" key={`${child.toString()}-${index}`}>
+                  {child}
+                </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
       </ControlsGroupWrapper>
     );
   }

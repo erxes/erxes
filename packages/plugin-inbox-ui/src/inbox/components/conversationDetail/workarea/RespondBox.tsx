@@ -29,7 +29,7 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
@@ -37,9 +37,8 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 
 type Props = {
   conversation: IConversation;
@@ -70,7 +69,7 @@ type State = {
   editorKey: string;
   loading: object;
   extraInfo?: any;
-  timer: NodeJS.Timer;
+  timer: NodeJS.Timer | undefined;
 };
 
 const Editor = asyncComponent(
@@ -110,12 +109,8 @@ class RespondBox extends React.Component<Props, State> {
     return true;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { sending, content, responseTemplate } = this.state;
-
-    if (responseTemplate && responseTemplate === prevState.responseTemplate) {
-      this.setState({ responseTemplate: '' });
-    }
+  componentDidUpdate(prevState) {
+    const { sending, content } = this.state;
 
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });
@@ -173,15 +168,6 @@ class RespondBox extends React.Component<Props, State> {
     }
   };
 
-  // save mentioned user to state
-  onAddMention = (mentionedUserIds: string[]) => {
-    this.setState({ mentionedUserIds });
-  };
-
-  onSearchChange = (value: string) => {
-    this.props.onSearchChange(value);
-  };
-
   checkIsActive(conversation: IConversation) {
     if (conversation.integration.kind === 'messenger') {
       return conversation.customer && conversation.customer.isOnline;
@@ -206,15 +192,14 @@ class RespondBox extends React.Component<Props, State> {
     e.preventDefault();
 
     this.addMessage();
-
-    // redrawing editor after send button, so editor content will be reseted
-    this.setState({ editorKey: `${this.state.editorKey}Key` });
   };
 
   onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
     if (!responseTemplate) {
       return null;
     }
+
+    this.onEditorContentChange(responseTemplate.content);
 
     return this.setState({
       responseTemplate: responseTemplate.content,
@@ -310,13 +295,7 @@ class RespondBox extends React.Component<Props, State> {
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
-    const {
-      isInternal,
-      attachments,
-      content,
-      // mentionedUserIds,
-      extraInfo,
-    } = this.state;
+    const { isInternal, attachments, content, extraInfo } = this.state;
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
@@ -412,7 +391,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderEditor() {
-    const { isInternal, responseTemplate } = this.state;
+    const { isInternal } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -430,17 +409,11 @@ class RespondBox extends React.Component<Props, State> {
         currentConversation={conversation._id}
         defaultContent={this.getUnsendMessage(conversation._id)}
         integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
         onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
         placeholder={placeholder}
         showMentions={isInternal}
         mentionSuggestion={this.props.mentionSuggestion}
-        responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
         content={this.state.content}
       />
     );

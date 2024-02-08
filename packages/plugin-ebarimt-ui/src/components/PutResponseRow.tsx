@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -27,9 +28,9 @@ class PutResponseRow extends React.Component<Props, {}> {
       client
         .query({
           query: gql(queries.getDealLink),
-          variables: { _id: putResponse.contentId }
+          variables: { _id: putResponse.contentId },
         })
-        .then(data => {
+        .then((data) => {
           history.push(`${data.data.getDealLink}`);
         });
     };
@@ -46,7 +47,10 @@ class PutResponseRow extends React.Component<Props, {}> {
       <tr>
         <td key={'BillID'}>{putResponse.billId} </td>
         <td key={'number'}>{putResponse.number} </td>
-        <td key={'Date'}>{putResponse.date}</td>
+        <td key={'Date'}>
+          {putResponse.date ||
+            dayjs(putResponse.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+        </td>
         <td key={'success'}>{displayValue(putResponse, 'success')}</td>
         <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>
         <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>

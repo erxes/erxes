@@ -1,12 +1,13 @@
 import * as controls from './RichTextEditorControl/controls';
 
 import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
+import { DropdownControlType, getToolbar } from './utils/getToolbarControl';
 import {
   IRichTextEditorContentProps,
   RichTextEditorContent,
 } from './RichTextEditorContent/RichTextEditorContent';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  MoreButtonControl,
   RichTextEditorColorControl,
   RichTextEditorFontControl,
   RichTextEditorHighlightControl,
@@ -15,9 +16,10 @@ import {
   RichTextEditorPlaceholderControl,
   RichTextEditorSourceControl,
   TableControl,
-  MoreButtonControl,
 } from './RichTextEditorControl';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import { MentionSuggestionParams } from './utils/getMentionSuggestions';
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { RichTextEditorControl } from './RichTextEditorControl/RichTextEditorControl';
 import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichTextEditorControlsGroup';
@@ -26,11 +28,11 @@ import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToo
 import { RichTextEditorWrapper } from './styles';
 import { useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
-import { MentionSuggestionParams } from './utils/getMentionSuggestions';
 
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
+type ToolbarItem = string | DropdownControlType;
 
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   placeholder?: string;
@@ -40,8 +42,9 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   onChange?: (editorHtml: string) => void;
   labels?: IRichTextEditorLabels;
   toolbarLocation?: toolbarLocationOption;
+  autoFocus?: boolean;
   /** Toolbar controls config */
-  toolbar?: string[];
+  toolbar?: ToolbarItem[];
   name?: string;
   isSubmitted?: boolean;
   /** Mention suggestion string list */
@@ -77,6 +80,8 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
     placeholderProp,
     integrationKind,
     limit,
+    toolbar,
+    autoFocus,
   } = props;
 
   const editorContentProps = {
@@ -113,6 +118,7 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
       content,
       parseOptions: { preserveWhitespace: 'full' },
       onUpdate: handleEditorChange,
+      autofocus: autoFocus,
     },
     [showMentions],
   );
@@ -169,76 +175,82 @@ export const RichTextEditor = (props: IRichTextEditorProps) => {
             toolbarPlacement={toolbarLocation}
           />
         )}
-        <RichTextEditor.FontSize toolbarPlacement={toolbarLocation} />
+        {toolbar ? (
+          getToolbar({ toolbar, toolbarLocation })
+        ) : (
+          <>
+            <RichTextEditor.FontSize toolbarPlacement={toolbarLocation} />
 
-        {integrationKind !== 'telnyx' && (
-          <RichTextEditor.ControlsGroup
-            isDropdown={true}
-            controlNames={['heading']}
-            toolbarPlacement={toolbarLocation}
-          >
-            <RichTextEditor.H1 />
-            <RichTextEditor.H2 />
-            <RichTextEditor.H3 />
-          </RichTextEditor.ControlsGroup>
-        )}
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.ColorControl />
-          <RichTextEditor.HighlightControl />
-        </RichTextEditor.ControlsGroup>
-
-        {integrationKind !== 'telnyx' && (
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Bold />
-            <RichTextEditor.Italic />
-            <RichTextEditor.Underline />
-            <RichTextEditor.Strikethrough />
-          </RichTextEditor.ControlsGroup>
-        )}
-
-        <RichTextEditor.ControlsGroup
-          isDropdown={true}
-          controlNames={[
-            { textAlign: 'left' },
-            { textAlign: 'center' },
-            { textAlign: 'right' },
-            { textAlign: 'justify' },
-          ]}
-          toolbarPlacement={toolbarLocation}
-        >
-          <RichTextEditor.AlignLeft />
-          <RichTextEditor.AlignRight />
-          <RichTextEditor.AlignCenter />
-          <RichTextEditor.AlignJustify />
-        </RichTextEditor.ControlsGroup>
-
-        {integrationKind !== 'telnyx' && (
-          <RichTextEditor.ControlsGroup
-            isDropdown={true}
-            controlNames={['orderedList', 'bulletList']}
-            toolbarPlacement={toolbarLocation}
-          >
-            <RichTextEditor.BulletList />
-            <RichTextEditor.OrderedList />
-          </RichTextEditor.ControlsGroup>
-        )}
-
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.SourceControl />
-          <RichTextEditor.MoreControl toolbarPlacement={toolbarLocation}>
             {integrationKind !== 'telnyx' && (
-              <>
-                <RichTextEditor.Blockquote />
-                <RichTextEditor.HorizontalRule />
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </>
+              <RichTextEditor.ControlsGroup
+                isDropdown={true}
+                controlNames={['heading']}
+                toolbarPlacement={toolbarLocation}
+              >
+                <RichTextEditor.H1 />
+                <RichTextEditor.H2 />
+                <RichTextEditor.H3 />
+              </RichTextEditor.ControlsGroup>
             )}
-            <RichTextEditor.ImageControl />
-            <RichTextEditor.TableControl />
-          </RichTextEditor.MoreControl>
-        </RichTextEditor.ControlsGroup>
+
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.ColorControl />
+              <RichTextEditor.HighlightControl />
+            </RichTextEditor.ControlsGroup>
+
+            {integrationKind !== 'telnyx' && (
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Strikethrough />
+              </RichTextEditor.ControlsGroup>
+            )}
+
+            <RichTextEditor.ControlsGroup
+              isDropdown={true}
+              controlNames={[
+                { textAlign: 'left' },
+                { textAlign: 'center' },
+                { textAlign: 'right' },
+                { textAlign: 'justify' },
+              ]}
+              toolbarPlacement={toolbarLocation}
+            >
+              <RichTextEditor.AlignLeft />
+              <RichTextEditor.AlignRight />
+              <RichTextEditor.AlignCenter />
+              <RichTextEditor.AlignJustify />
+            </RichTextEditor.ControlsGroup>
+
+            {integrationKind !== 'telnyx' && (
+              <RichTextEditor.ControlsGroup
+                isDropdown={true}
+                controlNames={['orderedList', 'bulletList']}
+                toolbarPlacement={toolbarLocation}
+              >
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+              </RichTextEditor.ControlsGroup>
+            )}
+
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.SourceControl />
+              <RichTextEditor.MoreControl toolbarPlacement={toolbarLocation}>
+                {integrationKind !== 'telnyx' && (
+                  <>
+                    <RichTextEditor.Blockquote />
+                    <RichTextEditor.HorizontalRule />
+                    <RichTextEditor.Link />
+                    <RichTextEditor.Unlink />
+                  </>
+                )}
+                <RichTextEditor.ImageControl />
+                <RichTextEditor.TableControl />
+              </RichTextEditor.MoreControl>
+            </RichTextEditor.ControlsGroup>
+          </>
+        )}
       </RichTextEditor.Toolbar>,
 
       <RichTextEditorContent

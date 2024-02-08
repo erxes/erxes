@@ -3,18 +3,15 @@ import { IUser, IUserDoc } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import Form from 'modules/common/components/form/Form';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
 import { __, getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import PasswordConfirmation from './PasswordConfirmation';
 
 type Props = {
   currentUser: IUser;
   closeModal: () => void;
   save: (
     variables: IUserDoc & { password?: string },
-    callback: () => void
+    callback: () => void,
   ) => void;
 };
 
@@ -32,23 +29,18 @@ class EditProfile extends React.Component<Props, State> {
 
     this.state = {
       avatar: details ? details.avatar || '' : '',
-      isShowPasswordPopup: false
+      isShowPasswordPopup: false,
     };
   }
 
-  closeConfirm = () => {
-    this.setState({ isShowPasswordPopup: false });
-  };
-
   closeAllModals = () => {
-    this.closeConfirm();
     this.props.closeModal();
   };
 
-  handleSubmit = (password: string, values: any) => {
+  handleSubmit = (values: any) => {
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = values[link.value];
     });
 
@@ -68,50 +60,20 @@ class EditProfile extends React.Component<Props, State> {
           operatorPhone: values.operatorPhone,
           firstName: values.firstName,
           middleName: values.middleName,
-          lastName: values.lastName
+          lastName: values.lastName,
         },
         links,
-        password,
-        employeeId: values.employeeId
+        employeeId: values.employeeId,
       },
-      this.closeAllModals
+      this.closeAllModals,
     );
   };
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
-  onSuccess = (password: string, values: any[]) => {
-    return this.handleSubmit(password, values);
-  };
-
-  showConfirm = () => {
-    return this.setState({ isShowPasswordPopup: true });
-  };
-
-  renderPasswordConfirmationModal(formProps: IFormProps) {
-    return (
-      <Modal
-        show={this.state.isShowPasswordPopup}
-        onHide={this.closeConfirm}
-        animation={false}
-      >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <PasswordConfirmation
-            formProps={formProps}
-            onSuccess={this.onSuccess}
-            closeModal={this.closeConfirm}
-          />
-        </Modal.Body>
-      </Modal>
-    );
-  }
-
-  renderContent = formProps => {
+  renderContent = (formProps) => {
     return (
       <>
         <UserCommonInfos
@@ -119,8 +81,6 @@ class EditProfile extends React.Component<Props, State> {
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
-
-        {this.renderPasswordConfirmationModal(formProps)}
 
         <ModalFooter>
           <Button
@@ -141,7 +101,7 @@ class EditProfile extends React.Component<Props, State> {
 
   render() {
     return (
-      <Form renderContent={this.renderContent} onSubmit={this.showConfirm} />
+      <Form renderContent={this.renderContent} onSubmit={this.handleSubmit} />
     );
   }
 }

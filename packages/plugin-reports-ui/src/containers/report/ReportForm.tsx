@@ -8,7 +8,7 @@ import { queries } from '../../graphql';
 import { ReportTemplatesListQueryResponse } from '../../types';
 import ReportFormComponent from '../../components/report/ReportForm';
 type Props = {
-  searchValue: string;
+  searchValue?: string;
   serviceName: string;
 
   history: any;
@@ -34,15 +34,15 @@ const ReportForm = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { searchValue: string }>(
+    graphql<Props, any, { searchValue?: string }>(
       gql(queries.reportTemplatesList),
       {
         name: 'reportTemplatesListQuery',
         options: ({ searchValue }) => ({
           variables: { searchValue },
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(ReportForm)
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(ReportForm),
 );

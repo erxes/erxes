@@ -20,7 +20,7 @@ import {
 } from '@erxes/ui/src';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import React from 'react';
-import { BackIcon } from '../../../../styles';
+import { BackIcon } from '@erxes/ui-automations/src/styles';
 import { renderDynamicComponent } from '../../../../utils';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';

@@ -27,10 +27,11 @@ export function generateCustomGraphic({
   customInterest,
   customPayment,
   isPayFirstMonth,
-  skipAmountCalcMonth
+  skipAmountCalcMonth,
 }: Params) {
   let schedules: LoanSchedule[] = [];
-  let payment = customPayment || leaseAmount / (tenor * dateRange.length);
+  let payment =
+    (customPayment ?? 0) || (leaseAmount ?? 0) / (tenor * dateRange.length);
   let sumAmount = 0;
   dateRange = dateRange.sort((a, b) => a - b);
 
@@ -65,7 +66,7 @@ export function generateCustomGraphic({
       const mustPayinterest =
         Number(customInterest) ||
         Number(
-          Number(((balance * interestRate) / 100 / 365) * diffDay).toFixed(0)
+          Number(((balance * interestRate) / 100 / 365) * diffDay).toFixed(0),
         ) ||
         0;
       const mustpayment = amount || 0;
@@ -76,7 +77,7 @@ export function generateCustomGraphic({
         balance,
         diffDay,
         payDate: mainDate,
-        total: mustpayment + mustPayinterest
+        total: mustpayment + mustPayinterest,
       };
       balance -= amount;
       sumAmount += amount;

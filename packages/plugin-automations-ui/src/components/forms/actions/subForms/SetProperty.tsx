@@ -144,10 +144,8 @@ class SetProperty extends React.Component<Props, State> {
       };
 
       const operatorType: string = chosenField.name.includes('customFieldsData')
-        ? capitalizeFirstLetter(chosenField.validation || chosenField.type)
+        ? capitalizeFirstLetter(chosenField.validation || 'String')
         : chosenField.type;
-
-      console.log({ operatorType });
 
       const operators =
         PROPERTY_OPERATOR[operatorType] || PROPERTY_OPERATOR.Default;
