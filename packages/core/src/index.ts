@@ -40,7 +40,11 @@ import logs from './logUtils';
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
-import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import {
+  authCookieOptions,
+  getSubdomain,
+  connectionOptions,
+} from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
 import imports from './imports';
@@ -51,8 +55,13 @@ import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 
-const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN, CLIENT_PORTAL_DOMAINS } =
-  process.env;
+const {
+  JWT_TOKEN_SECRET,
+  WIDGETS_DOMAIN,
+  DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
+  VERSION,
+} = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -299,6 +308,10 @@ httpServer.listen(PORT, async () => {
   await initApolloServer(app, httpServer);
 
   await initBroker();
+
+  if (VERSION && VERSION === 'saas') {
+    await mongoose.connect(MONGO_URL, connectionOptions);
+  }
 
   init()
     .then(() => {
