@@ -55,7 +55,7 @@ interface IWidgetEmailParams {
 export const pConversationClientMessageInserted = async (
   models,
   subdomain,
-  message,
+  message: { _id: string; [other: string]: any },
 ) => {
   const conversation = await models.Conversations.findOne(
     {

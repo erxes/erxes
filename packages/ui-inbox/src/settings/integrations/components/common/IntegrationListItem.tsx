@@ -1,11 +1,11 @@
 import { Alert, getEnv } from '@erxes/ui/src/utils';
 import {
   IIntegration,
-  IntegrationMutationVariables
+  IntegrationMutationVariables,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {
   INTEGRATION_KINDS,
-  WEBHOOK_DOC_URL
+  WEBHOOK_DOC_URL,
 } from '@erxes/ui/src/constants/integrations';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -37,7 +37,7 @@ type Props = {
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId, channelIds, details }: IntegrationMutationVariables
+    { name, brandId, channelIds, details }: IntegrationMutationVariables,
   ) => void;
   showExternalInfoColumn: () => void;
   showExternalInfo: boolean;
@@ -52,7 +52,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      externalData: null
+      externalData: null,
     };
   }
 
@@ -156,13 +156,13 @@ class IntegrationListItem extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <CommonFieldForm
         {...props}
         onSubmit={editIntegration}
         name={integration.name}
         brandId={integration.brandId}
-        channelIds={integration.channels.map(item => item._id) || []}
+        channelIds={integration.channels.map((item) => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
         webhookData={integration.webhookData}
@@ -195,7 +195,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         </Button>
       );
 
-      const content = props => (
+      const content = (props) => (
         <InstallCode {...props} integration={integration} />
       );
 
@@ -245,8 +245,8 @@ class IntegrationListItem extends React.Component<Props, State> {
     const { repair, integration } = this.props;
 
     if (
-      !integration.kind.includes('facebook') ||
-      !integration.kind.includes('instagram')
+      !integration.kind.includes('facebook') &&
+      !integration.kind.includes('instagram-messenger')
     ) {
       return null;
     }
@@ -265,7 +265,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         </Button>
       );
 
-      const content = props => <RefreshPermissionForm {...props} />;
+      const content = (props) => <RefreshPermissionForm {...props} />;
 
       return (
         <ActionButtons>
@@ -326,16 +326,17 @@ class IntegrationListItem extends React.Component<Props, State> {
         .query({
           query: gql(queries.integrationsGetIntegrationDetail),
           variables: {
-            erxesApiId: integration._id
-          }
+            erxesApiId: integration._id,
+          },
         })
         .then(({ data }) => {
           this.setState({
-            externalData: data.integrationsGetIntegrationDetail
+            externalData: data.integrationsGetIntegrationDetail,
           });
           this.props.showExternalInfoColumn();
+          Alert.success('success');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -386,7 +387,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         <td>
           <ActionButtons>
             {loadDynamicComponent('integrationCustomActions', {
-              ...this.props
+              ...this.props,
             })}
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}

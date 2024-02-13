@@ -38,7 +38,32 @@ export const initBroker = async () => {
       };
     },
   );
+  consumeRPCQueue(
+    'facebook:updateIntegration',
+    async ({ subdomain, data: { integrationId, doc } }) => {
+      const models = await generateModels(subdomain);
+      const details = JSON.parse(doc.data);
 
+      const integration = await models.Integrations.findOne({
+        erxesApiId: integrationId,
+      });
+
+      if (!integration) {
+        return {
+          status: 'error',
+          errorMessage: 'Integration not found.',
+        };
+      }
+      await models.Integrations.updateOne(
+        { erxesApiId: integrationId },
+        { $set: details },
+      );
+
+      return {
+        status: 'success',
+      };
+    },
+  );
   // listen for rpc queue =========
   consumeRPCQueue(
     'facebook:api_to_integrations',
@@ -59,7 +84,9 @@ export const initBroker = async () => {
         }
 
         if (type === 'facebook') {
-          response = { data: await handleFacebookMessage(models, data) };
+          response = {
+            data: await handleFacebookMessage(models, data, subdomain),
+          };
         }
 
         if (action === 'getConfigs') {
@@ -113,7 +140,7 @@ export const initBroker = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.Posts.getPost({ erxesApiId }, true),
+        data: await models.PostConversations.findOne({ erxesApiId }, true),
         status: 'success',
       };
     },
@@ -182,6 +209,26 @@ export const initBroker = async () => {
       return {
         status: 'success',
         data: await models.ConversationMessages.find(data).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'facebook:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      // need to check pos-order or pos
+
+      let filter;
+
+      if (module.includes('contacts')) {
+        if (target.customerId) {
+          filter = { _id: target.customerId };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter,
       };
     },
   );

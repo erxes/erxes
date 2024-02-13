@@ -8,7 +8,7 @@ import {
   DateControl,
   Uploader
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
@@ -84,11 +84,11 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = e => {
+  onChangeDescription = (content: string) => {
     this.setState({
       voucherCampaign: {
         ...this.state.voucherCampaign,
-        description: e.editor.getData()
+        description: content
       }
     });
   };
@@ -442,27 +442,21 @@ class Form extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
-            <EditorCK
+            <RichTextEditor
               content={voucherCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`voucherCampaign_description_${voucherCampaign.description}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image'
               ]}
             />
           </FormGroup>

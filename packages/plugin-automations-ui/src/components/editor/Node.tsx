@@ -33,9 +33,11 @@ type Props = {
     type: string;
     nodeType: string;
     actionType: string;
+    triggerType?: string;
     icon: string;
     label: string;
     description: string;
+    config: any;
     toggleDrawer: ({
       type,
       awaitingActionId
@@ -68,10 +70,40 @@ export const ScratchNode = ({ data }: Props) => {
   );
 };
 
+const renderTriggerContent = (
+  constants: any[] = [],
+  nodeType,
+  type,
+  config
+) => {
+  if (nodeType !== 'trigger') {
+    return null;
+  }
+  const constant = (constants || []).find(c => c.type === type);
+
+  if (!!constant?.isCustom) {
+    return (
+      <div className="triggerContent">
+        {renderDynamicComponent(
+          {
+            componentType: 'triggerContent',
+            config,
+            constant,
+            triggerType: type
+          },
+          constant.type
+        )}
+      </div>
+    );
+  }
+
+  return null;
+};
+
 export default memo(({ id, data }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { toggleDrawer, onDoubleClick, removeItem, constants } = data;
+  const { toggleDrawer, onDoubleClick, removeItem, constants, config } = data;
 
   const onMouseEnter = () => {
     setIsHovered(true);
@@ -162,9 +194,10 @@ export default memo(({ id, data }: Props) => {
         isConnectable
         style={{
           right: '20px',
-          width: 10,
-          height: 10,
-          backgroundColor: colors.colorShadowGray,
+          width: 15,
+          height: 15,
+          backgroundColor: colors.colorWhite,
+          border: `2px solid ${colors.colorCoreGray}`,
           zIndex: 4
         }}
       />
@@ -215,6 +248,12 @@ export default memo(({ id, data }: Props) => {
         </div>
 
         {renderOptionalContent()}
+        {renderTriggerContent(
+          constants.triggersConst,
+          data.nodeType,
+          data.triggerType,
+          config
+        )}
 
         <p>{data.description}</p>
       </Trigger>

@@ -16,7 +16,6 @@ async function main() {
             console.log(`----------------- Building ${folderName} --------------------------`);
             execSync(`cd ${packagesPath}/${folderName} && yarn build`, { stdio: 'inherit' });
         } catch (e) {
-            console.error(e);
         }
 
         console.log(`----------------- Finished building ${folderName} --------------------------\n\n\n`);

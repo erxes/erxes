@@ -25,6 +25,7 @@ export interface IExecution {
   startWaitingDate?: Date;
   waitingActionId?: string;
   objToCheck?: any;
+  responseActionId?: string;
 }
 
 export interface IExecutionDocument extends IExecution, Document {
@@ -70,5 +71,6 @@ export const executionSchema = new Schema({
   actions: { type: [execActionSchema] },
   startWaitingDate: { type: Date },
   waitingActionId: { type: String },
+  responseActionId: { type: String },
   objToCheck: { type: Object, optional: true }
 });

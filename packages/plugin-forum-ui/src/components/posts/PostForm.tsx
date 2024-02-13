@@ -9,9 +9,9 @@ import { ICategory, IPollOption, IPost, ITag } from '../../types';
 import { SelectTeamMembers } from '@erxes/ui/src';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -113,8 +113,8 @@ class PostForm extends React.Component<Props, State> {
     };
   };
 
-  onChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
   renderOptions = () => {
@@ -336,7 +336,7 @@ class PostForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={content || ''}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
