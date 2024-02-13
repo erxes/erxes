@@ -269,7 +269,7 @@ const advertisementMutations = {
       content: `Жолоочийн зар орж ирлээ.`,
       receivers: cpUsers.map((cpUser) => cpUser._id),
       notifType: 'system',
-      link: `${ads._id}`,
+      link: ``,
       isMobile: false,
       eventData: {
         type: 'advertisement',
