@@ -51,7 +51,7 @@ const CommentForm = ({ feedId, avatar }: { feedId: string; avatar: string }) => 
         height={100}
         className="w-10 h-10 rounded-full object-cover"
       />
-      <div className="flex items-center  rounded-lg bg-[#F2F4F7] w-[calc(100%-50px)] border border-[#EAECF0]">
+      <div className="flex items-center  rounded-lg bg-[#F2F4F7] w-[calc(100%-50px)] border border-exm">
         <textarea
           value={comment}
           onKeyDown={onEnterPress}

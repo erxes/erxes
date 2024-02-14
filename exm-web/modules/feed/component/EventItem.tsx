@@ -58,10 +58,10 @@ const EventForm = dynamic(() => import("./form/EventForm"))
 
 const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
-  const [seeMore, setSeeMore] = useState(false)
+  // const [seeMore, setSeeMore] = useState(false)
   const [emojiOpen, setEmojiOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
-  const [commentOpen, setCommentOpen] = useState(false)
+  // const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const callBack = (result: string) => {
@@ -147,36 +147,36 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderComment = () => {
-    return (
-      <>
-        <Dialog
-          open={commentOpen}
-          onOpenChange={() => setCommentOpen(!commentOpen)}
-        >
-          <DialogTrigger asChild={true} id="delete-form">
-            <div className="cursor-pointer flex items-center pt-2">
-              <MessageCircleIcon size={20} className="mr-1" color="black" />
-              Comment
-            </div>
-          </DialogTrigger>
+  // const renderComment = () => {
+  //   return (
+  //     <>
+  //       <Dialog
+  //         open={commentOpen}
+  //         onOpenChange={() => setCommentOpen(!commentOpen)}
+  //       >
+  //         <DialogTrigger asChild={true} id="delete-form">
+  //           <div className="cursor-pointer flex items-center pt-2">
+  //             <MessageCircleIcon size={20} className="mr-1" color="black" />
+  //             Comment
+  //           </div>
+  //         </DialogTrigger>
 
-          {commentOpen && (
-            <CommentForm
-              feed={feed}
-              comments={comments}
-              commentsCount={commentsCount}
-              loading={commentLoading}
-              handleLoadMore={handleLoadMore}
-              currentUserId={currentUser._id}
-              emojiReactedUser={emojiReactedUser.map((u) => u._id)}
-              emojiCount={emojiCount}
-            />
-          )}
-        </Dialog>
-      </>
-    )
-  }
+  //         {commentOpen && (
+  //           <CommentForm
+  //             feedId={feed._id}
+  //             comments={comments}
+  //             commentsCount={commentsCount}
+  //             loading={commentLoading}
+  //             handleLoadMore={handleLoadMore}
+  //             currentUserId={currentUser._id}
+  //             emojiReactedUser={emojiReactedUser.map((u) => u._id)}
+  //             emojiCount={emojiCount}
+  //           />
+  //         )}
+  //       </Dialog>
+  //     </>
+  //   )
+  // }
 
   const deleteAction = () => {
     const renderDeleteForm = () => {
@@ -340,21 +340,21 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     )
   }
 
-  const renderComments = () => {
-    if (!comments || comments.length === 0) {
-      return null
-    }
+  // const renderComments = () => {
+  //   if (!comments || comments.length === 0) {
+  //     return null
+  //   }
 
-    return (
-      <div className="border-t mt-3">
-        <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
-      </div>
-    )
-  }
+  //   return (
+  //     <div className="border-t mt-3">
+  //       <CommentItem comment={comments[0]} currentUserId={currentUser._id} />
+  //     </div>
+  //   )
+  // }
 
   return (
     <>
-      <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-[#EAECF0] flex-1 rounded-lg shrink-0">
+      <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-exm flex-1 rounded-lg shrink-0">
         <CardContent className="p-0 relative">
           {renderImage()}
           {renderFeedActions()}

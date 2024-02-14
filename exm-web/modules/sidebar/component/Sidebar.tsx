@@ -42,7 +42,7 @@ export const Sidebar = () => {
       <Link href={`/${href}`} passHref={true}>
         <li
           className={`${
-            activeClass === active ? "bg-[#F9FAFB] border-t border-b border-[#EAECF0]" : ""
+            activeClass === active ? "bg-[#F9FAFB] border-t border-b border-exm" : ""
           } flex px-[16px] py-[12px] h-[58px] items-center  text-black hover:text-black cursor-pointer hover:transition-all`}
           onClick={() => handleLink(href)}
         >

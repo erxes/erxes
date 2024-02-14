@@ -58,17 +58,9 @@ const List = ({ contentType }: { contentType: string }) => {
     )
   }
 
-  const renderForm = () => {
-    if (contentType === "event") {
-      return null
-    }
-
-    return <FeedForm contentType={contentType} />
-  }
-
   return (
     <div className="h-[calc(100vh-68px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4">
-      {renderForm()}
+      <FeedForm contentType={contentType} />
       {showList(pinnedList)}
       {showList(normalList)}
 

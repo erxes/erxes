@@ -29,7 +29,7 @@ const RightNavbar = () => {
         <Notifications />
         <Popover>
           <PopoverTrigger asChild={true}>
-            <div className="h-full flex items-center px-4 border-l border-[#EAECF0]">
+            <div className="h-full flex items-center px-4 border-l border-exm">
               <div className="cursor-pointer flex ">
                 <Image
                   src={
@@ -40,7 +40,7 @@ const RightNavbar = () => {
                   alt="User Profile"
                   width={80}
                   height={80}
-                  className="w-[32px] h-[32px] rounded-[8px] object-cover mr-[10px] border-[1.5px] border-[#EAECF0]"
+                  className="w-[32px] h-[32px] rounded-[8px] object-cover mr-[10px] border-[1.5px] border-exm"
                 />
                 <div className="leading-none mr-[12px]">
                   <div>{currentUser.details ? currentUser.details.fullName : currentUser.username}</div>

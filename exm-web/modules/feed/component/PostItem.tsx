@@ -50,9 +50,11 @@ import { useTeamMembers } from "../hooks/useTeamMembers"
 import CommentItem from "./CommentItem"
 import UsersList from "./UsersList"
 import CommentForm from "./form/CommentForm"
+import FormAttachments from "./form/FormAttachments"
 
 const BravoForm = dynamic(() => import("./form/BravoForm"))
 const PostForm = dynamic(() => import("./form/PostForm"))
+const FeedForm = dynamic(() => import("./form/FeedForm"))
 
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
@@ -136,14 +138,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const editAction = () => {
     const renderForm = () => {
-      switch (feed.contentType) {
-        case "post":
-          return <PostForm feed={feed} setOpen={setOpen} />
-        case "welcome":
-          return null
-        case "bravo":
-          return <BravoForm feed={feed} setOpen={setOpen} />
-      }
+      return <FeedForm contentType={feed.contentType || "post"} />
     }
 
     return (
@@ -177,19 +172,19 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
             />
           ))}
           {commentsCount > 0 && (
-          <div className="flex items-center justify-between mt-2">
-            <p
-              className="cursor-pointer text-[#444] hover:underline underline-offset-2"
-              onClick={handleLoadMore}
-            >
-              {commentsCount !== comments.length ? "View more comments" : ""}
-            </p>
+            <div className="flex items-center justify-between mt-2">
+              <p
+                className="cursor-pointer text-[#444] hover:underline underline-offset-2"
+                onClick={handleLoadMore}
+              >
+                {commentsCount !== comments.length ? "View more comments" : ""}
+              </p>
 
-            <p className="text-[#444] mr-2" onClick={handleLoadMore}>
-              {comments.length} / {commentsCount}
-            </p>
-          </div>
-        )}
+              <p className="text-[#444] mr-2" onClick={handleLoadMore}>
+                {comments.length} / {commentsCount}
+              </p>
+            </div>
+          )}
         </>
       )
     )
@@ -348,49 +343,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
       return null
     }
 
-    return (
-      <div className="px-4 gap-[12px] flex flex-col pb-[12px]">
-        {(feed.attachments || []).map((a, index) => {
-          const fileExtension = a.url.split(".").pop()
-          let size
-          const bg =
-            fileExtension === "docx"
-              ? "bg-[#F5FAFF]"
-              : fileExtension === "pdf"
-              ? "bg-[#FFF9F5]"
-              : "bg-[#F5FFF8]"
-
-          const img =
-            fileExtension === "docx"
-              ? "/images/doc.png"
-              : fileExtension === "pdf"
-              ? "/images/pdf.png"
-              : "/images/other.png"
-
-          if ((a.size || 0) > 1000000) {
-            size = `${Math.round((a.size || 0) / 1000000)}MB`
-          }
-          if ((a.size || 0) > 1000) {
-            size = `${Math.round((a.size || 0) / 1000)}kB`
-          }
-
-          return (
-            <a key={index} href={readFile(a.url)}>
-              <div
-                className={`flex ${bg} text-sm font-medium text-[#444] border border-[#F9FAFB] p-[12px] justify-between w-full rounded-lg gap-[12px] items-center`}
-              >
-                <Image src={img} alt="file-type-image" width={42} height={42} />
-                <div className="flex flex-col w-[calc(100%-90px)]">
-                  <span className="truncate w-full">{a.name}</span>
-                  <span className="text-[#98A2B3]">{size}</span>
-                </div>
-                <ExternalLinkIcon size={18} />
-              </div>
-            </a>
-          )
-        })}
-      </div>
-    )
+    return <FormAttachments type="postItem" attachments={feed.attachments} />
   }
 
   const renderImages = () => {
@@ -583,7 +536,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
 
   return (
     <>
-      <Card className="max-w-[880px] w-full mx-auto border-[#EAECF0] border pt-[12px]">
+      <Card className="max-w-[880px] w-full mx-auto border-exm border pt-[12px]">
         <CardHeader className="p-0">{renderPostHeader()}</CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-hidden px-4 py-[12px]">
