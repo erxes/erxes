@@ -203,7 +203,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
     &:before {
       background-color: ${colors.colorWhite};
       border: ${inputBorderWidth} solid ${props =>
-  props.color ? rgba(props.color, 0.7) : colors.colorShadowGray};
+        props.color ? rgba(props.color, 0.7) : colors.colorShadowGray};
       box-sizing: content-box;
       content: '';
       color: ${colors.colorWhite};
@@ -239,7 +239,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   }
 `;
 
-const Radio = styled(inputStyle)`
+const Radio = styledTS<{ color?: string }>(styled(inputStyle))`
   + span {
     &::before,
     &::after {
@@ -262,7 +262,8 @@ const Radio = styled(inputStyle)`
     + span {
       &:before {
         animation: none;
-        background-color: ${colors.colorSecondary};
+        background-color: ${props =>
+          props.color ? props.color : colors.colorSecondary};
         border-color: transparent;
       }
 

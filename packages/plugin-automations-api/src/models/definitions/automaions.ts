@@ -36,6 +36,7 @@ export interface ITrigger {
   icon?: string;
   label?: string;
   description?: string;
+  isCustom?: boolean;
 }
 
 export interface IAutomation {
@@ -68,7 +69,8 @@ export const triggerSchema = new Schema(
     position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true }
+    description: { type: String, optional: true },
+    isCustom: { type: Boolean, optional: true }
   },
   { _id: false }
 );

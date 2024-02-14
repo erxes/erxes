@@ -81,6 +81,7 @@ export default class Attribution extends React.Component<Props, State> {
 
       this.setState({ searchValue: value });
     };
+    console.log({ attributions, attrType });
 
     if (attrType && attrType !== 'String') {
       filterAttrs = filterAttrs.filter(
@@ -88,6 +89,7 @@ export default class Attribution extends React.Component<Props, State> {
           type === attrType || validation === attrType.toLowerCase()
       );
     }
+    console.log({ first: filterAttrs });
 
     if (attrTypes?.length) {
       filterAttrs = filterAttrs.filter(
@@ -97,11 +99,15 @@ export default class Attribution extends React.Component<Props, State> {
       );
     }
 
+    console.log({ second: filterAttrs });
+
     if (searchValue) {
       filterAttrs = filterAttrs.filter(option =>
         new RegExp(searchValue, 'i').test(option.label)
       );
     }
+
+    console.log({ last: filterAttrs });
 
     return (
       <Popover id="attribute-popover">

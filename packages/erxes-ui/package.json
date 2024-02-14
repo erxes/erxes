@@ -63,7 +63,7 @@
     "styled-components-ts": "^0.0.14",
     "underscore": "^1.13.2",
     "underscore.string": "^3.3.5",
-    "validator": "12.1.0",
+    "validator": "^13.5.2",
     "xss": "1.0.14",
     "video.js": "^8.5.2"
   }

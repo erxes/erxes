@@ -3,6 +3,7 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { getCloseInfo } from './models/utils/closeUtils';
 
 export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
@@ -11,6 +12,50 @@ export const initBroker = async () => {
     return {
       status: 'success',
       data: await models.Contracts.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'loans:contracts.updateContractNumber',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Contracts.updateOne(
+          { _id: data._id },
+          { number: data.number },
+        ),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'loans:contracts.getCloseInfo',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contract = await models.Contracts.getContract({
+        _id: data.contractId,
+      });
+      const closeInfo = await getCloseInfo(
+        models,
+        subdomain,
+        contract,
+        data.closeDate,
+      );
+      return {
+        status: 'success',
+        data: closeInfo,
+      };
+    },
+  );
+
+  consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ContractTypes.findOne(data).lean(),
     };
   });
 

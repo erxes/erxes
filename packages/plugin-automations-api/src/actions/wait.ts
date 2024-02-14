@@ -1,11 +1,9 @@
 import { IModels } from '../connectionResolver';
-import { ACTIONS } from '../constants';
 import { getActionsMap } from '../helpers';
 import { IAction } from '../models/definitions/automaions';
 import {
   EXECUTION_STATUS,
   IExecAction,
-  IExecution,
   IExecutionDocument
 } from '../models/definitions/executions';
 import { executeActions } from '../utils';
@@ -30,7 +28,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
     }
 
     const currentAction: IAction | undefined = automation.actions.find(
-      a => a.type === ACTIONS.WAIT && a.id === exec.waitingActionId
+      a => a.id === exec.waitingActionId
     );
 
     if (!currentAction) {
@@ -42,21 +40,30 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
       continue;
     }
 
+    if (!exec.startWaitingDate) {
+      continue;
+    }
+
     if (
-      !exec.startWaitingDate ||
-      !currentAction.config ||
-      !currentAction.config.value
+      currentAction.type === 'delay' &&
+      (!currentAction.config || !currentAction.config.value)
     ) {
       continue;
     }
 
-    const finalWaitHour =
-      currentAction.config.type === 'hour'
-        ? currentAction.config.value
-        : currentAction.config.value * 24;
-    const performDate = new Date(
-      exec.startWaitingDate.getTime() + (finalWaitHour || 0) * 60 * 60 * 1000
-    );
+    let performDate = new Date(exec.startWaitingDate);
+    let nextActionId = exec.waitingActionId;
+
+    if (currentAction.type === 'delay') {
+      const finalWaitHour =
+        currentAction.config.type === 'hour'
+          ? currentAction.config.value
+          : currentAction.config.value * 24;
+      performDate = new Date(
+        exec.startWaitingDate.getTime() + (finalWaitHour || 0) * 60 * 60 * 1000
+      );
+      nextActionId = currentAction.nextActionId;
+    }
 
     if (performDate > new Date()) {
       continue;
@@ -70,7 +77,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
       exec.triggerType,
       exec,
       await getActionsMap(automation.actions || []),
-      currentAction.nextActionId
+      nextActionId
     );
   }
 };
@@ -88,13 +95,13 @@ export const doWaitingResponseAction = async (
     $and: [
       { objToCheck: { $exists: true } },
       { objToCheck: { $ne: null } },
-      { waitingActionId: { $exists: true } },
-      { waitingActionId: { $ne: null } }
+      { responseActionId: { $exists: true } },
+      { responseActionId: { $ne: null } }
     ]
   });
 
   const clearExecution = (exec: IExecutionDocument, status?: string) => {
-    exec.waitingActionId = undefined;
+    exec.responseActionId = undefined;
     exec.startWaitingDate = undefined;
     exec.objToCheck = undefined;
 
@@ -115,7 +122,7 @@ export const doWaitingResponseAction = async (
     }
 
     const currentAction = automation.actions.find(
-      action => action.id === exec.waitingActionId
+      action => action.id === exec.responseActionId
     );
 
     if (!currentAction) {
@@ -146,7 +153,7 @@ export const doWaitingResponseAction = async (
         continue;
       }
 
-      exec.waitingActionId = undefined;
+      exec.responseActionId = undefined;
       exec.startWaitingDate = undefined;
       exec.objToCheck = undefined;
 
@@ -164,7 +171,14 @@ export const doWaitingResponseAction = async (
 };
 
 export const setActionWait = async data => {
-  const { objToCheck, execution, action, result } = data;
+  const {
+    objToCheck,
+    startWaitingDate,
+    waitingActionId,
+    execution,
+    action,
+    result
+  } = data;
 
   const execAction: IExecAction = {
     actionId: action.id,
@@ -174,7 +188,10 @@ export const setActionWait = async data => {
     result
   };
 
-  execution.waitingActionId = action.id;
+  execution.waitingActionId = waitingActionId;
+  execution.responseActionId = action.id;
+
+  execution.startWaitingDate = startWaitingDate;
 
   execution.actions = [...(execution.actions || []), execAction];
   execution.objToCheck = objToCheck;
@@ -197,7 +214,10 @@ export const checkWaitingResponseAction = async (
   const waitingResponseExecution = await models.Executions.find({
     triggerType: type,
     status: EXECUTION_STATUS.WAITING,
-    $and: [{ objToCheck: { $exists: true } }, { objToCheck: { $ne: null } }]
+    $and: [
+      { objToCheck: { $exists: true } },
+      { objToCheck: { $ne: null }, responseActionId: { $exists: true } }
+    ]
   });
 
   for (const { objToCheck, actions = [] } of waitingResponseExecution) {
