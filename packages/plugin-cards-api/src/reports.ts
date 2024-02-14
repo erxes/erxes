@@ -188,8 +188,16 @@ const chartTemplates = [
     name: 'Stage Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
-        filter;
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        departmentIds,
+        branchIds,
+      } = filter;
 
       const matchfilter = {};
       if (dateRange) {
@@ -208,6 +216,16 @@ const chartTemplates = [
       }
       if (boardIds) {
         matchfilter['boardId'] = boardIds;
+      }
+
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = assignedUserIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
       }
       const board = await models?.Boards.find({
         type: 'ticket',
@@ -289,23 +307,32 @@ const chartTemplates = [
 
     filterTypes: [
       {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
-      },
-      {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'boardIds',
@@ -317,6 +344,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'stageIds',
@@ -336,8 +374,16 @@ const chartTemplates = [
     name: 'Tickets Count and  AssignedUser',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
-        filter;
+      const {
+        pipelineIds,
+        boardIds,
+        userIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
       const matchfilter = {};
       if (dateRange) {
         const dateFilter = returnDateRange(
@@ -355,6 +401,15 @@ const chartTemplates = [
       }
       if (boardIds) {
         matchfilter['boardId'] = boardIds;
+      }
+      if (userIds) {
+        matchfilter['assignedUserIds'] = userIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
       }
 
       const selectedUserIds = filter.assignedUserIds || [];
@@ -450,15 +505,18 @@ const chartTemplates = [
         fieldLabel: 'Select assigned user',
       },
       {
-        fieldName: 'pipelineIds',
+        fieldName: 'branchIds',
         fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
         multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
       },
       {
         fieldName: 'boardIds',
@@ -470,6 +528,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'stageIds',
@@ -495,8 +564,24 @@ const chartTemplates = [
       getDefaultPipelineId?: string,
     ) => {
       try {
-        const { dateRange, startDate, endDate } = filter;
+        const {
+          dateRange,
+          startDate,
+          endDate,
+          assignedUserIds,
+          departmentIds,
+          branchIds,
+        } = filter;
         const matchfilter = {};
+        if (assignedUserIds) {
+          matchfilter['assignedUserIds'] = assignedUserIds;
+        }
+        if (departmentIds) {
+          matchfilter['departmentIds'] = departmentIds;
+        }
+        if (branchIds) {
+          matchfilter['branchIds'] = branchIds;
+        }
         if (dateRange) {
           const dateFilter = returnDateRange(
             filter.dateRange,
@@ -552,23 +637,32 @@ const chartTemplates = [
 
     filterTypes: [
       {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
-      },
-      {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'boardIds',
@@ -582,6 +676,17 @@ const chartTemplates = [
         fieldLabel: 'Select boards',
       },
       {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
         fieldName: 'stageIds',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -591,12 +696,6 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select stages',
-      },
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned user',
       },
     ],
   },
@@ -694,6 +793,50 @@ const chartTemplates = [
 
     filterTypes: [
       {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+
+      {
         fieldName: 'tagIds',
         fieldType: 'select',
         multi: true,
@@ -707,16 +850,59 @@ const chartTemplates = [
     name: 'Tasks incomplete totals by label',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = assignedUserIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedLabelIds = filter.labelIds || [];
       let tasks;
       try {
         if (selectedLabelIds.length === 0) {
           // No selected users, so get all tasks
-          tasks = await models?.Tasks.find({ isComplete: false }).lean();
+          tasks = await models?.Tasks.find({
+            isComplete: false,
+            ...matchfilter,
+          }).lean();
         } else {
           // Filter tasks based on selectedLabelIds
           tasks = await models?.Tasks.find({
+            ...matchfilter,
             labelIds: { $in: selectedLabelIds },
             isComplete: false,
           }).lean();
@@ -797,6 +983,57 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select labels',
       },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -805,8 +1042,47 @@ const chartTemplates = [
     name: 'All tasks incomplete by due date',
     chartTypes: ['bar', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        assignedUserIds,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = assignedUserIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const tasks = await models?.Tasks.find({
+        ...matchfilter,
         isComplete: false,
         closeDate: { $exists: true, $ne: [] },
       })
@@ -846,7 +1122,59 @@ const chartTemplates = [
       }
     },
 
-    filterTypes: [],
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+    ],
   },
 
   {
@@ -854,16 +1182,55 @@ const chartTemplates = [
     name: 'Tasks incomplete totals by reps',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
       try {
         if (selectedUserIds.length === 0) {
           // No selected users, so get all tasks
-          tasks = await models?.Tasks.find({ isComplete: false }).lean();
+          tasks = await models?.Tasks.find({
+            isComplete: false,
+            ...matchfilter,
+          }).lean();
         } else {
           // Filter tasks based on selectedUserIds
           const taskCount = await models?.Tasks.find({
+            ...matchfilter,
             assignedUserIds: { $in: selectedUserIds },
             isComplete: false,
           }).lean();
@@ -955,6 +1322,50 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -963,16 +1374,53 @@ const chartTemplates = [
     name: 'Task closed totals by label',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedLabelIds = filter.labelIds || [];
       let tasks;
       try {
         if (selectedLabelIds.length === 0) {
           // No selected users, so get all tasks
-          tasks = await models?.Tasks.find({ isComplete: true }).lean();
+          tasks = await models?.Tasks.find({
+            isComplete: true,
+            ...matchfilter,
+          }).lean();
         } else {
           // Filter tasks based on selectedLabelIds
           tasks = await models?.Tasks.find({
+            ...matchfilter,
             labelIds: { $in: selectedLabelIds },
             isComplete: true,
           }).lean();
@@ -1053,6 +1501,56 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select labels',
       },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned user',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1061,7 +1559,41 @@ const chartTemplates = [
     name: 'Tasks incomplete assigned to me by due date',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
       let tickets;
 
@@ -1069,11 +1601,13 @@ const chartTemplates = [
         if (selectedUserIds.length === 0) {
           // No selected users, so get all tickets
           tickets = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: false,
           }).lean();
         } else {
           // Filter tickets based on selectedUserIds
           tickets = await models?.Tasks.find({
+            ...matchfilter,
             assignedUserIds: {
               $in: selectedUserIds,
             },
@@ -1166,6 +1700,50 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1174,7 +1752,41 @@ const chartTemplates = [
     name: 'Tasks incomplete assigned to the team by due date',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
 
       let tasksCount;
@@ -1183,11 +1795,13 @@ const chartTemplates = [
       try {
         if (selectedUserIds.length === 0) {
           tasksCount = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: false,
             departmentIds: { $exists: true, $ne: [] },
           }).lean();
         } else {
           tasksCount = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: false,
             assignedUserIds: { $in: selectedUserIds },
             departmentIds: { $exists: true, $ne: [] },
@@ -1263,6 +1877,50 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1271,7 +1929,41 @@ const chartTemplates = [
     name: 'Task closed totals by tags',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const selectedTagIds = filter.tagIds || [];
       let tasksCount;
       //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
@@ -1279,10 +1971,12 @@ const chartTemplates = [
       try {
         if (selectedTagIds.length === 0) {
           tasksCount = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: true,
           }).lean();
         } else {
           tasksCount = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: true,
             tagIds: { $in: selectedTagIds },
           }).lean();
@@ -1357,6 +2051,57 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select tags',
       },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${'task'}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
   {
@@ -1364,22 +2109,51 @@ const chartTemplates = [
     name: 'Task closed totals by reps',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+        assignedUserIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = assignedUserIds;
+      }
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
 
-      try {
-        if (selectedUserIds.length === 0) {
-          tasks = await models?.Tasks.find({ isComplete: true }).lean();
-        } else {
-          tasks = await models?.Tasks.find({
-            isComplete: true,
-            assignedUserIds: { $in: selectedUserIds },
-          }).lean();
-        }
-      } catch (error) {
-        console.error('Error fetching deals:', error);
-      }
+      tasks = await models?.Tasks.find({
+        isComplete: true,
+        ...matchfilter,
+      }).lean();
 
       // Calculate task counts
       const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
@@ -1441,6 +2215,50 @@ const chartTemplates = [
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
       },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1449,9 +2267,44 @@ const chartTemplates = [
     name: 'Task average time to close by label',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const tasks = await models?.Tasks.find({
         isComplete: false,
+        ...matchfilter,
       }).lean();
 
       const ticketData = await taskAverageTimeToCloseByLabel(tasks);
@@ -1536,6 +2389,57 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select labels',
       },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1544,8 +2448,43 @@ const chartTemplates = [
     name: 'Task average time to close by tags',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+
       const tasks = await models?.Tasks.find({
+        ...matchfilter,
         isComplete: false,
       }).lean();
 
@@ -1633,6 +2572,57 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select tags',
       },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
     ],
   },
 
@@ -1641,14 +2631,61 @@ const chartTemplates = [
     name: 'Task average time to close by reps',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+      const {
+        pipelineIds,
+        boardIds,
+        dateRange,
+        startDate,
+        endDate,
+        departmentIds,
+        branchIds,
+        assignedUserIds,
+      } = filter;
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      if (pipelineIds) {
+        matchfilter['pipelineId'] = pipelineIds;
+      }
+      if (boardIds) {
+        matchfilter['boardId'] = boardIds;
+      }
+      if (departmentIds) {
+        matchfilter['departmentIds'] = departmentIds;
+      }
+      if (branchIds) {
+        matchfilter['branchIds'] = branchIds;
+      }
+      if (assignedUserIds) {
+        matchfilter['assignedUserIds'] = assignedUserIds;
+      }
+
       const selectedUserIds = filter.assignedUserIds || [];
       let tasks;
+      // tasks = await models?.Tasks.find({
+      //   isComplete: true,
+      //   ...matchfilter
+      // }).lean();
+
       try {
         if (selectedUserIds.length === 0) {
-          tasks = await models?.Tasks.find({ isComplete: true }).lean();
+          tasks = await models?.Tasks.find({
+            isComplete: true,
+            ...matchfilter,
+          }).lean();
         } else {
           tasks = await models?.Tasks.find({
+            ...matchfilter,
             isComplete: true,
             assignedUserIds: { $in: selectedUserIds },
           }).lean();
@@ -1716,6 +2753,17 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users',
       },
       {
+        fieldName: 'boardIds',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select boards',
+      },
+      {
         fieldName: 'pipelineIds',
         fieldType: 'select',
         fieldQuery: 'pipelines',
@@ -1727,15 +2775,26 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'boardIds',
+        fieldName: 'branchIds',
         fieldType: 'select',
-        fieldQuery: 'boards',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
         multi: true,
-        isAll: true,
-        fieldLabel: 'Select boards',
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
       },
     ],
   },
@@ -1879,17 +2938,6 @@ const chartTemplates = [
         fieldLabel: 'Select users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -1899,6 +2947,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
     ],
   },
@@ -2067,17 +3126,6 @@ const chartTemplates = [
         fieldLabel: 'Select users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -2087,6 +3135,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'stageType',
@@ -2888,17 +3947,6 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -2908,6 +3956,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
     ],
   },
@@ -3062,17 +4121,6 @@ const chartTemplates = [
         fieldLabel: 'Select date range',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3082,6 +4130,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
     ],
   },
@@ -3215,17 +4274,6 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3235,6 +4283,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'dateRange',
@@ -3303,17 +4362,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3323,6 +4371,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'dateRange',
@@ -3542,17 +4601,6 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3562,6 +4610,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
     ],
   },
@@ -3685,17 +4744,6 @@ const chartTemplates = [
         fieldLabel: 'Select assignedUserIds',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3705,6 +4753,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'dateRange',
@@ -3813,17 +4872,6 @@ const chartTemplates = [
         fieldLabel: 'Select assigned users',
       },
       {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
         fieldName: 'boardIds',
         fieldType: 'select',
         fieldQuery: 'boards',
@@ -3833,6 +4881,17 @@ const chartTemplates = [
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
       },
     ],
   },
