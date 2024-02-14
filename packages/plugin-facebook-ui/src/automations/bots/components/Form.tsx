@@ -45,6 +45,12 @@ function removeNullAndTypename(obj) {
     if (obj.hasOwnProperty(key) && obj[key] !== null && key !== '__typename') {
       cleanedObj[key] = removeNullAndTypename(obj[key]);
     }
+    if (key === 'persistentMenus' && Array.isArray(obj[key])) {
+      cleanedObj[key] = obj[key].map((item) => {
+        const { isEditing, ...rest } = item;
+        return removeNullAndTypename(rest);
+      });
+    }
   }
 
   return cleanedObj;
