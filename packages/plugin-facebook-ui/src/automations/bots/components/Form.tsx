@@ -75,7 +75,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
     const { isSubmitted, values } = formProps;
 
     const onSelect = (value, name) => {
-      console.log({ name, value });
       setDoc({ ...doc, [name]: value });
     };
 
@@ -93,7 +92,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
-                  console.log(account);
                   onSelect(accountId, 'accountId'), setAccount(account);
                 }}
               />
@@ -162,10 +160,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
             })}
           </Padding>
         </ModalFooter>
-        {/* 
-
-
-        */}
       </>
     );
   };
