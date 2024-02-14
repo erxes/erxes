@@ -106,6 +106,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
           <Step
             title="Select Your Page"
             img="/images/icons/erxes-04.svg"
+            next={() => setLastStep(true)}
             onClick={() => setLastStep(false)}
           >
             <Padding>
@@ -125,6 +126,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
             title="Bot Setup"
             img="/images/icons/erxes-24.svg"
             noButton
+            back={() => setLastStep(false)}
             onClick={() => setLastStep(true)}
           >
             <Padding>
