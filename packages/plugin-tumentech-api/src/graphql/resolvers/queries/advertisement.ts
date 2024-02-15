@@ -62,7 +62,9 @@ const advertisementQuery = {
     }
 
     if (type) {
-      filter.type = type;
+      if (type === 'carCategory')
+        filter.type = { $in: ['directional', 'regular'] };
+      else filter.type = type;
     }
 
     if (startPlace) {
