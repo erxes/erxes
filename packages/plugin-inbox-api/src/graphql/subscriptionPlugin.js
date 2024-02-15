@@ -1,26 +1,5 @@
 var { withFilter } = require("graphql-subscriptions");
 
-function queryAndMergeMissingConversationMessageData({
-  gatewayDataSource,
-  payload,
-  info,
-}) {
-  const conversationMessage = Object.values(payload)[0];
-
-  return gatewayDataSource.queryAndMergeMissingData({
-    payload,
-    info,
-    queryVariables: { _id: conversationMessage._id },
-    buildQueryUsingSelections: (selections) => `
-          query Subscription_GetMessage($_id: String!) {
-            conversationMessage(_id: $_id) {
-              ${selections}
-            }
-          }
-      `,
-  });
-}
-
 module.exports = {
   name: "inbox",
   typeDefs: `
@@ -47,10 +26,29 @@ module.exports = {
        */
       conversationMessageInserted: {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          return queryAndMergeMissingConversationMessageData({
-            gatewayDataSource,
+          if(!payload) {
+            console.error(`Subscription resolver error: conversationMessageInserted: payload is ${payload}`);
+            return;
+          }
+          if(!payload.conversationMessageInserted) {
+            console.error(`Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`);
+            return;
+          }
+          if(!payload.conversationMessageInserted._id) {
+            console.error(`Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`);
+            return;
+          }
+          return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
+            queryVariables: { _id: payload.conversationMessageInserted._id },
+            buildQueryUsingSelections: (selections) => `
+                  query Subscription_GetMessage($_id: String!) {
+                    conversationMessage(_id: $_id) {
+                      ${selections}
+                    }
+                  }
+              `,
           });
         },
         subscribe: (_, { _id }) =>
@@ -80,10 +78,29 @@ module.exports = {
        */
       conversationClientMessageInserted: {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          return queryAndMergeMissingConversationMessageData({
-            gatewayDataSource,
+          if(!payload) {
+            console.error(`Subscription resolver error: conversationClientMessageInserted: payload is ${payload}`);
+            return;
+          }
+          if(!payload.conversationClientMessageInserted) {
+            console.error(`Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted is ${payload.conversationClientMessageInserted}`);
+            return;
+          }
+          if(!payload.conversationClientMessageInserted._id) {
+            console.error(`Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted._id is ${payload.conversationClientMessageInserted._id}`);
+            return;
+          }
+          return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
+            queryVariables: { _id: payload.conversationClientMessageInserted._id },
+            buildQueryUsingSelections: (selections) => `
+                  query Subscription_GetMessage($_id: String!) {
+                    conversationMessage(_id: $_id) {
+                      ${selections}
+                    }
+                  }
+              `,
           });
         },
         subscribe: withFilter(

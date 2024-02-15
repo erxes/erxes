@@ -112,17 +112,31 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
     margin-top: 5px;
 
 
-      > li {
+      .optional-connect {
         position: relative;
         list-style-type: none;
-        background-color:#f5f5f5
+        background-color:#FFF;
+        box-shadow:1px 1px 3px 1px rgb(0 0 0 / 2%);
+        font-size:x-small;
+        font-weight:500;
         
         border-radius: 5px;
         margin:5px;
         padding: 5px;
-        color: ${colors.colorCoreGray};
       }
   }
+
+  .triggerContent:empty {
+    display: none;
+  }
+
+  .triggerContent {
+    background-color:${rgba(colors.colorPrimary, 0.12)};
+    border-radius: 5px;
+
+    padding: 5px;
+    margin-top: 5px;
+   }
 `;
 
 export const ScratchNode = styled.div`

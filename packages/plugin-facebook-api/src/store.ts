@@ -237,17 +237,16 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
 ) => {
-  const commentConversations = await models.CommentConversation.find({
+  const parentCommentConversations = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
-  const commentConversation = commentConversations[0];
   let comment;
-  const _id: string[] = [];
+  let conversationId: string = '';
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
 
-  let attachment;
+  let attachment: any[] = [];
   if (commentParams.photo) {
     attachment = [
       {
@@ -257,46 +256,43 @@ export const getOrCreateComment = async (
         // You may want to include other properties like size, duration if applicable
       },
     ];
-  } else {
-    attachment = [];
   }
 
-  if (commentConversations.length > 0 && post) {
-    if (commentConversation.erxesApiId) {
-      _id.push(commentConversation.erxesApiId);
-    }
-
-    comment = await models.CommentConversationReply.create({
-      attachments: attachment,
-      customerId: customer.erxesApiId,
-      recipientId: pageId,
-      senderId: userId,
-      createdAt: commentParams.post.updated_time,
-      comment_id: commentParams.comment_id,
-      content: commentParams.message,
-      parent_id: commentParams.parent_id,
-    });
-  } else {
-    if (postConversation.erxesApiId) {
-      _id.push(postConversation.erxesApiId);
-    }
-
-    if (post) {
-      comment = await models.CommentConversation.create({
+  if (parentCommentConversations && post) {
+    if (parentCommentConversations.erxesApiId) {
+      conversationId = parentCommentConversations.erxesApiId;
+    } else {
+      comment = await models.CommentConversationReply.create({
         attachments: attachment,
+        customerId: customer.erxesApiId,
         recipientId: pageId,
         senderId: userId,
         createdAt: commentParams.post.updated_time,
-        postId: commentParams.post_id,
         comment_id: commentParams.comment_id,
         content: commentParams.message,
-        customerId: customer.erxesApiId,
-        parentId: commentParams.parent_id,
+        parent_id: commentParams.parent_id,
       });
     }
   }
 
-  const resultString = _id[0];
+  if (postConversation.erxesApiId) {
+    conversationId = postConversation.erxesApiId;
+  }
+
+  if (post) {
+    comment = await models.CommentConversation.create({
+      attachments: attachment,
+      recipientId: pageId,
+      senderId: userId,
+      createdAt: commentParams.post.updated_time,
+      postId: commentParams.post_id,
+      comment_id: commentParams.comment_id,
+      content: commentParams.message,
+      customerId: customer.erxesApiId,
+      parentId: commentParams.parent_id,
+    });
+  }
+
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -308,14 +304,13 @@ export const getOrCreateComment = async (
           integrationId: integration.erxesApiId,
           content: commentParams.message,
           attachments: attachment,
-          conversationId: resultString,
+          conversationId: conversationId,
         }),
       },
       isRPC: true,
     });
+    const erxesApiId = apiConversationResponse._id;
 
-    const erxesApiId = (postConversation.erxesApiId =
-      apiConversationResponse._id);
     let comment_conversations = await models.CommentConversation.findOne({
       comment_id: commentParams.comment_id,
     });
@@ -324,58 +319,62 @@ export const getOrCreateComment = async (
         comment_id: commentParams.comment_id,
       });
 
-    if (comment_conversations || comment_conversations_reply) {
-      if (comment_conversations) {
-        await models.CommentConversation.updateOne(
-          { comment_id: comment_conversations.comment_id },
-          { $set: { erxesApiId: erxesApiId } },
-        );
-      }
-      if (comment_conversations_reply) {
-        await models.CommentConversationReply.updateOne(
-          { comment_id: comment_conversations_reply.comment_id },
-          { $set: { erxesApiId: erxesApiId } },
-        );
-      }
-      try {
-        if (erxesApiId) {
-          const inboxIntegration = await sendInboxMessage({
-            subdomain,
-            action: 'conversationClientMessageInserted',
-            data: {
-              integrationId: integration.erxesApiId,
-              conversationId: erxesApiId,
-            },
-          });
-          graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
-            conversationMessageInserted: {
-              _id: comment._id,
-              content: commentParams.message,
-              createdAt: new Date(),
-              customerId: customer.erxesApiId,
-              conversationId: erxesApiId,
-            },
-            comment,
-            integration: inboxIntegration,
-          });
-        } else {
-          console.log('Warning: The comment is undefined.');
-        }
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation message duplication'
-            : e,
-        );
-      }
-    } else {
-      console.log('No matching documents found.');
+    if (!comment_conversations && !comment_conversations_reply) {
+      throw new Error('No matching documents found.');
     }
-  } catch (e) {
+
+    if (comment_conversations) {
+      await models.CommentConversation.updateOne(
+        { comment_id: comment_conversations.comment_id },
+        { $set: { erxesApiId } },
+      );
+    }
+    if (comment_conversations_reply) {
+      await models.CommentConversationReply.updateOne(
+        { comment_id: comment_conversations_reply.comment_id },
+        { $set: { erxesApiId } },
+      );
+    }
+
+    try {
+      const inboxIntegration = await sendInboxMessage({
+        subdomain,
+        action: 'conversationClientMessageInserted',
+        data: {
+          integrationId: integration.erxesApiId,
+          conversationId: erxesApiId,
+        },
+      });
+      graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
+        conversationMessageInserted: {
+          _id: comment._id,
+          content: commentParams.message,
+          createdAt: new Date(),
+          customerId: customer.erxesApiId,
+          conversationId: erxesApiId,
+        },
+        comment,
+        integration: inboxIntegration,
+      });
+    } catch (error) {
+      throw new Error(
+        error.message.includes('duplicate')
+          ? 'Concurrent request: conversation message duplication'
+          : error,
+      );
+    }
+    await putCreateLog(
+      models,
+      subdomain,
+      { type: 'comment', newData: comment, object: comment },
+      userId,
+    );
+    return;
+  } catch (error) {
     await models.CommentConversation.deleteOne({
-      _id: commentConversation,
+      _id: parentCommentConversations?._id,
     });
-    throw new Error(e);
+    throw new Error(error.message);
   }
 };
 

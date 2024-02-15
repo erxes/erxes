@@ -18,10 +18,11 @@ import { AccountsQueryResponse } from '../types';
 
 type Props = {
   kind: IntegrationTypes;
-  onSelect: (accountId?: string) => void;
+  onSelect: (accountId?: string, account?: any) => void;
   onRemove: (accountId: string) => void;
   formProps?: IFormProps;
   renderForm?: () => JSX.Element;
+  selectedAccountId?: string;
 };
 
 type FinalProps = {
@@ -73,7 +74,8 @@ class AccountContainer extends React.Component<FinalProps, {}> {
       renderForm,
       getAccountsQuery,
       onSelect,
-      formProps
+      formProps,
+      selectedAccountId
     } = this.props;
 
     if (getAccountsQuery.loading) {
@@ -86,17 +88,18 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     const accounts = getAccountsQuery.facebookGetAccounts || [];
 
-    return (
-      <Accounts
-        kind={kind}
-        onAdd={this.onAdd}
-        removeAccount={this.remove}
-        onSelect={onSelect}
-        accounts={accounts}
-        formProps={formProps}
-        renderForm={renderForm}
-      />
-    );
+    const updatedProps = {
+      kind,
+      onAdd: this.onAdd,
+      removeAccount: this.remove,
+      onSelect,
+      accounts,
+      formProps,
+      renderForm,
+      selectedAccountId
+    };
+
+    return <Accounts {...updatedProps} />;
   }
 }
 

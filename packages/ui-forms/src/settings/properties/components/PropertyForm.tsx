@@ -16,7 +16,7 @@ import {
   IFieldLogic,
   IFormProps,
   ILocationOption,
-  IObjectListConfig
+  IObjectListConfig,
 } from '@erxes/ui/src/types';
 import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
@@ -63,7 +63,7 @@ class PropertyForm extends React.Component<Props, State> {
       objectListConfigs: [],
       hasOptions: false,
       searchable: false,
-      showInCard: false
+      showInCard: false,
     };
 
     if (props.field) {
@@ -73,14 +73,14 @@ class PropertyForm extends React.Component<Props, State> {
         locationOptions,
         objectListConfigs,
         searchable = false,
-        showInCard = false
+        showInCard = false,
       } = props.field;
 
       doc = {
         ...doc,
         type,
         searchable,
-        showInCard
+        showInCard,
       };
 
       if (
@@ -96,7 +96,7 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: [],
           objectListConfigs: [],
           searchable: searchable || false,
-          showInCard
+          showInCard,
         };
       }
 
@@ -108,16 +108,16 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: Object.assign([], locationOptions || []),
           objectListConfigs: Object.assign([], objectListConfigs || []),
           searchable: searchable || false,
-          showInCard: false
+          showInCard: false,
         };
       }
 
       if (objectListConfigs) {
-        doc.objectListConfigs = objectListConfigs.map(e => {
+        doc.objectListConfigs = objectListConfigs.map((e) => {
           return {
             key: e.key,
             label: e.label,
-            type: e.type
+            type: e.type,
           };
         });
       }
@@ -128,7 +128,7 @@ class PropertyForm extends React.Component<Props, State> {
       currentLocation: { lat: 0, lng: 0 },
       add: false,
       logics: props.field && props.field.logics ? props.field.logics : [],
-      logicAction: props.field && props.field.logicAction
+      logicAction: props.field && props.field.logicAction,
     };
   }
 
@@ -150,7 +150,7 @@ class PropertyForm extends React.Component<Props, State> {
       showInCard,
       searchable,
       logicAction,
-      logics
+      logics,
     } = this.state;
 
     const finalValues = values;
@@ -165,41 +165,41 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
-      objectListConfigs: objectListConfigs.map(e => {
+      objectListConfigs: objectListConfigs.map((e) => {
         return {
           key: e.key,
           label: e.label,
-          type: e.type
+          type: e.type,
         };
       }),
       searchable,
       showInCard,
       logicAction,
-      logics
+      logics,
     };
   };
 
-  onChangeOption = options => {
+  onChangeOption = (options) => {
     this.setState({ options });
   };
 
-  onChangeLocationOptions = locationOptions => {
+  onChangeLocationOptions = (locationOptions) => {
     this.setState({ locationOptions });
   };
 
-  onChangeObjectListConfig = objectListConfigs => {
+  onChangeObjectListConfig = (objectListConfigs) => {
     this.setState({ objectListConfigs });
   };
 
-  onRemoveOption = options => {
+  onRemoveOption = (options) => {
     this.setState({ options });
   };
 
-  onTypeChange = e => {
+  onTypeChange = (e) => {
     const value = e.target.value;
     let doc: { hasOptions: boolean; options: any[] } = {
       hasOptions: false,
-      options: []
+      options: [],
     };
 
     if (
@@ -214,20 +214,20 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ type: value, ...doc });
   };
 
-  onChangeSearchable = e => {
+  onChangeSearchable = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ searchable: isChecked });
   };
 
-  onSwitchChange = e => {
+  onSwitchChange = (e) => {
     this.setState({ showInCard: e.target.checked });
   };
 
-  onChangeLogicAction = value => {
+  onChangeLogicAction = (value) => {
     this.setState({ logicAction: value });
   };
 
-  onChangeLogics = logics => {
+  onChangeLogics = (logics) => {
     this.setState({ logics });
   };
 
@@ -245,7 +245,7 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   renderObjectListConfigs = () => {
-    if (this.state.type !== 'objectList') {
+    if (!['objectList', 'labelSelect'].includes(this.state.type)) {
       return null;
     }
 
@@ -298,7 +298,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     if (
       !['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
-        type
+        type,
       )
     ) {
       return null;
@@ -312,7 +312,7 @@ class PropertyForm extends React.Component<Props, State> {
           onChange={this.onSwitchChange}
           icons={{
             checked: <span>Yes</span>,
-            unchecked: <span>No</span>
+            unchecked: <span>No</span>,
           }}
         />
       </FormGroup>
@@ -324,7 +324,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     const trigger = <Button>Create group</Button>;
 
-    const content = props => (
+    const content = (props) => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
 
@@ -384,8 +384,8 @@ class PropertyForm extends React.Component<Props, State> {
               required={true}
             >
               {groups
-                .filter(e => !e.isDefinedByErxes)
-                .map(group => {
+                .filter((e) => !e.isDefinedByErxes)
+                .map((group) => {
                   return (
                     <option key={group._id} value={group._id}>
                       {group.name}
@@ -409,7 +409,7 @@ class PropertyForm extends React.Component<Props, State> {
             required={true}
           >
             <option />
-            {inputTypes.map(inputType => {
+            {inputTypes.map((inputType) => {
               return (
                 <option value={inputType.value} key={Math.random()}>
                   {inputType.label}
@@ -477,7 +477,7 @@ class PropertyForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: field
+            object: field,
           })}
         </ModalFooter>
       </>

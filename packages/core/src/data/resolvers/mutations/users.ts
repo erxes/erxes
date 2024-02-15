@@ -297,14 +297,12 @@ const userMutations = {
     {
       username,
       email,
-      password,
       details,
       links,
       employeeId,
     }: {
       username: string;
       email: string;
-      password: string;
       details: IDetail;
       links: ILink;
       employeeId: string;
@@ -312,16 +310,6 @@ const userMutations = {
     { user, models, subdomain }: IContext,
   ) {
     const userOnDb = await models.Users.getUser(user._id);
-
-    const valid = await models.Users.comparePassword(
-      password,
-      userOnDb.password,
-    );
-
-    if (!password || !valid) {
-      // bad password
-      throw new Error('Invalid password. Try again');
-    }
 
     const doc = {
       username,

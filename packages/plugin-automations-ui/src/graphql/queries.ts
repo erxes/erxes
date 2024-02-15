@@ -30,6 +30,7 @@ export const automationFields = `
     label
     description
     position
+    isCustom
     count
   }
   actions {

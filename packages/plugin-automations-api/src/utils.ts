@@ -44,14 +44,16 @@ export const isInSegment = async (
   segmentId: string,
   targetId: string
 ) => {
-  const response = await sendSegmentsMessage({
-    subdomain,
-    action: 'isInSegment',
-    data: { segmentId, idToCheck: targetId },
-    isRPC: true
-  });
+  return setTimeout(async () => {
+    const response = await sendSegmentsMessage({
+      subdomain,
+      action: 'isInSegment',
+      data: { segmentId, idToCheck: targetId },
+      isRPC: true
+    });
 
-  return response;
+    return response;
+  }, 10000);
 };
 
 export const executeActions = async (
@@ -269,11 +271,26 @@ export const calculateExecution = async ({
   trigger: ITrigger;
   target: any;
 }): Promise<IExecutionDocument | null | undefined> => {
-  const { id, type, config } = trigger;
+  const { id, type, config, isCustom } = trigger;
   const { reEnrollment, reEnrollmentRules, contentId } = config;
 
   try {
-    if (!(await isInSegment(subdomain, contentId, target._id))) {
+    if (!!isCustom) {
+      const [serviceName, collectionType] = (trigger?.type || '').split(':');
+
+      if (
+        !(await sendCommonMessage({
+          subdomain,
+          serviceName,
+          action: 'automations.checkCustomTrigger',
+          data: { collectionType, automationId, trigger, target, config },
+          isRPC: true,
+          defaultValue: false
+        }))
+      ) {
+        return;
+      }
+    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
       return;
     }
   } catch (e) {

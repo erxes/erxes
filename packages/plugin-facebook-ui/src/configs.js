@@ -11,23 +11,25 @@ module.exports = {
       './src/containers/TagMessageContainer.tsx',
     './inboxConversationDetail':
       './src/containers/post/FbCommentsContainer.tsx',
-    './automation': './src/automations/index.tsx'
+    './automation': './src/automations/index.tsx',
+    './messenger-bots': './src/automations/bots/containers/List.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'facebook',
     module: './routes'
   },
-  menus: [
+  automation: './automation',
+  automationBots: [
     {
-      text: 'Facebook Messenger Bots',
-      to: '/settings/facebook-messenger-bots',
-      image: '/images/icons/erxes-16.svg',
-      location: 'settings',
-      scope: 'facebook'
+      name: 'facebook-messenger-bots',
+      label: 'Facebook Messenger',
+      description: 'Generate Facebook Messenger Bots',
+      logo: '/images/integrations/fb-messenger.png',
+      list: './messenger-bots',
+      createUrl: '/settings/facebook-messenger-bot/create'
     }
   ],
-  automation: './automation',
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
     messagesQuery: {

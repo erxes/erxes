@@ -1,6 +1,15 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 const tagsAvailable = isEnabled('tags') ? true : false;
 
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
 const userFields = `
   _id
   username
@@ -219,7 +228,26 @@ const boards = `
     }
   }
 `;
-
+const stages = `
+  query stages($pipelineId: String!, $isAll: Boolean) {
+    stages(pipelineId: $pipelineId, isAll: $isAll) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
 const pipelines = `
   query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
     pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
@@ -230,6 +258,14 @@ const pipelines = `
       startDate
       endDate
       itemsTotalCount
+    }
+  }
+`;
+
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
     }
   }
 `;
@@ -248,4 +284,6 @@ export default {
   tags,
   boards,
   pipelines,
+  pipelineLabels,
+  stages,
 };

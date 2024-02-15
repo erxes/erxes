@@ -17,6 +17,49 @@ export const initBroker = async () => {
     };
   });
 
+  consumeRPCQueue('savings:contract.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'savings:contracts.getDepositAccount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contractType = await models.ContractTypes.findOne({
+        isDeposit: true,
+      });
+      return {
+        status: 'success',
+        data: await models.Contracts.findOne({
+          contractTypeId: contractType?._id,
+          customerId: data.customerId,
+        }).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'savings:contracts.updateContractNumber',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Contracts.updateOne(
+          {
+            _id: data._id,
+          },
+          { $set: { number: data.number } },
+        ),
+      };
+    },
+  );
+
   consumeRPCQueue('savings:transactions.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -25,6 +68,17 @@ export const initBroker = async () => {
       data: await models.Transactions.find(data).lean(),
     };
   });
+
+  consumeRPCQueue(
+    'savings:contractType.findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.ContractTypes.findOne(data).lean(),
+      };
+    },
+  );
 
   consumeRPCQueue(
     'savings:transactions.findAtContracts',
