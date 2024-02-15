@@ -12,7 +12,11 @@ import * as moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 import { IStageDocument } from './models/definitions/boards';
-import { getCompanyIds, getCustomerIds } from './models/utils';
+import {
+  getCompanyIds,
+  getCustomerIds,
+  getInternalNoteIds,
+} from './models/utils';
 
 const prepareData = async (
   models: IModels,
@@ -544,6 +548,19 @@ const fillValue = async (
       value = companyRows
         .map((company) => company.primaryName || '')
         .join(', ');
+      break;
+
+    case 'internalNotes':
+      const notes = await getInternalNoteIds(subdomain, contentType, item._id);
+
+      const removeTag = (text) => {
+        return text.replace(/<\/?[^>]+(>|$)|&nbsp;/g, '');
+      };
+
+      value = notes
+        .map((note: any) => removeTag(note.content) || '')
+        .join(', ');
+
       break;
 
     default:
