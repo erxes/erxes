@@ -22,6 +22,7 @@ import FormAttachments from "./form/FormAttachments"
 const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [emojiOpen, setEmojiOpen] = useState(false)
+  const [userListOpen, setUserListOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
