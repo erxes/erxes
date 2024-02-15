@@ -4,19 +4,19 @@ import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
 } from '../../../messageBroker';
 
 const accountMutations = {
   manualTopup: async (_root, { customerId, amount }, { models }: IContext) => {
     const topup = await models.Topups.create({
       customerId,
-      amount
+      amount,
     });
 
     await models.CustomerAccounts.addTopupAmount({
       customerId,
-      amount
+      amount,
     });
 
     return topup;
@@ -25,17 +25,17 @@ const accountMutations = {
   topupAccount: async (
     _root,
     { invoiceId }: { invoiceId: string },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) => {
     const invoice = await sendCommonMessage({
       subdomain,
       serviceName: 'payment',
       action: 'invoices.findOne',
       data: {
-        _id: invoiceId
+        _id: invoiceId,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     if (!invoice) {
@@ -46,10 +46,10 @@ const accountMutations = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser.userId,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     if (!user) {
@@ -63,12 +63,12 @@ const accountMutations = {
     const topup = await models.Topups.createTopup({
       invoiceId,
       customerId: invoice.customerId,
-      amount: invoice.amount
+      amount: invoice.amount,
     });
 
     await models.CustomerAccounts.addTopupAmount({
       customerId: invoice.customerId,
-      amount: invoice.amount
+      amount: invoice.amount,
     });
 
     return topup;
@@ -79,9 +79,10 @@ const accountMutations = {
     {
       driverId,
       carId,
-      dealId
-    }: { driverId: string; carId: string; dealId: string },
-    { models, cpUser, subdomain }: IContext
+      dealId,
+      adsId,
+    }: { driverId: string; carId: string; dealId: string; adsId: string },
+    { models, cpUser, subdomain }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -91,14 +92,14 @@ const accountMutations = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser.userId,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     const account = await models.CustomerAccounts.findOne({
-      customerId: user.erxesCustomerId
+      customerId: user.erxesCustomerId,
     });
 
     if (!account) {
@@ -113,13 +114,13 @@ const accountMutations = {
       data: {
         mainType: 'customer',
         mainTypeIds: [driverId],
-        relTypes: ['car']
+        relTypes: ['car'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const conformity = conformities.find(c => {
+    const conformity = conformities.find((c) => {
       if (c.mainType === 'customer') {
         return c.mainTypeId === driverId && c.relTypeId === carId;
       }
@@ -135,10 +136,10 @@ const accountMutations = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: driverId
+        _id: driverId,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     if (!customer || !customer.primaryPhone) {
@@ -149,7 +150,8 @@ const accountMutations = {
       cpUserId: user._id,
       driverId,
       carId: car._id,
-      dealId
+      dealId,
+      adsId,
     });
 
     if (history) {
@@ -157,11 +159,11 @@ const accountMutations = {
     }
 
     const carCategory = await models.CarCategories.getCarCatogery({
-      _id: car.carCategoryId
+      _id: car.carCategoryId,
     });
 
     const parenctCarCategory = await models.CarCategories.getCarCatogery({
-      _id: carCategory.parentId
+      _id: carCategory.parentId,
     });
 
     if (!carCategory.description && !parenctCarCategory.description) {
@@ -169,7 +171,7 @@ const accountMutations = {
     }
 
     const amount = Number(
-      carCategory.description || parenctCarCategory.description || 0
+      carCategory.description || parenctCarCategory.description || 0,
     );
 
     if (amount === 0) {
@@ -184,16 +186,17 @@ const accountMutations = {
 
     await models.CustomerAccounts.updateOne(
       { _id: account._id },
-      { $set: { balance: account.balance } }
+      { $set: { balance: account.balance } },
     );
 
     await models.PurchaseHistories.createHistory({
       carId: car._id,
       driverId,
       dealId,
+      adsId,
       amount,
       cpUserId: user._id,
-      phone: customer.primaryPhone
+      phone: customer.primaryPhone,
     });
 
     const receiver = await sendClientPortalMessage({
@@ -201,39 +204,59 @@ const accountMutations = {
       action: 'clientPortalUsers.findOne',
       data: {
         erxesCustomerId: driverId,
-        clientPortalId: process.env.MOBILE_CP_ID || ''
+        clientPortalId: process.env.MOBILE_CP_ID || '',
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
-
-    const deal = await sendCardsMessage({
-      subdomain,
-      action: 'deals.findOne',
-      data: {
-        _id: dealId
-      },
-      isRPC: true,
-      defaultValue: null
-    });
-
-    if (deal && receiver) {
-      sendClientPortalMessage({
+    if (dealId) {
+      const deal = await sendCardsMessage({
         subdomain,
-        action: 'sendNotification',
+        action: 'deals.findOne',
         data: {
-          title: 'Мэдэгдэл',
-          content: `Таны ${deal.name} дугаартай ажилд илгээсэн таны мэдээлэлтэй танилцлаа, бид тантай эргэн холбогдох болно.`,
-          receivers: [receiver._id],
-          notifType: 'system',
-          link: '',
-          isMobile: true,
-          mobileConfig: {
-            channelId: 'horn',
-            sound: 'horn.wav'
-          }
-        }
+          _id: dealId,
+        },
+        isRPC: true,
+        defaultValue: null,
       });
+
+      if (deal && receiver) {
+        sendClientPortalMessage({
+          subdomain,
+          action: 'sendNotification',
+          data: {
+            title: 'Мэдэгдэл',
+            content: `Таны ${deal.name} дугаартай ажилд илгээсэн таны мэдээлэлтэй танилцлаа, бид тантай эргэн холбогдох болно.`,
+            receivers: [receiver._id],
+            notifType: 'system',
+            link: '',
+            isMobile: true,
+            mobileConfig: {
+              channelId: 'horn',
+              sound: 'horn.wav',
+            },
+          },
+        });
+      }
+    } else {
+      if (receiver) {
+        sendClientPortalMessage({
+          subdomain,
+          action: 'sendNotification',
+          data: {
+            title: 'Мэдэгдэл',
+            content: `Таны оруулсан зартай танилцлаа, бид тантай эргэн холбогдох болно.`,
+            receivers: [receiver._id],
+            notifType: 'system',
+            link: '',
+            isMobile: true,
+            mobileConfig: {
+              channelId: 'horn',
+              sound: 'horn.wav',
+            },
+          },
+        });
+      }
     }
 
     return customer.primaryPhone;
@@ -242,7 +265,7 @@ const accountMutations = {
   customerAccountEditDriverGroups: async (
     _root,
     { driverGroups }: { driverGroups: any[] },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -252,14 +275,14 @@ const accountMutations = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser.userId,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
 
     const account = await models.CustomerAccounts.findOne({
-      customerId: user.erxesCustomerId
+      customerId: user.erxesCustomerId,
     });
 
     console.log(account);
@@ -270,11 +293,11 @@ const accountMutations = {
 
     await models.CustomerAccounts.updateOne(
       { _id: account._id },
-      { $set: { driverGroups } }
+      { $set: { driverGroups } },
     );
 
     return account;
-  }
+  },
 };
 
 export default accountMutations;
