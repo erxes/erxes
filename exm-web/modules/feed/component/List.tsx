@@ -59,9 +59,9 @@ const List = ({ contentType }: { contentType: string }) => {
   }
 
   return (
-    <div className="h-[calc(100vh-68px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4">
+    <div className="h-[calc(100vh-124px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4">
       <FeedForm contentType={contentType} />
-      {showList(pinnedList)}
+      {pinnedList.length > 0 && showList(pinnedList)}
       {showList(normalList)}
 
       {loading && (

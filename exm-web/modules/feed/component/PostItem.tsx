@@ -9,7 +9,6 @@ import dayjs from "dayjs"
 import { useAtomValue } from "jotai"
 import {
   AlertTriangleIcon,
-  ExternalLinkIcon,
   MessageCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
@@ -19,7 +18,6 @@ import {
   TrashIcon,
 } from "lucide-react"
 
-import { readFile } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import {
@@ -60,6 +58,7 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [emojiOpen, setEmojiOpen] = useState(false)
+  const [userListOpen, setUserListOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
@@ -390,12 +389,18 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <Dialog open={emojiOpen} onOpenChange={() => setEmojiOpen(!emojiOpen)}>
+      <Dialog
+        open={userListOpen}
+        onOpenChange={() => setUserListOpen(!userListOpen)}
+      >
         <DialogTrigger asChild={true}>
-          <span className="cursor-pointer">
+          <span className="cursor-pointer text-primary">
             {recipientUsers.slice(0, 2).map((item) => {
               return (
-                <span key={Math.random()}>
+                <span
+                  key={Math.random()}
+                  className="truncate max-w-[300px] inline-flex"
+                >
                   @{item?.details?.fullName || item?.username || item?.email}
                   &nbsp;
                 </span>
@@ -406,11 +411,11 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
                 .slice(0, recipientUsers.length || 2)
                 .map((item, index) => {
                   return (
-                    <span key={Math.random()}>
-                      {item.title}
-                      {index + 1 !==
-                        recipientUsers.length + recipientDepartments.length &&
-                        ", "}
+                    <span
+                      key={Math.random()}
+                      className="truncate max-w-[300px] inline-flex"
+                    >
+                      @{item.title} &nbsp;
                     </span>
                   )
                 })}

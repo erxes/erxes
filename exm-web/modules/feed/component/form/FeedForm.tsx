@@ -34,9 +34,9 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
       case "post":
         return <PostForm setOpen={setOpen} tab={tab} changeTab={setTab} />
       case "bravo":
-        return <BravoForm setOpen={setOpen} />
+        return <BravoForm setOpen={setOpen} tab={tab} changeTab={setTab} />
       case "event":
-        return <EventForm setOpen={setOpen} />
+        return <EventForm setOpen={setOpen} tab={tab} changeTab={setTab} />
     }
   }
 
@@ -89,9 +89,14 @@ const FeedForm = ({ contentType }: { contentType: string }) => {
     )
   }
 
+  const dialogHandler = () => {
+    setOpen(!open)
+    setTab("info")
+  }
+
   return (
     <>
-      <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+      <Dialog open={open} onOpenChange={() => dialogHandler()}>
         {renderTrigger()}
         {open ? (
           <DialogContent className="h-[80vh] max-w-full translate-x-[0] translate-y-[0] bottom-0 top-[unset] left-0 overflow-auto !rounded-bl-none !rounded-br-none data-[state=open]:slide-in-from-left-0 data-[state=open]:slide-in-from-bottom-1/2">

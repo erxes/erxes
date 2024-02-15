@@ -63,6 +63,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const [formOpen, setFormOpen] = useState(false)
   // const [commentOpen, setCommentOpen] = useState(false)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  const [tab, setTab] = useState("info")
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -129,7 +130,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
 
   const editAction = () => {
     const renderForm = () => {
-      return <EventForm feed={feed} setOpen={setOpen} />
+      return <EventForm feed={feed} setOpen={setOpen} tab={tab} changeTab={setTab} />
     }
 
     return (

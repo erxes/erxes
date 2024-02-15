@@ -135,13 +135,13 @@ const PostForm = ({
   const content = () => {
     if (tab === "share") {
       return (
-        <div className="max-w-[500px] mx-auto flex flex-col gap-4">
+        <div className="flex flex-col gap-4 h-full relative">
           <b className="text-center">Who would you like to share</b>
           <FormField
             control={form.control}
             name="departmentIds"
             render={() => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && !seDepartmentSearchvalue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -173,7 +173,7 @@ const PostForm = ({
             control={form.control}
             name="branchIds"
             render={() => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && branchSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -202,7 +202,7 @@ const PostForm = ({
             control={form.control}
             name="unitId"
             render={({}) => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && unitSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -228,13 +228,21 @@ const PostForm = ({
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            className="font-semibold w-full rounded-lg bg-primary-light"
-            disabled={uploading}
-          >
-            Post
-          </Button>
+          <div className="pt-6 border-t border-[#F2F4F7] mt-auto absolute bottom-[-20px] flex justify-between w-full">
+            <Button
+              className="font-semibold rounded-lg bg-white text-black border border-light hover:bg-white float-right w-[180px]"
+              onClick={() => changeTab("info")}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              className="font-semibold rounded-lg bg-primary float-right w-[180px]"
+              disabled={uploading}
+            >
+              Post
+            </Button>
+          </div>
         </div>
       )
     }
@@ -242,7 +250,7 @@ const PostForm = ({
     return (
       <>
         <div className="flex justify-center gap-6 mb-6 h-[calc(100%-50px)]">
-          <div className="w-[566px] border border-exm rounded-md  h-full">
+          <div className="max-w-[566px] border border-exm rounded-md w-full h-full">
             <div className="overflow-auto h-[60%] px-4 pt-4">
               {uploading && <Loader className="pb-4" />}
               <FormImages images={images} setImage={setImage} />
@@ -264,7 +272,7 @@ const PostForm = ({
             </div>
           </div>
 
-          <div className="border border-exm rounded-md">
+          <div className="border border-exm rounded-md max-w-[566px] !w-full">
             <div className="px-4 py-3 border-b-2 border-exm">Post</div>
             <FormField
               control={form.control}
@@ -276,7 +284,7 @@ const PostForm = ({
                       placeholder="Write a post"
                       {...field}
                       defaultValue={feed?.description || ""}
-                      className="p-3 border-none w-[566px] !h-[100%] !max-h-[unset]"
+                      className="p-3 border-none max-w-[566px] w-full !h-[100%] !max-h-[unset]"
                     />
                   </FormControl>
                   <FormMessage />
