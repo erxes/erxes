@@ -1,4 +1,4 @@
-import { fetchPolaris } from '../utils';
+import { fetchPolaris, getFullDate } from '../utils';
 
 const getMethod = (method) => {
   switch (method) {
@@ -17,7 +17,7 @@ const getMethod = (method) => {
 export const createLoanSchedule = async (subdomain: string, contract: any) => {
   const sendData = [
     contract.number,
-    contract.startDate,
+    getFullDate(contract.startDate),
     contract.leaseAmount,
     getMethod(contract.repayment),
     'M',
@@ -29,7 +29,7 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
     0,
     0,
     'SIMPLE_INT',
-    contract.endDate,
+    getFullDate(contract.endDate),
     null,
     contract.description,
     [],
@@ -39,10 +39,12 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
   console.log('createLoanSchedule', sendData);
 
   const result = await fetchPolaris({
-    op: '13610263',
+    op: '13610258',
     data: sendData,
     subdomain,
   });
+
+  console.log('result', result);
 
   return result;
 };

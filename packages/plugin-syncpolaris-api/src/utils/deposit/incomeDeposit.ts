@@ -5,7 +5,7 @@ export const incomeDeposit = async (subdomain, params) => {
 
   const savingContract = await getSavingContract(
     subdomain,
-    transaction.savingContractId,
+    transaction.contractId,
   );
 
   let sendData = {
@@ -18,20 +18,13 @@ export const incomeDeposit = async (subdomain, params) => {
     contCurCode: transaction.currency,
     contRate: '1',
     txnDesc: transaction.description,
-    banknotes: [
-      {
-        banknoteId: transaction.banknoteId,
-        qty: transaction.qty,
-        totalAmount: transaction.totalAmount,
-      },
-    ],
-    tcustRegisterMask: transaction.tcustRegisterMask,
-    sourceType: transaction.sourceType,
-    isPreview: transaction.isPreview,
-    isPreviewFee: transaction.isPreviewFee,
-    isTmw: transaction.isTmw,
-    isAdvice: transaction.isAdvice,
-    txnClearAmount: transaction.txnClearAmount,
+    tcustRegisterMask: '',
+    sourceType: 'OI',
+    isPreview: 0,
+    isPreviewFee: null,
+    isTmw: 1,
+    isAdvice: 1,
+    txnClearAmount: transaction.total,
     aspParam: [
       [
         {
@@ -41,6 +34,8 @@ export const incomeDeposit = async (subdomain, params) => {
       ],
     ],
   };
+
+  console.log('sendData', sendData);
 
   return await fetchPolaris({
     op: '13610009',

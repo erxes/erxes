@@ -23,7 +23,7 @@ const ActivityInputs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 const ActivityLogs = asyncComponent(
@@ -31,7 +31,7 @@ const ActivityLogs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    )
+    ),
 );
 
 type Props = {
@@ -61,12 +61,12 @@ class ContractDetails extends React.Component<Props, State> {
     this.state = {
       amount: contract.amount || {},
       collateralsData: contract.collaterals
-        ? contract.collaterals.map(p => ({ ...p }))
+        ? contract.collaterals.map((p) => ({ ...p }))
         : [],
       // collecting data for ItemCounter component
       collaterals: contract.collaterals
-        ? contract.collaterals.map(p => p.collateral)
-        : []
+        ? contract.collaterals.map((p) => p.collateral)
+        : [],
     };
   }
 
@@ -77,7 +77,7 @@ class ContractDetails extends React.Component<Props, State> {
     const amount: any = {};
     const filteredCollateralsData: any = [];
 
-    collateralsData.forEach(data => {
+    collateralsData.forEach((data) => {
       // collaterals
       if (data.collateral) {
         if (data.currency) {
@@ -99,7 +99,7 @@ class ContractDetails extends React.Component<Props, State> {
       { collateralsData: filteredCollateralsData, collaterals, amount },
       () => {
         saveItem({ ...contract, collateralsData });
-      }
+      },
     );
   };
 
@@ -114,11 +114,11 @@ class ContractDetails extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
-      { title }
+      { title },
     ];
 
-    const pDataChange = pData => this.onChangeField('collateralsData', pData);
-    const prsChange = prs => this.onChangeField('collaterals', prs);
+    const pDataChange = (pData) => this.onChangeField('collateralsData', pData);
+    const prsChange = (prs) => this.onChangeField('collaterals', prs);
 
     const content = (
       <>
@@ -128,18 +128,23 @@ class ContractDetails extends React.Component<Props, State> {
               label: __(`First Schedules`),
               component: (contract.leaseType === LEASE_TYPES.FINANCE ||
                 contract.leaseType === LEASE_TYPES.SAVING) && (
-                <ScheduleSection contractId={contract._id} isFirst={true} />
-              )
+                <ScheduleSection
+                  contractId={contract._id}
+                  isFirst={true}
+                  regenSchedules={regenSchedules}
+                  fixSchedules={fixSchedules}
+                />
+              ),
             },
             {
               label: __(`Schedules`),
               component: (
                 <ScheduleSection contractId={contract._id} isFirst={false} />
-              )
+              ),
             },
             {
               label: __(`Invoice`),
-              component: <InvoiceList invoices={contract.invoices} />
+              component: <InvoiceList invoices={contract.invoices} />,
             },
             {
               label: __(`Transaction`),
@@ -148,13 +153,13 @@ class ContractDetails extends React.Component<Props, State> {
                   contractId={contract._id}
                   transactions={contract.loanTransactionHistory}
                 />
-              )
+              ),
             },
             {
               label: __('Interest store'),
               component: (
                 <StoreInterestSection invoices={contract.storeInterest} />
-              )
+              ),
             },
 
             {
@@ -169,8 +174,8 @@ class ContractDetails extends React.Component<Props, State> {
                   collaterals={this.state.collaterals}
                   contractId={contract._id}
                 ></CollateralsSection>
-              )
-            }
+              ),
+            },
           ]}
         />
 

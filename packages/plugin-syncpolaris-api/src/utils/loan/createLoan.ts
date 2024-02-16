@@ -6,6 +6,7 @@ import {
   fetchPolaris,
   updateLoanNumber,
   customFieldToObject,
+  getFullDate,
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createLoanSchedule } from './createSchedule';
@@ -37,11 +38,11 @@ export const createLoan = async (subdomain, params) => {
     curCode: loanData.currency,
     approvAmount: loanData.leaseAmount,
     impairmentPer: 0,
-    approvDate: loanData.startDate,
+    approvDate: getFullDate(loanData.startDate),
     acntManager: leasingExpert.employeeId,
     brchCode: branch.code,
-    startDate: loanData.startDate,
-    endDate: loanData.endDate,
+    startDate: getFullDate(loanData.startDate),
+    endDate: getFullDate(loanData.endDate),
     termLen: loanData.tenor,
     IsGetBrchFromOutside: '0',
     segCode: '1',
@@ -77,9 +78,9 @@ export const createLoan = async (subdomain, params) => {
     console.log('activate', activate);
 
     loan.number = result;
-    const createSchedule = await createLoanSchedule(subdomain, loanData);
+    // const createSchedule = await createLoanSchedule(subdomain, loanData);
 
-    console.log('createSchedule', createSchedule);
+    // console.log('createSchedule', createSchedule);
   }
 
   return result;
