@@ -289,8 +289,7 @@ export const calculateExecution = async ({
       ) {
         return;
       }
-    }
-    if (!(await isInSegment(subdomain, contentId, target._id))) {
+    } else if (!(await isInSegment(subdomain, contentId, target._id))) {
       return;
     }
   } catch (e) {
