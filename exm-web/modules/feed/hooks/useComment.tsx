@@ -15,7 +15,7 @@ export const useComments = (contentId: string): IUsePosts => {
     variables: {
       contentId,
       contentType: "exmFeed",
-      limit: 10,
+      limit: 5,
     },
   })
 
