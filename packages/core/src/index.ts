@@ -53,6 +53,7 @@ import { moduleObjects } from './data/permissions/actions/permission';
 import dashboards from './dashboards';
 import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
+import { handleCoreLogin, handleMagiclink, ssocallback } from './saas';
 import app from '@erxes/api-utils/src/app';
 
 const {
@@ -259,6 +260,10 @@ app.get(
 app.post('/upload-file', uploader);
 
 app.post('/upload-file&responseType=json', uploader);
+
+app.get('/ml-callback', (req: any, res) => handleMagiclink(req, res));
+app.get('/core-login', (req: any, res) => handleCoreLogin(req, res));
+app.get('/sso-callback', ssocallback);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
