@@ -61,6 +61,13 @@ jobs:
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
           aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
 
+      - name: Deploy Core UI
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main')
+        run: |
+          tar -czf build.tar --directory=packages/core-ui/dist .
+          cp build.tar packages/core-ui/dist
+          aws s3 sync packages/core-ui/dist s3://erxes-merge-xos-plugins/uis/core-ui --delete
+
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/merge-xos' || github.ref == 'refs/heads/staging')
         env:
