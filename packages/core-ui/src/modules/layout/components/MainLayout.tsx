@@ -7,6 +7,7 @@ import Navigation from './navigation';
 import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { bustIframe, getEnv } from 'modules/common/utils';
+import dayjs from 'dayjs';
 import { withRouter } from 'react-router-dom';
 
 const MainBar = asyncComponent(
@@ -129,10 +130,7 @@ class MainLayout extends React.Component<IProps, State> {
       } else {
         const { REACT_APP_HIDE_MESSENGER } = getEnv();
 
-        if (
-          !REACT_APP_HIDE_MESSENGER &&
-          REACT_APP_HIDE_MESSENGER === 'undefined'
-        ) {
+        if (!REACT_APP_HIDE_MESSENGER) {
           const userDetail = (currentUser && currentUser.details) || {
             firstName: '',
             lastName: '',
