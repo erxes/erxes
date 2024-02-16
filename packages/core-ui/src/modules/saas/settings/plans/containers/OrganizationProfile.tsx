@@ -7,13 +7,13 @@ import {
 } from '@erxes/ui-settings/src/general/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, withProps } from '../../../common/utils';
+import { Alert, confirm, withProps } from '../../../../common/utils';
 import OrganizationProfile from '../components/OrganizationProfile';
 import { mutations } from '../graphql';
 import {
   queries as generalQueries,
   mutations as generalMutations,
-} from '../../general/graphql';
+} from '../../../../settings/general/graphql';
 import {
   editOrganizationDomainMutationResponse,
   editOrganizationInfoMutationResponse,

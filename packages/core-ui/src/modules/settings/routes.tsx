@@ -9,7 +9,7 @@ import ProfileRoutes from './profile/routes';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import TeamRoutes from './team/routes';
-import PlanRoutes from './plans/routes';
+import PlanRoutes from '../saas/settings/plans/routes';
 
 const routes = () => (
   <React.Fragment>

@@ -3,7 +3,7 @@ import { IOrganization, chargeItemWithCountResponse } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import Title from 'modules/settings/plans/components/Title';
+import Title from 'modules/saas/settings/plans/components/Title';
 import WithPermission from '@erxes/ui/src/components/WithPermission';
 import colors from '@erxes/ui/src/styles/colors';
 import { rgba } from '@erxes/ui/src/styles/ecolor';

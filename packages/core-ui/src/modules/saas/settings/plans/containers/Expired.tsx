@@ -1,13 +1,13 @@
 import client from 'apolloClient';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { queries as authQueries } from '../../../auth/graphql';
-import { CurrentUserQueryResponse } from '../../../auth/types';
+import { queries as authQueries } from '../../../../auth/graphql';
+import { CurrentUserQueryResponse } from '../../../../auth/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { Alert, withProps } from '../../../common/utils';
+import { Alert, withProps } from '../../../../common/utils';
 import Expired from '../components/Expired';
-import withCurrentOrganization from '@erxes/ui-settings/src/general/containers/withCurrentOrganization';
+import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 
 type Props = {
   totalCountQuery: any;
