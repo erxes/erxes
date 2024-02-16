@@ -30,11 +30,13 @@ export interface IReport {
   updatedAt: Date;
   updatedBy: string;
 
+  serviceName?: string;
+  serviceType?: string;
+
   assignedUserIds: string[];
   assignedDepartmentIds: string[];
 
   reportTemplateType?: string;
-  serviceName?: string;
   charts?: IChartDocument[];
 }
 
@@ -51,6 +53,7 @@ export interface IChart {
   chartType: string;
   filterIds: string[];
   defaultFilter: IChartFilter;
+  templateType: string;
   serviceName?: string;
   serviceType?: string;
   dimension: JSON;
@@ -95,6 +98,8 @@ export const reportSchema = new Schema({
     label: 'Created at',
     index: true,
   }),
+  serviceName: field({ type: String, label: 'Service name' }),
+  serviceType: field({ type: String, label: 'Service type' }),
   createdBy: field({
     type: String,
     label: 'Created by user id',
