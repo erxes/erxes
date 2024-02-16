@@ -47,7 +47,7 @@ class List extends React.Component<FinalProps> {
       repairMutation({ variables: { _id } })
         .then(() => {
           listQueryResponse.refetch();
-          Alert.success('You successfully removed bot');
+          Alert.success('You successfully repaired bot');
         })
         .catch((e) => {
           Alert.error(e.message);
