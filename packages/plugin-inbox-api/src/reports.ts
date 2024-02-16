@@ -313,6 +313,7 @@ const returnDateRanges = (
 const chartTemplates = [
   {
     templateType: 'averageFirstResponseTime',
+    serviceType: 'inbox',
     name: 'Average first response time by rep in hours',
     chartTypes: [
       'bar',
@@ -603,6 +604,7 @@ const chartTemplates = [
 
   {
     templateType: 'averageCloseTime',
+    serviceType: 'inbox',
     name: 'Average chat close time by rep in hours',
     chartTypes: ['bar', 'doughnut', 'radar', 'polarArea', 'table'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
@@ -801,6 +803,7 @@ const chartTemplates = [
   },
   {
     templateType: 'closedConversationsCountByRep',
+    serviceType: 'inbox',
     name: 'Total closed conversations count by rep',
     chartTypes: [
       'bar',
@@ -1047,6 +1050,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByTag',
+    serviceType: 'inbox',
     name: 'Total conversations count by tag',
     chartTypes: [
       'bar',
@@ -1147,6 +1151,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountBySource',
+    serviceType: 'inbox',
     name: 'Total conversations count by source',
     chartTypes: [
       'bar',
@@ -1259,6 +1264,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByRep',
+    serviceType: 'inbox',
     name: 'Total conversations count by rep',
     chartTypes: [
       'bar',
@@ -1539,6 +1545,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByStatus',
+    serviceType: 'inbox',
     name: 'Total conversations count by status',
     chartTypes: [
       'bar',
@@ -1649,6 +1656,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCount',
+    serviceType: 'inbox',
     name: 'Conversations count',
     chartTypes: [
       'bar',

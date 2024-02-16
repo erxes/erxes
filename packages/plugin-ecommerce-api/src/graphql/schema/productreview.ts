@@ -4,6 +4,8 @@ export const types = `
     productId: String!
     customerId : String
     review: Float
+    description: String
+    info: JSON
   }
   type AverageReview {
     productId: String
@@ -15,7 +17,9 @@ export const types = `
 const mutationParams = `
     productId: String,
     customerId : String,
-    review: Float
+    review: Float,
+    description: String,
+    info: JSON
 `;
 
 export const queries = `

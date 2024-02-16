@@ -92,6 +92,31 @@ const reportsMutations = {
     return models.Charts.createChart(doc);
   },
 
+  async reportChartsEditMany(_root, doc: any, { models }: IContext) {
+    const { charts, reportId, serviceName, serviceType } = doc;
+
+    if (charts) {
+      const service = await getService(serviceName);
+
+      const chartTemplates = service.config?.meta?.reports?.chartTemplates;
+
+      const existingCharts = await models.Charts.find({ reportId });
+      const existingChartTemplateTypes = existingCharts.map(
+        (e) => e.templateType,
+      );
+
+      function filterArray(arr1, arr2) {
+        // Convert arr2 to a Set for faster lookup
+        const set2 = new Set(arr2);
+
+        // Filter arr1 to remove elements that exist in arr2
+        return arr1.filter((item) => !set2.has(item));
+      }
+
+      const existingTemplateTypes = existingCharts.map((e) => e.templateType);
+    }
+  },
+
   async reportChartsAddMany(_root, doc: any, { models }: IContext) {
     const { charts, reportId } = doc;
     const insertManyDocs: any[] = [];
