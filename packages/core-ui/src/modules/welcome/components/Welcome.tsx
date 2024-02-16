@@ -301,7 +301,9 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     <>
       {renderHeader()}
       {STEPS.map((group, index) => {
-        const [isOpen, setIsOpen] = useState(false);
+        const [isOpen, setIsOpen] = useState(
+          window.location.hash.includes(group.key) ? true : false,
+        );
 
         const handleOpen = () => {
           if (group.key !== 'setup') {

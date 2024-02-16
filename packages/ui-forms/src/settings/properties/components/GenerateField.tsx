@@ -103,6 +103,24 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderLabelSelect(
+    options: { key: string; label: string }[] = [],
+    attrs = {},
+  ) {
+    return (
+      <FormControl componentClass="select" {...attrs}>
+        <option key={''} value="">
+          Choose option
+        </option>
+        {options.map((option, index) => (
+          <option key={index} value={option.key}>
+            {option.label}
+          </option>
+        ))}
+      </FormControl>
+    );
+  }
+
   renderMultiSelect(options: string[] = [], attrs) {
     const onChange = (ops: IOption[]) => {
       const { field, onValueChange } = this.props;
@@ -723,6 +741,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'parentField': {
         return this.renderParentField();
+      }
+
+      case 'labelSelect': {
+        return this.renderLabelSelect(objectListConfigs, attrs);
       }
 
       default:

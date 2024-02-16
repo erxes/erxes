@@ -48,6 +48,24 @@ const generateEmptyEntry = (email?: string) => ({
   branchId: '',
 });
 
+const generetaOption = (array: IBranch[] = []): IOption[] => {
+  const generateList = () => {
+    let list: any[] = array.map((item) => {
+      if (!array.find((dep) => dep._id === item.parentId)) {
+        return { ...item, parentId: null };
+      }
+      return item;
+    });
+
+    return list;
+  };
+
+  return generateTree(generateList(), null, (node, level) => ({
+    value: node._id,
+    label: `${'--- '.repeat(level)} ${node.title}`,
+  }));
+};
+
 class UserInvitationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -336,8 +354,8 @@ class UserInvitationForm extends React.Component<Props, State> {
                       null,
                       (node, level) => ({
                         value: node._id,
-                        label: `${'---'.repeat(level)} ${node.title}`
-                      })
+                        label: `${'---'.repeat(level)} ${node.title}`,
+                      }),
                     )}
                     onChange={this.onChange.bind(this, i, 'departmentId')}
                     placeholder={__('Choose department ...')}
@@ -347,14 +365,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                 <td>
                   {/* <Select
                     value={entries[i].branchId}
-                    options={generateTree(
-                      this.props.branches,
-                      null,
-                      (node, level) => ({
-                        value: node._id,
-                        label: `${'---'.repeat(level)} ${node.title}`
-                      })
-                    )}
+                    options={generetaOption(this.props.branches)}
                     onChange={this.onChange.bind(this, i, 'branchId')}
                     placeholder={__('Choose branch ...')}
                   /> */}

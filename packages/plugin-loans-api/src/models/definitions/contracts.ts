@@ -2,10 +2,14 @@ import {
   CONTRACT_CLASSIFICATION,
   CONTRACT_STATUS,
   LEASE_TYPES,
-  REPAYMENT_TYPE
+  REPAYMENT_TYPE,
 } from './constants';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import {
+  customFieldSchema,
+  ICustomField,
+} from '@erxes/api-utils/src/definitions/common';
 
 export interface IInsurancesData extends Document {
   insuranceTypeId: string;
@@ -122,6 +126,7 @@ export interface IContract {
   leaseType: string;
   commitmentInterest: number;
   savingContractId: string;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IContractDocument extends IContract, Document {
@@ -139,7 +144,7 @@ export const insuranceDataSchema = {
   _id: { type: String },
   insuranceTypeId: { type: String },
   currency: { type: String },
-  amount: { type: Number }
+  amount: { type: Number },
 };
 
 export const collateralDataSchema = {
@@ -155,7 +160,7 @@ export const collateralDataSchema = {
 
   insuranceTypeId: { type: String },
   currency: { type: String },
-  insuranceAmount: { type: Number }
+  insuranceAmount: { type: Number },
 };
 
 export const contractSchema = schemaHooksWrapper(
@@ -164,101 +169,101 @@ export const contractSchema = schemaHooksWrapper(
     contractTypeId: field({
       type: String,
       label: 'Contract Type',
-      index: true
+      index: true,
     }),
     number: field({
       type: String,
       label: 'Number',
       optional: true,
-      index: true
+      index: true,
     }),
     status: field({
       type: String,
       label: 'Status',
       enum: CONTRACT_STATUS.ALL,
       required: true,
-      default: CONTRACT_STATUS.NORMAL
+      default: CONTRACT_STATUS.NORMAL,
     }),
     classification: field({
       type: String,
       label: 'Classification',
       enum: CONTRACT_CLASSIFICATION.ALL,
       required: true,
-      default: CONTRACT_CLASSIFICATION.NORMAL
+      default: CONTRACT_CLASSIFICATION.NORMAL,
     }),
     branchId: field({
       type: String,
       optional: true,
-      label: 'Branch Id'
+      label: 'Branch Id',
     }),
     description: field({
       type: String,
       optional: true,
-      label: 'Description'
+      label: 'Description',
     }),
     createdBy: field({ type: String, label: 'Created By' }),
     createdAt: field({
       type: Date,
       default: () => new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     marginAmount: field({
       type: Number,
       optional: true,
-      label: 'Loan margin'
+      label: 'Loan margin',
     }),
     leaseAmount: field({
       type: Number,
       optional: true,
-      label: 'Loan amount'
+      label: 'Loan amount',
     }),
     givenAmount: field({
       type: Number,
       optional: true,
       default: 0,
-      label: 'Given amount'
+      label: 'Given amount',
     }),
     feeAmount: field({
       type: Number,
       optional: true,
-      label: 'Loan fee'
+      label: 'Loan fee',
     }),
     tenor: field({
       type: Number,
       min: 0,
       max: 600,
-      label: 'Loan tenor (in months)'
+      label: 'Loan tenor (in months)',
     }),
     interestRate: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Loan Interest Rate'
+      label: 'Loan Interest Rate',
     }),
     unduePercent: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Loan Undue percent'
+      label: 'Loan Undue percent',
     }),
     repayment: field({
       type: String,
-      enum: REPAYMENT_TYPE.map(option => option.value),
+      enum: REPAYMENT_TYPE.map((option) => option.value),
       required: true,
       label: 'Schedule Type',
-      selectOptions: REPAYMENT_TYPE
+      selectOptions: REPAYMENT_TYPE,
     }),
     leaseType: field({
       type: String,
       enum: LEASE_TYPES.ALL,
       label: 'Lease Type',
       required: true,
-      default: LEASE_TYPES.FINANCE
+      default: LEASE_TYPES.FINANCE,
     }),
     commitmentInterest: field({
       type: Number,
       label: 'Commitment Interest',
-      default: 0
+      default: 0,
     }),
     startDate: field({ type: Date, label: 'Start Date' }),
     endDate: field({ type: Date, label: 'End Date' }),
@@ -266,78 +271,78 @@ export const contractSchema = schemaHooksWrapper(
       type: [Number],
       min: 1,
       max: 31,
-      label: 'Schedule Day'
+      label: 'Schedule Day',
     }),
     insurancesData: field({
       type: [insuranceDataSchema],
-      label: 'Insurances'
+      label: 'Insurances',
     }),
     collateralsData: field({
       type: [collateralDataSchema],
-      label: 'Collaterals'
+      label: 'Collaterals',
     }),
 
     insuranceAmount: field({
       type: Number,
       optional: true,
-      label: 'Insurance'
+      label: 'Insurance',
     }),
     debt: field({ type: Number, optional: true, label: 'Debt' }),
     debtTenor: field({
       type: Number,
       optional: true,
-      label: 'debt tenor'
+      label: 'debt tenor',
     }),
     debtLimit: field({
       type: Number,
       optional: true,
-      label: 'Debt Limit'
+      label: 'Debt Limit',
     }),
 
     salvageAmount: field({
       type: Number,
       optional: true,
-      label: 'Salvage Amount'
+      label: 'Salvage Amount',
     }),
     salvagePercent: field({
       type: Number,
       optional: true,
-      label: 'Salvage Percent'
+      label: 'Salvage Percent',
     }),
     salvageTenor: field({
       type: Number,
       optional: true,
-      label: 'Salvage Tenor'
+      label: 'Salvage Tenor',
     }),
     customerId: field({
       type: String,
       optional: true,
-      label: 'Customer ID'
+      label: 'Customer ID',
     }),
     customerType: field({
       type: String,
       optional: true,
-      label: 'Customer Type'
+      label: 'Customer Type',
     }),
     relCustomer: field({
       type: [{ customerId: String, customerType: String }],
       optional: true,
-      label: "Loan related customer's"
+      label: "Loan related customer's",
     }),
     relationExpertId: field({
       type: String,
       optional: true,
-      label: 'relation Expert'
+      label: 'relation Expert',
     }),
     leasingExpertId: field({
       type: String,
       optional: true,
-      label: 'leasing Expert'
+      label: 'leasing Expert',
     }),
     riskExpertId: field({
       type: String,
       optional: true,
-      label: 'risk Expert'
+      label: 'risk Expert',
     }),
     weekends: field({ type: [Number], label: 'weekend' }),
     useHoliday: field({ type: Boolean, label: 'use holiday' }),
@@ -349,112 +354,117 @@ export const contractSchema = schemaHooksWrapper(
     closeDate: field({
       type: Date,
       optional: true,
-      label: 'Close Date'
+      label: 'Close Date',
     }),
     closeType: field({
       type: String,
       optional: true,
-      label: 'Close Type'
+      label: 'Close Type',
     }),
     closeDescription: field({
       type: String,
       optional: true,
-      label: 'Close Description'
+      label: 'Close Description',
     }),
 
     relContractId: field({
       type: String,
       optional: true,
-      label: 'Change condition contract'
+      label: 'Change condition contract',
     }),
     isExpired: field({
       type: Boolean,
       optional: true,
-      label: 'Is Expired'
+      label: 'Is Expired',
     }),
     repaymentDate: field({
       type: Date,
       optional: true,
-      label: 'Repayment'
+      label: 'Repayment',
     }),
     undueCalcType: field({
       type: String,
       optional: true,
-      label: 'Undue Calc Type'
+      label: 'Undue Calc Type',
     }),
     skipInterestCalcMonth: field({
       type: Number,
       optional: true,
-      label: 'Skip Interest Calc Month'
+      label: 'Skip Interest Calc Month',
     }),
     dealId: field({
       type: String,
       optional: true,
-      label: 'contract relation of dealId'
+      label: 'contract relation of dealId',
     }),
     currency: field({
       type: String,
       default: 'MNT',
-      label: 'contract currency of lease'
+      label: 'contract currency of lease',
     }),
     storedInterest: field({
       type: Number,
       optional: true,
       default: 0,
-      label: 'Stored Interest'
+      label: 'Stored Interest',
     }),
     lastStoredDate: field({
       type: Date,
       optional: true,
-      label: 'Last Stored Date'
+      label: 'Last Stored Date',
     }),
     isPayFirstMonth: field({
       type: Boolean,
       default: false,
-      label: 'Is pay first month'
+      label: 'Is pay first month',
     }),
     downPayment: field({
       type: Number,
       default: 0,
-      label: 'Down payment'
+      label: 'Down payment',
     }),
     skipAmountCalcMonth: field({
       type: Number,
       default: 0,
-      label: 'skip Amount Calc Month'
+      label: 'skip Amount Calc Month',
     }),
     customPayment: field({
       type: Number,
       default: 0,
-      label: 'customPayment'
+      label: 'customPayment',
     }),
     customInterest: field({
       type: Number,
       default: 0,
-      label: 'customInterest'
+      label: 'customInterest',
     }),
     isBarter: field({
       type: Boolean,
       default: false,
-      label: 'Is Barter'
+      label: 'Is Barter',
     }),
     isStoppedInterest: field({
       type: Boolean,
       default: false,
-      label: 'Is stopped interest'
+      label: 'Is stopped interest',
     }),
     stoppedInterestDate: field({
       type: Date,
-      label: 'Stopped interest date'
+      label: 'Stopped interest date',
     }),
     loanPurpose: field({
       type: String,
-      label: 'Loan purpose'
+      label: 'Loan purpose',
     }),
     savingContractId: field({
       type: String,
-      label: 'Saving contract Id'
-    })
+      label: 'Saving contract Id',
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
   }),
-  'erxes_contractSchema'
+  'erxes_contractSchema',
 );

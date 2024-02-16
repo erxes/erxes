@@ -1,14 +1,15 @@
 import Box from '@erxes/ui/src/components/Box';
+import ContractsCustomFields from '../list/ContractsCustomFields';
+import DealSection from './DealSection';
 import { IContract } from '../../types';
 import { List } from '../../styles';
+import LoanContractSection from './LoanContractSection';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import DealSection from './DealSection';
-import LoanContractSection from './LoanContractSection';
 
 const CompanySection = asyncComponent(
   () =>
@@ -77,6 +78,13 @@ export default function RightSidebar(props: Props) {
       )}
       {isEnabled('loans') && !!contract.loansOfForeclosed?.length && (
         <LoanContractSection loanContracts={contract.loansOfForeclosed} />
+      )}
+      {isEnabled('forms') && !!contract.loansOfForeclosed?.length && (
+        <ContractsCustomFields
+          contract={contract}
+          collapseCallback={console.log}
+          isDetail
+        />
       )}
 
       <Box title={__('Other')} name="showOthers">

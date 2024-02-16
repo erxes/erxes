@@ -284,8 +284,8 @@ const postInfo = `
   }
  `;
 const responseTemplateList = `
-  query responseTemplates($perPage: Int, $searchValue: String) {
-    responseTemplates(perPage: $perPage, searchValue: $searchValue) {
+  query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId:String) {
+    responseTemplates(page:$page ,perPage: $perPage, searchValue: $searchValue, brandId: $brandId) {
       _id
       name
       brandId

@@ -1,13 +1,13 @@
 import { AssetEditMutationResponse, IAsset } from '../../../common/types';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
 import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';
 
 type Props = {
@@ -22,9 +22,10 @@ const CustomFieldSectionContainer = (props: Props) => {
     gql(fieldQueries.fieldsGroups),
     {
       variables: {
-        contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+        contentType: 'assets:asset',
         isDefinedByErxes: false,
       },
+      skip: !isEnabled('forms'),
     },
   );
 
@@ -45,7 +46,7 @@ const CustomFieldSectionContainer = (props: Props) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id: asset._id, ...data },
+      variables: { ...asset, ...data },
     })
       .then(() => {
         callback();
@@ -62,6 +63,7 @@ const CustomFieldSectionContainer = (props: Props) => {
     fieldsGroups:
       (fieldsGroupsQuery && fieldsGroupsQuery?.data?.fieldsGroups) || [],
     isDetail: true,
+    object: asset,
   };
 
   return <GenerateCustomFields {...updatedProps} />;

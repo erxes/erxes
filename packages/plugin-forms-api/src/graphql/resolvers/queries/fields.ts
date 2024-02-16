@@ -54,6 +54,7 @@ const fieldQueries = {
       { value: 'textarea', label: 'Text area' },
       { value: 'select', label: 'Select' },
       { value: 'multiSelect', label: 'Multiple select' },
+      { value: 'labelSelect', label: 'Label select' },
       { value: 'check', label: 'Checkbox' },
       { value: 'radio', label: 'Radio button' },
       { value: 'file', label: 'File' },
@@ -106,7 +107,6 @@ const fieldQueries = {
     { models }: IContext,
   ) {
     const query: IFieldsQuery = { contentType };
-    console.log('query', query);
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;

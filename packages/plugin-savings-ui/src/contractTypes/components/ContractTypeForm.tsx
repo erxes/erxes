@@ -2,20 +2,19 @@ import {
   Button,
   ControlLabel,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { __ } from 'coreui/utils';
-
 import { IContractType, IContractTypeDoc } from '../types';
+
 import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { __ } from 'coreui/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -24,38 +23,36 @@ type Props = {
   currentUser: IUser;
 };
 
-const ContractTypeForm = (props: Props) => {
-  const { contractType = {} as IContractType } = props;
+class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
+  constructor(props) {
+    super(props);
 
-  const [code, setCode] = useState(contractType.code);
-  const [name, setName] = useState(contractType.name);
-  const [description, setDescription] = useState(contractType.description);
-  const [status, setStatus] = useState(contractType.status);
-  const [number, setNumber] = useState(contractType.number);
-  const [vacancy, setVacancy] = useState(contractType.vacancy);
-  const [branchId, setBranchId] = useState(contractType.branchId);
-  const [interestCalcType, setInterestCalcType] = useState(
-    contractType.interestCalcType,
-  );
-  const [storeInterestInterval, setStoreInterestInterval] = useState(
-    contractType.storeInterestInterval,
-  );
-  const [isAllowIncome, setIsAllowIncome] = useState(
-    contractType.isAllowIncome,
-  );
-  const [isAllowOutcome, setIsAllowOutcome] = useState(
-    contractType.isAllowOutcome,
-  );
-  const [isDeposit, setIsDeposit] = useState(contractType.isDeposit);
-  const [interestRate, setInterestRate] = useState(contractType.interestRate);
-  const [closeInterestRate, setCloseInterestRate] = useState(
-    contractType.closeInterestRate,
-  );
-  const [currency, setCurrency] = useState(
-    contractType.currency || props.currentUser.configs?.dealCurrency[0],
-  );
+    const { contractType = {} } = props;
 
-  const generateDoc = (values: { _id: string } & IContractTypeDoc) => {
+    this.state = {
+      code: contractType.code,
+      name: contractType.name,
+      description: contractType.description,
+      status: contractType.status,
+      number: contractType.number,
+      vacancy: contractType.vacancy,
+      branchId: contractType.vacancy,
+      interestCalcType: contractType.interestCalcType,
+      storeInterestInterval: contractType.storeInterestInterval,
+      isAllowIncome: contractType.isAllowIncome,
+      isAllowOutcome: contractType.isAllowOutcome,
+      isDeposit: contractType.isDeposit,
+      interestRate: contractType.interestRate,
+      closeInterestRate: contractType.closeInterestRate,
+      currency:
+        contractType.currency ||
+        this.props.currentUser.configs?.dealCurrency[0],
+    };
+  }
+
+  generateDoc = (values: { _id: string } & IContractTypeDoc) => {
+    const { contractType } = this.props;
+
     const finalValues = values;
 
     if (contractType) {
@@ -64,15 +61,16 @@ const ContractTypeForm = (props: Props) => {
 
     return {
       _id: finalValues._id,
+      ...this.state,
       code: finalValues.code,
       name: finalValues.name,
       number: finalValues.number,
       vacancy: Number(finalValues.vacancy),
-      isAllowIncome,
-      isAllowOutcome,
-      isDeposit,
-      interestCalcType,
-      storeInterestInterval,
+      isAllowIncome: this.state.isAllowIncome,
+      isAllowOutcome: this.state.isAllowOutcome,
+      isDeposit: this.state.isDeposit,
+      interestCalcType: this.state.interestCalcType,
+      storeInterestInterval: this.state.storeInterestInterval,
       description: finalValues.description,
       currency: finalValues.currency,
       interestRate: Number(finalValues.interestRate),
@@ -82,7 +80,7 @@ const ContractTypeForm = (props: Props) => {
     } as IContractTypeDoc;
   };
 
-  const renderFormGroup = (label, props) => {
+  renderFormGroup = (label, props) => {
     if (props.type === 'checkbox')
       return (
         <FormGroup>
@@ -98,35 +96,19 @@ const ContractTypeForm = (props: Props) => {
     );
   };
 
-  const onChangeField = (e) => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value =
       e.target.type === 'checkbox'
         ? (e.target as HTMLInputElement).checked
         : (e.target as HTMLInputElement).value;
-    const setHandler =
-      name === 'currency'
-        ? setCurrency
-        : name === 'storeInterestInterval'
-          ? setStoreInterestInterval
-          : name === 'interestCalcType'
-            ? setInterestCalcType
-            : name === 'interestRate'
-              ? setInterestRate
-              : name === 'closeInterestRate'
-                ? setCloseInterestRate
-                : name === 'isAllowIncome'
-                  ? setIsAllowIncome
-                  : name === 'isDeposit'
-                    ? setIsDeposit
-                    : setIsAllowOutcome;
 
-    setHandler(value as any);
+    this.setState({ [name]: value } as any);
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const contractType = props.contractType || ({} as IContractType);
-    const { closeModal, renderButton } = props;
+  renderContent = (formProps: IFormProps) => {
+    const contractType = this.props.contractType || ({} as IContractType);
+    const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     return (
@@ -134,25 +116,25 @@ const ContractTypeForm = (props: Props) => {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderFormGroup('Code', {
+              {this.renderFormGroup('Code', {
                 ...formProps,
                 name: 'code',
                 required: true,
                 defaultValue: contractType.code || '',
               })}
-              {renderFormGroup('Name', {
+              {this.renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 required: true,
                 defaultValue: contractType.name || '',
               })}
-              {renderFormGroup('Start Number', {
+              {this.renderFormGroup('Start Number', {
                 ...formProps,
                 name: 'number',
                 required: true,
                 defaultValue: contractType.number || '',
               })}
-              {renderFormGroup('After vacancy count', {
+              {this.renderFormGroup('After vacancy count', {
                 ...formProps,
                 name: 'vacancy',
                 required: true,
@@ -166,11 +148,11 @@ const ContractTypeForm = (props: Props) => {
                   {...formProps}
                   name="currency"
                   componentClass="select"
-                  value={currency}
+                  value={this.state.currency}
                   required={true}
-                  onChange={onChangeField}
+                  onChange={this.onChangeField}
                 >
-                  {props.currentUser.configs?.dealCurrency?.map(
+                  {this.props.currentUser.configs?.dealCurrency?.map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {typeName}
@@ -182,26 +164,6 @@ const ContractTypeForm = (props: Props) => {
             </FormColumn>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Store interest interval')}:</ControlLabel>
-
-                <FormControl
-                  {...props}
-                  name="storeInterestInterval"
-                  componentClass="select"
-                  value={storeInterestInterval}
-                  required={true}
-                  onChange={onChangeField}
-                >
-                  {['daily', 'montly', 'endOfMonth', 'endOfContract'].map(
-                    (typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {__(typeName)}
-                      </option>
-                    ),
-                  )}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
                 <ControlLabel required={true}>
                   {__('Interest calc type')}
                 </ControlLabel>
@@ -209,11 +171,12 @@ const ContractTypeForm = (props: Props) => {
                   {...formProps}
                   name="interestCalcType"
                   componentClass="select"
-                  value={interestCalcType}
+                  value={this.state.interestCalcType}
                   required={true}
-                  onChange={onChangeField}
+                  onChange={this.onChangeField}
                 >
                   {[
+                    'Өдөр бүр /ХХОАТ суутгана/',
                     'Сар бүр /ХХОАТ суутгана/',
                     'Хугацааны эцэст /ХХОАТ суутгана/',
                   ].map((typeName, index) => (
@@ -223,57 +186,57 @@ const ContractTypeForm = (props: Props) => {
                   ))}
                 </FormControl>
               </FormGroup>
-              {renderFormGroup('Interest Rate', {
+              {this.renderFormGroup('Interest Rate', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'number',
                 useNumberFormat: true,
                 name: 'interestRate',
-                value: interestRate,
-                onChange: onChangeField,
+                value: this.state.interestRate,
+                onChange: this.onChangeField,
               })}
-              {renderFormGroup('Close Interest Rate', {
+              {this.renderFormGroup('Close Interest Rate', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'number',
                 useNumberFormat: true,
                 name: 'closeInterestRate',
-                value: closeInterestRate,
-                onChange: onChangeField,
+                value: this.state.closeInterestRate,
+                onChange: this.onChangeField,
               })}
-              {renderFormGroup('Is allow income', {
+              {this.renderFormGroup('Is allow income', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'checkbox',
                 componentClass: 'checkbox',
                 name: 'isAllowIncome',
-                checked: isAllowIncome,
-                onChange: onChangeField,
+                checked: this.state.isAllowIncome,
+                onChange: this.onChangeField,
               })}
-              {renderFormGroup('Is Deposit', {
+              {this.renderFormGroup('Is Deposit', {
                 ...formProps,
                 className: 'flex-item',
                 type: 'checkbox',
                 componentClass: 'checkbox',
                 name: 'isDeposit',
-                checked: isDeposit,
-                onChange: onChangeField,
+                checked: this.state.isDeposit,
+                onChange: this.onChangeField,
               })}
-              {isDeposit &&
-                renderFormGroup('Is allow outcome', {
+              {this.state.isDeposit &&
+                this.renderFormGroup('Is allow outcome', {
                   ...formProps,
                   className: 'flex-item',
                   type: 'checkbox',
                   componentClass: 'checkbox',
                   name: 'isAllowOutcome',
-                  checked: isAllowOutcome,
-                  onChange: onChangeField,
+                  checked: this.state.isAllowOutcome,
+                  onChange: this.onChangeField,
                 })}
             </FormColumn>
           </FormWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderFormGroup('Description', {
+              {this.renderFormGroup('Description', {
                 ...formProps,
                 name: 'description',
                 max: 140,
@@ -291,16 +254,18 @@ const ContractTypeForm = (props: Props) => {
 
           {renderButton({
             name: 'contractType',
-            values: generateDoc(values),
+            values: this.generateDoc(values),
             isSubmitted,
-            object: props.contractType,
+            object: this.props.contractType,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  return <Form renderContent={renderContent} />;
-};
+  render() {
+    return <Form renderContent={this.renderContent} />;
+  }
+}
 
 export default ContractTypeForm;

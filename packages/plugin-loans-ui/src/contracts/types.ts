@@ -101,6 +101,7 @@ export interface IContract {
   useManualNumbering?: any;
   useFee?: any;
   savingContractId?: any;
+  customFieldsData?: any;
 }
 
 export interface IContractGql {

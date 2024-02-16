@@ -40,6 +40,9 @@ const facebookMutations = {
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.Bots.removeBot(_id);
   },
+  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
+  },
   async facebookChangeCommentStatus(
     _root,
     params: ICommentStatusParams,

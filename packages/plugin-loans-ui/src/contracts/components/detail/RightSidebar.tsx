@@ -1,4 +1,6 @@
 import Box from '@erxes/ui/src/components/Box';
+import ContractsCustomFields from '../list/ContractsCustomFields';
+import DealSection from './DealSection';
 import { IContract } from '../../types';
 import { List } from '../../styles';
 import React from 'react';
@@ -7,7 +9,6 @@ import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import DealSection from './DealSection';
 
 const CompanySection = asyncComponent(
   () =>
@@ -72,6 +73,13 @@ export default function RightSidebar(props: Props) {
 
           <DealSection contract={contract} />
         </>
+      )}
+      {isEnabled('forms') && (
+        <ContractsCustomFields
+          contract={contract}
+          collapseCallback={console.log}
+          isDetail
+        />
       )}
 
       <Box title={__('Other')} name="showOthers">

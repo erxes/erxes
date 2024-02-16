@@ -2,19 +2,17 @@ import { CONTRACT_STATUS } from './definitions/constants';
 import {
   contractSchema,
   ICloseVariable,
-  IContract
+  IContract,
 } from './definitions/contracts';
-import { getCloseInfo } from './utils/closeUtils';
 import { addMonths, getFullDate, getNumber } from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
-import { ITransaction } from './definitions/transactions';
 
 export interface IContractModel extends Model<IContractDocument> {
   getContract(
-    selector: FilterQuery<IContractDocument>
+    selector: FilterQuery<IContractDocument>,
   ): Promise<IContractDocument>;
   createContract(doc: IContract): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
@@ -26,7 +24,7 @@ export interface IContractModel extends Model<IContractDocument> {
     contractId,
     stoppedDate,
     interestAmount,
-    lossAmount
+    lossAmount,
   }: {
     contractId: string;
     stoppedDate: Date;
@@ -36,7 +34,7 @@ export interface IContractModel extends Model<IContractDocument> {
   interestReturn({
     contractId,
     invDate,
-    interestAmount
+    interestAmount,
   }: {
     contractId: string;
     invDate: Date;
@@ -51,7 +49,7 @@ export const loadContractClass = (models: IModels) => {
      */
 
     public static async getContract(
-      selector: FilterQuery<IContractDocument>
+      selector: FilterQuery<IContractDocument>,
     ): Promise<IContractDocument> {
       const contract = await models.Contracts.findOne(selector);
 
@@ -66,7 +64,7 @@ export const loadContractClass = (models: IModels) => {
      * Create a contract
      */
     public static async createContract(
-      doc: IContract
+      doc: IContract,
     ): Promise<IContractDocument> {
       doc.status = CONTRACT_STATUS.NORMAL;
       doc.startDate = getFullDate(doc.startDate || new Date());
@@ -84,10 +82,10 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async updateContract(
       _id,
-      doc: IContract
+      doc: IContract,
     ): Promise<IContractDocument | null> {
       const oldContract = await models.Contracts.getContract({
-        _id
+        _id,
       });
 
       if (oldContract.contractTypeId !== doc.contractTypeId) {
@@ -109,11 +107,11 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async closeContract(subdomain, doc: ICloseVariable) {
       const contract = await models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
       await models.Contracts.updateOne(
         { _id: contract._id },
-        { $set: { status: CONTRACT_STATUS.CLOSED } }
+        { $set: { status: CONTRACT_STATUS.CLOSED } },
       );
       return contract;
     }
@@ -123,7 +121,7 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async removeContracts(_ids) {
       const transactions = await models.Transactions.count({
-        contractId: _ids
+        contractId: _ids,
       });
       if (transactions > 0)
         throw new Error('You can not delete contract with transaction');
@@ -139,7 +137,7 @@ export const loadContractClass = (models: IModels) => {
 
         await models.Contracts.updateOne(
           { _id: contract._id },
-          { $set: { endDate: endDate, contractTypeId } }
+          { $set: { endDate: endDate, contractTypeId } },
         );
       }
 
@@ -148,7 +146,7 @@ export const loadContractClass = (models: IModels) => {
 
     public static async interestChange({
       contractId,
-      interestAmount
+      interestAmount,
     }: {
       contractId: string;
       stoppedDate: Date;
@@ -160,13 +158,13 @@ export const loadContractClass = (models: IModels) => {
 
       await models.Contracts.updateOne(
         {
-          _id: contractId
+          _id: contractId,
         },
         {
           $inc: {
-            storedInterest: interestAmount
-          }
-        }
+            storedInterest: interestAmount,
+          },
+        },
       ).lean();
 
       return contract;
@@ -174,7 +172,7 @@ export const loadContractClass = (models: IModels) => {
 
     public static async interestReturn({
       contractId,
-      interestAmount
+      interestAmount,
     }: {
       contractId: string;
       invDate: Date;
@@ -184,13 +182,13 @@ export const loadContractClass = (models: IModels) => {
 
       await models.Contracts.updateOne(
         {
-          _id: contractId
+          _id: contractId,
         },
         {
           $inc: {
-            storedInterest: interestAmount * -1
-          }
-        }
+            storedInterest: interestAmount * -1,
+          },
+        },
       ).lean();
 
       return contract;

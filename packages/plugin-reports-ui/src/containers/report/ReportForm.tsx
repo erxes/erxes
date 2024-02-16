@@ -1,13 +1,13 @@
-import { gql } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
-import { queries } from '../../graphql';
-import { ReportTemplatesListQueryResponse } from '../../types';
 import ReportFormComponent from '../../components/report/ReportForm';
+import { ReportTemplatesListQueryResponse } from '../../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { queries } from '../../graphql';
 import { useQuery } from '@apollo/client';
 
 type Props = {
-  searchValue: string;
+  searchValue?: string;
   serviceName: string;
 
   history: any;

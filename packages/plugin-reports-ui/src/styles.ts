@@ -500,6 +500,10 @@ const MarginY = styledTS<{ margin: number }>(styled.div)`
   margin: ${(props) => props.margin}px 0;
 `;
 
+const MarginX = styledTS<{ margin: number }>(styled.span)`
+  margin: 0 ${(props) => props.margin}px;
+`;
+
 export {
   DragField,
   CenterBar,
@@ -527,4 +531,5 @@ export {
   FlexRow,
   DateName,
   MarginY,
+  MarginX,
 };

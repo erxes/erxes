@@ -1,25 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { COLLATERAL_TYPE, LEASE_TYPES } from '../constants';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
-
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { __ } from 'coreui/utils';
-
 import { IContractType, IContractTypeDoc } from '../types';
+import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ORGANIZATION_TYPE } from '../../constants';
-import { COLLATERAL_TYPE, LEASE_TYPES } from '../constants';
+import Select from 'react-select-plus';
+import { __ } from 'coreui/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -55,7 +54,7 @@ const ContractTypeForm = (props: Props) => {
     contractType.collateralType,
   );
   const [currency, setCurrency] = useState(
-    contractType.currency || props.currentUser.configs?.dealCurrency[0],
+    contractType.currency || props.currentUser.configs?.dealCurrency?.[0],
   );
   const [usePrePayment, setUsePrePayment] = useState(
     contractType.usePrePayment || false,

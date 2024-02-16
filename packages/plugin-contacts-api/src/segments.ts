@@ -50,8 +50,6 @@ export default {
         negativeQuery,
       });
 
-      console.log({ mainTypeIds });
-
       ids = await sendCoreMessage({
         subdomain,
         action: 'conformities.filterConformity',
@@ -62,8 +60,6 @@ export default {
         },
         isRPC: true,
       });
-
-      // console.log({ids})
 
       return successMessage(ids);
     }

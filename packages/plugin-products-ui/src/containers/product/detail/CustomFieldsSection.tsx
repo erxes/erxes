@@ -1,4 +1,5 @@
 import { EditMutationResponse, IProduct } from '../../../types';
+import { useMutation, useQuery } from '@apollo/client';
 
 import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
@@ -10,7 +11,6 @@ import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties
 import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../../graphql';
-import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   product: IProduct;
@@ -64,11 +64,11 @@ const CustomFieldsSection = (props: Props) => {
   const updatedProps = {
     save,
     loading,
+    object: product,
     customFieldsData: product.customFieldsData,
     fieldsGroups:
       (fieldsGroupsQuery.data && fieldsGroupsQuery.data.fieldsGroups) || [],
     isDetail: true,
-    collapseCallback: () => {},
   };
 
   return <GenerateCustomFields {...updatedProps} />;
