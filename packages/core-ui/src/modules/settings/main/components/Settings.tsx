@@ -12,6 +12,7 @@ import {
   RowTitle,
   Divider,
 } from '@erxes/ui-settings/src/main/styles';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 const permissionActions = [
@@ -87,7 +88,7 @@ class Settings extends React.PureComponent {
   }
 
   render() {
-    const { VERSION } = getEnv();
+    const { VERSION } = getVersion();
     const content = (
       <MenusContainer id={'SettingsMain'}>
         <Row>

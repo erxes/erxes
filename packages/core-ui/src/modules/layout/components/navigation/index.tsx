@@ -1,5 +1,5 @@
 import { BottomMenu, FlexBox, LeftNavigation, NavImage } from '../../styles';
-import { __, getEnv, readFile } from 'modules/common/utils';
+import { __, readFile } from 'modules/common/utils';
 
 import { NavLink } from 'react-router-dom';
 import NavigationGoto from './NavigationGoto';
@@ -7,7 +7,7 @@ import NavigationItem from './NavigationItem';
 import NavigationList from './NavigationList';
 import NavigationToggler from './NavigationToggler';
 import React from 'react';
-import { getThemeItem } from '@erxes/ui/src/utils/core';
+import { getThemeItem, getVersion } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;
@@ -17,7 +17,7 @@ type Props = {
 export default class Navigation extends React.Component<Props> {
   render() {
     const { navCollapse, onClickHandleIcon } = this.props;
-    const { VERSION } = getEnv();
+    const { VERSION } = getVersion();
 
     const generateLogoSource = (): string => {
       const logo =

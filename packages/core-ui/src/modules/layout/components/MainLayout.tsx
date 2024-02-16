@@ -9,6 +9,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import { bustIframe, getEnv } from 'modules/common/utils';
 import dayjs from 'dayjs';
 import { withRouter } from 'react-router-dom';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 const MainBar = asyncComponent(
   () =>
@@ -47,7 +48,7 @@ class MainLayout extends React.Component<IProps, State> {
 
     // if (currentUser && process.env.NODE_ENV === 'production') {
     if (currentUser) {
-      const { VERSION } = getEnv();
+      const { VERSION } = getVersion();
 
       const { currentOrganization } = currentUser;
 

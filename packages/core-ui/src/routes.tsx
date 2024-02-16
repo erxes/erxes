@@ -13,6 +13,7 @@ import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import OnboardingRoutes from './modules/saas/onBoarding/routes';
 import AccountSuspended from 'modules/saas/limit/AccountSuspend';
 import { getEnv } from 'modules/common/utils';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 const MainLayout = asyncComponent(
   () =>
@@ -61,7 +62,7 @@ const renderRoutes = (currentUser) => {
     sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
-  const { VERSION } = getEnv();
+  const { VERSION } = getVersion();
 
   if (currentUser) {
     if (VERSION && VERSION === 'saas') {

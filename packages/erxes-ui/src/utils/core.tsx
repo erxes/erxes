@@ -628,8 +628,28 @@ export const bustIframe = () => {
 };
 
 export const getSubdomain = () => {
-  const env = (window as any).erxesEnv;
-  return env.subdomain;
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
+};
+
+export const getVersion = () => {
+  const env = (window as any).env || {};
+  const envMaps = (window as any).envMaps || [];
+  const envMapsDic = {};
+
+  for (const map of envMaps) {
+    envMapsDic[map.name] = map.processValue;
+  }
+
+  const getItem = (name) => env[name] || envMapsDic[name] || '';
+
+  const VERSION = getItem('REACT_APP_VERSION');
+
+  const result = {
+    VERSION,
+  };
+
+  return result;
 };
 
 // get env config from process.env or window.env
@@ -658,13 +678,13 @@ export const getEnv = () => {
 
   const domainFormat = getItem('REACT_APP_DOMAIN_FORMAT') || '';
   const subdomain = getSubdomain();
-  const API_URL = `${domainFormat.replace('<subdomain>', 'client2')}`;
+  const API_URL = `${domainFormat.replace('<subdomain>', subdomain)}`;
   const API_SUBSCRIPTION_URL = `${domainFormat
-    .replace('<subdomain>', 'client2')
+    .replace('<subdomain>', subdomain)
     .replace('http', 'ws')}/graphql`;
   const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
     '<subdomain>',
-    'client2',
+    subdomain,
   )}`;
 
   const result = {
@@ -680,7 +700,7 @@ export const getEnv = () => {
     REACT_APP_CDN_HOST: CDN_HOST,
     REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
       '<subdomain>',
-      'client2',
+      subdomain,
     )}`,
   };
 

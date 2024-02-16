@@ -14,6 +14,7 @@ import React from 'react';
 import Spinner from 'modules/common/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
@@ -24,7 +25,7 @@ type FinalProps = {
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery, constantsQuery } = this.props;
-    const { VERSION } = getEnv();
+    const { VERSION } = getVersion();
 
     if (configsQuery.loading) {
       return <Spinner />;

@@ -1,6 +1,6 @@
-import { getEnv } from '../utils';
+import { getVersion } from '../utils/core';
 
-const { VERSION } = getEnv();
+const { VERSION } = getVersion();
 
 export const currentUser = `
   query currentUser {

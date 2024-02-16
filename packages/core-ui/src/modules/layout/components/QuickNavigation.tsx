@@ -17,6 +17,7 @@ import { pluginsOfTopNavigations } from 'pluginUtils';
 import { SubMenu } from 'modules/saas/navigation/styles';
 import Organizations from 'modules/saas/navigation/Organizations';
 import Usage from 'modules/saas/settings/plans/components/Usage';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 const Signature = asyncComponent(
   () =>
@@ -90,14 +91,14 @@ const QuickNavigation = ({
   showBrands,
   selectedBrands,
   onChangeBrands,
-  version,
+  release,
 }: {
   logout: () => void;
   currentUser: IUser;
   showBrands: boolean;
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
-  version: string;
+  release: string;
 }) => {
   const passContent = (props) => <ChangePassword {...props} />;
   const signatureContent = (props) => <Signature {...props} />;
@@ -123,7 +124,8 @@ const QuickNavigation = ({
     );
   }
 
-  const { CORE_URL, VERSION } = getEnv();
+  const { CORE_URL } = getEnv();
+  const { VERSION } = getVersion();
 
   return (
     <nav id={'SettingsNav'}>
@@ -216,9 +218,9 @@ const QuickNavigation = ({
             ) : null}
 
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
-            {version ? (
+            {release ? (
               <Version>
-                <span>version</span> <span>{version}</span>
+                <span>version</span> <span>{release}</span>
               </Version>
             ) : null}
           </Dropdown.Menu>

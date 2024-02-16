@@ -11,7 +11,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { getEnv, readFile } from 'modules/common/utils';
 import { ApolloProvider } from '@apollo/client';
-import { getThemeItem } from '@erxes/ui/src/utils/core';
+import { getThemeItem, getVersion } from '@erxes/ui/src/utils/core';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -19,7 +19,7 @@ dayjs.extend(utc, { parseLocal: true });
 
 const target = document.querySelector('#root');
 
-const { VERSION } = getEnv();
+const { VERSION } = getVersion();
 
 if (VERSION && VERSION === 'saas') {
   const wenv = (window as any).env || {};
@@ -59,6 +59,8 @@ if (VERSION && VERSION === 'saas') {
         );
       }
     }
+
+    console.log('112312');
 
     const subdomain = response.subdomain;
 
