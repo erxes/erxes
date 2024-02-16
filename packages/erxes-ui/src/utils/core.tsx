@@ -658,13 +658,13 @@ export const getEnv = () => {
 
   const domainFormat = getItem('REACT_APP_DOMAIN_FORMAT') || '';
   const subdomain = getSubdomain();
-  const API_URL = `${domainFormat.replace('<subdomain>', subdomain)}`;
+  const API_URL = `${domainFormat.replace('<subdomain>', 'client2')}`;
   const API_SUBSCRIPTION_URL = `${domainFormat
-    .replace('<subdomain>', subdomain)
+    .replace('<subdomain>', 'client2')
     .replace('http', 'ws')}/graphql`;
   const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
     '<subdomain>',
-    subdomain,
+    'client2',
   )}`;
 
   const result = {
@@ -680,7 +680,7 @@ export const getEnv = () => {
     REACT_APP_CDN_HOST: CDN_HOST,
     REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
       '<subdomain>',
-      subdomain,
+      'client2',
     )}`,
   };
 
