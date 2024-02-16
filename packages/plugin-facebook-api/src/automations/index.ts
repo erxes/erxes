@@ -143,8 +143,6 @@ export default {
       relatedValueProps,
     });
 
-    console.log({ content });
-
     return content;
   },
   checkCustomTrigger: async ({ subdomain, data }) => {
