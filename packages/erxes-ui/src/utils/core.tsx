@@ -628,7 +628,7 @@ export const bustIframe = () => {
 };
 
 export const getSubdomain = () => {
-  const env = (window as any).erxesEnv;
+  const env = ((window as any) || {}).erxesEnv;
   return env.subdomain;
 };
 
