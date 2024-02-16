@@ -210,7 +210,6 @@ function ReplyFbMessage({
     );
   };
   const renderInput = ({ _id, input }) => {
-    console.log('dsfsghg');
     const onChange = (name, value) => {
       handleChange(_id, 'input', { ...input, [name]: value });
     };

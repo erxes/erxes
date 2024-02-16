@@ -45,6 +45,12 @@ if (!MONGO_URL) {
     await mongoose.connect(MONGO_URL, connectionOptions);
   }
 
+  app.use((req, _res, next) => {
+    // this is important for security reasons
+    delete req.headers['user'];
+    next();
+  });
+
   app.use(cookieParser());
 
   app.use(userMiddleware);
