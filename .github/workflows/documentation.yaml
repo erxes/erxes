@@ -10,7 +10,7 @@ on:
   pull_request:
     branches:
       - erxes-docs-blog
-      - dev
+      - merge-xos
       - masterelop
       - master
     paths:
