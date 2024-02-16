@@ -1,5 +1,5 @@
 import { BottomMenu, FlexBox, LeftNavigation, NavImage } from '../../styles';
-import { __, readFile } from 'modules/common/utils';
+import { __, getEnv, readFile } from 'modules/common/utils';
 
 import { NavLink } from 'react-router-dom';
 import NavigationGoto from './NavigationGoto';
@@ -17,6 +17,7 @@ type Props = {
 export default class Navigation extends React.Component<Props> {
   render() {
     const { navCollapse, onClickHandleIcon } = this.props;
+    const { VERSION } = getEnv();
 
     const generateLogoSource = (): string => {
       const logo =
@@ -48,19 +49,22 @@ export default class Navigation extends React.Component<Props> {
         <NavigationList navCollapse={navCollapse} />
 
         <BottomMenu>
-          <NavigationItem
-            plugin={{
-              text: 'Marketplace',
-              url: '/marketplace',
-              icon: 'icon-store'
-            }}
-            navCollapse={navCollapse}
-          />
+          {!VERSION || VERSION !== 'saas' ? (
+            <NavigationItem
+              plugin={{
+                text: 'Marketplace',
+                url: '/marketplace',
+                icon: 'icon-store',
+              }}
+              navCollapse={navCollapse}
+            />
+          ) : null}
+
           <NavigationItem
             plugin={{
               text: 'Settings',
               url: '/settings',
-              icon: 'icon-settings'
+              icon: 'icon-settings',
             }}
             navCollapse={navCollapse}
           />
