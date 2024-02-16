@@ -628,9 +628,8 @@ export const bustIframe = () => {
 };
 
 export const getSubdomain = () => {
-  const env = (window as any).erxesEnv || {};
-  console.log(env, 'env');
-  return env.subdomain || 'localhost';
+  const env = (window as any).erxesEnv;
+  return env.subdomain;
 };
 
 // get env config from process.env or window.env
@@ -658,7 +657,6 @@ export const getEnv = () => {
   }
 
   const domainFormat = getItem('REACT_APP_DOMAIN_FORMAT') || '';
-
   const subdomain = getSubdomain();
   const API_URL = `${domainFormat.replace('<subdomain>', subdomain)}`;
   const API_SUBSCRIPTION_URL = `${domainFormat
