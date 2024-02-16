@@ -5,6 +5,7 @@ import { ExternalLinkIcon, XCircle } from "lucide-react"
 import { readFile } from "@/lib/utils"
 
 import { AttachmentWithPreview } from "./AttachmentWithPreview"
+import { ImageGrid } from "./ImageGrid"
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "./ui/dialog"
 import Image from "./ui/image"
 
@@ -116,51 +117,10 @@ export const FilePreview = ({
         <>
           <Dialog>
             <DialogTrigger asChild={true}>
-              <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative gap-3">
-                {attachments.map((image, index) => {
-                  const length = attachments.length
-                  let width
-                  if (length === 1 || length === 2) {
-                    width = "w-full"
-                  }
-                  if (length === 3) {
-                    if (index === 2) {
-                      width = "w-full"
-                    } else {
-                      width = "flex-1 w-1/2"
-                    }
-                  }
-                  if (length === 4 || length > 4) {
-                    width = "w-[calc(50%-4px)]"
-                  }
-
-                  if (index > 3) {
-                    return null
-                  }
-
-                  return (
-                    <Image
-                      key={index}
-                      alt="image"
-                      src={image.url || ""}
-                      width={500}
-                      height={500}
-                      className={`overflow-hidden rounded-[6px] object-cover cursor-pointer ${width} ${
-                        length !== 1 ? "h-[227px]" : "h-full"
-                      }`}
-                      onClick={() => setGridImageIndex(index)}
-                    />
-                  )
-                })}
-                {attachments.length > 4 && (
-                  <div
-                    className="text-white bg-black/50 w-[calc(50%-4px)] h-[227px] absolute bottom-0 right-0 rounded-[6px] flex items-center justify-center text-[30px] cursor-pointer"
-                    onClick={() => setGridImageIndex(3)}
-                  >
-                    + {attachments.length - 4}
-                  </div>
-                )}
-              </div>
+              <ImageGrid
+                attachments={attachments}
+                onClickHandler={setGridImageIndex}
+              />
             </DialogTrigger>
 
             {renderImageForm()}
