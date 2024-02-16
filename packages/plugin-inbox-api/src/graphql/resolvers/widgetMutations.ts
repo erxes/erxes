@@ -679,6 +679,13 @@ const widgetMutations = {
       }
     }
 
+    if (!integration.isConnected) {
+      await models.Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { isConnected: true } },
+      );
+    }
+
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,

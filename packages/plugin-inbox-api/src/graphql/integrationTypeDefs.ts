@@ -34,6 +34,7 @@ export const types = ({ products, tags, forms }) => `
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
+    isConnected: Boolean
     webhookData: JSON
 
     brand: Brand
