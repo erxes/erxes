@@ -12,7 +12,7 @@ import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import OnboardingRoutes from './modules/saas/onBoarding/routes';
 import AccountSuspended from 'modules/saas/limit/AccountSuspend';
-import { getEnv } from 'modules/common/utils';
+
 import { getVersion } from '@erxes/ui/src/utils/core';
 
 const MainLayout = asyncComponent(
