@@ -62,7 +62,7 @@ jobs:
           aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
 
       - name: Deploy Core UI
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/merge-xos')
         run: |
           tar -czf build.tar --directory=packages/core-ui/dist .
           cp build.tar packages/core-ui/dist
