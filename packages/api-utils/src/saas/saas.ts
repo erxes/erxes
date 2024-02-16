@@ -114,6 +114,16 @@ export const getOrgsCache = async ({
   return organizations;
 };
 
+export const getOrganizations = async (email?: string) => {
+  await getCoreConnection();
+
+  if (email) {
+    return coreModelOrganizations.find({ ownerEmail: email });
+  }
+
+  return coreModelOrganizations.find({});
+};
+
 export const getOrganizationDetail = async ({
   subdomain,
 }: {
