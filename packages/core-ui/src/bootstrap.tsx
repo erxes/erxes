@@ -60,8 +60,6 @@ if (VERSION && VERSION === 'saas') {
       }
     }
 
-    console.log('112312');
-
     const subdomain = response.subdomain;
 
     (window as any).erxesEnv = { subdomain };

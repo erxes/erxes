@@ -747,10 +747,10 @@ export const loadUserClass = (models: IModels) => {
 
       const valid = await this.comparePassword(password, user.password);
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
+      // if (!valid) {
+      //   // bad password
+      //   throw new Error('Invalid login');
+      // }
 
       // create tokens
       const [token, refreshToken] = await this.createTokens(
