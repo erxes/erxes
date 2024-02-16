@@ -5,7 +5,7 @@ import { generatePronoun } from './importUtils';
 import {
   sendCoreMessage,
   sendFormsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 
 export default {
@@ -41,20 +41,22 @@ export default {
 
           doc.state = contentType;
 
-          const { profileScore, searchText } = await models.Customers.calcPSS(
-            doc
-          );
+          const { profileScore, searchText } =
+            await models.Customers.calcPSS(doc);
 
           doc.profileScore = profileScore;
           doc.searchText = searchText;
           doc.createdAt = new Date();
           doc.modifiedAt = new Date();
 
-          if (doc.primaryEmail || doc.code) {
+          if (doc.primaryEmail || doc.primaryPhone || doc.code) {
             const query = { $or: [] } as any;
 
             if (doc.primaryEmail) {
               query.$or.push({ primaryEmail: doc.primaryEmail });
+            }
+            if (doc.primaryPhone) {
+              query.$or.push({ primaryPhone: doc.primaryPhone });
             }
             if (doc.code) {
               query.$or.push({ code: doc.code });
@@ -69,7 +71,7 @@ export default {
 
               const updatedCustomer = await models.Customers.updateOne(
                 { _id: previousCustomer._id },
-                { $set: { ...doc } }
+                { $set: { ...doc } },
               );
 
               updateDocs.push(updatedCustomer);
@@ -98,13 +100,13 @@ export default {
 
           if (doc.primaryEmail) {
             const previousCompany = await models.Companies.findOne({
-              $or: [{ primaryEmail: doc.primaryEmail }]
+              $or: [{ primaryEmail: doc.primaryEmail }],
             });
 
             if (previousCompany) {
               await models.Companies.updateOne(
                 { _id: previousCompany._id },
-                { $set: { ...doc } }
+                { $set: { ...doc } },
               );
 
               updated++;
@@ -137,7 +139,7 @@ export default {
     for (const fieldValue of result) {
       const doc: any = {
         scopeBrandIds,
-        customFieldsData: []
+        customFieldsData: [],
       };
 
       let colIndex: number = 0;
@@ -158,7 +160,7 @@ export default {
             {
               doc.customFieldsData.push({
                 field: property.id,
-                value: fieldValue[colIndex]
+                value: fieldValue[colIndex],
               });
 
               doc.customFieldsData = await sendFormsMessage({
@@ -167,7 +169,7 @@ export default {
                 data: doc.customFieldsData,
                 isRPC: true,
                 defaultValue: doc.customFieldsData,
-                timeout: 60 * 1000 // 1 minute
+                timeout: 60 * 1000, // 1 minute
               });
             }
             break;
@@ -186,9 +188,9 @@ export default {
                 subdomain,
                 action: 'users.findOne',
                 data: {
-                  email: userEmail
+                  email: userEmail,
                 },
-                isRPC: true
+                isRPC: true,
               });
 
               doc.ownerId = owner ? owner._id : '';
@@ -231,7 +233,7 @@ export default {
                 subdomain,
                 action: 'findOne',
                 data: { name: tagName, type: `contacts:${type}` },
-                isRPC: true
+                isRPC: true,
               });
 
               if (!tag) {
@@ -239,7 +241,7 @@ export default {
                   subdomain,
                   action: 'createTag',
                   data: { name: tagName, type: `contacts:${type}` },
-                  isRPC: true
+                  isRPC: true,
                 });
               }
 
@@ -254,9 +256,9 @@ export default {
                 subdomain,
                 action: 'users.findOne',
                 data: {
-                  email: value
+                  email: value,
                 },
-                isRPC: true
+                isRPC: true,
               });
 
               doc.assignedUserIds = assignedUser ? [assignedUser._id] : [];
@@ -330,7 +332,7 @@ export default {
     }
 
     return bulkDoc;
-  }
+  },
 };
 
 // tslint:disable-next-line

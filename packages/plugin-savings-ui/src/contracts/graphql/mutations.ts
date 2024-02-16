@@ -25,6 +25,7 @@ const commonFields = `
   $isAllowIncome: Boolean
   $isAllowOutcome: Boolean
   $isDeposit: Boolean
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -52,6 +53,7 @@ const commonVariables = `
   isAllowIncome:$isAllowIncome,
   isAllowOutcome:$isAllowOutcome,
   isDeposit:$isDeposit,
+  customFieldsData:$customFieldsData
 `;
 
 const contractsAdd = `
@@ -179,5 +181,5 @@ export default {
   stopInterest,
   interestChange,
   interestReturn,
-  expandContract
+  expandContract,
 };

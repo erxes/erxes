@@ -629,7 +629,7 @@ export const generateNestedQuery = (
   );
   updatedQuery = JSON.parse(updatedQuery);
 
-  return {
+  const er = {
     nested: {
       path: kind,
       query: {
@@ -646,6 +646,8 @@ export const generateNestedQuery = (
       },
     },
   };
+
+  return er;
 };
 
 export function elkConvertConditionToQuery(args: {

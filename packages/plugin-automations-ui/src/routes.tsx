@@ -3,15 +3,48 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Details = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "AutomationDetails" */ './containers/forms/EditAutomation'
-  )
+const GeneralSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Automation General Settings" */ './settings/general/containers'
+    ),
 );
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "AutomationsList" */ './containers/List')
+const BotsSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Automation Bots Settings" */ './settings/bots/containers'
+    ),
 );
+
+const Details = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "AutomationDetails" */ './containers/forms/EditAutomation'
+    ),
+);
+
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "AutomationsList" */ './containers/List'),
+);
+
+const generalSettings = ({ location, history }) => {
+  return (
+    <GeneralSettings
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const botsSettings = ({ location, history }) => {
+  return (
+    <BotsSettings
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
 
 const details = ({ match, location }) => {
   const id = match.params.id;
@@ -29,6 +62,13 @@ const list = ({ location }) => {
 const routes = () => {
   return (
     <>
+      <Route
+        path="/settings/automations/general"
+        component={generalSettings}
+        exact
+      />
+      <Route path="/settings/automations/bots" component={botsSettings} exact />
+
       <Route
         key="/automations/details/:id"
         exact={true}

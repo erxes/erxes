@@ -3,14 +3,16 @@ import { field } from './utils';
 
 interface IPersistentMenus {
   _id: number;
-  title: string;
+  text: string;
   type: string;
-  url?: string;
+  link?: string;
 }
 export interface IBot {
   name: string;
   accountId: string;
+  uid: string;
   pageId: string;
+  token: string;
   status: string;
   persistentMenus: IPersistentMenus[];
 }
@@ -21,16 +23,18 @@ export interface IBotDocument extends IBot, Document {
 
 const persistentMenuSchema = new Schema({
   _id: { type: Number },
-  title: { type: String },
+  text: { type: String },
   type: { type: String },
-  url: { type: String, optional: true }
+  link: { type: String, optional: true },
 });
 
 export const botSchema = new Schema({
   _id: field({ pkey: true }),
   name: { type: String },
   accountId: { type: String },
+  uid: { type: String },
   pageId: { type: String },
+  token: { type: String },
   persistentMenus: { type: [persistentMenuSchema] },
-  createdAt: { type: Date, default: Date.now() }
+  createdAt: { type: Date, default: Date.now() },
 });

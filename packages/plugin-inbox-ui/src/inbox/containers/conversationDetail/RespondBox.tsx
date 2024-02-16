@@ -1,21 +1,20 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
 
 import {
   AddMessageMutationVariables,
   IConversation,
 } from '@erxes/ui-inbox/src/inbox/types';
+import { gql, useLazyQuery } from '@apollo/client';
 import { readFile, withProps } from '@erxes/ui/src/utils';
 
 import { AppConsumer } from 'coreui/appContext';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-
+import React from 'react';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import debounce from 'lodash/debounce';
-import { gql, useLazyQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
@@ -129,18 +128,16 @@ const RespondBoxContainer = (props: FinalProps) => {
       callback,
     });
   };
-
   const refetchResponseTemplates = (content) => [
     responseTemplatesQuery.refetch({ searchValue: content }),
   ];
-
   const updatedProps = {
     ...props,
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
-    refetchResponseTemplates,
     mentionSuggestion: { getVariables, fetchMentions, extractFunction },
+    refetchResponseTemplates,
   };
 
   return <RespondBox {...updatedProps} />;

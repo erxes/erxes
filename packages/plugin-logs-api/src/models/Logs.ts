@@ -34,48 +34,55 @@ export const schema = new Schema({
     type: Date,
     label: 'Created date',
     index: true,
-    default: new Date()
+    default: new Date(),
   }),
   createdBy: field({ type: String, label: 'Performer of the action' }),
   type: field({
     type: String,
-    label: 'Service & module name which has been changed, i.e cards:deal'
+    label: 'Service & module name which has been changed, i.e cards:deal',
   }),
   action: field({
     type: String,
-    label: 'Action, one of (create|update|delete)'
+    label: 'Action, one of (create|update|delete)',
   }),
   ipAddress: field({ type: String, optional: true, label: 'IP address' }),
-  objectId: field({ type: String, label: 'Collection row id' }),
+  objectId: field({ type: String, index: true, label: 'Collection row id' }),
   unicode: field({ type: String, label: 'Performer username' }),
   description: field({
     type: String,
     label: 'Description',
+    index: true,
     optional: true,
-    default: ''
+    default: '',
   }),
   // restore db from these if disaster happens
   oldData: field({
     type: String,
     label: 'Data before changes',
-    optional: true
+    optional: true,
   }),
   newData: field({ type: String, label: 'Data to be changed', optional: true }),
   // processed data to show in front side
   addedData: field({
     type: String,
     label: 'Newly added fields',
-    optional: true
+    optional: true,
   }),
   unchangedData: field({
     type: String,
     label: 'Unchanged fields',
-    optional: true
+    optional: true,
   }),
   changedData: field({ type: String, label: 'Changed fields', optional: true }),
   removedData: field({ type: String, label: 'Removed fields', optional: true }),
-  extraDesc: field({ type: String, label: 'Extra description', optional: true })
+  extraDesc: field({
+    type: String,
+    label: 'Extra description',
+    optional: true,
+  }),
 });
+
+schema.index({ type: 1, action: 1, createdBy: 1 });
 
 export const loadLogClass = (models: IModels) => {
   class Log {

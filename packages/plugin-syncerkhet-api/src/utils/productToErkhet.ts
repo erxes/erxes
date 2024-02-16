@@ -1,9 +1,10 @@
 import { sendFormsMessage, sendProductsMessage } from '../messageBroker';
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
 
 export const productCategoryToErkhet = async (
   subdomain,
   models,
+  mainConfig,
   syncLog,
   params,
   action,
@@ -18,8 +19,6 @@ export const productCategoryToErkhet = async (
     isRPC: true,
   });
 
-  const config = await getConfig(subdomain, 'ERKHET', {});
-
   const sendData = {
     action,
     oldCode: oldProductCategory.code || productCategory.code || '',
@@ -30,12 +29,13 @@ export const productCategoryToErkhet = async (
     },
   };
 
-  toErkhet(models, syncLog, config, sendData, 'product-change');
+  toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
 };
 
 export const productToErkhet = async (
   subdomain,
   models,
+  mainConfig,
   syncLog,
   params,
   action,
@@ -79,8 +79,6 @@ export const productToErkhet = async (
     ratioMeasureUnit = subUom.ratio;
   }
 
-  const config = await getConfig(subdomain, 'ERKHET', {});
-
   const sendData = {
     action,
     oldCode: oldProduct.code || product.code || '',
@@ -92,15 +90,15 @@ export const productToErkhet = async (
       ratioMeasureUnit,
       barcodes: product.barcodes.join(','),
       unitPrice: product.unitPrice || 0,
-      costAccount: config.costAccount,
-      saleAccount: config.saleAccount,
+      costAccount: mainConfig.costAccount,
+      saleAccount: mainConfig.saleAccount,
       categoryCode: productCategory ? productCategory.code : '',
-      defaultCategory: config.productCategoryCode,
+      defaultCategory: mainConfig.productCategoryCode,
       weight,
       taxType: product.taxType,
       taxCode: product.taxCode,
     },
   };
 
-  toErkhet(models, syncLog, config, sendData, 'product-change');
+  toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
 };

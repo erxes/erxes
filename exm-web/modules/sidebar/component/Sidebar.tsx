@@ -52,6 +52,13 @@ export const Sidebar = () => {
               size={18}
               color={activeClass === active ? "#5B38CA" : "#667085"}
             />
+            {active === "chats" && unreadCount > 0 ? (
+              <div className="absolute top-2 right-2">
+                <span className="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                  {unreadCount}
+                </span>
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-col">
             <span
