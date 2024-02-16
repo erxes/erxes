@@ -6,6 +6,7 @@ import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 
 export const getEnv = ({
   name,
@@ -379,9 +380,9 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
-      // await getCoreConnection();
+      await getCoreConnection();
 
-      const organization = { _id: '312' };
+      const organization = await coreModelOrganizations.findOne({ subdomain });
 
       if (!organization) return models;
 

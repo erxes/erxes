@@ -51,10 +51,7 @@ class MainLayout extends React.Component<IProps, State> {
 
       const { currentOrganization } = currentUser;
 
-      console.log(currentOrganization);
-
       if (VERSION && VERSION === 'saas' && currentOrganization) {
-        console.log(currentOrganization, '123123');
         const details = currentUser.details || {};
         const links = currentUser.links || {};
 

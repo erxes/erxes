@@ -44,6 +44,7 @@ module.exports.devCmd = async program => {
     VERSION: configs.version || 'os',
     ALLOWED_ORIGINS: configs.allowed_origins,
     NODE_INSPECTOR: 'enabled',
+    CORE_MONGO_URL: 'mongodb://127.0.0.1/erxes_core',
     ...be_env,
   };
 

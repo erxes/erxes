@@ -38,6 +38,33 @@ export const types = `
     ${commonDetailFields}
   }
 
+  type CookieOrganization {
+    subdomain: String
+    name: String
+  }
+  
+  type Organization {
+    name: String
+    icon: String
+    subdomain: String
+    promoCodes: [String]
+    isPaid: Boolean
+    expiryDate: Date
+    plan: String
+    purchased: Int
+    isWhiteLabel: Boolean
+    setupService: JSON
+    onboardingDone: Boolean
+    contactRemaining: Boolean
+    experienceName: String
+    bundleNames: [String]
+  
+    charge: JSON
+    createdAt: Date
+    category: String
+  }
+
+
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     createdAt: Date
@@ -49,6 +76,10 @@ export const types = `
     status: String
     emailSignatures: JSON
     getNotificationByEmail: Boolean
+
+    currentOrganization: Organization
+    organizations: [CookieOrganization]
+    
     groupIds: [String]
     brandIds: [String]
     isSubscribed: String

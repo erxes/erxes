@@ -1,11 +1,21 @@
+import moment = require('moment');
+
 import {
   DEFAULT_CONSTANT_VALUES,
-  USER_ROLES
+  USER_ROLES,
 } from '@erxes/api-utils/src/constants';
 import { IContext } from '../../connectionResolver';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '@erxes/api-utils/src';
-import { getConfigs } from '../utils';
+import { getConfigs, getEnv } from '../utils';
+import {
+  coreModelExperiences,
+  getOrgPromoCodes,
+  getOrganizationDetail,
+  getPlugin,
+} from '@erxes/api-utils/src/saas/saas';
+import { calcUsage } from '@erxes/api-utils/src/saas/chargeUtils';
+import { getRelatedOrganizations } from '../../organizations';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -21,22 +31,111 @@ export default {
     return 'Verified';
   },
 
+  async currentOrganization(_user, _args, { subdomain, models }: IContext) {
+    const organization = await getOrganizationDetail({ subdomain, models });
+
+    let isPaid = false;
+
+    const { promoCodes, plan, expiryDate, charge = {} } = organization;
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (NODE_ENV !== 'production') {
+      const result = {
+        ...organization,
+        contactRemaining: 10000,
+        isPaid: true,
+      };
+
+      return result;
+    }
+
+    const contactPlugin =
+      (await getPlugin({
+        type: 'contacts',
+      })) || {};
+
+    const orgPromoCodes = await getOrgPromoCodes(organization);
+
+    contactPlugin.usage = await calcUsage({
+      subdomain,
+      pluginType: contactPlugin.type,
+      organization,
+      orgPromoCodes,
+    });
+
+    const remainingAmount = contactPlugin.usage.remainingAmount;
+
+    const experience = await coreModelExperiences.findOne({
+      _id: organization.experienceId,
+    });
+
+    let contactRemaining = remainingAmount <= 0 ? false : true;
+
+    if (experience) {
+      const expContactLimit = experience.pluginLimits
+        ? experience.pluginLimits[contactPlugin.type] || 0
+        : 0;
+
+      contactRemaining = expContactLimit === 0 ? true : contactRemaining;
+    }
+
+    if (promoCodes && promoCodes.length > 0) {
+      isPaid = true;
+    } else if (
+      plan === 'growth' &&
+      expiryDate &&
+      moment(expiryDate).isAfter(new Date())
+    ) {
+      isPaid = true;
+    } else {
+      for (const [key] of Object.entries(charge)) {
+        const chargeItem = charge[key];
+        if (
+          chargeItem.subscriptionId &&
+          moment(chargeItem.expiryDate).isAfter(new Date())
+        ) {
+          isPaid = true;
+
+          break;
+        }
+      }
+    }
+
+    const result = {
+      ...organization,
+      contactRemaining,
+      isPaid,
+    };
+
+    return result;
+  },
+
+  async organizations(_user, _args, { subdomain, models }) {
+    const organization = await getOrganizationDetail({ subdomain, models });
+
+    const orgs = await getRelatedOrganizations(organization.ownerId);
+
+    return orgs;
+  },
+
   async brands(user: IUserDocument, _args, { models }: IContext) {
     if (user.isOwner) {
       return models.Brands.find().lean();
     }
 
     return models.Brands.find({
-      _id: { $in: user.brandIds }
+      _id: { $in: user.brandIds },
     }).lean();
   },
 
   async permissionActions(
     user: IUserDocument,
     _args,
-    { subdomain, models: { Permissions } }: IContext
+    { subdomain, models: { Permissions } }: IContext,
   ) {
-    return getUserActionsMap(subdomain, user, query => Permissions.find(query));
+    return getUserActionsMap(subdomain, user, (query) =>
+      Permissions.find(query),
+    );
   },
 
   async configs(_user, _args, { models }: IContext) {
@@ -52,7 +151,7 @@ export default {
       const configValues = configs[key] || [];
       const constant = constants[key];
 
-      let values = constant.filter(c => configValues.includes(c.value));
+      let values = constant.filter((c) => configValues.includes(c.value));
 
       if (!values || values.length === 0) {
         values = DEFAULT_CONSTANT_VALUES[key];
@@ -60,7 +159,7 @@ export default {
 
       results.push({
         key,
-        values
+        values,
       });
     }
 
@@ -69,9 +168,9 @@ export default {
 
   async onboardingHistory(user: IUserDocument, _args, { models }: IContext) {
     const entries = await models.OnboardingHistories.find({
-      userId: user._id
+      userId: user._id,
     });
-    const completed = entries.find(item => item.isCompleted);
+    const completed = entries.find((item) => item.isCompleted);
 
     /**
      * When multiple entries are recorded, using findOne() gave wrong result.
@@ -96,8 +195,8 @@ export default {
     return (
       (await models.Users.find({
         score: { $gt: user.score || 0 },
-        role: { $ne: USER_ROLES.SYSTEM }
+        role: { $ne: USER_ROLES.SYSTEM },
       }).count()) + 1
     );
-  }
+  },
 };
