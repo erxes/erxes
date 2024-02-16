@@ -52,7 +52,7 @@ export interface IChart {
   filterIds: string[];
   defaultFilter: IChartFilter;
   serviceName?: string;
-
+  serviceType?: string;
   dimension: JSON;
 
   vizState: string;
@@ -120,6 +120,7 @@ export const chartSchema = new Schema({
   }),
   contentType: field({ type: String, label: 'Content type' }),
   serviceName: field({ type: String, label: 'Service name' }),
+  serviceType: field({ type: String, label: 'Service type' }),
   layout: field({ type: String, label: 'Report item - layout' }),
   vizState: field({ type: String }),
   templateType: field({
