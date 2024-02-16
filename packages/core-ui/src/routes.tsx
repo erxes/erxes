@@ -9,23 +9,36 @@ import WelcomeRoutes from './modules/welcome/routes';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import OnboardingRoutes from './modules/saas/onBoarding/routes';
+import AccountSuspended from 'modules/saas/limit/AccountSuspend';
+import { getEnv } from 'modules/common/utils';
 
-const MainLayout = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
-  )
+const MainLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
+    ),
 );
 
-const Unsubscribe = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
-  )
+const OnboardingLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "OnboardingLayout" */ 'modules/saas/onBoarding/container/OnboardingLayout'
+    ),
 );
 
-const UserConfirmation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
-  )
+const Unsubscribe = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
+    ),
+);
+
+const UserConfirmation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
+    ),
 );
 
 export const unsubscribe = ({ location }) => {
@@ -34,7 +47,7 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const renderRoutes = currentUser => {
+const renderRoutes = (currentUser) => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -48,6 +61,32 @@ const renderRoutes = currentUser => {
   }
 
   if (currentUser) {
+    const { VERSION } = getEnv();
+
+    if (VERSION && VERSION === 'saas') {
+      const currentOrganization = currentUser.currentOrganization;
+
+      if (currentOrganization) {
+        if (!currentOrganization.onboardingDone) {
+          return (
+            <OnboardingLayout>
+              <OnboardingRoutes currentUser={currentUser} />
+            </OnboardingLayout>
+          );
+        }
+
+        if (!currentOrganization.contactRemaining) {
+          return (
+            <>
+              <MainLayout currentUser={currentUser}>
+                <AccountSuspended />;
+              </MainLayout>
+            </>
+          );
+        }
+      }
+    }
+
     return (
       <>
         <MainLayout currentUser={currentUser}>
