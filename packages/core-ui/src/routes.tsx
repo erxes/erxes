@@ -1,7 +1,8 @@
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
 
-import AuthRoutes from './modules/auth/routes';
+import OSAuthRoutes from './modules/auth/routes';
+import SAASAuthRoutes from './modules/saas/auth/routes';
 import { IUser } from './modules/auth/types';
 import React from 'react';
 import SettingsRoutes from './modules/settings/routes';
@@ -60,9 +61,9 @@ const renderRoutes = (currentUser) => {
     sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
-  if (currentUser) {
-    const { VERSION } = getEnv();
+  const { VERSION } = getEnv();
 
+  if (currentUser) {
     if (VERSION && VERSION === 'saas') {
       const currentOrganization = currentUser.currentOrganization;
 
@@ -114,7 +115,7 @@ const renderRoutes = (currentUser) => {
         path="/confirmation"
         component={userConfirmation}
       />
-      <AuthRoutes />
+      {VERSION && VERSION === 'saas' ? <SAASAuthRoutes /> : <OSAuthRoutes />}
     </Switch>
   );
 };

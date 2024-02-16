@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -14,17 +14,22 @@ import Search from '../containers/Search';
 import { UserHelper, DropNav } from '../styles';
 import BrandChooser from './BrandChooser';
 import { pluginsOfTopNavigations } from 'pluginUtils';
+import { SubMenu } from 'modules/saas/navigation/styles';
+import Organizations from 'modules/saas/navigation/Organizations';
+import Usage from 'modules/saas/settings/plans/components/Usage';
 
-const Signature = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-  )
+const Signature = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+    ),
 );
 
-const ChangePassword = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
-  )
+const ChangePassword = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+    ),
 );
 
 const UserInfo = styled.div`
@@ -85,7 +90,7 @@ const QuickNavigation = ({
   showBrands,
   selectedBrands,
   onChangeBrands,
-  version
+  version,
 }: {
   logout: () => void;
   currentUser: IUser;
@@ -94,14 +99,14 @@ const QuickNavigation = ({
   onChangeBrands: (value: string) => void;
   version: string;
 }) => {
-  const passContent = props => <ChangePassword {...props} />;
-  const signatureContent = props => <Signature {...props} />;
+  const passContent = (props) => <ChangePassword {...props} />;
+  const signatureContent = (props) => <Signature {...props} />;
 
   const brands = currentUser.brands || [];
 
-  const brandOptions = brands.map(brand => ({
+  const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || ''
+    label: brand.name || '',
   }));
 
   let brandsCombo;
@@ -117,6 +122,8 @@ const QuickNavigation = ({
       </NavItem>
     );
   }
+
+  const { CORE_URL, VERSION } = getEnv();
 
   return (
     <nav id={'SettingsNav'}>
@@ -173,6 +180,40 @@ const QuickNavigation = ({
               </DropNav>
             </li>
             <Dropdown.Divider />
+
+            {VERSION &&
+            VERSION === 'saas' &&
+            currentUser.currentOrganization ? (
+              <>
+                <li>
+                  <DropNav>
+                    {__('Global Profile')} <Icon icon="angle-right" />
+                    <ul>
+                      <li>
+                        <a href={`${CORE_URL}/organizations`}>
+                          {__('Go to Global Profile')}
+                        </a>
+                      </li>
+                      <li>
+                        <a href={`${CORE_URL}/billing`}>
+                          {__('Go to Billing')}
+                        </a>
+                      </li>
+                    </ul>
+                  </DropNav>
+                </li>
+
+                <Dropdown.Divider />
+                <SubMenu>
+                  <li>
+                    <Organizations
+                      organizations={currentUser.organizations || []}
+                    />
+                  </li>
+                </SubMenu>
+                <Usage />
+              </>
+            ) : null}
 
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
             {version ? (

@@ -22,9 +22,23 @@ const createOwner = `
   }
 `;
 
+const loginWithGoogle = `
+  mutation loginWithGoogle {
+    loginWithGoogle
+  }
+`;
+
+const loginWithMagicLink = `
+  mutation loginWithMagicLink($email: String!) {
+    loginWithMagicLink(email: $email)
+  }
+`;
+
 export default {
   login,
   forgotPassword,
   resetPassword,
   createOwner,
+  loginWithGoogle,
+  loginWithMagicLink,
 };

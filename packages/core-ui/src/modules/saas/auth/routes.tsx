@@ -28,7 +28,16 @@ const SignIn = asyncComponent(
   () => import(/* webpackChunkName: "SignIn" */ './containers/SignIn'),
 );
 
+const SignInWithEmail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "SignInWithEmail" */ './containers/SignInWithEmail'
+    ),
+);
+
 const signIn = () => <AuthLayout content={<SignIn />} />;
+
+const signInWithEmail = () => <AuthLayout content={<SignInWithEmail />} />;
 
 const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
 
@@ -42,7 +51,8 @@ const routes = () => {
     <Switch>
       <Route path="/forgot-password" exact={true} component={forgotPassword} />
       <Route path="/reset-password" exact={true} component={resetPassword} />
-      <Route path="*" component={signIn} />
+      <Route path="/sign-in" exact={true} component={signIn} />
+      <Route path="*" component={signInWithEmail} />
     </Switch>
   );
 };

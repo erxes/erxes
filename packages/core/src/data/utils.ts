@@ -32,6 +32,8 @@ export interface IEmailParams {
   template?: { name?: string; data?: any };
   attachments?: object[];
   modifier?: (data: any, email: string) => void;
+  transportMethod?: string;
+  getOrganizationDetail?: ({ subdomain }: { subdomain: string }) => any;
 }
 
 /**
@@ -70,31 +72,23 @@ export const sendEmail = async (
     template = {},
     modifier,
     attachments,
+    getOrganizationDetail,
+    transportMethod,
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig(
-    'DEFAULT_EMAIL_SERVICE',
-    'SES',
-    models,
-  );
-  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
+  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
+  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '');
   const defaultTemplateType = await getConfig(
     'COMPANY_EMAIL_TEMPLATE_TYPE',
     '',
-    models,
   );
-  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
-  const AWS_SES_ACCESS_KEY_ID = await getConfig(
-    'AWS_SES_ACCESS_KEY_ID',
-    '',
-    models,
-  );
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
+  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '');
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SES_SECRET_ACCESS_KEY',
     '',
-    models,
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
@@ -106,12 +100,21 @@ export const sendEmail = async (
 
   // try to create transporter or throw configuration error
   let transporter;
+  let sendgridMail;
 
   try {
     transporter = await createTransporter(
       { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
       models,
     );
+
+    if (transportMethod === 'sendgrid') {
+      sendgridMail = require('@sendgrid/mail');
+
+      const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
+
+      sendgridMail.setApiKey(SENDGRID_API_KEY);
+    }
   } catch (e) {
     return debugError(e.message);
   }
@@ -120,6 +123,22 @@ export const sendEmail = async (
 
   // for unsubscribe url
   data.domain = DOMAIN;
+
+  let hasCompanyFromEmail = COMPANY_EMAIL_FROM && COMPANY_EMAIL_FROM.length > 0;
+
+  if (models && subdomain && getOrganizationDetail) {
+    const organization = await getOrganizationDetail({ subdomain });
+
+    if (organization.isWhiteLabel) {
+      data.whiteLabel = true;
+      data.organizationName = organization.name || '';
+      data.organizationDomain = organization.domain || '';
+
+      hasCompanyFromEmail = true;
+    } else {
+      hasCompanyFromEmail = false;
+    }
+  }
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -146,7 +165,11 @@ export const sendEmail = async (
     }
 
     const mailOptions: any = {
-      from: fromEmail || COMPANY_EMAIL_FROM,
+      from:
+        fromEmail ||
+        (hasCompanyFromEmail
+          ? `Noreply <${COMPANY_EMAIL_FROM}>`
+          : 'noreply@erxes.io'),
       to: toEmail,
       subject: title,
       html,
@@ -159,10 +182,7 @@ export const sendEmail = async (
 
     let headers: { [key: string]: string } = {};
 
-    if (
-      AWS_SES_ACCESS_KEY_ID.length > 0 &&
-      AWS_SES_SECRET_ACCESS_KEY.length > 0
-    ) {
+    if (models && subdomain) {
       const emailDelivery = await sendLogsMessage({
         subdomain,
         action: 'emailDeliveries.create',
@@ -181,16 +201,25 @@ export const sendEmail = async (
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
         EmailDeliveryId: emailDelivery && emailDelivery._id,
       };
-    } else {
-      headers['X-SES-CONFIGURATION-SET'] = 'erxes';
+    }
+
+    if (AWS_SES_ACCESS_KEY_ID && AWS_SES_SECRET_ACCESS_KEY) {
+      headers['X-SES-CONFIGURATION-SET'] = AWS_SES_CONFIG_SET || 'erxes-saas';
     }
 
     mailOptions.headers = headers;
 
-    return transporter.sendMail(mailOptions, (error, info) => {
-      debugError(error);
-      debugError(info);
-    });
+    try {
+      if (sendgridMail) {
+        return sendgridMail.send(mailOptions);
+      }
+
+      return transporter.sendMail(mailOptions, (error, info) => {
+        debugError(`Error sending email: ${error}`);
+      });
+    } catch (e) {
+      debugError(e);
+    }
   }
 };
 

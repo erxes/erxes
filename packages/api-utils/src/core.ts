@@ -11,15 +11,20 @@ import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 export const getEnv = ({
   name,
   defaultValue,
+  subdomain,
 }: {
   name: string;
-  subdomain?: string;
   defaultValue?: string;
+  subdomain?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name] || '';
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   return value || '';

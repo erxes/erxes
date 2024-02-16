@@ -10,7 +10,7 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import withChargeItems from '../containers/withChargeItems';
-import withCurrentOrganization from '@erxes/ui-settings/src/general/containers/withCurrentOrganization';
+import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 
 const Item = styledTS<{ bottomSpace?: number }>(styled.div)`
   padding: 7px 20px;
