@@ -150,7 +150,7 @@
 }
 
 .chat-list-max-height {
-  max-height: calc(100vh - 230px);
+  max-height: calc(100vh - 218px);
 }
 .chat-list-search-max-height {
   max-height: calc(100vh - 195px);

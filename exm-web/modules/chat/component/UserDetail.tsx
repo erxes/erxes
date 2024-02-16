@@ -1,7 +1,6 @@
 "use client"
 
 import { IUser } from "@/modules/auth/types"
-import { ChevronRight } from "lucide-react"
 
 import Image from "@/components/ui/image"
 
@@ -38,12 +37,6 @@ const UserDetail = ({
 
   return (
     <>
-      <div
-        className="bg-[#F2F2F2] p-1 rounded-full w-fit cursor-pointer"
-        onClick={() => setShowSidebar()}
-      >
-        <ChevronRight size={18} />
-      </div>
       <div className="flex flex-col justify-center items-center pb-3">
         <div className="items-end flex mr-2">
           <div className="w-20 h-20 rounded-full">

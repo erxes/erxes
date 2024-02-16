@@ -39,9 +39,9 @@ const RightSideBar = ({
 
   return (
     <div
-      className={`overflow-auto h-screen p-5 fixed top-0 right-0 transition-transform ${
+      className={`overflow-auto h-screen p-5  transition-transform ${
         showSidebar ? "translate-x-[0%]" : "translate-x-[100%]"
-      } w-[19%] bg-white border-l`}
+      } bg-white border-l`}
     >
       {chatDetail?.type === "group" ? renderGroup() : renderDirect()}
     </div>

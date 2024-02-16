@@ -97,11 +97,11 @@ const MessageItem = ({
 
   const messageSection = (messageSectionContent: string) => {
     const style = isMe
-      ? ` ${"bg-primary-light text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}  font-medium`
-      : ` ${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"} font-medium`
+      ? "bg-white text-[#000] border border-exm"
+      : "bg-[#2970FF] text-[#fff]"
     return (
       <div
-        className={`${style} py-2.5 px-5 max-w-md drop-shadow-md truncate whitespace-wrap`}
+        className={`${style} rounded-lg p-2 max-w-lg w-full truncate whitespace-wrap font-medium`}
         dangerouslySetInnerHTML={{ __html: messageSectionContent || "" }}
       />
     )
@@ -205,7 +205,7 @@ const MessageItem = ({
             alt="avatar"
             width={60}
             height={60}
-            className="w-11 h-11 rounded-full object-cover border border-primary"
+            className="w-11 h-11 rounded-full object-cover"
           />
         </div>
 
@@ -226,7 +226,7 @@ const MessageItem = ({
       </div>
       <div className={`flex justify-end mt-1`}>
         {message.seenList.map((item) => {
-          if(item.lastSeenMessageId === 'temp-d'){
+          if (item.lastSeenMessageId === "temp-d") {
             return null
           }
           if (currentUser._id === item.user._id) {

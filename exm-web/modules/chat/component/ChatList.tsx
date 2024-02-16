@@ -6,23 +6,17 @@ import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"
-import { ChevronDown, PenSquareIcon } from "lucide-react"
+import { PenSquareIcon } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Image from "@/components/ui/image"
 import { Input } from "@/components/ui/input"
 import LoadingCard from "@/components/ui/loading-card"
 
 import { useChats } from "../hooks/useChats"
+import { IChat } from "../types"
 import { ChatItem } from "./ChatItem"
 import { ChatForm } from "./form/ChatForm"
-import { IChat } from "../types"
 
 dayjs.extend(relativeTime)
 
@@ -69,33 +63,59 @@ const ChatList = () => {
   }
 
   const renderDirectChats = () => {
-    return chats.map((c: any) => {
-      if (c.type === "group") {
-        return null
-      }
-      return (
-        <ChatItem
-          key={c._id}
-          chat={c}
-          isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
-        />
-      )
-    })
+    return (
+      <>
+        {pinnedChats
+          .filter((c: any) => c.type === "direct")
+          .map((c: any) => (
+            <ChatItem
+              key={c._id}
+              chat={c}
+              isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
+            />
+          ))}
+        {chats.map((c: any) => {
+          if (c.type === "group") {
+            return null
+          }
+          return (
+            <ChatItem
+              key={c._id}
+              chat={c}
+              isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
+            />
+          )
+        })}
+      </>
+    )
   }
 
   const renderGroupChats = () => {
-    return chats.map((c: any) => {
-      if (c.type === "direct") {
-        return null
-      }
-      return (
-        <ChatItem
-          key={c._id}
-          chat={c}
-          isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
-        />
-      )
-    })
+    return (
+      <>
+        {pinnedChats
+          .filter((c: any) => c.type === "group")
+          .map((c: any) => (
+            <ChatItem
+              key={c._id}
+              chat={c}
+              isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
+            />
+          ))}
+        {chats.map((c: any) => {
+          if (c.type === "direct") {
+            return null
+          }
+          return (
+            <ChatItem
+              key={c._id}
+              chat={c}
+              isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
+            />
+          )
+        })}
+      </>
+    )
   }
 
   const filteredPinnedChats = pinnedChats.filter((item: any) => {
@@ -118,52 +138,6 @@ const ChatList = () => {
     }
   })
 
-  const renderPinnedChats = () => {
-    if (pinnedChats.length !== 0) {
-      return pinnedChats.map((c: any) => (
-        <ChatItem
-          key={c._id}
-          chat={c}
-          isPinned={c.isPinnedUserIds.includes(currentUser?._id)}
-        />
-      ))
-    }
-  }
-
-  const renderCurrentUserStatus = () => {
-    return (
-      <div className="pt-2 px-6 flex items-center h-16">
-        <Image
-          src={currentUser?.details.avatar || "/avatar-colored.svg"}
-          alt="avatar"
-          width={45}
-          height={45}
-          className="w-[45px] h-[45px] rounded-full object-cover mr-3 border border-primary shrink-0"
-        />
-        <div className="flex items-start flex-col">
-          <div className="text-[16px] w-[280px] truncate mb-1">
-            {currentUser?.details.fullName || currentUser?.email}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger disabled={true}>
-              <div className="bg-success text-success-foreground text-[11px] px-4 py-[1px] rounded-lg flex items-center w-[100px]">
-                <div className="indicator bg-success-foreground w-3 h-3 rounded-full border border-white mr-1" />
-                Active
-                <ChevronDown size={18} />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-transparent border-0 shadow-none px-2.5 flex justify-center">
-              <button className="bg-warning-foreground text-warning text-[11px] px-4 py-[1px] rounded-lg flex items-center w-full w-[100px]">
-                <div className="indicator bg-warning w-3 h-3 rounded-full border border-white mr-1" />
-                Busy
-              </button>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    )
-  }
-
   const renderChats = () => {
     if (searchValue) {
       return (
@@ -184,38 +158,49 @@ const ChatList = () => {
       )
     }
 
-    const directChatUnreadCount = chats.filter((c: IChat) => c.type === 'direct' && !c.isSeen).length
-    const groupChatUnreadCount = chats.filter((c: IChat) => c.type === 'group' && !c.isSeen).length
-    const pinnedChatUnreadCount = pinnedChats.filter((c: IChat) =>  !c.isSeen).length
+    const directChatUnreadCount = chats.filter(
+      (c: IChat) => c.type === "direct" && !c.isSeen
+    ).length
+    const groupChatUnreadCount = chats.filter(
+      (c: IChat) => c.type === "group" && !c.isSeen
+    ).length
+    const pinnedChatUnreadCount = pinnedChats.filter(
+      (c: IChat) => !c.isSeen
+    ).length
 
-    const renderUnreadCount = (type:string) => {
-      return type === "Chat" ? directChatUnreadCount : type === "Groups" ? groupChatUnreadCount : pinnedChatUnreadCount
+    const renderUnreadCount = (type: string) => {
+      return type === "Chat"
+        ? directChatUnreadCount
+        : type === "Groups"
+        ? groupChatUnreadCount
+        : pinnedChatUnreadCount
     }
 
     return (
       <div>
-        <div className="flex px-4">
-          {["Chat", "Groups", "Pinned"].map((type, index) => (
+        <div className="flex">
+          {["Chat", "Groups"].map((type, index) => (
             <button
               key={index}
-              className={`py-2 px-4 flex-1 flex items-center gap-2 justify-center ${
-                activeTabIndex === index && "border-b border-primary"
+              className={`py-3 px-4 flex-1 flex items-center gap-2 justify-center border-b-2 border-exm ${
+                activeTabIndex === index && "!border-primary"
               }`}
               onClick={() => handleTabClick(index)}
             >
               {type}
-              {renderUnreadCount(type) > 0 && <div className="">
-              <span className="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                {renderUnreadCount(type)}
-              </span>
-            </div>}
+              {renderUnreadCount(type) > 0 && (
+                <div className="">
+                  <span className="bg-primary text-white rounded-lg w-5 h-5 flex items-center justify-center text-[10px] border border-exm">
+                    +{renderUnreadCount(type)}
+                  </span>
+                </div>
+              )}
             </button>
           ))}
         </div>
-        <div className="p-4 overflow-auto chat-list-max-height">
+        <div className="overflow-auto chat-list-max-height">
           {activeTabIndex === 0 && renderDirectChats()}
           {activeTabIndex === 1 && renderGroupChats()}
-          {activeTabIndex === 2 && renderPinnedChats()}
         </div>
       </div>
     )
@@ -223,14 +208,12 @@ const ChatList = () => {
 
   return (
     <div className="w-full overflow-auto h-screen">
-      {renderCurrentUserStatus()}
-
-      <div className="flex items-center justify-between p-6">
-        <h5 className="text-base font-semibold text-[#444]">Create new chat</h5>
+      <div className="flex items-center justify-between px-3 pt-4 pb-2">
+        <h5 className="text-base font-semibold text-[#444]">Chat</h5>
         {renderAction()}
       </div>
 
-      <div className="px-4">
+      <div className="px-3 pb-4 border-b border-exm">
         <Input
           className={"sm:rounded-lg border-[#DEE4E7]"}
           value={searchValue}
@@ -239,7 +222,7 @@ const ChatList = () => {
         />
       </div>
 
-      <div className="mt-4">
+      <div>
         {renderChats()}
 
         {!loading && chats.length < chatsCount && (

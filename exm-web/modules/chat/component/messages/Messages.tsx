@@ -57,8 +57,8 @@ const Messages = ({
   }
 
   return (
-    <div className="flex flex-col h-screen relative">
-      <div className="h-16 border-b flex items-center justify-between px-10">
+    <div className="flex flex-col h-[calc(100vh-68px)] relative">
+      <div className="h-16 border-b flex items-center justify-between px-4 py-5">
         <MessagesHeader
           chatDetail={chatDetail}
           setShowSidebar={setShowSidebar}

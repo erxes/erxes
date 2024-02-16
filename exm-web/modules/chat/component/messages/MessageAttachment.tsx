@@ -12,8 +12,8 @@ const MessageAttachmentSection = ({
   isPinned?: boolean
 }) => {
   const style = isMe
-    ? `${"bg-primary-light text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`
-    : `${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"}`
+    ? `${"bg-[#fff] text-[#000] rounded-lg"}`
+    : `${"bg-[#2970FF] text-[#fff] rounded-lg"}`
 
   const medias = attachments.filter((attachment) =>
     attachment.type.startsWith("image/")
@@ -52,7 +52,7 @@ const MessageAttachmentSection = ({
       {audios && (
         <AttachmentWithChatPreview
           attachments={audios}
-          className={`${style} py-2.5 px-5 max-w-md drop-shadow-md font-medium`}
+          className={`${style} p-2 max-w-md drop-shadow-md font-medium`}
           isMe={isMe}
         />
       )}
