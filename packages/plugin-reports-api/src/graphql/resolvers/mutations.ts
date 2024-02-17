@@ -92,9 +92,10 @@ const reportsMutations = {
     return models.Charts.createChart(doc);
   },
 
-  async reportChartsEditMany(_root, doc: any, { models }: IContext) {
-    const { charts, reportId, serviceName, serviceType } = doc;
+  async reportChartsEditMany(_root, doc: any, { models, user }: IContext) {
+    const { charts, reportId, serviceName } = doc;
 
+    // const { repo };
     if (charts) {
       const service = await getService(serviceName);
 
@@ -145,8 +146,13 @@ const reportsMutations = {
           }),
         );
       }
-      return 'success';
     }
+
+    return await models.Reports.updateReport(reportId, {
+      ...doc,
+      updatedAt: new Date(),
+      updatedBy: user?._id || null,
+    });
   },
 
   async reportChartsAddMany(_root, doc: any, { models }: IContext) {
