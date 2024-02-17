@@ -389,14 +389,12 @@ const userQueries = {
   /**
    * Current user
    */
-  currentUser(_root, _args, { user, models }: IContext) {
-    // this is important for security reasons
-    if (typeof user?._id !== 'string') {
-      return null;
-    }
-    return user
+  async currentUser(_root, _args, { user, models }: IContext) {
+    const result = (await user)
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+
+    return result;
   },
 
   /**
