@@ -3,7 +3,7 @@ name: Plugin assets Api CI
 on:
   push:
     branches:
-      - dev
+      - merge-xos
       - master
       - staging
       - build-test
@@ -13,7 +13,7 @@ on:
       - '.github/workflows/plugin-assets-api.yaml'
   pull_request:
     branches:
-      - dev
+      - merge-xos
       - master
       - staging
       - build-test
@@ -56,7 +56,7 @@ jobs:
           yarn build plugin assets
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/merge-xos' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

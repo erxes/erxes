@@ -616,19 +616,19 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
 export const uploadFileCloudflare = async (
   file: { name: string; path: string; type: string },
   forcePrivate: boolean = false,
-  models?: IModels,
+  isPublic?: string,
+  subdomain?: string,
 ): Promise<string> => {
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'false');
+
   const CLOUDFLARE_BUCKET = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
+    'erxes-saas',
   );
 
-  const CLOUDFLARE_USE_CDN = await getConfig(
-    'CLOUDFLARE_USE_CDN',
-    'false',
-    models,
-  );
+  const CLOUDFLARE_USE_CDN = await getConfig('CLOUDFLARE_USE_CDN', 'true');
 
   const detectedType = fileType(fs.readFileSync(file.path));
 
@@ -638,7 +638,7 @@ export const uploadFileCloudflare = async (
     isImage(detectedType.mime) &&
     !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
-    return uploadToCFImages(file, forcePrivate, models);
+    return uploadToCFImages(file, forcePrivate, subdomain);
   }
 
   if (
@@ -646,23 +646,23 @@ export const uploadFileCloudflare = async (
     detectedType &&
     isVideo(detectedType.mime)
   ) {
-    return uploadToCFStream(file, models);
+    return uploadToCFStream(file);
   }
 
-  const IS_PUBLIC = forcePrivate
-    ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
-
   // generate unique name
-  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const fileName = `${subdomain}/${Math.random()}${file.name.replace(
+    / /g,
+    '',
+  )}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
 
   // initialize r2
-  const r2 = await createCFR2(models);
+  const r2 = await createCFR2();
 
   // upload to r2
+
   const response: any = await new Promise((resolve, reject) => {
     r2.upload(
       {
@@ -670,7 +670,12 @@ export const uploadFileCloudflare = async (
         Bucket: CLOUDFLARE_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL:
+          isPublic === 'true'
+            ? 'public-read'
+            : IS_PUBLIC === 'true'
+              ? 'public-read'
+              : undefined,
       },
       (err, res) => {
         if (err) {
@@ -683,7 +688,6 @@ export const uploadFileCloudflare = async (
   });
   return IS_PUBLIC === 'true' ? response.Location : fileName;
 };
-
 /*
  * Save binary data to amazon s3
  */
