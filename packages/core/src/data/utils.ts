@@ -1224,6 +1224,10 @@ export const getConfig = async (
   defaultValue?: string,
   models?: IModels,
 ) => {
+  if (!models) {
+    return getEnv({ name: code, defaultValue });
+  }
+
   const configs = await getConfigs(models);
 
   if (!configs[code]) {
