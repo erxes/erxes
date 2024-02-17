@@ -1229,10 +1229,12 @@ export const getConfig = async (
   }
 
   const configs = await getConfigs(models);
+  const envValue = getEnv({ name: code, defaultValue });
+
+  console.log(configs[code], 'code');
+  console.log(envValue, 'code');
 
   if (!configs[code]) {
-    const envValue = getEnv({ name: code, defaultValue });
-
     return envValue || defaultValue;
   }
 
