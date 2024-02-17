@@ -638,7 +638,7 @@ export const uploadFileCloudflare = async (
     isImage(detectedType.mime) &&
     !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
-    return uploadToCFImages(file, forcePrivate, subdomain);
+    return uploadToCFImages(file, forcePrivate);
   }
 
   if (
@@ -1129,7 +1129,7 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, false, models);
+    nameOrLink = await uploadFileCloudflare(file, true);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
