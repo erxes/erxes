@@ -1,4 +1,10 @@
 import ChatList from "@/modules/chat/component/ChatList"
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Chats',
+  description: 'Employee Experience Management - Chats',
+}
 
 interface ILayoutProps {
   children: React.ReactNode

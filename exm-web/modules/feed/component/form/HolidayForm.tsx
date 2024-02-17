@@ -136,10 +136,10 @@ const HolidayForm = ({
               </FormItem>
             )}
           />
-          <FormAttachments
+          {/* <FormAttachments
             attachments={attachments || []}
             setAttachments={setAttachments}
-          />
+          /> */}
           <FormImages images={images} setImage={setImage} />{" "}
           <Select
             isMulti={false}
