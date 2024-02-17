@@ -34,6 +34,8 @@ export const types = (tagsAvailable) => `
 
     createdAt:Date
     createdBy: User
+
+    sectionId: String
   }
 
   enum VisibilityType {
