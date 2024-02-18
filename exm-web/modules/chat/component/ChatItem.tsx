@@ -62,6 +62,8 @@ export const ChatItem = ({
 
   const chatId = searchParams.get("id")
 
+  const isSeen = chat && chat.isSeen ? chat.isSeen : false
+
   const users: any[] = chat?.participantUsers || []
   const user: any =
     users?.length > 1
@@ -313,7 +315,7 @@ export const ChatItem = ({
       {!handleForward && showActionBtn && renderChatActions()}
       {handleForward && renderForwardAction()}
 
-      {!chat.isSeen && (
+      {!isSeen && (
         <span className="rounded-full bg-primary absolute top-[10px] right-[10px] w-2.5 h-2.5">
           &nbsp;
         </span>

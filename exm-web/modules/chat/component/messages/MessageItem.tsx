@@ -26,7 +26,8 @@ const MessageItem = ({
   setReply: (message: any) => void
   type: string
 }) => {
-  const { relatedMessage, content, attachments, createdUser } = message
+  const { relatedMessage, content, attachments, createdUser, createdAt } =
+    message
 
   const callBack = (result: string) => {
     return null
@@ -140,15 +141,19 @@ const MessageItem = ({
     }
 
     return (
-      <div className={`flex gap-3 ${isMe ? "flex-row" : "flex-row-reverse"}`}>
-        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+      <div className={`flex gap-2 ${isMe ? "flex-row" : "flex-row-reverse"}`}>
+        <div className="text-[#98A2B3] rounded-full cursor-pointer">
           <ReplyIcon size={16} onClick={() => setReply(message)} />
         </div>{" "}
-        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+        <div className="text-[#98A2B3] rounded-full cursor-pointer">
           {message.isPinned ? (
             <PinOff size={16} onClick={() => pinMessage(message._id)} />
           ) : (
-            <Pin size={16} onClick={() => pinMessage(message._id)} />
+            <Pin
+              size={16}
+              fill="#98A2B3"
+              onClick={() => pinMessage(message._id)}
+            />
           )}
         </div>
         <ForwardMessage content={content} attachments={attachments} />
@@ -190,10 +195,20 @@ const MessageItem = ({
     return <MessageAttachmentSection attachments={attachments} isMe={isMe} />
   }
 
+  const createdDate = () => {
+    const created = dayjs(createdAt).format("YY/M/D")
+    const now = dayjs(new Date()).format("YY/M/D")
+    if (created === now) {
+      return dayjs(createdAt).format("HH:mm")
+    }
+
+    return dayjs(createdAt).format("YY/M/D HH:mm")
+  }
+
   return (
-    <div>
+    <div className="mt-4">
       <div
-        className={`w-full my-1 flex items-start gap-[10px]  ${
+        className={`w-full my-1 flex items-center gap-[10px]  ${
           isMe ? "flex-row-reverse" : "flex-row"
         }`}
         onMouseEnter={() => setShowAction(true)}
@@ -225,11 +240,18 @@ const MessageItem = ({
         </div>
       </div>
       <div className={`flex justify-end mt-1`}>
+        <span
+          className={`text-[#667085] ${
+            isMe ? "mr-[54px]" : "float-left mr-auto ml-[54px]"
+          }`}
+        >
+          {createdDate()}
+        </span>
         {message.seenList.map((item) => {
-          if (item.lastSeenMessageId === "temp-d") {
-            return null
-          }
-          if (currentUser._id === item.user._id) {
+          if (
+            currentUser._id === item.user._id ||
+            item.lastSeenMessageId === "temp-d"
+          ) {
             return null
           }
           return (

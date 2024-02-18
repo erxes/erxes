@@ -18,7 +18,7 @@ export default function Detail() {
           showSidebar ? "w-[calc(60%-230px)]" : "w-[calc(80%-230px)]"
         } border-r shrink-0`}
       >
-        <Messages setShowSidebar={handleToggle} showSidebar={showSidebar} />
+        <Messages setShowSidebar={handleToggle} />
       </div>
       {showSidebar && (
         <div className="flex w-1/5 flex-col">
