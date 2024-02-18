@@ -1,4 +1,10 @@
 import dynamic from "next/dynamic"
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Feed',
+  description: 'Employee Experience Management - Feed',
+}
 
 const Feed = dynamic(() => import("@/modules/feed/component/Feed"))
 
