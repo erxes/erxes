@@ -30,7 +30,7 @@ const FormAttachments = ({
   return (
     <div
       className={` ${
-        type !== "form" && "px-4"
+        type === "postItem" && "px-4"
       } gap-[12px] flex flex-col pb-[12px]`}
     >
       {attachments.map((a, index) => {
@@ -38,7 +38,7 @@ const FormAttachments = ({
         let size
         const bg =
           fileExtension === "docx"
-            ? "bg-[#F5FAFF]"
+            ? "bg-[#fbeeff]"
             : fileExtension === "pdf"
             ? "bg-[#FFF9F5]"
             : "bg-[#F5FFF8]"

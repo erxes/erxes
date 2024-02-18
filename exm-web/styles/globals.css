@@ -161,7 +161,7 @@
   max-height: calc(100vh - 510px);
 }
 .group-shared-files-max-height {
-  max-height: calc(100vh - 460px);
+  max-height: calc(100vh - 200px);
 }
 
 .w-300 {

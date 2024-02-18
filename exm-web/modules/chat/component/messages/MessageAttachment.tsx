@@ -1,3 +1,4 @@
+import FormAttachments from "@/modules/feed/component/form/FormAttachments"
 import { IAttachment } from "@/modules/feed/types"
 
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
@@ -5,7 +6,7 @@ import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPrevie
 const MessageAttachmentSection = ({
   attachments,
   isMe,
-  isPinned
+  isPinned,
 }: {
   attachments: IAttachment[]
   isMe?: boolean
@@ -30,25 +31,22 @@ const MessageAttachmentSection = ({
       {medias && (
         <AttachmentWithChatPreview
           attachments={medias}
-          className={`${isPinned ? "flex flex-wrap" : `grid ${
-            medias.length >= 3
-              ? "grid-cols-3"
-              : medias.length === 2
-              ? "grid-cols-2"
-              : "grid-cols-1"
-          }`} gap-3 py-1`}
+          className={`${
+            isPinned
+              ? "flex flex-wrap"
+              : `grid ${
+                  medias.length >= 3
+                    ? "grid-cols-3"
+                    : medias.length === 2
+                    ? "grid-cols-2"
+                    : "grid-cols-1"
+                }`
+          } gap-3 py-1`}
           isDownload={true}
           isMe={isMe}
         />
       )}
-      {files && (
-        <AttachmentWithChatPreview
-          attachments={files}
-          className={`flex flex-col gap-3 py-1`}
-          isDownload={true}
-          isMe={isMe}
-        />
-      )}
+      {files && <FormAttachments attachments={files} type="file" />}
       {audios && (
         <AttachmentWithChatPreview
           attachments={audios}

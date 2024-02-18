@@ -34,14 +34,14 @@ const RightSideBar = ({
   }
 
   const renderDirect = () => {
-    return <UserDetail setShowSidebar={setShowSidebar} user={user} />
+    return <UserDetail user={user} />
   }
 
   return (
     <div
       className={`overflow-auto h-screen p-5  transition-transform ${
         showSidebar ? "translate-x-[0%]" : "translate-x-[100%]"
-      } bg-white border-l`}
+      } bg-white`}
     >
       {chatDetail?.type === "group" ? renderGroup() : renderDirect()}
     </div>
