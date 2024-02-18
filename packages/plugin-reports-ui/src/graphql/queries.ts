@@ -10,6 +10,54 @@ const pipelineLabelFields = `
   createdAt
 `;
 
+const genericFields = `
+  _id
+  description
+  code
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
+  canHide
+  validation
+  options
+  isVisibleToCreate
+  locationOptions{
+    lat
+    lng
+    description
+  }
+  objectListConfigs{
+    key
+    label
+    type
+  }
+  groupId
+  searchable
+  showInCard
+  isRequired
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
 const userFields = `
   _id
   username
@@ -270,6 +318,31 @@ const pipelineLabels = `
   }
 `;
 
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
+      name
+      ${genericFields}
+      isMultiple
+      parentId
+      config
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      lastUpdatedUser {
+        details {
+          fullName
+        }
+      }
+      fields  {
+        ${commonFields}
+      }
+    }
+  }
+`;
 export default {
   reportsList,
   allBrands,
@@ -286,4 +359,5 @@ export default {
   pipelines,
   pipelineLabels,
   stages,
+  fieldsGroups,
 };
