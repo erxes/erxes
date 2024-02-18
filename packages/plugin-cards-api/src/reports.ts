@@ -90,9 +90,7 @@ const returnStage = (resolve: string | string[]) => {
       return {}; // Default case returns an empty object
   }
 };
-const DEAL_TAG_TYPE = 'cards:deal';
-const TASK_TAG_TYPE = 'cards:task';
-const TICKET_TAG_TYPE = 'cards:ticket';
+const INBOX_TAG_TYPE = 'inbox:conversation';
 
 const DATE_RANGE_TYPES = [
   { label: 'All time', value: 'all' },
@@ -117,7 +115,6 @@ const STAGE = [
   },
 ];
 
-const PIPELINE_TYPE = 'deal';
 const PIPELINE_TYPE_TICKET = 'ticket';
 const PIPELINE_TYPE_DEAL = 'deal';
 const PIPELINE_TYPE_TASK = 'task';
@@ -184,6 +181,143 @@ const reportTemplates = [
 ];
 
 const chartTemplates = [
+  {
+    templateType: 'dealsChartByMonth',
+    name: 'dealsChar tByMonth',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      filter: any,
+      subdomain: string,
+      currentUser: IUserDocument,
+      getDefaultPipelineId?: string,
+    ) => {
+      // demonstration filters
+      const { dateRange, startDate, endDate } = filter;
+
+      const matchfilter = {};
+      if (dateRange) {
+        const dateFilter = returnDateRange(
+          filter.dateRange,
+          startDate,
+          endDate,
+        );
+
+        if (Object.keys(dateFilter).length) {
+          matchfilter['createdAt'] = dateFilter;
+        }
+      }
+      const getTotalAssignedUserIds: string[] = [];
+      let matchDate;
+      let totalDeals;
+
+      if (Object.keys(matchfilter).length > 0) {
+        matchDate = { createdAt: matchfilter };
+      }
+
+      if (
+        matchDate === undefined ||
+        dateRange === 'all' ||
+        dateRange === undefined
+      ) {
+        totalDeals = await models?.Deals.find({
+          assignedUserIds: { $exists: true },
+        }).lean();
+      } else {
+        totalDeals = await models?.Deals.find({
+          ...matchDate, // Spread the matchDate object
+          assignedUserIds: { $exists: true },
+        }).lean();
+      }
+
+      if (totalDeals) {
+        for (const deal of totalDeals) {
+          if (deal.assignedUserIds) {
+            getTotalAssignedUserIds.push(...deal.assignedUserIds);
+          }
+        }
+      }
+
+      const totalAssignedUserIds = new Set(getTotalAssignedUserIds);
+
+      const DEFAULT_FILTER = {
+        assignedUserIds: Array.from(totalAssignedUserIds),
+        userId: currentUser._id,
+        pipelineId: getDefaultPipelineId,
+      };
+
+      const query = {
+        assignedUserIds: { $in: DEFAULT_FILTER.assignedUserIds },
+        pipelineId: DEFAULT_FILTER.pipelineId,
+      } as any;
+
+      if (filter && filter.assignedUserIds) {
+        query.assignedUserIds.$in = filter.assignedUserIds;
+      }
+
+      if (filter && filter.pipelineId) {
+        query.pipelineId = filter.pipelineId;
+      }
+
+      const getTotalAssignedUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: query.assignedUserIds.$in } },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const assignedUsersMap = {};
+      const deals = await models?.Deals.find(query);
+
+      for (const assignedUser of getTotalAssignedUsers) {
+        assignedUsersMap[assignedUser._id] = {
+          fullName: assignedUser.details?.fullName,
+          assignedDealsCount: deals?.filter(
+            (deal) => deal.assignedUserIds?.includes(assignedUser._id),
+          ).length,
+        };
+      }
+
+      const data = Object.values(assignedUsersMap).map(
+        (t: any) => t.assignedDealsCount,
+      );
+      const labels = Object.values(assignedUsersMap).map(
+        (t: any) => t.fullName,
+      );
+
+      const title = 'Deals chart by assigned users';
+
+      const datasets = { title, data, labels };
+      return datasets;
+    },
+
+    filterTypes: [
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'assignedDepartmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select assigned departments',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ],
+  },
   {
     templateType: 'DealAmountAverageByRep',
     name: 'Deal amount average by rep',
@@ -280,7 +414,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -313,7 +447,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -321,9 +455,19 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'fieldsGroups',
+        fieldType: 'select',
+        fieldQuery: 'fieldsGroups',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"contentType": "cards:deal"}`,
+        multi: true,
+        fieldLabel: 'Select custom properties',
       },
     ],
   },
@@ -345,15 +489,12 @@ const chartTemplates = [
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       let deals;
-      try {
-        // Use the find() method with your query object
-        deals = await models?.Deals.find({
-          ...query,
-          isComplete: true,
-        });
-      } catch (error) {
-        throw new Error('Error fetching deals:', error);
-      }
+
+      // Use the find() method with your query object
+      deals = await models?.Deals.find({
+        ...query,
+        isComplete: true,
+      });
 
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
@@ -432,7 +573,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -465,7 +606,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -473,7 +614,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -487,7 +628,6 @@ const chartTemplates = [
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const { pipelineIds, boardIds, stageType } = filter;
       const matchedFilter = await filterData(filter);
-      const selectedUserIds = filter.assignedUserIds || [];
       const filterPipelineId = await PipelineAndBoardFilter(
         pipelineIds,
         boardIds,
@@ -495,46 +635,34 @@ const chartTemplates = [
         PIPELINE_TYPE_DEAL,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      const deals = await models?.Deals.find(query);
+      let totalDeals;
+      totalDeals = await models?.Deals.find(query).sort({
+        modifiedAt: -1,
+      });
 
-      const dealCounts = calculateAverageDealAmountByRep(
-        deals,
-        selectedUserIds,
-      );
-      const getTotalAssignedUserIds = await Promise.all(
-        dealCounts.map(async (result) => {
-          return await sendCoreMessage({
-            subdomain,
-            action: 'users.find',
-            data: {
-              query: {
-                _id: {
-                  $in: result.userId,
-                },
-              },
-            },
-            isRPC: true,
-            defaultValue: [],
-          });
-        }),
-      );
-      const assignedUsersMap = {};
+      const dealsCount = totalDeals?.map((deal) => {
+        return {
+          dealName: deal.name,
+          dealStage: deal.stageId,
+          currentStatus: deal.status,
+          lastModifiedDate: deal.modifiedAt,
+          stageChangedDate: deal.stageChangedDate,
+        };
+      });
 
-      for (let i = 0; i < getTotalAssignedUserIds.length; i++) {
-        const assignedUsers = getTotalAssignedUserIds[i];
-        for (const assignedUser of assignedUsers) {
-          assignedUsersMap[assignedUser._id] = {
-            fullName: assignedUser.details?.fullName,
-            amount: dealCounts[i].amount, // Match the amount with the correct index
-          };
-        }
-      }
-      const data = Object.values(assignedUsersMap).map((t: any) => t.amount);
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName,
-      );
+      const sortedData = dealsCount?.sort((a, b) => {
+        const dateA = new Date(a.lastModifiedDate ?? 0);
+        const dateB = new Date(b.lastModifiedDate ?? 0);
+        return dateB.getTime() - dateA.getTime();
+      });
 
-      // const labels = sortedData?.map((deal: any) => deal.dealName);
+      const data = sortedData?.map((deal: any) => {
+        const dateWithTime = new Date(deal.lastModifiedDate);
+        const dateOnly = dateWithTime.toISOString().substring(0, 10); // Extract YYYY-MM-DD
+        return dateOnly;
+      });
+
+      const labels = sortedData?.map((deal: any) => deal.dealName);
       const label = 'Deals count by modified month';
       const datasets = {
         title: label,
@@ -580,7 +708,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -613,7 +741,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -621,7 +749,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -784,7 +912,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -817,7 +945,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -825,7 +953,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -923,7 +1051,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -956,7 +1084,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -964,7 +1092,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -1111,7 +1239,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -1144,7 +1272,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1152,212 +1280,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-    ],
-  },
-
-  {
-    templateType: 'DealRevenueByStage',
-    name: 'Deal revenue by stage',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineIds, boardIds, stageType } = filter;
-      const matchedFilter = await filterData(filter);
-      const filterPipelineId = await PipelineAndBoardFilter(
-        pipelineIds,
-        boardIds,
-        stageType,
-        PIPELINE_TYPE_DEAL,
-      );
-      let stageFilters = {};
-      let boardFilter = {};
-      let pipelineFilter = {};
-      if (stageType) {
-        const stageFilter = returnStage(stageType);
-        // Check if stageFilter is not empty
-        if (Object.keys(stageFilter).length) {
-          stageFilters['probability'] = stageFilter;
-        }
-      }
-      let query = await QueryFilter(filterPipelineId, matchedFilter);
-      if (boardIds) {
-        boardFilter['_id'] = { $in: boardIds };
-      }
-      const board = await models?.Boards.find({
-        ...boardFilter,
-        type: 'deal',
-      }).lean();
-      const boardId = board?.map((item) => item._id);
-      if (pipelineIds) {
-        pipelineFilter['_id'] = { $in: pipelineIds };
-      }
-      const pipeline = await models?.Pipelines.find({
-        ...pipelineFilter,
-        boardId: {
-          $in: boardId,
-        },
-        type: 'deal',
-        status: 'active',
-      }).lean();
-
-      const pipelineId = pipeline?.map((item) => item._id);
-      const stages = await models?.Stages.find({
-        type: 'deal',
-        pipelineId: { $in: pipelineId },
-        ...stageFilters,
-      }).lean();
-      if (stages) {
-        let deals;
-        await Promise.all(
-          stages.map(async (result) => {
-            deals = await models?.Deals.find({
-              ...query,
-              stageId: result._id,
-              status: 'active', // Assuming 'active' is the status for open deals
-            }).lean();
-          }),
-        );
-        async function processData() {
-          const dealsCounts = await amountProductData(deals);
-          // Consolidate totalAmounts for the same stageId
-          const consolidatedData = dealsCounts.reduce((consolidated, item) => {
-            const existingItem = consolidated.find(
-              (c) => c.stageId === item.stageId,
-            );
-
-            if (existingItem) {
-              existingItem.totalAmount += item.totalAmount;
-            } else {
-              consolidated.push({ ...item });
-            }
-
-            return consolidated;
-          }, []);
-
-          const data = consolidatedData.map((t: any) =>
-            t.totalAmount.toString(),
-          );
-
-          const stageIds = consolidatedData.map((t: any) => t.stageId);
-          const stagesName = await models?.Stages.find({
-            ...stageFilters,
-            $and: [
-              { type: 'deal' },
-              {
-                _id: {
-                  $in: stageIds,
-                },
-              },
-            ],
-          }).lean();
-
-          const stageIdToNameMap =
-            stagesName?.reduce((map, stage) => {
-              map[stage._id] = stage.name;
-              return map;
-            }, {}) || {};
-          const labels = consolidatedData.map(
-            (t: any) => stageIdToNameMap[t.stageId],
-          );
-          const title = 'Deals open by current stage';
-          const datasets = {
-            title,
-            data,
-            labels,
-          };
-
-          return datasets;
-        }
-        // Call processData function
-        const data = await processData();
-
-        return data;
-      } else {
-        throw new Error('No deal stages found');
-      }
-    },
-    filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATE_RANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-      {
-        fieldName: 'branchIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'branches',
-        fieldLabel: 'Select branches',
-      },
-      {
-        fieldName: 'departmentIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'departments',
-        fieldLabel: 'Select departments',
-      },
-      {
-        fieldName: 'boardIds',
-        fieldType: 'select',
-        fieldQuery: 'boards',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select boards',
-      },
-      {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
-        fieldName: 'stageIds',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"pipelineId": "$pipelineIds"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select stages',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -1415,7 +1338,7 @@ const chartTemplates = [
         fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select boards',
@@ -1448,7 +1371,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1456,7 +1379,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${DEAL_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -1604,7 +1527,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1612,7 +1535,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -1790,7 +1713,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1798,7 +1721,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -1819,8 +1742,8 @@ const chartTemplates = [
         stageType,
         PIPELINE_TYPE_TASK,
       );
-
       let query = await QueryFilter(filterPipelineId, matchedFilter);
+
       const tasks = await models?.Tasks.find({
         ...query,
         isComplete: false,
@@ -1865,9 +1788,11 @@ const chartTemplates = [
           count: count || 0, // Set count to 0 if not found in ticketCounts
         };
       });
+
       const title = 'Task average time to close by tags';
       const data = Object.values(sort).map((t: any) => t.count);
       const labels = Object.values(sort).map((t: any) => t.name);
+
       const datasets = {
         title,
         data,
@@ -1944,7 +1869,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1952,7 +1877,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2100,7 +2025,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2108,7 +2033,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2128,8 +2053,10 @@ const chartTemplates = [
         stageType,
         PIPELINE_TYPE_TASK,
       );
+
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      let tasks = await models?.Tasks.find({
+
+      const tasks = await models?.Tasks.find({
         ...query,
         isComplete: true,
       }).lean();
@@ -2264,7 +2191,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2272,7 +2199,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2294,69 +2221,84 @@ const chartTemplates = [
         PIPELINE_TYPE_TASK,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
+      // const selectedTagIds = filter.tagIds || [];
+      // let tasksCount;
+      // //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
 
-      let tasksCount = await models?.Tasks.find({
-        ...query,
-        isComplete: true,
-      }).lean();
+      // try {
+      //   if (selectedTagIds.length === 0) {
+      //     tasksCount = await models?.Tasks.find({
+      //       ...query,
+      //       isComplete: true
+      //     }).lean();
+      //   } else {
+      //     tasksCount = await models?.Tasks.find({
+      //       ...query,
+      //       isComplete: true,
+      //       tagIds: { $in: selectedTagIds }
+      //     }).lean();
+      //   }
+      // } catch (error) {
+      //   throw new Error('Error fetching tags:', error);
+      // }
 
-      const taskCounts = taskClosedByTagsRep(tasksCount);
+      // const taskCounts = taskClosedByTagsRep(tasksCount);
 
-      // Convert the counts object to an array of objects with ownerId and count
-      const countsArray = Object.entries(taskCounts).map(
-        ([ownerId, count]) => ({
-          ownerId,
-          count,
-        }),
-      );
-      countsArray.sort((a, b) => b.count - a.count);
+      // // Convert the counts object to an array of objects with ownerId and count
+      // const countsArray = Object.entries(taskCounts).map(
+      //   ([ownerId, count]) => ({
+      //     ownerId,
+      //     count
+      //   })
+      // );
+      // countsArray.sort((a, b) => b.count - a.count);
 
-      // Extract unique ownerIds for user lookup
-      const ownerIds = countsArray.map((item) => item.ownerId);
+      // // Extract unique ownerIds for user lookup
+      // const ownerIds = countsArray.map((item) => item.ownerId);
 
-      const tagInfo = await sendTagsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          _id: { $in: ownerIds || [] },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
+      // const tagInfo = await sendTagsMessage({
+      //   subdomain,
+      //   action: 'find',
+      //   data: {
+      //     _id: { $in: ownerIds || [] }
+      //   },
+      //   isRPC: true,
+      //   defaultValue: []
+      // });
 
-      if (!tagInfo || tagInfo.length === 0) {
-        // Handle the case where no labels are found
-        return {
-          title: '',
-          data: [],
-          tagIds: [],
-          count: [],
-        };
-      }
-      const enrichedTicketData = countsArray.map((item) => {
-        const ownerId = item.ownerId;
-        const matchingLabel = tagInfo.find(
-          (label) => label && label._id === ownerId,
-        );
+      // if (!tagInfo || tagInfo.length === 0) {
+      //   // Handle the case where no labels are found
+      //   return {
+      //     title: '',
+      //     data: [],
+      //     tagIds: [],
+      //     count: []
+      //   };
+      // }
+      // const enrichedTicketData = countsArray.map((item) => {
+      //   const ownerId = item.ownerId;
+      //   const matchingLabel = tagInfo.find(
+      //     (label) => label && label._id === ownerId
+      //   );
 
-        // Use the spread operator (...) to include all properties of the item object
-        return {
-          ...item,
-          labels: matchingLabel ? [matchingLabel.name] : [],
-        };
-      });
-      const data = enrichedTicketData.map((t) => t.count);
+      //   // Use the spread operator (...) to include all properties of the item object
+      //   return {
+      //     ...item,
+      //     labels: matchingLabel ? [matchingLabel.name] : []
+      //   };
+      // });
+      // const data = enrichedTicketData.map((t) => t.count);
 
-      // Flatten the label array and remove any empty arrays
-      const label = enrichedTicketData
-        .map((t) => t.labels)
-        .flat()
-        .filter((item) => item.length > 0);
-      const title = 'Task closed totals by tags';
+      // // Flatten the label array and remove any empty arrays
+      // const label = enrichedTicketData
+      //   .map((t) => t.labels)
+      //   .flat()
+      //   .filter((item) => item.length > 0);
+      // const title = 'Task closed totals by tags';
 
-      const datasets = { title, data, labels: label };
+      // const datasets = { title, data, labels: label };
 
-      return datasets;
+      // return datasets;
     },
 
     filterTypes: [
@@ -2428,7 +2370,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2436,7 +2378,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2445,7 +2387,7 @@ const chartTemplates = [
   {
     templateType: 'TasksIncompleteTotalsByReps',
     name: 'Tasks incomplete totals by reps',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    chartTypes: ['bar'],
     // Bar Chart Table
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const { pipelineIds, boardIds, stageType } = filter;
@@ -2617,7 +2559,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2625,7 +2567,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2800,7 +2742,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2808,7 +2750,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -2981,7 +2923,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2989,7 +2931,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -3167,7 +3109,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3175,7 +3117,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -3322,7 +3264,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3330,7 +3272,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -3492,7 +3434,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
+        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3500,7 +3442,7 @@ const chartTemplates = [
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TASK_TAG_TYPE}", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "${INBOX_TAG_TYPE}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
       },
@@ -3509,30 +3451,10 @@ const chartTemplates = [
 
   {
     templateType: 'TicketsStageDateRange',
-    name: 'Tickets Stage Date Range',
+    name: 'Stage Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineIds, boardIds, userIds, dateRange, startDate, endDate } =
-        filter;
-
-      const matchfilter = {};
-      if (dateRange) {
-        const dateFilter = returnDateRange(
-          filter.dateRange,
-          startDate,
-          endDate,
-        );
-
-        if (Object.keys(dateFilter).length) {
-          matchfilter['createdAt'] = dateFilter;
-        }
-      }
-      if (pipelineIds) {
-        matchfilter['pipelineId'] = pipelineIds;
-      }
-      if (boardIds) {
-        matchfilter['boardId'] = boardIds;
-      }
+      const matchedFilter = await filterData(filter);
       const board = await models?.Boards.find({
         type: 'ticket',
       }).lean();
@@ -3559,13 +3481,13 @@ const chartTemplates = [
 
       let ticketCounts;
       let matchStageAndDate;
-      if (Object.keys(matchfilter).length > 0) {
+      if (Object.keys(matchedFilter).length > 0) {
         matchStageAndDate = {
           $match: {
             stageId: {
               $in: stageId,
             },
-            ...matchfilter,
+            ...matchedFilter,
           },
         };
       } else {
@@ -3658,7 +3580,7 @@ const chartTemplates = [
         fieldQuery: 'pipelines',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}",}`,
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
         multi: true,
         isAll: true,
         fieldLabel: 'Select pipeline',
@@ -3680,17 +3602,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -3855,17 +3767,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -3874,36 +3776,40 @@ const chartTemplates = [
     name: 'Ticket Stage Changed Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const matchedFilter = await filterData(filter);
+      try {
+        const matchedFilter = await filterData(filter);
 
-      const ticked = await models?.Tickets.find({
-        ...matchedFilter,
-        stageChangedDate: { $exists: true },
-      }).sort({ stageChangedDate: -1 });
+        const ticked = await models?.Tickets.find({
+          ...matchedFilter,
+          stageChangedDate: { $exists: true },
+        }).sort({ stageChangedDate: -1 });
 
-      if (ticked) {
-        const stageDate = await stageChangedDate(ticked);
-        const title = 'Ticket Stage Changed Date';
-        const data = stageDate.reduce((result, item) => {
-          const date = item.date.split(',')[0]; // Extracting the date part without time
-          result[date] = (result[date] || 0) + 1;
+        if (ticked) {
+          const stageDate = await stageChangedDate(ticked);
+          const title = 'Ticket Stage Changed Date';
+          const data = stageDate.reduce((result, item) => {
+            const date = item.date.split(',')[0]; // Extracting the date part without time
+            result[date] = (result[date] || 0) + 1;
+
+            return result;
+          }, {});
+
+          const aggregatedData = Object.keys(data).map((date) => ({
+            x: date,
+            y: data[date],
+          }));
+
+          const result = {
+            title,
+            data: aggregatedData,
+          };
 
           return result;
-        }, {});
-
-        const aggregatedData = Object.keys(data).map((date) => ({
-          x: date,
-          y: data[date],
-        }));
-
-        const result = {
-          title,
-          data: aggregatedData,
-        };
-
-        return result;
-      } else {
-        return { error: 'No data found' };
+        } else {
+          return { error: 'No data found' };
+        }
+      } catch (error) {
+        return { error: error.message };
       }
     },
 
@@ -3976,17 +3882,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4097,17 +3993,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4115,7 +4001,7 @@ const chartTemplates = [
   {
     templateType: 'TicketClosedTotalsByRep',
     name: 'Ticket closed totals by rep',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    chartTypes: ['bar'],
     // Bar Chart Table
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const { pipelineIds, boardIds, stageType } = filter;
@@ -4256,17 +4142,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4376,17 +4252,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4550,17 +4416,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4577,62 +4433,49 @@ const chartTemplates = [
         pipelineIds,
         boardIds,
         stageType,
-        PIPELINE_TYPE_DEAL,
+        PIPELINE_TYPE_TICKET,
       );
-
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      try {
-        // Fetch tickets based on the query object and make them lean
-        let tickets = await models?.Tickets.find({ ...query }).lean();
-        if (tickets) {
-          // Fetch assigned users based on the provided assignedUserIds
-          const getTotalAssignedUserIds = await sendCoreMessage({
-            subdomain,
-            action: 'users.find',
-            data: {
-              query: { _id: { $in: filter.assignedUserIds } },
-            },
-            isRPC: true,
-            defaultValue: [],
-          });
+      const totalTicked = await models?.Tickets.find({
+        ...query,
+      }).sort({
+        createdAt: -1,
+      });
 
-          const assignedUsersMap = {};
+      const monthNames: string[] = [];
+      const monthlyTickedCount: number[] = [];
 
-          for (const assignedUser of getTotalAssignedUserIds) {
-            // Initialize the user entry in the map if it doesn't exist
-            if (!assignedUsersMap[assignedUser._id]) {
-              assignedUsersMap[assignedUser._id] = {
-                fullName: assignedUser.details?.fullName,
-                amount: 0, // Initialize the amount to 0
-              };
-            }
+      if (totalTicked) {
+        const now = new Date(); // Get the current date
+        const startOfYear = new Date(now.getFullYear(), 0, 1); // Get the start of the year
+        const endOfYear = new Date(now.getFullYear(), 12, 31); // Get the start of the year
+        const endRange = dayjs(
+          new Date(totalTicked.at(-1)?.createdAt || endOfYear),
+        );
 
-            // Count the number of tickets associated with the current user
-            const userTickets = tickets.filter(
-              (ticket) => ticket.userId === assignedUser._id,
-            );
-            assignedUsersMap[assignedUser._id].amount += userTickets.length;
-          }
-          const data = Object.values(assignedUsersMap).map(
-            (t: any) => t.amount,
+        let startRange = dayjs(startOfYear);
+
+        while (startRange < endRange) {
+          monthNames.push(startRange.format('MMMM'));
+
+          const getStartOfNextMonth = startRange.add(1, 'month').toDate();
+          const getTickedCountOfMonth = totalTicked.filter(
+            (ticked) =>
+              new Date(ticked.createdAt || '').getTime() >=
+                startRange.toDate().getTime() &&
+              new Date(ticked.createdAt || '').getTime() <
+                getStartOfNextMonth.getTime(),
           );
-          const labels = Object.values(assignedUsersMap).map(
-            (t: any) => t.fullName,
-          );
-
-          const title = 'Ticket totals over time';
-          const datasets = {
-            title,
-            data,
-            labels,
-          };
-
-          return datasets;
+          monthlyTickedCount.push(getTickedCountOfMonth.length);
+          startRange = startRange.add(1, 'month');
         }
-      } catch (error) {
-        throw new Error('Error fetching deals:', error);
       }
+      const label = 'View the total number of tickets created over a set time';
+      const datasets = [
+        { label, data: monthlyTickedCount, labels: monthNames },
+      ];
+      return datasets;
     },
     filterTypes: [
       {
@@ -4703,17 +4546,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4864,17 +4697,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -4906,11 +4729,7 @@ const chartTemplates = [
       const labels = ['total'];
       const title = 'Ticket totals by source';
 
-      const datasets = {
-        title,
-        data,
-        labels,
-      };
+      const datasets = [{ title, data, labels }];
       return datasets;
     },
     filterTypes: [
@@ -4982,17 +4801,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -5104,199 +4913,7 @@ const chartTemplates = [
         multi: true,
         fieldQuery: 'stages',
         fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-    ],
-  },
-
-  {
-    templateType: 'dealsChartByMonth',
-    name: 'dealsChart ByMonth',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string,
-    ) => {
-      // demonstration filters
-      const { pipelineIds, boardIds, stageType } = filter;
-      const matchedFilter = await filterData(filter);
-      const filterPipelineId = await PipelineAndBoardFilter(
-        pipelineIds,
-        boardIds,
-        stageType,
-        PIPELINE_TYPE_DEAL,
-      );
-      let queryFilter = await QueryFilter(filterPipelineId, matchedFilter);
-
-      const getTotalAssignedUserIds: string[] = [];
-
-      const totalDeals = await models?.Deals.find({
-        ...queryFilter,
-      }).lean();
-
-      if (totalDeals) {
-        for (const deal of totalDeals) {
-          if (deal.assignedUserIds) {
-            getTotalAssignedUserIds.push(...deal.assignedUserIds);
-          }
-        }
-      }
-
-      const totalAssignedUserIds = new Set(getTotalAssignedUserIds);
-
-      const DEFAULT_FILTER = {
-        assignedUserIds: Array.from(totalAssignedUserIds),
-        userId: currentUser._id,
-        pipelineId: getDefaultPipelineId,
-      };
-
-      const query = {
-        assignedUserIds: { $in: DEFAULT_FILTER.assignedUserIds },
-        pipelineId: DEFAULT_FILTER.pipelineId,
-      } as any;
-
-      if (filter && filter.assignedUserIds) {
-        query.assignedUserIds.$in = filter.assignedUserIds;
-      }
-
-      if (filter && filter.pipelineId) {
-        query.pipelineId = filter.pipelineId;
-      }
-
-      const getTotalAssignedUsers = await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: { _id: { $in: query.assignedUserIds.$in } },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      const assignedUsersMap = {};
-      const deals = await models?.Deals.find(query);
-
-      for (const assignedUser of getTotalAssignedUsers) {
-        assignedUsersMap[assignedUser._id] = {
-          fullName: assignedUser.details?.fullName,
-          assignedDealsCount: deals?.filter(
-            (deal) => deal.assignedUserIds?.includes(assignedUser._id),
-          ).length,
-        };
-      }
-
-      const data = Object.values(assignedUsersMap).map(
-        (t: any) => t.assignedDealsCount,
-      );
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName,
-      );
-
-      const title = 'Deals chart by assigned users';
-
-      const datasets = { title, data, labels };
-      return datasets;
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'labelIds',
-        fieldType: 'select',
-        multi: true,
-        fieldLabel: 'Select label',
-      },
-
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATE_RANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-      {
-        fieldName: 'branchIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'branches',
-        fieldLabel: 'Select branches',
-      },
-      {
-        fieldName: 'departmentIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'departments',
-        fieldLabel: 'Select departments',
-      },
-      {
-        fieldName: 'boardIds',
-        fieldType: 'select',
-        fieldQuery: 'boards',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select boards',
-      },
-      {
-        fieldName: 'pipelineIds',
-        fieldType: 'select',
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select pipeline',
-      },
-      {
-        fieldName: 'stageIds',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"pipelineId": "$pipelineIds"}`,
-        multi: true,
-        isAll: true,
-        fieldLabel: 'Select stages',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select Stage Type',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${TICKET_TAG_TYPE}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        fieldLabel: 'Select stage type',
       },
     ],
   },
@@ -5771,8 +5388,6 @@ function filterData(filter: any) {
     branchIds,
     departmentIds,
     stageIds,
-    tagIds,
-    labelIds,
   } = filter;
   const matchfilter = {};
 
@@ -5795,12 +5410,6 @@ function filterData(filter: any) {
 
   if (stageIds) {
     matchfilter['stageId'] = { $in: stageIds };
-  }
-  if (tagIds) {
-    matchfilter['tagIds'] = { $in: tagIds };
-  }
-  if (labelIds) {
-    matchfilter['labelIds'] = { $in: labelIds };
   }
 
   return matchfilter;
