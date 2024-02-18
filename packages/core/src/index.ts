@@ -267,14 +267,13 @@ app.get('/dashboard', async (req, res) => {
   res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
 });
 
-app.get('/get-import-file', async (req, res) => {
-  const headers = req.rawHeaders;
+app.get('/get-import-file/:fileName', async (req, res) => {
+  const fileName = req.params.fileName;
 
-  const index = headers.indexOf('fileName') + 1;
+  const filePath = path.join(uploadsFolderPath, fileName);
+  console.log(filePath, 'fileName');
 
-  const fileName = headers[index];
-
-  res.sendFile(`${uploadsFolderPath}/${fileName}`);
+  // res.sendFile(filePath);
 });
 
 app.get('/plugins/enabled/:name', async (req, res) => {

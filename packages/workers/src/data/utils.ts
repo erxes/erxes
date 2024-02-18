@@ -131,10 +131,11 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
 
   const service: any = await getService('core');
 
-  const url = `${service.address}/get-import-file`;
+  const url = `${service.address}/get-import-file/${fileName}`;
 
   try {
-    const response = await fetch(url, { headers: { fileName } });
+    const response = await fetch(url);
+
     if (!response.ok) {
       throw new Error(response.statusText);
     }
