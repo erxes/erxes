@@ -49,7 +49,7 @@ const UserDetail = ({ user }: { user: IUser }) => {
               alt="avatar"
               width={90}
               height={90}
-              className="w-16 h-16 rounded-full object-cover border border-exm"
+              className="w-16 h-16 rounded-full object-cover border-4 border-exm"
             />
           </div>
         </div>
@@ -78,25 +78,27 @@ const UserDetail = ({ user }: { user: IUser }) => {
             <ChevronRight size={18} color="#475467" />
           )}
         </div>
-        <div className={`${!showUserInfo && "hidden"}`}>
-          <div className="py-3">
-            <p>Email: {user?.email || "-"}</p>
-          </div>
-          <div className="py-3">
-            <p>Phone: {user?.details?.operatorPhone || "-"}</p>
-          </div>
-          <div className="py-3">
-            <p>Employee ID: {user?.employeeId || "-"}</p>
-          </div>
-          <div className="py-3 flex">
-            <p className="mr-2">Departments: </p>
-            <ul>{renderBrachDepartments("departments")}</ul>
-          </div>
-          <div className="py-3 flex">
-            <p className="mr-2">Branches: </p>
-            <ul>{renderBrachDepartments("branch")}</ul>
-          </div>
-        </div>
+        {showUserInfo && (
+          <>
+            <div className="py-3">
+              <p>Email: {user?.email || "-"}</p>
+            </div>
+            <div className="py-3">
+              <p>Phone: {user?.details?.operatorPhone || "-"}</p>
+            </div>
+            <div className="py-3">
+              <p>Employee ID: {user?.employeeId || "-"}</p>
+            </div>
+            <div className="py-3 flex">
+              <p className="mr-2">Departments: </p>
+              <ul>{renderBrachDepartments("departments")}</ul>
+            </div>
+            <div className="py-3 flex">
+              <p className="mr-2">Branches: </p>
+              <ul>{renderBrachDepartments("branch")}</ul>
+            </div>
+          </>
+        )}
         <div
           className="flex justify-between cursor-pointer py-3"
           onClick={() => setScreen("files")}

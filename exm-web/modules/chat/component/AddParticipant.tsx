@@ -4,7 +4,7 @@ import { useState } from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
-import { PlusCircle } from "lucide-react"
+import { UserPlus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +20,7 @@ import SelectUsers from "@/components/select/SelectUsers"
 import useChatsMutation from "../hooks/useChatsMutation"
 import { IChat } from "../types"
 
-const AddParticipant = ({ chat, type }: { chat: IChat; type?: string }) => {
+const AddParticipant = ({ chat }: { chat: IChat }) => {
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
   const [userIds, setUserIds] = useState(
     chat.participantUsers.map((user) => user._id) || ([] as any)
@@ -52,7 +52,7 @@ const AddParticipant = ({ chat, type }: { chat: IChat; type?: string }) => {
         <DialogContent className="p-0 gap-0 max-w-md">
           <DialogHeader className="border-b p-4">
             <DialogTitle className="flex justify-around">
-              Add people
+              Add new member
             </DialogTitle>
           </DialogHeader>
 
@@ -81,22 +81,23 @@ const AddParticipant = ({ chat, type }: { chat: IChat; type?: string }) => {
     }
 
     const renderTrigger = () => {
-      if (type === "small") {
-        return (
-          <div className="flex flex-col items-center">
-            <div className="bg-[#E6E6E6] rounded-lg p-3 text-[#9A9A9A] cursor-pointer">
-              <PlusCircle size={16} />
-            </div>
-            Add
-          </div>
-        )
-      }
-
       return (
-        <div className="p-3 cursor-pointer bg-primary-light rounded-lg">
-          <p className="text-sm font-medium text-white w-full text-center">
-            Add People
-          </p>
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2 p-2">
+            <div className="flex items-center cursor-pointer">
+              <div className="items-end flex mr-2">
+                <div className="w-10 h-10 rounded-full bg-[#F2F4F7] flex justify-center items-center">
+                  <UserPlus />
+                </div>
+              </div>
+
+              <div className="">
+                <p className="text-sm font-semibold text-[#444]">
+                  Add new member
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )
     }

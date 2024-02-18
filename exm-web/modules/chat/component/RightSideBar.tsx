@@ -29,7 +29,7 @@ const RightSideBar = ({
 
   const renderGroup = () => {
     return (
-      <GroupDetail setShowSidebar={setShowSidebar} chatDetail={chatDetail} />
+      <GroupDetail chatDetail={chatDetail} />
     )
   }
 
