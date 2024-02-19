@@ -12,6 +12,20 @@ type Props = {
   alertText?: string;
   fileType?: string;
   previewIcon?: string;
+  limit?: string;
+};
+
+const parseSizeLimit = (limit: string) => {
+  const size = parseFloat(limit);
+  const unit = limit.replace(/[0-9.]/g, '').toUpperCase();
+
+  if (unit === 'MB') {
+    return size * 1024 * 1024;
+  }
+  if (unit === 'KB') {
+    return size * 1024;
+  }
+  return 0;
 };
 
 function ImageUploader({
@@ -21,6 +35,7 @@ function ImageUploader({
   alertText,
   fileType,
   previewIcon,
+  limit,
 }: Props) {
   const [uploadPreview, setUploadPreview] = useState(null as any);
   const [previewUrl, setPreviewUrl] = useState(src);
@@ -32,6 +47,13 @@ function ImageUploader({
 
   const handleImageChange = (e) => {
     const file = e.target.files;
+
+    if (limit) {
+      const maxSize = parseSizeLimit(limit);
+      if (file[0].size > maxSize) {
+        return Alert.error(`File size exceeds the limit of ${limit}`);
+      }
+    }
 
     uploadHandler({
       files: file,
@@ -70,7 +92,7 @@ function ImageUploader({
 
   const renderUploadLoader = () => {
     if (uploadPreview) {
-      return <Spinner />;
+      return <Spinner objective />;
     }
 
     return null;

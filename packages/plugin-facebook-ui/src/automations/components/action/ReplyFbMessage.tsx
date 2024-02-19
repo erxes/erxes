@@ -177,6 +177,7 @@ function ReplyFbMessage({
           label="Upload Audio"
           fileType="audio/*"
           previewIcon="music-1"
+          limit="25MB"
         />
       </div>
     );
@@ -193,6 +194,7 @@ function ReplyFbMessage({
           label="Upload Video"
           fileType="video/*"
           previewIcon="film"
+          limit="25MB"
         />
       </div>
     );

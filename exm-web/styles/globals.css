@@ -45,7 +45,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --ring: 215 20.2% 65.1%;
-
+    --border-color: #EAECF0;
     --radius: 0.5rem;
   }
 
@@ -85,6 +85,10 @@
 
 * :focus-visible {
   outline: -webkit-focus-ring-color auto 0;
+}
+
+.border-exm {
+  border-color: var(--border-color);
 }
 
 .slick-prev {
@@ -237,4 +241,38 @@
 }
 .whitespace-wrap {
   white-space: wrap
+}
+.drag-drop {
+  background: #fff;
+  border-radius: 8px;
+}
+.document-uploader {
+  border: 2px dashed var(--border-color);
+  background-color: #FCFCFD;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 100%;
+}
+.document-uploader.active {
+  border-color: #5B38CA;
+}
+
+.document-uploader.upload-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.document-uploader.upload-info svg {
+  font-size: 36px;
+  margin-right: 1rem;
+}
+
+.document-uploader  input[type="file"] {
+  display: none;
 }
