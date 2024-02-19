@@ -141,8 +141,13 @@ const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: ILogin, { res, requestInfo, models }: IContext) {
+  async login(
+    _root,
+    args: ILogin,
+    { res, requestInfo, models, subdomain }: IContext,
+  ) {
     const response = await models.Users.login(args);
+    const VERSION = getEnv({ name: 'VERSION' });
 
     const { token } = response;
 
@@ -150,9 +155,21 @@ const userMutations = {
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     const cookieOptions: any = { secure: requestInfo.secure };
-
     if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
       cookieOptions.sameSite = sameSite;
+    }
+
+    if (VERSION && VERSION === 'saas') {
+      const organization = await getOrganizationDetail({ subdomain, models });
+
+      if (organization.domain && organization.dnsStatus === 'active') {
+        cookieOptions.secure = true;
+        cookieOptions.sameSite = 'none';
+      }
+
+      await updateOrganization(models, subdomain, {
+        $set: { lastActiveDate: Date.now() },
+      });
     }
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));

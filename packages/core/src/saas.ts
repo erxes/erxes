@@ -87,9 +87,6 @@ export const handleCoreLogin = async (req: any, res) => {
       isOwner: true,
     });
 
-    console.log(user, 'user', subdomain);
-    console.log(systemUser, 'user', subdomain);
-
     if (systemUser) {
       const [createToken] = await models.Users.createTokens(
         systemUser,
