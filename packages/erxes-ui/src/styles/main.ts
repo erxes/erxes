@@ -42,7 +42,7 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   }
 
   .dropdown {
-    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
+    display: ${(props) => (props.isSmall ? 'inline-block' : 'block')};
   }
 
   > button:first-child {
@@ -74,19 +74,19 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   min-height: 100%;
-  justify-content: ${props => props.center && 'center'};
-  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${(props) => props.center && 'center'};
+  align-items: ${(props) => (props.align ? 'flex-start' : 'center')};
 `;
 
-const MiddleContent = styledTS<{ transparent?: boolean; shrink?: boolean }>(
-  styled.div
+const MiddleContent = styledTS<{ $transparent?: boolean; shrink?: boolean }>(
+  styled.div,
 )`
   width: 900px;
 
-  background: ${props => !props.transparent && colors.colorWhite};
+  background: ${(props) => !props.$transparent && colors.colorWhite};
   margin: 10px 0;
 
-  ${props =>
+  ${(props) =>
     !props.shrink &&
     css`
       height: 100%;
@@ -102,7 +102,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
-  box-shadow: ${props =>
+  box-shadow: ${(props) =>
     props.selected
       ? `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`
       : `0 6px 10px 1px ${rgba(colors.colorCoreDarkGray, 0.08)}`} ;
@@ -110,8 +110,8 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
-  border: 1px ${props => (props.selected ? 'solid' : 'dashed')}
-    ${props =>
+  border: 1px ${(props) => (props.selected ? 'solid' : 'dashed')}
+    ${(props) =>
       props.selected ? colors.colorSecondary : 'rgba(0, 0, 0, 0.12)'};
 
   > a {
@@ -230,7 +230,7 @@ const CenterContent = styled.div`
 
 const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
   position: relative;
-  height: ${props => props.isEmpty && '360px'};
+  height: ${(props) => props.isEmpty && '360px'};
 `;
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
@@ -244,7 +244,7 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
     float: right;
     transition: all ease 0.3s;
     margin-left: ${dimensions.unitSpacing - 2}px;
-    transform: ${props => props.isOpen && `rotate(180deg)`};
+    transform: ${(props) => props.isOpen && `rotate(180deg)`};
   }
 `;
 
@@ -280,7 +280,7 @@ const DateWrapper = styled.time`
 
 const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
   height: 50vh;
-  height: ${props =>
+  height: ${(props) =>
     props.calcHeight
       ? `calc(100vh - ${props.calcHeight}px)`
       : 'calc(100vh - 280px)'};
@@ -334,7 +334,7 @@ const ButtonRelated = styled.div`
 
 const SimpleButton = styledTS<{ isActive?: boolean }>(styled.div)`
   font-size: 15px;
-  background: ${props => props.isActive && colors.bgGray};
+  background: ${(props) => props.isActive && colors.bgGray};
   width: 24px;
   height: 24px;
   line-height: 24px;
@@ -357,7 +357,7 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   margin: 20px 0;
   display: flex;
   line-height: 30px;
-  text-transform: ${props => props.capitalize && 'capitalize'};
+  text-transform: ${(props) => props.capitalize && 'capitalize'};
 
   > span {
     font-size: 75%;
@@ -475,7 +475,7 @@ const Pin = styled.div`
 
 const MapContainer = styled.div<{ fullHeight?: boolean }>`
   width: 100%;
-  height: ${props => (props.fullHeight ? '100%' : '250px')};
+  height: ${(props) => (props.fullHeight ? '100%' : '250px')};
 `;
 
 const ImageWrapper = styled.div`
@@ -515,15 +515,15 @@ const Loader = styledTS<IAnimatedLoader>(styled.div)`
   animation-name: ${placeHolderShimmer};
   animation-timing-function: linear;
   background: linear-gradient(to right, 
-    ${props => (props.color ? props.color : colors.borderPrimary)} 8%, 
-    ${props => (props.color ? colors.bgLight : colors.borderDarker)} 18%, 
-    ${props => (props.color ? props.color : colors.borderPrimary)} 33%);
+    ${(props) => (props.color ? props.color : colors.borderPrimary)} 8%, 
+    ${(props) => (props.color ? colors.bgLight : colors.borderDarker)} 18%, 
+    ${(props) => (props.color ? props.color : colors.borderPrimary)} 33%);
   background-size: 800px 200px;
-  width: ${props => (props.width ? props.width : '100%')};
-  height: ${props => (props.height ? props.height : '100%')};
-  border-radius: ${props => (props.round ? '50%' : '2px')};
-  margin-right: ${props => props.marginRight};
-  margin: ${props => props.margin};
+  width: ${(props) => (props.width ? props.width : '100%')};
+  height: ${(props) => (props.height ? props.height : '100%')};
+  border-radius: ${(props) => (props.round ? '50%' : '2px')};
+  margin-right: ${(props) => props.marginRight};
+  margin: ${(props) => props.margin};
   position: relative;
   float: left;
 `;
@@ -571,5 +571,5 @@ export {
   Pin,
   MapContainer,
   ImageWrapper,
-  TextWrapper
+  TextWrapper,
 };

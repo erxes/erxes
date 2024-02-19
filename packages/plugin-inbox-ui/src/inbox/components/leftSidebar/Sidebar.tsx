@@ -7,7 +7,7 @@ import {
   ScrollContent,
   SidebarActions,
   SidebarContent,
-  ToggleButton
+  ToggleButton,
 } from './styles';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -18,13 +18,13 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import RTG from 'react-transition-group';
 import React from 'react';
 import Resolver from '../../containers/Resolver';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Tagger from '../../containers/Tagger';
+import { Transition } from 'react-transition-group';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -35,25 +35,28 @@ const DateFilter = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-DateFilter" */ '@erxes/ui/src/components/DateFilter'
     ),
-  { height: '15px', width: '70px' }
+  { height: '15px', width: '70px' },
 );
 
-const AssignBoxPopover = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover'
-  )
+const AssignBoxPopover = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover'
+    ),
 );
 
-const ConversationList = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-ConversationList" */ '../../containers/leftSidebar/ConversationList'
-  )
+const ConversationList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConversationList" */ '../../containers/leftSidebar/ConversationList'
+    ),
 );
 
-const FilterList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Inbox-FilterList" */ '../../containers/leftSidebar/FilterList'
-  )
+const FilterList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Inbox-FilterList" */ '../../containers/leftSidebar/FilterList'
+    ),
 );
 
 type Props = {
@@ -80,7 +83,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     this.state = {
       isOpen: props.config.showAddition,
-      counts: {}
+      counts: {},
     };
   }
 
@@ -170,7 +173,7 @@ class LeftSidebar extends React.Component<Props, State> {
     };
 
     return (
-      <RTG.CSSTransition
+      <Transition
         in={this.state.isOpen}
         appear={true}
         timeout={300}
@@ -188,7 +191,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 query={{
                   queryName: 'channelsByMembers',
                   variables: { memberIds: [currentUser._id] },
-                  dataName: 'channelsByMembers'
+                  dataName: 'channelsByMembers',
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -209,8 +212,8 @@ class LeftSidebar extends React.Component<Props, State> {
                     queryName: 'segmentList',
                     dataName: 'segments',
                     variables: {
-                      contentTypes: [TAG_TYPES.CONVERSATION]
-                    }
+                      contentTypes: [TAG_TYPES.CONVERSATION],
+                    },
                   }}
                   queryParams={queryParams}
                   counts="bySegment"
@@ -246,7 +249,7 @@ class LeftSidebar extends React.Component<Props, State> {
               <FilterList
                 query={{
                   queryName: 'integrationsGetUsedTypes',
-                  dataName: 'integrationsGetUsedTypes'
+                  dataName: 'integrationsGetUsedTypes',
                 }}
                 queryParams={queryParams}
                 counts="byIntegrationTypes"
@@ -268,8 +271,8 @@ class LeftSidebar extends React.Component<Props, State> {
                     dataName: 'tags',
                     variables: {
                       type: TAG_TYPES.CONVERSATION,
-                      perPage: 100
-                    }
+                      perPage: 100,
+                    },
                   }}
                   queryParams={queryParams}
                   counts="byTags"
@@ -284,7 +287,7 @@ class LeftSidebar extends React.Component<Props, State> {
             )}
           </ScrollContent>
         </SidebarContent>
-      </RTG.CSSTransition>
+      </Transition>
     );
   }
 
@@ -295,7 +298,7 @@ class LeftSidebar extends React.Component<Props, State> {
       history,
       queryParams,
       bulk,
-      toggleBulk
+      toggleBulk,
     } = this.props;
 
     return (

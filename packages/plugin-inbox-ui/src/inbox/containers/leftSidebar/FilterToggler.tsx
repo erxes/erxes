@@ -1,11 +1,13 @@
+import { getConfig, setConfig } from '@erxes/ui-inbox/src/inbox/utils';
+
 import DumbToggler from '@erxes/ui-inbox/src/inbox/components/leftSidebar/FilterToggler';
 import React from 'react';
-import { getConfig, setConfig } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   groupText: string;
   toggleName: string;
   manageUrl?: string;
+  children: React.ReactNode;
 };
 
 const STORAGE_KEY = 'erxes_additional_sidebar_config';
@@ -31,14 +33,14 @@ export default class FilterToggler extends React.PureComponent<Props, {}> {
         showBrands: false,
         showIntegrations: false,
         showTags: false,
-        showSegments: false
+        showSegments: false,
       });
     }
 
     const updatedProps = {
       ...this.props,
       isOpen: config[name],
-      toggle: this.toggle
+      toggle: this.toggle,
     };
 
     return <DumbToggler {...updatedProps} />;

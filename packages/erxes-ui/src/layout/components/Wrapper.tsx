@@ -1,14 +1,15 @@
-import { FullContent, MiddleContent } from '../../styles/main';
-import React from 'react';
 import {
   Contents,
   HeightedWrapper,
   MainHead,
-  VerticalContent
+  VerticalContent,
 } from '../styles';
+import { FullContent, MiddleContent } from '../../styles/main';
+
 import ActionBar from './ActionBar';
 import Header from './Header';
 import PageContent from './PageContent';
+import React from 'react';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -36,16 +37,16 @@ class Wrapper extends React.Component<Props> {
       actionBar,
       content,
       footer,
-      transparent,
+      transparent = false,
       center,
       shrink,
-      initialOverflow
+      initialOverflow,
     } = this.props;
 
     if (center) {
       return (
         <FullContent center={true} align={true}>
-          <MiddleContent shrink={shrink} transparent={transparent}>
+          <MiddleContent shrink={shrink} $transparent={transparent}>
             <PageContent
               actionBar={actionBar}
               footer={footer}
@@ -72,13 +73,8 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const {
-      header,
-      leftSidebar,
-      rightSidebar,
-      mainHead,
-      hasBorder
-    } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead, hasBorder } =
+      this.props;
 
     return (
       <VerticalContent>

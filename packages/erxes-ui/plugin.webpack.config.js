@@ -87,7 +87,7 @@ module.exports = (configs) => (env, args) => {
       allowedHosts: "all",
       historyApiFallback: true,
       client: {
-        overlay: false,
+        overlay: true,
       },
     },
 

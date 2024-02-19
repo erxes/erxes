@@ -77,7 +77,7 @@ const MainHead = styled.div`
 `;
 
 const MainContent = styledTS<{
-  transparent?: boolean;
+  $transparent?: boolean;
   center?: boolean;
 }>(styled.section)`
   flex: 1;
@@ -85,18 +85,18 @@ const MainContent = styledTS<{
   flex-direction: column;
   min-width: 480px;
   box-shadow: ${(props) =>
-    !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
+    !props.$transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${(props) => props.center && '100%'};
 `;
 
 const ContentBox = styledTS<{
-  transparent?: boolean;
+  $transparent?: boolean;
   initialOverflow?: boolean;
 }>(styled.div)`
   flex: 1;
   overflow: ${(props) => (props.initialOverflow ? 'initial' : 'auto')};
   position: relative;
-  background-color: ${(props) => !props.transparent && colors.colorWhite};
+  background-color: ${(props) => !props.$transparent && colors.colorWhite};
 `;
 
 const ContentHeader = styledTS<{

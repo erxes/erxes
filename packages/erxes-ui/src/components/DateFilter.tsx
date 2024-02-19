@@ -1,21 +1,21 @@
-import dayjs from 'dayjs';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { withApollo } from '@apollo/client/react/hoc';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import styled from 'styled-components';
-import { dimensions } from '../styles';
-import { PopoverButton } from '../styles/main';
 import Alert from '../utils/Alert';
-import { __ } from '../utils/core';
-import { setParams } from '../utils/router';
-import asyncComponent from './AsyncComponent';
 import Button from './Button';
 import Icon from './Icon';
+import { Popover } from '@headlessui/react';
+import { PopoverButton } from '../styles/main';
+import React from 'react';
+import { __ } from '../utils/core';
+import asyncComponent from './AsyncComponent';
+import dayjs from 'dayjs';
+import { dimensions } from '../styles';
+import { gql } from '@apollo/client';
+import { setParams } from '../utils/router';
+import styled from 'styled-components';
+import { withApollo } from '@apollo/client/react/hoc';
 
-const Datetime = asyncComponent(() =>
-  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
+const Datetime = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime'),
 );
 
 const FlexRow = styled.div`
@@ -66,7 +66,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     const state: State = {
       startDate: new Date(),
       endDate: new Date(),
-      totalCount: 0
+      totalCount: 0,
     };
 
     if (startDate) {
@@ -92,7 +92,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
     if (typeof date !== 'string') {
-      this.setState(({ [type]: date } as unknown) as Pick<State, keyof State>);
+      this.setState({ [type]: date } as unknown as Pick<State, keyof State>);
     }
   };
 
@@ -112,15 +112,15 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     client
       .query({
         query: gql(countQuery),
-        variables
+        variables,
       })
 
       .then(({ data }) => {
         this.setState({
-          totalCount: data[countQueryParam]
+          totalCount: data[countQueryParam],
         });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -136,7 +136,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
     setParams(this.props.history, {
       startDate: formattedStartDate,
-      endDate: formattedEndDate
+      endDate: formattedEndDate,
     });
 
     if (this.props.countQuery) {
@@ -165,24 +165,24 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
-      closeOnSelect: false
+      closeOnSelect: false,
     };
 
-    const onChangeStart = date => {
+    const onChangeStart = (date) => {
       if (typeof date !== 'string') {
         this.onDateChange('startDate', date);
       }
     };
 
-    const onChangeEnd = date => {
+    const onChangeEnd = (date) => {
       if (typeof date !== 'string') {
         this.onDateChange('endDate', date);
       }
     };
 
     return (
-      <Popover id="date-popover">
-        <Popover.Title as="h3">{__('Filter by date')}</Popover.Title>
+      <Popover.Panel>
+        <h3>{__('Filter by date')}</h3>
         <FlexRow>
           <div>
             <DateName>Start Date</DateName>
@@ -216,24 +216,18 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
             Filter
           </Button>
         </FlexRow>
-      </Popover>
+      </Popover.Panel>
     );
   };
 
   render() {
     return (
-      <OverlayTrigger
-        trigger="click"
-        placement="bottom-start"
-        overlay={this.renderPopover()}
-        container={this}
-        rootClose={true}
-      >
+      <Popover>
         <PopoverButton>
           {__('Date')}
           <Icon icon="angle-down" />
         </PopoverButton>
-      </OverlayTrigger>
+      </Popover>
     );
   }
 }

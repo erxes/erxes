@@ -1,9 +1,9 @@
 import {
+  Navigate,
   Route,
   Routes,
-  useNavigate,
   useLocation,
-  Navigate,
+  useNavigate,
 } from 'react-router-dom';
 
 import { IRouterProps } from '@erxes/ui/src/types';

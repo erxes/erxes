@@ -1,9 +1,11 @@
 import queryString from 'query-string';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * @param {Object} query
  */
 const setParams = (history: any, query: any, replace: boolean = false) => {
+  const navigate = useNavigate();
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}
@@ -17,9 +19,9 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
 
   // go to new url
   if (replace) {
-    return history.replace(
-      `${location.pathname}?${stringified}${location.hash}`
-    );
+    return navigate(`${location.pathname}?${stringified}${location.hash}`, {
+      replace: true,
+    });
   }
 
   return history.push(`${location.pathname}?${stringified}${location.hash}`);
@@ -47,7 +49,7 @@ const removeParams = (history: any, ...queryNames: string[]) => {
   const parsed = queryString.parse(location.search);
 
   // remove given parameters
-  queryNames.forEach(q => delete parsed[q]);
+  queryNames.forEach((q) => delete parsed[q]);
 
   // convert back to param1=value1&param2=value2
   const stringified = queryString.stringify(parsed);
@@ -89,7 +91,7 @@ export const generatePaginationParams = (queryParams: {
 }) => {
   return {
     page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
   };
 };
 
@@ -102,7 +104,7 @@ export const generatePaginationParams = (queryParams: {
 const onParamSelect = (
   name: string,
   values: string[] | string,
-  history: any
+  history: any,
 ) => {
   setParams(history, { [name]: values });
 };
@@ -151,5 +153,5 @@ export {
   removeParams,
   removeHash,
   refetchIfUpdated,
-  checkHashKeyInURL
+  checkHashKeyInURL,
 };
