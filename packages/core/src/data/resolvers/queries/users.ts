@@ -390,10 +390,6 @@ const userQueries = {
    * Current user
    */
   async currentUser(_root, _args, { user, models, subdomain }: IContext) {
-    if (subdomain === 'deudash') {
-      console.log(user, 'user');
-    }
-
     const result = user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
