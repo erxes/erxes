@@ -271,9 +271,8 @@ app.get('/get-import-file/:fileName', async (req, res) => {
   const fileName = req.params.fileName;
 
   const filePath = path.join(uploadsFolderPath, fileName);
-  console.log(filePath, 'fileName');
 
-  // res.sendFile(filePath);
+  res.sendFile(filePath);
 });
 
 app.get('/plugins/enabled/:name', async (req, res) => {
