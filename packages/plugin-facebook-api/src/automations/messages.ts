@@ -1,4 +1,3 @@
-import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
@@ -11,6 +10,7 @@ import {
   checkContentConditions,
 } from './utils';
 import * as moment from 'moment';
+import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
   config: any,
@@ -43,6 +43,14 @@ const generateMessages = async (
     }
 
     return generatedButtons;
+  };
+
+  const getUrl = (key) => {
+    const DOMAIN = getEnv({
+      name: 'DOMAIN',
+    });
+
+    return `${DOMAIN}/read-file?key=${key}`;
   };
 
   const quickRepliesIndex = messages.findIndex(
@@ -108,7 +116,7 @@ const generateMessages = async (
               ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
-                image_url: readFileUrl(image),
+                image_url: getUrl(image),
                 buttons: generateButtons(buttons),
               }),
             ),
@@ -142,7 +150,7 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: readFileUrl(url),
+              url: getUrl(url),
             },
           },
           botData,
