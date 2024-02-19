@@ -910,23 +910,27 @@ const readFromCFImages = async (
   width?: number,
   models?: IModels,
 ) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
   const CLOUDFLARE_ACCOUNT_HASH = await getConfig(
     'CLOUDFLARE_ACCOUNT_HASH',
     '',
     models,
   );
 
-  // const CLOUDFLARE_BUCKET_NAME = await getConfig(
-  //   'CLOUDFLARE_BUCKET_NAME',
-  //   '',
-  //   models
-  // );
+  const CLOUDFLARE_BUCKET_NAME = await getConfig(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+    models,
+  );
 
   let fileName = key;
 
-  // if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
-  //   fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
-  // }
+  if (!VERSION || VERSION !== 'saas') {
+    if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
+      fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
+    }
+  }
 
   if (!CLOUDFLARE_ACCOUNT_HASH) {
     throw new Error('Cloudflare Account Hash is not configured');

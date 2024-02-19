@@ -81,6 +81,7 @@ export const doSearch = async ({
 };
 
 export const fetchEs = async ({
+  subdomain,
   action,
   index,
   body,
@@ -92,6 +93,35 @@ export const fetchEs = async ({
   connectionString,
 }: IFetchEsArgs) => {
   try {
+    const VERSION = getEnv({ name: 'VERSION' });
+    let organizationId = '';
+
+    if (VERSION && VERSION === 'saas') {
+      organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+      if (body && body.query) {
+        if (body.query.bool) {
+          if (body.query.bool.must) {
+            const extraQuery = {
+              term: {
+                organizationId,
+              },
+            };
+
+            if (body.query.bool.must.push) {
+              body.query.bool.must.push(extraQuery);
+            } else {
+              body.query.bool.must = [body.query.bool.must, extraQuery];
+            }
+          }
+        }
+      }
+
+      if (body && Object.keys(body).length === 0) {
+        body = { query: { match: { organizationId } } };
+      }
+    }
+
     const params: any = {
       index: `${getIndexPrefix(connectionString)}${index}`,
       body,
@@ -101,7 +131,9 @@ export const fetchEs = async ({
       body.size = 10000;
     }
 
-    if (_id) {
+    if (_id && organizationId) {
+      params.id = `${organizationId}__${_id}`;
+    } else if (_id) {
       params.id = _id;
     }
 
