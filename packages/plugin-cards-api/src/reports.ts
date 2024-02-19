@@ -1,10 +1,6 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { models } from './connectionResolver';
-import {
-  sendCoreMessage,
-  sendTagsMessage,
-  sendContactsMessage,
-} from './messageBroker';
+import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
 
 const checkFilterParam = (param: any) => {
@@ -185,149 +181,11 @@ const reportTemplates = [
 
 const chartTemplates = [
   {
-    templateType: 'dealsChartByMonth',
-    name: 'dealsChar tByMonth',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (
-      filter: any,
-      subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string,
-    ) => {
-      // demonstration filters
-      const { dateRange, startDate, endDate } = filter;
-
-      const matchfilter = {};
-      if (dateRange) {
-        const dateFilter = returnDateRange(
-          filter.dateRange,
-          startDate,
-          endDate,
-        );
-
-        if (Object.keys(dateFilter).length) {
-          matchfilter['createdAt'] = dateFilter;
-        }
-      }
-      const getTotalAssignedUserIds: string[] = [];
-      let matchDate;
-      let totalDeals;
-
-      if (Object.keys(matchfilter).length > 0) {
-        matchDate = { createdAt: matchfilter };
-      }
-
-      if (
-        matchDate === undefined ||
-        dateRange === 'all' ||
-        dateRange === undefined
-      ) {
-        totalDeals = await models?.Deals.find({
-          assignedUserIds: { $exists: true },
-        }).lean();
-      } else {
-        totalDeals = await models?.Deals.find({
-          ...matchDate, // Spread the matchDate object
-          assignedUserIds: { $exists: true },
-        }).lean();
-      }
-
-      if (totalDeals) {
-        for (const deal of totalDeals) {
-          if (deal.assignedUserIds) {
-            getTotalAssignedUserIds.push(...deal.assignedUserIds);
-          }
-        }
-      }
-
-      const totalAssignedUserIds = new Set(getTotalAssignedUserIds);
-
-      const DEFAULT_FILTER = {
-        assignedUserIds: Array.from(totalAssignedUserIds),
-        userId: currentUser._id,
-        pipelineId: getDefaultPipelineId,
-      };
-
-      const query = {
-        assignedUserIds: { $in: DEFAULT_FILTER.assignedUserIds },
-        pipelineId: DEFAULT_FILTER.pipelineId,
-      } as any;
-
-      if (filter && filter.assignedUserIds) {
-        query.assignedUserIds.$in = filter.assignedUserIds;
-      }
-
-      if (filter && filter.pipelineId) {
-        query.pipelineId = filter.pipelineId;
-      }
-
-      const getTotalAssignedUsers = await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: { _id: { $in: query.assignedUserIds.$in } },
-        },
-        isRPC: true,
-        defaultValue: [],
-      });
-
-      const assignedUsersMap = {};
-      const deals = await models?.Deals.find(query);
-
-      for (const assignedUser of getTotalAssignedUsers) {
-        assignedUsersMap[assignedUser._id] = {
-          fullName: assignedUser.details?.fullName,
-          assignedDealsCount: deals?.filter(
-            (deal) => deal.assignedUserIds?.includes(assignedUser._id),
-          ).length,
-        };
-      }
-
-      const data = Object.values(assignedUsersMap).map(
-        (t: any) => t.assignedDealsCount,
-      );
-      const labels = Object.values(assignedUsersMap).map(
-        (t: any) => t.fullName,
-      );
-
-      const title = 'Deals chart by assigned users';
-
-      const datasets = { title, data, labels };
-      return datasets;
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
-        fieldName: 'assignedDepartmentIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'departments',
-        fieldLabel: 'Select assigned departments',
-      },
-      {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATE_RANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-    ],
-  },
-  {
     templateType: 'DealAmountAverageByRep',
     name: 'Deal amount average by rep',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const { pipelineId, boardId, stageType } = filter;
-
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -694,11 +552,12 @@ const chartTemplates = [
         PIPELINE_TYPE_DEAL,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      let totalDeals;
-      totalDeals = await models?.Deals.find(query).sort({
-        modifiedAt: -1,
-      });
 
+      const totalDeals = await models?.Deals.find(query)
+        .sort({
+          modifiedAt: -1,
+        })
+        .limit(1000);
       const dealsCount = totalDeals?.map((deal) => {
         return {
           dealName: deal.name,
@@ -723,6 +582,7 @@ const chartTemplates = [
 
       const labels = sortedData?.map((deal: any) => deal.dealName);
       const label = 'Deals count by modified month';
+
       const datasets = {
         title: label,
         data,
@@ -765,6 +625,7 @@ const chartTemplates = [
         fieldName: 'boardId',
         fieldType: 'select',
         fieldQuery: 'boards',
+        multi: false,
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
         fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
@@ -1473,7 +1334,6 @@ const chartTemplates = [
       },
     ],
   },
-
   {
     templateType: 'DealsSales',
     name: 'Deals sales',
@@ -1591,6 +1451,21 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
+      },
+      {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
       },
       {
         fieldName: 'fieldsGroups',
@@ -2600,84 +2475,60 @@ const chartTemplates = [
         PIPELINE_TYPE_TASK,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      // const selectedTagIds = filter.tagIds || [];
-      // let tasksCount;
-      // //  tasksCount = await models?.Tasks.find({ isComplete: true }).lean();
 
-      // try {
-      //   if (selectedTagIds.length === 0) {
-      //     tasksCount = await models?.Tasks.find({
-      //       ...query,
-      //       isComplete: true
-      //     }).lean();
-      //   } else {
-      //     tasksCount = await models?.Tasks.find({
-      //       ...query,
-      //       isComplete: true,
-      //       tagIds: { $in: selectedTagIds }
-      //     }).lean();
-      //   }
-      // } catch (error) {
-      //   throw new Error('Error fetching tags:', error);
-      // }
+      const tasks = await models?.Tasks.find({
+        ...query,
+        isComplete: true,
+      }).lean();
 
-      // const taskCounts = taskClosedByTagsRep(tasksCount);
+      const taskCount = calculateTicketCounts(
+        tasks,
+        filter.assignedUserIds || [],
+      );
+      const countsArray = Object.entries(taskCount).map(
+        // tslint:disable-next-line:no-shadowed-variable
+        ([ownerId, count]) => ({
+          ownerId,
+          count,
+        }),
+      );
+      countsArray.sort((a, b) => b.count - a.count);
 
-      // // Convert the counts object to an array of objects with ownerId and count
-      // const countsArray = Object.entries(taskCounts).map(
-      //   ([ownerId, count]) => ({
-      //     ownerId,
-      //     count
-      //   })
-      // );
-      // countsArray.sort((a, b) => b.count - a.count);
+      // Extract unique ownerIds for user lookup
+      const ownerIds = countsArray.map((item) => item.ownerId);
 
-      // // Extract unique ownerIds for user lookup
-      // const ownerIds = countsArray.map((item) => item.ownerId);
+      const getTotalAssignedUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: { _id: { $in: ownerIds } },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+      const assignedUsersMap = getTotalAssignedUsers.reduce((acc, user) => {
+        acc[user._id] = user.details; // Assuming details contains user information
+        return acc;
+      }, {});
 
-      // const tagInfo = await sendTagsMessage({
-      //   subdomain,
-      //   action: 'find',
-      //   data: {
-      //     _id: { $in: ownerIds || [] }
-      //   },
-      //   isRPC: true,
-      //   defaultValue: []
-      // });
+      const sort = ownerIds.map((ownerId) => {
+        const user = assignedUsersMap[ownerId];
+        const count = taskCount[ownerId];
 
-      // if (!tagInfo || tagInfo.length === 0) {
-      //   // Handle the case where no labels are found
-      //   return {
-      //     title: '',
-      //     data: [],
-      //     tagIds: [],
-      //     count: []
-      //   };
-      // }
-      // const enrichedTicketData = countsArray.map((item) => {
-      //   const ownerId = item.ownerId;
-      //   const matchingLabel = tagInfo.find(
-      //     (label) => label && label._id === ownerId
-      //   );
-
-      //   // Use the spread operator (...) to include all properties of the item object
-      //   return {
-      //     ...item,
-      //     labels: matchingLabel ? [matchingLabel.name] : []
-      //   };
-      // });
-      // const data = enrichedTicketData.map((t) => t.count);
-
-      // // Flatten the label array and remove any empty arrays
-      // const label = enrichedTicketData
-      //   .map((t) => t.labels)
-      //   .flat()
-      //   .filter((item) => item.length > 0);
-      // const title = 'Task closed totals by tags';
-
-      // const datasets = { title, data, labels: label };
-
-      // return datasets;
+        return {
+          name: user.fullName,
+          count: count || 0, // Set count to 0 if not found in ticketCounts
+        };
+      });
+      const title = 'Task closed totals by tags';
+      const data = Object.values(sort).map((t: any) => t.count);
+      const labels = Object.values(sort).map((t: any) => t.name);
+      const datasets = {
+        title,
+        data,
+        labels,
+      };
+      return datasets;
     },
 
     filterTypes: [
@@ -5524,7 +5375,7 @@ const chartTemplates = [
             data: {
               query: {
                 _id: {
-                  $in: result.assignedUserIds,
+                  $in: filter.assignedUserIds,
                 },
               },
             },
@@ -6029,7 +5880,6 @@ function taskClosedByTagsRep(tasks: any) {
   // Check if tickets is an array
   if (!Array.isArray(tasks)) {
     throw new Error('Invalid input: tasks should be an array.');
-    return ticketCounts;
   }
 
   tasks.forEach((ticket) => {
@@ -6456,6 +6306,7 @@ function filterData(filter: any) {
     stageId,
     tagIds,
     pipelineLabels,
+    fieldsGroups,
   } = filter;
   const matchfilter = {};
 
@@ -6484,6 +6335,11 @@ function filterData(filter: any) {
   }
   if (pipelineLabels) {
     matchfilter['labelIds'] = { $in: pipelineLabels };
+  }
+  if (fieldsGroups) {
+    matchfilter['customFieldsData'] = {
+      $elemMatch: { field: { $in: fieldsGroups } },
+    };
   }
   return matchfilter;
 }
@@ -6599,7 +6455,7 @@ async function PipelineAndBoardFilter(
       _id: {
         $in: pipelineId,
       },
-      type: 'deal',
+      type: type,
       status: 'active',
     });
     if (findPipeline) {
@@ -6648,10 +6504,13 @@ function QueryFilter(filterPipelineId: any, matchedFilter: any) {
 
   if (
     matchedFilter &&
-    Array.isArray(matchedFilter) &&
-    matchedFilter.length > 0
+    typeof matchedFilter === 'object' &&
+    Object.keys(matchedFilter).length > 0
   ) {
-    constructedQuery = { ...constructedQuery, ...{ $and: matchedFilter } };
+    constructedQuery = {
+      ...constructedQuery,
+      ...matchedFilter,
+    };
   }
 
   return constructedQuery;
