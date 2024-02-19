@@ -342,7 +342,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -357,7 +360,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -523,7 +526,10 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: Object.keys(usersWithRespondTime) } },
+          query: {
+            _id: { $in: Object.keys(usersWithRespondTime) },
+            isActive: true,
+          },
         },
         isRPC: true,
         defaultValue: [],
@@ -624,7 +630,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -639,7 +648,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -724,7 +733,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -841,7 +850,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -855,7 +867,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -956,7 +968,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -1298,7 +1310,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -1313,7 +1328,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -1446,7 +1461,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -1698,7 +1713,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -1713,7 +1731,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -1879,7 +1897,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],

@@ -39,7 +39,7 @@ export default {
 
     return models.Assets.countDocuments({
       parentId: { $in: asset_ids },
-      status: { $ne: ASSET_STATUSES.DELETED }
+      status: { $ne: ASSET_STATUSES.DELETED },
     });
   },
 
@@ -53,11 +53,11 @@ export default {
       action: 'articles.find',
       data: {
         query: {
-          _id: { $in: asset.kbArticleIds || [] }
-        }
+          _id: { $in: asset.kbArticleIds || [] },
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const map = {};
@@ -78,10 +78,10 @@ export default {
         action: 'categories.findOne',
         data: {
           query: {
-            _id: categoryId
-          }
+            _id: categoryId,
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
 
       let topic: any;
@@ -90,7 +90,8 @@ export default {
         _id: category._id,
         title: category.title,
         description: category.description,
-        contents: map[categoryId]
+        parentCategoryId: category.parentCategoryId || null,
+        contents: map[categoryId],
       };
 
       if (category.topicId) {
@@ -99,11 +100,11 @@ export default {
           action: 'topics.findOne',
           data: {
             query: {
-              _id: category.topicId
-            }
+              _id: category.topicId,
+            },
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         });
       }
 
@@ -113,11 +114,11 @@ export default {
           action: 'categories.findOne',
           data: {
             query: {
-              _id: category.parentCategoryId
-            }
+              _id: category.parentCategoryId,
+            },
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         });
 
         topic.categories = [parentCategory];
@@ -131,5 +132,5 @@ export default {
     }
 
     return results;
-  }
+  },
 };

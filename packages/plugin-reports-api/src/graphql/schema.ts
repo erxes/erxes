@@ -34,6 +34,8 @@ export const types = (tagsAvailable) => `
 
     createdAt:Date
     createdBy: User
+
+    sectionId: String
   }
 
   enum VisibilityType {
@@ -65,6 +67,7 @@ export const types = (tagsAvailable) => `
     reportId: String!
     contentType: String
     serviceName: String
+    serviceType: String
     templateType: String
     order: Int
     chartType: ChartType
@@ -188,6 +191,6 @@ export const mutations = `
   reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON
   reportChartsEdit(_id: String!, ${report_chart_common_params}): ReportChart
-  reportChartsEditMany( charts: [String] ,reportId: String!, serviceName: String!, serviceType: String!): [ReportChart] 
+  reportChartsEditMany( reportId: String!, ${report_params}): JSON
   reportChartsAddMany( charts: [ReportChartsAddParams] ,reportId: String!): [ReportChart] 
   `;

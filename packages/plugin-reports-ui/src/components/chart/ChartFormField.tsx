@@ -50,26 +50,6 @@ const ChartFormField = (props: Props) => {
 
   const [fieldValue, setFieldValue] = useState(initialValue);
 
-  const checkLogic = () => {
-    if (!fieldLogics) {
-      return true;
-    }
-
-    for (const logic of fieldLogics) {
-      const { logicFieldName, logicFieldValue } = logic;
-      if (!fieldValues[logicFieldName]) {
-        return false;
-      }
-
-      if (fieldValues[logicFieldName] !== logicFieldValue) {
-        return false;
-      }
-    }
-
-    Alert.error(`Please ${fieldLabel}`);
-    return true;
-  };
-
   const onSelect = (e) => {
     if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
@@ -97,10 +77,6 @@ const ChartFormField = (props: Props) => {
       setFilter('brandIds', brandIds);
     }
   };
-
-  if (!checkLogic()) {
-    return <></>;
-  }
 
   switch (fieldQuery) {
     case 'users':

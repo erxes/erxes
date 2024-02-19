@@ -38,6 +38,8 @@ export interface IReport {
 
   reportTemplateType?: string;
   charts?: IChartDocument[];
+
+  sectionId?: string;
 }
 
 export interface IReportDocument extends IReport, Document {
@@ -100,6 +102,7 @@ export const reportSchema = new Schema({
   }),
   serviceName: field({ type: String, label: 'Service name' }),
   serviceType: field({ type: String, label: 'Service type' }),
+  sectionId: field({ type: String, label: 'Section id' }),
   createdBy: field({
     type: String,
     label: 'Created by user id',
