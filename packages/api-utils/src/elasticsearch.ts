@@ -94,7 +94,7 @@ export const fetchEs = async ({
 }: IFetchEsArgs) => {
   try {
     const VERSION = getEnv({ name: 'VERSION' });
-    let organizationId = '';
+    let organizationId = null;
 
     if (VERSION && VERSION === 'saas') {
       organizationId = await getOrganizationIdBySubdomain(subdomain);
@@ -133,7 +133,7 @@ export const fetchEs = async ({
 
     if (_id && organizationId) {
       params.id = `${organizationId}__${_id}`;
-    } else if (_id) {
+    } else if (_id && !organizationId) {
       params.id = _id;
     }
 
