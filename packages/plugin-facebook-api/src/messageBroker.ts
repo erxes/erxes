@@ -93,6 +93,7 @@ export const initBroker = async () => {
           response = { data: await models.Configs.find({}) };
         }
 
+        // FIXME: Cannot set properties of null (setting 'status')
         response.status = 'success';
       } catch (e) {
         response = {
