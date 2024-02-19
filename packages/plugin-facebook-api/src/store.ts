@@ -341,8 +341,6 @@ export const getOrCreateComment = async (
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
-          // STOP DELETING THIS LINE!!!
-          _id: comment._id,
           integrationId: integration.erxesApiId,
           conversationId: erxesApiId,
         },
