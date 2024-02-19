@@ -45,6 +45,12 @@ function removeNullAndTypename(obj) {
     if (obj.hasOwnProperty(key) && obj[key] !== null && key !== '__typename') {
       cleanedObj[key] = removeNullAndTypename(obj[key]);
     }
+    if (key === 'persistentMenus' && Array.isArray(obj[key])) {
+      cleanedObj[key] = obj[key].map((item) => {
+        const { isEditing, ...rest } = item;
+        return removeNullAndTypename(rest);
+      });
+    }
   }
 
   return cleanedObj;
@@ -75,7 +81,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
     const { isSubmitted, values } = formProps;
 
     const onSelect = (value, name) => {
-      console.log({ name, value });
       setDoc({ ...doc, [name]: value });
     };
 
@@ -93,7 +98,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
-                  console.log(account);
                   onSelect(accountId, 'accountId'), setAccount(account);
                 }}
               />
@@ -102,6 +106,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
           <Step
             title="Select Your Page"
             img="/images/icons/erxes-04.svg"
+            next={() => setLastStep(true)}
             onClick={() => setLastStep(false)}
           >
             <Padding>
@@ -121,6 +126,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
             title="Bot Setup"
             img="/images/icons/erxes-24.svg"
             noButton
+            back={() => setLastStep(false)}
             onClick={() => setLastStep(true)}
           >
             <Padding>
@@ -162,10 +168,6 @@ function Form({ renderButton, bot, returnToList }: Props) {
             })}
           </Padding>
         </ModalFooter>
-        {/* 
-
-
-        */}
       </>
     );
   };

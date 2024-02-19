@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
@@ -14,7 +14,7 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import moment from 'moment';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -25,6 +25,7 @@ import { Tip } from '@erxes/ui/src';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import AssetForm from '../../containers/AssetForm';
 import AssignArticles from '../../containers/actions/Assign';
+import KnowledgeBase from '../../containers/detail/KnowledgeBase';
 
 type Props = {
   asset: IAsset;
@@ -38,7 +39,9 @@ type Props = {
 };
 
 function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
-  const renderVendor = vendor => {
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+
+  const renderVendor = (vendor) => {
     if (!vendor) {
       return (
         <li>
@@ -76,12 +79,37 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
       </li>
     );
   };
+  const renderKbDetail = () => {
+    const content = (props) => (
+      <AssignArticles
+        {...props}
+        knowledgeData={asset?.knowledgeData}
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        save={assignKbArticles}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit Assigned Knowledgebase Articles"
+        dialogClassName="modal-1000w"
+        content={content}
+        size="xl"
+        trigger={
+          <li>
+            <a href="#assign">{__('Assign')}</a>
+          </li>
+        }
+      />
+    );
+  };
 
   const renderAction = () => {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -117,7 +145,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
   };
 
   const renderEditForm = () => {
-    const content = props => <AssetForm {...props} asset={asset || {}} />;
+    const content = (props) => <AssetForm {...props} asset={asset || {}} />;
 
     return (
       <ModalTrigger
@@ -129,32 +157,6 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
         }
         size="lg"
         content={content}
-      />
-    );
-  };
-
-  const renderKbDetail = () => {
-    const content = props => (
-      <AssignArticles
-        {...props}
-        knowledgeData={asset?.knowledgeData}
-        assignedArticleIds={asset.kbArticleIds}
-        objects={[asset]}
-        save={assignKbArticles}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit Assigned Knowledgebase Articles"
-        dialogClassName="modal-1000w"
-        content={content}
-        size="xl"
-        trigger={
-          <li>
-            <a href="#assign">{__('Assign')}</a>
-          </li>
-        }
       />
     );
   };
@@ -183,7 +185,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
     return (
       <AssetContent
         dangerouslySetInnerHTML={{
-          __html: xss(asset.description)
+          __html: xss(asset.description),
         }}
       />
     );
@@ -204,13 +206,23 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
         {renderView(
           'Parent',
           asset.parent ? asset.parent.name : '',
-          asset.parent && changeAssetDetail()
+          asset.parent && changeAssetDetail(),
         )}
         {renderView('Unit price', (asset.unitPrice || 0).toLocaleString())}
         {renderVendor(asset.vendor)}
         {renderView(
           'Create At',
-          moment(asset.createdAt).format('YYYY-MM-DD HH:mm')
+          moment(asset.createdAt).format('YYYY-MM-DD HH:mm'),
+        )}
+        {renderView(
+          'Knowledge Base',
+          <Icon
+            icon={showKnowledgeBase ? 'uparrow' : 'downarrow-2'}
+            onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
+          />,
+        )}
+        {showKnowledgeBase && (
+          <KnowledgeBase asset={asset} kbArticleIds={asset.kbArticleIds} />
         )}
         <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
       </SidebarList>

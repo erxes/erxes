@@ -339,8 +339,11 @@ export const getOrCreateComment = async (
     try {
       const inboxIntegration = await sendInboxMessage({
         subdomain,
-        action: 'conversationClientMessageInserted',
+        // STOP REVERTING THIS LINE!!!
+        action: `conversationClientMessageInserted:${erxesApiId}`,
         data: {
+          // STOP DELETING THIS LINE!!!
+          _id: comment._id,
           integrationId: integration.erxesApiId,
           conversationId: erxesApiId,
         },
