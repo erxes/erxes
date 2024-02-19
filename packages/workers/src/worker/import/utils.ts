@@ -10,6 +10,7 @@ import {
   getS3FileInfo,
   uploadsFolderPath,
 } from '../../data/utils';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
@@ -80,10 +81,18 @@ const getCsvInfo = (
 
       const file = (await s3.getObject(params).promise()) as any;
 
-      await fs.promises.writeFile(
-        `${uploadsFolderPath}/${fileName}`,
-        file.Body,
-      );
+      try {
+        if (!fs.existsSync(`${uploadsFolderPath}`)) {
+          fs.mkdirSync(`${uploadsFolderPath}`, { recursive: true });
+        }
+
+        await fs.promises.writeFile(
+          `${uploadsFolderPath}/${fileName}`,
+          file.Body,
+        );
+      } catch (e) {
+        console.error(e.message);
+      }
 
       readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     } else {
