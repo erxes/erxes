@@ -2,9 +2,6 @@
 
 import dynamic from "next/dynamic"
 
-const RightSideBar = dynamic(
-  () => import("@/modules/feed/component/RightSideBar")
-)
 const PostItem = dynamic(() => import("@/modules/feed/component/PostItem"))
 const EventItem = dynamic(() => import("@/modules/feed/component/EventItem"))
 

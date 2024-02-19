@@ -44,9 +44,7 @@ const ChatList = () => {
     return (
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <DialogTrigger asChild={true}>
-          <div>
-            <PenSquareIcon size={18} />
-          </div>
+          <PenSquareIcon size={18} />
         </DialogTrigger>
 
         <ChatForm setOpen={setOpen} refetch={refetch} />
