@@ -50,5 +50,5 @@ jobs:
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker buildx build -t erxes/core:xos-merge -f Dockerfile .
-          docker push erxes/core:xos-merge
+          docker buildx build -t erxes/core:merge-xos -f Dockerfile .
+          docker push erxes/core:merge-xos
