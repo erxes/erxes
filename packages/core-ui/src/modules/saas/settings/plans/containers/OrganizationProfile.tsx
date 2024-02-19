@@ -163,8 +163,6 @@ const OrganizationProfileContainer = (
     configsMap[config.code] = config.value;
   }
 
-  console.log(props);
-
   return (
     <OrganizationProfile
       {...props}

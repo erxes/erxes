@@ -916,17 +916,17 @@ const readFromCFImages = async (
     models,
   );
 
-  const CLOUDFLARE_BUCKET_NAME = await getConfig(
-    'CLOUDFLARE_BUCKET_NAME',
-    '',
-    models,
-  );
+  // const CLOUDFLARE_BUCKET_NAME = await getConfig(
+  //   'CLOUDFLARE_BUCKET_NAME',
+  //   '',
+  //   models
+  // );
 
   let fileName = key;
 
-  if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
-    fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
-  }
+  // if (!key.startsWith(CLOUDFLARE_BUCKET_NAME)) {
+  //   fileName = `${CLOUDFLARE_BUCKET_NAME}/${key}`;
+  // }
 
   if (!CLOUDFLARE_ACCOUNT_HASH) {
     throw new Error('Cloudflare Account Hash is not configured');
