@@ -1,9 +1,11 @@
+import * as _ from 'underscore';
+
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
 } from '@erxes/api-utils/src/elasticsearch';
+
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
-import * as _ from 'underscore';
 
 export default {
   dependentServices: [{ name: 'contacts', twoWay: true }],
@@ -44,15 +46,10 @@ export default {
         negativeQuery,
       });
 
-      ids = await fetchByQuery({
+      ids = await fetchByQueryWithScroll({
         subdomain,
         index: 'conversations',
-        _source: '_id',
-        positiveQuery: customerIds.map((id) => ({
-          match: {
-            customerId: id,
-          },
-        })),
+        positiveQuery: [{ terms: { 'customerId.keyword': customerIds } }],
         negativeQuery: [],
       });
     }

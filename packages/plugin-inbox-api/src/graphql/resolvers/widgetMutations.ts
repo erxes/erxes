@@ -90,6 +90,13 @@ export const pConversationClientMessageInserted = async (
     }
   }
 
+  graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
+    conversationClientMessageInserted: message,
+    subdomain,
+    conversation,
+    integration,
+  });
+
   for (const userId of channelMemberIds) {
     graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
       conversationClientMessageInserted: message,

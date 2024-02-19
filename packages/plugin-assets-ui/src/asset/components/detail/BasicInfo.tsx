@@ -1,30 +1,31 @@
-import React from 'react';
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { Alert, confirm, __ } from '@erxes/ui/src/utils';
-
-import { Name } from '@erxes/ui-contacts/src/customers/styles';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import { AssetContent, ContainerBox } from '../../../style';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import moment from 'moment';
-import Dropdown from 'react-bootstrap/Dropdown';
-import xss from 'xss';
-import { IAsset } from '../../../common/types';
-import { AssetContent, ContainerBox } from '../../../style';
-import { Tip } from '@erxes/ui/src';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+
 import AssetForm from '../../containers/AssetForm';
 import AssignArticles from '../../containers/actions/Assign';
+import Attachment from '@erxes/ui/src/components/Attachment';
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { IAsset } from '../../../common/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import KnowledgeBase from '../../containers/detail/KnowledgeBase';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { Name } from '@erxes/ui-contacts/src/customers/styles';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Tip } from '@erxes/ui/src';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import moment from 'moment';
+import xss from 'xss';
 
 type Props = {
   asset: IAsset;
@@ -37,8 +38,8 @@ type Props = {
   history: any;
 };
 
-const BasicInfo = (props: Props) => {
-  const { asset, remove, assignKbArticles, history } = props;
+function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
 
   const renderVendor = (vendor) => {
     if (!vendor) {
@@ -76,6 +77,31 @@ const BasicInfo = (props: Props) => {
         <SidebarCounter>{variable || defaultName}</SidebarCounter>
         {extraField && extraField}
       </li>
+    );
+  };
+  const renderKbDetail = () => {
+    const content = (props) => (
+      <AssignArticles
+        {...props}
+        knowledgeData={asset?.knowledgeData}
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        save={assignKbArticles}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit Assigned Knowledgebase Articles"
+        dialogClassName="modal-1000w"
+        content={content}
+        size="xl"
+        trigger={
+          <li>
+            <a href="#assign">{__('Assign')}</a>
+          </li>
+        }
+      />
     );
   };
 
@@ -135,32 +161,6 @@ const BasicInfo = (props: Props) => {
     );
   };
 
-  const renderKbDetail = () => {
-    const content = (props) => (
-      <AssignArticles
-        {...props}
-        knowledgeData={asset?.knowledgeData}
-        assignedArticleIds={asset.kbArticleIds}
-        objects={[asset]}
-        save={assignKbArticles}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit Assigned Knowledgebase Articles"
-        dialogClassName="modal-1000w"
-        content={content}
-        size="xl"
-        trigger={
-          <li>
-            <a href="#assign">{__('Assign')}</a>
-          </li>
-        }
-      />
-    );
-  };
-
   const changeAssetDetail = () => {
     return (
       <Button
@@ -214,11 +214,21 @@ const BasicInfo = (props: Props) => {
           'Create At',
           moment(asset.createdAt).format('YYYY-MM-DD HH:mm'),
         )}
+        {renderView(
+          'Knowledge Base',
+          <Icon
+            icon={showKnowledgeBase ? 'uparrow' : 'downarrow-2'}
+            onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
+          />,
+        )}
+        {showKnowledgeBase && (
+          <KnowledgeBase asset={asset} kbArticleIds={asset.kbArticleIds} />
+        )}
         <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
       </SidebarList>
       {renderAssetContent()}
     </Sidebar.Section>
   );
-};
+}
 
 export default BasicInfo;
