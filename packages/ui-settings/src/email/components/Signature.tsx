@@ -33,7 +33,7 @@ class Signature extends React.Component<Props, State> {
       signatures: props.signatures,
       currentId: undefined,
       content: '',
-      isSaved: false
+      isSaved: false,
     };
   }
 
@@ -55,11 +55,11 @@ class Signature extends React.Component<Props, State> {
     }
 
     return this.state.signatures.find(
-      signature => (signature.brandId || '').toString() === currentId
+      (signature) => (signature.brandId || '').toString() === currentId,
     );
   };
 
-  changeCurrent = e => {
+  changeCurrent = (e) => {
     const currentId = e.target.value;
 
     this.setState({ currentId });
@@ -69,7 +69,7 @@ class Signature extends React.Component<Props, State> {
     return this.setState({ content: (current && current.signature) || '' });
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     const { save } = this.props;
@@ -99,7 +99,7 @@ class Signature extends React.Component<Props, State> {
         <ControlLabel>Signature</ControlLabel>
         <p>
           {__(
-            'An email signature is an opportunity to share information that helps build recognition and trust.'
+            'An email signature is an opportunity to share information that helps build recognition and trust.',
           )}
         </p>
 
@@ -129,7 +129,7 @@ class Signature extends React.Component<Props, State> {
             <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option value="">------------</option>
 
-              {this.props.signatures.map(signature => (
+              {this.props.signatures.map((signature) => (
                 <option key={signature.brandId} value={signature.brandId}>
                   {signature.brandName}
                 </option>

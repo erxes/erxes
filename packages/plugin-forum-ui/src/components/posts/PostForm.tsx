@@ -3,7 +3,7 @@ import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 import { ICategory, IPollOption, IPost, ITag } from '../../types';
 import { SelectTeamMembers } from '@erxes/ui/src';
@@ -65,10 +65,10 @@ class PostForm extends React.Component<Props, State> {
         ? {
             name: post && post.thumbnailAlt ? post.thumbnailAlt : '',
             type: 'image',
-            url: post.thumbnail
+            url: post.thumbnail,
           }
         : ({} as IAttachment),
-      selectedUser: post.createdById || ''
+      selectedUser: post.createdById || '',
     };
   }
 
@@ -91,10 +91,10 @@ class PostForm extends React.Component<Props, State> {
         const option = {
           _id,
           order,
-          title
+          title,
         };
         return option;
-      }
+      },
     );
 
     return {
@@ -109,7 +109,7 @@ class PostForm extends React.Component<Props, State> {
       isPollMultiChoice: this.state.multipleChoice,
       pollOptions: optionsCleaned,
       createdAt: this.state.createdAt,
-      createdById: this.state.selectedUser
+      createdById: this.state.selectedUser,
     };
   };
 
@@ -126,7 +126,7 @@ class PostForm extends React.Component<Props, State> {
           No category
         </option>
         {categories &&
-          categories.map(p => (
+          categories.map((p) => (
             <option key={p._id} value={p._id}>
               {p.name}
             </option>
@@ -140,12 +140,12 @@ class PostForm extends React.Component<Props, State> {
     this.setState({ ...this.state, [key]: formattedDate });
   };
 
-  onChangeThumbnail = attachment => {
+  onChangeThumbnail = (attachment) => {
     return this.setState({
       thumbnail:
         attachment && attachment.length !== 0
           ? attachment[0]
-          : ({} as IAttachment)
+          : ({} as IAttachment),
     });
   };
 
@@ -157,7 +157,7 @@ class PostForm extends React.Component<Props, State> {
       selectedTags,
       pollOptions,
       multipleChoice,
-      hasEndDate
+      hasEndDate,
     } = this.state;
 
     const { isSubmitted, values } = formProps;
@@ -165,15 +165,15 @@ class PostForm extends React.Component<Props, State> {
     const object = post || ({} as IPost);
 
     const renderTagOptions = () => {
-      return (tags || []).map(tag => ({
+      return (tags || []).map((tag) => ({
         value: tag._id,
         label: tag.name,
-        _id: tag._id
+        _id: tag._id,
       }));
     };
 
-    const onChange = members => {
-      const ids = members.map(m => m._id);
+    const onChange = (members) => {
+      const ids = members.map((m) => m._id);
       this.setState({ selectedTags: ids });
     };
 
@@ -181,7 +181,7 @@ class PostForm extends React.Component<Props, State> {
       this.setState({ pollOptions: ops });
     };
 
-    const onUserChange = memberId => {
+    const onUserChange = (memberId) => {
       this.setState({ selectedUser: memberId });
     };
 
@@ -220,7 +220,9 @@ class PostForm extends React.Component<Props, State> {
                   value={this.state.createdAt}
                   required={false}
                   name="createdAt"
-                  onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
+                  onChange={(date) =>
+                    this.onChangeRangeFilter(date, 'createdAt')
+                  }
                   placeholder={'End date'}
                   dateFormat={'YYYY-MM-DD'}
                 />
@@ -251,7 +253,7 @@ class PostForm extends React.Component<Props, State> {
                   name="selectedUser"
                   multi={false}
                   initialValue={this.state.selectedUser}
-                  onSelect={e => onUserChange(e)}
+                  onSelect={(e) => onUserChange(e)}
                 />
               </CustomRangeContainer>
             </FlexItem>
@@ -319,7 +321,9 @@ class PostForm extends React.Component<Props, State> {
                     value={this.state.endDate}
                     required={false}
                     name="endDate"
-                    onChange={date => this.onChangeRangeFilter(date, 'endDate')}
+                    onChange={(date) =>
+                      this.onChangeRangeFilter(date, 'endDate')
+                    }
                     placeholder={'End date'}
                     dateFormat={'YYYY-MM-DD'}
                   />
@@ -329,7 +333,7 @@ class PostForm extends React.Component<Props, State> {
           </FlexContent>
           <PollOptions
             emptyMessage="There is no options"
-            onChangeOption={options => changeOption(options || [])}
+            onChangeOption={(options) => changeOption(options || [])}
             options={pollOptions}
           />
         </FormGroup>
@@ -360,7 +364,7 @@ class PostForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: post
+            object: post,
           })}
         </ModalFooter>
       </>

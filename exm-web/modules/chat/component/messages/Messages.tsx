@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
@@ -16,13 +17,7 @@ import MessageItem from "./MessageItem"
 import MessagesHeader from "./MessagesHeader"
 import TypingIndicator from "./TypingIndicator"
 
-const Messages = ({
-  setShowSidebar,
-  showSidebar,
-}: {
-  setShowSidebar: () => void
-  showSidebar: boolean
-}) => {
+const Messages = ({ setShowSidebar }: { setShowSidebar: () => void }) => {
   const {
     chatMessages,
     loading,
@@ -37,6 +32,8 @@ const Messages = ({
   const chatContainerRef = useRef(null) as any
   const [reply, setReply] = useState<any>(null)
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -48,6 +45,10 @@ const Messages = ({
     }
   }, [inView, handleLoadMore])
 
+  useEffect(() => {
+    setReply(null)
+  }, [id])
+
   if (error) {
     return <div>Something went wrong</div>
   }
@@ -57,8 +58,8 @@ const Messages = ({
   }
 
   return (
-    <div className="flex flex-col h-screen relative">
-      <div className="h-16 border-b flex items-center justify-between px-10">
+    <div className="flex flex-col h-[calc(100vh-68px)] relative">
+      <div className="h-16 border-b flex items-center justify-between px-4 py-5">
         <MessagesHeader
           chatDetail={chatDetail}
           setShowSidebar={setShowSidebar}
@@ -66,7 +67,7 @@ const Messages = ({
       </div>
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-5 px-[30px] border-0 flex flex-col-reverse scrollbar-hide "
+        className="flex-1 overflow-y-auto overflow-x-hidden px-5 px-[30px] border-0 flex flex-col-reverse scrollbar-hide "
       >
         <div className="w-full pt-2">
           {typing && typing !== currentUser._id && (
@@ -95,12 +96,7 @@ const Messages = ({
         )}
       </div>
 
-      <Editor
-        sendMessage={sendMessage}
-        reply={reply}
-        setReply={setReply}
-        showSidebar={showSidebar}
-      />
+      <Editor sendMessage={sendMessage} reply={reply} setReply={setReply} />
     </div>
   )
 }
