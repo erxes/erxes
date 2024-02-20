@@ -6,7 +6,7 @@ import { Route, Switch } from 'react-router-dom';
 const AuthLayout = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/AuthLayout'
+      /* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/saas/AuthLayout'
     ),
 );
 
