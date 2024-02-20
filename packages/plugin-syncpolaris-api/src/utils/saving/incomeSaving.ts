@@ -43,9 +43,11 @@ export const incomeSaving = async (subdomain, params) => {
     ],
   };
 
-  fetchPolaris({
+  const result = await fetchPolaris({
     op: '13610015',
     data: [sendData],
     subdomain,
   });
+
+  return result;
 };

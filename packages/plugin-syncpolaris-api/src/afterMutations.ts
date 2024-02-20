@@ -102,7 +102,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
       },
     );
   } catch (e) {
-    console.log('e', e);
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },
@@ -147,8 +146,6 @@ async function loansContractMethod(action, preSuccessValue, subdomain, params) {
 }
 
 async function loansTransactionMethod(subdomain, params) {
-  console.log('params.object', params.object);
-
   if (params.object.transactionType === 'repayment') {
     return await createLoanRepayment(subdomain, params.object);
   } else if (params.object.transactionType === 'give')

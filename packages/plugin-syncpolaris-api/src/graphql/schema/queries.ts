@@ -20,7 +20,13 @@ const commonHistoryParams = `
   searchError: String,
 `;
 
+const polarisData = `
+  method: String,
+  data: JSON
+`;
+
 export const queries = `
   syncHistories(${commonHistoryParams}): [SyncHistory]
   syncHistoriesCount(${commonHistoryParams}): Int
+  getPolarisData(${polarisData}): JSON
 `;

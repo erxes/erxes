@@ -17,6 +17,7 @@ import InvoiceList from '../invoices/InvoiceList';
 import StoreInterestSection from '../storeInterest/StoreInterestSection';
 import TransactionSection from '../transaction/TransactionSection';
 import { ITransaction } from '../../../transactions/types';
+import PolarisData from '../polaris';
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -195,6 +196,7 @@ class ContractDetails extends React.Component<Props, State> {
             />
           </>
         )}
+        {isEnabled('syncpolaris') && <PolarisData contract={contract} />}
       </>
     );
 

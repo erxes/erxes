@@ -1,13 +1,11 @@
 import { fetchPolaris, getLoanContract } from '../utils';
 
 export const getLoanCollaterials = async (subdomain, params) => {
-  const loanContract = await getLoanContract(subdomain, params.contractId);
-
-  const sendData = [loanContract.number];
+  const sendData = [params.number];
 
   const loanCollaterials = await fetchPolaris({
     subdomain,
-    op: '13610279',
+    op: '13610904',
     data: sendData,
   }).then((response) => JSON.parse(response));
 

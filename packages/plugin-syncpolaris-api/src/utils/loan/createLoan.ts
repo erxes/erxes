@@ -9,10 +9,13 @@ import {
   getFullDate,
 } from '../utils';
 import { activeLoan } from './activeLoan';
-import { createLoanSchedule } from './createSchedule';
+import { createSavingLoan } from './createSavingLoan';
 
 export const createLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
+
+  if (loan.leaseType === 'saving')
+    return await createSavingLoan(subdomain, params);
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
@@ -61,26 +64,15 @@ export const createLoan = async (subdomain, params) => {
     secType: 0,
   };
 
-  console.log('sendData', sendData);
-
   const result = await fetchPolaris({
     op: '13610253',
     data: [sendData],
     subdomain,
   }).then((a) => JSON.parse(a));
 
-  console.log('result', result);
-
   if (typeof result === 'string') {
     await updateLoanNumber(subdomain, loan._id, result);
-    const activate = await activeLoan(subdomain, [result, 'данс нээв', null]);
-
-    console.log('activate', activate);
-
-    loan.number = result;
-    // const createSchedule = await createLoanSchedule(subdomain, loanData);
-
-    // console.log('createSchedule', createSchedule);
+    await activeLoan(subdomain, [result, 'данс нээв', null]);
   }
 
   return result;

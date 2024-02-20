@@ -35,8 +35,6 @@ export const incomeDeposit = async (subdomain, params) => {
     ],
   };
 
-  console.log('sendData', sendData);
-
   return await fetchPolaris({
     op: '13610009',
     data: [sendData],

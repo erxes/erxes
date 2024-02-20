@@ -4,47 +4,42 @@ export const updateSaving = async (subdomain: string, params) => {
   const savingContract = params.object;
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
-  //console.log('savingContract:',savingContract)
-
-  let sendData = {};
-  sendData = [
-    {
-      prodCode: savingContract.contractTypeId,
-      slevel: 1,
-      capMethod: savingContract.interestCalcType,
-      capAcntCode:
-        savingContract.depositAccount === 'depositAccount'
-          ? savingContract.depositAccount
-          : '',
-      capAcntSysNo: '', // savingContract.storeInterestInterval,
-      startDate: savingContract.startDate,
-      maturityOption: savingContract.closeOrExtendConfig,
-      rcvAcntCode:
-        savingContract.depositAccount === 'depositAccount'
-          ? savingContract.depositAccount
-          : '',
-      brchCode: savingContract.branchId,
-      curCode: savingContract.currency,
-      name: savingContract.contractType.name,
-      name2: savingContract.contractType.__typename,
-      termLen: savingContract.duration,
-      maturityDate: savingContract.endDate,
-      custCode: customer.code,
-      segCode: savingContract.number,
-      jointOrSingle: 's',
-      statusCustom: 0,
-      statusDate: savingContract.startDate,
-      casaAcntCode: savingContract.casaAcntCode,
-      closedBy: savingContract.closedBy,
-      closedDate: savingContract.closedDate,
-      lastCtDate: savingContract.lastCtDate,
-      lastDtDate: savingContract.lastDtDate,
-    },
-  ];
+  let sendData = {
+    prodCode: savingContract.contractTypeId,
+    slevel: 1,
+    capMethod: savingContract.interestCalcType,
+    capAcntCode:
+      savingContract.depositAccount === 'depositAccount'
+        ? savingContract.depositAccount
+        : '',
+    capAcntSysNo: '', // savingContract.storeInterestInterval,
+    startDate: savingContract.startDate,
+    maturityOption: savingContract.closeOrExtendConfig,
+    rcvAcntCode:
+      savingContract.depositAccount === 'depositAccount'
+        ? savingContract.depositAccount
+        : '',
+    brchCode: savingContract.branchId,
+    curCode: savingContract.currency,
+    name: savingContract.contractType.name,
+    name2: savingContract.contractType.__typename,
+    termLen: savingContract.duration,
+    maturityDate: savingContract.endDate,
+    custCode: customer.code,
+    segCode: savingContract.number,
+    jointOrSingle: 's',
+    statusCustom: 0,
+    statusDate: savingContract.startDate,
+    casaAcntCode: savingContract.casaAcntCode,
+    closedBy: savingContract.closedBy,
+    closedDate: savingContract.closedDate,
+    lastCtDate: savingContract.lastCtDate,
+    lastDtDate: savingContract.lastDtDate,
+  };
 
   fetchPolaris({
     op: '13610120',
-    data: sendData,
+    data: [sendData],
     subdomain,
   });
 };

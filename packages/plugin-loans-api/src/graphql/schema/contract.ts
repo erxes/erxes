@@ -111,6 +111,7 @@ export const types = () => `
     commitmentInterest:Float
     endDate:Date
     customFieldsData: JSON
+    savingContractId: String
   }
 
 

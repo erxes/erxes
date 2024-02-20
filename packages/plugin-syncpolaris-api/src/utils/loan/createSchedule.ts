@@ -36,15 +36,11 @@ export const createLoanSchedule = async (subdomain: string, contract: any) => {
     [],
   ];
 
-  console.log('createLoanSchedule', sendData);
-
   const result = await fetchPolaris({
     op: '13610258',
     data: sendData,
     subdomain,
   });
-
-  console.log('result', result);
 
   return result;
 };
