@@ -9,18 +9,26 @@ import Image from "@/components/ui/image"
 const FormAttachments = ({
   attachments,
   setAttachments,
+  deleteWithIndex,
   type,
 }: {
   attachments: IAttachment[]
   type: string
   setAttachments?: (updated: IAttachment[]) => void
+  deleteWithIndex?: (index: number) => void
 }) => {
   const deleteAttachment = (index: number) => {
-    const updated = [...attachments]
+    if (deleteWithIndex) {
+      deleteWithIndex(index)
+    }
 
-    updated.splice(index, 1)
+    if (setAttachments) {
+      const updated = [...attachments]
 
-    setAttachments && setAttachments(updated)
+      updated.splice(index, 1)
+
+      setAttachments(updated)
+    }
   }
 
   if (!attachments || attachments.length === 0) {
@@ -31,7 +39,7 @@ const FormAttachments = ({
     <div
       className={` ${
         type === "postItem" && "px-4"
-      } gap-[12px] flex flex-col pb-[12px]`}
+      } gap-[12px] flex flex-col pb-[12px] w-full`}
     >
       {attachments.map((a, index) => {
         const fileExtension = a.url.split(".").pop()
@@ -67,9 +75,13 @@ const FormAttachments = ({
               <span className="text-[#98A2B3]">{size}</span>
             </div>
             {type === "form" ? (
-              <X size={18} onClick={() => deleteAttachment(index)} />
+              <X
+                size={18}
+                onClick={() => deleteAttachment(index)}
+                className="cursor-pointer"
+              />
             ) : (
-              <ExternalLinkIcon size={18} />
+              <ExternalLinkIcon size={18} className="cursor-pointer" />
             )}
           </div>
         )

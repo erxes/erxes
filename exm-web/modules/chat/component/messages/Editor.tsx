@@ -110,17 +110,28 @@ const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   }
 
   const attachmentsSection = () => {
-    return (
-      <div className="pt-2 overflow-auto w-full scrollbar-hide">
-        {attachments && attachments.length > 0 && (
+    if (attachments && attachments.length > 0) {
+      return (
+        <div className="pt-2 overflow-auto w-full scrollbar-hide max-h-[200px] ">
           <AttachmentWithChatPreview
-            attachments={attachments || []}
-            className="pb-2 flex w-full gap-3 items-center"
+            attachments={
+              attachments.filter((a: any) => !a.type.includes("image")) || []
+            }
+            className="flex w-full items-center flex-wrap"
             deleteImage={deleteImage}
           />
-        )}
-      </div>
-    )
+          <AttachmentWithChatPreview
+            attachments={
+              attachments.filter((a: any) => a.type.includes("image")) || []
+            }
+            className="grid grid-cols-4 w-full"
+            deleteImage={deleteImage}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
   }
 
   const emojiHandler = (emojiData: any) => {
