@@ -35,6 +35,11 @@ export const types = `
     departmentId: String
   }
 
+  enum UserChatStatus{
+    offline
+    online
+  }
+
   type UserDetailsType {
     ${commonDetailFields}
   }
@@ -48,6 +53,7 @@ export const types = `
     details: UserDetailsType
     links: JSON
     status: String
+    chatStatus: UserChatStatus
     emailSignatures: JSON
     getNotificationByEmail: Boolean
     groupIds: [String]
@@ -150,4 +156,5 @@ export const mutations = `
   usersSeenOnBoard: User
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
+  usersSetChatStatus(_id: String!, status: UserChatStatus): User
  `;
