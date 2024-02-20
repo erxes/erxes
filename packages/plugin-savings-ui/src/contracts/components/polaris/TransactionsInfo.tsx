@@ -28,8 +28,8 @@ function SavingTransactions(props: IProps) {
         </tr>
       </thead>
       <tbody id="schedules">
-        {data?.getPolarisData?.txns?.map((row, index) => (
-          <tr key={`depositTr${index}`}>
+        {data?.getPolarisData?.txns?.map((row) => (
+          <tr key={`savingTr${row.postDate}`}>
             <td>{row.postDate}</td>
             <td>{row.balance}</td>
             <td>{row.income}</td>
@@ -65,8 +65,8 @@ function DepositTransactions(props: IProps) {
         </tr>
       </thead>
       <tbody id="schedules">
-        {data?.getPolarisData?.txns?.map((row, index) => (
-          <tr key={`depositTr${index}`}>
+        {data?.getPolarisData?.txns?.map((row) => (
+          <tr key={`depositTr${row.postDate}`}>
             <td>{row.postDate}</td>
             <td>{row.balance}</td>
             <td>{row.income}</td>

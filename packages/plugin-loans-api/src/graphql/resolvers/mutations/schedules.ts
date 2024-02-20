@@ -56,7 +56,7 @@ const scheduleMutations = {
     await reGenerateSchedules(models, contract, perHolidays);
 
     if (isEnabled('syncpolaris')) {
-      const data = await sendMessageBroker(
+      await sendMessageBroker(
         { action: 'createSchedule', subdomain, data: contract, isRPC: true },
         'syncpolaris',
       );

@@ -7,7 +7,6 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 import { createLoanSchedule } from './utils/loan/createSchedule';
 import { getDepositBalance } from './utils/deposit/getDepositBalance';
-import { changeLoanInterest } from './utils/loan/changeLoanInterest';
 import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
 
 export const initBroker = async () => {

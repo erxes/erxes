@@ -139,10 +139,6 @@ export const loadContractClass = (models: IModels) => {
         await models.FirstSchedules.insertMany(schedules);
       }
 
-      // if (doc.leaseType === LEASE_TYPES.FINANCE) {
-      //   await reGenerateSchedules(models, contract, []);
-      // }
-
       return contract;
     }
 

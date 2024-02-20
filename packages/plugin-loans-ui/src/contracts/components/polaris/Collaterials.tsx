@@ -10,7 +10,7 @@ interface IProps {
 }
 
 function CollateralsInfo(props: IProps) {
-  const { data, loading } = useQuery<any>(gql(query.getPolarisData), {
+  const { data } = useQuery<any>(gql(query.getPolarisData), {
     variables: {
       method: 'getLoanCollaterals',
       data: { number: props.contract.number },

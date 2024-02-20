@@ -12,6 +12,27 @@ import { CONTRACT_STATUS } from './definitions/constants';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendMessageBroker } from '../messageBroker';
 
+const getCommitmentInterest = (contract, storeInterestDate) => {
+  return Number(
+    (
+      ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *
+        (contract.commitmentInterest || 0)) /
+        100 /
+        365) *
+      getDiffDay(contract.lastStoredDate, storeInterestDate)
+    ).toFixed(0),
+  );
+};
+
+const getStoredInterest = (contract, storeInterestDate) => {
+  return Number(
+    (
+      ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
+      getDiffDay(contract.lastStoredDate, storeInterestDate)
+    ).toFixed(0),
+  );
+};
+
 export const loanStoredInterestClass = (models: IModels) => {
   class StoredInterest {
     public static async createStoredInterest(
@@ -39,23 +60,13 @@ export const loanStoredInterestClass = (models: IModels) => {
           if (!prevSchedule) contract.balanceAmount = contract.leaseAmount;
           else contract.balanceAmount = prevSchedule?.balance || 0;
 
-          let storedInterest = Number(
-            (
-              ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
-              getDiffDay(contract.lastStoredDate, storeInterestDate)
-            ).toFixed(0),
-          );
+          let storedInterest = getStoredInterest(contract, storeInterestDate);
 
           if (Number.isNaN(storedInterest)) continue;
 
-          let commitmentInterest = Number(
-            (
-              ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *
-                (contract.commitmentInterest || 0)) /
-                100 /
-                365) *
-              getDiffDay(contract.lastStoredDate, storeInterestDate)
-            ).toFixed(0),
+          let commitmentInterest = getCommitmentInterest(
+            contract,
+            storeInterestDate,
           );
 
           if (isEnabled('syncpolaris') && subdomain) {
