@@ -11,6 +11,7 @@ const reportsMutations = {
   async reportsAdd(_root, doc: IReport, { models, user }: IContext) {
     const report = await models.Reports.createReport({
       ...doc,
+      serviceType: doc.reportTemplateType,
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
@@ -88,6 +89,34 @@ const reportsMutations = {
     await models.Charts.remove({ reportId: { $in: ids } });
     return models.Reports.remove({ _id: { $in: ids } });
   },
+
+  async reportsDuplicate(_root, _id: string, { models, user }: IContext) {
+    const report = await models.Reports.findById(_id);
+    if (!report) {
+      throw new Error('Report not found');
+    }
+
+    const duplicatedReport = await models.Reports.createReport({
+      ...report.toObject(),
+      _id: undefined,
+      name: `${report.name} copied`,
+      createdBy: user._id,
+      createdAt: new Date(),
+      updatedBy: user._id,
+      updatedAt: new Date(),
+    });
+
+    const charts = await models.Charts.find({ reportId: _id });
+    const duplicatedCharts = charts.map((existingChart) => ({
+      ...existingChart.toObject(),
+      _id: undefined,
+      reportId: duplicatedReport._id,
+    }));
+    await models.Charts.insertMany(duplicatedCharts);
+
+    return duplicatedReport;
+  },
+
   async reportChartsAdd(_root, doc: IChart, { models }: IContext) {
     return models.Charts.createChart(doc);
   },
