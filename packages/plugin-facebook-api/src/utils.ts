@@ -422,6 +422,26 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   return messages;
 };
 
+export const fetchPagePost = async (postId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${postId}?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response || null;
+};
+
+export const fetchPagePosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response.data || [];
+};
+
 export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
     const integration = await models.Integrations.findOne({ pageId: page.id });

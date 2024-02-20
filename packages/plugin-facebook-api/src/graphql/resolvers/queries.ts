@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getPageList } from '../../utils';
+import { fetchPagePost, fetchPagePosts, getPageList } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -340,6 +340,25 @@ const facebookQueries = {
     return null;
   },
 
+  async facebookGetBotPosts(_root, { botId }, { models }: IContext) {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    return await fetchPagePosts(bot.pageId, bot.token);
+  },
+  async facebookGetBotPost(_root, { botId, postId }, { models }: IContext) {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    return await fetchPagePost(postId, bot.token);
+  },
+
   async facebookHasTaggedMessages(
     _root,
     { conversationId }: IConversationId,
@@ -414,6 +433,9 @@ const facebookQueries = {
   },
   async facebootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
     return await models.Bots.find({}).count();
+  },
+  async facebootMessengerBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.findOne({ _id });
   },
 };
 

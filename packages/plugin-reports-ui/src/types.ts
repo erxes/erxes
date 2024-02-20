@@ -80,6 +80,12 @@ export interface IType {
   name: string;
 }
 
+export interface IFieldLogic {
+  logicFieldName: string;
+  logicFieldValue: any;
+  logicFieldVariable?: string;
+}
+
 // queries
 export type ReportsListQueryResponse = {
   reportsList: {

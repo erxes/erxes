@@ -55,7 +55,7 @@ interface IWidgetEmailParams {
 export const pConversationClientMessageInserted = async (
   models,
   subdomain,
-  message,
+  message: { _id: string; [other: string]: any },
 ) => {
   const conversation = await models.Conversations.findOne(
     {
@@ -89,6 +89,13 @@ export const pConversationClientMessageInserted = async (
       channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
     }
   }
+
+  graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
+    conversationClientMessageInserted: message,
+    subdomain,
+    conversation,
+    integration,
+  });
 
   for (const userId of channelMemberIds) {
     graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {

@@ -1,12 +1,13 @@
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import DateRange from '../datepicker/DateRange';
-import { MarginY } from '../../styles';
+import { Alert } from '@erxes/ui/src/utils';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import React, { useEffect, useState } from 'react';
+import Select from 'react-select-plus';
+import { MarginY } from '../../styles';
+import DateRange from '../datepicker/DateRange';
+import { IFieldLogic } from '../../types';
 
 type Props = {
   fieldType: string;
@@ -19,6 +20,9 @@ type Props = {
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
   endDate?: Date;
+  fieldValues?: any;
+  fieldLogics?: IFieldLogic[];
+  fieldDefaultValue?: any;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -26,24 +30,30 @@ const ChartFormField = (props: Props) => {
     fieldType,
     fieldOptions,
     fieldLabel,
+    fieldLogics,
     initialValue,
     multi,
     onChange,
     setFilter,
     startDate,
     endDate,
+    fieldValues,
+    fieldDefaultValue,
   } = props;
-  const [fieldValue, setFieldValue] = useState(initialValue);
 
-  const isArrayObjects = (arr) => {
-    return arr.every(
-      (element) => typeof element === 'object' && element !== null,
-    );
-  };
+  useEffect(() => {
+    if (fieldDefaultValue) {
+      setFieldValue(fieldDefaultValue);
+      onChange(fieldDefaultValue);
+    }
+  }, [fieldDefaultValue]);
+
+  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (e) => {
     if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
+
       onChange(arr);
       setFieldValue(arr);
       return;
@@ -99,22 +109,6 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'tags':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectTags
-            tagsType="reports:reports"
-            multi={multi}
-            name="chartTags"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-
     case 'branches':
       return (
         <div>
@@ -135,10 +129,11 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectBrands
-            label={'Choose brands'}
-            onSelect={OnSaveBrands}
             multi={true}
             name="selectedBrands"
+            label={'Choose brands'}
+            onSelect={OnSaveBrands}
+            initialValue={fieldValue}
           />
         </div>
       );

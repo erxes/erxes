@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
 const contractFields = `
@@ -32,6 +32,7 @@ const contractFields = `
   isAllowIncome
   isAllowOutcome
   isDeposit
+  customFieldsData
 `;
 
 const listParamsDef = `
@@ -216,5 +217,5 @@ export default {
   scheduleYears,
   closeInfo,
   documents,
-  savingsContractsAlert
+  savingsContractsAlert,
 };

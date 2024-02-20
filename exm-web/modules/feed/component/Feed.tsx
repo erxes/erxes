@@ -3,15 +3,13 @@
 import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const List = dynamic(() => import("./List"))
+const FeedForm = dynamic(() => import("../component/form/FeedForm"))
 
 const Feed = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
-
-  const style =
-    "text-[#A1A1A1] data-[state=active]:text-primary data-[state=active]:border-[#5629B6] data-[state=active]:border-b-2 h-16 hover:font-medium hover:text-[#A1A1A1]"
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -22,49 +20,39 @@ const Feed = () => {
     router.push(`/?contentType=${tabType}`)
   }
 
-  return (
-    <div>
-      <Tabs defaultValue={type || "post"}>
-        <TabsList className="border-b border-[#eee]">
-          <div className="w-[60%] items-center flex mr-auto h-[2.5rem] my-3 ml-[25px]">
-            <TabsTrigger
-              className={style}
-              value="post"
-              onClick={() => handleClick("post")}
-            >
-              Post
-            </TabsTrigger>
-            <TabsTrigger
-              className={style}
-              value="event"
-              onClick={() => handleClick("event")}
-            >
-              Event
-            </TabsTrigger>
-            <TabsTrigger
-              className={style}
-              value="bravo"
-              onClick={() => handleClick("bravo")}
-            >
-              Bravo
-            </TabsTrigger>
-            <TabsTrigger
-              className={style}
-              value="publicHoliday"
-              onClick={() => handleClick("publicHoliday")}
-            >
-              Calendar
-            </TabsTrigger>
-          </div>
-        </TabsList>
+  const style =
+    "text-[#A1A1A1] h-full py-[10px] data-[state=active]:text-[#3F2E81] data-[state=active]:bg-[#E0E2FF] rounded-lg hover:font-medium hover:text-[#A1A1A1]"
 
-        {["post", "event", "bravo", "publicHoliday"].map((item) => (
-          <TabsContent value={item} className="bg-[#F8F9FA]" key={item}>
-            <List contentType={item} />
-          </TabsContent>
-        ))}
-      </Tabs>
-    </div>
+  return (
+    <Tabs defaultValue={type || "post"}>
+      <TabsList className="max-w-[880px] w-full mx-auto border border-t-0 rounded-b-lg p-2 border-exm h-[3.5rem]">
+        <div className="h-full items-center flex">
+          <TabsTrigger
+            className={style}
+            value="post"
+            onClick={() => handleClick("post")}
+          >
+            Post
+          </TabsTrigger>
+          <TabsTrigger
+            className={style}
+            value="event"
+            onClick={() => handleClick("event")}
+          >
+            Event
+          </TabsTrigger>
+          <TabsTrigger
+            className={style}
+            value="bravo"
+            onClick={() => handleClick("bravo")}
+          >
+            Bravo
+          </TabsTrigger>
+        </div>
+      </TabsList>
+
+      <List contentType={type || "post"} />
+    </Tabs>
   )
 }
 

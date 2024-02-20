@@ -21,6 +21,8 @@ export default async function userMiddleware(
   _res: Response,
   next: NextFunction,
 ) {
+  // this is important for security reasons
+  delete req.headers['user'];
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
@@ -190,7 +192,10 @@ export default async function userMiddleware(
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
     }
   } catch (e) {
-    console.error(e);
+    if (e instanceof jwt.TokenExpiredError) {
+    } else {
+      console.error(e);
+    }
   }
 
   generateBase64(req);

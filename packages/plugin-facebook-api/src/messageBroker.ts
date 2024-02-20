@@ -93,6 +93,7 @@ export const initBroker = async () => {
           response = { data: await models.Configs.find({}) };
         }
 
+        // FIXME: Cannot set properties of null (setting 'status')
         response.status = 'success';
       } catch (e) {
         response = {
@@ -209,6 +210,26 @@ export const initBroker = async () => {
       return {
         status: 'success',
         data: await models.ConversationMessages.find(data).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'facebook:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      // need to check pos-order or pos
+
+      let filter;
+
+      if (module.includes('contacts')) {
+        if (target.customerId) {
+          filter = { _id: target.customerId };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter,
       };
     },
   );
