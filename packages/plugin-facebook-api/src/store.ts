@@ -13,8 +13,6 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import receivePost from './receivePost';
-import { Component } from 'react';
 
 interface IDoc {
   postId?: string;
