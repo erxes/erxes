@@ -2,11 +2,11 @@ import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  FacebookButton
+  FacebookButton,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IAccount,
-  IntegrationTypes
+  IntegrationTypes,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { __, confirm } from 'coreui/utils';
 
@@ -96,7 +96,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       );
     }
 
-    return accounts.map(account => (
+    return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>{account.name}</span>
 

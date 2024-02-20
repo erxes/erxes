@@ -18,7 +18,7 @@ export default function RootLayout({ children }: ILayoutProps) {
       <CheckAuth>
         <ExmProvider>
           <div className="relative flex h-screen flex-col">
-            <section className="flex flex-auto justify-between bg-white border-b border-exm">
+            <section className="flex justify-between bg-white border-b border-exm ">
               <div className="flex justify-center w-[230px] h-[67px] items-center border-r border-exm">
                 <Image
                   alt=""
