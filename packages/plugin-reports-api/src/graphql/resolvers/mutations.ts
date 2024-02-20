@@ -179,6 +179,7 @@ const reportsMutations = {
 
     return await models.Reports.updateReport(reportId, {
       ...doc,
+      serviceType: doc.reportTemplateType,
       updatedAt: new Date(),
       updatedBy: user?._id || null,
     });
