@@ -1,5 +1,6 @@
 const commonDetailFields = `
   avatar: String
+  coverPhoto: String
   fullName: String
   shortName: String
   birthDate: Date
