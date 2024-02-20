@@ -22,6 +22,7 @@ import {
 import { graphqlPubsub } from '../pubsub';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import redis from '@erxes/api-utils/src/redis';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -478,6 +479,8 @@ const uploadToCFImages = async (
   forcePrivate?: boolean,
   models?: IModels,
 ) => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
     'CLOUDFLARE_ACCOUNT_ID',
     '',
@@ -505,7 +508,7 @@ const uploadToCFImages = async (
     Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
   };
 
-  let fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  let fileName = `${Math.random()}${sanitizedFilename}`;
   const extension = fileName.split('.').pop();
 
   if (extension && ['JPEG', 'JPG', 'PNG'].includes(extension)) {
@@ -542,6 +545,8 @@ const uploadToCFImages = async (
 
 // upload file to Cloudflare stream
 const uploadToCFStream = async (file: any, models?: IModels) => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const CLOUDFLARE_ACCOUNT_ID = await getConfig(
     'CLOUDFLARE_ACCOUNT_ID',
     '',
@@ -559,7 +564,7 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
     Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
   };
 
-  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const fileName = `${Math.random()}${sanitizedFilename}`;
 
   const formData = new FormData();
   formData.append('file', fs.createReadStream(file.path));
@@ -589,6 +594,8 @@ export const uploadFileCloudflare = async (
   forcePrivate: boolean = false,
   models?: IModels,
 ): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const CLOUDFLARE_BUCKET = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
     '',
@@ -625,7 +632,7 @@ export const uploadFileCloudflare = async (
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
 
   // generate unique name
-  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const fileName = `${Math.random()}${sanitizedFilename.replace(/ /g, '')}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
@@ -663,6 +670,8 @@ export const uploadFileAWS = async (
   forcePrivate: boolean = false,
   models?: IModels,
 ): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
@@ -674,10 +683,7 @@ export const uploadFileAWS = async (
 
   // generate unique name
 
-  const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
-    / /g,
-    '',
-  )}`;
+  const fileName = `${AWS_PREFIX}${Math.random()}${sanitizedFilename}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
@@ -763,13 +769,15 @@ export const uploadFileLocal = async (file: {
   path: string;
   type: string;
 }): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const oldPath = file.path;
 
   if (!fs.existsSync(uploadsFolderPath)) {
     fs.mkdirSync(uploadsFolderPath);
   }
 
-  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const fileName = `${Math.random()}${sanitizedFilename}`;
   const newPath = `${uploadsFolderPath}/${fileName}`;
   const rawData = fs.readFileSync(oldPath);
 
@@ -795,6 +803,8 @@ export const uploadFileGCS = async (
   },
   models: IModels,
 ): Promise<string> => {
+  const sanitizedFilename = sanitizeFilename(file.name);
+
   const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
 
@@ -805,7 +815,7 @@ export const uploadFileGCS = async (
   const bucket = storage.bucket(BUCKET);
 
   // generate unique name
-  const fileName = `${Math.random()}${file.name}`;
+  const fileName = `${Math.random()}${sanitizedFilename}`;
 
   bucket.file(fileName);
 
@@ -969,6 +979,7 @@ export const readFileRequest = async ({
   width?: number;
 }): Promise<any> => {
   const services = await getServices();
+  const sanitizedFileKey = sanitizeFilename(key);
 
   for (const serviceName of services) {
     const service = await getService(serviceName);
@@ -1001,7 +1012,7 @@ export const readFileRequest = async ({
 
     const bucket = storage.bucket(GCS_BUCKET);
 
-    const file = bucket.file(key);
+    const file = bucket.file(sanitizedFileKey);
 
     // get a file buffer
     const [contents] = await file.download({});
@@ -1017,7 +1028,7 @@ export const readFileRequest = async ({
       s3.getObject(
         {
           Bucket: AWS_BUCKET,
-          Key: key,
+          Key: sanitizedFileKey,
         },
         (error, response) => {
           if (error) {
@@ -1026,7 +1037,7 @@ export const readFileRequest = async ({
               error.message.includes('key does not exist')
             ) {
               debugBase(
-                `Error occurred when fetching s3 file with key: "${key}"`,
+                `Error occurred when fetching s3 file with key: "${sanitizedFileKey}"`,
               );
             }
 
@@ -1053,18 +1064,21 @@ export const readFileRequest = async ({
       return readFromCFImages(key, width, models);
     }
 
-    return readFromCR2(key, models);
+    return readFromCR2(sanitizedFileKey, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
     return new Promise((resolve, reject) => {
-      fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
-        if (error) {
-          return reject(error);
-        }
+      fs.readFile(
+        `${uploadsFolderPath}/${sanitizedFileKey}`,
+        (error, response) => {
+          if (error) {
+            return reject(error);
+          }
 
-        return resolve(response);
-      });
+          return resolve(response);
+        },
+      );
     });
   }
 };

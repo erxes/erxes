@@ -8,6 +8,7 @@ import { getFileUploadConfigs } from '../messageBroker';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import fetch from 'node-fetch';
 import { pipeline } from 'node:stream/promises';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -128,10 +129,11 @@ export const createCFR2 = async (subdomain) => {
 
 export const getImportCsvInfo = async (subdomain, fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
+  const sanitizedFilename = sanitizeFilename(fileName);
 
   const service: any = await getService('core');
 
-  const url = `${service.address}/get-import-file/${fileName}`;
+  const url = `${service.address}/get-import-file/${sanitizedFilename}`;
 
   try {
     const response = await fetch(url);
@@ -141,11 +143,11 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
     }
     await pipeline(
       response.body,
-      fs.createWriteStream(`${uploadsFolderPath}/${fileName}`),
+      fs.createWriteStream(`${uploadsFolderPath}/${sanitizedFilename}`),
     );
   } catch (e) {
     console.error(
-      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${fileName} failed.`,
+      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${sanitizedFilename} failed.`,
       e.message,
     );
   }
@@ -156,7 +158,7 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
       let i = 0;
 
       const readStream = fs.createReadStream(
-        `${uploadsFolderPath}/${fileName}`,
+        `${uploadsFolderPath}/${sanitizedFilename}`,
       );
 
       readStream
@@ -179,6 +181,7 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
     } else {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
         await getFileUploadConfigs(subdomain);
+
       const s3 =
         UPLOAD_SERVICE_TYPE === 'AWS'
           ? await createAWS(subdomain)
@@ -187,7 +190,7 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
+      const params = { Bucket: bucket, Key: sanitizedFilename };
 
       const request = s3.getObject(params);
       const readStream = request.createReadStream();
@@ -219,10 +222,13 @@ export const getImportCsvInfo = async (subdomain, fileName: string) => {
 
 export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
+  const sanitizedFilename = sanitizeFilename(fileName);
 
   return new Promise(async (resolve) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
-      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      const readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
 
       let columns;
       let total = 0;
@@ -259,7 +265,7 @@ export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
+      const params = { Bucket: bucket, Key: sanitizedFilename };
       // exclude column
 
       const columns = await getS3FileInfo({

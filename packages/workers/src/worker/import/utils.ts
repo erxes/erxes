@@ -65,6 +65,7 @@ const getCsvInfo = (
 ) => {
   return new Promise(async (resolve) => {
     let readSteam;
+    const sanitizedFilename = sanitizeFilename(fileName);
 
     if (uploadType !== 'local') {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
@@ -77,8 +78,7 @@ const getCsvInfo = (
 
       const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
-
+      const params = { Bucket: bucket, Key: sanitizedFilename };
       const file = (await s3.getObject(params).promise()) as any;
 
       try {
@@ -87,16 +87,20 @@ const getCsvInfo = (
         }
 
         await fs.promises.writeFile(
-          `${uploadsFolderPath}/${fileName}`,
+          `${uploadsFolderPath}/${sanitizedFilename}`,
           file.Body,
         );
       } catch (e) {
         console.error(e.message);
       }
 
-      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
     } else {
-      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
     }
 
     let columns;
@@ -152,6 +156,7 @@ const importBulkStream = ({
     let rows: any = [];
     let readSteam;
     let rowIndex = 0;
+    const sanitizedFilename = sanitizeFilename(fileName);
 
     if (uploadType !== 'local') {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
@@ -164,18 +169,22 @@ const importBulkStream = ({
 
       const bucket = uploadType === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
+      const params = { Bucket: bucket, Key: sanitizedFilename };
 
       const file = (await s3.getObject(params).promise()) as any;
 
       await fs.promises.writeFile(
-        `${uploadsFolderPath}/${fileName}`,
+        `${uploadsFolderPath}/${sanitizedFilename}`,
         file.Body,
       );
 
-      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
     } else {
-      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
     }
 
     const write = (row, _, next) => {
