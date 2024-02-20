@@ -178,6 +178,7 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
+  serviceType: String
   charts: [JSON]
 `;
 
