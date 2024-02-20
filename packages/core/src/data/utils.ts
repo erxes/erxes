@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
-import { IModels } from '../connectionResolver';
+import { IModels, models } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import {
@@ -525,7 +525,7 @@ const uploadToCFImages = async (
 
   const CLOUDFLARE_BUCKET_NAME = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
-    'erxes',
+    '',
     models,
   );
 
@@ -622,8 +622,7 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
 export const uploadFileCloudflare = async (
   file: { name: string; path: string; type: string },
   forcePrivate: boolean = false,
-  isPublic?: string,
-  subdomain?: string,
+  models?: IModels,
 ): Promise<string> => {
   const IS_PUBLIC = forcePrivate
     ? false
@@ -632,10 +631,15 @@ export const uploadFileCloudflare = async (
 
   const CLOUDFLARE_BUCKET = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
-    'erxes-saas',
+    '',
+    models,
   );
 
-  const CLOUDFLARE_USE_CDN = await getConfig('CLOUDFLARE_USE_CDN', 'true');
+  const CLOUDFLARE_USE_CDN = await getConfig(
+    'CLOUDFLARE_USE_CDN',
+    'true',
+    models,
+  );
 
   const detectedType = fileType(fs.readFileSync(file.path));
 
@@ -645,7 +649,7 @@ export const uploadFileCloudflare = async (
     isImage(detectedType.mime) &&
     !['image/heic', 'image/heif'].includes(detectedType.mime)
   ) {
-    return uploadToCFImages(file, forcePrivate);
+    return uploadToCFImages(file, forcePrivate, models);
   }
 
   if (
@@ -653,7 +657,7 @@ export const uploadFileCloudflare = async (
     detectedType &&
     isVideo(detectedType.mime)
   ) {
-    return uploadToCFStream(file);
+    return uploadToCFStream(file, models);
   }
 
   // generate unique name
@@ -663,7 +667,7 @@ export const uploadFileCloudflare = async (
   const buffer = await fs.readFileSync(file.path);
 
   // initialize r2
-  const r2 = await createCFR2();
+  const r2 = await createCFR2(models);
 
   // upload to r2
 
@@ -674,12 +678,7 @@ export const uploadFileCloudflare = async (
         Bucket: CLOUDFLARE_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL:
-          isPublic === 'true'
-            ? 'public-read'
-            : IS_PUBLIC === 'true'
-              ? 'public-read'
-              : undefined,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
       },
       (err, res) => {
         if (err) {
@@ -1144,7 +1143,7 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, true);
+    nameOrLink = await uploadFileCloudflare(file, false, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -1250,6 +1249,7 @@ export const getConfig = async (
   }
 
   const configs = await getConfigs(models);
+
   const envValue = getEnv({ name: code, defaultValue });
 
   if (!configs[code]) {
@@ -1432,7 +1432,7 @@ export const getFileUploadConfigs = async (models: IModels) => {
 
   const CLOUDFLARE_BUCKET_NAME = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
-    'erxes',
+    '',
     models,
   );
 
