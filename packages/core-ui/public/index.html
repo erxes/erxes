@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,7 +10,11 @@
     <link rel="manifest" href="/manifest.json" />
 
     <link rel="stylesheet" href="%REACT_APP_PUBLIC_PATH%/style.min.css" />
-    <link rel="stylesheet" href="%REACT_APP_PUBLIC_PATH%/print.min.css" media="print" />
+    <link
+      rel="stylesheet"
+      href="%REACT_APP_PUBLIC_PATH%/print.min.css"
+      media="print"
+    />
     <title>erxes</title>
     <script defer="defer" src="%REACT_APP_PUBLIC_PATH%/main.js"></script>
     <script defer="defer" src="%REACT_APP_PUBLIC_PATH%/remoteEntry.js"></script>
@@ -34,22 +38,41 @@
       };
 
       window.envMaps = [
+        {
+          name: 'REACT_APP_DOMAIN_FORMAT',
+          processValue: '%REACT_APP_DOMAIN_FORMAT%',
+        },
+        {
+          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
+          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%',
+        },
+
         { name: 'REACT_APP_API_URL', processValue: '%REACT_APP_API_URL%' },
         {
           name: 'REACT_APP_API_SUBSCRIPTION_URL',
-          processValue: '%REACT_APP_API_SUBSCRIPTION_URL%'
+          processValue: '%REACT_APP_API_SUBSCRIPTION_URL%',
         },
         { name: 'REACT_APP_CDN_HOST', processValue: '%REACT_APP_CDN_HOST%' },
         {
           name: 'REACT_APP_DASHBOARD_URL',
-          processValue: '%REACT_APP_DASHBOARD_URL%'
+          processValue: '%REACT_APP_DASHBOARD_URL%',
         },
         {
           name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
-          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%'
+          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%',
         },
-        { name: 'REACT_APP_APM_SERVER_URL', processValue: '%REACT_APP_APM_SERVER_URL%' },
-        { name: 'REACT_APP_HIDE_MESSENGER', processValue: '%REACT_APP_HIDE_MESSENGER%' },
+        {
+          name: 'REACT_APP_APM_SERVER_URL',
+          processValue: '%REACT_APP_APM_SERVER_URL%',
+        },
+        {
+          name: 'REACT_APP_HIDE_MESSENGER',
+          processValue: '%REACT_APP_HIDE_MESSENGER%',
+        },
+        {
+          name: 'REACT_APP_VERSION',
+          processValue: '%REACT_APP_VERSION%',
+        },
       ];
 
       for (var i = 0; i < window.envMaps.length; i++) {

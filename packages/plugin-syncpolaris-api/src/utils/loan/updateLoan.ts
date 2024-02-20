@@ -6,9 +6,24 @@ import {
   fetchPolaris,
   updateLoanNumber,
 } from '../utils';
+import { createChangeLoanAmount } from './changeLoanAmount';
+import { changeLoanInterest } from './changeLoanInterest';
 
 export const updateLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
+
+  if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
+    return createChangeLoanAmount(subdomain, {
+      number: loan.number,
+      leaseAmount:
+        params.updatedDocument.leaseAmount - params.object.leaseAmount,
+      description: `change loan amount ${params.updatedDocument.description}`,
+    });
+  }
+
+  if (params.updatedDocument.interestRate !== params.object.interestRate) {
+    return changeLoanInterest(subdomain, params.updatedDocument);
+  }
 
   const customer = await getCustomer(subdomain, loan.customerId);
 

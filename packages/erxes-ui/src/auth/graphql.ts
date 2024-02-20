@@ -1,3 +1,7 @@
+import { getVersion } from '../utils/core';
+
+const { VERSION } = getVersion();
+
 export const currentUser = `
   query currentUser {
     currentUser {
@@ -23,6 +27,36 @@ export const currentUser = `
       links
       emailSignatures
       getNotificationByEmail
+      
+      ${
+        VERSION && VERSION === 'saas'
+          ? `
+      organizations {
+        name
+        subdomain
+      }
+      currentOrganization {
+        createdAt
+        subdomain
+        promoCodes
+        name
+        icon
+        charge
+        isWhiteLabel
+        setupService
+        isPaid
+        expiryDate
+        plan
+        purchased
+        onboardingDone
+        contactRemaining
+        experienceName
+        bundleNames
+      }`
+          : ``
+      }
+
+
       permissionActions
       configs
       configsConstants

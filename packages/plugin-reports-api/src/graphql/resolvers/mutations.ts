@@ -92,29 +92,67 @@ const reportsMutations = {
     return models.Charts.createChart(doc);
   },
 
-  async reportChartsEditMany(_root, doc: any, { models }: IContext) {
-    const { charts, reportId, serviceName, serviceType } = doc;
+  async reportChartsEditMany(_root, doc: any, { models, user }: IContext) {
+    const { charts, reportId, serviceName } = doc;
 
+    // const { repo };
     if (charts) {
       const service = await getService(serviceName);
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
       const existingCharts = await models.Charts.find({ reportId });
-      const existingChartTemplateTypes = existingCharts.map(
-        (e) => e.templateType,
-      );
 
-      function filterArray(arr1, arr2) {
-        // Convert arr2 to a Set for faster lookup
-        const set2 = new Set(arr2);
+      const chartTemplatesSet = new Set(charts);
+      const existingChartsList: string[] = [];
+      const removeIds: string[] = [];
 
-        // Filter arr1 to remove elements that exist in arr2
-        return arr1.filter((item) => !set2.has(item));
+      for (const existingChart of existingCharts) {
+        if (chartTemplatesSet.has(existingChart.templateType)) {
+          existingChartsList.push(existingChart.templateType);
+          continue;
+        }
+
+        // if user unchecked chart from report, remove it
+        removeIds.push(existingChart._id);
       }
 
-      const existingTemplateTypes = existingCharts.map((e) => e.templateType);
+      const existingChartsSet = new Set(existingChartsList);
+      const newCharts = new Set(
+        charts.filter((c) => !existingChartsSet.has(c)),
+      );
+      const insertCharts: any[] = [];
+
+      for (const chartTemplate of chartTemplates) {
+        if (newCharts.has(chartTemplate.templateType)) {
+          insertCharts.push(chartTemplate);
+        }
+      }
+
+      // remove charts
+      if (removeIds.length) {
+        await models.Charts.deleteMany({ _id: { $in: removeIds } });
+      }
+      // insert charts
+      if (insertCharts.length) {
+        await models.Charts.insertMany(
+          insertCharts.map((c) => {
+            return {
+              serviceName,
+              chartType: c.chartTypes[0],
+              reportId,
+              ...c,
+            };
+          }),
+        );
+      }
     }
+
+    return await models.Reports.updateReport(reportId, {
+      ...doc,
+      updatedAt: new Date(),
+      updatedBy: user?._id || null,
+    });
   },
 
   async reportChartsAddMany(_root, doc: any, { models }: IContext) {
