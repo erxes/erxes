@@ -50,7 +50,6 @@ export const types = ({ products, tags, forms }) => `
 
     visibility: String
     departmentIds: [String]
-    data: JSON
 
     details: JSON
   }
