@@ -6,7 +6,7 @@ const attachmentSchema = {
   url: { type: String },
   type: { type: String },
   size: { type: Number, optional: true },
-  duration: { type: Number, optional: true }
+  duration: { type: Number, optional: true },
 };
 export interface IAttachment {
   name: string;
@@ -35,13 +35,13 @@ export interface IChatMessage {
 export const CHAT_TYPE = {
   DIRECT: 'direct',
   GROUP: 'group',
-  ALL: ['direct', 'group']
+  ALL: ['direct', 'group'],
 };
 
 export const VISIBILITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',
-  ALL: ['public', 'private']
+  ALL: ['public', 'private'],
 };
 export interface IChatMessageDocument extends IChatMessage, Document {
   _id: String;
@@ -52,7 +52,7 @@ export const chatMessageSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     attachments: field({
       type: [attachmentSchema],
-      label: 'attachments'
+      label: 'attachments',
     }),
     mentionedUserIds: field({ type: [String] }),
     chatId: field({ type: String, label: 'Connected chat' }),
@@ -60,19 +60,28 @@ export const chatMessageSchema = schemaHooksWrapper(
     isPinned: field({
       type: Boolean,
       default: false,
-      label: 'Has pinned'
+      label: 'Has pinned',
     }),
     content: field({ type: String, label: 'Content', optional: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    createdBy: field({ type: String, label: 'Created by' })
+    createdBy: field({ type: String, label: 'Created by' }),
   }),
-  'erxes_chatMessage'
+  'erxes_chatMessage',
+);
+
+export const chatMessageReactionSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    userId: field({ type: String, index: true, label: 'Created user id' }),
+    reaction: field({ type: String, label: 'chat reaction' }),
+  }),
+  'erxes_chatMessage_reaction',
 );
 
 const seenSchema = {
   userId: String,
   seenDate: Date,
-  lastSeenMessageId: String
+  lastSeenMessageId: String,
 };
 export interface IChatDocument extends IChat, Document {
   _id: String;
@@ -88,24 +97,24 @@ export const chatSchema = schemaHooksWrapper(
     isPinned: field({
       type: Boolean,
       default: false,
-      label: 'Has pinned'
+      label: 'Has pinned',
     }),
     isPinnedUserIds: field({
       type: [String],
-      label: 'isPinnedUserIds'
+      label: 'isPinnedUserIds',
     }),
     isWithNotification: field({
       type: Boolean,
       default: false,
-      label: 'Has notification'
+      label: 'Has notification',
     }),
     muteUserIds: field({
       type: [String],
-      label: 'Mute UserIds'
+      label: 'Mute UserIds',
     }),
     featuredImage: field({
       type: [attachmentSchema],
-      label: 'Featured image'
+      label: 'Featured image',
     }),
     participantIds: field({ type: [String], label: 'User ids' }),
     archivedUserIds: field({ type: [String], label: 'User ids' }),
@@ -113,13 +122,13 @@ export const chatSchema = schemaHooksWrapper(
     seenInfos: field({
       type: [seenSchema],
       label: 'Seen info',
-      default: []
+      default: [],
     }),
     createdAt: field({ type: Date, label: 'Created at' }),
     updatedAt: field({ type: Date, label: 'Updated at' }),
-    createdBy: field({ type: String, label: 'Created by' })
+    createdBy: field({ type: String, label: 'Created by' }),
   }),
-  'erxes_chat'
+  'erxes_chat',
 );
 
 export interface IUserStatus {
@@ -135,7 +144,7 @@ export const userStatusSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     userId: field({ type: String, label: 'User id' }),
-    onlineDate: field({ type: String, label: 'Last Online Date' })
+    onlineDate: field({ type: String, label: 'Last Online Date' }),
   }),
-  'erxes_chatUserStatus'
+  'erxes_chatUserStatus',
 );

@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
@@ -25,6 +25,11 @@ export const types = () => `
     lastSeenMessageId: String
     seenDate: Date
   }
+
+  type ChatReaction {
+    user: User
+    reaction: String
+  }
   
   type ChatMessage {
     _id: String!
@@ -36,6 +41,7 @@ export const types = () => `
     createdUser: User
     createdAt: Date
     seenList: [SeenInfo]
+    reactions: [ChatReaction]
   }
 
   type ChatUserDetails {
