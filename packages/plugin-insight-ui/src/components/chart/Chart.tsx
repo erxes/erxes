@@ -7,13 +7,14 @@ import {
   ChartType,
   Colors,
 } from 'chart.js';
-// import { IChart } from '../../types';
+
+import { IChart } from '../../types';
 import { DEFAULT_BACKGROUND_COLORS, DEFAULT_BORDER_COLORS } from './utils';
 
 Chart.register(Colors);
 
 interface IChartProps {
-  chart: any;
+  chart: IChart;
 
   data?: number[];
   labels?: string[];

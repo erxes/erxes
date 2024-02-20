@@ -1,5 +1,5 @@
-import Table from '@erxes/ui/src/components/table';
 import React from 'react';
+import Table from '@erxes/ui/src/components/table';
 
 type IDataSet = {
   title: string;

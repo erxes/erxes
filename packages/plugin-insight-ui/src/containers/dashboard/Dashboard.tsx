@@ -1,8 +1,13 @@
 import React from 'react';
-import Dashboard from '../../components/dashboard/Dashboard';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+
+import Dashboard from '../../components/dashboard/Dashboard';
 import { queries, mutations } from '../../graphql';
-import { Alert, __, confirm, router } from '@erxes/ui/src';
 import {
   DashboardDetailQueryResponse,
   DashboardRemoveMutationResponse,

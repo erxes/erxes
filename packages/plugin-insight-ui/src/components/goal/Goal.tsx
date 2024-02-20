@@ -1,30 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import {
-  ActionButtons,
-  BarItems,
-  Button,
-  DataWithLoader,
-  PageContent,
-  Table,
-  Wrapper,
-  Icon,
-  __,
-} from '@erxes/ui/src';
+
 import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-
-import {
-  ContentContainer,
-  DetailBox,
-  DetailBoxContainer,
-  DragField,
-} from '../../styles';
-
-import GridLayout from 'react-grid-layout';
-import Sidebar from '../Sidebar';
-import DetailContainer from '../../containers/goal/Detail';
 import { capitalize } from 'lodash';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/index';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { BarItems } from '@erxes/ui/src';
+
+import DetailContainer from '../../containers/goal/Detail';
+import { ContentContainer, DragField } from '../../styles';
 import { IGoalType, ISpecificPeriodGoal } from '../../types';
 
 type Props = {

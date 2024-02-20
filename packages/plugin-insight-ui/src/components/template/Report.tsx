@@ -1,14 +1,16 @@
-import { ScrollWrapper } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
-import { FlexColumn, TemplateBox } from '../../styles';
+
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Button from '@erxes/ui/src/components/Button';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
-import { Button, FormControl } from '@erxes/ui/src';
-import { IFormProps } from '@erxes/ui/src/types';
+
 import ChartTemplates from '../../containers/template/Chart';
+import { IDashboard, IReport, IReportTemplate } from '../../types';
+import { FlexColumn, TemplateBox } from '../../styles';
 
 type Props = {
-  report: any;
-  template: any;
+  report?: any;
+  template: IReportTemplate;
 
   selectedTemplateType: string | string[];
 
@@ -28,9 +30,20 @@ const ReportTemplate = (props: Props) => {
     handleTemplateClick,
   } = props;
 
-  const [showMore, setShowMore] = useState<boolean>(
-    !!report && selectedTemplateType.includes(template.serviceType),
+  console.log('!!report', !!report);
+  console.log(
+    'selectedTemplateType?.includes(template?.serviceType)',
+    selectedTemplateType?.includes(template?.serviceType),
   );
+
+  console.log('selectedTemplateType', selectedTemplateType);
+  console.log('template?.serviceType', template?.serviceType);
+
+  const [showMore, setShowMore] = useState<boolean>(
+    !!report && selectedTemplateType?.includes(template?.serviceType),
+  );
+
+  console.log(showMore);
 
   return (
     <TemplateBox showMore={showMore}>
@@ -60,7 +73,7 @@ const ReportTemplate = (props: Props) => {
             setTemplateCharts={setTemplateCharts}
           />
 
-          {!report?.serviceType && (
+          {report?.__typename !== 'Report' && !!selectedTemplateType.length && (
             <Button onClick={() => setShowMore(!showMore)}>
               {showMore ? 'Show less' : 'Show more'}
             </Button>

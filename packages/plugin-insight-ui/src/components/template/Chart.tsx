@@ -1,12 +1,15 @@
-import { ControlLabel, DataWithLoader, FormControl } from '@erxes/ui/src';
 import React, { useEffect, useState, memo } from 'react';
-import { Column, Flex } from '@erxes/ui/src/styles/main';
-import { FlexRow } from '../../styles';
+
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+
 import ChartLoader from './ChartLoader';
+import { FlexRow } from '../../styles';
 import { IDashboard, IReport, IReportTemplate } from '../../types';
 
 type Props = {
-  report: IReport | IDashboard;
+  report?: any;
   template: IReportTemplate;
   loading: boolean;
   chartTemplates: any[];

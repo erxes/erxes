@@ -1,19 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button, Icon, SidebarList, Tip, __, router } from '@erxes/ui/src';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Dropdown from 'react-bootstrap/Dropdown';
-import FormContainer from '../../containers/dashboard/Form';
-
-import {
-  CollapsibleListWrapper,
-  FlexRow,
-  SidebarListItem,
-  ItemText,
-} from '@erxes/ui/src/components/collapsibleList/styles';
-import SectionList from '../../containers/section/List';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import { RightDrawerContainer } from '../../styles';
 import RTG from 'react-transition-group';
+import Dropdown from 'react-bootstrap/Dropdown';
+
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import Box from '@erxes/ui/src/components/Box';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+
+import FormContainer from '../../containers/dashboard/Form';
+import SectionList from '../../containers/section/List';
+import { RightDrawerContainer } from '../../styles';
 import { IDashboard, ISection } from '../../types';
 
 type Props = {

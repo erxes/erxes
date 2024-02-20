@@ -1,8 +1,14 @@
 import React from 'react';
-import GoalSection from '../../components/section/Goal';
+
 import { gql, useQuery, useMutation } from '@apollo/client';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+
+import GoalSection from '../../components/section/Goal';
 import { queries, mutations } from '../../graphql';
-import { Alert, __, confirm, router } from '@erxes/ui/src';
 import {
   RemoveMutationVariables,
   SectionsListQueryResponse,

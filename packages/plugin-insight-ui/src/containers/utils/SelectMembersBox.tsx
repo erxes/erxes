@@ -1,13 +1,18 @@
-import { Alert, Button, __ } from '@erxes/ui/src';
 import React, { useRef } from 'react';
+
+import debounce from 'lodash/debounce';
+import { gql, useQuery, useMutation } from '@apollo/client';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { queries, mutations } from '../../graphql';
-import SelectMembersBox from '../../components/utils/SelectMembersBox';
-import debounce from 'lodash/debounce';
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { __ } from '@erxes/ui/src/utils/index';
+
+import SelectMembersBox from '../../components/utils/SelectMembersBox';
+import { queries, mutations } from '../../graphql';
 import { IDashboard, IReport, ReportEditMutationResponse } from '../../types';
 
 type Props = {

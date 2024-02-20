@@ -1,12 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Icon, SidebarList, Tip, __, router } from '@erxes/ui/src';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import React, { useRef, useState } from 'react';
+
+import RTG from 'react-transition-group';
 import Dropdown from 'react-bootstrap/Dropdown';
+
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import Box from '@erxes/ui/src/components/Box';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+
 import FormContainer from '../../containers/report/Form';
 import SectionList from '../../containers/section/List';
 import { RightDrawerContainer } from '../../styles';
-import RTG from 'react-transition-group';
 import { IReport, ISection } from '../../types';
 
 type Props = {

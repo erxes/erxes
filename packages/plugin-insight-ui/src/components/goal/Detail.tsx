@@ -1,7 +1,9 @@
-import { Table, __ } from '@erxes/ui/src';
 import React from 'react';
-// import { IGoalType } from '../../../../../plugin-goals-ui/src/types';
 import dayjs from 'dayjs';
+
+import Table from '@erxes/ui/src/components/table/index';
+import { __ } from '@erxes/ui/src/utils/index';
+
 import { DetailBox, DetailBoxContainer } from '../../styles';
 import { IGoalType } from '../../types';
 

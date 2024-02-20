@@ -1,8 +1,12 @@
-import { Icon, __ } from '@erxes/ui/src';
 import React, { useState } from 'react';
+
 import Select, { Option } from 'react-select-plus';
-import { CustomOption } from '../../styles';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/index';
+
 import { ISection, SectionMutationVariables } from '../../types';
+import { CustomOption } from '../../styles';
 
 type Props = {
   type: 'dashboard' | 'goal' | 'report';

@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import Form from '../../components/chart/Form';
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { gql, useQuery } from '@apollo/client';
+import { __ } from '@erxes/ui/src/utils/index';
+
+import Form from '../../components/chart/Form';
 import { mutations, queries } from '../../graphql';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { filterChartTemplates } from '../../utils';
+import { ReportTemplatesListQueryResponse } from '../../types';
 import {
   IChart,
   ReportChartFormMutationResponse,
   ReportChartTemplatesListQueryResponse,
   reportServicesListQueryResponse,
 } from '../../types';
-import { Alert, ButtonMutate, Spinner, __ } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { filterChartTemplates } from '../../utils';
-import { ReportTemplatesListQueryResponse } from '../../types';
 
 type Props = {
   history: any;
@@ -26,24 +28,28 @@ type Props = {
 const FormContainer = (props: Props) => {
   const { queryParams, chart, type, item, closeDrawer } = props;
 
+  // const [serviceName, setServiceName] = useState(
+  //   chart
+  //     ? chart.serviceName
+  //     : type === 'report'
+  //       ? item?.serviceName
+  //       : undefined,
+  // );
+
   const [serviceName, setServiceName] = useState(
-    chart
-      ? chart.serviceName
-      : type === 'report'
-        ? item?.serviceName
-        : undefined,
+    chart?.serviceName || undefined,
   );
 
-  const templateListQuery = useQuery<ReportTemplatesListQueryResponse>(
-    gql(queries.reportTemplatesList),
-    {
-      skip: type !== 'report',
-      variables: {
-        serviceName: item?.serviceName,
-      },
-      fetchPolicy: 'network-only',
-    },
-  );
+  // const templateListQuery = useQuery<ReportTemplatesListQueryResponse>(
+  //   gql(queries.reportTemplatesList),
+  //   {
+  //     skip: type !== 'report',
+  //     variables: {
+  //       serviceName: item?.serviceName
+  //     },
+  //     fetchPolicy: 'network-only'
+  //   }
+  // );
 
   const servicesListQuery = useQuery<reportServicesListQueryResponse>(
     gql(queries.reportServicesList),
@@ -94,20 +100,22 @@ const FormContainer = (props: Props) => {
   };
 
   const serviceNames = servicesListQuery?.data?.reportServicesList || [];
-  const reportTemplates = templateListQuery?.data?.reportTemplatesList || [];
+  // const reportTemplates = templateListQuery?.data?.reportTemplatesList || [];
   const chartTemplates =
     chartTemplatesListQuery?.data?.reportChartTemplatesList || [];
 
-  const services = type === 'report' ? [item?.serviceName] : serviceNames;
-  const templates =
-    type === 'report'
-      ? filterChartTemplates(chartTemplates, reportTemplates, item)
-      : chartTemplates;
+  // const services = type === 'report' ? [item?.serviceName] : serviceNames;
+  // const templates =
+  //   type === 'report'
+  //     ? filterChartTemplates(chartTemplates, reportTemplates, item)
+  //     : chartTemplates;
 
   const finalProps = {
     ...props,
-    serviceNames: services,
-    chartTemplates: templates,
+    // serviceNames: services,
+    // chartTemplates: templates,
+    serviceNames,
+    chartTemplates,
     renderButton,
     updateServiceName: setServiceName,
   };

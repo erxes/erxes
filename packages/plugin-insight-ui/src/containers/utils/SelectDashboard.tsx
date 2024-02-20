@@ -1,9 +1,12 @@
 import React from 'react';
+
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { queries, mutations } from '../../graphql';
-import { Alert } from '@erxes/ui/src';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+
 import SelectDashboard from '../../components/utils/SelectDashboard';
 import { IReport, IGoalType, SectionsListQueryResponse } from '../../types';
+import { queries, mutations } from '../../graphql';
 
 type Props = {
   queryParams: any;

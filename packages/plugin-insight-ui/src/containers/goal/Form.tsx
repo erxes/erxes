@@ -1,9 +1,14 @@
 import React from 'react';
-import Form from '../../components/goal/Form';
+
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { queries, mutations } from '../../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ButtonMutate, __, router } from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+
+import Form from '../../components/goal/Form';
+import { queries, mutations } from '../../graphql';
 
 type Props = {
   queryParams: any;

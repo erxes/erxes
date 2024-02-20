@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { FormContent, FormFooter } from '../../styles';
-import {
-  Alert,
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  __,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React, { useState } from 'react';
+import { capitalize } from 'lodash';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { __ } from '@erxes/ui/src/utils/index';
+import { IFormProps } from '@erxes/ui/src/types';
 import { Form as CommonForm } from '@erxes/ui/src/components/form';
+
 import SelectSections from '../../containers/utils/SelectSections';
 import SelectMembersForm from '../utils/SelectMembersForm';
 import ReportTemplate from '../template/Report';
-import { capitalize } from 'lodash';
 import { groupServiceTypesByServiceName } from '../../utils';
 import { IDashboard, IReportTemplate } from '../../types';
+import { FormContent, FormFooter } from '../../styles';
 
 type Props = {
   queryParams: any;

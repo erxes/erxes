@@ -1,14 +1,16 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { PopoverButton } from '@erxes/ui/src/styles/main';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import Datetime from '@nateradebaugh/react-datetime';
 import React, { useState } from 'react';
+
+import Datetime from '@nateradebaugh/react-datetime';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { FlexCenter, FlexRow, MarginY } from '../../styles';
-
 import * as dayjs from 'dayjs';
+
+import Button from '@erxes/ui/src/components/Button';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import { PopoverButton } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils/index';
+
+import { FlexCenter, FlexRow, MarginY } from '../../styles';
 
 const dateFormat = 'MM/DD/YYYY';
 const NOW = new Date();

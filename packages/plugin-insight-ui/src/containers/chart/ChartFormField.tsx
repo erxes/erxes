@@ -1,7 +1,9 @@
 import React from 'react';
+
+import { gql, useQuery } from '@apollo/client';
+
 import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
-import { gql, useQuery } from '@apollo/client';
 
 export type IFilterType = {
   fieldName: string;

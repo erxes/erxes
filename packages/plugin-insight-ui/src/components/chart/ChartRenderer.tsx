@@ -1,14 +1,16 @@
+import React, { useEffect, useRef } from 'react';
 import { ChartType, Colors } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js/auto';
-import React, { useEffect, useRef } from 'react';
+
+import Spinner from '@erxes/ui/src/components/Spinner';
+
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
   DEFAULT_DATA_PER_CHART,
   DEFAULT_LABELS_PER_CHART,
 } from './utils';
-import { Spinner } from '@erxes/ui/src/components';
 
 Chart.register(Colors);
 

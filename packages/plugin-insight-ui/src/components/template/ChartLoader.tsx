@@ -1,7 +1,9 @@
 import React from 'react';
-import { Loader } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+
+import { Loader } from '@erxes/ui/src/styles/main';
+
 import { FlexRow } from '../../styles';
 
 const Label = styledTS<{ width?: number }>(styled(Loader))`

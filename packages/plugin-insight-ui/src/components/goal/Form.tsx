@@ -1,21 +1,32 @@
 import React, { useState } from 'react';
-// import {
-//   IGoalType,
-//   IGoalTypeDoc
-// } from '../../../../../plugin-goals-ui/src/types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  __,
-  Form as CommonForm,
-  DateControl,
-  SelectTeamMembers,
-  Button,
-} from '@erxes/ui/src';
 import Select from 'react-select-plus';
 
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
+import Button from '@erxes/ui/src/components/Button';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
+import { CustomRangeContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { Form as CommonForm } from '@erxes/ui/src/components/form';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils';
+import {
+  DateContainer,
+  FormColumn,
+  FormWrapper,
+} from '@erxes/ui/src/styles/main';
+
+import { FormContent, FormFooter } from '../../styles';
+import { IGoalType } from '../../types';
 import {
   CONTRIBUTION,
   ENTITY,
@@ -24,25 +35,6 @@ import {
   METRIC,
   SPECIFIC_PERIOD_GOAL,
 } from '../../constants';
-
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import {
-  DateContainer,
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-  ScrollWrapper,
-} from '@erxes/ui/src/styles/main';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import { CustomRangeContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
-import { FormContent, FormFooter } from '../../styles';
-import { IGoalType } from '../../types';
 
 type Props = {
   queryParams: any;

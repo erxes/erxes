@@ -1,9 +1,12 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Tip from '@erxes/ui/src/components/Tip';
-import { colors } from '@erxes/ui/src/styles';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
+
 import styled from 'styled-components';
+
+import Tip from '@erxes/ui/src/components/Tip';
+import { getUserAvatar } from '@erxes/ui/src/utils/index';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from '@erxes/ui/src/utils/index';
+import { colors } from '@erxes/ui/src/styles';
 
 const spacing = 30;
 

@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  TabTitle,
-  Tabs,
-} from '@erxes/ui/src/components';
-import { FormFooter, FormContent, TemplateBox } from '../../styles';
-import { Form as CommonForm } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React, { useState } from 'react';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Alert, __ } from '@erxes/ui/src';
-import { Column, ModalFooter, ScrollWrapper } from '@erxes/ui/src/styles/main';
+import Button from '@erxes/ui/src/components/Button';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import { Form as CommonForm } from '@erxes/ui/src/components/form';
+import { IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/index';
+
 import ReportTemplate from '../template/Report';
 import SelectMembersForm from '../utils/SelectMembersForm';
-import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import SelectSections from '../../containers/utils/SelectSections';
+import { FormFooter, FormContent } from '../../styles';
 import { IReport, IReportTemplate } from '../../types';
 
 type Props = {
@@ -47,6 +43,13 @@ const Form = (props: Props) => {
   const [serviceName, setServiceName] = useState<string>(
     report?.serviceName || '',
   );
+
+  // useEffect(() => {
+  //   if (report && report.charts && !report.serviceType) {
+  //     const serviceType = chartTypes[(report.charts[0] || {}).templateType!];
+  //     setServiceType(serviceType);
+  //   }
+  // }, []);
 
   const handleSubmit = () => {
     if (!name || !serviceName || !sectionId) {
@@ -81,7 +84,7 @@ const Form = (props: Props) => {
       if (!name || isNameDefault) {
         setName(title);
       }
-    } else if (!report?.serviceType) {
+    } else if (!serviceType) {
       setServiceName('');
       setServiceType('');
 
@@ -100,12 +103,11 @@ const Form = (props: Props) => {
   };
 
   const renderReportTemplates = () => {
-    const templates =
-      report && report?.serviceType
-        ? reportTemplates.filter((template) =>
-            template.serviceType.includes(report?.serviceType || ''),
-          )
-        : reportTemplates;
+    const templates = report
+      ? reportTemplates.filter((template) =>
+          template.serviceType.includes(serviceType || ''),
+        )
+      : reportTemplates;
 
     return templates.map((template, index) => {
       return (

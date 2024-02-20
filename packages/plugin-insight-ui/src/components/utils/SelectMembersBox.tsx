@@ -1,10 +1,10 @@
-import { Button, FilterableList, __, getUserAvatar } from '@erxes/ui/src';
+import React, { useEffect, useState } from 'react';
+
+import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
+import { getUserAvatar } from '@erxes/ui/src/utils/index';
 import { IUser } from '@erxes/ui/src/auth/types';
-import React, { useEffect, useRef, useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import Participators from './Participators';
-import { FormContent } from '../../styles';
+import { __ } from '@erxes/ui/src/utils/index';
+
 import { IDashboard, IReport } from '../../types';
 
 type Props = {

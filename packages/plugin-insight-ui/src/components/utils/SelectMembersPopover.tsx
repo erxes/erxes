@@ -1,10 +1,12 @@
-import { __ } from '@erxes/ui/src';
 import React, { useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+
+import { __ } from '@erxes/ui/src/utils/index';
+
 import SelectMembersBox from '../../containers/utils/SelectMembersBox';
-import '../../styles.css';
 import { IDashboard, IReport } from '../../types';
+import '../../styles.css';
 
 type Props = {
   targets: IReport[] | IDashboard[];

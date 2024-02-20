@@ -1,8 +1,8 @@
 import React from 'react';
-import { ControlLabel } from '@erxes/ui/src/components';
 
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   handleUserChange: (userIds: any) => void;

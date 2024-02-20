@@ -1,11 +1,13 @@
 import React from 'react';
-// import { IGoalType } from '../../../../../plugin-goals-ui/src/types';
+
 import { gql, useQuery } from '@apollo/client';
-import { queries } from '../../graphql';
+
 import Detail from '../../components/goal/Detail';
+import { queries } from '../../graphql';
+import { IGoalType } from '../../types';
 
 type Props = {
-  goal: any;
+  goal: IGoalType;
 };
 
 const DetailContainer = (props: Props) => {

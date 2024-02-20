@@ -1,8 +1,12 @@
 import React from 'react';
-import Form from '../../components/report/Form';
+
 import { gql, useQuery, useMutation } from '@apollo/client';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Spinner from '@erxes/ui/src/components/Spinner';
+
+import Form from '../../components/report/Form';
 import { queries, mutations } from '../../graphql';
-import { Alert, Spinner } from '@erxes/ui/src';
 import {
   ReportDetailQueryResponse,
   ReportEditMutationResponse,

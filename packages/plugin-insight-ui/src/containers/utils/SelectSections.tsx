@@ -1,8 +1,11 @@
 import React from 'react';
-import SelectSections from '../../components/utils/SelectSections';
+
 import { gql, useQuery, useMutation } from '@apollo/client';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+
+import SelectSections from '../../components/utils/SelectSections';
 import { queries, mutations } from '../../graphql';
-import { Alert } from '@erxes/ui/src';
 import {
   SectionAddMutationResponse,
   SectionMutationVariables,

@@ -1,11 +1,14 @@
-import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { MarginY } from '../../styles';
+
 import DateRange from '../utils/DateRange';
+import { MarginY } from '../../styles';
 
 type Props = {
   fieldType: string;
@@ -19,6 +22,7 @@ type Props = {
   startDate?: Date;
   endDate?: Date;
 };
+
 const ChartFormField = (props: Props) => {
   const {
     fieldQuery,

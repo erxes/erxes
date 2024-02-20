@@ -1,27 +1,25 @@
 import React, { useState, useRef } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import {
-  BarItems,
-  Button,
-  DataWithLoader,
-  Icon,
-  PageContent,
-  Wrapper,
-  __,
-  confirm,
-  getEnv,
-} from '@erxes/ui/src';
+import RTG from 'react-transition-group';
+
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import Button from '@erxes/ui/src/components/Button';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-
-import { ChartTitle, ContentContainer, DragField } from '../../styles';
-
 import ChartRenderer from '../../containers/chart/ChartRenderer';
 import queryString from 'query-string';
-import SelectMembersPopover from '../utils/SelectMembersPopover';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { BarItems } from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/utils/index';
+import { getEnv } from '@erxes/ui/src/utils/index';
+
 import Participators from '../utils/Participators';
 import Form from '../../containers/chart/Form';
-import RTG from 'react-transition-group';
+import SelectMembersPopover from '../utils/SelectMembersPopover';
+import { ChartTitle, ContentContainer, DragField } from '../../styles';
 import { RightDrawerContainer } from '../../styles';
 import { IDashboard } from '../../types';
 

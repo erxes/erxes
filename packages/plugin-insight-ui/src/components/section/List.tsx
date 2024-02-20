@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils/index';
 import {
   CollapsibleListWrapper,
   FlexRow,
@@ -6,15 +13,14 @@ import {
   ItemText,
   ToggleIcon,
 } from '@erxes/ui/src/components/collapsibleList/styles';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import { Button, Icon, SidebarList, Tip, __ } from '@erxes/ui/src';
 import {
   ActionButtons,
   FlexBetween,
   ItemCount,
 } from '@erxes/ui-settings/src/styles';
-import { SectionListItem } from '../../styles';
+
 import { IDashboard, IGoalType, IReport, ISection } from '../../types';
+import { SectionListItem } from '../../styles';
 
 type Props = {
   queryParamName: string;

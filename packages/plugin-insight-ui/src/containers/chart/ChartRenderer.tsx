@@ -1,20 +1,19 @@
 import React from 'react';
+
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-// import {
-//   IChartGetResultVariables,
-//   ReportChartGetResultQueryResponse,
-// } from '../../types';
-import { Spinner } from '@erxes/ui/src/components';
-import ChartRenderer from '../../components/chart/ChartRenderer';
+
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils/core';
+
+import ChartRenderer from '../../components/chart/ChartRenderer';
+import TableRenderer from '../../components/chart/TableRenderer';
 import { queries } from '../../graphql';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
 } from '../../components/chart/utils';
-import TableRenderer from '../../components/chart/TableRenderer';
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(

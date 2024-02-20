@@ -1,6 +1,8 @@
 import React from 'react';
-import Goal from '../../components/goal/Goal';
+
 import { gql, useQuery } from '@apollo/client';
+
+import Goal from '../../components/goal/Goal';
 import { queries, mutations } from '../../graphql';
 import { GoalTypesQueryResponse } from '../../types';
 

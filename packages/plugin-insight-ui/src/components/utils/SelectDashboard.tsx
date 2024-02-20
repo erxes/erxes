@@ -1,7 +1,11 @@
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { Button, Icon, __ } from '@erxes/ui/src';
+import Dropdown from 'react-bootstrap/Dropdown';
+
+import Button from '@erxes/ui/src/components/Button';
+import { __ } from '@erxes/ui/src/utils/index';
+
 import { ISection } from '../../types';
 
 type Props = { sections: ISection[]; handleMutation(id: String): void };
@@ -16,7 +20,7 @@ const SelectDashboard = (props: Props) => {
       </Dropdown.Toggle>
       <Dropdown.Menu className="dropdown-container">
         {sections.map((section) => (
-          <li>
+          <li key={section._id}>
             <a
               href="#delete"
               onClick={() => {

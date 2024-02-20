@@ -1,12 +1,21 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button, Icon, SidebarList, Tip, __, router } from '@erxes/ui/src';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+
 import Dropdown from 'react-bootstrap/Dropdown';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import FormContainer from '../../containers/goal/Form';
-import { capitalize } from 'lodash';
-import { RightDrawerContainer } from '../../styles';
 import RTG from 'react-transition-group';
+import { capitalize } from 'lodash';
+
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import Box from '@erxes/ui/src/components/Box';
+import Icon from '@erxes/ui/src/components/Icon';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils/index';
+import { router } from '@erxes/ui/src/utils';
+
+import FormContainer from '../../containers/goal/Form';
+import { RightDrawerContainer } from '../../styles';
 import { IGoalType, ISection } from '../../types';
 
 type Props = {

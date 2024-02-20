@@ -1,6 +1,9 @@
 import React from 'react';
+
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+
 import { ContentContainer } from '../styles';
-import { EmptyState, PageContent } from '@erxes/ui/src';
 
 const Empty = () => {
   return (

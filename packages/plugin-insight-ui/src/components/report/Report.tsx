@@ -1,39 +1,32 @@
 import React, { useRef, useState } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import {
-  BarItems,
-  Button,
-  DataWithLoader,
-  FlexItem,
-  HeightedWrapper,
-  Icon,
-  PageContent,
-  Wrapper,
-  __,
-  confirm,
-  getEnv,
-} from '@erxes/ui/src';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import RTG from 'react-transition-group';
+import Dropdown from 'react-bootstrap/Dropdown';
+import queryString from 'query-string';
+
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { getEnv } from '@erxes/ui/src/utils/index';
+import { __ } from '@erxes/ui/src/utils/index';
+import { BarItems } from '@erxes/ui/src';
+
+import ChartRenderer from '../../containers/chart/ChartRenderer';
+import Participators from '../utils/Participators';
+import Form from '../../containers/chart/Form';
+import SelectMembersPopover from '../utils/SelectMembersPopover';
+import SelectDashboard from '../../containers/utils/SelectDashboard';
+import { IReport } from '../../types';
 import {
   ChartTitle,
   DragField,
   ContentContainer,
   RightDrawerContainer,
 } from '../../styles';
-
-import RGL, { WidthProvider } from 'react-grid-layout';
-import GridLayout from 'react-grid-layout';
-import Sidebar from '../Sidebar';
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-import queryString from 'query-string';
-import SelectMembersBox from '../../containers/utils/SelectMembersBox';
-import Participators from '../utils/Participators';
-import Form from '../../containers/chart/Form';
-import SelectMembersPopover from '../utils/SelectMembersPopover';
-import SelectDashboard from '../../containers/utils/SelectDashboard';
-import { IReport } from '../../types';
 
 const DEFAULT_GRID_DIMENSIONS = {
   w: 3,

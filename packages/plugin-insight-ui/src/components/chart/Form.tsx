@@ -1,6 +1,19 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import React, { useEffect, useState } from 'react';
-import RTG from 'react-transition-group';
+import Select from 'react-select-plus';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Button from '@erxes/ui/src/components/Button';
+import ChartRenderer from '../../containers/chart/ChartRenderer';
+import { Form as CommonForm } from '@erxes/ui/src/components/form';
+import { FormColumn } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
+import ChartFormField, {
+  IFilterType,
+} from '../../containers/chart/ChartFormField';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
 import {
   Description,
   FlexColumn,
@@ -9,23 +22,7 @@ import {
   FormFooter,
   FormWrapper,
 } from '../../styles';
-
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-} from '@erxes/ui/src/components/form';
-import Select from 'react-select-plus';
-import { Form as CommonForm } from '@erxes/ui/src';
-import Button from '@erxes/ui/src/components/Button';
-import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, router } from '@erxes/ui/src/utils';
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-// import { IChart } from '../../../../types';
-import ChartFormField, {
-  IFilterType,
-} from '../../containers/chart/ChartFormField';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IChart } from '../../types';
 
 const DIMENSION_OPTIONS = [
   { label: 'Team members', value: 'teamMember' },
@@ -43,7 +40,7 @@ type Props = {
   history: any;
   queryParams: any;
 
-  chart?: any;
+  chart?: IChart;
   chartTemplates: any[];
   serviceNames: string[];
 
@@ -72,9 +69,7 @@ const Form = (props: Props) => {
 
   const [name, setName] = useState(chart?.name || '');
   const [chartTypes, setChartTypes] = useState([]);
-  const [serviceName, setServiceName] = useState(
-    chart ? chart.serviceName : type === 'report' ? item?.serviceName : '',
-  );
+  const [serviceName, setServiceName] = useState(chart?.serviceName || '');
   const [templateType, setChartTemplate] = useState(chart?.templateType || '');
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);

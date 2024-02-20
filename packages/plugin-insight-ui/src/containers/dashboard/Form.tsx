@@ -1,8 +1,13 @@
 import React from 'react';
-import Form from '../../components/dashboard/Form';
-import { Alert, ButtonMutate, Spinner, __ } from '@erxes/ui/src';
-import { queries, mutations } from '../../graphql';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/index';
+
+import Form from '../../components/dashboard/Form';
+import { queries, mutations } from '../../graphql';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import {
   DashboardDetailQueryResponse,
