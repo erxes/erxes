@@ -342,10 +342,6 @@ export const getOrCreateComment = async (
       );
     }
     try {
-      console.log('integration.erxesApiId', integration.erxesApiId);
-      console.log('conversationId', conversationId);
-      console.log('comment._id', comment._id);
-
       const inboxIntegration = await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
