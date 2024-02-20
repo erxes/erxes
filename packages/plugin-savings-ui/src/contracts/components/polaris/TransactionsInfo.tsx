@@ -15,31 +15,7 @@ function SavingTransactions(props: IProps) {
       data: { number: props.contract.number },
     },
   });
-  return (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Date')}</th>
-          <th>{__('Type')}</th>
-          <th>{__('Saving Balance')}</th>
-          <th>{__('Amount')}</th>
-          <th>{__('Stored Interest')}</th>
-          <th>{__('Total')}</th>
-        </tr>
-      </thead>
-      <tbody id="schedules">
-        {data?.getPolarisData?.txns?.map((row) => (
-          <tr key={`savingTr${row.postDate}`}>
-            <td>{row.postDate}</td>
-            <td>{row.balance}</td>
-            <td>{row.income}</td>
-            <td>{row.outcome}</td>
-            <td>{row.txnDesc}</td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
-  );
+  return renderTable(data?.getPolarisData);
 }
 
 function DepositTransactions(props: IProps) {
@@ -53,6 +29,10 @@ function DepositTransactions(props: IProps) {
       },
     },
   });
+  return renderTable(data?.getPolarisData);
+}
+
+function renderTable(data) {
   return (
     <Table>
       <thead>
@@ -65,7 +45,7 @@ function DepositTransactions(props: IProps) {
         </tr>
       </thead>
       <tbody id="schedules">
-        {data?.getPolarisData?.txns?.map((row) => (
+        {data?.txns?.map((row) => (
           <tr key={`depositTr${row.postDate}`}>
             <td>{row.postDate}</td>
             <td>{row.balance}</td>
