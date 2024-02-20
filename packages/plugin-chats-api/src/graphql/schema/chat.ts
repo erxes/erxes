@@ -155,4 +155,6 @@ export const mutations = `
   chatForward(chatId: String, userIds:[String], content: String, attachments: [JSON]): ChatMessage
 
   chatTypingInfo(chatId: String!, userId : String!): String
+
+  chatMessageReactionAdd(userId: String!,chatMessageId: String!, reaction: String): JSON
 `;

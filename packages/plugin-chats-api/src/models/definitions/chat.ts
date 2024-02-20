@@ -68,10 +68,22 @@ export const chatMessageSchema = schemaHooksWrapper(
   }),
   'erxes_chatMessage',
 );
+export interface IChatMessageReaction {
+  chatMessageId: string;
+  userId: string;
+  reaction: string;
+}
+
+export interface IChatMessageReactionDocument
+  extends IChatMessageReaction,
+    Document {
+  _id: string;
+}
 
 export const chatMessageReactionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    chatMessageId: field({ type: String }),
     userId: field({ type: String, index: true, label: 'Created user id' }),
     reaction: field({ type: String, label: 'chat reaction' }),
   }),

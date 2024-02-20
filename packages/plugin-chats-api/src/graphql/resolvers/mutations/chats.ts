@@ -3,6 +3,7 @@ import * as strip from 'strip';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { sendCoreMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
@@ -525,6 +526,13 @@ const chatMutations = {
     }
 
     return message;
+  },
+
+  chatMessageReactionAdd: async (_root, doc, { user, models }: IContext) => {
+    return await models.ChatMessageReactions.createChatMessageReaction({
+      userId: doc.userId || user._id,
+      ...doc,
+    });
   },
 };
 

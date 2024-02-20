@@ -2,8 +2,9 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IChatMessageDocument,
+  IChatMessageReactionDocument,
   IChatDocument,
-  IUserStatusDocument
+  IUserStatusDocument,
 } from './models/definitions/chat'; // IChatMessageDocument  IChatDocument
 import {
   loadChatClass, // loadChatClass
@@ -11,12 +12,15 @@ import {
   IChatModel, // IChatModel
   IChatMessageModel, // IChatMessageModel
   IUserStatusModel,
-  loadUserStatusClass
+  loadUserStatusClass,
+  IChatMessageReactionModel,
+  loadChatMessageReactionClass,
 } from './models/chat';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   ChatMessages: IChatMessageModel;
+  ChatMessageReactions: IChatMessageReactionModel;
   Chats: IChatModel;
   UserStatus: IUserStatusModel;
 }
@@ -33,21 +37,26 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.ChatMessages = db.model<IChatMessageDocument, IChatMessageModel>(
     'chat-message',
-    loadChatMessageClass(models)
+    loadChatMessageClass(models),
   );
+
+  models.ChatMessageReactions = db.model<
+    IChatMessageReactionDocument,
+    IChatMessageReactionModel
+  >('chat-message-reaction', loadChatMessageReactionClass(models));
 
   models.Chats = db.model<IChatDocument, IChatModel>(
     'chat',
-    loadChatClass(models)
+    loadChatClass(models),
   );
   models.UserStatus = db.model<IUserStatusDocument, IUserStatusModel>(
     'chat-user-status',
-    loadUserStatusClass(models)
+    loadUserStatusClass(models),
   );
   return models;
 };
 
 export const generateModels = createGenerateModels<IModels>(
   models,
-  loadClasses
+  loadClasses,
 );
