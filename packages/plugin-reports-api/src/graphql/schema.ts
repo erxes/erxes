@@ -36,6 +36,9 @@ export const types = (tagsAvailable) => `
     createdBy: User
 
     sectionId: String
+    
+    serviceName: String
+    serviceType: String
   }
 
   enum VisibilityType {
