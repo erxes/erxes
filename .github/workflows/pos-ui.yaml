@@ -3,7 +3,7 @@ name: POS UI CI
 on:
   push:
     branches:
-      - merge-xos
+      - dev
       - master
       - staging
     paths:
@@ -12,7 +12,7 @@ on:
 
   pull_request:
     branches:
-      - merge-xos
+      - dev
       - master
       - staging
     paths:
@@ -39,7 +39,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/merge-xos' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
         run: |
           cd pos
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

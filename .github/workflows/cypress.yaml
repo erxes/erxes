@@ -3,7 +3,7 @@ name: Cypress Tests
 on:
   pull_request:
     branches:
-      - 'merge-xos'
+      - 'dev'
       - master
 jobs:
   runtest:
@@ -40,10 +40,10 @@ jobs:
           cd packages/gateway
           yarn install --save
 
-      - name: start with "merge-xos --deps"
+      - name: start with "dev --deps"
         run: |
           cd cli
-          ./bin/erxes.js merge-xos --deps
+          ./bin/erxes.js dev --deps
 
       - run: sleep 30
 
