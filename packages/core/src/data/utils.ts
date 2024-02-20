@@ -719,8 +719,6 @@ export const deleteFileCloudflare = async (
   fileName: string,
   models?: IModels,
 ) => {
-  const sanitizedFilename = sanitizeFilename(fileName);
-
   const CLOUDFLARE_BUCKET = await getConfig(
     'CLOUDFLARE_BUCKET_NAME',
     '',
