@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import * as telemetry from 'erxes-telemetry';
 import { ILink } from '@erxes/api-utils/src/types';
@@ -9,16 +9,17 @@ import { authCookieOptions } from '@erxes/api-utils/src/core';
 import {
   IDetail,
   IEmailSignature,
-  IUser
+  IUser,
 } from '../../../db/models/definitions/users';
 import {
   sendInboxMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
 } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
-import utils, { getEnv, sendRequest } from '../../utils';
+import utils, { getEnv } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
+import fetch from 'node-fetch';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -36,11 +37,11 @@ const sendInvitationEmail = (
   subdomain: string,
   {
     email,
-    token
+    token,
   }: {
     email: string;
     token: string;
-  }
+  },
 ) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
@@ -54,11 +55,11 @@ const sendInvitationEmail = (
         name: 'userInvitation',
         data: {
           content: confirmationUrl,
-          domain: DOMAIN
-        }
-      }
+          domain: DOMAIN,
+        },
+      },
     },
-    models
+    models,
   );
 };
 
@@ -71,7 +72,7 @@ const userMutations = {
       firstName,
       lastName,
       purpose,
-      subscribeEmail
+      subscribeEmail,
     }: {
       email: string;
       password: string;
@@ -80,7 +81,7 @@ const userMutations = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -95,28 +96,28 @@ const userMutations = {
       details: {
         fullName: `${firstName} ${lastName || ''}`,
         firstName,
-        lastName
-      }
+        lastName,
+      },
     };
 
     await models.Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
-      await sendRequest({
-        url: 'https://erxes.io/subscribe',
+      await fetch('https://erxes.io/subscribe', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           email,
           purpose,
           firstName,
-          lastName
-        }
+          lastName,
+        }),
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     await models.Configs.createOrUpdateConfig({
       code: 'UPLOAD_SERVICE_TYPE',
-      value: 'local'
+      value: 'local',
     });
 
     return 'success';
@@ -149,7 +150,7 @@ const userMutations = {
   async logout(_root, _args, { res, user, requestInfo, models }: IContext) {
     const loggedout = await models.Users.logout(
       user,
-      requestInfo.cookies['auth-token']
+      requestInfo.cookies['auth-token'],
     );
     res.clearCookie('auth-token');
     return loggedout;
@@ -161,7 +162,7 @@ const userMutations = {
   async forgotPassword(
     _root,
     { email }: { email: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const token = await models.Users.forgotPassword(email);
 
@@ -178,11 +179,11 @@ const userMutations = {
         template: {
           name: 'resetPassword',
           data: {
-            content: link
-          }
-        }
+            content: link,
+          },
+        },
       },
-      models
+      models,
     );
 
     return 'sent';
@@ -194,7 +195,7 @@ const userMutations = {
   async resetPassword(
     _root,
     args: { token: string; newPassword: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Users.resetPassword(args);
   },
@@ -205,7 +206,7 @@ const userMutations = {
   usersResetMemberPassword(
     _root,
     args: { _id: string; newPassword: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Users.resetMemberPassword(args);
   },
@@ -216,7 +217,7 @@ const userMutations = {
   usersChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Users.changePassword({ _id: user._id, ...args });
   },
@@ -227,16 +228,16 @@ const userMutations = {
   async usersEdit(
     _root,
     args: IUsersEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
     // clean custom field values
     if (doc.customFieldsData) {
-      doc.customFieldsData = doc.customFieldsData.map(cd => ({
+      doc.customFieldsData = doc.customFieldsData.map((cd) => ({
         ...cd,
-        stringValue: cd.value ? cd.value.toString() : ''
+        stringValue: cd.value ? cd.value.toString() : '',
       }));
     }
 
@@ -247,9 +248,10 @@ const userMutations = {
         ...doc,
         details: {
           ...doc.details,
-          fullName: `${doc.details.firstName || ''} ${doc.details.lastName ||
-            ''}`
-        }
+          fullName: `${doc.details.firstName || ''} ${
+            doc.details.lastName || ''
+          }`,
+        },
       };
     }
 
@@ -257,7 +259,7 @@ const userMutations = {
 
     if (args.departmentIds || args.branchIds) {
       await models.UserMovements.manageUserMovement({
-        user: updatedUser
+        user: updatedUser,
       });
     }
 
@@ -265,7 +267,7 @@ const userMutations = {
       await sendInboxMessage({
         subdomain,
         action: 'updateUserChannels',
-        data: { channelIds, userId: _id }
+        data: { channelIds, userId: _id },
       });
     }
 
@@ -279,9 +281,9 @@ const userMutations = {
         description: 'edit profile',
         object: userOnDb,
         newData: updatedDoc,
-        updatedDocument: updatedUser
+        updatedDocument: updatedUser,
       },
-      user
+      user,
     );
 
     return updatedUser;
@@ -298,7 +300,7 @@ const userMutations = {
       password,
       details,
       links,
-      employeeId
+      employeeId,
     }: {
       username: string;
       email: string;
@@ -307,13 +309,13 @@ const userMutations = {
       links: ILink;
       employeeId: string;
     },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const userOnDb = await models.Users.getUser(user._id);
 
     const valid = await models.Users.comparePassword(
       password,
-      userOnDb.password
+      userOnDb.password,
     );
 
     if (!password || !valid) {
@@ -326,10 +328,10 @@ const userMutations = {
       email,
       details: {
         ...details,
-        fullName: `${details.firstName || ''} ${details.lastName || ''}`
+        fullName: `${details.firstName || ''} ${details.lastName || ''}`,
       },
       links,
-      employeeId
+      employeeId,
     };
 
     const updatedUser = models.Users.editProfile(user._id, doc);
@@ -342,9 +344,9 @@ const userMutations = {
         description: 'edit profile',
         object: userOnDb,
         newData: doc,
-        updatedDocument: updatedUser
+        updatedDocument: updatedUser,
       },
-      user
+      user,
     );
 
     return updatedUser;
@@ -356,7 +358,7 @@ const userMutations = {
   async usersSetActiveStatus(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
@@ -370,9 +372,9 @@ const userMutations = {
         type: 'user',
         description: 'changed status',
         object: updatedUser,
-        updatedDocument: updatedUser
+        updatedDocument: updatedUser,
       },
-      user
+      user,
     );
 
     return updatedUser;
@@ -384,7 +386,7 @@ const userMutations = {
   async usersInvite(
     _root,
     {
-      entries
+      entries,
     }: {
       entries: Array<{
         email: string;
@@ -396,7 +398,7 @@ const userMutations = {
         departmentId?: string;
       }>;
     },
-    { user, subdomain, docModifier, models }: IContext
+    { user, subdomain, docModifier, models }: IContext,
   ) {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
@@ -414,7 +416,7 @@ const userMutations = {
       if (entry.unitId) {
         await models.Units.updateOne(
           { _id: entry.unitId },
-          { $push: { userIds: createdUser?._id } }
+          { $push: { userIds: createdUser?._id } },
         );
       }
 
@@ -422,8 +424,8 @@ const userMutations = {
         await models.Users.updateOne(
           { _id: createdUser?._id },
           {
-            $addToSet: { branchIds: entry.branchId }
-          }
+            $addToSet: { branchIds: entry.branchId },
+          },
         );
       }
 
@@ -431,8 +433,8 @@ const userMutations = {
         await models.Users.updateOne(
           { _id: createdUser?._id },
           {
-            $addToSet: { departmentIds: entry.departmentId }
-          }
+            $addToSet: { departmentIds: entry.departmentId },
+          },
         );
       }
       if (entry.channelIds) {
@@ -440,7 +442,7 @@ const userMutations = {
           subdomain,
           action: 'updateUserChannels',
           data: { channelIds: entry.channelIds, userId: createdUser?._id },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -453,9 +455,9 @@ const userMutations = {
           type: 'user',
           description: 'invited user',
           object: createdUser,
-          newData: createdUser || {}
+          newData: createdUser || {},
         },
-        user
+        user,
       );
     }
 
@@ -468,7 +470,7 @@ const userMutations = {
   async usersResendInvitation(
     _root,
     { email }: { email: string },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const token = await models.Users.resendInvitation({ email });
 
@@ -484,7 +486,7 @@ const userMutations = {
       password,
       passwordConfirmation,
       fullName,
-      username
+      username,
     }: {
       token: string;
       password: string;
@@ -492,14 +494,14 @@ const userMutations = {
       fullName?: string;
       username?: string;
     },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const user = await models.Users.confirmInvitation({
       token,
       password,
       passwordConfirmation,
       fullName,
-      username
+      username,
     });
 
     await sendIntegrationsMessage({
@@ -508,9 +510,9 @@ const userMutations = {
       data: {
         type: 'addUserId',
         payload: {
-          _id: user._id
-        }
-      }
+          _id: user._id,
+        },
+      },
     });
 
     await putUpdateLog(
@@ -520,9 +522,9 @@ const userMutations = {
         type: 'user',
         description: 'confirm invitation',
         object: user,
-        updatedDocument: user
+        updatedDocument: user,
       },
-      user
+      user,
     );
     return user;
   },
@@ -530,7 +532,7 @@ const userMutations = {
   usersConfigEmailSignatures(
     _root,
     { signatures }: { signatures: IEmailSignature[] },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Users.configEmailSignatures(user._id, signatures);
   },
@@ -538,10 +540,10 @@ const userMutations = {
   usersConfigGetNotificationByEmail(
     _root,
     { isAllowed }: { isAllowed: boolean },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
-  }
+  },
 };
 
 requireLogin(userMutations, 'usersChangePassword');

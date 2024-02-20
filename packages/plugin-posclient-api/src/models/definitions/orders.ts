@@ -3,10 +3,10 @@ import {
   field,
   getDateFieldDefinition,
   getNumberFieldDefinition,
-  schemaHooksWrapper
+  schemaHooksWrapper,
 } from './utils';
 import { IOrderItemDocument } from './orderItems';
-import { ORDER_STATUSES, ORDER_TYPES } from './constants';
+import { BILL_TYPES, ORDER_STATUSES, ORDER_TYPES } from './constants';
 
 export interface IPaidAmount {
   _id?: string;
@@ -74,14 +74,14 @@ const paidAmountSchema = new Schema({
   type: field({ type: String }),
   amount: getNumberFieldDefinition({
     ...commonAttributes,
-    label: 'Paid amount'
+    label: 'Paid amount',
   }),
-  info: field({ type: Object })
+  info: field({ type: Object }),
 });
 
 const mobileAmountSchema = new Schema({
   _id: field({ pkey: true }),
-  amount: field({ type: Number })
+  amount: field({ type: Number }),
 });
 
 const returnInfoSchema = new Schema({
@@ -89,7 +89,7 @@ const returnInfoSchema = new Schema({
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
   returnBy: field({ type: String }),
-  description: field({ type: String })
+  description: field({ type: String }),
 });
 
 export const orderSchema = schemaHooksWrapper(
@@ -102,76 +102,77 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Status of the order',
       enum: ORDER_STATUSES.ALL,
       default: ORDER_STATUSES.NEW,
-      index: true
+      index: true,
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
     dueDate: field({ type: Date, label: 'Due date' }),
     number: field({
       type: String,
       label: 'Order number',
-      index: true
+      index: true,
     }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
     customerType: field({
       type: String,
       optional: true,
-      label: 'Customer type'
+      label: 'Customer type',
     }),
     cashAmount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Cash amount'
+      label: 'Cash amount',
     }),
     directDiscount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Direct Discount'
+      label: 'Direct Discount',
     }),
     mobileAmount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Mobile amount'
+      label: 'Mobile amount',
     }),
     mobileAmounts: field({
       type: [mobileAmountSchema],
       optional: true,
-      label: 'Mobile amounts'
+      label: 'Mobile amounts',
     }),
     paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Total amount before tax'
+      label: 'Total amount before tax',
     }),
     finalAmount: getNumberFieldDefinition({
       ...commonAttributes,
-      label: 'Final amount after tax'
+      label: 'Final amount after tax',
     }),
     shouldPrintEbarimt: field({
       type: Boolean,
-      label: 'Should print ebarimt for this order'
+      label: 'Should print ebarimt for this order',
     }),
     printedEbarimt: field({
       type: Boolean,
       label: 'Printed ebarimt',
-      default: false
+      default: false,
     }),
     billType: field({
       type: String,
       optional: true,
-      label: 'Ebarimt receiver entity type'
+      enum: BILL_TYPES.ALL,
+      label: 'Ebarimt receiver entity type',
     }),
     billId: field({ type: String, label: 'Bill id' }),
     registerNumber: field({
       type: String,
       optional: true,
-      label: 'Register number of the entity'
+      label: 'Register number of the entity',
     }),
     oldBillId: field({
       type: String,
-      label: 'Previous bill id if it is changed'
+      label: 'Previous bill id if it is changed',
     }),
     type: field({
       type: String,
       label: 'Choice to take, eat or save the order',
       enum: ORDER_TYPES.ALL,
-      default: ORDER_TYPES.EAT
+      default: ORDER_TYPES.EAT,
     }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
@@ -179,24 +180,24 @@ export const orderSchema = schemaHooksWrapper(
     userId: field({
       type: String,
       optional: true,
-      label: 'Created user id'
+      label: 'Created user id',
     }),
     synced: field({
       type: Boolean,
       default: false,
-      label: 'synced on erxes'
+      label: 'synced on erxes',
     }),
     posToken: field({
       type: String,
       optional: true,
       label: 'posToken',
-      index: true
+      index: true,
     }),
     subToken: field({
       type: String,
       optional: true,
       label: 'If From online posToken',
-      index: true
+      index: true,
     }),
     // {
     //   description: '',
@@ -219,41 +220,41 @@ export const orderSchema = schemaHooksWrapper(
     deliveryInfo: field({
       type: Object,
       optional: true,
-      label: 'Delivery Info, address, map, etc'
+      label: 'Delivery Info, address, map, etc',
     }),
     description: field({
       type: String,
       label: 'Description',
-      optional: true
+      optional: true,
     }),
     isPre: field({
       type: Boolean,
       label: 'Is Pre-Order',
-      optional: true
+      optional: true,
     }),
     origin: field({
       type: String,
       label: 'Origin of the order',
-      optional: true
+      optional: true,
     }),
     slotCode: field({
       type: String,
       optional: true,
-      label: 'Slot code'
+      label: 'Slot code',
     }),
     taxInfo: field({ type: Object, optional: true }),
     convertDealId: field({
       type: String,
       optional: true,
-      label: 'Converted Deal'
+      label: 'Converted Deal',
     }),
     returnInfo: field({
       type: returnInfoSchema,
       optional: true,
-      label: 'Return information'
-    })
+      label: 'Return information',
+    }),
   }),
-  'erxes_orders'
+  'erxes_orders',
 );
 
 orderSchema.index({ posToken: 1, number: 1 }, { unique: true });

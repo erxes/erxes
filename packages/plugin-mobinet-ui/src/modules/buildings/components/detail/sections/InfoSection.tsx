@@ -9,6 +9,7 @@ import { IBuilding } from '../../../types';
 type Props = {
   building: IBuilding;
   children?: React.ReactNode;
+  refetch: () => void;
 };
 
 const IntoSection = (props: Props) => {
@@ -31,8 +32,8 @@ const IntoSection = (props: Props) => {
       break;
   }
 
-  const content = formProps => (
-    <BuildingForm {...formProps} building={building} />
+  const content = (formProps) => (
+    <BuildingForm {...formProps} building={building} refetch={props.refetch} />
   );
 
   return (

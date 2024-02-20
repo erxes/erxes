@@ -94,9 +94,9 @@ const mutations = {
 
     const searchDictionary = {
       dealNumber: deal.number || '',
-      dealCreatedAt: deal.createdAt,
-      dealCloseDate: deal.closeDate,
-      dealStartDate: deal.startDate,
+      dealCreatedAt: new Date(deal.createdAt),
+      dealCloseDate: new Date(deal.closeDate),
+      dealStartDate: new Date(deal.startDate),
 
       customerRegister: customer.code || '',
       customerFirstName: customer.firstName || '',
@@ -132,7 +132,7 @@ const mutations = {
       cpUser
     });
 
-    const item = await models.Items.findOne({ _id });
+    const item: any = await models.Items.findOne({ _id });
 
     if (!item) {
       throw new Error('Item not found');
@@ -176,6 +176,7 @@ const mutations = {
 
     const doc: any = {
       _id: item._id,
+      searchDictionary: item.searchDictionary || {},
       ...customFieldsData
     };
 
@@ -187,7 +188,7 @@ const mutations = {
       doc.searchDictionary.customerLastName = lastName;
     }
 
-    return models.Items.updateInsuranceItem(item, cpUser.userId);
+    return models.Items.updateInsuranceItem(doc, cpUser.userId);
   }
 };
 

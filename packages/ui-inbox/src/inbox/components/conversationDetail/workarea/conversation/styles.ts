@@ -5,20 +5,20 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
-  styled.div
+  styled.div,
 )`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 20px;
   border-bottom-left-radius: 2px;
   background: ${colors.colorWhite};
-  background: ${props =>
+  background: ${(props) =>
     props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
-  color: ${props => props.staff && !props.internal && colors.colorWhite};
+  color: ${(props) => props.staff && !props.internal && colors.colorWhite};
   text-align: left;
 
-  ${props =>
+  ${(props) =>
     props.staff &&
     css`
       border-bottom-right-radius: 2px;
@@ -30,7 +30,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
     `};
 
   a {
-    color: ${props =>
+    color: ${(props) =>
       props.staff && !props.internal ? colors.colorWhite : colors.linkPrimary};
     text-decoration: underline;
   }
@@ -41,6 +41,11 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 
   > span {
     display: block;
+  }
+
+  span[data-type="mention"]{
+    font-weight: bold;
+    display: inline-block;
   }
 
   img {
@@ -69,9 +74,9 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 `;
 
 const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
-  margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+  margin: ${(props) => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
   display: flex;
-  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
+  flex-direction: ${(props) => (props.staff ? 'row-reverse' : 'row')};
   align-items: center;
 
   footer {
@@ -94,7 +99,7 @@ const MessageItem = styledTS<{
   staff?: boolean;
   isBot?: boolean;
 }>(styled.div)`
-  margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
+  margin-top: ${(props) => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
   padding-right: 17%;
   display: flex;
   flex-direction: row;
@@ -103,11 +108,11 @@ const MessageItem = styledTS<{
 
   > span {
     position: absolute;
-    right: ${props => props.staff && '0'};
+    right: ${(props) => props.staff && '0'};
     bottom: 0;
   }
 
-  ${props =>
+  ${(props) =>
     props.isBot &&
     css`
       padding-right: 0;
@@ -122,7 +127,7 @@ const MessageItem = styledTS<{
       }
     `};
 
-  ${props => {
+  ${(props) => {
     if (!props.staff) {
       return '';
     }
@@ -137,14 +142,14 @@ const MessageItem = styledTS<{
 
   &.same {
     ${MessageContent} {
-      border-top-left-radius: ${props => !props.staff && '2px'};
-      border-top-right-radius: ${props => props.staff && '2px'};
+      border-top-left-radius: ${(props) => !props.staff && '2px'};
+      border-top-right-radius: ${(props) => props.staff && '2px'};
     }
 
     &:last-of-type {
       ${MessageContent} {
-        border-bottom-right-radius: ${props => props.staff && '20px'};
-        border-bottom-left-radius: ${props => !props.staff && '20px'};
+        border-bottom-right-radius: ${(props) => props.staff && '20px'};
+        border-bottom-left-radius: ${(props) => !props.staff && '20px'};
       }
     }
   }
@@ -305,7 +310,7 @@ const FieldWrapper = styledTS<{ column?: number }>(styled.div)`
     }
   }
 
-${props =>
+${(props) =>
   props.column &&
   css`
     width: ${100 / props.column}%;
@@ -337,5 +342,5 @@ export {
   CellWrapper,
   FieldWrapper,
   FormMessageInput,
-  ProductItem
+  ProductItem,
 };

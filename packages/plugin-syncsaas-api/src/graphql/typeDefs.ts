@@ -12,7 +12,7 @@ import {
   types as categoriesTypes
 } from './schema/categories';
 
-const typeDefs = async (serviceDiscovery: any) => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

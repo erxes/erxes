@@ -14,7 +14,7 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
       ${colors.bgActive} 20%,
       ${colors.colorWhite} 20%
     );
-    ${props => (props.haveChart ? '' : 'height: 100% !important')};
+    ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
     min-height: 100%;
     
     background-size: 10px 10px;
@@ -314,7 +314,7 @@ const MenuFooter = styled.footer`
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${(props) => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -342,7 +342,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
     ${ActionButtons} {
       width: 35px;
     }
@@ -355,30 +355,30 @@ const SideList = styledTS<{
 }>(styled(SidebarListItem))`
   white-space: normal !important;
   border: 0;
-  padding-left: ${props => `${(props.level || 0) * 30 + 20}px !important`};
+  padding-left: ${(props) => `${(props.level || 0) * 30 + 20}px !important`};
 
   > span {
     width: 90%;
     display: flex;
-    color: ${props => props.isActive && colors.colorPrimary};
+    color: ${(props) => props.isActive && colors.colorPrimary};
 
     &:hover {
-      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     > i {
       margin-right: 5px;
-      color: ${props =>
+      color: ${(props) =>
         props.isActive
           ? colors.colorPrimary
           : !props.level || props.level === 0
-          ? colors.colorCoreBlue
-          : colors.colorCoreGreen};
+            ? colors.colorCoreBlue
+            : colors.colorCoreGreen};
     }
   }
 
   &:hover {
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
   }
 `;
 
@@ -458,6 +458,7 @@ const ChartTitle = styled.div`
     font-weight:500; 
     display:none;
     cursor:pointer;
+    margin-right: 0.5rem;
   }
   span:first-of-type {
     margin-left: auto;
@@ -480,6 +481,23 @@ const ReportContainer = styled(Contents)`
   > section {
     margin: 0;
   }
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const DateName = styled.div`
+  text-transform: uppercase;
+  margin: ${dimensions.unitSpacing}px 0;
+  text-align: center;
+`;
+
+const MarginY = styledTS<{ margin: number }>(styled.div)`
+  margin: ${(props) => props.margin}px 0;
 `;
 
 export {
@@ -505,5 +523,8 @@ export {
   DrawerDetail,
   ChartTitle,
   HeightedWrapper,
-  ReportContainer
+  ReportContainer,
+  FlexRow,
+  DateName,
+  MarginY,
 };

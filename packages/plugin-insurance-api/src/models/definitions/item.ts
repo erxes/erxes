@@ -55,6 +55,7 @@ export const itemSchema = new Schema({
   price: field({ type: Number }),
   feePercent: field({ type: Number }),
   totalFee: field({ type: Number }),
+  createdAt: field({ type: Date, default: Date.now }),
 
   searchDictionary: field({ type: searchShema })
 });

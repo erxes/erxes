@@ -21,6 +21,7 @@ const buildPlugins = ['dev', 'staging', 'build-test'];
 
 const commonEnvs = configs => {
   const enabledServices = (configs.plugins || []).map(plugin => plugin.name);
+  const be_env = configs.be_env || {};
   enabledServices.push('workers');
   const enabledServicesJson = JSON.stringify(enabledServices);
 
@@ -38,6 +39,7 @@ const commonEnvs = configs => {
   }/${rabbitmq.vhost}`;
 
   return {
+    ...be_env,
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
     DEBUG: configs.debug_level || '*error*',
     NODE_ENV: 'production',
@@ -122,6 +124,7 @@ const generatePluginBlock = (configs, plugin) => {
   const conf = {
     image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
+      OTEL_SERVICE_NAME: plugin.name,
       SERVICE_NAME: plugin.name,
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
@@ -422,6 +425,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
+  const be_env = configs.be_env || {};
   const image_tag = configs.image_tag || 'federation';
   const domain = configs.domain;
   const gateway_url = `${domain}/gateway`;
@@ -488,6 +492,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       'plugin-core-api': {
         image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
+          OTEL_SERVICE_NAME: 'plugin-core-api',
           SERVICE_NAME: 'core-api',
           PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
@@ -503,8 +508,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         },
         extra_hosts,
         volumes: [
-          './permissions.json:/core-api/permissions.json',
-          './core-api-uploads:/core-api/dist/core/src/private/uploads'
+          './permissions.json:/erxes/packages/core/permissions.json',
+          './core-api-uploads:/erxes/packages/core/src/private/uploads'
         ],
         networks: ['erxes']
       },
@@ -512,6 +517,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
           image_tag}`,
         environment: {
+          OTEL_SERVICE_NAME: 'gateway',
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
           LOAD_BALANCER_ADDRESS: generateLBaddress('http://gateway'),
@@ -530,6 +536,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       crons: {
         image: `erxes/crons:${image_tag}`,
         environment: {
+          OTEL_SERVICE_NAME: 'crons',
           NODE_INSPECTOR: configs.nodeInspector ? 'enabled' : undefined,
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs)
@@ -539,6 +546,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       'plugin-workers-api': {
         image: `erxes/workers:${image_tag}`,
         environment: {
+          OTEL_SERVICE_NAME: 'workers',
           SERVICE_NAME: 'workers',
           PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
@@ -595,6 +603,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.widgets = {
       image: `erxes/widgets:${image_tag}`,
       environment: {
+        ...be_env,
         PORT: '3200',
         ROOT_URL: widgets_domain,
         API_URL: gateway_url,
@@ -610,6 +619,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
       ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
+        ...be_env,
         PORT: SERVICE_INTERNAL_PORT,
         CUBEJS_SCHEMA_PATH: 'dist/dashboard/dynamicSchema',
         NODE_ENV: 'production',
@@ -743,8 +753,15 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
       if (apiConfig) {
         if (apiConfig.essyncer) {
+          const pluginExtraEnv = plugin.extra_env || {};
+          const match = (pluginExtraEnv.MONGO_URL || '').match(
+            /\/([^/?]+)(\?|$)/
+          );
+
+          const db_name = match ? match[1] : null;
+
           essyncerJSON.plugins.push({
-            db_name: configs.mongo.db_name || 'erxes',
+            db_name: db_name || configs.mongo.db_name || 'erxes',
             collections: apiConfig.essyncer
           });
         }

@@ -5,7 +5,7 @@ import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 import { IQuarter } from '../quarters/types';
-
+import { ICustomField } from '@erxes/api-utils/src/types';
 export interface IOSMBuilding {
   id: string;
   properties: {
@@ -54,6 +54,7 @@ export interface IBuilding {
   suh: ICompany;
 
   networkType: 'fttb' | 'ftth';
+  customFieldsData?: ICustomField[];
 }
 
 export type BuildingListQueryResponse = {

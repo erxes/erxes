@@ -1,10 +1,10 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from '../utils';
-
+import { ICustomField, customFieldSchema } from '@erxes/api-utils/src/types';
 export enum ServiceStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  INPROGRESS = 'inprogress'
+  INPROGRESS = 'inprogress',
 }
 
 export interface IProductPriceConfig {
@@ -45,6 +45,7 @@ export interface IBuilding {
   updatedAt: Date;
 
   networkType: 'ftth' | 'fttb';
+  customFieldsData?: ICustomField[];
 }
 
 export interface IBuildingDocument extends IBuilding, Document {
@@ -58,9 +59,9 @@ export interface IBuildingEdit extends IBuilding {
 export const productPriceConfigSchema = new Schema(
   {
     productId: field({ type: String, label: 'productId', required: true }),
-    price: field({ type: Number, label: 'price', required: true })
+    price: field({ type: Number, label: 'price', required: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const buildingSchema = schemaHooksWrapper(
@@ -71,56 +72,56 @@ export const buildingSchema = schemaHooksWrapper(
     description: field({
       type: String,
       label: 'description',
-      required: false
+      required: false,
     }),
     type: field({ type: String, label: 'type', required: false }),
     osmbId: field({
       type: Schema.Types.Mixed,
       label: 'osmbId',
-      required: false
+      required: false,
     }),
     quarterId: field({
       type: String,
       label: 'quarterId',
-      required: false
+      required: false,
     }),
     bounds: field({
       type: {
         minLat: field({
           type: Number,
           label: 'minLat',
-          required: false
+          required: false,
         }),
         maxLat: field({
           type: Number,
           label: 'maxLat',
-          required: false
+          required: false,
         }),
         minLong: field({
           type: Number,
           label: 'minLong',
-          required: false
+          required: false,
         }),
         maxLong: field({
           type: Number,
           label: 'maxLong',
-          required: false
-        })
+          required: false,
+        }),
       },
       label: 'bounds',
-      required: false
+      required: false,
     }),
     location: {
       type: {
         type: String,
         enum: ['Point'],
-        optional: true
+        optional: true,
       },
       coordinates: {
         type: [Number],
-        optional: true
+        optional: true,
       },
-      required: false
+      required: false,
     },
 
     serviceStatus: field({
@@ -129,47 +130,47 @@ export const buildingSchema = schemaHooksWrapper(
       label: 'serviceStatus',
       required: true,
       default: 'inactive',
-      index: true
+      index: true,
     }),
     suhId: field({
       type: String,
       label: 'СӨХ',
-      required: false
+      required: false,
     }),
 
     installationRequestIds: field({
       type: [String],
       label: 'Service Request Ticket Ids',
-      required: false
+      required: false,
     }),
 
     ticketIds: field({
       type: [String],
       label: 'Ticket Ids',
-      required: false
+      required: false,
     }),
 
     assetIds: field({
       type: [String],
       label: 'Asset Ids',
-      required: false
+      required: false,
     }),
 
     productPriceConfigs: field({
       type: [productPriceConfigSchema],
       label: 'Product Price Configs',
-      required: false
+      required: false,
     }),
 
     createdAt: field({
       type: Date,
       label: 'createdAt',
-      default: Date.now
+      default: Date.now,
     }),
     updatedAt: field({
       type: Date,
       label: 'updatedAt',
-      default: Date.now
+      default: Date.now,
     }),
     networkType: field({
       type: String,
@@ -177,18 +178,23 @@ export const buildingSchema = schemaHooksWrapper(
       label: 'networkType',
       optional: true,
       default: 'ftth',
-      index: true
+      index: true,
     }),
     searchText: field({ type: String, optional: true, index: true }),
     connectedDate: field({
       type: Date,
-      label: 'c_connected_date'
+      label: 'c_connected_date',
     }),
     entrances: field({ type: String, label: 'entrances' }),
     floors: field({ type: String, label: 'floors', required: false }),
-    families: field({ type: String, label: 'families', required: false })
+    families: field({ type: String, label: 'families', required: false }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
   }),
-  'mobinet_buildings'
+  'mobinet_buildings',
 );
 
 buildingSchema.index({ location: '2dsphere', osmbId: 1, quarterId: 1 });

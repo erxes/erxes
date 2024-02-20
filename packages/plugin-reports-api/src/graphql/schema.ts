@@ -1,4 +1,4 @@
-export const types = tagsAvailable => `
+export const types = (tagsAvailable) => `
   
   extend type User @key(fields: "_id") {
     _id: String! @external
@@ -70,6 +70,7 @@ export const types = tagsAvailable => `
     chartType: ChartType
     chartTypes: [ChartType]
     filter: JSON
+    dimension: JSON
     defaultFilter: ChartFilter
     layout: String
     vizState: String
@@ -84,6 +85,7 @@ export const types = tagsAvailable => `
     radar
     bubble
     scatter
+    table
   }
 
   type ChartFilter {
@@ -135,7 +137,7 @@ export const queries = `
 
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
-  reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON): JSON
+  reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON, dimension: JSON): JSON
   reportsCountByTags:JSON
 `;
 
@@ -154,6 +156,7 @@ const report_chart_common_params = `
   vizState: String
   layout: String
   filter: JSON
+  dimension: JSON
   serviceName: String
   templateType: String
 `;

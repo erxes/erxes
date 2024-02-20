@@ -129,6 +129,7 @@ enum NetworkType {
           `
         : ''
     }
+    customFieldsData: JSON
   }
 
   type BuildingListResponse {
@@ -144,7 +145,7 @@ enum NetworkType {
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     description: String
     quarterId: String
     osmbId: String
@@ -155,6 +156,7 @@ const mutationParams = `
     serviceStatus: ServiceStatus
     networkType: NetworkType
     suhId: String
+    customFieldsData: JSON
 `;
 
 export const mutations = `
@@ -166,7 +168,7 @@ export const mutations = `
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building
-  buildingsSubmitServiceRequest(_id: String, buildingData: OSMBuilding, quarterId: String!, ticketData: JSON): Building
+  buildingsSubmitServiceRequest(_id: String, buildingData: OSMBuilding, quarterId: String!, ticketData: JSON, phone: String, suhPhone: String, customerAddress: String): Building
 `;
 
 const qryParams = `
@@ -181,6 +183,7 @@ const qryParams = `
     perPage: Int
     customQuery: JSON
     networkType: NetworkType
+    serviceStatus: ServiceStatus
 `;
 
 export const queries = `

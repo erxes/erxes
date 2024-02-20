@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   fetchSegment,
   sendContactsMessage,
-  sendCommonMessage
+  sendCommonMessage,
 } from './messageBroker';
 import * as moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -12,7 +12,7 @@ import { getServiceToFields } from './forms';
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -27,16 +27,10 @@ const prepareData = async (
     itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     filter._id = { $in: itemIds };
+    data = await models.XypData.find(filter).lean();
+  } else {
+    data = await models.XypData.find(filter).skip(skip).limit(perPage).lean();
   }
-
-  if (!(segmentData && Object.keys(segmentData))) {
-    data = await models.XypData.find(filter)
-      .skip(skip)
-      .limit(perPage)
-      .lean();
-  }
-
-  data = await models.XypData.find(filter).lean();
 
   return data;
 };
@@ -44,7 +38,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -56,7 +50,7 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData
+      segmentData,
     );
 
     filter._id = { $in: itemIds };
@@ -74,8 +68,8 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
   for (const column of columnsConfig) {
     if (column.startsWith('service.')) {
       const serviceName = column.replace('service.', '');
-      const oneServiceFields = fieldsForExcel.filter(x =>
-        x.startsWith(serviceName)
+      const oneServiceFields = fieldsForExcel.filter((x) =>
+        x.startsWith(serviceName),
       );
       headers = [...headers, ...oneServiceFields];
     } else {
@@ -90,14 +84,14 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Хурдан',
     contentType: 'xyp',
-    icon: 'server-alt'
-  }
+    icon: 'server-alt',
+  },
 ];
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
 
-  prepareExportData: async params => {
+  prepareExportData: async (params) => {
     const { subdomain, data } = params;
     const models = await generateModels(subdomain);
 
@@ -110,7 +104,7 @@ export default {
       totalCount = results;
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
 
@@ -136,7 +130,7 @@ export default {
           if (column.includes('.')) {
             const splits = column.split('.');
 
-            const data = item.data.find(one => one.serviceName === splits[0]);
+            const data = item.data.find((one) => one.serviceName === splits[0]);
 
             if (data) {
               const columnValue =
@@ -155,5 +149,5 @@ export default {
     }
 
     return { docs };
-  }
+  },
 };

@@ -17,10 +17,10 @@ export default function DistrictContainer(props: Props) {
     {
       variables: {
         ...router.generatePaginationParams(props.queryParams || {}),
-        cityId: props.queryParams.city
+        cityId: props.queryParams.city,
       },
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
@@ -30,14 +30,14 @@ export default function DistrictContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: districtId }
+        variables: { _ids: [districtId] },
       })
         .then(() => {
           refetch();
 
           Alert.success('You successfully deleted a district.');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -52,8 +52,10 @@ export default function DistrictContainer(props: Props) {
     loading,
     districts,
     totalCount,
+    page: props.queryParams.page || 1,
+    perPage: props.queryParams.perPage || 20,
     refetch,
-    remove
+    remove,
   };
 
   return <List {...extendedProps} />;

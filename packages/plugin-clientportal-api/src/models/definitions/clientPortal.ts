@@ -5,7 +5,7 @@ import { field } from './utils';
 export interface IOTPConfig {
   content: string;
   codeLength: number;
-  smsTransporterType: '' | 'messagePro' | 'telnyx';
+  smsTransporterType: string;
   loginWithOTP: boolean;
   expireAfter: number;
 }
@@ -143,11 +143,11 @@ const stylesSchema = new Schema(
     primaryBtnColor: field({ type: String, optional: true }),
     secondaryBtnColor: field({ type: String, optional: true }),
     baseFont: field({ type: String, optional: true }),
-    headingFont: field({ type: String, optional: true })
+    headingFont: field({ type: String, optional: true }),
   },
   {
-    _id: false
-  }
+    _id: false,
+  },
 );
 
 const otpConfigSchema = new Schema(
@@ -158,20 +158,19 @@ const otpConfigSchema = new Schema(
     expireAfter: field({ type: Number, default: 1, min: 1, max: 10 }),
     smsTransporterType: field({
       type: String,
-      enum: ['', 'messagePro', 'telnyx'],
-      optional: true
-    })
+      optional: true,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const mailConfigSchema = new Schema(
   {
     subject: field({ type: String, optional: true }),
     invitationContent: field({ type: String, optional: true }),
-    registrationContent: field({ type: String, optional: true })
+    registrationContent: field({ type: String, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const clientPortalSchema = new Schema({
@@ -181,7 +180,7 @@ export const clientPortalSchema = new Schema({
   kind: field({
     type: String,
     enum: ['client', 'vendor'],
-    default: 'client'
+    default: 'client',
   }),
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
@@ -201,15 +200,15 @@ export const clientPortalSchema = new Schema({
       verifyCustomer: field({
         type: Boolean,
         optional: true,
-        default: false
+        default: false,
       }),
       verifyCompany: field({
         type: Boolean,
         optional: true,
-        default: false
-      })
+        default: false,
+      }),
     },
-    optional: true
+    optional: true,
   }),
   googleCredentials: field({ type: Object, optional: true }),
   googleClientId: field({ type: String, optional: true }),
@@ -256,7 +255,7 @@ export const clientPortalSchema = new Schema({
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created at'
+    label: 'Created at',
   }),
 
   passwordVerificationConfig: field({
@@ -264,13 +263,13 @@ export const clientPortalSchema = new Schema({
       verifyByOTP: field({
         type: Boolean,
         optional: true,
-        default: false
+        default: false,
       }),
       emailSubject: field({ type: String, optional: true }),
       emailContent: field({ type: String, optional: true }),
-      smsContent: field({ type: String, optional: true })
+      smsContent: field({ type: String, optional: true }),
     },
-    optional: true
+    optional: true,
   }),
 
   tokenExpiration: field({
@@ -279,7 +278,7 @@ export const clientPortalSchema = new Schema({
     default: 1,
     label: 'Token expiration',
     min: 1,
-    max: 7
+    max: 7,
   }),
 
   refreshTokenExpiration: field({
@@ -288,7 +287,7 @@ export const clientPortalSchema = new Schema({
     default: 7,
     min: 1,
     max: 30,
-    label: 'Refresh token expiration'
+    label: 'Refresh token expiration',
   }),
 
   tokenPassMethod: field({
@@ -296,19 +295,19 @@ export const clientPortalSchema = new Schema({
     optional: true,
     default: 'cookie',
     label: 'Token pass method',
-    enum: ['cookie', 'header']
+    enum: ['cookie', 'header'],
   }),
 
   vendorParentProductCategoryId: field({
     type: String,
-    optional: true
+    optional: true,
   }),
 
   socialpayConfig: field({
     type: {
       publicKey: field({ type: String, optional: true }),
-      certId: field({ type: String, optional: true })
+      certId: field({ type: String, optional: true }),
     },
-    optional: true
-  })
+    optional: true,
+  }),
 });

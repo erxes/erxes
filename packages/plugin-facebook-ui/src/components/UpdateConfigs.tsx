@@ -13,7 +13,7 @@ const KEY_LABELS = {
   FACEBOOK_APP_ID: 'Facebook App Id',
   FACEBOOK_APP_SECRET: 'Facebook App Secret',
   FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
-  FACEBOOK_PERMISSIONS: 'Facebook Permissions'
+  FACEBOOK_PERMISSIONS: 'Facebook Permissions',
 };
 
 type Props = {
@@ -50,7 +50,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
     type?: string,
     description?: string,
     defaultValue?: string,
-    label?: string
+    label?: string,
   ) => {
     const { configsMap } = this.state;
 
@@ -81,7 +81,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
         <Info>
           <a
             target="_blank"
-            href="https://erxes.org/administrator/system-config#facebook"
+            href="https://docs.erxes.io/"
             rel="noopener noreferrer"
           >
             {__('Learn how to set Facebook Integration Variables')}
@@ -94,7 +94,7 @@ export default class UpdateConfigs extends React.Component<Props, State> {
           'FACEBOOK_PERMISSIONS',
           '',
           '',
-          'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
+          'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
         )}
         <Button onClick={onClick}>{__('Save')}</Button>
       </CollapseContent>

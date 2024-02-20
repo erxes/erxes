@@ -1,36 +1,45 @@
-import { sendRequest } from '@erxes/api-utils/src';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendFormsMessage,
+  sendProductsMessage,
 } from './messageBroker';
+import * as moment from 'moment';
+import fetch from 'node-fetch';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
     action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true
+    isRPC: true,
   });
 };
 
-const companyRequest = async (subdomain, action, updateCode, doc) => {
+const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   const company = await sendContactsMessage({
     subdomain,
     action: 'companies.findOne',
     data: { code: updateCode },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
+  const brandIds = (company || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       primaryName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
-      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner'
+      businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
+      scopeBrandIds: brandIds,
     };
 
     if (company) {
@@ -38,35 +47,42 @@ const companyRequest = async (subdomain, action, updateCode, doc) => {
         subdomain,
         action: 'companies.updateCompany',
         data: { _id: company._id, doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendContactsMessage({
         subdomain,
         action: 'companies.createCompany',
         data: { ...document },
-        isRPC: true
+        isRPC: true,
       });
     }
   }
 };
 
-const customerRequest = async (subdomain, action, updateCode, doc) => {
+const customerRequest = async (subdomain, config, action, updateCode, doc) => {
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
     data: { code: updateCode },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
+  const brandIds = (customer || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.No) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       firstName: doc?.Name || 'default',
       code: doc.No,
       primaryPhone: doc?.Mobile_Phone_No,
       phones: [doc?.Phone_No],
-      state: 'customer'
+      scopeBrandIds: brandIds,
+      state: 'customer',
     };
 
     if (customer) {
@@ -74,20 +90,20 @@ const customerRequest = async (subdomain, action, updateCode, doc) => {
         subdomain,
         action: 'customers.updateCustomer',
         data: { _id: customer._id, doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendContactsMessage({
         subdomain,
         action: 'customers.createCustomer',
         data: { ...document },
-        isRPC: true
+        isRPC: true,
       });
     }
   }
 };
 
-export const consumeInventory = async (subdomain, doc, action) => {
+export const consumeInventory = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
   const product = await sendProductsMessage({
@@ -95,16 +111,22 @@ export const consumeInventory = async (subdomain, doc, action) => {
     action: 'findOne',
     data: { code: updateCode },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
+
+  const brandIds = (product || {}).scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
       data: { name: doc.Item_Category_Code },
-      isRPC: true
+      isRPC: true,
     });
+
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
 
     const document: any = {
       name: doc?.Description || 'default',
@@ -114,7 +136,8 @@ export const consumeInventory = async (subdomain, doc, action) => {
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
       categoryId: productCategory ? productCategory._id : product.categoryId,
-      status: 'active'
+      scopeBrandIds: brandIds,
+      status: 'active',
     };
 
     if (product) {
@@ -122,27 +145,101 @@ export const consumeInventory = async (subdomain, doc, action) => {
         subdomain,
         action: 'updateProduct',
         data: { _id: product._id, doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendProductsMessage({
         subdomain,
         action: 'createProduct',
         data: { doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     }
   } else if (action === 'delete' && product) {
-    await sendProductsMessage({
-      subdomain,
-      action: 'removeProducts',
-      data: { _ids: [product._id] },
-      isRPC: true
-    });
+    const anotherBrandIds = brandIds.filter((b) => b && b !== config.brandId);
+    if (anotherBrandIds.length) {
+      await sendProductsMessage({
+        subdomain,
+        action: 'updateProduct',
+        data: {
+          _id: product._id,
+          doc: { ...product, scopeBrandIds: anotherBrandIds },
+        },
+        isRPC: true,
+      });
+    } else {
+      await sendProductsMessage({
+        subdomain,
+        action: 'removeProducts',
+        data: { _ids: [product._id] },
+        isRPC: true,
+      });
+    }
   }
 };
 
-export const consumeCategory = async (subdomain, doc, action) => {
+export const consumePrice = async (subdomain, config, doc, action) => {
+  const updateCode = doc.Item_No.replace(/\s/g, '');
+  let document: any = {};
+
+  const product = await sendProductsMessage({
+    subdomain,
+    action: 'findOne',
+    data: { code: updateCode },
+    isRPC: true,
+    defaultValue: {},
+  });
+
+  const brandIds = (product || {}).scopeBrandIds || [];
+
+  if (action === 'update' && doc.Item_No) {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
+    const currentDate = moment(new Date()).format('YYYY-MM-DD');
+    const date = moment(doc.Ending_Date).format('YYYY-MM-DD');
+
+    if (product && product.unitPrice === 0) {
+      document = {
+        unitPrice: doc?.Unit_Price,
+      };
+    }
+
+    if (product && product.unitPrice > 0) {
+      document = {
+        unitPrice:
+          product.unitPrice < doc?.Unit_Price
+            ? product.unitPrice
+            : doc?.Unit_Price,
+      };
+    }
+
+    if (doc.Ending_Date === '0001-01-01') {
+      if (product) {
+        await sendProductsMessage({
+          subdomain,
+          action: 'updateProduct',
+          data: { _id: product._id, doc: { ...document } },
+          isRPC: true,
+        });
+      }
+    }
+
+    if (doc.Ending_Date !== '0001-01-01' && moment(date).isAfter(currentDate)) {
+      if (product) {
+        await sendProductsMessage({
+          subdomain,
+          action: 'updateProduct',
+          data: { _id: product._id, doc: { ...document } },
+          isRPC: true,
+        });
+      }
+    }
+  }
+};
+
+export const consumeCategory = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.Code;
 
   const productCategory = await sendProductsMessage({
@@ -150,15 +247,22 @@ export const consumeCategory = async (subdomain, doc, action) => {
     action: 'categories.findOne',
     data: { code: updateCode },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
+  const brandIds = (productCategory || {}).scopeBrandIds || [];
+
   if ((action === 'update' && doc.Code) || action === 'create') {
+    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
+      brandIds.push(config.brandId);
+    }
+
     const document: any = {
       name: doc?.Code || 'default',
       code: doc?.Code,
       description: doc?.Description,
-      status: 'active'
+      scopeBrandIds: brandIds,
+      status: 'active',
     };
 
     if (productCategory) {
@@ -166,14 +270,14 @@ export const consumeCategory = async (subdomain, doc, action) => {
         subdomain,
         action: 'categories.updateProductCategory',
         data: { _id: productCategory._id, doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     } else {
       await sendProductsMessage({
         subdomain,
         action: 'categories.createProductCategory',
         data: { doc: { ...document } },
-        isRPC: true
+        isRPC: true,
       });
     }
   } else if (action === 'delete' && productCategory) {
@@ -181,32 +285,32 @@ export const consumeCategory = async (subdomain, doc, action) => {
       subdomain,
       action: 'categories.removeProductCategory',
       data: { _id: productCategory._id },
-      isRPC: true
+      isRPC: true,
     });
   }
 };
 
-export const consumeCustomers = async (subdomain, doc, action) => {
+export const consumeCustomers = async (subdomain, config, doc, action) => {
   const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
 
   if (doc?.Partner_Type === 'Company') {
-    companyRequest(subdomain, action, updateCode, doc);
+    companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === 'Person') {
     if (doc.VAT_Registration_No.length === 7) {
-      companyRequest(subdomain, action, updateCode, doc);
+      companyRequest(subdomain, config, action, updateCode, doc);
     } else {
-      customerRequest(subdomain, action, updateCode, doc);
+      customerRequest(subdomain, config, action, updateCode, doc);
     }
   }
 
   if (doc?.Partner_Type === ' ' && doc.VAT_Registration_No) {
-    companyRequest(subdomain, action, updateCode, doc);
+    companyRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (doc?.Partner_Type === ' ' && !doc.VAT_Registration_No) {
-    customerRequest(subdomain, action, updateCode, doc);
+    customerRequest(subdomain, config, action, updateCode, doc);
   }
 
   if (action === 'delete') {
@@ -215,7 +319,7 @@ export const consumeCustomers = async (subdomain, doc, action) => {
       action: 'companies.findOne',
       data: { _id: doc._id },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     const customer = await sendContactsMessage({
@@ -223,7 +327,7 @@ export const consumeCustomers = async (subdomain, doc, action) => {
       action: 'customers.findOne',
       data: { _id: doc._id },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (action === 'delete' && company) {
@@ -231,7 +335,7 @@ export const consumeCustomers = async (subdomain, doc, action) => {
         subdomain,
         action: 'companies.removeCompanies',
         data: { _ids: [company._id] },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -239,16 +343,33 @@ export const consumeCustomers = async (subdomain, doc, action) => {
       await sendContactsMessage({
         subdomain,
         action: 'customers.removeCustomers',
-        data: { customerIds: [customer._id] }
+        data: { customerIds: [customer._id] },
       });
     }
   }
 };
 
-export const customerToDynamic = async (subdomain, params) => {
+export const customerToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+
+  const brand = await sendCoreMessage({
+    subdomain,
+    action: 'brands.findOne',
+    data: {
+      query: { name: 'Beverage' },
+    },
+    isRPC: true,
+  });
+
+  const config = configs[brand._id || 'noBrand'];
+
   const customer = params;
 
   let name = customer.primaryName || '';
+  let foundfield;
+  let sendVAT;
+  let sendCity;
+  let sendPostCode;
 
   name =
     name && customer.firstName
@@ -262,15 +383,70 @@ export const customerToDynamic = async (subdomain, params) => {
 
   name = name ? name : '';
 
-  const sendData = {
+  if (customer && customer.customFieldsData.length > 0) {
+    for (const field of customer.customFieldsData) {
+      foundfield = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            _id: field.field,
+          },
+        },
+        isRPC: true,
+      });
+
+      if (foundfield.text === 'VAT') {
+        sendVAT = field.value;
+      }
+
+      if (foundfield.text === 'city') {
+        sendCity = field.value;
+      }
+
+      if (foundfield.text === 'post code') {
+        sendPostCode = field.value;
+      }
+    }
+  }
+
+  const getCompanyName = await fetch(
+    `https://info.ebarimt.mn/rest/merchant/info?regno=${sendVAT}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  ).then((r) => r.json());
+
+  const sendData: any = {
     Name: name,
-    E_Mail: customer.primaryEmail || '',
+    Name_MN: getCompanyName && getCompanyName.name ? getCompanyName.name : '',
     Phone_No: customer.primaryPhone || '',
-    Search_Name: name
+    E_Mail: customer.primaryEmail || '',
+    Mobile_Phone_No: customer.primaryPhone || '',
+    Address: customer.primaryAddress || '',
+    Address_2: '',
+    Country_Region_Code: 'MN',
+    City: sendCity || 'Ulaanbaatar',
+    Post_Code: sendPostCode || '',
+    VAT_Registration_No: sendVAT || '',
+    Gen_Bus_Posting_Group: config.genBusPostingGroup || 'DOMESTIC',
+    VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+    Customer_Posting_Group: config.customerPostingGroup || 'TRADE',
+    Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+    Customer_Disc_Group: config.customerDiscGroup || '',
+    Partner_Type: sendVAT?.length === 7 ? 'Company' : 'Person',
+    Payment_Terms_Code: config.paymentTermsCode || 'CASH',
+    Payment_Method_Code: config.paymentMethodCode || 'CASH',
+    Location_Code: config.locationCode || 'BEV-01',
+    Prices_Including_VAT: true,
+    Allow_Line_Disc: true,
   };
 
   try {
-    const config = await getConfig(subdomain, 'DYNAMIC', {});
+    let responseData;
 
     if (!config.customerApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -278,33 +454,209 @@ export const customerToDynamic = async (subdomain, params) => {
 
     const { customerApi, username, password } = config;
 
-    const response = await sendRequest({
-      url: `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`
+    const response = await fetch(
+      `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`,
+          ).toString('base64')}`,
+        },
       },
-      body: sendData
-    });
+    ).then((r) => r.json());
 
     if (response.value.length === 0) {
-      await sendRequest({
-        url: customerApi,
+      responseData = await fetch(customerApi, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`
+            `${username}:${password}`,
+          ).toString('base64')}`,
         },
-        body: sendData
-      });
+        body: JSON.stringify(sendData),
+      }).then((r) => r.json());
     }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+          responseData,
+          responseStr: JSON.stringify(responseData),
+        },
+      },
+    );
   } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } },
+    );
+    console.log(e, 'error');
+  }
+};
+
+export const dealToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+  // const config = configs[brandId || 'noBrand'];
+  const config = configs['7r1ffWS1cHmaFDQ0chvRq'];
+
+  const order = params;
+
+  try {
+    let responseData;
+    let customer;
+
+    if (
+      !config.customerApi ||
+      !config.salesApi ||
+      !config.salesLineApi ||
+      !config.username ||
+      !config.password
+    ) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { customerApi, salesApi, salesLineApi, username, password } = config;
+
+    if (order && order.customerId) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {},
+      });
+
+      if (order.customerType === 'company') {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: { _id: order.customerId },
+          isRPC: true,
+          defaultValue: {},
+        });
+      }
+    }
+
+    if (customer) {
+      const responseCustomer = await fetch(
+        `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+        },
+      ).then((r) => r.json());
+
+      if (responseCustomer.value.length === 0) {
+        responseData = await fetch(customerApi, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify('sendData'),
+        }).then((r) => r.json());
+      }
+    }
+
+    const sendData: any = {
+      Sell_to_Customer_No: customer ? customer.code : 'BEV-00499',
+      Sell_to_Phone_No: customer ? customer.primaryPhone : '',
+      Sell_to_E_Mail: customer ? customer.primaryEmail : '',
+      External_Document_No: 'nemelt medeelel',
+      Responsibility_Center: config.responsibilityCenter || 'BEV-DIST',
+      Sync_Type: config.syncType || 'ECOMMERCE',
+      Mobile_Phone_No: customer ? customer.primaryPhone : '',
+      VAT_Bus_Posting_Group: config.vatBusPostingGroup || 'DOMESTIC',
+      Payment_Terms_Code: config.paymentTermsCode || '28TH',
+      Payment_Method_Code: config.paymentMethodCode || 'CASH',
+      Customer_Price_Group: config.customerPricingGroup || 'ONLINE',
+      Prices_Including_VAT: true,
+      BillType: config.billType || 'Receipt',
+      Location_Code: config.locationCode || 'BEV-01',
+      CustomerNo: customer
+        ? customer?.customFieldsDataByFieldCode?.VAT?.value
+        : '',
+    };
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+        },
+      },
+    );
+
+    const responseSale = await fetch(`${salesApi}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+      body: JSON.stringify(sendData),
+    }).then((res) => res.json());
+
+    if (order && order.items.length > 0 && responseSale) {
+      for (const item of order.items) {
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: item.productId },
+          isRPC: true,
+        });
+
+        const sendSalesLine: any = {
+          Document_No: responseSale.No,
+          Type: 'Item',
+          No: product ? product.code : '',
+          Quantity: item.count || 0,
+          Unit_Price: item.unitPrice || 0,
+          Location_Code: config.locationCode || 'BEV-01',
+        };
+
+        const responseSaleLine = await fetch(`${salesLineApi}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify(sendSalesLine),
+        }).then((res) => res.json());
+      }
+    }
+
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData: responseSale,
+          responseStr: JSON.stringify(responseSale),
+        },
+      },
+    );
+  } catch (e) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      { $set: { error: e.message } },
+    );
     console.log(e, 'error');
   }
 };

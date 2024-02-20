@@ -25,18 +25,18 @@ const DistrictForm = (props: Props) => {
 
   const [cityId, setCityId] = useState<string>(district ? district.cityId : '');
   const [isCapital, setIsCapital] = useState<boolean>(
-    district ? district.isCapital : false
+    district ? district.isCapital : false,
   );
 
   const [districtObject, setDistrictObject] = useState<IDistrict | undefined>(
-    district
+    district,
   );
 
   const [center, setCenter] = useState(
     (district && district.center) || {
       lat: 47.919481,
-      lng: 106.904299
-    }
+      lng: 106.904299,
+    },
   );
 
   React.useEffect(() => {
@@ -54,18 +54,18 @@ const DistrictForm = (props: Props) => {
 
     if (districtObject) {
       finalValues.name = districtObject.name;
-      finalValues.code = districtObject.code;
+      // finalValues.code = districtObject.code;
       finalValues.cityId = cityId;
       finalValues.center = { ...center };
       finalValues.isCapital = isCapital;
     }
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
     const obj: any = districtObject || {};
 
@@ -74,15 +74,15 @@ const DistrictForm = (props: Props) => {
     setDistrictObject(obj);
   };
 
-  const onChangeToggle = e => {
+  const onChangeToggle = (e) => {
     setIsCapital(e.target.checked);
   };
 
-  const onChangeCenter = position => {
+  const onChangeCenter = (position) => {
     setCenter(position);
   };
 
-  const onChangeLocationOption = option => {
+  const onChangeLocationOption = (option) => {
     setCenter(option);
   };
 
@@ -146,24 +146,24 @@ const DistrictForm = (props: Props) => {
       <>
         <SelectCity
           defaultValue={cityId}
-          onChange={e => {
+          onChange={(e) => {
             setCityId(e);
           }}
         />
 
-        {renderInput(
+        {/* {renderInput(
           formProps,
           'Code',
           'code',
           'string',
           district && district.code
-        )}
+        )} */}
         {renderInput(
           formProps,
           'Name',
           'name',
           'string',
-          district && district.name
+          district && district.name,
         )}
 
         <ToggleWrap>
@@ -175,7 +175,7 @@ const DistrictForm = (props: Props) => {
               onChange={onChangeToggle}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </FormGroup>
@@ -193,7 +193,7 @@ const DistrictForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: district
+            object: district,
           })}
         </ModalFooter>
       </>

@@ -18,6 +18,8 @@ type Props = {
   totalCount: number;
   queryParams: any;
   loading: boolean;
+  page: number;
+  perPage: number;
   remove: (quarterId: string) => void;
   refetch?: () => void;
 };
@@ -27,8 +29,13 @@ const List = (props: Props) => {
 
   const renderRow = () => {
     const { quarters } = props;
-    return quarters.map(quarter => (
-      <Row key={quarter._id} quarter={quarter} remove={remove} />
+    return quarters.map((quarter, i) => (
+      <Row
+        index={(props.page - 1) * props.perPage + i + 1}
+        key={quarter._id}
+        quarter={quarter}
+        remove={remove}
+      />
     ));
   };
 
@@ -41,7 +48,7 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = props => <QuarterForm {...props} />;
+  const formContent = (props) => <QuarterForm {...props} />;
 
   const righActionBar = (
     <ModalTrigger
@@ -61,7 +68,7 @@ const List = (props: Props) => {
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('code')}</th>
+          <th>{__('#')}</th>
           <th>{__('name')}</th>
           <th>{__('Latitude')}</th>
           <th>{__('Longitude')}</th>
@@ -95,7 +102,7 @@ const List = (props: Props) => {
               style={{
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
               }}
             >
               no data

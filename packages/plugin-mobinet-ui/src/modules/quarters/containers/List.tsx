@@ -17,10 +17,10 @@ export default function QuarterContainer(props: Props) {
     {
       variables: {
         ...router.generatePaginationParams(props.queryParams || {}),
-        cityId: props.queryParams.city
+        cityId: props.queryParams.city,
       },
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
@@ -30,14 +30,14 @@ export default function QuarterContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: quarterId }
+        variables: { _ids: [quarterId] },
       })
         .then(() => {
           refetch();
 
           Alert.success('You successfully deleted a quarter.');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -52,8 +52,10 @@ export default function QuarterContainer(props: Props) {
     loading,
     quarters,
     totalCount,
+    page: props.queryParams.page || 1,
+    perPage: props.queryParams.perPage || 20,
     refetch,
-    remove
+    remove,
   };
 
   return <List {...extendedProps} />;

@@ -1,14 +1,14 @@
 import { cp } from 'fs';
 import { IContext } from '../../../connectionResolver';
 import { ITumentechDeal } from '../../../models/definitions/tumentechDeal';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 export interface ITumentechDealEdit extends ITumentechDeal {
   _id: string;
 }
 
 const generateGeometry = async (doc: ITumentechDeal, models) => {
   const startPlace = await models.Places.getPlace({
-    _id: doc.startPlaceId
+    _id: doc.startPlaceId,
   });
   const endPlace = await models.Places.getPlace({ _id: doc.endPlaceId });
   const tripStartedDate = doc.tripStartedDate
@@ -19,10 +19,9 @@ const generateGeometry = async (doc: ITumentechDeal, models) => {
     const coordinates = `${startPlace.center.lng},${startPlace.center.lat};${endPlace.center.lng},${endPlace.center.lat}`;
     let path: any = null;
     let distance: any = null;
-    const response = await sendRequest({
-      url: `https://router.project-osrm.org/route/v1/driving/${coordinates}?alternatives=true&steps=false`,
-      method: 'GET'
-    });
+    const response = await fetch(
+      `https://router.project-osrm.org/route/v1/driving/${coordinates}?alternatives=true&steps=false`,
+    ).then((res) => res.json());
 
     const { code, routes } = response;
 
@@ -35,7 +34,7 @@ const generateGeometry = async (doc: ITumentechDeal, models) => {
 
       if (tripStartedDate) {
         doc.estimatedCloseDate = new Date(
-          tripStartedDate.setDate(tripStartedDate.getDate() + distance / 70)
+          tripStartedDate.setDate(tripStartedDate.getDate() + distance / 70),
         );
       }
     }
@@ -48,7 +47,7 @@ const tumentechDealMutations = {
   tumentechDealAdd: async (
     _root,
     doc: ITumentechDeal,
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) => {
     doc.createdAt = new Date();
     doc.createdBy = cpUser.userId;
@@ -63,12 +62,12 @@ const tumentechDealMutations = {
   tumentechDealEdit: async (
     _root,
     doc: ITumentechDealEdit,
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) => {
     const oldDoc = await models.TumentechDeals.getTumentechDeal(
       doc._id,
       '',
-      cpUser.userId
+      cpUser.userId,
     );
 
     if (
@@ -77,7 +76,7 @@ const tumentechDealMutations = {
     ) {
       doc = {
         _id: doc._id,
-        ...(await generateGeometry(doc, models))
+        ...(await generateGeometry(doc, models)),
       };
     }
     return models.TumentechDeals.updateTumentechDeal(doc);
@@ -90,12 +89,12 @@ const tumentechDealMutations = {
   tumentechDealAddTrackingData: async (
     _root,
     { dealId, carId, trackingData },
-    { models }: IContext
+    { models }: IContext,
   ) => {
-    const newTrackingData = trackingData.map(e => [
+    const newTrackingData = trackingData.map((e) => [
       e.lat,
       e.lng,
-      e.trackedDate.getTime() / 1000
+      e.trackedDate.getTime() / 1000,
     ]);
 
     const tracking = await models.Tracking.findOne({ dealId, carId });
@@ -104,17 +103,17 @@ const tumentechDealMutations = {
       await models.Tracking.create({
         dealId,
         carId,
-        trackingData: newTrackingData
+        trackingData: newTrackingData,
       });
     } else {
       await models.Tracking.updateOne(
         { dealId, carId },
-        { $push: { trackingData: { $each: newTrackingData } } }
+        { $push: { trackingData: { $each: newTrackingData } } },
       );
     }
 
     return models.TumentechDeals.findOne({ _id: dealId });
-  }
+  },
 };
 
 export default tumentechDealMutations;

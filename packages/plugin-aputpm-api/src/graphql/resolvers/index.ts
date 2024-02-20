@@ -5,7 +5,7 @@ import safetyTipQueries from './safetyTip/queries';
 import SafetyTipMutations from './safetyTip/mutations';
 import customResolvers from './customResolvers';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   ...customResolvers,
   Query: {

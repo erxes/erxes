@@ -62,7 +62,7 @@ const List = (props: Props) => {
           <th>{__('Category')}</th>
           <th>{__('Name')}</th>
           <th>{__('Description')}</th>
-          <th>{__('Price')}</th>
+          <th>{__('Fee percent')}</th>
           <th>{__('Last modified date')}</th>
           <th>{__('Last modified by')}</th>
           <th>{__('Actions')}</th>

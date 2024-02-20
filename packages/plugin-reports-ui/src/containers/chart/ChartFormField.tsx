@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChartFormField from '../../components/chart/ChartFormField';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { ControlLabel } from '@erxes/ui/src/components';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { queries } from '../../graphql';
+import { gql, useQuery } from '@apollo/client';
 
 type IFilter = {
   [key: string]: any;
@@ -14,6 +13,8 @@ export type IFilterType = {
   fieldQuery: string;
   fieldLabel: string;
   fieldOptions: any[];
+  fieldValueVariable?: string;
+  fieldLabelVariable?: string;
   multi?: boolean;
 };
 
@@ -21,30 +22,58 @@ type Props = {
   filterType: IFilterType;
   setFilter: (fieldName: string, value: any) => void;
   initialValue?: any;
+  // for customDate date option
+  startDate?: Date;
+  endDate?: Date;
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, setFilter, initialValue } = props;
+  const { filterType, setFilter } = props;
   const {
     fieldName,
     fieldType,
     fieldQuery,
     fieldLabel,
     multi,
-    fieldOptions
+    fieldOptions,
+    fieldValueVariable,
+    fieldLabelVariable,
   } = filterType;
-  const [fieldValue, setFieldValue] = useState(initialValue);
+
+  const queryExists = queries[`${fieldQuery}`];
+  let queryFieldOptions;
+
+  if (queryExists) {
+    const query = useQuery(gql(queries[`${fieldQuery}`]), {
+      skip: fieldOptions ? true : false,
+    });
+
+    const queryData = query && query.data ? query.data : [];
+
+    queryFieldOptions =
+      fieldValueVariable &&
+      fieldLabelVariable &&
+      queryData.length &&
+      queryData.map((d) => ({
+        value: d[fieldValueVariable],
+        label: d[fieldLabelVariable],
+      }));
+  }
 
   const onChange = (input: any) => {
     switch (fieldType) {
       case 'select':
         const value =
-          fieldQuery.includes('user') || fieldQuery.includes('department')
+          fieldQuery &&
+          (fieldQuery.includes('user') ||
+            fieldQuery.includes('department') ||
+            fieldQuery.includes('branch') ||
+            fieldQuery.includes('integration') ||
+            !input.value)
             ? input
             : input.value;
 
         setFilter(fieldName, value);
-        setFieldValue(value);
 
         return;
       default:
@@ -52,45 +81,15 @@ const ChartFormFieldList = (props: Props) => {
     }
   };
 
-  switch (fieldQuery) {
-    case 'users':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectTeamMembers
-            multi={multi}
-            name="chartAssignedUserIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-
-    case 'departments':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectDepartments
-            multi={multi}
-            name="chartAssignedDepartmentIds"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-    default:
-      break;
-  }
-
   return (
     <ChartFormField
       fieldType={fieldType}
-      fieldOptions={fieldOptions}
+      fieldQuery={fieldQuery}
+      multi={multi}
+      fieldOptions={fieldOptions ? fieldOptions : queryFieldOptions}
       fieldLabel={fieldLabel}
+      onChange={onChange}
+      {...props}
     />
   );
 };

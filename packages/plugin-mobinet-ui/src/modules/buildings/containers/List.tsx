@@ -6,9 +6,29 @@ import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   BuildingListQueryResponse,
-  BuildingsByBoundsQueryResponse
+  BuildingsByBoundsQueryResponse,
 } from '../types';
 import { ICoordinates } from '../../../types';
+import { CityListQueryResponse } from '../../cities/types';
+import { IQueryParams } from '@erxes/ui/src/types';
+
+const generateParams = (queryParams) => {
+  return {
+    ...router.generatePaginationParams(queryParams || {}),
+    searchValue: queryParams?.searchValue,
+    sortField: queryParams?.sortField,
+    sortDirection: queryParams?.sortDirection
+      ? parseInt(queryParams?.sortDirection, 10)
+      : undefined,
+
+    cityId: queryParams?.cityId,
+    quarterId: queryParams?.quarterId,
+    districtId: queryParams?.districtId,
+    name: queryParams?.name,
+    serviceStatus: queryParams?.serviceStatus,
+    networkType: queryParams?.networkType,
+  };
+};
 
 type Props = {
   refetch: () => void;
@@ -22,12 +42,11 @@ export default function BuildingContainer(props: Props) {
     gql(queries.listQuery),
     {
       variables: {
-        ...router.generatePaginationParams(props.queryParams || {}),
-        cityId: props.queryParams.city
+        ...generateParams(props.queryParams || {}),
       },
       fetchPolicy: 'network-only',
-      skip: props.viewType !== 'list'
-    }
+      skip: props.viewType !== 'list',
+    },
   );
 
   // const buildingsByBounds = useQuery<BuildingsByBoundsQueryResponse>(
@@ -42,19 +61,17 @@ export default function BuildingContainer(props: Props) {
   //   }
   // );
 
-  const [
-    fetchBuildingsWithinBounds,
-    { data: buildingsByBoundsData }
-  ] = useLazyQuery<BuildingsByBoundsQueryResponse>(
-    gql(queries.buildingsByBoundsQuery)
-  );
+  const [fetchBuildingsWithinBounds, { data: buildingsByBoundsData }] =
+    useLazyQuery<BuildingsByBoundsQueryResponse>(
+      gql(queries.buildingsByBoundsQuery),
+    );
 
   const getBuildingsWithingBounds = (bounds: ICoordinates[]) => {
     fetchBuildingsWithinBounds({
       variables: {
-        bounds: bounds.map(b => [b.lng, b.lat])
+        bounds: bounds.map((b) => [b.lng, b.lat]),
         // serviceStatuses: ['active', 'inprogress']
-      }
+      },
     });
   };
 
@@ -65,14 +82,14 @@ export default function BuildingContainer(props: Props) {
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id: buildingId }
+        variables: { _ids: [buildingId] },
       })
         .then(() => {
           refetch();
 
           Alert.success('You successfully deleted a building.');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -92,9 +109,11 @@ export default function BuildingContainer(props: Props) {
     loading,
     buildings,
     totalCount,
+    page: props.queryParams.page || 1,
+    perPage: props.queryParams.perPage || 20,
     refetch,
     remove,
-    getBuildingsWithingBounds
+    getBuildingsWithingBounds,
   };
 
   return <List {...extendedProps} />;

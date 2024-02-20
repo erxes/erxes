@@ -1,41 +1,43 @@
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendLogsMessage
+  sendLogsMessage,
 } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
 import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import {
+  RPError,
+  RPResult,
+  RPSuccess,
+} from '@erxes/api-utils/src/messageBroker';
 
-const sendError = message => ({
+const sendError = (message): RPError => ({
   status: 'error',
-  errorMessage: message
+  errorMessage: message,
 });
 
-const sendSuccess = data => ({
+const sendSuccess = (data): RPSuccess => ({
   status: 'success',
-  data
+  data,
 });
 
 /*
  * Handle requests from integrations api
  */
-export const receiveRpcMessage = async (subdomain, data) => {
+export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
   const { action, metaInfo, payload } = data;
 
-  const {
-    Integrations,
-    ConversationMessages,
-    Conversations
-  } = await generateModels(subdomain);
+  const { Integrations, ConversationMessages, Conversations } =
+    await generateModels(subdomain);
 
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
     const integration = await Integrations.findOne({
-      _id: doc.integrationId
+      _id: doc.integrationId,
     });
 
     if (!integration) {
@@ -46,12 +48,12 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     let customer;
 
-    const getCustomer = async selector =>
+    const getCustomer = async (selector) =>
       sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
         data: selector,
-        isRPC: true
+        isRPC: true,
       });
 
     if (primaryPhone) {
@@ -63,9 +65,9 @@ export const receiveRpcMessage = async (subdomain, data) => {
           action: 'customers.updateCustomer',
           data: {
             _id: customer._id,
-            doc
+            doc,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         return sendSuccess({ _id: customer._id });
@@ -84,9 +86,9 @@ export const receiveRpcMessage = async (subdomain, data) => {
         action: 'customers.createCustomer',
         data: {
           ...doc,
-          scopeBrandIds: integration.brandId
+          scopeBrandIds: integration.brandId,
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -103,10 +105,10 @@ export const receiveRpcMessage = async (subdomain, data) => {
         subdomain,
         action: 'users.findOne',
         data: {
-          'details.operatorPhone': owner
+          'details.operatorPhone': owner,
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
     }
 
@@ -115,7 +117,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
     if (conversationId) {
       if (!assignedUserId) {
         const existingConversation = await Conversations.findOne({
-          _id: conversationId
+          _id: conversationId,
         });
 
         assignedUserId = existingConversation?.assignedUserId || null;
@@ -129,7 +131,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
         readUserIds: [],
 
         // reopen this conversation if it's closed
-        status: CONVERSATION_STATUSES.OPEN
+        status: CONVERSATION_STATUSES.OPEN,
       });
       return sendSuccess({ _id: conversationId });
     }
@@ -157,7 +159,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
           : CONVERSATION_STATUSES.CLOSED,
 
       // Mark as unread
-      readUserIds: []
+      readUserIds: [],
     };
 
     if (message.content && metaInfo === 'replaceContent') {
@@ -170,16 +172,19 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     await Conversations.updateConversation(
       message.conversationId,
-      conversationDoc
+      conversationDoc,
     );
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
+      conversationClientMessageInserted: message,
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message,
+      },
+    );
 
     return sendSuccess({ _id: message._id });
   }
@@ -189,7 +194,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
       subdomain,
       action: 'getConfigs',
       data: {},
-      isRPC: true
+      isRPC: true,
     });
 
     return sendSuccess({ configs });
@@ -201,11 +206,12 @@ export const receiveRpcMessage = async (subdomain, data) => {
       action: 'users.getIds',
       data: {},
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    return sendSuccess({ userIds: users.map(user => user._id) });
+    return sendSuccess({ userIds: users.map((user) => user._id) });
   }
+  throw new Error(`Unknown action: ${action}`);
 };
 
 /*
@@ -222,7 +228,7 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
       await pConversationClientMessageInserted(models, subdomain, {
-        conversationId
+        conversationId,
       });
     }
 
@@ -245,7 +251,7 @@ export const removeEngageConversations = async (models, _id) => {
 
 export const collectConversations = async (
   subdomain: string,
-  { contentId }: { contentId: string }
+  { contentId }: { contentId: string },
 ) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
@@ -256,27 +262,27 @@ export const collectConversations = async (
     data: {
       query: {
         contentId,
-        action: 'convert'
+        action: 'convert',
       },
       options: {
-        content: 1
-      }
+        content: 1,
+      },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const contentIds = activities.map(activity => activity.content);
+  const contentIds = activities.map((activity) => activity.content);
 
   let conversations: IConversationDocument[] = [];
 
   if (!contentIds.length) {
     conversations = await models.Conversations.find({
-      $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
+      $or: [{ customerId: contentId }, { participatedUserIds: contentId }],
     }).lean();
   } else {
     conversations = await models.Conversations.find({
-      _id: { $in: contentIds }
+      _id: { $in: contentIds },
     }).lean();
   }
 
@@ -288,9 +294,9 @@ export const collectConversations = async (
       createdAt: c.createdAt,
       contentTypeDetail: {
         integration: await models.Integrations.findOne({
-          _id: c.integrationId
-        })
-      }
+          _id: c.integrationId,
+        }),
+      },
     });
   }
 

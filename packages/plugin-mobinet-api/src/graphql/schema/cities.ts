@@ -18,7 +18,7 @@ export const types = `
 
 const mutationParams = `
     name: String!
-    code: String!
+    
     iso: String
     stat: String
     center: JSON

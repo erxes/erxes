@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
@@ -20,12 +21,14 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
       - 'packages/ui-neighbor/**'
       - 'packages/plugin-neighbor-ui/**'
       - '.github/workflows/plugin-neighbor-ui.yaml'
   pull_request:
     branches:
       - dev
+      - master
       - staging
       - build-test
     paths:
@@ -42,6 +45,7 @@ on:
       - 'packages/ui-segments/**'
       - 'packages/ui-settings/**'
       - 'packages/ui-team/**'
+      - 'packages/ui-tags/**'
       - 'packages/ui-neighbor/**'
       - 'packages/plugin-neighbor-ui/**'
       - '.github/workflows/plugin-neighbor-ui.yaml'
@@ -79,15 +83,15 @@ jobs:
           cp -r ./src/locales/ ./dist/locales 2>/dev/null || true
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
-        uses: aws-actions/configure-aws-credentials@v1
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
           tar -cf build.tar --directory=packages/plugin-neighbor-ui/dist .
           cp build.tar packages/plugin-neighbor-ui/dist

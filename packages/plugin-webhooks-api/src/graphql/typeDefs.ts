@@ -5,7 +5,7 @@ import {
   mutations as webhookMutations
 } from './schema/webhook';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

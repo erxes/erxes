@@ -46,7 +46,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           </tr>
         </thead>
         <tbody>
-          {histories.map(history => {
+          {histories.map((history) => {
             return (
               <HistoryRow
                 key={history._id}
@@ -86,8 +86,10 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderDataImporter() {
+    const { currentType } = this.props;
+
     return (
-      <Link to={`/settings/import`}>
+      <Link to={`/settings/import?type=${currentType}`}>
         <Button icon="import" btnStyle="success">
           {__(`Import data`)}
         </Button>
@@ -105,7 +107,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/selectMenu' },
-      { title: __('Imports') }
+      { title: __('Imports') },
     ];
 
     const headerDescription = (
@@ -113,9 +115,9 @@ class Histories extends React.Component<Props & IRouterProps> {
         icon="/images/actions/27.svg"
         title={__('Import')}
         description={`${__(
-          'Here you can find data of all your previous imports of companies and customers'
+          'Here you can find data of all your previous imports of companies and customers',
         )}.${__('Find out when they joined and their current status')}.${__(
-          'Nothing goes missing around here'
+          'Nothing goes missing around here',
         )}`}
       />
     );

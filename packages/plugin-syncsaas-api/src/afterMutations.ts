@@ -1,8 +1,8 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { customersEdit as customerEditQuery } from './common/customerQueries';
 export default {
-  'contacts:customer': ['update']
+  'contacts:customer': ['update'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -17,11 +17,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
     const models = await generateModels(subdomain);
 
     const syncedCustomers = await models.SyncedCustomers.find({
-      customerId: _id
+      customerId: _id,
     });
 
     const syncIds = syncedCustomers.map(
-      syncedCustomer => syncedCustomer.syncId
+      (syncedCustomer) => syncedCustomer.syncId,
     );
 
     if (!!syncedCustomers?.length) {
@@ -32,39 +32,41 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const responseDoc: any = {
         modifiedDocs: {
           count: 0,
-          ids: []
+          ids: [],
         },
         errorDocs: {
           count: 0,
-          ids: []
-        }
+          ids: [],
+        },
       };
 
       for (const sync of syncs) {
-        const { data, errors } = await sendRequest({
-          url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'erxes-app-token': sync.appToken
+        const { data, errors } = await fetch(
+          `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'erxes-app-token': sync.appToken,
+            },
+            body: JSON.stringify({
+              query: customerEditQuery,
+              variables: {
+                _id:
+                  syncedCustomers.find(
+                    (syncedCustomers) => syncedCustomers.syncId === sync._id,
+                  )?.syncedCustomerId || '',
+                ...customerDoc,
+              },
+            }),
           },
-          body: {
-            query: customerEditQuery,
-            variables: {
-              _id:
-                syncedCustomers.find(
-                  syncedCustomers => syncedCustomers.syncId === sync._id
-                )?.syncedCustomerId || '',
-              ...customerDoc
-            }
-          }
-        });
+        ).then((res) => res.json());
         const { modifiedDocs, errorDocs } = responseDoc;
 
         if (errors || !data?.customersEdit) {
           responseDoc.errorDocs = {
             count: errorDocs.count + 1,
-            ids: [...errorDocs.ids, _id]
+            ids: [...errorDocs.ids, _id],
           };
 
           continue;
@@ -72,7 +74,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         responseDoc.modifiedDocs = {
           count: modifiedDocs.count + 1,
-          ids: [...modifiedDocs.ids, _id]
+          ids: [...modifiedDocs.ids, _id],
         };
       }
 

@@ -10,13 +10,14 @@ import {
   IProductDocument,
   productCategorySchema,
   productSchema,
-  PRODUCT_STATUSES
+  PRODUCT_STATUSES,
 } from './definitions/products';
 import {
   checkCodeMask,
   checkSameMaskConfig,
-  initCustomField
+  initCustomField,
 } from '../maskUtils';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -25,7 +26,7 @@ export interface IProductModel extends Model<IProductDocument> {
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
-    productFields: IProduct
+    productFields: IProduct,
   ): Promise<IProductDocument>;
 }
 
@@ -49,7 +50,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
-        status: { $ne: PRODUCT_STATUSES.DELETED }
+        status: { $ne: PRODUCT_STATUSES.DELETED },
       });
 
       if (product) {
@@ -60,12 +61,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     static fixBarcodes(barcodes?, variants?) {
       if (barcodes && barcodes.length) {
         barcodes = barcodes
-          .filter(bc => bc)
-          .map(bc => bc.replace(/\s/g, '').replace(/_/g, ''));
+          .filter((bc) => bc)
+          .map((bc) => bc.replace(/\s/g, '').replace(/_/g, ''));
 
         if (variants) {
           const undefinedVariantCodes = Object.keys(variants).filter(
-            key => !(barcodes || []).includes(key)
+            (key) => !(barcodes || []).includes(key),
           );
           if (undefinedVariantCodes.length) {
             for (const unDefCode of undefinedVariantCodes) {
@@ -92,7 +93,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCategory({
-          code: doc.categoryCode
+          code: doc.categoryCode,
         });
         doc.categoryId = category._id;
       }
@@ -106,17 +107,17 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
               { code: doc.vendorCode },
               { primaryEmail: doc.vendorCode },
               { primaryPhone: doc.vendorCode },
-              { primaryName: doc.vendorCode }
-            ]
+              { primaryName: doc.vendorCode },
+            ],
           },
-          isRPC: true
+          isRPC: true,
         });
 
         doc.vendorId = vendor?._id;
       }
 
       const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId
+        _id: doc.categoryId,
       });
 
       if (!(await checkCodeMask(category, doc.code))) {
@@ -132,10 +133,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code,
         [],
-        doc.customFieldsData
+        doc.customFieldsData,
       );
 
-      return models.Products.create(doc);
+      return models.Products.create({ ...doc, createdAt: new Date() });
     }
 
     /**
@@ -145,7 +146,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       const product = await models.Products.getProduct({ _id });
 
       const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId || product.categoryId
+        _id: doc.categoryId || product.categoryId,
       });
 
       if (doc.code) {
@@ -169,7 +170,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code || product.code,
         product.customFieldsData,
-        doc.customFieldsData
+        doc.customFieldsData,
       );
 
       doc.customFieldsData = await initCustomField(
@@ -177,7 +178,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code || product.code,
         product.customFieldsData,
-        doc.customFieldsData
+        doc.customFieldsData,
       );
 
       await models.Products.updateOne({ _id }, { $set: doc });
@@ -193,10 +194,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: 'findDealProductIds',
         data: {
-          _ids
+          _ids,
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const usedIds: string[] = [];
@@ -215,8 +216,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await models.Products.updateMany(
           { _id: { $in: usedIds } },
           {
-            $set: { status: PRODUCT_STATUSES.DELETED }
-          }
+            $set: { status: PRODUCT_STATUSES.DELETED },
+          },
         );
         response = 'updated';
       }
@@ -232,14 +233,14 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
     public static async mergeProducts(
       productIds: string[],
-      productFields: IProduct
+      productFields: IProduct,
     ) {
       const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
 
       for (const field of fields) {
         if (!productFields[field]) {
           throw new Error(
-            `Can not merge products. Must choose ${field} field.`
+            `Can not merge products. Must choose ${field} field.`,
           );
         }
       }
@@ -266,7 +267,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         // merge custom fields data
         customFieldsData = [
           ...customFieldsData,
-          ...(productObj.customFieldsData || [])
+          ...(productObj.customFieldsData || []),
         ];
 
         // Merging products tagIds
@@ -278,10 +279,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await models.Products.findByIdAndUpdate(productId, {
           $set: {
             status: PRODUCT_STATUSES.DELETED,
-            code: Math.random()
-              .toString()
-              .concat('^', productObj.code)
-          }
+            code: Math.random().toString().concat('^', productObj.code),
+          },
         });
       }
 
@@ -305,16 +304,16 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         uom: await models.Uoms.checkUOM({ ...productFields }),
         description,
         categoryId,
-        vendorId
+        vendorId,
       });
 
       const dealProductIds = await sendCardsMessage({
         subdomain,
         action: 'findDealProductIds',
         data: {
-          _ids: productIds
+          _ids: productIds,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       for (const deal of dealProductIds) {
@@ -328,13 +327,13 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         action: 'deals.updateMany',
         data: {
           selector: {
-            'productsData.productId': { $in: usedIds }
+            'productsData.productId': { $in: usedIds },
           },
           modifier: {
-            $set: { 'productsData.$.productId': product._id }
-          }
+            $set: { 'productsData.$.productId': product._id },
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return product;
@@ -349,11 +348,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCategory(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(
-    doc: IProductCategory
+    doc: IProductCategory,
   ): Promise<IProductCategoryDocument>;
   updateProductCategory(
     _id: string,
-    doc: IProductCategory
+    doc: IProductCategory,
   ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
 }
@@ -381,7 +380,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       }
 
       const category = await models.ProductCategories.findOne({
-        code
+        code,
       });
 
       if (category) {
@@ -396,13 +395,13 @@ export const loadProductCategoryClass = (models: IModels) => {
       await this.checkCodeDuplication(doc.code);
 
       const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
 
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      return models.ProductCategories.create(doc);
+      return models.ProductCategories.create({ ...doc, createdAt: new Date() });
     }
 
     /**
@@ -410,10 +409,10 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async updateProductCategory(
       _id: string,
-      doc: IProductCategory
+      doc: IProductCategory,
     ) {
       const category = await models.ProductCategories.getProductCategory({
-        _id
+        _id,
       });
 
       if (category.code !== doc.code) {
@@ -421,7 +420,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       }
 
       const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
@@ -433,22 +432,22 @@ export const loadProductCategoryClass = (models: IModels) => {
 
       const childCategories = await models.ProductCategories.find({
         $and: [
-          { order: { $regex: new RegExp(`^${category.order}`, 'i') } },
-          { _id: { $ne: _id } }
-        ]
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: { $ne: _id } },
+        ],
       });
 
       await models.ProductCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async childCategory => {
+      childCategories.forEach(async (childCategory) => {
         let order = childCategory.order;
 
         order = order.replace(category.order, doc.order);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } }
+          { $set: { order } },
         );
       });
 
@@ -463,7 +462,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
       let count = await models.Products.countDocuments({
         categoryId: _id,
-        status: { $ne: PRODUCT_STATUSES.DELETED }
+        status: { $ne: PRODUCT_STATUSES.DELETED },
       });
       count += await models.ProductCategories.countDocuments({ parentId: _id });
 
@@ -479,7 +478,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async generateOrder(
       parentCategory: IProductCategory,
-      doc: IProductCategory
+      doc: IProductCategory,
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`

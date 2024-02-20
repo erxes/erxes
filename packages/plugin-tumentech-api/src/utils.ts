@@ -1,5 +1,5 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import * as _ from 'underscore';
 
 import { generateModels } from './connectionResolver';
@@ -9,13 +9,13 @@ import { google } from 'googleapis';
 import * as moment from 'moment';
 import { paginate } from '@erxes/api-utils/src/core';
 
-const gatherNames = async params => {
+const gatherNames = async (params) => {
   const {
     collection,
     idFields,
     foreignKey,
     prevList,
-    nameFields = []
+    nameFields = [],
   } = params;
   let options: any = [];
 
@@ -56,14 +56,14 @@ const gatherCarFieldNames = async (models, doc, prevList = null) => {
       idFields: [doc.carCategoryId],
       foreignKey: 'carCategoryId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
 
   return options;
 };
 
-export const gatherDescriptions = async params => {
+export const gatherDescriptions = async (params) => {
   const { action, obj, type, updatedDocument, extraParams } = params;
   const { models } = extraParams;
 
@@ -80,7 +80,7 @@ export const gatherDescriptions = async params => {
         extraDesc = await gatherCarFieldNames(
           models,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
       break;
@@ -103,7 +103,7 @@ export const gatherDescriptions = async params => {
           collection: models.CarCategories,
           idFields: parentIds,
           foreignKey: 'parentId',
-          nameFields: ['name']
+          nameFields: ['name'],
         });
       }
     }
@@ -141,13 +141,13 @@ export const generateFields = async ({ subdomain }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
-  fields = fields.filter(field => {
+  fields = fields.filter((field) => {
     if (
       field.name === 'parentCarCategoryId' ||
       field.name === 'carCategoryId'
@@ -159,11 +159,11 @@ export const generateFields = async ({ subdomain }) => {
   });
 
   const parentCategories = await models.CarCategories.find({
-    $or: [{ parentId: null }, { parentId: '' }]
+    $or: [{ parentId: null }, { parentId: '' }],
   });
 
   const categories = await models.CarCategories.find({
-    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }]
+    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }],
   });
 
   const additionalFields = [
@@ -172,35 +172,35 @@ export const generateFields = async ({ subdomain }) => {
       name: 'parentCarCategoryId',
       label: 'Category',
       type: 'String',
-      selectOptions: parentCategories.map(category => ({
+      selectOptions: parentCategories.map((category) => ({
         value: category._id,
-        label: category.name
-      }))
+        label: category.name,
+      })),
     },
     {
       _id: Math.random(),
       name: 'carCategoryId',
       label: 'Sub category',
       type: 'String',
-      selectOptions: categories.map(category => ({
+      selectOptions: categories.map((category) => ({
         value: category._id,
-        label: category.name
-      }))
+        label: category.name,
+      })),
     },
     {
       _id: Math.random(),
       name: 'drivers',
       label: 'Driver(s)',
       type: 'String',
-      selectOptions: undefined
+      selectOptions: undefined,
     },
     {
       _id: Math.random(),
       name: 'companies',
       label: 'Company(s)',
       type: 'String',
-      selectOptions: undefined
-    }
+      selectOptions: undefined,
+    },
   ];
 
   return [...additionalFields, ...fields];
@@ -210,7 +210,7 @@ export const generateRandomString = async (
   subdomain,
   modelName,
   prefix,
-  numberOfDigits = 6
+  numberOfDigits = 6,
 ) => {
   const randomNumber = Math.floor(Math.random() * Math.pow(10, numberOfDigits));
   const randomName = `${prefix}${randomNumber}`;
@@ -219,9 +219,9 @@ export const generateRandomString = async (
     subdomain,
     action: `${modelName}s.findOne`,
     data: {
-      name: randomName
+      name: randomName,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   if (item) {
@@ -262,10 +262,7 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
   const url = `https://maps.googleapis.com/maps/api/directions/json?key=${apiKey}&origin=${placeA.center.lat},${placeA.center.lng}&destination=${placeB.center.lat},${placeB.center.lng}&mode=driving`;
 
   try {
-    const response = await sendRequest({
-      url,
-      method: 'GET'
-    });
+    const response = await fetch(url).then((res) => res.json());
 
     if (response.status !== 'OK' || response.routes.length === 0) {
       return null;
@@ -377,19 +374,19 @@ export const getTransportData = async (req, res, subdomain) => {
 
   const list = await paginate(
     models.TransportDatas.find(qry, '-scopeBrandIds -range').sort({
-      tid: 1
+      tid: 1,
     }),
-    { page: Number(offset || 1), perPage: Number(pagesize || 20) }
+    { page: Number(offset || 1), perPage: Number(pagesize || 20) },
   );
 
   if (list.length === 0) {
     return res.json({
-      response: { status: 'error', message: 'No data found' }
+      response: { status: 'error', message: 'No data found' },
     });
   }
 
   return res.json({
-    response: { status: 'success', result: list }
+    response: { status: 'success', result: list },
   });
 };
 
@@ -403,17 +400,17 @@ export const updateTrackingData = async (req, res, subdomain) => {
 
   models.Trips.updateTracking(
     tripId,
-    trackingData.map(item => {
+    trackingData.map((item) => {
       return {
         lat: item.lat,
         lng: item.lng,
-        trackedDate: new Date(item.trackedDate)
+        trackedDate: new Date(item.trackedDate),
       };
-    })
+    }),
   );
 
   return res.json({
-    response: { status: 'success' }
+    response: { status: 'success' },
   });
 };
 

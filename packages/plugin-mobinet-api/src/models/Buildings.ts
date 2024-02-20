@@ -4,13 +4,15 @@ import { IModels } from '../connectionResolver';
 import {
   IBuilding,
   IBuildingDocument,
-  buildingSchema
+  buildingSchema,
 } from './definitions/buildings';
 
 import {
   IBuildingToContactDocument,
-  buildingToContactSchema
+  buildingToContactSchema,
 } from './definitions/buildingToContact';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { sendCommonMessage } from '../messageBroker';
 
 export interface IBuildingModel extends Model<IBuildingDocument> {
   createBuilding(doc: IBuilding): Promise<IBuildingDocument>;
@@ -26,18 +28,26 @@ export const loadBuildingClass = (models: IModels) => {
         const { lng, lat } = doc.location;
         (doc as any).location = {
           type: 'Point',
-          coordinates: [lng, lat]
+          coordinates: [lng, lat],
         };
       }
-
-      return models.Buildings.create(doc);
+      const quarter = await models.Quarters.findById(doc.quarterId);
+      const district = await models.Districts.findById(quarter?.districtId);
+      const city = await models.Cities.findById(district?.cityId);
+      const searchText = `${doc.name} ${quarter?.name}  ${district?.name}  ${city?.name}`;
+      return models.Buildings.create({ ...doc, searchText });
     }
 
     public static async updateBuilding(_id: string, doc: IBuilding) {
       await models.Buildings.getBuilding({ _id });
+      const building = await models.Buildings.getBuilding({ _id });
+      const quarter = await models.Quarters.findById(building.quarterId);
+      const district = await models.Districts.findById(quarter?.districtId);
+      const city = await models.Cities.findById(district?.cityId);
+      const searchText = `${doc.name} ${quarter?.name}  ${district?.name}  ${city?.name}`;
       await models.Buildings.updateOne(
         { _id },
-        { $set: { ...doc, updatedAt: new Date() } }
+        { $set: { ...doc, updatedAt: new Date(), searchText } },
       );
 
       return models.Buildings.getBuilding({ _id });

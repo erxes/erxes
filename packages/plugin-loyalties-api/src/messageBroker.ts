@@ -1,15 +1,17 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
+
 import { checkVouchersSale, confirmVoucherSale } from './utils';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'loyalties:voucherCampaigns.find',
     async ({ subdomain, data }) => {
@@ -17,9 +19,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.VoucherCampaigns.find(data).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue('loyalties:checkLoyalties', async ({ subdomain, data }) => {
@@ -31,9 +33,9 @@ export const initBroker = async cl => {
         subdomain,
         ownerType,
         ownerId,
-        products
+        products,
       ),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -42,7 +44,7 @@ export const initBroker = async cl => {
     const { checkInfo } = data;
     return {
       data: await confirmVoucherSale(models, checkInfo),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -58,82 +60,66 @@ export const initBroker = async cl => {
         ownerType: data.collectionType,
         changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
         createdAt: new Date(),
-        description: 'Via automation'
+        description: 'Via automation',
       });
 
       return {
         data: response,
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
 export const sendClientPortalMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
-};
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
 };
 
 export const sendNotification = (subdomain: string, data) => {
@@ -141,16 +127,10 @@ export const sendNotification = (subdomain: string, data) => {
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}
