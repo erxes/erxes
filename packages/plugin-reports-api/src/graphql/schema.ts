@@ -182,6 +182,7 @@ const report_params = `
   reportTemplateType: String
   serviceName: String
   serviceType: String
+  sectionId: String
   charts: [JSON]
 `;
 
