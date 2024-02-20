@@ -43,6 +43,7 @@ export interface IContract {
   customers?: any;
   loansOfForeclosed?: any;
   customFieldsData?: any;
+  isDeposit?: boolean;
 }
 
 export interface IContractDoc extends IContract {

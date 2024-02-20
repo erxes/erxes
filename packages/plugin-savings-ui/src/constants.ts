@@ -3,18 +3,23 @@ export const menuContracts = [
   {
     title: __('Contracts'),
     link: '/erxes-plugin-saving/contract-list',
-    permission: 'showContracts'
+    permission: 'showContracts',
+  },
+  {
+    title: __('Deposit'),
+    link: '/erxes-plugin-saving/deposit-list',
+    permission: 'showContracts',
   },
   {
     title: __('Transactions'),
     link: '/erxes-plugin-saving/transaction-list',
-    permission: 'showTransactions'
+    permission: 'showTransactions',
   },
   {
     title: __('PeriodLocks'),
     link: '/erxes-plugin-saving/periodLock-list',
-    permission: 'showPeriodLocks'
-  }
+    permission: 'showPeriodLocks',
+  },
 ];
 
 export const FILTER_PARAMS_TR = [
@@ -25,7 +30,7 @@ export const FILTER_PARAMS_TR = [
   'contractHasnt',
   'startDate',
   'payDate',
-  'endDate'
+  'endDate',
 ];
 
 export const FILTER_PARAMS_CONTRACT = [
@@ -41,7 +46,7 @@ export const FILTER_PARAMS_CONTRACT = [
   'savingAmount',
   'interestRate',
   'branchId',
-  'ids'
+  'ids',
 ];
 
 export const WEEKENDS = {
@@ -51,5 +56,5 @@ export const WEEKENDS = {
   3: 'Wednesday',
   4: 'Thursday',
   5: 'Friday',
-  6: 'Saturday'
+  6: 'Saturday',
 };
