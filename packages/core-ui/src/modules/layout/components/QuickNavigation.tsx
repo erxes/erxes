@@ -1,4 +1,5 @@
 import { DropNav, UserHelper } from '../styles';
+import { __, getEnv } from 'modules/common/utils';
 
 import BrandChooser from './BrandChooser';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -8,11 +9,14 @@ import Icon from 'modules/common/components/Icon';
 import { Link } from 'react-router-dom';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
+import Organizations from 'modules/saas/navigation/Organizations';
 import React from 'react';
 import Search from '../containers/Search';
-import { __ } from 'modules/common/utils';
+import { SubMenu } from 'modules/saas/navigation/styles';
+import Usage from 'modules/saas/settings/plans/components/Usage';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { colors } from 'modules/common/styles';
+import { getVersion } from '@erxes/ui/src/utils/core';
 import { pluginsOfTopNavigations } from 'pluginUtils';
 import styled from 'styled-components';
 
@@ -88,14 +92,14 @@ const QuickNavigation = ({
   showBrands,
   selectedBrands,
   onChangeBrands,
-  version,
+  release,
 }: {
   logout: () => void;
   currentUser: IUser;
   showBrands: boolean;
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
-  version: string;
+  release: string;
 }) => {
   const passContent = (props) => <ChangePassword {...props} />;
   const signatureContent = (props) => <Signature {...props} />;
@@ -120,6 +124,9 @@ const QuickNavigation = ({
       </NavItem>
     );
   }
+
+  const { CORE_URL } = getEnv();
+  const { VERSION } = getVersion();
 
   return (
     <nav id={'SettingsNav'}>
@@ -177,10 +184,44 @@ const QuickNavigation = ({
             </li>
             <Dropdown.Divider />
 
+            {VERSION &&
+            VERSION === 'saas' &&
+            currentUser.currentOrganization ? (
+              <>
+                <li>
+                  <DropNav>
+                    {__('Global Profile')} <Icon icon="angle-right" />
+                    <ul>
+                      <li>
+                        <a href={`${CORE_URL}/organizations`}>
+                          {__('Go to Global Profile')}
+                        </a>
+                      </li>
+                      <li>
+                        <a href={`${CORE_URL}/billing`}>
+                          {__('Go to Billing')}
+                        </a>
+                      </li>
+                    </ul>
+                  </DropNav>
+                </li>
+
+                <Dropdown.Divider />
+                <SubMenu>
+                  <li>
+                    <Organizations
+                      organizations={currentUser.organizations || []}
+                    />
+                  </li>
+                </SubMenu>
+                <Usage />
+              </>
+            ) : null}
+
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
-            {version ? (
+            {release ? (
               <Version>
-                <span>version</span> <span>{version}</span>
+                <span>version</span> <span>{release}</span>
               </Version>
             ) : null}
           </Dropdown.Menu>

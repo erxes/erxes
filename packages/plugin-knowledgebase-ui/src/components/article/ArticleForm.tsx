@@ -11,18 +11,18 @@ import {
   IFormProps,
   IOption,
 } from '@erxes/ui/src/types';
+import React, { useEffect, useState } from 'react';
 import { __, extractAttachment } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React, { useState, useEffect } from 'react';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 // import Select from 'react-select-plus';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { articleReactions } from '../../icons.constant';

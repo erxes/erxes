@@ -633,14 +633,16 @@ const AuthCustomDescription = styled.div`
   }
 `;
 
-const AuthDescription = styled.div`
+const AuthDescription = styledTS<{
+  backgroundColor?: string;
+  textColor?: string;
+}>(styled.div)`
   width: 100%;
   height: 100%;
-  background: ${
-    thBackground
-      ? thBackground
-      : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`
-  }
+  background: ${(props) =>
+    props.backgroundColor ||
+    colors.colorPrimaryDark} url('/images/stars.png') repeat top
+    center;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -652,11 +654,9 @@ const AuthDescription = styled.div`
     position: absolute;
     width: 100%;
     height: 100%;
-    background: ${
-      thBackground
-        ? thBackground
-        : `transparent url('/images/twinkling.png') repeat top center`
-    }
+    background: ${(props) =>
+      !props.backgroundColor &&
+      `transparent url('/images/twinkling.png') repeat top center`};
     animation: ${twinkling} 200s linear infinite;
   }
 
@@ -676,7 +676,7 @@ const AuthDescription = styled.div`
     position: relative;
     font-weight: bold;
     font-size: 48px;
-    color: ${thColor || colors.colorWhite};
+    color: ${(props) => props.textColor || colors.colorWhite};
     margin: 0px;
 
     @media (max-width: 768px) {

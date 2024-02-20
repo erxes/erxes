@@ -11,7 +11,11 @@ import {
   Uploader,
   extractAttachment,
 } from '@erxes/ui/src';
-import { SelectWithAssetCategory, SelectWithAssets } from '../../common/utils';
+import {
+  CommonFormGroup,
+  SelectWithAssetCategory,
+  SelectWithAssets,
+} from '../../common/utils';
 import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   FormWrapper,
@@ -25,9 +29,9 @@ import {
   IButtonMutateProps,
   IFormProps,
 } from '@erxes/ui/src/types';
+import React, { useEffect, useState } from 'react';
 
 import CategoryForm from '../containers/CategoryForm';
-import React, { useState, useEffect } from 'react';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
@@ -40,12 +44,16 @@ type Props = {
   loading: boolean;
 };
 
-const AssetForm = (props: Props) => {
-  const { asset, categories, queryParams, renderButton, closeModal } = props;
-
-  const [assetCount, setAssetCount] = useState<number>(0);
-  const [minimiumCount, setMinimiumCount] = useState<number>(0);
-  const [attachment, setAttachment] = useState<IAttachment | undefined>(
+function AssetForm({
+  asset,
+  categories,
+  queryParams,
+  renderButton,
+  closeModal,
+}: Props) {
+  const [assetCount, setAssetCount] = React.useState<number>(0);
+  const [minimiumCount, setMinimiumCount] = React.useState<number>(0);
+  const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
     undefined,
   );
   const [attachmentMore, setAttachmentMore] = useState<
@@ -367,6 +375,6 @@ const AssetForm = (props: Props) => {
   };
 
   return <CommonForm renderContent={renderContent} />;
-};
+}
 
 export default AssetForm;

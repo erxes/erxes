@@ -1,5 +1,8 @@
 import * as elasticsearch from 'elasticsearch';
+
 import { debugError } from './debuggers';
+import { getEnv } from './core';
+import { getOrganizationIdBySubdomain } from './saas/saas';
 import { parse } from 'url';
 
 export interface IFetchEsArgs {
@@ -68,7 +71,7 @@ export const doSearch = async ({
   const results = fetchResults.hits.hits.map((result) => {
     return {
       source: {
-        _id: result._id,
+        _id: getRealIdFromElk(result._id),
         ...result._source,
       },
       highlight: result.highlight,
@@ -79,6 +82,7 @@ export const doSearch = async ({
 };
 
 export const fetchEs = async ({
+  subdomain,
   action,
   index,
   body,
@@ -90,6 +94,35 @@ export const fetchEs = async ({
   connectionString,
 }: IFetchEsArgs) => {
   try {
+    const VERSION = getEnv({ name: 'VERSION' });
+    let organizationId = '';
+
+    if (VERSION && VERSION === 'saas') {
+      organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+      if (body && body.query) {
+        if (body.query.bool) {
+          if (body.query.bool.must) {
+            const extraQuery = {
+              term: {
+                organizationId,
+              },
+            };
+
+            if (body.query.bool.must.push) {
+              body.query.bool.must.push(extraQuery);
+            } else {
+              body.query.bool.must = [body.query.bool.must, extraQuery];
+            }
+          }
+        }
+      }
+
+      if (body && Object.keys(body).length === 0) {
+        body = { query: { match: { organizationId } } };
+      }
+    }
+
     const params: any = {
       index: `${getIndexPrefix(connectionString)}${index}`,
       body,
@@ -99,7 +132,9 @@ export const fetchEs = async ({
       body.size = 10000;
     }
 
-    if (_id) {
+    if (_id && organizationId) {
+      params.id = `${organizationId}__${_id}`;
+    } else if (_id && !organizationId) {
       params.id = _id;
     }
 
@@ -258,4 +293,36 @@ export const fetchByQuery = async ({
   return response.hits.hits
     .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
     .filter((r) => r);
+};
+
+export const getRealIdFromElk = (_id: string) => {
+  const arr = _id.split('__');
+
+  return arr.length === 2 ? arr[1] : arr[0];
+};
+
+export const generateElkIds = async (ids: string[], subdomain: string) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    if (ids && ids.length) {
+      const organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+      return ids.map((_id) => `${organizationId}__${_id}`);
+    }
+    return [];
+  }
+
+  return ids;
+};
+
+export const generateElkId = async (id: string, subdomain: string) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    const organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+    return `${organizationId}__${id}`;
+  }
+  return id;
 };

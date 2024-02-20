@@ -8,6 +8,9 @@ import {
 import {
   FILE_MIME_TYPES,
   KEY_LABELS,
+  LANGUAGES,
+  LOG_RETENTION_DURATION,
+  SERVICE_TYPES,
 } from '@erxes/ui-settings/src/general/constants';
 import {
   __,
@@ -412,7 +415,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'UPLOAD_FILE_TYPES'
+                  'UPLOAD_FILE_TYPES',
                 )}
                 multi={true}
                 delimiter=","
@@ -429,7 +432,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'WIDGETS_UPLOAD_FILE_TYPES'
+                  'WIDGETS_UPLOAD_FILE_TYPES',
                 )}
                 multi={true}
                 delimiter=","
@@ -446,7 +449,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 clearable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'UPLOAD_SERVICE_TYPE'
+                  'UPLOAD_SERVICE_TYPE',
                 )}
               /> */}
             </FormGroup>
@@ -460,7 +463,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 searchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'FILE_SYSTEM_PUBLIC'
+                  'FILE_SYSTEM_PUBLIC',
                 )}
               /> */}
             </FormGroup>
@@ -621,14 +624,14 @@ class GeneralSettings extends React.Component<Props, State> {
             {/* <Select
               options={[
                 { label: 'SES', value: 'SES' },
-                { label: 'Custom', value: 'custom' }
+                { label: 'Custom', value: 'custom' },
               ]}
               value={configsMap.DEFAULT_EMAIL_SERVICE || 'SES'}
               clearable={false}
               searchable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
-                'DEFAULT_EMAIL_SERVICE'
+                'DEFAULT_EMAIL_SERVICE',
               )}
             /> */}
           </FormGroup>
@@ -676,7 +679,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 searchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'NOTIFICATION_DATA_RETENTION'
+                  'NOTIFICATION_DATA_RETENTION',
                 )}
               /> */}
             </FormGroup>
@@ -689,7 +692,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 searchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'LOG_DATA_RETENTION'
+                  'LOG_DATA_RETENTION',
                 )}
               /> */}
             </FormGroup>

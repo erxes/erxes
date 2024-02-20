@@ -1,15 +1,22 @@
-import { gql } from '@apollo/client';
-import { Bulk, Alert, router } from '@erxes/ui/src';
+import { Alert, Bulk, router } from '@erxes/ui/src';
+import {
+  ListQueryVariables,
+  MainQueryResponse,
+  RemoveMutationResponse,
+  RemoveMutationVariables,
+} from '../types';
 import React, { useState } from 'react';
-import ContractList from '../components/list/ContractsList';
 import { mutations, queries } from '../graphql';
-import queryString from 'query-string';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
+import { useMutation, useQuery } from '@apollo/client';
+
+import ContractList from '../components/list/ContractsList';
 import { FILTER_PARAMS_CONTRACT } from '../../constants';
-import { useQuery, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
+import queryString from 'query-string';
 
 type Props = {
   queryParams: any;
+  isDeposit: boolean;
   history: any;
 };
 

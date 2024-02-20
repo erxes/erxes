@@ -2,6 +2,7 @@ import ActivityItem from './ActivityItem';
 import { IContractDoc } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';
+import PolarisData from '../polaris';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import ScheduleSection from '../schedules/ScheduleSection';

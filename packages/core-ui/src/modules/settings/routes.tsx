@@ -8,6 +8,7 @@ import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
 import React from 'react';
 import TeamRoutes from './team/routes';
+import PlanRoutes from '../saas/settings/plans/routes';
 
 const SettingsRoute = () => (
   <>
@@ -19,6 +20,7 @@ const SettingsRoute = () => (
     <ImportHistory key="ImportHistory" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
+    <PlanRoutes key="Plan" />
     <MarketplaceRoutes key="Store" />
   </>
 );

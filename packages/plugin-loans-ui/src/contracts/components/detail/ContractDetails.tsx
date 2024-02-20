@@ -1,22 +1,24 @@
+import { IContractDoc, IInvoice } from '../../types';
+import React, { useEffect, useState } from 'react';
+
 import ActivityItem from './ActivityItem';
 import CollateralsSection from './CollateralsSection';
-import { IContractDoc, IInvoice } from '../../types';
 import { IProduct } from '@erxes/ui-products/src/types';
+import { ITransaction } from '../../../transactions/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import InvoiceList from '../invoices/InvoiceList';
+import { LEASE_TYPES } from '../../../contractTypes/constants';
 import LeftSidebar from './LeftSidebar';
-import React, { useEffect, useState } from 'react';
+import PolarisData from '../polaris';
 import RightSidebar from './RightSidebar';
 import ScheduleSection from '../schedules/ScheduleSection';
+import StoreInterestSection from '../storeInterest/StoreInterestSection';
+import { Tabs } from '../list/ContractForm';
+import TransactionSection from '../transaction/TransactionSection';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { LEASE_TYPES } from '../../../contractTypes/constants';
-import { Tabs } from '../list/ContractForm';
-import InvoiceList from '../invoices/InvoiceList';
-import StoreInterestSection from '../storeInterest/StoreInterestSection';
-import TransactionSection from '../transaction/TransactionSection';
-import { ITransaction } from '../../../transactions/types';
 
 const ActivityInputs = asyncComponent(
   () =>

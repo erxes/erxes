@@ -2,9 +2,6 @@
 
 import dynamic from "next/dynamic"
 
-const RightSideBar = dynamic(
-  () => import("@/modules/feed/component/RightSideBar")
-)
 const PostItem = dynamic(() => import("@/modules/feed/component/PostItem"))
 const EventItem = dynamic(() => import("@/modules/feed/component/EventItem"))
 
@@ -25,8 +22,7 @@ export default function Detail() {
   return (
     <>
       <div className="flex h-full w-[calc(100%-230px)] flex-col">
-        <div className="h-[65px] border-b border-[#eee] shrink-0" />
-        <div className="bg-[#F8F9FA] h-full px-[25px]">
+        <div className="h-full px-[25px] pt-4">
           {renderDetail()}
         </div>
       </div>

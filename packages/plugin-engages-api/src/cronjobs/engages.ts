@@ -3,19 +3,27 @@ import { CAMPAIGN_KINDS } from '../constants';
 import { send } from '../engageUtils';
 import { IEngageMessageDocument } from '../models/definitions/engages';
 import { debugEngages, debugError } from '../debuggers';
+import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
+import { getEnv } from '@erxes/api-utils/src';
+
+interface IParams {
+  callback1: any;
+  callback2?: any;
+  action: string;
+}
 
 const findMessages = (models: IModels, selector = {}) => {
   return models.EngageMessages.find({
     kind: { $in: [CAMPAIGN_KINDS.AUTO, CAMPAIGN_KINDS.VISITOR_AUTO] },
     isLive: true,
-    ...selector
+    ...selector,
   });
 };
 
 const runJobs = async (
   models: IModels,
   subdomain: string,
-  messages: IEngageMessageDocument[]
+  messages: IEngageMessageDocument[],
 ) => {
   for (const message of messages) {
     try {
@@ -23,11 +31,11 @@ const runJobs = async (
 
       await models.EngageMessages.updateMany(
         { _id: message._id },
-        { $set: { lastRunAt: new Date() } }
+        { $set: { lastRunAt: new Date() } },
       );
     } catch (e) {
       debugError(
-        `Error occurred when sending campaign "${message.title}" with id ${message._id}`
+        `Error occurred when sending campaign "${message.title}" with id ${message._id}`,
       );
     }
   }
@@ -36,7 +44,7 @@ const runJobs = async (
 const checkEveryMinuteJobs = async (subdomain: string) => {
   const models = await generateModels(subdomain);
   const messages = await findMessages(models, {
-    'scheduleDate.type': 'minute'
+    'scheduleDate.type': 'minute',
   });
 
   await runJobs(models, subdomain, messages);
@@ -66,7 +74,7 @@ const checkDayJobs = async (subdomain: string) => {
   const models = await generateModels(subdomain);
   // every day messages ===========
   const everyDayMessages = await findMessages(models, {
-    'scheduleDate.type': 'day'
+    'scheduleDate.type': 'day',
   });
   await runJobs(models, subdomain, everyDayMessages);
 
@@ -79,7 +87,7 @@ const checkDayJobs = async (subdomain: string) => {
 
   // every nth day messages =======
   const everyNthDayMessages = await findMessages(models, {
-    'scheduleDate.type': day.toString()
+    'scheduleDate.type': day.toString(),
   });
   await runJobs(models, subdomain, everyNthDayMessages);
 
@@ -87,10 +95,10 @@ const checkDayJobs = async (subdomain: string) => {
 
   // every month messages ========
   let everyMonthMessages = await findMessages(models, {
-    'scheduleDate.type': 'month'
+    'scheduleDate.type': 'month',
   });
 
-  everyMonthMessages = everyMonthMessages.filter(message => {
+  everyMonthMessages = everyMonthMessages.filter((message) => {
     const { lastRunAt, scheduleDate } = message;
 
     if (!lastRunAt) {
@@ -111,10 +119,10 @@ const checkDayJobs = async (subdomain: string) => {
 
   // every year messages ========
   let everyYearMessages = await findMessages(models, {
-    'scheduleDate.type': 'year'
+    'scheduleDate.type': 'year',
   });
 
-  everyYearMessages = everyYearMessages.filter(message => {
+  everyYearMessages = everyYearMessages.filter((message) => {
     const { lastRunAt, scheduleDate } = message;
 
     if (!lastRunAt) {
@@ -138,15 +146,52 @@ const checkDayJobs = async (subdomain: string) => {
   await runJobs(models, subdomain, everyYearMessages);
 };
 
-export default {
-  handleMinutelyJob: async ({ subdomain }) => {
-    await checkEveryMinuteJobs(subdomain);
-    await checkPreScheduledJobs(subdomain);
-  },
-  handleHourlyJob: async ({ subdomain }) => {
-    await checkHourMinuteJobs(subdomain);
-  },
-  handleDailyJob: async ({ subdomain }) => {
-    await checkDayJobs(subdomain);
+const loopOrganizations = async ({ callback1, callback2, action }: IParams) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    const organizations = await getOrganizations();
+
+    for (const org of organizations) {
+      console.log(
+        `Running cron for organization [${org.subdomain}]: ${action}`,
+      );
+
+      if (callback1) {
+        await callback1(org.subdomain);
+      }
+      if (callback2) {
+        await callback2(org.subdomain);
+      }
+    }
+  } else {
+    if (callback1) {
+      await callback1('os');
+    }
+    if (callback2) {
+      await callback2('os');
+    }
   }
+};
+
+export default {
+  handleMinutelyJob: async ({ data }) => {
+    await loopOrganizations({
+      callback1: checkEveryMinuteJobs,
+      callback2: checkPreScheduledJobs,
+      action: data && data.action,
+    });
+  },
+  handleHourlyJob: async ({ data }) => {
+    await loopOrganizations({
+      callback1: checkHourMinuteJobs,
+      action: data && data.action,
+    });
+  },
+  handleDailyJob: async ({ data }) => {
+    await loopOrganizations({
+      callback1: checkDayJobs,
+      action: data && data.action,
+    });
+  },
 };

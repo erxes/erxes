@@ -6,12 +6,16 @@ import {
 } from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
 
-import AuthRoutes from './modules/auth/routes';
+import AccountSuspended from 'modules/saas/limit/AccountSuspend';
 import { IUser } from './modules/auth/types';
+import OSAuthRoutes from './modules/auth/routes';
+import OnboardingRoutes from './modules/saas/onBoarding/routes';
 import React from 'react';
+import SAASAuthRoutes from './modules/saas/auth/routes';
 import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import { getVersion } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
@@ -19,6 +23,13 @@ const MainLayout = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
+    ),
+);
+
+const OnboardingLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "OnboardingLayout" */ 'modules/saas/onBoarding/container/OnboardingLayout'
     ),
 );
 
@@ -57,7 +68,33 @@ const renderRoutes = (currentUser) => {
     sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
+  const { VERSION } = getVersion();
+
   if (currentUser) {
+    if (VERSION && VERSION === 'saas') {
+      const currentOrganization = currentUser.currentOrganization;
+
+      if (currentOrganization) {
+        if (!currentOrganization.onboardingDone) {
+          return (
+            <OnboardingLayout>
+              <OnboardingRoutes currentUser={currentUser} />
+            </OnboardingLayout>
+          );
+        }
+
+        if (!currentOrganization.contactRemaining) {
+          return (
+            <>
+              <MainLayout currentUser={currentUser}>
+                <AccountSuspended />;
+              </MainLayout>
+            </>
+          );
+        }
+      }
+    }
+
     return (
       <>
         <MainLayout currentUser={currentUser}>
@@ -86,13 +123,12 @@ const renderRoutes = (currentUser) => {
           element={<UserConfirmationComponent />}
         />
       </BrowserRoutes>
-      <AuthRoutes />
+      {VERSION && VERSION === 'saas' ? <SAASAuthRoutes /> : <OSAuthRoutes />}
     </>
   );
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => {
-  console.log('currentUser', currentUser);
   return (
     <Router>
       <BrowserRoutes>

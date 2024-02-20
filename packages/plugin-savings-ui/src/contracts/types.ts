@@ -46,6 +46,7 @@ export interface IContract {
   expiredDays?: any;
   interestNounce?: any;
   customFieldsData?: any;
+  isDeposit?: boolean;
 }
 
 export interface IContractDoc extends IContract {
