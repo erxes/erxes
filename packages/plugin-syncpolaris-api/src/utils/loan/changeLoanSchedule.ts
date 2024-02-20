@@ -1,11 +1,13 @@
-import { fetchPolaris } from '../utils';
+import { fetchPolaris, getLoanContract } from '../utils';
 
-export const createChangeLoanAmount = async (subdomain, params) => {
+export const changeLoanSchedule = async (subdomain, params) => {
+  const loanContract = await getLoanContract(subdomain, params.contractId);
+
   const sendData = [
     {},
-    params.number,
+    loanContract.number,
     params.leaseAmount,
-    `change loan amount ${params.description}`,
+    params.description,
     null,
   ];
 
