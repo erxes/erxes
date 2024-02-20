@@ -50,6 +50,7 @@ import dashboards from './dashboards';
 import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN, CLIENT_PORTAL_DOMAINS } =
   process.env;
@@ -270,7 +271,9 @@ app.get('/dashboard', async (req, res) => {
 app.get('/get-import-file/:fileName', async (req, res) => {
   const fileName = req.params.fileName;
 
-  const filePath = path.join(uploadsFolderPath, fileName);
+  const sanitizeFileName = sanitizeFilename(fileName);
+
+  const filePath = path.join(uploadsFolderPath, sanitizeFileName);
 
   res.sendFile(filePath);
 });
