@@ -26,8 +26,8 @@ function CollateralsInfo(props: IProps) {
         </tr>
       </thead>
       <tbody id="schedules">
-        {data?.getPolarisData?.map((row, index) => (
-          <tr key={`depositTr${index}`}>
+        {data?.getPolarisData?.map((row) => (
+          <tr key={`collateral${row.acntName}`}>
             <td>{row.useCurCode}</td>
             <td>{row.mainAmount}</td>
             <td>{row.acntName}</td>
