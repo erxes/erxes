@@ -3,7 +3,7 @@ name: EXM WEB CI
 on:
   push:
     branches:
-      - dev
+      - merge-xos
       - master
       - staging
       - exm-improve
@@ -13,7 +13,7 @@ on:
 
   pull_request:
     branches:
-      - dev
+      - merge-xos
       - master
       - staging
       - exm-improve
@@ -41,7 +41,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/exm-improve')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/merge-xos' || github.ref == 'refs/heads/exm-improve')
         run: |
           cd exm-web
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

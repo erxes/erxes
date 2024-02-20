@@ -39,6 +39,33 @@ export const types = `
     ${commonDetailFields}
   }
 
+  type CookieOrganization {
+    subdomain: String
+    name: String
+  }
+  
+  type Organization {
+    name: String
+    icon: String
+    subdomain: String
+    promoCodes: [String]
+    isPaid: Boolean
+    expiryDate: Date
+    plan: String
+    purchased: Int
+    isWhiteLabel: Boolean
+    setupService: JSON
+    onboardingDone: Boolean
+    contactRemaining: Boolean
+    experienceName: String
+    bundleNames: [String]
+  
+    charge: JSON
+    createdAt: Date
+    category: String
+  }
+
+
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     createdAt: Date
@@ -50,6 +77,10 @@ export const types = `
     status: String
     emailSignatures: JSON
     getNotificationByEmail: Boolean
+
+    currentOrganization: Organization
+    organizations: [CookieOrganization]
+    
     groupIds: [String]
     brandIds: [String]
     isSubscribed: String
@@ -150,4 +181,8 @@ export const mutations = `
   usersSeenOnBoard: User
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
+  editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
+  editOrganizationDomain(type: String, domain: String): Organization
+  loginWithGoogle: String
+  loginWithMagicLink(email: String!): String
  `;
