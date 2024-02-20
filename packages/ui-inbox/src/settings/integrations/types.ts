@@ -1,7 +1,7 @@
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData
+  IWebhookData,
 } from '@erxes/ui-leads/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
@@ -279,6 +279,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: any[];
   isActive?: boolean;
+  isConnected?: boolean;
   healthStatus?: IIntegartionHealthStatus;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];

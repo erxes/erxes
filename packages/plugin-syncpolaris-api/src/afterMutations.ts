@@ -43,6 +43,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   const preSuccessValue = await models.SyncLogs.findOne({
     contentType: type,
+    contentId: params.object._id,
     error: { $exists: false },
     responseData: { $exists: true, $ne: null },
   });
@@ -77,12 +78,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         );
         break;
       case 'savings:transaction':
-        response = await savingsTransactionMethod(
-          action,
-          preSuccessValue,
-          subdomain,
-          params,
-        );
+        response = await savingsTransactionMethod(subdomain, params);
         break;
       case 'loans:contract':
         response = await loansContractMethod(
@@ -106,7 +102,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
       },
     );
   } catch (e) {
-    console.log('e', e);
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },
@@ -137,12 +132,7 @@ async function savingContractMethod(
   }
 }
 
-async function savingsTransactionMethod(
-  action,
-  preSuccessValue,
-  subdomain,
-  params,
-) {
+async function savingsTransactionMethod(subdomain, params) {
   if (params.object.transactionType === 'income') {
     return await incomeSaving(subdomain, params);
   } else if (params.object.transactionType === 'outcome')
@@ -156,10 +146,10 @@ async function loansContractMethod(action, preSuccessValue, subdomain, params) {
 }
 
 async function loansTransactionMethod(subdomain, params) {
-  if (params.object.transactionType === 'income') {
-    return await createLoanRepayment(subdomain, params);
-  } else if (params.object.transactionType === 'outcome')
-    return await createLoanGive(subdomain, params);
+  if (params.object.transactionType === 'repayment') {
+    return await createLoanRepayment(subdomain, params.object);
+  } else if (params.object.transactionType === 'give')
+    return await createLoanGive(subdomain, params.object);
 }
 
 export default allowTypes;
