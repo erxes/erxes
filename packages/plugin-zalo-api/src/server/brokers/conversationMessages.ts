@@ -166,6 +166,7 @@ export const conversationMessagesBroker = () => {
           data: localMessage.toObject(),
         };
 
+        // FIXME: Cannot set properties of null (setting 'status')
         response.status = 'success';
       } catch (e) {
         response = {
