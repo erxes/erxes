@@ -27,6 +27,7 @@ export interface IFeed {
   branchIds?: string[];
   unitId?: string;
   category?: string;
+  background?: any;
 }
 export interface IFeedDocument extends IFeed, Document {
   _id: string;
@@ -51,17 +52,18 @@ const attachmentSchema = schemaHooksWrapper(
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
-    size: field({ type: Number, optional: true })
+    color: field({ type: String, optional: true }),
+    size: field({ type: Number, optional: true }),
   }),
-  'erxes_attachmentSchema'
+  'erxes_attachmentSchema',
 );
 
 const customFieldSchema = schemaHooksWrapper(
   new Schema({
     field: field({ type: String }),
-    value: field({ type: JSON })
+    value: field({ type: JSON }),
   }),
-  'erxes_customFieldSchema'
+  'erxes_customFieldSchema',
 );
 
 const ceremonyDataSchema = schemaHooksWrapper(
@@ -69,9 +71,9 @@ const ceremonyDataSchema = schemaHooksWrapper(
     startedDate: field({ type: Date, label: 'Date to start working' }),
     willDate: field({ type: Date, label: 'Ceremony date' }),
     howManyYear: field({ type: Number, label: 'How many years' }),
-    year: field({ type: Number, label: 'Ceremony year' })
+    year: field({ type: Number, label: 'Ceremony year' }),
   }),
-  'erxes_ceremonyDataSchema'
+  'erxes_ceremonyDataSchema',
 );
 
 const eventDataSchema = schemaHooksWrapper(
@@ -81,9 +83,9 @@ const eventDataSchema = schemaHooksWrapper(
     startDate: field({ type: Date }),
     endDate: field({ type: Date }),
     interestedUserIds: field({ type: [String] }),
-    goingUserIds: field({ type: [String] })
+    goingUserIds: field({ type: [String] }),
   }),
-  'erxes_eventDataSchema'
+  'erxes_eventDataSchema',
 );
 
 export const FEED_CONTENT_TYPES = {
@@ -101,8 +103,8 @@ export const FEED_CONTENT_TYPES = {
     'birthday',
     'workAnniversary',
     'publicHoliday',
-    'welcome'
-  ]
+    'welcome',
+  ],
 };
 
 export const feedSchema = schemaHooksWrapper(
@@ -113,7 +115,7 @@ export const feedSchema = schemaHooksWrapper(
     images: field({ type: [attachmentSchema], label: 'Images' }),
     attachments: field({
       type: [attachmentSchema],
-      label: 'Attachments'
+      label: 'Attachments',
     }),
     isPinned: field({ type: Boolean }),
     contentType: field({ type: String, enum: FEED_CONTENT_TYPES.ALL }),
@@ -121,7 +123,7 @@ export const feedSchema = schemaHooksWrapper(
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
-      label: 'Custom fields data'
+      label: 'Custom fields data',
     }),
     departmentIds: field({ type: [String], label: 'Department Ids' }),
     department: field({ type: String, label: 'Department' }),
@@ -135,9 +137,13 @@ export const feedSchema = schemaHooksWrapper(
     createdBy: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     updatedBy: field({ type: String, label: 'Updated by' }),
-    updatedAt: field({ type: Date, label: 'Updated at' })
+    updatedAt: field({ type: Date, label: 'Updated at' }),
+    background: field({
+      type: attachmentSchema,
+      label: 'Background ( image / color code )',
+    }),
   }),
-  'erxes_feedSchema'
+  'erxes_feedSchema',
 );
 
 export const thankSchema = schemaHooksWrapper(
@@ -148,7 +154,7 @@ export const thankSchema = schemaHooksWrapper(
     createdBy: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     updatedBy: field({ type: String, label: 'Updated by' }),
-    updatedAt: field({ type: Date, label: 'Updated at' })
+    updatedAt: field({ type: Date, label: 'Updated at' }),
   }),
-  'erxes_thankSchema'
+  'erxes_thankSchema',
 );

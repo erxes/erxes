@@ -2,7 +2,7 @@ import {
   HeaderContent,
   HeaderContentSmall,
   HeaderRow,
-  TitleRow
+  TitleRow,
 } from '../../styles/item';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -56,7 +56,7 @@ function Top(props: Props) {
     saveItem({ [key]: value });
   };
 
-  const onChangeName = e => {
+  const onChangeName = (e) => {
     const itemName = (e.target as HTMLInputElement).value;
 
     setName(itemName);
@@ -123,6 +123,8 @@ function Top(props: Props) {
         <CloseDate
           onChangeField={onCloseDateFieldsChange}
           closeDate={item.closeDate}
+          isCheckDate={item.pipeline.isCheckDate}
+          createdDate={item.createdAt}
           reminderMinute={item.reminderMinute}
           isComplete={item.isComplete}
         />

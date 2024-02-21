@@ -1,7 +1,7 @@
 import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import React, { useEffect, useState } from 'react';
 
@@ -24,16 +24,16 @@ export const RichTextEditorColorControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [pickerColor, setPickerColor] = useState(colors.colorPrimary);
-  const [color, setColor] = useState(colors.colorPrimary);
+  const [color, setColor] = useState('');
 
   const { editor, labels } = useRichTextEditorContext();
 
   useEffect(() => {
-    editor
-      ?.chain()
-      .focus()
-      .setColor(color)
-      .run();
+    if (!color) {
+      editor?.chain().focus().unsetColor().run();
+    } else {
+      editor?.chain().focus().setColor(color).run();
+    }
   }, [color]);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export const RichTextEditorColorControl = () => {
       : [];
 
     const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs.map(
-      attrs => attrs.color
+      (attrs) => attrs.color,
     );
 
     const numUniqueSelectionTextColors = new Set(currentSelectionTextColors)
@@ -62,11 +62,7 @@ export const RichTextEditorColorControl = () => {
   };
 
   const handleClear = () => {
-    editor
-      ?.chain()
-      .focus()
-      .unsetColor()
-      .run();
+    editor?.chain().focus().unsetColor().run();
     overLayRef.hide();
   };
 
@@ -92,7 +88,7 @@ export const RichTextEditorColorControl = () => {
     : [];
 
   const currentTextColors: string[] = allCurrentTextStyleAttrs.map(
-    attrs => attrs.color
+    (attrs) => attrs.color,
   );
 
   const numUniqueCurrentTextColors = new Set(currentTextColors).size;
@@ -151,7 +147,7 @@ export const RichTextEditorColorControl = () => {
 
   return (
     <OverlayTrigger
-      ref={overlayTrigger => {
+      ref={(overlayTrigger) => {
         overLayRef = overlayTrigger;
       }}
       trigger="click"

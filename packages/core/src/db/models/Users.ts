@@ -29,6 +29,7 @@ const SALT_WORK_FACTOR = 10;
 interface IEditProfile {
   username?: string;
   email?: string;
+  chatStatus?: string;
   details?: IDetail;
   links?: ILink;
   employeeId?: string;
