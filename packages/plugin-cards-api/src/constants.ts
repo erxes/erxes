@@ -2,20 +2,20 @@ import {
   attachmentSchema,
   boardSchema,
   stageSchema as boardStageSchema,
-  pipelineSchema
+  pipelineSchema,
 } from './models/definitions/boards';
 import {
   checklistItemSchema,
-  checklistSchema
+  checklistSchema,
 } from './models/definitions/checklists';
 import { dealSchema, productDataSchema } from './models/definitions/deals';
 import {
   purchaseSchema,
-  purchaseproductDataSchema
+  purchaseproductDataSchema,
 } from './models/definitions/purchases';
 import {
   pipelineTemplateSchema,
-  stageSchema
+  stageSchema,
 } from './models/definitions/pipelineTemplates';
 
 import { growthHackSchema } from './models/definitions/growthHacks';
@@ -27,23 +27,23 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Deal',
     contentType: 'deal',
-    icon: 'signal-alt-3'
+    icon: 'signal-alt-3',
   },
   {
     text: 'Purchase',
     contentTypeL: 'purchase',
-    icon: 'signal-alt-3'
+    icon: 'signal-alt-3',
   },
   {
     text: 'Task',
     contentType: 'task',
-    icon: 'laptop'
+    icon: 'laptop',
   },
   {
     text: 'Ticket',
     contentType: 'ticket',
-    icon: 'ticket'
-  }
+    icon: 'ticket',
+  },
 ];
 export const PRIORITIES = {
   CRITICAL: 'Critical',
@@ -53,12 +53,12 @@ export const PRIORITIES = {
   ALL: [
     {
       name: 'Critical',
-      color: '#EA475D'
+      color: '#EA475D',
     },
     { name: 'High', color: '#F7CE53' },
     { name: 'Normal', color: '#3B85F4' },
-    { name: 'Low', color: '#AAAEB3' }
-  ]
+    { name: 'Low', color: '#AAAEB3' },
+  ],
 };
 
 export const CLOSE_DATE_TYPES = {
@@ -70,25 +70,25 @@ export const CLOSE_DATE_TYPES = {
   ALL: [
     {
       name: 'Next day',
-      value: 'nextDay'
+      value: 'nextDay',
     },
     {
       name: 'Next week',
-      value: 'nextWeek'
+      value: 'nextWeek',
     },
     {
       name: 'Next month',
-      value: 'nextMonth'
+      value: 'nextMonth',
     },
     {
       name: 'No close date',
-      value: 'noCloseDate'
+      value: 'noCloseDate',
     },
     {
       name: 'Over due',
-      value: 'overdue'
-    }
-  ]
+      value: 'overdue',
+    },
+  ],
 };
 
 export const BOARD_ITEM_EXTENDED_FIELDS = [
@@ -96,38 +96,38 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     _id: Math.random(),
     name: 'boardName',
     label: 'Board name',
-    type: 'string'
+    type: 'string',
   },
   {
     _id: Math.random(),
     name: 'pipelineName',
     label: 'Pipeline name',
-    type: 'string'
+    type: 'string',
   },
   {
     _id: Math.random(),
     name: 'stageName',
     label: 'Stage name',
-    type: 'string'
+    type: 'string',
   },
   {
     _id: Math.random(),
     name: 'assignedUserEmail',
     label: 'Assigned user email',
-    type: 'string'
+    type: 'string',
   },
   {
     _id: Math.random(),
     name: 'labelIds',
     label: 'Label',
-    type: 'string'
+    type: 'string',
   },
   {
     _id: Math.random(),
     name: 'totalAmount',
     label: 'Total Amount',
-    type: 'number'
-  }
+    type: 'number',
+  },
 ];
 
 export const BOARD_ITEM_EXPORT_EXTENDED_FIELDS = [
@@ -135,20 +135,26 @@ export const BOARD_ITEM_EXPORT_EXTENDED_FIELDS = [
     _id: Math.random(),
     name: 'totalAmount',
     label: 'Total Amount',
-    type: 'number'
+    type: 'number',
   },
   {
     _id: Math.random(),
     name: 'totalLabelCount',
     label: 'Total Label Counts',
-    type: 'number'
+    type: 'number',
   },
   {
     _id: Math.random(),
     name: 'stageMovedUser',
     label: 'Stage Moved User',
-    type: 'string'
-  }
+    type: 'string',
+  },
+  {
+    _id: Math.random(),
+    name: 'internalNotes',
+    label: 'Internal Notes',
+    type: 'string',
+  },
 ];
 
 export const BOARD_BASIC_INFOS = [
@@ -167,7 +173,7 @@ export const BOARD_BASIC_INFOS = [
   'initialStageId',
   'modifiedAt',
   'modifiedBy',
-  'priority'
+  'priority',
 ];
 
 export const MODULE_NAMES = {
@@ -195,7 +201,7 @@ export const MODULE_NAMES = {
   TASK: 'task',
   PIPELINE_LABEL: 'pipelineLabel',
   PIPELINE_TEMPLATE: 'pipelineTemplate',
-  GROWTH_HACK: 'growthHack'
+  GROWTH_HACK: 'growthHack',
 };
 
 interface ISchemaMap {
@@ -206,92 +212,92 @@ interface ISchemaMap {
 export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema]
+    schemas: [attachmentSchema, boardSchema],
   },
   {
     name: MODULE_NAMES.BOARD_PURCHASE,
-    schemas: [attachmentSchema, boardSchema]
+    schemas: [attachmentSchema, boardSchema],
   },
   {
     name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema]
+    schemas: [attachmentSchema, boardSchema],
   },
   {
     name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema]
+    schemas: [attachmentSchema, boardSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema]
+    schemas: [pipelineSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_PURCHASE,
-    schemas: [pipelineSchema]
+    schemas: [pipelineSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema]
+    schemas: [pipelineSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_TICKET,
-    schemas: [pipelineSchema]
+    schemas: [pipelineSchema],
   },
   {
     name: MODULE_NAMES.CHECKLIST,
-    schemas: [checklistSchema]
+    schemas: [checklistSchema],
   },
   {
     name: MODULE_NAMES.CHECKLIST_ITEM,
-    schemas: [checklistItemSchema]
+    schemas: [checklistItemSchema],
   },
   {
     name: MODULE_NAMES.DEAL,
-    schemas: [dealSchema, productDataSchema]
+    schemas: [dealSchema, productDataSchema],
   },
   {
     name: MODULE_NAMES.PURCHASE,
-    schemas: [purchaseSchema, purchaseproductDataSchema]
+    schemas: [purchaseSchema, purchaseproductDataSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_LABEL,
-    schemas: [pipelineLabelSchema]
+    schemas: [pipelineLabelSchema],
   },
   {
     name: MODULE_NAMES.PIPELINE_TEMPLATE,
-    schemas: [pipelineTemplateSchema, stageSchema]
+    schemas: [pipelineTemplateSchema, stageSchema],
   },
   {
     name: MODULE_NAMES.TASK,
-    schemas: [taskSchema, attachmentSchema]
+    schemas: [taskSchema, attachmentSchema],
   },
   {
     name: MODULE_NAMES.GROWTH_HACK,
-    schemas: [growthHackSchema, attachmentSchema]
+    schemas: [growthHackSchema, attachmentSchema],
   },
   {
     name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, attachmentSchema]
+    schemas: [ticketSchema, attachmentSchema],
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema]
+    schemas: [boardStageSchema],
   },
   {
     name: MODULE_NAMES.STAGE_PURCHASE,
-    schemas: [boardStageSchema]
+    schemas: [boardStageSchema],
   },
   {
     name: MODULE_NAMES.STAGE_TASK,
-    schemas: [boardStageSchema]
+    schemas: [boardStageSchema],
   },
   {
     name: MODULE_NAMES.STAGE_TICKET,
-    schemas: [boardStageSchema]
+    schemas: [boardStageSchema],
   },
   {
     name: MODULE_NAMES.STAGE_GH,
-    schemas: [boardStageSchema]
-  }
+    schemas: [boardStageSchema],
+  },
 ];
 
 export const CARD_PROPERTIES_INFO = {
@@ -304,7 +310,7 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'select',
-      options: ['Critical', 'High', 'Normal', 'Low']
+      options: ['Critical', 'High', 'Normal', 'Low'],
     },
     {
       label: 'Label',
@@ -312,21 +318,21 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'select',
-      options: []
+      options: [],
     },
     {
       label: 'Start date',
       field: 'startDate',
       canHide: false,
       validation: 'date',
-      type: 'input'
+      type: 'input',
     },
     {
       label: 'Close date',
       field: 'closeDate',
       canHide: false,
       validation: 'date',
-      type: 'input'
+      type: 'input',
     },
     {
       label: 'Assigned to',
@@ -334,20 +340,20 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'select',
-      options: []
+      options: [],
     },
     {
       label: 'Attachments',
       field: 'attachments',
       canHide: false,
-      type: 'file'
+      type: 'file',
     },
     {
       label: 'Description',
       field: 'description',
       canHide: false,
       validation: null,
-      type: 'textarea'
+      type: 'textarea',
     },
     {
       label: 'Branches',
@@ -355,7 +361,7 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'select',
-      options: []
+      options: [],
     },
     {
       label: 'Departments',
@@ -363,9 +369,9 @@ export const CARD_PROPERTIES_INFO = {
       canHide: false,
       validation: null,
       type: 'select',
-      options: []
-    }
-  ]
+      options: [],
+    },
+  ],
 };
 
 export const NOTIFICATION_MODULES = [
@@ -376,29 +382,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'dealAdd',
-        text: 'Assigned a new deal  card'
+        text: 'Assigned a new deal  card',
       },
       {
         name: 'dealRemoveAssign',
-        text: 'Removed from the deal card'
+        text: 'Removed from the deal card',
       },
       {
         name: 'dealEdit',
-        text: 'Deal card edited'
+        text: 'Deal card edited',
       },
       {
         name: 'dealChange',
-        text: 'Moved between stages'
+        text: 'Moved between stages',
       },
       {
         name: 'dealDueDate',
-        text: 'Due date is near'
+        text: 'Due date is near',
       },
       {
         name: 'dealDelete',
-        text: 'Deal card deleted'
-      }
-    ]
+        text: 'Deal card deleted',
+      },
+    ],
   },
 
   {
@@ -408,29 +414,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'purchaseAdd',
-        text: 'Assigned a new purchase  card'
+        text: 'Assigned a new purchase  card',
       },
       {
         name: 'purchaseRemoveAssign',
-        text: 'Removed from the purchase card'
+        text: 'Removed from the purchase card',
       },
       {
         name: 'purchaseEdit',
-        text: 'Purchase card edited'
+        text: 'Purchase card edited',
       },
       {
         name: 'purchaseChange',
-        text: 'Moved between stages'
+        text: 'Moved between stages',
       },
       {
         name: 'purchaseDueDate',
-        text: 'Due date is near'
+        text: 'Due date is near',
       },
       {
         name: 'purchaseDelete',
-        text: 'Purchase card deleted'
-      }
-    ]
+        text: 'Purchase card deleted',
+      },
+    ],
   },
 
   {
@@ -440,29 +446,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'ticketAdd',
-        text: 'Assigned a new ticket  card'
+        text: 'Assigned a new ticket  card',
       },
       {
         name: 'ticketRemoveAssign',
-        text: 'Removed from the ticket card'
+        text: 'Removed from the ticket card',
       },
       {
         name: 'ticketEdit',
-        text: 'Ticket card edited'
+        text: 'Ticket card edited',
       },
       {
         name: 'ticketChange',
-        text: 'Moved between stages'
+        text: 'Moved between stages',
       },
       {
         name: 'ticketDueDate',
-        text: 'Due date is near'
+        text: 'Due date is near',
       },
       {
         name: 'ticketDelete',
-        text: 'Ticket card deleted'
-      }
-    ]
+        text: 'Ticket card deleted',
+      },
+    ],
   },
 
   {
@@ -472,28 +478,28 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'taskAdd',
-        text: 'Assigned a new task  card'
+        text: 'Assigned a new task  card',
       },
       {
         name: 'taskRemoveAssign',
-        text: 'Removed from the task card'
+        text: 'Removed from the task card',
       },
       {
         name: 'taskEdit',
-        text: 'Task card edited'
+        text: 'Task card edited',
       },
       {
         name: 'taskChange',
-        text: 'Moved between stages'
+        text: 'Moved between stages',
       },
       {
         name: 'taskDueDate',
-        text: 'Due date is near'
+        text: 'Due date is near',
       },
       {
         name: 'taskDelete',
-        text: 'Task card deleted'
-      }
-    ]
-  }
+        text: 'Task card deleted',
+      },
+    ],
+  },
 ];

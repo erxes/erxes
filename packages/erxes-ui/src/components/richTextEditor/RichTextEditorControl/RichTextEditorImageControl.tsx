@@ -3,14 +3,14 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import {
   FileInputAction,
   FormItemWrapper,
   ImageHandlingForm,
   ImageInputWrapper,
-  Input
+  Input,
 } from './styles';
 import Icon from '../../Icon';
 import { readFile } from '../../../utils/core';
@@ -31,11 +31,11 @@ export type RichTextEditorLinkControlProps = {
 const INITIAL_FORM_STATE = {
   link: '',
   alt: '',
-  title: ''
+  title: '',
 };
 
 export const RichTextEditorImageControl = (
-  props: RichTextEditorLinkControlProps
+  props: RichTextEditorLinkControlProps,
 ) => {
   const { icon } = props;
   const ctx = useRichTextEditorContext();
@@ -43,7 +43,7 @@ export const RichTextEditorImageControl = (
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.persist();
-    setInputs(values => ({ ...values, [e.target.name]: e.target.value }));
+    setInputs((values) => ({ ...values, [e.target.name]: e.target.value }));
   };
 
   const setImage = () => {
@@ -55,7 +55,7 @@ export const RichTextEditorImageControl = (
         .setImage({
           src: inputs.link,
           ...(inputs.alt && { alt: inputs.alt }),
-          ...(inputs.title && { title: inputs.title })
+          ...(inputs.title && { title: inputs.title }),
         })
         .run();
     }
@@ -70,9 +70,9 @@ export const RichTextEditorImageControl = (
   };
 
   const onChangeAttachment = (attachments: IAttachment[]) => {
-    setInputs(values => ({
+    setInputs((values) => ({
       ...values,
-      link: readFile(attachments[0].url)
+      link: readFile(attachments[0].url),
     }));
   };
 
@@ -99,6 +99,7 @@ export const RichTextEditorImageControl = (
                 multiple={false}
                 showOnlyIcon={true}
                 noPreview={true}
+                hideUploadButtonOnLoad={true}
               />
             </FileInputAction>
           </ImageInputWrapper>
@@ -135,7 +136,7 @@ export const RichTextEditorImageControl = (
         btnStyle="success"
         type="button"
         icon="check-circle"
-        onClick={e => handleSubmit(e, closeModal)}
+        onClick={(e) => handleSubmit(e, closeModal)}
       >
         Save
       </Button>
@@ -144,7 +145,7 @@ export const RichTextEditorImageControl = (
 
   const renderContent = ({ closeModal }) => {
     return (
-      <ImageHandlingForm onSubmit={e => handleSubmit(e, closeModal)}>
+      <ImageHandlingForm onSubmit={(e) => handleSubmit(e, closeModal)}>
         {renderFormItem('link')}
         {renderFormItem('alt', 'Alternative description')}
         {renderFormItem('title', 'Image title')}
@@ -155,6 +156,7 @@ export const RichTextEditorImageControl = (
 
   return (
     <ModalTrigger
+      enforceFocus={false}
       title="Insert/ Edit Image"
       trigger={
         <RichTextEditorControlBase
