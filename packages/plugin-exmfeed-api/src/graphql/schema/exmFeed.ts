@@ -75,6 +75,11 @@ export const types = () => {
       totalCount: Int
     }
 
+    type ExmFeedEventsResponse{
+      goingEvents: [ExmFeed]
+      interestedEvents: [ExmFeed]
+    }
+
     enum SourceType {
       recipient
       createdByMe
@@ -127,7 +132,8 @@ export const queries = `
   exmFeed(contentTypes: [ContentType],category: String, isPinned: Boolean, type: SourceType, recipientType: RecipientType, title: String, limit: Int, skip: Int, startDate : String, endDate : String, bravoType : String, ${commonSelector}): ExmFeedResponse
   exmThanks(limit: Int, skip: Int, type: SourceType): ExmThankResponse
   exmFeedCeremonies(contentType: ContentType, filterType: FilterType): ExmFeedResponse
-`;
+  exmFeedEventsByUser(userId: String): ExmFeedEventsResponse
+  `;
 
 const feedCommonParams = `
   title: String!
