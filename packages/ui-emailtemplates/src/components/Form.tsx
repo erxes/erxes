@@ -63,6 +63,7 @@ const Form = (props: Props) => {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <RichTextEditor
+            height={300}
             content={content}
             onChange={onEditorChange}
             autoGrow={true}
