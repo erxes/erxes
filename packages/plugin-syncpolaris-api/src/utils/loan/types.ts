@@ -93,5 +93,4 @@ export interface IPolarisRepayment {
   isPreview: number;
   isPreviewFee: any;
   isTmw: number;
-  addParams: any;
 }

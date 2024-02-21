@@ -7,18 +7,18 @@ import {
   FormGroup,
   DateControl,
   Uploader,
-  DataWithLoader
+  DataWithLoader,
 } from '@erxes/ui/src/components';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleDateContainer as DateContainer
+  MainStyleDateContainer as DateContainer,
 } from '@erxes/ui/src/styles/eindex';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 import { IAssignmentCampaign } from '../types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
@@ -49,7 +49,7 @@ class CreateForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      assignmentCampaign: this.props.assignmentCampaign || {}
+      assignmentCampaign: this.props.assignmentCampaign || {},
     };
   }
 
@@ -67,7 +67,7 @@ class CreateForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      ...assignmentCampaign
+      ...assignmentCampaign,
     };
   };
 
@@ -75,8 +75,8 @@ class CreateForm extends React.Component<Props, State> {
     this.setState({
       assignmentCampaign: {
         ...this.state.assignmentCampaign,
-        description: content
-      }
+        description: content,
+      },
     });
   };
 
@@ -84,24 +84,24 @@ class CreateForm extends React.Component<Props, State> {
     this.setState({
       assignmentCampaign: {
         ...this.state.assignmentCampaign,
-        attachment: files.length ? files[0] : undefined
-      }
+        attachment: files.length ? files[0] : undefined,
+      },
     });
   };
 
   onDateInputChange = (type: string, date) => {
     this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [type]: date }
+      assignmentCampaign: { ...this.state.assignmentCampaign, [type]: date },
     });
   };
 
-  onInputChange = e => {
+  onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
     this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value }
+      assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value },
     });
   };
 
@@ -109,23 +109,23 @@ class CreateForm extends React.Component<Props, State> {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeVoucherCampaign = selected => {
+    const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
 
       this.setState({
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
-          voucherCampaignId: value
-        }
+          voucherCampaignId: value,
+        },
       });
     };
 
-    const onChangeSegments = segmentIds => {
+    const onChangeSegments = (segmentIds) => {
       this.setState({
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
-          segmentIds
-        }
+          segmentIds,
+        },
       });
     };
 
@@ -200,7 +200,7 @@ class CreateForm extends React.Component<Props, State> {
                   value={assignmentCampaign.finishDateOfUse}
                   onChange={this.onDateInputChange.bind(
                     this,
-                    'finishDateOfUse'
+                    'finishDateOfUse',
                   )}
                 />
               </DateContainer>
@@ -227,9 +227,9 @@ class CreateForm extends React.Component<Props, State> {
           <Select
             placeholder={__('Choose voucher campaign')}
             value={this.state.assignmentCampaign.voucherCampaignId}
-            options={this.props.voucherCampaigns.map(voucher => ({
+            options={this.props.voucherCampaigns.map((voucher) => ({
               label: `${voucher.title}`,
-              value: voucher._id
+              value: voucher._id,
             }))}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
@@ -252,7 +252,7 @@ class CreateForm extends React.Component<Props, State> {
               'link',
               'unlink',
               '|',
-              'image'
+              'image',
             ]}
           />
         </FormGroup>
@@ -283,7 +283,7 @@ class CreateForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
-            callback: onSave
+            callback: onSave,
           })}
         </FormFooter>
       </>
@@ -293,7 +293,7 @@ class CreateForm extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Assignment Campaign') }
+      { title: __('Assignment Campaign') },
     ];
 
     const content = (

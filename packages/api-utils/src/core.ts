@@ -6,19 +6,25 @@ import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 
 export const getEnv = ({
   name,
   defaultValue,
+  subdomain,
 }: {
   name: string;
-  subdomain?: string;
   defaultValue?: string;
+  subdomain?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name] || '';
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   return value || '';
@@ -341,11 +347,12 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 };
 
 export const getSubdomain = (req): string => {
-  const hostname = req.headers.hostname || req.hostname;
+  const hostname =
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
-const connectionOptions: mongoose.ConnectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -353,19 +360,55 @@ const connectionOptions: mongoose.ConnectionOptions = {
 };
 
 export const createGenerateModels = <IModels>(models, loadClasses) => {
-  return async (hostnameOrSubdomain: string): Promise<IModels> => {
-    if (models) {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION !== 'saas') {
+    return async (hostnameOrSubdomain: string): Promise<IModels> => {
+      if (models) {
+        return models;
+      }
+
+      const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+      const db = await mongoose.connect(MONGO_URL, connectionOptions);
+
+      models = loadClasses(db, hostnameOrSubdomain);
+
       return models;
-    }
+    };
+  } else {
+    return async (hostnameOrSubdomain: string = ''): Promise<IModels> => {
+      let subdomain: string = hostnameOrSubdomain;
 
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+      // means hostname
+      if (subdomain && subdomain.includes('.')) {
+        subdomain = getSubdomain(hostnameOrSubdomain);
+      }
 
-    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+      await getCoreConnection();
 
-    models = loadClasses(db, hostnameOrSubdomain);
+      const organization = await coreModelOrganizations.findOne({ subdomain });
 
-    return models;
-  };
+      if (!organization) return models;
+
+      const DB_NAME = getEnv({ name: 'DB_NAME' });
+      const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
+        '<organizationId>',
+        organization._id,
+      );
+
+      // @ts-ignore
+      const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
+        // so that conn.model method can use cache
+        useCache: true,
+        noListener: true,
+      });
+
+      models = await loadClasses(tenantCon, subdomain);
+
+      return models;
+    };
+  }
 };
 
 export const authCookieOptions = (options: any = {}) => {

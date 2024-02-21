@@ -18,7 +18,6 @@ const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
     JSON.parse(localStorage.getItem('config:call_integrations')),
   );
-
   const callInfo = JSON.parse(localStorage.getItem('callInfo'));
   const sessionCode = sessionStorage.getItem('sessioncode');
 
@@ -152,7 +151,7 @@ const SipProviderContainer = (props) => {
       (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
         isConnectCallRequested ||
         isConnectCallRequested === 'true') &&
-      !callInfo.isUnRegistered
+      !callInfo?.isUnRegistered
     ) {
       return (
         <ModalTrigger
