@@ -332,9 +332,9 @@ const ButtonRelated = styled.div`
   }
 `;
 
-const SimpleButton = styledTS<{ isActive?: boolean }>(styled.div)`
+const SimpleButton = styledTS<{ $isActive?: boolean }>(styled.div)`
   font-size: 15px;
-  background: ${(props) => props.isActive && colors.bgGray};
+  background: ${(props) => props.$isActive && colors.bgGray};
   width: 24px;
   height: 24px;
   line-height: 24px;

@@ -1,13 +1,16 @@
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import queryString from 'query-string';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * @param {Object} query
  */
-const setParams = (history: any, query: any, replace: boolean = false) => {
-  const navigate = useNavigate();
-  const location = Object.assign({}, history.location);
-
+const setParams = (
+  navigate: any,
+  location: any,
+  query: any,
+  replace: boolean = false,
+) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
@@ -24,7 +27,7 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
     });
   }
 
-  return history.push(`${location.pathname}?${stringified}${location.hash}`);
+  return navigate(`${location.pathname}?${stringified}${location.hash}`);
 };
 
 /**
@@ -102,11 +105,12 @@ export const generatePaginationParams = (queryParams: {
  * @param {Object}  history
  */
 const onParamSelect = (
+  navigate: any,
+  location: any,
   name: string,
   values: string[] | string,
-  history: any,
 ) => {
-  setParams(history, { [name]: values });
+  setParams(navigate, location, { [name]: values });
 };
 
 /**

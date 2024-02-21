@@ -100,7 +100,7 @@ const Add = styled.a`
   }
 `;
 
-const ExistingOrg = styled(Add.withComponent('div'))`
+const ExistingOrg = styled(Add)`
   padding: 10px 0 !important;
 `;
 

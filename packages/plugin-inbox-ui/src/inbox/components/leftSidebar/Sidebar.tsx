@@ -127,7 +127,7 @@ class LeftSidebar extends React.Component<Props, State> {
         <FlexCenter>
           <ToggleButton
             id="btn-inbox-channel-visible"
-            isActive={this.state.isOpen}
+            $isActive={this.state.isOpen}
             onClick={this.onToggleSidebar}
           >
             <Icon icon="subject" />
@@ -302,7 +302,7 @@ class LeftSidebar extends React.Component<Props, State> {
     } = this.props;
 
     return (
-      <LeftContent isOpen={this.state.isOpen}>
+      <LeftContent $isOpen={this.state.isOpen}>
         <InboxManagementActionConsumer>
           {({ refetchRequired }) => (
             <AdditionalSidebar>

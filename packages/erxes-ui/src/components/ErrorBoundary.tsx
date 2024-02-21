@@ -1,27 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-export default class ErrorBoundary extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
+const ErrorFallback = ({ error }: { error: Error | null }) => (
+  <p>Something went wrong. ({error?.message})</p>
+);
 
-  componentDidCatch(error, errorInfo) {
+const ErrorBoundary: React.FC<{ children: any; pluginName: string }> = ({
+  children,
+  pluginName,
+}) => {
+  const [hasError, setHasError] = useState(false);
+
+  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     // You can also log the error to an error reporting service
-    console.log(error, errorInfo);
+    console.error(error, errorInfo);
+    setHasError(true);
+  };
+
+  if (hasError) {
+    // You can render any custom fallback UI
+    return <ErrorFallback error={null} />;
   }
 
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <p>Something went wrong. ({this.props.pluginName})</p>;
-    }
+  return (
+    <ReactErrorBoundary fallbackRender={ErrorFallback} onError={handleError}>
+      {pluginName} {children}
+    </ReactErrorBoundary>
+  );
+};
 
-    return this.props.children;
-  }
-}
+export default ErrorBoundary;

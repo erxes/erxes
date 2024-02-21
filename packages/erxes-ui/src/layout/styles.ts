@@ -137,25 +137,25 @@ const HeaderItems = styledTS<{
 `;
 
 const SideContent = styledTS<{
-  wide?: boolean;
-  half?: boolean;
-  full?: boolean;
-  hasBorder?: boolean;
+  $wide?: boolean;
+  $half?: boolean;
+  $full?: boolean;
+  $hasBorder?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
-  width: ${(props) => (props.wide ? '340px' : '290px')};
-  flex: ${(props) => (props.half ? '1' : 'none')};
-  background: ${(props) => (props.full ? colors.colorWhite : 'none')};
+  width: ${(props) => (props.$wide ? '340px' : '290px')};
+  flex: ${(props) => (props.$half ? '1' : 'none')};
+  background: ${(props) => (props.$full ? colors.colorWhite : 'none')};
   margin: 0 ${dimensions.unitSpacing}px;
-  margin: ${(props) => props.hasBorder && 0};
+  margin: ${(props) => props.$hasBorder && 0};
   border-right: ${(props) =>
-    props.hasBorder && `1px solid ${colors.borderPrimary}`};
+    props.$hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${(props) =>
-    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+    props.$full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;

@@ -8,17 +8,16 @@ import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import CustomerForm from '../../containers/CustomerForm';
 import CustomersMerge from '../detail/CustomersMerge';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Menu } from '@headlessui/react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import TargetMerge from './TargetMerge';
 import Tip from '@erxes/ui/src/components/Tip';
-import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -36,7 +35,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     super(props);
 
     this.state = {
-      customerState: props.cocType === 'customer' ? props.coc.state : ''
+      customerState: props.cocType === 'customer' ? props.coc.state : '',
     };
   }
 
@@ -44,7 +43,9 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { coc, cocType } = this.props;
     const { primaryPhone, primaryEmail } = coc;
 
-    const smsForm = props => <SmsForm {...props} primaryPhone={primaryPhone} />;
+    const smsForm = (props) => (
+      <SmsForm {...props} primaryPhone={primaryPhone} />
+    );
 
     return (
       <>
@@ -107,11 +108,11 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   renderEditButton() {
     const { cocType, coc } = this.props;
 
-    const customerForm = props => {
+    const customerForm = (props) => {
       return <CustomerForm {...props} size="lg" customer={coc} />;
     };
 
-    const companyForm = props => {
+    const companyForm = (props) => {
       return <CompanyForm {...props} size="lg" company={coc} />;
     };
 
@@ -156,12 +157,12 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const options = [
       {
         value: 'lead',
-        desc: __('A person who preparing to buy some service or product')
+        desc: __('A person who preparing to buy some service or product'),
       },
       {
         value: 'customer',
-        desc: __('A person who already bought some service or product')
-      }
+        desc: __('A person who already bought some service or product'),
+      },
     ];
 
     const modalContent = () => {
@@ -170,7 +171,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           <ControlLabel>Change State</ControlLabel>
           <States>
             {options.map((option, index) =>
-              this.renderBox(index, option.value, option.desc)
+              this.renderBox(index, option.value, option.desc),
             )}
           </States>
         </>
@@ -194,11 +195,11 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const onClick = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
-    const generateOptions = customers => {
+    const generateOptions = (customers) => {
       return customers.map((cus, key) => ({
         key,
         value: JSON.stringify(cus),
@@ -208,24 +209,22 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           cus.middleName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          'Unknown'
+          'Unknown',
       }));
     };
 
-    const targetMergeOptions = companies => {
+    const targetMergeOptions = (companies) => {
       return companies.map((c, key) => ({
         key,
         value: JSON.stringify(c),
-        label: c.primaryName || c.website || 'Unknown'
+        label: c.primaryName || c.website || 'Unknown',
       }));
     };
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-          {this.renderButton()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
+      <Menu>
+        <Menu.Button>{this.renderButton()}</Menu.Button>
+        <Menu.Items>
           {this.renderEditButton()}
           <li>
             <TargetMerge
@@ -246,8 +245,8 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             </a>
           </li>
           <li>{this.renderChangeStateForm()}</li>
-        </Dropdown.Menu>
-      </Dropdown>
+        </Menu.Items>
+      </Menu>
     );
   }
 

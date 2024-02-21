@@ -11,17 +11,17 @@ import {
   MessageContent,
   RowContent,
   RowItem,
-  SmallTextOneLine
+  SmallTextOneLine,
 } from './styles';
 import {
   CustomerName,
   EllipsisContent,
-  Flex as FlexRoot
+  Flex as FlexRoot,
 } from '@erxes/ui/src/styles/main';
 import {
   cleanIntegrationKind,
   readFile,
-  renderFullName
+  renderFullName,
 } from '@erxes/ui/src/utils';
 
 import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
@@ -128,8 +128,8 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
     return (
-      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
-        <RowContent isChecked={isChecked}>
+      <RowItem onClick={this.onClick} $isActive={isActive} $isRead={isRead}>
+        <RowContent $isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
@@ -148,7 +148,7 @@ class ConversationItem extends React.Component<Props> {
                   </EllipsisContent>
                   <time>
                     {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(
-                      true
+                      true,
                     )}
                   </time>
                 </CustomerName>

@@ -1,20 +1,21 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
 import {
   BoxContent,
   HelperButtons,
+  SideContent,
   SidebarBox,
   SidebarFooter,
   SidebarHeader,
   SidebarMainContent,
   SidebarTitle,
   SidebarToggle,
-  SideContent
 } from '../styles';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 
 function Title({
   children,
-  onClick
+  onClick,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -24,7 +25,7 @@ function Title({
 
 function QuickButtons({
   children,
-  isSidebarOpen
+  isSidebarOpen,
 }: {
   children: React.ReactNode;
   isSidebarOpen?: boolean;
@@ -52,7 +53,7 @@ type State = {
 
 class Section extends React.Component<Props, State> {
   static defaultProps = {
-    maxHeight: 255
+    maxHeight: 255,
   };
 
   static Title = Title;
@@ -66,7 +67,7 @@ class Section extends React.Component<Props, State> {
 
   toggleCollapse = () => {
     this.setState({
-      collapse: !this.state.collapse
+      collapse: !this.state.collapse,
     });
   };
 
@@ -89,12 +90,12 @@ class Section extends React.Component<Props, State> {
       full,
       maxHeight,
       noMargin,
-      noPadding
+      noPadding,
     } = this.props;
 
     const style = collapsible
       ? {
-          maxHeight: this.state.collapse ? undefined : maxHeight
+          maxHeight: this.state.collapse ? undefined : maxHeight,
         }
       : {};
 
@@ -149,18 +150,16 @@ export default class Sidebar extends React.Component<SidebarProps> {
   static Footer = Footer;
 
   render() {
-    const {
-      children,
-      wide,
-      header,
-      footer,
-      half,
-      full,
-      hasBorder
-    } = this.props;
+    const { children, wide, header, footer, half, full, hasBorder } =
+      this.props;
 
     return (
-      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder}>
+      <SideContent
+        $half={half}
+        $wide={wide}
+        $full={full}
+        $hasBorder={hasBorder}
+      >
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}

@@ -1,17 +1,21 @@
-import { AppConsumer } from 'coreui/appContext';
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { can, router as routerUtils } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Empty from '../components/Empty';
-import InboxCore from '../components/InboxCore';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+
 import {
   ConvesationsQueryVariables,
   LastConversationQueryResponse,
 } from '@erxes/ui-inbox/src/inbox/types';
+import React, { useEffect, useState } from 'react';
+import { can, router as routerUtils } from '@erxes/ui/src/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { AppConsumer } from 'coreui/appContext';
+import Empty from '../components/Empty';
+import InboxCore from '../components/InboxCore';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+
 interface IRouteProps {
   queryParams: any;
   history: any;
@@ -34,73 +38,62 @@ const InboxManagementActionContext = React.createContext(
 export const InboxManagementActionConsumer =
   InboxManagementActionContext.Consumer;
 
-class WithRefetchHandling extends React.Component<
-  any,
-  IInboxRefetchController
-> {
-  constructor(props) {
-    super(props);
+const WithRefetchHandling: React.FC<{ children }> = ({ children }) => {
+  const [state, setState] = useState<IInboxRefetchController>({
+    notifyConsumersOfManagementAction: () => {
+      setState((prevState) => ({
+        ...prevState,
+        refetchRequired: new Date().toISOString(),
+      }));
+    },
+    refetchRequired: '',
+  });
 
-    const notifHandler = () => {
-      this.setState({ refetchRequired: new Date().toISOString() });
-    };
+  return (
+    <InboxManagementActionContext.Provider value={state}>
+      {children}
+    </InboxManagementActionContext.Provider>
+  );
+};
 
-    this.state = {
-      notifyConsumersOfManagementAction: notifHandler,
-      refetchRequired: '',
-    };
-  }
+const WithCurrentId: React.FC<IProps> = (props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  public render() {
-    return (
-      <InboxManagementActionContext.Provider value={this.state}>
-        {this.props.children}
-      </InboxManagementActionContext.Provider>
-    );
-  }
-}
+  const { conversationsGetLast, loading, queryParams } = props;
+  const { _id } = queryParams;
 
-class WithCurrentId extends React.Component<IProps> {
-  componentWillReceiveProps(nextProps: IProps) {
-    const { conversationsGetLast, loading, history, queryParams } = nextProps;
-    const { _id } = queryParams;
-
+  useEffect(() => {
     if (!_id && conversationsGetLast && !loading) {
-      routerUtils.setParams(history, { _id: conversationsGetLast._id }, true);
+      routerUtils.setParams(
+        navigate,
+        location,
+        { _id: conversationsGetLast._id },
+        true,
+      );
     }
-  }
+  }, [_id, conversationsGetLast, loading]);
 
-  render() {
-    return (
-      <AppConsumer>
-        {({ currentUser }) => {
-          const { queryParams } = this.props;
-          const { _id } = queryParams;
+  return (
+    <AppConsumer>
+      {({ currentUser }) => {
+        if (!currentUser) {
+          return null;
+        }
 
-          if (!currentUser) {
-            return null;
-          }
+        if (!_id || !can('showConversations', currentUser)) {
+          return <Empty queryParams={queryParams} currentUser={currentUser} />;
+        }
 
-          if (!_id || !can('showConversations', currentUser)) {
-            return (
-              <Empty queryParams={queryParams} currentUser={currentUser} />
-            );
-          }
-
-          return (
-            <WithRefetchHandling>
-              <InboxCore
-                queryParams={queryParams}
-                currentConversationId={_id}
-                history={this.props.history}
-              />
-            </WithRefetchHandling>
-          );
-        }}
-      </AppConsumer>
-    );
-  }
-}
+        return (
+          <WithRefetchHandling>
+            <InboxCore queryParams={queryParams} currentConversationId={_id} />
+          </WithRefetchHandling>
+        );
+      }}
+    </AppConsumer>
+  );
+};
 
 export default compose(
   graphql<
