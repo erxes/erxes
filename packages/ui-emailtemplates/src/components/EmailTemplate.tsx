@@ -108,12 +108,13 @@ class EmailTemplate extends React.Component<Props> {
             <TemplateInfo>
               <p>Created by</p>
               {createdUser ? (
-                (createdUser.details || ({} as IUserDetails)).fullName && (
+                createdUser.details.fullName && (
                   <p>{createdUser.details.fullName}</p>
                 )
               ) : (
                 <p>erxes Inc</p>
               )}
+
             </TemplateInfo>
           </div>
         </TemplateBoxInfo>

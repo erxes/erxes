@@ -53,6 +53,7 @@ export const types = () => {
       eventData: ExmEventData
       eventGoingUsers: [User]
       eventInterestedUsers: [User]
+      background: JSON
     }
 
     type ExmThank {
@@ -151,6 +152,7 @@ const feedCommonParams = `
   unitId: String
   branchIds: [String]
   category: String
+  background: JSON
 `;
 
 const thankCommonParams = `
