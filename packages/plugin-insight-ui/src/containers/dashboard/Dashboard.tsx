@@ -79,7 +79,7 @@ const DashboardContainer = (props: Props) => {
     confirm(__('Are you sure to delete selected dashboard?')).then(() => {
       dashboardRemoveMutation({ variables: { id } })
         .then(() => {
-          router.removeParams(history, 'dashboardId');
+          router.removeParams(history, ...Object.keys(queryParams));
           Alert.success(__('Successfully deleted a dashboard'));
         })
         .catch((e: Error) => Alert.error(e.message));

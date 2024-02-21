@@ -16,49 +16,44 @@ const DragField = styledTS<{ haveChart?: boolean } & any>(
   styled(ReactGridLayout),
 )`
 
-    /* background-image: radial-gradient(
-      ${colors.bgActive} 20%,
-      ${colors.colorWhite} 20%
-    ); */
+  background-image: radial-gradient(
+    ${colors.bgActive} 20%,
+    ${colors.colorWhite} 20%
+  );
 
-    background-image: radial-gradient(
-      black 20%,
-      ${colors.colorWhite} 20%
-    );
-
-    ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
-    min-height: 100% !important;
+  ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
+  min-height: 100% !important;
+  
+  background-size: 10px 10px;
+  .react-grid-layout {
     
-    background-size: 10px 10px;
-    .react-grid-layout {
-      
-      position: relative;
-      transition: height 200ms ease;
-    }
+    position: relative;
+    transition: height 200ms ease;
+  }
 
 
-   .react-grid-item {
-      transition: all 200ms ease;
-      transition-property: left, top;
-      width: 100%;
-      height: 100%;
+  .react-grid-item {
+    transition: all 200ms ease;
+    transition-property: left, top;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    padding: 10px;
+    box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
+    border-radius: 4px;
+    &:hover {
       border: 2px solid transparent;
-      padding: 10px;
-      box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
       border-radius: 4px;
-      &:hover {
-        border: 2px solid transparent;
-        border-radius: 4px;
-        border-color: ${colors.colorPrimary};
-        .db-item-action {
-          display: inline;
-        }
-      }
-
-      > canvas {
-        width: fit-content;
+      border-color: ${colors.colorPrimary};
+      .db-item-action {
+        display: inline;
       }
     }
+
+    > canvas {
+      width: fit-content;
+    }
+  }
 
   .react-grid-item.cssTransforms {
     transition-property: transform;

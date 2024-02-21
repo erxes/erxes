@@ -4,6 +4,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -122,6 +123,10 @@ const DashboardSection = (props: Props) => {
   };
 
   const renderContent = () => {
+    if (sections?.length === 0) {
+      return <EmptyState icon="align-justify" text="No data for dashboard" />;
+    }
+
     return (
       <SidebarList>
         {sections.map((section) => (

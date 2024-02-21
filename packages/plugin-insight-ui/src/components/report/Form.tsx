@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -14,6 +14,7 @@ import SelectMembersForm from '../utils/SelectMembersForm';
 import SelectSections from '../../containers/utils/SelectSections';
 import { FormFooter, FormContent } from '../../styles';
 import { IReport, IReportTemplate } from '../../types';
+import { getService } from '../../utils';
 
 type Props = {
   queryParams: any;
@@ -44,12 +45,19 @@ const Form = (props: Props) => {
     report?.serviceName || '',
   );
 
-  // useEffect(() => {
-  //   if (report && report.charts && !report.serviceType) {
-  //     const serviceType = chartTypes[(report.charts[0] || {}).templateType!];
-  //     setServiceType(serviceType);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (report && report.charts && report.charts.length) {
+      const { serviceType, serviceName } = getService(report.charts[0]);
+
+      if (!report.serviceType) {
+        setServiceType(serviceType);
+      }
+
+      if (!report.serviceName) {
+        setServiceName(serviceName);
+      }
+    }
+  }, []);
 
   const handleSubmit = () => {
     if (!name || !serviceName || !sectionId) {

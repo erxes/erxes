@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
@@ -30,20 +30,13 @@ const ReportTemplate = (props: Props) => {
     handleTemplateClick,
   } = props;
 
-  console.log('!!report', !!report);
-  console.log(
-    'selectedTemplateType?.includes(template?.serviceType)',
-    selectedTemplateType?.includes(template?.serviceType),
-  );
+  const [showMore, setShowMore] = useState<boolean>(false);
 
-  console.log('selectedTemplateType', selectedTemplateType);
-  console.log('template?.serviceType', template?.serviceType);
-
-  const [showMore, setShowMore] = useState<boolean>(
-    !!report && selectedTemplateType?.includes(template?.serviceType),
-  );
-
-  console.log(showMore);
+  useEffect(() => {
+    setShowMore(
+      !!report && selectedTemplateType?.includes(template?.serviceType),
+    );
+  }, [selectedTemplateType]);
 
   return (
     <TemplateBox showMore={showMore}>
