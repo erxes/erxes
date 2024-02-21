@@ -529,10 +529,29 @@ const chatMutations = {
   },
 
   chatMessageReactionAdd: async (_root, doc, { user, models }: IContext) => {
+    const findMessageReaction = await models.ChatMessageReactions.findOne({
+      userId: doc.userId || user._id,
+      chatMessageId: doc.chatMessageId,
+    });
+    // if user already added a reaction to a message
+    if (findMessageReaction) {
+      return await models.ChatMessageReactions.updateChatMessageReaction(
+        findMessageReaction._id,
+        {
+          userId: doc.userId || user._id,
+          ...doc,
+        },
+      );
+    }
+
     return await models.ChatMessageReactions.createChatMessageReaction({
       userId: doc.userId || user._id,
       ...doc,
     });
+  },
+
+  chatMessageReactionRemove: (_root, { _id }, { models }: IContext) => {
+    return models.ChatMessageReactions.removeChatMessageReaction(_id);
   },
 };
 

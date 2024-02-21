@@ -156,5 +156,6 @@ export const mutations = `
 
   chatTypingInfo(chatId: String!, userId : String!): String
 
-  chatMessageReactionAdd(userId: String!,chatMessageId: String!, reaction: String): JSON
+  chatMessageReactionAdd(userId: String,chatMessageId: String!, reaction: String): JSON
+  chatMessageReactionRemove(_id: String!): JSON
 `;

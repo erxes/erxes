@@ -43,7 +43,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ChatMessageReactions = db.model<
     IChatMessageReactionDocument,
     IChatMessageReactionModel
-  >('chat-message-reaction', loadChatMessageReactionClass(models));
+  >('chat_message_reaction', loadChatMessageReactionClass(models));
 
   models.Chats = db.model<IChatDocument, IChatModel>(
     'chat',
