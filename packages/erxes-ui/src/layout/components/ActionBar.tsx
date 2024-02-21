@@ -15,25 +15,18 @@ type Props = {
 
 class ActionBar extends React.PureComponent<Props> {
   render() {
-    const {
-      left,
-      right,
-      background,
-      bottom,
-      zIndex,
-      hasFlex,
-      wideSpacing
-    } = this.props;
+    const { left, right, background, bottom, zIndex, hasFlex, wideSpacing } =
+      this.props;
 
     return (
       <ContentHeader
         background={background || 'colorWhite'}
         zIndex={zIndex}
-        wideSpacing={wideSpacing}
+        $wideSpacing={wideSpacing}
       >
         <HeaderContent>
-          {left && <HeaderItems hasFlex={hasFlex}>{left}</HeaderItems>}
-          {right && <HeaderItems rightAligned={true}>{right}</HeaderItems>}
+          {left && <HeaderItems $hasFlex={hasFlex}>{left}</HeaderItems>}
+          {right && <HeaderItems $rightAligned={true}>{right}</HeaderItems>}
         </HeaderContent>
         {bottom}
       </ContentHeader>

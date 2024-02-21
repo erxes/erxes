@@ -629,7 +629,7 @@ export const bustIframe = () => {
 
 export const getSubdomain = () => {
   const env = (window as any).erxesEnv;
-  return env.subdomain;
+  return env?.subdomain;
 };
 
 export const getVersion = () => {

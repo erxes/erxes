@@ -60,7 +60,7 @@ class InfoSection extends React.Component<Props> {
       return null;
     }
 
-    const customerForm = props => {
+    const customerForm = (props) => {
       return (
         <CustomerForm {...props} size="lg" customer={this.props.customer} />
       );
@@ -82,7 +82,7 @@ class InfoSection extends React.Component<Props> {
 
     return (
       <InfoWrapper>
-        <AvatarWrapper isOnline={isOnline} size={avatarSize}>
+        <AvatarWrapper $isOnline={isOnline} size={avatarSize}>
           <NameCard.Avatar customer={customer} size={avatarSize} />
           <CustomerState>{state}</CustomerState>
         </AvatarWrapper>

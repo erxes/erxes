@@ -2,7 +2,7 @@ import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
 import styled from 'styled-components';
 
-const EditorControl = styled.button`
+const EditorControl = styled.span`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -275,7 +275,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
   }
 `;
 
-const MenuItem = styled.button`
+const MenuItem = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -299,7 +299,7 @@ const MenuItem = styled.button`
   }
 `;
 
-const PickerAction = styled.button`
+const PickerAction = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;

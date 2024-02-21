@@ -1,6 +1,7 @@
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React, { useState } from 'react';
+
+import { Popover } from '@headlessui/react';
+import { usePopper } from 'react-popper';
 
 type Props = {
   text?: string | React.ReactNode;
@@ -24,17 +25,24 @@ type Props = {
 };
 
 function Tip({ text, children, placement }: Props) {
-  const tooltip = <Tooltip id="tooltip">{text}</Tooltip>;
   const placementValue = placement || 'auto';
 
+  let [referenceElement, setReferenceElement] = useState(placementValue as any);
+  let [popperElement, setPopperElement] = useState(null as any);
+  let { styles, attributes } = usePopper(referenceElement, popperElement);
+
   return (
-    <OverlayTrigger
-      overlay={tooltip}
-      placement={placementValue}
-      delay={{ show: 250, hide: 250 }}
-    >
-      {children}
-    </OverlayTrigger>
+    <Popover>
+      <div ref={setReferenceElement}>{children}</div>
+      <Popover.Panel
+        id="tooltip"
+        ref={setPopperElement}
+        style={styles.popper}
+        {...attributes.popper}
+      >
+        {text}
+      </Popover.Panel>
+    </Popover>
   );
 }
 

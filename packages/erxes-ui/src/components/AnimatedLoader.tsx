@@ -82,7 +82,7 @@ class AnimatedLoader extends React.Component<Props> {
       );
     }
 
-    return <Loader {...loaderStyle} />;
+    return <Loader $round={loaderStyle.round || false} {...loaderStyle} />;
   }
 }
 

@@ -1,4 +1,3 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,
@@ -17,6 +16,7 @@ import {
   RespondBoxStyled,
   SmallEditor,
 } from '@erxes/ui-inbox/src/inbox/styles';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   getPluginConfig,
   isEnabled,
@@ -24,6 +24,8 @@ import {
 } from '@erxes/ui/src/utils/core';
 
 import Button from '@erxes/ui/src/components/Button';
+import Editor from './Editor';
+import { EditorMethods } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
@@ -33,14 +35,12 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
-import Editor from './Editor';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
-import { EditorMethods } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import useDebouncedValue from '../../../hooks/useDeboucedValue';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 
 type Props = {
   conversation: IConversation;
@@ -531,7 +531,7 @@ const RespondBox = (props: Props) => {
       <MaskWrapper>
         {renderMask()}
         {dynamicComponent}
-        <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
+        <RespondBoxStyled $isInternal={isInternal} $isInactive={isInactive}>
           {renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
@@ -540,7 +540,7 @@ const RespondBox = (props: Props) => {
 
   function renderMailRespondBox() {
     return (
-      <MailRespondBox isInternal={true}>
+      <MailRespondBox $isInternal={true}>
         <NameCard.Avatar user={currentUser} size={34} />
         <SmallEditor>{renderBody()}</SmallEditor>
       </MailRespondBox>

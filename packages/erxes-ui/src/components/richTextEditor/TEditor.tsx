@@ -2,6 +2,7 @@ import * as controls from './RichTextEditorControl/controls';
 
 import { DEFAULT_LABELS, IRichTextEditorLabels } from './labels';
 import { DropdownControlType, getToolbar } from './utils/getToolbarControl';
+import { Editor, useEditor } from '@tiptap/react';
 import {
   IRichTextEditorContentProps,
   RichTextEditorContent,
@@ -34,7 +35,6 @@ import { RichTextEditorControlsGroup } from './RichTextEditorControlsGroup/RichT
 import { RichTextEditorProvider } from './RichTextEditor.context';
 import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
 import { RichTextEditorWrapper } from './styles';
-import { Editor, useEditor } from '@tiptap/react';
 import useExtensions from './hooks/useExtensions';
 
 const POSITION_TOP = 'top';
@@ -323,7 +323,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
         codeMirrorRef,
       }}
     >
-      <RichTextEditorWrapper innerRef={wrapperRef} $position={toolbarLocation}>
+      <RichTextEditorWrapper ref={wrapperRef} $position={toolbarLocation}>
         {renderEditor()}
       </RichTextEditorWrapper>
     </RichTextEditorProvider>

@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
-import CompactPicker from 'react-color/lib/Compact';
 import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
-import Icon from '../../Icon';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
 } from './RichTextEditorControl';
+import React, { useEffect, useState } from 'react';
+
+import ChromePicker from 'react-color/lib/Chrome';
+import CompactPicker from 'react-color/lib/Compact';
 import { Flex } from '../../../styles/main';
+import Icon from '../../Icon';
+import { Popover } from '@headlessui/react';
 import Tip from '../../Tip';
 import { colors } from '../../../styles';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
@@ -99,66 +99,65 @@ export const RichTextEditorHighlightControl = () => {
   }
 
   const renderColorPickerOverlay = () => (
-    <Popover id="color-picker">
-      <ColorPickerWrapper>
-        {isPickerVisible ? (
-          <>
-            <ChromePicker
-              disableAlpha={true}
-              color={pickerColor}
-              onChange={handlePicker}
-            />
-            <Flex>
-              <Tip placement="top" text="Save">
-                <PickerAction onClick={handleColorSelection}>
-                  <Icon icon="check" size={15} color="green" />
-                </PickerAction>
-              </Tip>
-              <Tip placement="top" text="Cancel">
-                <PickerAction onClick={handleOverlayClose}>
-                  <Icon icon="cancel" size={15} color="red" />
-                </PickerAction>
-              </Tip>
-            </Flex>
-          </>
-        ) : (
-          <>
-            <MenuItem onClick={handleClear}>
-              <Icon icon="eraser-1" />
-              Remove color
-            </MenuItem>
-            <CompactPicker
-              style={{ border: 'none' }}
-              triangle="hide"
-              color={color}
-              onChange={handleColorChange}
-            />
-            <MenuItem onClick={() => setIsPickerVisible(true)}>
-              <Icon icon="paintpalette" />
-              Color picker
-            </MenuItem>
-          </>
-        )}
-      </ColorPickerWrapper>
-    </Popover>
+    <ColorPickerWrapper>
+      {isPickerVisible ? (
+        <>
+          <ChromePicker
+            disableAlpha={true}
+            color={pickerColor}
+            onChange={handlePicker}
+          />
+          <Flex>
+            <Tip placement="top" text="Save">
+              <PickerAction onClick={handleColorSelection}>
+                <Icon icon="check" size={15} color="green" />
+              </PickerAction>
+            </Tip>
+            <Tip placement="top" text="Cancel">
+              <PickerAction onClick={handleOverlayClose}>
+                <Icon icon="cancel" size={15} color="red" />
+              </PickerAction>
+            </Tip>
+          </Flex>
+        </>
+      ) : (
+        <>
+          <MenuItem onClick={handleClear}>
+            <Icon icon="eraser-1" />
+            Remove color
+          </MenuItem>
+          <CompactPicker
+            style={{ border: 'none' }}
+            triangle="hide"
+            color={color}
+            onChange={handleColorChange}
+          />
+          <MenuItem onClick={() => setIsPickerVisible(true)}>
+            <Icon icon="paintpalette" />
+            Color picker
+          </MenuItem>
+        </>
+      )}
+    </ColorPickerWrapper>
   );
 
   return (
-    <OverlayTrigger
-      ref={(overlayTrigger) => {
-        overLayRef = overlayTrigger;
-      }}
-      trigger="click"
-      rootClose={true}
-      placement="bottom"
-      overlay={renderColorPickerOverlay()}
+    <Popover
+    // ref={(overlayTrigger) => {
+    //   overLayRef = overlayTrigger;
+    // }}
+    // trigger="click"
+    // rootClose={true}
+    // placement="bottom"
+    // overlay={renderColorPickerOverlay()}
     >
+      <Popover.Button>{renderColorPickerOverlay}</Popover.Button>
       <RichTextEditorControlBase
         icon={LinkIcon}
         aria-label={labels.highlightControlLabel}
         title={labels.highlightControlLabel}
         active={isActive}
       />
-    </OverlayTrigger>
+    </Popover>
   );
 };

@@ -31,7 +31,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     this.state = {
       // first check if isOpen is passed as a prop
       isOpen:
-        isOpen !== undefined ? isOpen : name ? config[name] || false : false
+        isOpen !== undefined ? isOpen : name ? config[name] || false : false,
     };
   }
 
@@ -80,7 +80,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { children, title, collapsible, noPadding } = this.props;
 
     return (
-      <SectionContainer hasShadow={true}>
+      <SectionContainer $hasShadow={true}>
         <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
         {isOpen ? (

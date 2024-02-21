@@ -93,7 +93,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { isSmall } = this.props;
 
     return (
-      <Button size="small" btnStyle="default">
+      <span>
         {isSmall ? (
           <Icon icon="ellipsis-h" />
         ) : (
@@ -101,7 +101,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             {__('Action')} <Icon icon="angle-down" />
           </>
         )}
-      </Button>
+      </span>
     );
   }
 

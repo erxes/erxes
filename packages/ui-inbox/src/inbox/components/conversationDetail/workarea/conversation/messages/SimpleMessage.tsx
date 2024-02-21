@@ -3,7 +3,7 @@ import {
   MessageBody,
   MessageContent,
   MessageItem,
-  UserInfo
+  UserInfo,
 } from '../styles';
 
 import Attachment from '@erxes/ui/src/components/Attachment';
@@ -86,7 +86,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     if (!message.content) {
       return (
-        <MessageContent staff={isStaff} internal={message.internal}>
+        <MessageContent $staff={isStaff} $internal={message.internal}>
           {this.renderAttachment(hasAttachment)}{' '}
         </MessageContent>
       );
@@ -94,7 +94,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     return (
       <>
-        <MessageContent staff={isStaff} internal={message.internal}>
+        <MessageContent $staff={isStaff} $internal={message.internal}>
           <span
             dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
           />
@@ -112,7 +112,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     const classes = classNames({
       ...(this.props.classes || []),
       attachment: hasAttachment,
-      same: isSameUser
+      same: isSameUser,
     });
 
     if (message.fromBot) {
@@ -120,10 +120,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return (
-      <MessageItem staff={isStaff} className={classes} isSame={isSameUser}>
+      <MessageItem $staff={isStaff} className={classes} $isSame={isSameUser}>
         {this.renderAvatar()}
 
-        <MessageBody staff={isStaff}>
+        <MessageBody $staff={isStaff}>
           {this.renderContent(hasAttachment)}
           <Tip text={dayjs(messageDate).format('lll')}>
             <footer>{dayjs(messageDate).format('LT')}</footer>

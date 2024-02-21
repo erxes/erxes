@@ -384,7 +384,7 @@ class Search extends React.Component<
   render() {
     return (
       <MainContainer
-        innerRef={this.setWrapperRef}
+        ref={this.setWrapperRef}
         $active={this.state.showInput}
         onClick={this.openInput}
       >

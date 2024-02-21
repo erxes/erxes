@@ -13,7 +13,7 @@ type Props = {
   bottom?: string;
 };
 
-const Spin = styledTS<Props>(styled.div)`
+const Spin = styledTS<{ $objective?: boolean } & Props>(styled.div)`
   height: ${(props) => props.$objective && '100px'};
   position: ${(props) => props.$objective && 'relative'};
 `;

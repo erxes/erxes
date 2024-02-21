@@ -1,16 +1,16 @@
-import React, { ReactNode } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
 } from './RichTextEditorControl';
-import Icon from '../../Icon';
+import React, { ReactNode } from 'react';
 import {
-  RichTextEditorMenuWrapper,
   RichTextEditorMenuPopoverWrapper,
+  RichTextEditorMenuWrapper,
 } from './styles';
+
+import Icon from '../../Icon';
+import { Popover } from '@headlessui/react';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export interface IRichTextEditorMoreControlProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -28,24 +28,22 @@ export const MoreButtonControl = (props: IRichTextEditorMoreControlProps) => {
 
   const renderMenu = (props) => (
     <RichTextEditorMenuPopoverWrapper>
-      <Popover id="rte-more-menu" {...props}>
-        <RichTextEditorMenuWrapper>{children}</RichTextEditorMenuWrapper>
-      </Popover>
+      {/* <Popover id="rte-more-menu" {...props}> */}
+      <RichTextEditorMenuWrapper>{children}</RichTextEditorMenuWrapper>
+      {/* </Popover> */}
     </RichTextEditorMenuPopoverWrapper>
   );
 
   return (
-    <OverlayTrigger
-      rootClose={false}
-      trigger="click"
-      placement={toolbarPlacement === 'top' ? 'bottom-end' : 'top'}
-      overlay={renderMenu}
-    >
-      <RichTextEditorControlBase
-        icon={MoreIcon}
-        aria-label={labels.moreControlLabel}
-        title={labels.moreControlLabel}
-      />
-    </OverlayTrigger>
+    <Popover>
+      <Popover.Button>
+        <RichTextEditorControlBase
+          icon={MoreIcon}
+          aria-label={labels.moreControlLabel}
+          title={labels.moreControlLabel}
+        />
+      </Popover.Button>
+      <Popover.Panel>{renderMenu}</Popover.Panel>
+    </Popover>
   );
 };

@@ -48,18 +48,18 @@ const ResponseSuggestionItem = styled.li`
 `;
 
 const RespondBoxStyled = styledTS<{
-  isInactive?: boolean;
-  isInternal?: boolean;
+  $isInactive?: boolean;
+  $isInternal?: boolean;
 }>(styled.div)`
   border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
   background: ${(props) =>
-    props.isInternal ? colors.bgInternal : colors.colorWhite};
-  filter: ${(props) => props.isInactive && 'blur(2px)'};
+    props.$isInternal ? colors.bgInternal : colors.colorWhite};
+  filter: ${(props) => props.$isInactive && 'blur(2px)'};
   div[data-promise-mirror-editor]{
     background: ${(props) =>
-      props.isInternal ? colors.bgInternal : colors.colorWhite};
+      props.$isInternal ? colors.bgInternal : colors.colorWhite};
     transition: background 0.3s ease;
   }
 `;

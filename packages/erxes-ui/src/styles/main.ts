@@ -521,7 +521,7 @@ const Loader = styledTS<IAnimatedLoader>(styled.div)`
   background-size: 800px 200px;
   width: ${(props) => (props.width ? props.width : '100%')};
   height: ${(props) => (props.height ? props.height : '100%')};
-  border-radius: ${(props) => (props.round ? '50%' : '2px')};
+  border-radius: ${(props) => (props.$round ? '50%' : '2px')};
   margin-right: ${(props) => props.marginRight};
   margin: ${(props) => props.margin};
   position: relative;

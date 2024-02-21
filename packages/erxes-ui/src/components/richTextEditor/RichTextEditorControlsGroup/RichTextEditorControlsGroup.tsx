@@ -1,8 +1,9 @@
 import React, { ReactNode, useRef } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+
 import { ControlsGroupWrapper } from './styles';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 export interface IRichTextEditorControlsGroupProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -60,5 +61,5 @@ export const RichTextEditorControlsGroup = (
       </ControlsGroupWrapper>
     );
   }
-  return <ControlsGroupWrapper innerRef={ref} {...props} />;
+  return <ControlsGroupWrapper ref={ref} {...props} />;
 };

@@ -102,12 +102,12 @@ const ContentBox = styledTS<{
 const ContentHeader = styledTS<{
   background: string;
   zIndex?: number;
-  wideSpacing?: boolean;
+  $wideSpacing?: boolean;
 }>(styled.div)`
   background: ${(props) =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
-  padding: ${(props) => (props.wideSpacing ? '0 0 12px 0' : 0)};
-  margin: ${(props) => (props.wideSpacing ? '12px 20px 0 20px' : '10px 20px')};
+  padding: ${(props) => (props.$wideSpacing ? '0 0 12px 0' : 0)};
+  margin: ${(props) => (props.$wideSpacing ? '12px 20px 0 20px' : '10px 20px')};
   z-index: ${(props) => props.zIndex || 2};
 `;
 
@@ -124,13 +124,13 @@ const ContenFooter = styled.div`
 `;
 
 const HeaderItems = styledTS<{
-  rightAligned?: boolean;
-  hasFlex?: boolean;
+  $rightAligned?: boolean;
+  $hasFlex?: boolean;
 }>(styled.div)`
   align-self: center;
-  flex: ${(props) => props.hasFlex && 1};
-  margin-left: ${(props) => props.rightAligned && 'auto'};
-  flex-shrink: ${(props) => props.rightAligned && '0'};
+  flex: ${(props) => props.$hasFlex && 1};
+  margin-left: ${(props) => props.$rightAligned && 'auto'};
+  flex-shrink: ${(props) => props.$rightAligned && '0'};
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -395,7 +395,7 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
+const SectionContainer = styledTS<{ $hasShadow?: boolean }>(styled.div)`
   position: relative;
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${(props) =>

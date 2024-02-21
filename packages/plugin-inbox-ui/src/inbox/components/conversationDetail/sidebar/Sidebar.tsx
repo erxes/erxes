@@ -308,7 +308,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             <InfoSection customer={customer} hideForm={true} />
           </BasicInfo>
           <ActionSection customer={customer} />
-          <Tabs full={true}>
+          <Tabs $full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}
               onClick={detailsOnClick}
@@ -356,7 +356,7 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <Sidebar full={true}>
-        <Tabs full={true}>
+        <Tabs $full={true}>
           <TabTitle
             className={currentTab === 'customer' ? 'active' : ''}
             onClick={customerOnClick}

@@ -2,11 +2,12 @@ import { DropNav, UserHelper } from '../styles';
 import { __, getEnv } from 'modules/common/utils';
 
 import BrandChooser from './BrandChooser';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
+// import Dropdown from 'react-bootstrap/Dropdown';
+// import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { Link } from 'react-router-dom';
+import { Menu } from '@headlessui/react';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Organizations from 'modules/saas/navigation/Organizations';
@@ -137,20 +138,20 @@ const QuickNavigation = ({
       </NavItem>
       {pluginsOfTopNavigations()}
       <NavItem>
-        <Dropdown align="end">
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+        <Menu>
+          <Menu.Button id="dropdown-user">
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="angle-down" size={14} />
               </UserInfo>
             </UserHelper>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
+          </Menu.Button>
+          <Menu.Items>
             <NameCardWrapper>
               <NameCard user={currentUser} />
             </NameCardWrapper>
-            <Dropdown.Divider />
+            {/* <Dropdown.Divider /> */}
             <li>
               <Link to="/profile">{__('My Profile')}</Link>
             </li>
@@ -182,7 +183,7 @@ const QuickNavigation = ({
                 </ul>
               </DropNav>
             </li>
-            <Dropdown.Divider />
+            {/* <Dropdown.Divider /> */}
 
             {VERSION &&
             VERSION === 'saas' &&
@@ -206,7 +207,7 @@ const QuickNavigation = ({
                   </DropNav>
                 </li>
 
-                <Dropdown.Divider />
+                {/* <Dropdown.Divider /> */}
                 <SubMenu>
                   <li>
                     <Organizations
@@ -218,14 +219,16 @@ const QuickNavigation = ({
               </>
             ) : null}
 
-            <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            <Menu.Item>
+              <div onClick={logout}>{__('Sign out')}</div>
+            </Menu.Item>
             {release ? (
               <Version>
                 <span>version</span> <span>{release}</span>
               </Version>
             ) : null}
-          </Dropdown.Menu>
-        </Dropdown>
+          </Menu.Items>
+        </Menu>
       </NavItem>
     </nav>
   );

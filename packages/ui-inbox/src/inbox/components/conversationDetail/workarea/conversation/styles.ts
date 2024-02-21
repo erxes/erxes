@@ -2,9 +2,10 @@ import { AttachmentWrapper, Meta } from '@erxes/ui/src/components/Attachment';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
+
 import styledTS from 'styled-components-ts';
 
-const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
+const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
   styled.div,
 )`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
@@ -12,14 +13,16 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   border-bottom-left-radius: 2px;
   background: ${colors.colorWhite};
   background: ${(props) =>
-    props.internal ? colors.bgInternal : props.staff && colors.colorSecondary};
+    props.$internal
+      ? colors.bgInternal
+      : props.$staff && colors.colorSecondary};
   word-break: break-word;
   box-shadow: 0 1px 1px 0 ${colors.darkShadow};
-  color: ${(props) => props.staff && !props.internal && colors.colorWhite};
+  color: ${(props) => props.$staff && !props.$internal && colors.colorWhite};
   text-align: left;
 
   ${(props) =>
-    props.staff &&
+    props.$staff &&
     css`
       border-bottom-right-radius: 2px;
       border-bottom-left-radius: 20px;
@@ -31,7 +34,9 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 
   a {
     color: ${(props) =>
-      props.staff && !props.internal ? colors.colorWhite : colors.linkPrimary};
+      props.$staff && !props.$internal
+        ? colors.colorWhite
+        : colors.linkPrimary};
     text-decoration: underline;
   }
 
@@ -73,10 +78,10 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   }
 `;
 
-const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
-  margin: ${(props) => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+const MessageBody = styledTS<{ $staff?: boolean }>(styled.div)`
+  margin: ${(props) => (props.$staff ? '0 55px 0 0' : '0 0 0 55px')};
   display: flex;
-  flex-direction: ${(props) => (props.staff ? 'row-reverse' : 'row')};
+  flex-direction: ${(props) => (props.$staff ? 'row-reverse' : 'row')};
   align-items: center;
 
   footer {
@@ -95,11 +100,11 @@ const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
 `;
 
 const MessageItem = styledTS<{
-  isSame?: boolean;
-  staff?: boolean;
-  isBot?: boolean;
+  $isSame?: boolean;
+  $staff?: boolean;
+  $isBot?: boolean;
 }>(styled.div)`
-  margin-top: ${(props) => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
+  margin-top: ${(props) => (props.$isSame ? dimensions.unitSpacing - 5 : 20)}px;
   padding-right: 17%;
   display: flex;
   flex-direction: row;
@@ -108,12 +113,12 @@ const MessageItem = styledTS<{
 
   > span {
     position: absolute;
-    right: ${(props) => props.staff && '0'};
+    right: ${(props) => props.$staff && '0'};
     bottom: 0;
   }
 
   ${(props) =>
-    props.isBot &&
+    props.$isBot &&
     css`
       padding-right: 0;
 
@@ -128,7 +133,7 @@ const MessageItem = styledTS<{
     `};
 
   ${(props) => {
-    if (!props.staff) {
+    if (!props.$staff) {
       return '';
     }
 
@@ -142,14 +147,14 @@ const MessageItem = styledTS<{
 
   &.same {
     ${MessageContent} {
-      border-top-left-radius: ${(props) => !props.staff && '2px'};
-      border-top-right-radius: ${(props) => props.staff && '2px'};
+      border-top-left-radius: ${(props) => !props.$staff && '2px'};
+      border-top-right-radius: ${(props) => props.$staff && '2px'};
     }
 
     &:last-of-type {
       ${MessageContent} {
-        border-bottom-right-radius: ${(props) => props.staff && '20px'};
-        border-bottom-left-radius: ${(props) => !props.staff && '20px'};
+        border-bottom-right-radius: ${(props) => props.$staff && '20px'};
+        border-bottom-left-radius: ${(props) => !props.$staff && '20px'};
       }
     }
   }
