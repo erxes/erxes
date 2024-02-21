@@ -21,6 +21,7 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { router } from '@erxes/ui/src';
+import { IUserDetails } from '@erxes/ui/src/auth/types';
 
 type Props = {
   queryParams: any;
@@ -113,7 +114,13 @@ class EmailTemplateList extends React.Component<Props> {
               </TemplateInfo>
               <TemplateInfo>
                 <p>Created by</p>
-                <p>{createdUser?.details?.fullName || 'erxes Inc'}</p>
+                {createdUser ? (
+                  (createdUser.details || ({} as IUserDetails)).fullName && (
+                    <p>{createdUser.details.fullName}</p>
+                  )
+                ) : (
+                  <p>erxes Inc</p>
+                )}
               </TemplateInfo>
             </div>
           </TemplateBoxInfo>
