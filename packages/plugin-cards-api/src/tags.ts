@@ -18,20 +18,20 @@ export default {
   types: [
     {
       description: 'Deals',
-      type: 'deal'
+      type: 'deal',
     },
     {
       description: 'Purchases',
-      type: 'purchase'
+      type: 'purchase',
     },
     {
       description: 'Tasks',
-      type: 'task'
+      type: 'task',
     },
     {
       description: 'Tickets',
-      type: 'ticket'
-    }
+      type: 'ticket',
+    },
   ],
 
   tag: async ({ subdomain, data }) => {
@@ -50,12 +50,40 @@ export default {
       await model.updateMany(
         { _id: { $in: targetIds } },
         { $set: { tagIds } },
-        { multi: true }
+        { multi: true },
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
     }
 
     return response;
-  }
+  },
+
+  fixRelatedItems: async ({
+    subdomain,
+    data: { type, sourceId, destId, action },
+  }) => {
+    const models = await generateModels(subdomain);
+    const model: any = modelChanger(type, models);
+
+    if (action === 'remove') {
+      await model.updateMany(
+        { tagIds: { $in: [sourceId] } },
+        { $pull: { tagIds: { $in: [sourceId] } } },
+      );
+    }
+
+    if (action === 'merge') {
+      const itemIds = await model
+        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
+        .distinct('_id');
+
+      // add to the new destination
+      await model.updateMany(
+        { _id: { $in: itemIds } },
+        { $set: { 'tagIds.$[elem]': destId } },
+        { arrayFilters: [{ elem: { $eq: sourceId } }] },
+      );
+    }
+  },
 };

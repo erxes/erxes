@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
+  FieldsCombinedByTypeQueryResponse,
 } from '@erxes/ui-forms/src/settings/properties/types';
 
 import { IEditorProps } from '@erxes/ui/src/types';
@@ -15,23 +15,23 @@ import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 
-const generateItemCustomFields = items =>
-  (items || []).map(item => ({
+const generateItemCustomFields = (items) =>
+  (items || []).map((item) => ({
     value: `itemCustomField.${item.fieldId}`,
-    name: `${item.fieldName}:${item.pipelineName}:${item.boardName}`
+    name: `${item.fieldName}:${item.pipelineName}:${item.boardName}`,
   }));
 
 const generateAttributes = (
   cardsFields,
-  combinedFields?: FieldsCombinedByType[]
+  combinedFields?: FieldsCombinedByType[],
 ) => {
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
-    { value: 'customer.name', name: 'Name' }
+    { value: 'customer.name', name: 'Name' },
   ];
 
-  (combinedFields || []).forEach(field =>
-    items.push({ value: `customer.${field.name}`, name: field.label })
+  (combinedFields || []).forEach((field) =>
+    items.push({ value: `customer.${field.name}`, name: field.label }),
   );
 
   items = [
@@ -66,13 +66,13 @@ const generateAttributes = (
     ...generateItemCustomFields(cardsFields.ticket),
 
     { name: 'Task' },
-    ...generateItemCustomFields(cardsFields.task)
+    ...generateItemCustomFields(cardsFields.task),
   ];
 
   return {
     items,
     title: 'Attributes',
-    label: 'Attributes'
+    label: 'Attributes',
   };
 };
 
@@ -110,14 +110,14 @@ export default withProps<Props>(
       name: 'combinedFieldsQuery',
       options: () => ({
         variables: {
-          contentType: 'contacts:customer'
-        }
+          contentType: 'contacts:customer',
+        },
       }),
-      skip: !isEnabled('forms')
+      skip: !isEnabled('forms'),
     }),
     graphql<Props>(gql(fieldQueries.cardsFields), {
       name: 'cardsFieldsQuery',
-      skip: !isEnabled('cards')
-    })
-  )(EditorContainer)
+      skip: !isEnabled('cards'),
+    }),
+  )(EditorContainer),
 );

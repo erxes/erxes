@@ -16,18 +16,17 @@ import { setLocalStorage } from '../utils';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem('config:call_integrations')),
+    JSON.parse(localStorage.getItem('config:call_integrations'))
   );
-
   const callInfo = JSON.parse(localStorage.getItem('callInfo'));
   const sessionCode = sessionStorage.getItem('sessioncode');
 
   const isConnectCallRequested = JSON.parse(
-    localStorage.getItem('isConnectCallRequested'),
+    localStorage.getItem('isConnectCallRequested')
   );
 
   const { data, loading, error } = useQuery(
-    gql(queries.callIntegrationsOfUser),
+    gql(queries.callIntegrationsOfUser)
   );
   const {
     data: activeSession,
@@ -38,7 +37,7 @@ const SipProviderContainer = (props) => {
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession),
+    gql(mutations.callTerminateSession)
   );
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
@@ -152,7 +151,7 @@ const SipProviderContainer = (props) => {
       (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
         isConnectCallRequested ||
         isConnectCallRequested === 'true') &&
-      !callInfo.isUnRegistered
+      !callInfo?.isUnRegistered
     ) {
       return (
         <ModalTrigger

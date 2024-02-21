@@ -14,7 +14,7 @@ import { Meta } from './Attachment';
 import Tip from './Tip';
 
 const LoadingContainer = styledTS<{ showOnlyIcon?: boolean }>(styled.div)`
-  ${props =>
+  ${(props) =>
     props.showOnlyIcon
       ? `
   height: 20px;
@@ -106,6 +106,7 @@ type Props = {
   warningText?: string;
   showOnlyIcon?: boolean;
   noPreview?: boolean;
+  hideUploadButtonOnLoad?: boolean;
 };
 
 type State = {
@@ -116,7 +117,7 @@ type State = {
 class Uploader extends React.Component<Props, State> {
   static defaultProps = {
     multiple: true,
-    limit: 4
+    limit: 4,
   };
 
   constructor(props: Props) {
@@ -124,7 +125,7 @@ class Uploader extends React.Component<Props, State> {
 
     this.state = {
       attachments: props.defaultFileList || [],
-      loading: false
+      loading: false,
     };
   }
 
@@ -145,7 +146,7 @@ class Uploader extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true
+          loading: true,
         });
       },
 
@@ -166,9 +167,9 @@ class Uploader extends React.Component<Props, State> {
 
         this.setState({
           loading: false,
-          attachments
+          attachments,
         });
-      }
+      },
     });
 
     target.value = '';
@@ -185,17 +186,14 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderUploadButton() {
-    const {
-      multiple,
-      single,
-      text,
-      accept,
-      icon,
-      warningText,
-      showOnlyIcon
-    } = this.props;
+    const { multiple, single, text, accept, icon, warningText, showOnlyIcon } =
+      this.props;
 
     if (single && this.state.attachments.length > 0) {
+      return null;
+    }
+
+    if (this.state.loading && this.props.hideUploadButtonOnLoad) {
       return null;
     }
 

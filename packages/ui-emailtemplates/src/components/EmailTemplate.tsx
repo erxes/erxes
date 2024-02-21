@@ -5,12 +5,13 @@ import {
   Template,
   TemplateBox,
   TemplateBoxInfo,
-  TemplateInfo
+  TemplateInfo,
 } from '../styles';
 import { Icon, ModalTrigger } from '@erxes/ui/src';
 
 import React from 'react';
 import dayjs from 'dayjs';
+import { IUserDetails } from '@erxes/ui/src/auth/types';
 
 type Props = {
   handleSelect?: (_id: string) => void;
@@ -67,7 +68,7 @@ class EmailTemplate extends React.Component<Props> {
       template: { content },
       handleSelect,
       templateId,
-      onlyPreview
+      onlyPreview,
     } = this.props;
 
     return (
@@ -107,7 +108,7 @@ class EmailTemplate extends React.Component<Props> {
             <TemplateInfo>
               <p>Created by</p>
               {createdUser ? (
-                createdUser.details.fullName && (
+                (createdUser.details || ({} as IUserDetails)).fullName && (
                   <p>{createdUser.details.fullName}</p>
                 )
               ) : (
