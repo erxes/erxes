@@ -65,28 +65,6 @@ const returnDateRange = (dateRange: string, startDate: Date, endDate: Date) => {
 
   return {};
 };
-const returnStage = (resolve: string | string[]) => {
-  // Handle the case when resolve is an array
-  const firstResolve = Array.isArray(resolve) ? resolve[0] : resolve;
-
-  switch (firstResolve) {
-    case 'won':
-      return 'Won'; // Return directly the string 'Won'
-    case 'lost':
-      return 'Lost'; // Return directly the string 'Lost'
-    case 'open':
-      return {
-        $or: [
-          { $lt: 0 }, // Less than 0%
-          { $gte: 100 }, // Greater than or equal to 100%
-        ],
-      };
-    case 'all':
-      return {}; // Return all stages, you might need to adjust this
-    default:
-      return {}; // Default case returns an empty object
-  }
-};
 
 const DATE_RANGE_TYPES = [
   { label: 'All time', value: 'all' },
@@ -101,14 +79,78 @@ const DATE_RANGE_TYPES = [
   { label: 'Custom Date', value: 'customDate' },
 ];
 
-const STAGE = [
-  { label: 'Won', value: 'won' },
-  { label: 'Lost', value: 'lost' },
-  { label: 'Open', value: 'Open' },
-  {
-    label: 'All',
-    value: 'All',
-  },
+const returnStage = (resolve: string | string[]) => {
+  // Handle the case when resolve is an array
+  const firstResolve = Array.isArray(resolve) ? resolve[0] : resolve;
+
+  switch (firstResolve) {
+    case '10':
+      return { $gte: 0, $lt: 10 };
+    case '20':
+      return { $gte: 10, $lt: 20 };
+    case '30':
+      return { $gte: 20, $lt: 30 };
+    case '40':
+      return { $gte: 30, $lt: 40 };
+    case '50':
+      return { $gte: 40, $lt: 50 };
+    case '60':
+      return { $gte: 50, $lt: 60 };
+    case '70':
+      return { $gte: 60, $lt: 70 };
+    case '80':
+      return { $gte: 70, $lt: 80 };
+    case '90':
+      return { $gte: 80, $lt: 90 };
+    case 'Won':
+      return 'Won';
+    case 'Lost':
+      return 'Lost';
+    case 'Done':
+      return 'Done';
+    case 'Resolved':
+      return 'Resolved';
+
+    default:
+      return {};
+  }
+};
+const PROBABILITY_DEAL = [
+  { label: '10%', value: '10' },
+  { label: '20%', value: '20' },
+  { label: '30%', value: '30' },
+  { label: '40%', value: '40' },
+  { label: '50%', value: '50' },
+  { label: '60%', value: '60' },
+  { label: '70%', value: '70' },
+  { label: '80%', value: '80' },
+  { label: '90%', value: '90' },
+  { label: 'Won', value: 'Won' },
+  { label: 'Lost', value: 'Lost' },
+];
+const PROBABILITY_TASK = [
+  { label: '10%', value: '10' },
+  { label: '20%', value: '20' },
+  { label: '30%', value: '30' },
+  { label: '40%', value: '40' },
+  { label: '50%', value: '50' },
+  { label: '60%', value: '60' },
+  { label: '70%', value: '70' },
+  { label: '80%', value: '80' },
+  { label: '90%', value: '90' },
+  { label: 'Done', value: 'Done' },
+];
+const PROBABILITY_TICKET = [
+  { label: '10%', value: '10' },
+  { label: '20%', value: '20' },
+  { label: '30%', value: '30' },
+  { label: '40%', value: '40' },
+  { label: '50%', value: '50' },
+  { label: '60%', value: '60' },
+  { label: '70%', value: '70' },
+  { label: '80%', value: '80' },
+  { label: '90%', value: '90' },
+  { label: 'Resolved', value: 'Resolved' },
 ];
 
 const PIPELINE_TYPE_TICKET = 'ticket';
@@ -368,6 +410,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -380,7 +430,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -396,14 +446,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -548,6 +590,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -560,7 +610,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -576,15 +626,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -761,6 +802,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -773,7 +822,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -791,14 +840,6 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
 
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
-      },
       {
         fieldName: 'tagIds',
         fieldType: 'select',
@@ -976,6 +1017,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -988,7 +1037,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -1004,14 +1053,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1154,6 +1195,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -1166,7 +1215,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -1182,14 +1231,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1398,6 +1439,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -1410,7 +1459,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -1426,14 +1475,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1583,6 +1624,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -1595,8 +1644,9 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
+
       {
         fieldName: 'stageId',
         fieldType: 'select',
@@ -1611,14 +1661,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1812,6 +1854,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -1824,7 +1874,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -1840,14 +1890,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1950,6 +1992,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -1962,7 +2012,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -1978,14 +2028,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -1996,21 +2038,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
       },
       {
         fieldName: 'fieldsGroups',
@@ -2169,6 +2196,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -2181,7 +2216,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -2197,14 +2232,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2338,7 +2365,7 @@ const chartTemplates = [
         fieldName: 'labels',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'assignedUserIds',
@@ -2395,6 +2422,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -2407,7 +2442,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -2424,14 +2459,7 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
-      },
+
       {
         fieldName: 'tagIds',
         fieldType: 'select',
@@ -2593,6 +2621,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -2605,7 +2641,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -2622,14 +2658,7 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
-      },
+
       {
         fieldName: 'tagIds',
         fieldType: 'select',
@@ -2789,6 +2818,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -2801,7 +2838,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -2817,14 +2854,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -2939,7 +2968,7 @@ const chartTemplates = [
         fieldName: 'labels',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'assignedUserIds',
@@ -2996,6 +3025,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -3008,7 +3045,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -3024,14 +3061,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3192,6 +3221,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -3204,7 +3241,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -3220,14 +3257,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3410,6 +3439,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -3422,7 +3459,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -3438,14 +3475,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3577,7 +3606,7 @@ const chartTemplates = [
         fieldName: 'labels',
         fieldType: 'select',
         multi: true,
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'assignedUserIds',
@@ -3634,6 +3663,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -3646,7 +3683,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -3662,14 +3699,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -3856,6 +3885,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -3868,7 +3905,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -3884,14 +3921,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -4084,6 +4113,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -4096,7 +4133,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -4112,14 +4149,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -4280,6 +4309,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -4292,7 +4329,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -4308,14 +4345,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -4496,6 +4525,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -4508,7 +4545,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -4524,14 +4561,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -4750,6 +4779,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -4762,7 +4799,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -4778,14 +4815,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5001,6 +5030,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5013,7 +5050,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5029,14 +5066,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5159,6 +5188,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5171,7 +5208,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5187,14 +5224,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5330,6 +5359,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5342,7 +5379,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5358,14 +5395,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5393,7 +5422,15 @@ const chartTemplates = [
   {
     templateType: 'TicketClosedTotalsByRep',
     name: 'Ticket closed totals by rep',
-    chartTypes: ['bar'],
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
     // Bar Chart Table
     getChartResult: async (filter: any, dimension: any, subdomain: string) => {
       const { pipelineId, boardId, stageType } = filter;
@@ -5527,6 +5564,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5539,7 +5584,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5555,14 +5600,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5689,6 +5726,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5701,7 +5746,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5717,14 +5762,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -5897,6 +5934,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -5909,7 +5954,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -5925,14 +5970,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -6069,6 +6106,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -6081,7 +6126,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -6097,14 +6142,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -6272,6 +6309,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -6284,7 +6329,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -6300,14 +6345,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -6418,6 +6455,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -6430,7 +6475,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -6446,14 +6491,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
@@ -6586,6 +6623,14 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
         fieldName: 'pipelineLabels',
         fieldType: 'select',
         fieldQuery: 'pipelineLabels',
@@ -6598,7 +6643,7 @@ const chartTemplates = [
             logicFieldVariable: 'pipelineId',
           },
         ],
-        fieldLabel: 'Select labels',
+        fieldLabel: 'select label',
       },
       {
         fieldName: 'stageId',
@@ -6614,14 +6659,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'stages',
-        fieldOptions: STAGE,
-        fieldLabel: 'Select stage type',
       },
       {
         fieldName: 'tagIds',
