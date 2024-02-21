@@ -58,6 +58,12 @@ export interface IUser {
   departmentIds?: string[];
   branchIds?: string[];
   employeeId?: string;
+  chatStatus?: IUserChatStatus;
+}
+
+enum IUserChatStatus {
+  online = 'online',
+  offline = 'offline',
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -202,6 +208,11 @@ export const userSchema = schemaWrapper(
       unique: true,
       optional: true,
       sparse: true,
+    }),
+    chatStatus: field({
+      type: IUserChatStatus,
+      optional: true,
+      label: 'User chat status /used for exm/',
     }),
   }),
 );
