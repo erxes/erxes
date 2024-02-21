@@ -55,7 +55,9 @@ const ReportSectionContainer = (props: Props) => {
     confirm(__('Are you sure to delete selected reports?')).then(() => {
       reportsRemoveManyMutation({ variables: { ids } })
         .then(() => {
-          router.removeParams(history, 'reportId');
+          if (ids.includes(queryParams.reportId)) {
+            router.removeParams(history, ...Object.keys(queryParams));
+          }
           Alert.success(__('Successfully deleted'));
         })
         .catch((e: Error) => Alert.error(e.message));

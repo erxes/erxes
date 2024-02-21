@@ -75,6 +75,14 @@ const Form = (props: Props) => {
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
   const [dimension, setDimension] = useState<any>(chart?.dimension || {});
+  const [dimensions, setDimensions] = useState<any>([]);
+
+  useEffect(() => {
+    if (type === 'report' && !chart) {
+      updateServiceName(item?.serviceName || undefined);
+      setServiceName(item?.serviceName || '');
+    }
+  }, [item?.serviceName]);
 
   const chartTypesOptions = chartTypes.map((c) => ({ label: c, value: c }));
 
@@ -91,6 +99,9 @@ const Form = (props: Props) => {
     if (findChartTemplate) {
       setChartTypes(findChartTemplate.chartTypes);
       setFilterTypes(findChartTemplate.filterTypes);
+      if (findChartTemplate.dimensions) {
+        setDimensions(findChartTemplate.dimensions);
+      }
     }
   }, [[...chartTemplates]]);
 
@@ -127,22 +138,22 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    const updatedFilters = { ...filters };
-
     if (!value) {
-      delete updatedFilters[fieldName];
-      setFilters({ ...updatedFilters });
+      delete filters[fieldName];
+      setFilters({ ...filters });
       return;
     }
 
-    if (!value.length) {
-      delete updatedFilters[fieldName];
-      setFilters({ ...updatedFilters });
+    if (Array.isArray(value) && !value.length) {
+      delete filters[fieldName];
+      setFilters({ ...filters });
       return;
     }
 
-    updatedFilters[fieldName] = value;
-    setFilters({ ...updatedFilters });
+    filters[fieldName] = value;
+
+    setFilters({ ...filters });
+    return;
   };
 
   const renderFilterTypeFields = () => {
@@ -156,6 +167,7 @@ const Form = (props: Props) => {
           <ChartFormField
             initialValue={filters[f.fieldName]}
             filterType={f}
+            fieldValues={filters}
             key={f.fieldName}
             setFilter={setFilter}
             startDate={filters['startDate']}
@@ -196,7 +208,7 @@ const Form = (props: Props) => {
         <FormGroup>
           <ControlLabel>Dimension</ControlLabel>
           <Select
-            options={DIMENSION_OPTIONS}
+            options={dimensions}
             value={dimension?.x}
             onChange={(sel) => setDimension({ x: sel.value })}
           />

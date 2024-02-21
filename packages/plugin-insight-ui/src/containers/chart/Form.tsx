@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { gql, useQuery } from '@apollo/client';
@@ -28,28 +28,17 @@ type Props = {
 const FormContainer = (props: Props) => {
   const { queryParams, chart, type, item, closeDrawer } = props;
 
-  // const [serviceName, setServiceName] = useState(
-  //   chart
-  //     ? chart.serviceName
-  //     : type === 'report'
-  //       ? item?.serviceName
-  //       : undefined,
-  // );
-
   const [serviceName, setServiceName] = useState(
     chart?.serviceName || undefined,
   );
 
-  // const templateListQuery = useQuery<ReportTemplatesListQueryResponse>(
-  //   gql(queries.reportTemplatesList),
-  //   {
-  //     skip: type !== 'report',
-  //     variables: {
-  //       serviceName: item?.serviceName
-  //     },
-  //     fetchPolicy: 'network-only'
-  //   }
-  // );
+  const templateListQuery = useQuery<ReportTemplatesListQueryResponse>(
+    gql(queries.reportTemplatesList),
+    {
+      skip: type !== 'report',
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const servicesListQuery = useQuery<reportServicesListQueryResponse>(
     gql(queries.reportServicesList),
@@ -100,22 +89,20 @@ const FormContainer = (props: Props) => {
   };
 
   const serviceNames = servicesListQuery?.data?.reportServicesList || [];
-  // const reportTemplates = templateListQuery?.data?.reportTemplatesList || [];
+  const reportTemplates = templateListQuery?.data?.reportTemplatesList || [];
   const chartTemplates =
     chartTemplatesListQuery?.data?.reportChartTemplatesList || [];
 
-  // const services = type === 'report' ? [item?.serviceName] : serviceNames;
-  // const templates =
-  //   type === 'report'
-  //     ? filterChartTemplates(chartTemplates, reportTemplates, item)
-  //     : chartTemplates;
+  const services = type === 'report' ? [item?.serviceName] : serviceNames;
+  const templates =
+    type === 'report'
+      ? filterChartTemplates(chartTemplates, reportTemplates, item)
+      : chartTemplates;
 
   const finalProps = {
     ...props,
-    // serviceNames: services,
-    // chartTemplates: templates,
-    serviceNames,
-    chartTemplates,
+    serviceNames: services,
+    chartTemplates: templates,
     renderButton,
     updateServiceName: setServiceName,
   };

@@ -47,14 +47,14 @@ const Form = (props: Props) => {
 
   useEffect(() => {
     if (report && report.charts && report.charts.length) {
-      const { serviceType, serviceName } = getService(report.charts[0]);
+      const service = getService(report.charts[0], reportTemplates);
 
-      if (!report.serviceType) {
-        setServiceType(serviceType);
+      if (!report.serviceType && service) {
+        setServiceType(service.serviceType);
       }
 
-      if (!report.serviceName) {
-        setServiceName(serviceName);
+      if (!report.serviceName && service) {
+        setServiceName(service.serviceName);
       }
     }
   }, []);

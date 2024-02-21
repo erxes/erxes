@@ -53,7 +53,9 @@ const DashboardSectionContainer = (props: Props) => {
         variables: { id },
       })
         .then(() => {
-          router.removeParams(history, ...Object.keys(queryParams));
+          if (queryParams.dashboardId === id) {
+            router.removeParams(history, ...Object.keys(queryParams));
+          }
           Alert.success('You successfully deleted a dashboard');
         })
         .catch((e) => {

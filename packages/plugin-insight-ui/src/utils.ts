@@ -1,3 +1,15 @@
+export const getService = (chart, reportTemplatesList) => {
+  for (const template of reportTemplatesList) {
+    if (template.charts.includes(chart.templateType)) {
+      return {
+        serviceName: template.serviceName,
+        serviceType: template.serviceType,
+      };
+    }
+  }
+  return null;
+};
+
 export const groupServiceTypesByServiceName = (list) => {
   return list.reduce((acc, cur) => {
     if (!acc[cur.serviceName]) {
@@ -11,8 +23,18 @@ export const groupServiceTypesByServiceName = (list) => {
 };
 
 export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
+  let serviceType = item?.serviceType;
+
+  if (!item.serviceType) {
+    if (item && item.charts && item.charts.length) {
+      const service = getService(item.charts[0], reportTemplates);
+
+      serviceType = service?.serviceType || '';
+    }
+  }
+
   const reportChartTypes = reportTemplates
-    .filter((template) => template.serviceType === item?.serviceType)
+    .filter((template) => template.serviceType === serviceType)
     .flatMap((template) => template.charts);
 
   const filteredChartTemplates = chartTemplates.filter((template) =>
@@ -20,45 +42,4 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
   );
 
   return filteredChartTemplates;
-};
-
-const serviceTypes = {
-  ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown: 'deal',
-  dealsChartByMonth: 'deal',
-  DealAmountAverageByRep: 'deal',
-  DealLeaderboardAmountClosedByRep: 'deal',
-  DealsByLastModifiedDate: 'deal',
-  DealsClosedLostAllTimeByRep: 'deal',
-  DealsOpenByCurrentStage: 'deal',
-  DealsClosedWonAllTimeByRep: 'deal',
-  DealRevenueByStage: 'deal',
-  DealsSales: 'deal',
-  DealAverage: 'deal',
-  TaskAverageTimeToCloseByReps: 'task',
-  TaskAverageTimeToCloseByLabel: 'task',
-  TaskAverageTimeToCloseByTags: 'task',
-  TaskClosedTotalsByReps: 'task',
-  TaskClosedTotalsByLabel: 'task',
-  TaskClosedTotalsByTags: 'task',
-  TasksIncompleteTotalsByReps: 'task',
-  TasksIncompleteTotalsByLabel: 'task',
-  TasksIncompleteTotalsByTags: 'task',
-  AllTasksIncompleteByDueDate: 'task',
-  TasksIncompleteAssignedToTheTeamByDueDate: 'task',
-  TasksIncompleteAssignedToMeByDueDate: 'task',
-  averageFirstResponseTime: 'inbox',
-  averageCloseTime: 'inbox',
-  closedConversationsCountByRep: 'inbox',
-  conversationsCountByTag: 'inbox',
-  conversationsCountBySource: 'inbox',
-  conversationsCountByRep: 'inbox',
-  conversationsCountByStatus: 'inbox',
-  conversationsCount: 'inbox',
-};
-
-export const getService = (chart) => {
-  const { templateType, serviceName } = chart;
-  const serviceType = serviceTypes[templateType];
-
-  return { serviceName, serviceType };
 };

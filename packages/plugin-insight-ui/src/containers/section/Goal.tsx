@@ -47,7 +47,9 @@ const GoalSectionContainer = (props: Props) => {
         variables: { goalTypeIds: ids },
       })
         .then(() => {
-          router.removeParams(history, 'goalId');
+          if (ids.includes(queryParams.goalId)) {
+            router.removeParams(history, ...Object.keys(queryParams));
+          }
           Alert.success('You successfully deleted a goalType');
         })
         .catch((e) => {
