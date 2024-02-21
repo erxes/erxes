@@ -38,7 +38,7 @@ const TableList = (props: Props) => {
 
       <tbody>
         {labels.map((label, index) => (
-          <tr>
+          <tr key={index}>
             <td>
               <b>{label}</b>
             </td>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Alert from '@erxes/ui/src/utils/Alert/index';
 import { gql, useQuery } from '@apollo/client';
@@ -65,7 +65,7 @@ const ChartFormFieldList = (props: Props) => {
     }
   }
 
-  let queryFieldOptions;
+  let queryFieldOptions = [];
 
   if (queryExists) {
     const variables = logicFieldVariableExists
@@ -85,11 +85,12 @@ const ChartFormFieldList = (props: Props) => {
       fieldValueVariable &&
       fieldLabelVariable &&
       queryData[fieldQuery] &&
-      queryData[fieldQuery].length &&
-      queryData[fieldQuery].map((d) => ({
-        value: d[fieldValueVariable],
-        label: d[fieldLabelVariable],
-      }));
+      queryData[fieldQuery].length
+        ? queryData[fieldQuery].map((d) => ({
+            value: d[fieldValueVariable],
+            label: d[fieldLabelVariable],
+          }))
+        : [];
   }
 
   const checkLogic = () => {
@@ -111,7 +112,6 @@ const ChartFormFieldList = (props: Props) => {
       }
     }
 
-    Alert.error(`Please ${fieldLabel}`);
     return true;
   };
 
