@@ -121,6 +121,7 @@ class EmailTemplateList extends React.Component<Props> {
                 ) : (
                   <p>erxes Inc</p>
                 )}
+
               </TemplateInfo>
             </div>
           </TemplateBoxInfo>
