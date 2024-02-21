@@ -101,6 +101,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectDepartments
             multi={multi}
+            filterParams={{ withoutUserFilter: true }}
             name="chartAssignedDepartmentIds"
             label={fieldLabel}
             onSelect={onChange}
@@ -116,6 +117,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectBranches
             multi={multi}
+            filterParams={{ withoutUserFilter: true }}
             name="chartAssignedBranchIds"
             label={fieldLabel}
             onSelect={onChange}
