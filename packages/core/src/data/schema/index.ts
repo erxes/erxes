@@ -1,42 +1,53 @@
 import {
   mutations as BrandMutations,
   queries as BrandQueries,
-  types as BrandTypes
+  types as BrandTypes,
 } from './brand';
 import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
-  types as ConfigTypes
+  types as ConfigTypes,
 } from './config';
 import {
   mutations as ConformityMutations,
-  types as ConformityTypes
+  types as ConformityTypes,
 } from './conformity';
 import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
-  types as PermissionTypes
+  types as PermissionTypes,
 } from './permission';
 import {
   mutations as RobotMutations,
   queries as RobotQueries,
-  types as RobotTypes
+  types as RobotTypes,
 } from './robot';
 import {
   mutations as UserMutations,
   queries as UserQueries,
-  types as UserTypes
+  types as UserTypes,
 } from './user';
 import {
   mutations as StructureMutations,
   queries as StructureQueries,
-  types as StructureTypes
+  types as StructureTypes,
 } from './structure';
 import {
   types as AppTypes,
   mutations as AppMutations,
-  queries as AppQueries
+  queries as AppQueries,
 } from './app';
+
+import { queries as ChargeQueries, types as ChargeTypes } from './charge';
+import {
+  mutations as PromoCodeMutations,
+  types as PromoCodeTypes,
+} from '../schema/promoCode';
+import { queries as PluginQueries, types as PluginTypes } from './plugins';
+import {
+  queries as OnboardingQueries,
+  mutations as OnboardingMutations,
+} from './organizations';
 
 export let types = `
   scalar JSON
@@ -61,6 +72,9 @@ export let types = `
   ${RobotTypes}
   ${StructureTypes}
   ${AppTypes}
+  ${ChargeTypes}
+  ${PromoCodeTypes}
+  ${PluginTypes}
 `;
 
 export let queries = `
@@ -72,6 +86,9 @@ export let queries = `
   ${RobotQueries}
   ${StructureQueries}
   ${AppQueries}
+  ${ChargeQueries}
+  ${PluginQueries}
+  ${OnboardingQueries}
 `;
 
 export let mutations = `
@@ -83,6 +100,8 @@ export let mutations = `
   ${RobotMutations}
   ${StructureMutations}
   ${AppMutations}
+  ${PromoCodeMutations}
+  ${OnboardingMutations}
 `;
 
 export let subscriptions = `

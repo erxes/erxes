@@ -788,7 +788,7 @@ export const sendInternalNotesMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'internalNotes',
+    serviceName: 'internalnotes',
     ...args,
   });
 };

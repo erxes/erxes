@@ -92,7 +92,7 @@ const ParticipantItem = ({
     return (
       <Popover>
         <PopoverTrigger asChild={true} className="relative cursor-pointer">
-          <div className="p-2 absolute right-1 ">
+          <div className="py-2 pl-2 absolute right-1 ">
             <MoreVerticalIcon size={18} />
           </div>
         </PopoverTrigger>
@@ -123,10 +123,10 @@ const ParticipantItem = ({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between mb-2 p-2 hover:bg-[#F0F0F0]">
+      <div className="flex items-center justify-between mb-2 p-2">
         <div className="flex items-center">
           <div className="items-end flex mr-2">
-            <div className="w-12 h-12 rounded-full">
+            <div className="w-10 h-10 rounded-full">
               <Image
                 src={
                   (participant && participant.details?.avatar) ||
@@ -135,7 +135,7 @@ const ParticipantItem = ({
                 alt="avatar"
                 width={60}
                 height={60}
-                className="w-12 h-12 rounded-full object-cover border border-primary"
+                className="w-10 h-10 rounded-full object-cover border border-primary"
               />
             </div>
           </div>

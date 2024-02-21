@@ -33,10 +33,9 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     loading: commentLoading,
     handleLoadMore,
   } = useComments(postId)
-  const { emojiReactedUser, loadingReactedUsers } =
-    useReactionQuery({
-      feedId: postId,
-    })
+  const { emojiReactedUser, loadingReactedUsers } = useReactionQuery({
+    feedId: postId,
+  })
 
   if (loading) {
     return <LoadingCard />
@@ -71,7 +70,7 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     const { eventData } = feed
 
     return (
-      <div className="text-[#5E5B5B]">
+      <div className="text-[#5E5B5B] mb-2">
         <div className="flex items-center mb-2">
           <Calendar size={18} className="mr-1" />
           {dayjs(eventData?.startDate).format("MM/DD/YY H:mm")} ~{" "}
@@ -111,7 +110,12 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
       <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-exm flex-1 rounded-lg shrink-0">
         <CardContent className="p-0 relative">
           {renderImage()}
-          <FeedActions feed={feed} open={open} setOpen={setOpen} isDetail={false} />
+          <FeedActions
+            feed={feed}
+            open={open}
+            setOpen={setOpen}
+            isDetail={false}
+          />
           <div className="px-4 py-3 ">
             <div className="overflow-x-hidden">
               <p className="text-black font-semibold mb-2 text-lg">

@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/types"
 import { useAtomValue } from "jotai"
-import { Mic, Paperclip } from "lucide-react"
+import { Mic, Paperclip, SendHorizonal } from "lucide-react"
 
 import Loader from "@/components/ui/loader"
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
@@ -26,10 +26,9 @@ type IProps = {
     relatedId?: string
     attachments?: string[]
   }) => void
-  showSidebar: boolean
 }
 
-const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
+const Editor = ({ sendMessage, reply, setReply }: IProps) => {
   const [message, setMessage] = useState("")
   const [attachments, setAttachments] = useState<any[]>([])
   const relatedId = (reply && reply._id) || null
@@ -111,17 +110,28 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   }
 
   const attachmentsSection = () => {
-    return (
-      <div className="pt-2 overflow-auto w-full scrollbar-hide">
-        {attachments && attachments.length > 0 && (
+    if (attachments && attachments.length > 0) {
+      return (
+        <div className="pt-2 overflow-auto w-full scrollbar-hide max-h-[200px] ">
           <AttachmentWithChatPreview
-            attachments={attachments || []}
-            className="pb-2 flex w-full gap-3 items-center"
+            attachments={
+              attachments.filter((a: any) => !a.type.includes("image")) || []
+            }
+            className="flex w-full items-center flex-wrap"
             deleteImage={deleteImage}
           />
-        )}
-      </div>
-    )
+          <AttachmentWithChatPreview
+            attachments={
+              attachments.filter((a: any) => a.type.includes("image")) || []
+            }
+            className="grid grid-cols-4 w-full"
+            deleteImage={deleteImage}
+          />
+        </div>
+      )
+    } else {
+      return null
+    }
   }
 
   const emojiHandler = (emojiData: any) => {
@@ -192,10 +202,16 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
       )
     }
 
+    const style = {
+      maxHeight: "75px",
+      fontSize: "15px",
+    }
+
     return (
       <div className={`flex justify-between w-full`}>
         <textarea
           value={message}
+          style={style}
           onChange={handleInputChange}
           onKeyDown={onEnterPress}
           autoComplete="off"
@@ -213,44 +229,46 @@ const Editor = ({ sendMessage, reply, setReply, showSidebar }: IProps) => {
   }
 
   return (
-    <div className={`border-t py-4 px-[30px] ${showSidebar && "w-[72.5%]"}`}>
-      {attachments && attachments.length > 0 && attachmentsSection()}
-      {loading && <Loader className="mb-3" />}
-      <div className="flex items-center justify-around gap-7 ">
-        {isRecording ? (
-          <AudioRecorder sendAudio={sendAudio} />
-        ) : (
-          <>
-            <div className="flex gap-4">
-              {inputSection("button")}
-              <label className="cursor-pointer">
-                <input
-                  autoComplete="off"
-                  type="file"
-                  multiple={true}
-                  onChange={handleAttachmentChange}
-                  className="hidden"
-                />
-                <Paperclip size={16} />
-              </label>
-            </div>
-            <div className="w-full">
-              <ReplyInfo reply={reply} setReply={setReply} />
-              <div className="relative flex flex-1 items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
-                {inputSection()}
+    <>
+      <ReplyInfo reply={reply} setReply={setReply} />
+      <div className={` py-5 px-[27px]`}>
+        {attachments && attachments.length > 0 && attachmentsSection()}
+        {loading && <Loader className="mb-3" />}
+        <div className="flex items-center justify-around gap-4 ">
+          {isRecording ? (
+            <AudioRecorder sendAudio={sendAudio} />
+          ) : (
+            <>
+              <div className="flex gap-4">
+                {inputSection("button")}
+                <label className="cursor-pointer">
+                  <input
+                    autoComplete="off"
+                    type="file"
+                    multiple={true}
+                    onChange={handleAttachmentChange}
+                    className="hidden"
+                  />
+                  <Paperclip size={16} />
+                </label>
               </div>
-            </div>
-            <button
-              type="submit"
-              className="rounded-md bg-primary-light px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#5532c7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={onSubmit}
-            >
-              Send
-            </button>
-          </>
-        )}
+              <div className="w-full">
+                <div className="relative flex flex-1 items-center gap-4 p-4 rounded-lg bg-[#FCFCFD] border border-exm">
+                  {inputSection()}
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="text-sm font-semibold text-[#98A2B3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={onSubmit}
+              >
+                <SendHorizonal />
+              </button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

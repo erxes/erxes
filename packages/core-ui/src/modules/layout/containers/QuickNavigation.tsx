@@ -34,13 +34,13 @@ class QuickNavigationContainer extends React.Component<Props, State> {
           mutation {
             logout
           }
-        `
+        `,
       })
 
       .then(() => {
         window.location.href = '/';
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -56,7 +56,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
     const { selectedBrands } = this.state;
 
     if (selectedBrands.includes(value)) {
-      return this.setValues(selectedBrands.filter(i => i !== value));
+      return this.setValues(selectedBrands.filter((i) => i !== value));
     }
 
     return this.setValues(selectedBrands.concat(value));
@@ -69,7 +69,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
     return (
       <QuickNavigation
         showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
-        version={config.VERSION || ''}
+        release={config.RELEASE || ''}
         onChangeBrands={this.onChangeBrands}
         selectedBrands={this.state.selectedBrands}
         logout={this.logout}
@@ -86,8 +86,8 @@ export default withProps(
     graphql(gql(generalQueries.configsGetEnv), {
       name: 'getEnvQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(WithUser)
+        fetchPolicy: 'network-only',
+      }),
+    }),
+  )(WithUser),
 );
