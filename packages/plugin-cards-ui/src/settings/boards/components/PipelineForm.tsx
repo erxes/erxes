@@ -48,6 +48,7 @@ type State = {
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
+  isCheckDate: boolean;
   isCheckUser: boolean;
   isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
@@ -70,6 +71,7 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
+      isCheckDate: pipeline ? pipeline.isCheckDate || false : false,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
       isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
@@ -125,6 +127,7 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds,
       stages,
       backgroundColor,
+      isCheckDate,
       isCheckUser,
       isCheckDepartment,
       excludeCheckUserIds,
@@ -149,6 +152,7 @@ class PipelineForm extends React.Component<Props, State> {
       stages: stages.filter((el) => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
+      isCheckDate,
       isCheckUser,
       isCheckDepartment,
       excludeCheckUserIds,
@@ -216,6 +220,11 @@ class PipelineForm extends React.Component<Props, State> {
       </>
     );
   }
+
+  onChangeIsCheckDate = (e) => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isCheckDate: isChecked });
+  };
 
   onChangeIsCheckUser = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
@@ -400,6 +409,23 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderSelectMembers()}
 
           {this.renderNumberInput()}
+
+          <FormGroup>
+            <FlexContent>
+              <FlexItem>
+                <ControlLabel>
+                  {__(`Select the day after the card created date`)}
+                </ControlLabel>
+                <span style={{ marginLeft: '10px' }}>
+                  <FormControl
+                    componentClass="checkbox"
+                    checked={this.state.isCheckDate}
+                    onChange={this.onChangeIsCheckDate}
+                  />
+                </span>
+              </FlexItem>
+            </FlexContent>
+          </FormGroup>
 
           <FormGroup>
             <FlexContent>

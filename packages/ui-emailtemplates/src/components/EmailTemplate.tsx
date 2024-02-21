@@ -1,9 +1,3 @@
-import React from 'react';
-
-import dayjs from 'dayjs';
-
-import { Icon, ModalTrigger } from '@erxes/ui/src';
-
 import {
   Actions,
   IframeFullScreen,
@@ -13,6 +7,10 @@ import {
   TemplateBoxInfo,
   TemplateInfo,
 } from '../styles';
+import { Icon, ModalTrigger } from '@erxes/ui/src';
+
+import React from 'react';
+import dayjs from 'dayjs';
 
 type Props = {
   handleSelect?: (_id: string) => void;

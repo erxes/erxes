@@ -9,6 +9,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { ListItem } from '../../styles';
 import colors from '@erxes/ui/src/styles/colors';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 type Props = {
   botId?: string;
@@ -57,6 +58,16 @@ function PersistentMenuSelector({
 
     onChange('persistentMenuIds', updatedMenuIds);
   };
+
+  if (persistentMenus.length) {
+    return (
+      <EmptyState
+        text="No persistent menus in selected bot"
+        icon="list-ul"
+        extra="Persistent menu with link can't display as selectable condition on section"
+      />
+    );
+  }
 
   return persistentMenus.map(
     ({ _id, text, type }) =>

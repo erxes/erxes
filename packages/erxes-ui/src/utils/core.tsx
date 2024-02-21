@@ -628,8 +628,8 @@ export const bustIframe = () => {
 };
 
 export const getSubdomain = () => {
-  const env = (window as any).erxesEnv;
-  return env?.subdomain;
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
 };
 
 export const getVersion = () => {

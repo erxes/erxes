@@ -181,9 +181,13 @@ function ButtonsGenerator({
                   { type: 'btn', text: 'Button' },
                   { type: 'link', text: 'Link' },
                 ].map(({ text, type }) => (
-                  <li key={type} onClick={(e) => handleBtnTypeChange(e, type)}>
+                  <Dropdown.Item
+                    className="dropdown-item"
+                    key={type}
+                    onClick={(e) => handleBtnTypeChange(e, type)}
+                  >
                     <a>{text}</a>
-                  </li>
+                  </Dropdown.Item>
                 ))}
               </Container>
             </Dropdown.Menu>

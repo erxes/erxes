@@ -6,7 +6,10 @@ import type {
 
 import { generateModels } from './connectionResolver';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
   const enabled = await isEnabled(serviceName);
@@ -42,6 +45,18 @@ export const initBroker = async () => {
     async ({ subdomain, data: { contentType, contentTypeIds } }) => {
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
+    },
+  );
+
+  consumeRPCQueue(
+    'internalnotes:findInternalNotes',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.InternalNotes.find(data).lean(),
+        status: 'success',
+      };
     },
   );
 };

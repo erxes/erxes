@@ -1,112 +1,198 @@
-import React from 'react';
-
 import {
-  FilterContainer,
-  FlexItem,
-  InputBar,
-} from '@erxes/ui-settings/src/styles';
-import Form from '@erxes/ui-emailtemplates/src/containers/Form';
+  Actions,
+  IframePreview,
+  Template,
+  TemplateBox,
+  TemplateBoxInfo,
+  TemplateInfo,
+  Templates,
+} from '@erxes/ui-emailtemplates/src/styles';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import Form from '@erxes/ui-emailtemplates/src/components/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import List from '@erxes/ui-settings/src/common/components/List';
-import { __, router, Icon } from '@erxes/ui/src';
-import { Templates } from '@erxes/ui-emailtemplates/src/styles';
-
-import Row from './Row';
-
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import List from '@erxes/ui-settings/src/common/components/List';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { router } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
   history: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
-  loading: boolean;
 } & ICommonListProps;
 
-const EmailTemplateList = (props: Props) => {
-  const { objects, queryParams, history } = props;
-
-  const [search, setSearch] = React.useState(
-    router.getParam(history, 'searchValue'),
-  );
-  const timerRef = React.useRef<number | null>(null);
-
-  const searchHandler = (event) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-
-    const searchValue = event.target.value;
-    setSearch(searchValue);
-
-    timerRef.current = window.setTimeout(() => {
-      router.setParams(history, { page: 1, searchValue });
-    }, 500);
+class EmailTemplateList extends React.Component<Props> {
+  renderForm = (props) => {
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  const renderSearch = () => {
+  removeTemplate = (object) => {
+    this.props.remove(object._id);
+  };
+
+  duplicateTemplate = (id) => {
+    this.props.duplicate(id);
+  };
+
+  renderEditAction = (object) => {
+    const { save } = this.props;
+
+    const content = (props) => {
+      return this.renderForm({ ...props, object, save });
+    };
+
+    return (
+      <ModalTrigger
+        enforceFocus={false}
+        title="Edit"
+        size="lg"
+        trigger={
+          <div>
+            <Icon icon="edit" /> Edit
+          </div>
+        }
+        content={content}
+      />
+    );
+  };
+
+  renderDuplicateAction(object) {
+    return (
+      <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+        <Icon icon="copy-1" />
+        Duplicate
+      </div>
+    );
+  }
+
+  renderDate(createdAt, modifiedAt) {
+    if (createdAt === modifiedAt) {
+      if (createdAt === null) {
+        return '-';
+      }
+
+      return dayjs(createdAt).format('DD MMM YYYY');
+    }
+
+    return dayjs(modifiedAt).format('DD MMM YYYY');
+  }
+
+  renderRow = () => {
+    return this.props.objects.map((object, index) => {
+      const { name, content, createdAt, modifiedAt, createdUser } =
+        object || {};
+
+      return (
+        <Template key={index} isLongName={name.length > 46}>
+          <TemplateBox>
+            <Actions>
+              {this.renderEditAction(object)}
+              <div onClick={this.removeTemplate.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </div>
+              {this.renderDuplicateAction(object)}
+            </Actions>
+            <IframePreview>
+              <iframe title="content-iframe" srcDoc={content} />
+            </IframePreview>
+          </TemplateBox>
+          <TemplateBoxInfo>
+            <h5>{name}</h5>
+            <div>
+              <TemplateInfo>
+                <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+                <p>{this.renderDate(createdAt, modifiedAt)}</p>
+              </TemplateInfo>
+              <TemplateInfo>
+                <p>Created by</p>
+                {createdUser ? (
+                  createdUser.details.fullName && (
+                    <p>{createdUser.details.fullName}</p>
+                  )
+                ) : (
+                  <p>erxes Inc</p>
+                )}
+              </TemplateInfo>
+            </div>
+          </TemplateBoxInfo>
+        </Template>
+      );
+    });
+  };
+
+  searchHandler = (event) => {
+    const { history } = this.props;
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    router.setParams(navigate, location, {
+      page: 1,
+      searchValue: event.target.value,
+    });
+  };
+
+  renderContent = () => {
+    return <Templates>{this.renderRow()}</Templates>;
+  };
+
+  renderSearch = () => {
     return (
       <FilterContainer marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__('Type to search')}
-              onChange={searchHandler}
-              defaultValue={search}
-              autoFocus={true}
-            />
-          </FlexItem>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.searchHandler}
+            value={router.getParam(this.props.history, 'searchValue')}
+            autoFocus={true}
+          />
         </InputBar>
       </FilterContainer>
     );
   };
 
-  const renderForm = (formProps) => {
-    return <Form {...formProps} />;
-  };
-
-  const renderContent = () => {
+  render() {
     return (
-      <Templates>
-        {objects.map((object, index) => (
-          <Row key={index} {...props} object={object} />
-        ))}
-      </Templates>
+      <List
+        formTitle="New email template"
+        size="lg"
+        breadcrumb={[
+          { title: __('Settings'), link: '/settings' },
+          { title: __('Email templates') },
+        ]}
+        title={__('Email templates')}
+        leftActionBar={
+          <HeaderDescription
+            icon="/images/actions/22.svg"
+            title="Email templates"
+            description={`${__(
+              `It's all about thinking ahead for your customers`,
+            )}.${__(
+              'Team members will be able to choose from email templates and send out one message to multiple recipients',
+            )}.${__(
+              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members',
+            )}`}
+          />
+        }
+        renderForm={this.renderForm}
+        renderContent={this.renderContent}
+        {...this.props}
+        queryParams={this.props.queryParams}
+        history={this.props.history}
+        additionalButton={this.renderSearch()}
+      />
     );
-  };
-
-  return (
-    <List
-      {...props}
-      formTitle="New email template"
-      size="lg"
-      breadcrumb={[
-        { title: __('Settings'), link: '/settings' },
-        { title: __('Email templates') },
-      ]}
-      title={__('Email templates')}
-      leftActionBar={
-        <HeaderDescription
-          icon="/images/actions/22.svg"
-          title="Email templates"
-          description={`${__(
-            `It's all about thinking ahead for your customers`,
-          )}.${__(
-            'Team members will be able to choose from email templates and send out one message to multiple recipients',
-          )}.${__(
-            'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members',
-          )}`}
-        />
-      }
-      renderForm={renderForm}
-      renderContent={renderContent}
-      queryParams={queryParams}
-      history={history}
-      additionalButton={renderSearch()}
-    />
-  );
-};
+  }
+}
 
 export default EmailTemplateList;

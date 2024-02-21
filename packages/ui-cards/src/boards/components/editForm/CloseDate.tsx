@@ -20,6 +20,8 @@ import dayjs from 'dayjs';
 
 type Props = {
   closeDate: Date;
+  createdDate: Date;
+  isCheckDate?: boolean;
   isComplete: boolean;
   reminderMinute: number;
   onChangeField: (
@@ -75,10 +77,23 @@ class CloseDate extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { reminderMinute } = this.props;
+    const { reminderMinute, isCheckDate, createdDate } = this.props;
     const { dueDate } = this.state;
-    const day = dayjs(dueDate).format('YYYY-MM-DD');
+
+    const checkedDate = new Date(
+      Math.max(new Date(dueDate).getTime(), new Date(createdDate).getTime()),
+    );
+    const day = isCheckDate
+      ? dayjs(checkedDate).format('YYYY-MM-DD')
+      : dayjs(dueDate).format('YYYY-MM-DD');
+
     const time = dayjs(dueDate).format('HH:mm');
+
+    const renderValidDate = (current) => {
+      return isCheckDate
+        ? dayjs(current).isAfter(dayjs(createdDate).subtract(1, 'day'))
+        : true;
+    };
 
     const onChangeDateTime = (e) => {
       const type = e.target.type;
@@ -124,6 +139,7 @@ class CloseDate extends React.Component<Props, State> {
               closeOnSelect={true}
               utc={true}
               input={false}
+              isValidDate={renderValidDate}
               onChange={this.dateOnChange}
               defaultValue={dayjs()
                 .startOf('day')
