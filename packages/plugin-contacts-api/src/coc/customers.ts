@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';
+import { generateElkIds } from '@erxes/api-utils/src/elasticsearch';
 
 interface ISortParams {
   [index: string]: number;
@@ -14,7 +15,7 @@ const findIntegrations = (subdomain: string, query, options?) =>
     action: 'integrations.find',
     data: { query, options },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
 export interface IConformityQueryParams {
@@ -69,8 +70,8 @@ export class Builder extends CommonBuilder<IListArgs> {
     if (this.params.type) {
       this.positiveList.push({
         term: {
-          state: this.params.type
-        }
+          state: this.params.type,
+        },
       });
     }
   }
@@ -91,15 +92,15 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map((i) => i._id),
+      },
     });
   }
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
     const integrations = await findIntegrations(this.subdomain, {
-      kind: integration
+      kind: integration,
     });
 
     /**
@@ -108,8 +109,8 @@ export class Builder extends CommonBuilder<IListArgs> {
      */
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map((i) => i._id),
+      },
     });
   }
 
@@ -119,8 +120,8 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map((i) => i._id),
+      },
     });
   }
 
@@ -142,20 +143,20 @@ export class Builder extends CommonBuilder<IListArgs> {
                 must: [
                   {
                     term: {
-                      'customFieldsData.field': field
-                    }
-                  }
-                ]
-              }
-            }
-          }
+                      'customFieldsData.field': field,
+                    },
+                  },
+                ],
+              },
+            },
+          },
         };
 
         for (const operator of operators) {
           const value = new Date(dateFilters[key][operator]);
 
           const rangeQry: any = {
-            range: { 'customFieldsData.dateValue': {} }
+            range: { 'customFieldsData.dateValue': {} },
           };
 
           rangeQry.range['customFieldsData.dateValue'][operator] = value;
@@ -169,7 +170,7 @@ export class Builder extends CommonBuilder<IListArgs> {
           const value = new Date(dateFilters[key][operator]);
 
           const qry: any = {
-            range: { [key]: {} }
+            range: { [key]: {} },
           };
 
           qry.range[key][operator] = value;
@@ -187,18 +188,18 @@ export class Builder extends CommonBuilder<IListArgs> {
     subdomain: string,
     formId: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<void> {
     const submissions = await sendFormsMessage({
       subdomain,
       action: 'submissions.find',
       data: {
         query: {
-          formId
-        }
+          formId,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const ids: string[] = [];
@@ -222,8 +223,8 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        _id: ids
-      }
+        _id: await generateElkIds(ids, this.subdomain),
+      },
     });
   }
 
@@ -232,8 +233,8 @@ export class Builder extends CommonBuilder<IListArgs> {
       this.subdomain,
       {},
       {
-        _id: 1
-      }
+        _id: 1,
+      },
     );
 
     const selector = {
@@ -242,14 +243,14 @@ export class Builder extends CommonBuilder<IListArgs> {
       state: this.params.type || 'customer',
       $or: [
         {
-          integrationId: { $in: [null, undefined, ''] }
+          integrationId: { $in: [null, undefined, ''] },
         },
         {
           integrationId: {
-            $in: activeIntegrations.map(integration => integration._id)
-          }
-        }
-      ]
+            $in: activeIntegrations.map((integration) => integration._id),
+          },
+        },
+      ],
     };
 
     const customers = await this.models.Customers.find(selector)
@@ -260,7 +261,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     return {
       list: customers,
-      totalCount: count
+      totalCount: count,
     };
   }
 
@@ -292,7 +293,7 @@ export class Builder extends CommonBuilder<IListArgs> {
           this.subdomain,
           this.params.form,
           this.params.startDate,
-          this.params.endDate
+          this.params.endDate,
         );
       } else {
         await this.formFilter(this.subdomain, this.params.form);

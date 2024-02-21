@@ -5,47 +5,67 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Settings from './settings/containers/Settings';
 import HolidaySettings from './settings/components/HolidaySettings';
 
-const ContractList = asyncComponent(() =>
-  import(/* webpackChunkName: "ContractList" */ './contracts/containers/List')
+const ContractList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractList" */ './contracts/containers/List'
+    ),
 );
 
-const ContractDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
-  )
+const ContractDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
+    ),
 );
-const PeriodLockDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PeriodLockDetails" */ './periodLocks/containers/PeriodLockDetails'
-  )
-);
-
-const TransactionList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
-  )
-);
-const PeriodLockList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PeriodLockList" */ './periodLocks/containers/PeriodLocksList'
-  )
+const PeriodLockDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PeriodLockDetails" */ './periodLocks/containers/PeriodLockDetails'
+    ),
 );
 
-const ContractTypesList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractTypesList" */ './contractTypes/containers/ContractTypesList'
-  )
+const TransactionList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
+    ),
 );
-const ContractTypeDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
-  )
+const PeriodLockList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PeriodLockList" */ './periodLocks/containers/PeriodLocksList'
+    ),
+);
+
+const ContractTypesList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractTypesList" */ './contractTypes/containers/ContractTypesList'
+    ),
+);
+const ContractTypeDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
+    ),
 );
 
 const contractLists = ({ location, history }) => {
   return (
     <ContractList
       queryParams={queryString.parse(location.search)}
+      isDeposit={false}
+      history={history}
+    />
+  );
+};
+
+const depositLists = ({ location, history }) => {
+  return (
+    <ContractList
+      queryParams={queryString.parse(location.search)}
+      isDeposit
       history={history}
     />
   );
@@ -108,6 +128,12 @@ const SavingRoutes = () => {
         path="/erxes-plugin-saving/contract-list"
         exact={true}
         component={contractLists}
+      />
+      <Route
+        key="/erxes-plugin-saving/deposit-list"
+        path="/erxes-plugin-saving/deposit-list"
+        exact={true}
+        component={depositLists}
       />
       <Route
         path="/erxes-plugin-saving/contract-details/:id"

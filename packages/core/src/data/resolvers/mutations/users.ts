@@ -17,9 +17,24 @@ import {
 } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
-import utils, { getEnv } from '../../utils';
+import utils, { getEnv, sendEmail } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
 import fetch from 'node-fetch';
+import * as jwt from 'jsonwebtoken';
+import { getOrganizationDetail } from '@erxes/api-utils/src/saas/saas';
+import {
+  updateOrganization,
+  updateOrganizationDomain,
+  updateOrganizationInfo,
+} from '../../../organizations';
+import { debugError } from '@erxes/api-utils/src/debuggers';
+import redis from '@erxes/api-utils/src/redis';
+import Workos from '@workos-inc/node';
+
+export const EMAIL_TRANSPORTS = {
+  SES: 'ses',
+  SENDGRID: 'sendgrid',
+};
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -126,8 +141,13 @@ const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: ILogin, { res, requestInfo, models }: IContext) {
+  async login(
+    _root,
+    args: ILogin,
+    { res, requestInfo, models, subdomain }: IContext,
+  ) {
     const response = await models.Users.login(args);
+    const VERSION = getEnv({ name: 'VERSION' });
 
     const { token } = response;
 
@@ -135,9 +155,21 @@ const userMutations = {
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     const cookieOptions: any = { secure: requestInfo.secure };
-
     if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
       cookieOptions.sameSite = sameSite;
+    }
+
+    if (VERSION && VERSION === 'saas') {
+      const organization = await getOrganizationDetail({ subdomain, models });
+
+      if (organization.domain && organization.dnsStatus === 'active') {
+        cookieOptions.secure = true;
+        cookieOptions.sameSite = 'none';
+      }
+
+      await updateOrganization(models, subdomain, {
+        $set: { lastActiveDate: Date.now() },
+      });
     }
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));
@@ -167,7 +199,7 @@ const userMutations = {
     const token = await models.Users.forgotPassword(email);
 
     // send email ==============
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
@@ -531,6 +563,181 @@ const userMutations = {
     { user, models }: IContext,
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
+  },
+  /*
+   * Upgrade organization plan status
+   */
+  async editOrganizationInfo(
+    _root,
+    {
+      icon,
+      link,
+      name,
+      iconColor,
+      textColor,
+      domain,
+      favicon,
+      description,
+      backgroundColor,
+      logo,
+    }: {
+      logo: string;
+      icon: string;
+      link: string;
+      name: string;
+      favicon: string;
+      domain: string;
+      iconColor: string;
+      textColor: string;
+      description: string;
+      backgroundColor: string;
+    },
+    { subdomain, res, requestInfo }: IContext,
+  ) {
+    return updateOrganizationInfo(
+      {
+        subdomain,
+        icon,
+        link,
+        name,
+        logo,
+        iconColor,
+        description,
+        backgroundColor,
+        favicon,
+        domain,
+        textColor,
+      },
+      res,
+      requestInfo.cookies,
+    );
+  },
+
+  async editOrganizationDomain(
+    _root,
+    {
+      domain,
+      type,
+    }: {
+      domain: string;
+      type: string;
+    },
+    { subdomain }: IContext,
+  ) {
+    return updateOrganizationDomain({
+      subdomain,
+      type,
+      domain,
+    });
+  },
+
+  async loginWithGoogle(_root, _params, { models, subdomain }: IContext) {
+    try {
+      const workosClient = new Workos(
+        getEnv({ name: 'WORKOS_API_KEY', subdomain }),
+      );
+
+      const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
+
+      const state = await jwt.sign(
+        {
+          subdomain,
+          redirectUri: `https://${subdomain}.api.erxes.io/api/sso-callback`,
+        },
+        models.Users.getSecret(),
+        { expiresIn: '1d' },
+      );
+
+      const authorizationURL = workosClient.sso.getAuthorizationURL({
+        provider: 'GoogleOAuth',
+        redirectURI: `${CORE_DOMAIN}/saas-sso-callback`,
+        clientID: getEnv({ name: 'WORKOS_PROJECT_ID', subdomain }),
+        state,
+      });
+
+      await updateOrganization(models, subdomain, {
+        $set: { lastActiveDate: Date.now() },
+      });
+
+      return authorizationURL;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
+  async loginWithMagicLink(
+    _root,
+    { email }: { email: string },
+    { models, subdomain }: IContext,
+  ) {
+    try {
+      const workosClient = new Workos(
+        getEnv({ name: 'WORKOS_API_KEY', subdomain }),
+      );
+
+      const user = await models.Users.findOne({
+        email: { $regex: new RegExp(`^${email}$`, 'i') },
+      });
+
+      if (user) {
+        const CORE_DOMAIN = getEnv({ name: 'CORE_DOMAIN', subdomain });
+
+        const token = await jwt.sign(
+          {
+            user: models.Users.getTokenFields(user),
+            subdomain,
+            redirectUri: `https://${subdomain}.api.erxes.io/api/ml-callback`,
+          },
+          models.Users.getSecret(),
+          { expiresIn: '1d' },
+        );
+
+        // validated tokens are checked at user middleware
+        await models.Users.updateOne(
+          { _id: user._id },
+          { $push: { validatedTokens: token } },
+        );
+
+        // will use subdomain when workos callback data arrives
+        await redis.set('subdomain', subdomain);
+
+        const session = await workosClient.passwordless.createSession({
+          email,
+          type: 'MagicLink',
+          state: token,
+          redirectURI: `${CORE_DOMAIN}/saas-ml-callback`,
+        });
+
+        await sendEmail(
+          subdomain,
+          {
+            toEmails: [email],
+            title: 'Login to erxes',
+            template: {
+              name: 'magicLogin',
+              data: { loginUrl: session.link, email },
+            },
+            transportMethod: EMAIL_TRANSPORTS.SENDGRID,
+            getOrganizationDetail,
+          },
+          models,
+        );
+
+        await updateOrganization(models, subdomain, {
+          $set: { lastActiveDate: Date.now() },
+        });
+
+        return 'success';
+      }
+
+      return 'Invalid login';
+    } catch (e) {
+      debugError(
+        `Error occurred when sending magic link: ${JSON.stringify(e)}`,
+      );
+
+      throw new Error(e.message);
+    }
   },
 };
 

@@ -1,7 +1,7 @@
 import { IModels, generateModels } from '../connectionResolver';
 import {
   CONTRACT_STATUS,
-  SCHEDULE_STATUS
+  SCHEDULE_STATUS,
 } from '../models/definitions/constants';
 import { IContractDocument } from '../models/definitions/contracts';
 import { getFullDate } from '../models/utils/utils';
@@ -20,12 +20,14 @@ export async function checkContractScheduleAnd(subdomain: string) {
 
   if (exactTime === '00:00:00') {
     const loanContracts: IContractDocument[] = await models.Contracts.find({
-      status: CONTRACT_STATUS.NORMAL
+      status: CONTRACT_STATUS.NORMAL,
     }).lean();
 
     if (!loanContracts.length) return;
+    now.setDate(now.getDate() - 1);
+    const periodDate = getFullDate(now);
 
-    const periodLock = await createPeriodLock(today, [], models);
+    const periodLock = await createPeriodLock(periodDate, [], models);
 
     for await (let contract of loanContracts) {
       await storeInterestContract(contract, today, models, periodLock._id);

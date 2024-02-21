@@ -55,7 +55,7 @@ export const handleFacebookMessage = async (
         userId: userId,
         createdAt: new Date(Date.now()),
         content: strippedContent,
-        parent_id: comment_id,
+        parentId: comment_id,
       });
 
       let attachment: {
