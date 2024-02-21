@@ -192,6 +192,7 @@ export const mutations = `
   reportsRemoveMany(ids: [String]!): JSON 
    
   reportsEdit(_id:String!, ${report_params}): Report
+  reportsDuplicate(_id: String!): Report
 
   reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON

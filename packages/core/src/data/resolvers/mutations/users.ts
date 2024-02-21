@@ -564,6 +564,20 @@ const userMutations = {
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
   },
+
+  async usersSetChatStatus(
+    _root,
+    { _id, status }: { _id: string; status: string },
+    { models }: IContext,
+  ) {
+    const getUser = await models.Users.getUser(_id);
+
+    if (!getUser) {
+      throw new Error('User not found');
+    }
+
+    return await models.Users.updateUser(_id, { chatStatus: status });
+  },
   /*
    * Upgrade organization plan status
    */

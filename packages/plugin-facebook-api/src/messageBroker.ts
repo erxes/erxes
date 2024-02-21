@@ -17,6 +17,7 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import {
   InterMessage,
+  RPResult,
   consumeQueue,
   consumeRPCQueue,
   sendRPCMessage,
@@ -72,29 +73,26 @@ export const initBroker = async () => {
 
       const { action, type } = data;
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
 
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, data._id) };
+          response.data = await removeAccount(models, data._id);
         }
 
         if (action === 'repair-integrations') {
-          response = { data: await repairIntegrations(models, data._id) };
+          response.data = await repairIntegrations(models, data._id);
         }
 
         if (type === 'facebook') {
-          response = {
-            data: await handleFacebookMessage(models, data, subdomain),
-          };
+          response.data = await handleFacebookMessage(models, data, subdomain);
         }
 
         if (action === 'getConfigs') {
-          response = { data: await models.Configs.find({}) };
+          response.data = await models.Configs.find({});
         }
-
-        // FIXME: Cannot set properties of null (setting 'status')
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',

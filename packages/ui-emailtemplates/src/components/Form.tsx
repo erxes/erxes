@@ -65,6 +65,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <RichTextEditor
+            height={300}
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}
