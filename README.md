@@ -67,7 +67,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 
 ## What does erxes mean? How do you pronounce it?
 
-erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
+a Mongolian word meaning “galaxy”. A galaxy is a system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity. The word is derived from the Greek galaxias (γαλαξίας), literally 'milky', a reference to the Milky Way galaxy that contains the Solar System.
 
 ## What is erxes?
 erxes is a secure, self-hosted, and scalable source available experience management infrastructure that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/intro/architecture">erxes architecture in our documentation</a>.**
