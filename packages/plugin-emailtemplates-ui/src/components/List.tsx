@@ -114,6 +114,7 @@ class EmailTemplateList extends React.Component<Props> {
               </TemplateInfo>
               <TemplateInfo>
                 <p>Created by</p>
+<<<<<<< HEAD
                 {createdUser ? (
                   (createdUser.details || ({} as IUserDetails)).fullName && (
                     <p>{createdUser.details.fullName}</p>
@@ -121,6 +122,9 @@ class EmailTemplateList extends React.Component<Props> {
                 ) : (
                   <p>erxes Inc</p>
                 )}
+=======
+                <p>{createdUser?.details?.fullName || 'erxes Inc'}</p>
+>>>>>>> 1f238b819d (checking currentUser)
               </TemplateInfo>
             </div>
           </TemplateBoxInfo>
