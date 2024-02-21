@@ -5,7 +5,7 @@ import {
   Template,
   TemplateBox,
   TemplateBoxInfo,
-  TemplateInfo
+  TemplateInfo,
 } from '../styles';
 import { Icon, ModalTrigger } from '@erxes/ui/src';
 
@@ -67,7 +67,7 @@ class EmailTemplate extends React.Component<Props> {
       template: { content },
       handleSelect,
       templateId,
-      onlyPreview
+      onlyPreview,
     } = this.props;
 
     return (
@@ -106,13 +106,7 @@ class EmailTemplate extends React.Component<Props> {
             </TemplateInfo>
             <TemplateInfo>
               <p>Created by</p>
-              {createdUser ? (
-                createdUser.details.fullName && (
-                  <p>{createdUser.details.fullName}</p>
-                )
-              ) : (
-                <p>erxes Inc</p>
-              )}
+              <p>{createdUser?.details?.fullName || 'erxes Inc'}</p>
             </TemplateInfo>
           </div>
         </TemplateBoxInfo>
