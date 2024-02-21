@@ -2,20 +2,26 @@ import { generateModels, IModels } from './connectionResolver';
 import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from './constants';
 import {
   fetchSegment,
+  sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
   sendLogsMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from './messageBroker';
 import * as moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 import { IStageDocument } from './models/definitions/boards';
+import {
+  getCompanyIds,
+  getCustomerIds,
+  getInternalNoteIds,
+} from './models/utils';
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { contentType, segmentData, page, perPage } = query;
 
@@ -86,7 +92,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any> => {
   const { contentType, segmentData } = query;
 
@@ -101,7 +107,7 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData
+      segmentData,
     );
 
     boardItemsFilter._id = { $in: itemIds };
@@ -169,9 +175,9 @@ const fillDealProductValue = async (subdomain, column, item) => {
             subdomain,
             action: 'findOne',
             data: {
-              _id: productData.productId
+              _id: productData.productId,
             },
-            isRPC: true
+            isRPC: true,
           })) || {};
 
         value = product.name;
@@ -183,9 +189,9 @@ const fillDealProductValue = async (subdomain, column, item) => {
             subdomain,
             action: 'findOne',
             data: {
-              _id: productData.productId
+              _id: productData.productId,
             },
-            isRPC: true
+            isRPC: true,
           })) || {};
 
         value = product.code;
@@ -233,9 +239,9 @@ const fillDealProductValue = async (subdomain, column, item) => {
             subdomain,
             action: 'branches.findOne',
             data: {
-              _id: productData.branchId
+              _id: productData.branchId,
             },
-            isRPC: true
+            isRPC: true,
           })) || {};
 
         value = branch.code;
@@ -247,9 +253,9 @@ const fillDealProductValue = async (subdomain, column, item) => {
             subdomain,
             action: 'departments.findOne',
             data: {
-              _id: productData.departmentId
+              _id: productData.departmentId,
             },
-            isRPC: true
+            isRPC: true,
           })) || {};
 
         value = department.code;
@@ -272,9 +278,11 @@ const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any
+  item: any,
+  contentType: string,
 ): Promise<string> => {
   let value = item[column];
+  const type = contentType.split(':')[1];
 
   switch (column) {
     case 'createdAt':
@@ -288,9 +296,9 @@ const fillValue = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: item.userId
+          _id: item.userId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       value = createdUser ? createdUser.username : 'user not found';
@@ -303,14 +311,16 @@ const fillValue = async (
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: item.assignedUserIds || [] }
-          }
+            _id: { $in: item.assignedUserIds || [] },
+          },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      value = assignedUsers.map(user => user.username || user.email).join(', ');
+      value = assignedUsers
+        .map((user) => user.username || user.email)
+        .join(', ');
 
       break;
 
@@ -320,25 +330,27 @@ const fillValue = async (
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: item.watchedUserIds || [] }
-          }
+            _id: { $in: item.watchedUserIds || [] },
+          },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      value = watchedUsers.map(user => user.username || user.email).join(', ');
+      value = watchedUsers
+        .map((user) => user.username || user.email)
+        .join(', ');
 
       break;
 
     case 'labelIds':
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
-          _id: { $in: item.labelIds }
-        }
+          _id: { $in: item.labelIds },
+        },
       );
 
-      value = labels.map(label => label.name).join(', ');
+      value = labels.map((label) => label.name).join(', ');
 
       break;
 
@@ -347,13 +359,13 @@ const fillValue = async (
         subdomain,
         action: `branches.find`,
         data: {
-          query: { _id: { $in: item.branchIds || [] } }
+          query: { _id: { $in: item.branchIds || [] } },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      value = branches.map(branch => branch.title).join(', ');
+      value = branches.map((branch) => branch.title).join(', ');
 
       break;
 
@@ -362,19 +374,19 @@ const fillValue = async (
         subdomain,
         action: 'departments.find',
         data: {
-          _id: { $in: item.departmentIds || [] }
+          _id: { $in: item.departmentIds || [] },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      value = departments.map(department => department.title).join(', ');
+      value = departments.map((department) => department.title).join(', ');
 
       break;
 
     case 'stageId':
       const stage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.stageId
+        _id: item.stageId,
       });
 
       value = stage ? stage.name : '-';
@@ -383,14 +395,14 @@ const fillValue = async (
 
     case 'boardId':
       const stageForBoard = await models.Stages.findOne({
-        _id: item.stageId
+        _id: item.stageId,
       });
 
       value = '-';
 
       if (stageForBoard) {
         const pipeline = await models.Pipelines.findOne({
-          _id: stageForBoard.pipelineId
+          _id: stageForBoard.pipelineId,
         });
 
         if (pipeline) {
@@ -404,14 +416,14 @@ const fillValue = async (
 
     case 'pipelineId':
       const stageForPipeline = await models.Stages.findOne({
-        _id: item.stageId
+        _id: item.stageId,
       });
 
       value = '-';
 
       if (stageForPipeline) {
         const pipeline = await models.Pipelines.findOne({
-          _id: stageForPipeline.pipelineId
+          _id: stageForPipeline.pipelineId,
         });
 
         value = pipeline ? pipeline.name : '-';
@@ -421,7 +433,7 @@ const fillValue = async (
 
     case 'initialStageId':
       const initialStage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.initialStageId
+        _id: item.initialStageId,
       });
 
       value = initialStage ? initialStage.name : '-';
@@ -433,9 +445,9 @@ const fillValue = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: item.modifiedBy
+          _id: item.modifiedBy,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       value = modifiedBy ? modifiedBy.username : '-';
@@ -470,11 +482,11 @@ const fillValue = async (
         data: {
           query: {
             contentId: item._id,
-            action: 'moved'
-          }
+            action: 'moved',
+          },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const movedUser: IUserDocument | null = await sendCoreMessage({
@@ -484,12 +496,70 @@ const fillValue = async (
           _id:
             activities.length > 0
               ? activities[activities.length - 1].createdBy
-              : ''
+              : '',
         },
-        isRPC: true
+        isRPC: true,
       });
 
       value = movedUser ? movedUser.username : '-';
+
+      break;
+
+    case 'customers':
+      const customerRows = [] as any;
+
+      const customerIds = await getCustomerIds(subdomain, type, item._id);
+
+      for (const id of customerIds) {
+        const customer = await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: { _id: id },
+          isRPC: true,
+          defaultValue: '',
+        });
+
+        customerRows.push(customer);
+      }
+
+      value = customerRows
+        .map((customer) => customer.primaryEmail || '')
+        .join(', ');
+
+      break;
+
+    case 'companies':
+      const companyRows = [] as any;
+
+      const companyIds = await getCompanyIds(subdomain, type, item._id);
+
+      for (const id of companyIds) {
+        const company = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: { _id: id },
+          isRPC: true,
+          defaultValue: '',
+        });
+
+        companyRows.push(company);
+      }
+
+      value = companyRows
+        .map((company) => company.primaryName || '')
+        .join(', ');
+      break;
+
+    case 'internalNotes':
+      const notes = await getInternalNoteIds(subdomain, contentType, item._id);
+
+      const removeTag = (text) => {
+        return text.replace(/<\/?[^>]+(>|$)|&nbsp;/g, '');
+      };
+
+      value = notes
+        .map((note: any) => removeTag(note.content) || '')
+        .join(', ');
 
       break;
 
@@ -525,10 +595,10 @@ export default {
             action: 'fields.findOne',
             data: {
               query: {
-                _id: fieldId
-              }
+                _id: fieldId,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -548,7 +618,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -572,9 +642,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -602,12 +672,18 @@ export default {
             const productItem = await fillDealProductValue(
               subdomain,
               column,
-              item
+              item,
             );
 
             productDocs.push(productItem);
           } else {
-            const value = await fillValue(models, subdomain, column, item);
+            const value = await fillValue(
+              models,
+              subdomain,
+              column,
+              item,
+              data.contentType,
+            );
 
             result[column] = value || '-';
           }
@@ -633,7 +709,7 @@ export default {
             if (index === 0) {
               docs.push({
                 ...result,
-                ...mergedObject
+                ...mergedObject,
               });
               index++;
             } else {
@@ -649,5 +725,5 @@ export default {
     }
 
     return { docs };
-  }
+  },
 };
