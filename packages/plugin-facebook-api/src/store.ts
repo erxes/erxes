@@ -240,7 +240,6 @@ export const getOrCreateComment = async (
   const parentCommentConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
-  let comment;
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
@@ -262,7 +261,7 @@ export const getOrCreateComment = async (
   console.log(parentCommentConversation, 'parentCommentConversation');
   if (parentCommentConversation) {
     console.log('1');
-    comment = await models.CommentConversationReply.create({
+    await models.CommentConversationReply.create({
       attachments: attachment,
       recipientId: pageId,
       senderId: userId,
@@ -275,7 +274,7 @@ export const getOrCreateComment = async (
     });
   } else {
     console.log('2');
-    comment = await models.CommentConversation.create({
+    await models.CommentConversation.create({
       attachments: attachment,
       recipientId: pageId,
       senderId: userId,
@@ -321,7 +320,7 @@ export const getOrCreateComment = async (
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
-          _id: comment._id,
+          _id: conversation._id,
           integrationId: integration.erxesApiId,
           conversationId: conversation.erxesApiId,
         },
@@ -331,13 +330,13 @@ export const getOrCreateComment = async (
         `conversationMessageInserted:${conversation.erxesApiId}`,
         {
           conversationMessageInserted: {
-            _id: comment._id,
+            _id: conversation._id,
             content: commentParams.message,
             createdAt: new Date(),
             customerId: customer.erxesApiId,
             conversationId: conversation.erxesApiId,
           },
-          comment,
+          conversation,
           integration,
         },
       );
