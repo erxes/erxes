@@ -22,7 +22,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || ''
+      content: (props.object && props.object.content) || '',
     };
   }
 
@@ -41,7 +41,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content
+      content: this.state.content,
     };
   };
 
@@ -65,6 +65,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <RichTextEditor
+            height={300}
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}

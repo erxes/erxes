@@ -25,14 +25,14 @@ import {
   CenterBar,
   RightDrawerContainer,
   Title,
-  ToggleWrapper
+  ToggleWrapper,
 } from '../../styles';
 import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger
+  ITrigger,
 } from '../../types';
 import { connection, getTriggerConfig, getTriggerType } from '../../utils';
 import ActionDetailForm from '../forms/actions/ActionDetailForm';
@@ -90,7 +90,7 @@ class Editor extends React.Component<Props, State> {
       showDrawer: false,
       showAction: false,
       activeAction: {} as IAction,
-      automationNotes
+      automationNotes,
     };
   }
 
@@ -104,7 +104,7 @@ class Editor extends React.Component<Props, State> {
     return newId;
   };
 
-  setWrapperRef = node => {
+  setWrapperRef = (node) => {
     this.wrapperRef = node;
   };
 
@@ -112,11 +112,11 @@ class Editor extends React.Component<Props, State> {
     const value = (e.currentTarget as HTMLButtonElement).value;
     this.setState({ name: value });
   };
-  switchActionbarTab = type => {
+  switchActionbarTab = (type) => {
     this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
-  onToggle = e => {
+  onToggle = (e) => {
     const isActive = e.target.checked;
 
     this.setState({ isActive });
@@ -141,7 +141,7 @@ class Editor extends React.Component<Props, State> {
         _id: automation._id,
         name,
         status: isActive ? 'active' : 'draft',
-        triggers: triggers.map(t => ({
+        triggers: triggers.map((t) => ({
           id: t.id,
           type: t.type,
           config: t.config,
@@ -150,9 +150,9 @@ class Editor extends React.Component<Props, State> {
           description: t.description,
           actionId: t.actionId,
           position: t.position,
-          isCustom: t.isCustom
+          isCustom: t.isCustom,
         })),
-        actions: actions.map(a => ({
+        actions: actions.map((a) => ({
           id: a.id,
           type: a.type,
           nextActionId: a.nextActionId,
@@ -160,8 +160,8 @@ class Editor extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
-          position: a.position
-        }))
+          position: a.position,
+        })),
       };
 
       return finalValues;
@@ -176,7 +176,7 @@ class Editor extends React.Component<Props, State> {
       showDrawer: true,
       showTrigger: false,
       currentTab: 'actions',
-      activeAction: action ? action : ({} as IAction)
+      activeAction: action ? action : ({} as IAction),
     });
   };
 
@@ -190,7 +190,7 @@ class Editor extends React.Component<Props, State> {
       showAction: false,
       currentTab: 'triggers',
       selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger)
+      activeTrigger: trigger ? trigger : ({} as ITrigger),
     });
   };
 
@@ -198,20 +198,20 @@ class Editor extends React.Component<Props, State> {
     const { triggers, actions } = this.state;
 
     if (type === 'action') {
-      const action = actions.find(action => action.id === id);
+      const action = actions.find((action) => action.id === id);
 
       return action && this.onClickAction(action);
     }
 
     if (type === 'trigger') {
-      const trigger = triggers.find(trigger => trigger.id === id);
+      const trigger = triggers.find((trigger) => trigger.id === id);
       trigger && this.onClickTrigger(trigger);
     }
   };
 
   toggleDrawer = ({
     type,
-    awaitingActionId
+    awaitingActionId,
   }: {
     type: string;
     awaitingActionId?: string;
@@ -225,11 +225,11 @@ class Editor extends React.Component<Props, State> {
     this.setState({
       showDrawer: !!type && currentTab !== type ? true : !showDrawer,
       currentTab: type,
-      awaitingActionId
+      awaitingActionId,
     });
   };
 
-  onConnection = info => {
+  onConnection = (info) => {
     const { triggers, actions } = this.state;
 
     connection(triggers, actions, info, info.targetId);
@@ -240,12 +240,12 @@ class Editor extends React.Component<Props, State> {
   addAction = (data: IAction, actionId?: string, config?: any) => {
     let { actions, awaitingActionId } = this.state;
 
-    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: any = { ...data, id: this.getNewId(actions.map((a) => a.id)) };
 
     let actionIndex = -1;
 
     if (actionId) {
-      actionIndex = actions.findIndex(a => a.id === actionId);
+      actionIndex = actions.findIndex((a) => a.id === actionId);
 
       if (actionIndex !== -1) {
         action = actions[actionIndex];
@@ -263,7 +263,7 @@ class Editor extends React.Component<Props, State> {
     if (awaitingActionId) {
       const [awaitActionId, optionalConnectId] = awaitingActionId.split('-');
 
-      actions = actions.map(a => {
+      actions = actions.map((a) => {
         if (a.id === awaitActionId && optionalConnectId) {
           const { config } = a || {};
           const { optionalConnects = [] } = config || {};
@@ -274,9 +274,9 @@ class Editor extends React.Component<Props, State> {
               ...config,
               optionalConnects: [
                 ...optionalConnects,
-                { sourceId: a.id, actionId: action.id, optionalConnectId }
-              ]
-            }
+                { sourceId: a.id, actionId: action.id, optionalConnectId },
+              ],
+            },
           };
         }
 
@@ -291,7 +291,7 @@ class Editor extends React.Component<Props, State> {
     this.setState({
       actions,
       activeAction: action,
-      awaitingActionId: undefined
+      awaitingActionId: undefined,
     });
   };
 
@@ -300,9 +300,9 @@ class Editor extends React.Component<Props, State> {
 
     let trigger: any = {
       ...data,
-      id: this.getNewId(triggers.map(t => t.id))
+      id: this.getNewId(triggers.map((t) => t.id)),
     };
-    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
+    const triggerIndex = triggers.findIndex((t) => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
       trigger = activeTrigger;
@@ -323,7 +323,7 @@ class Editor extends React.Component<Props, State> {
     const fieldName = `${type}s`;
 
     this.setState({
-      [fieldName]: this.state[fieldName].filter(item => item.id !== id)
+      [fieldName]: this.state[fieldName].filter((item) => item.id !== id),
     } as Pick<State, keyof State>);
   };
 
@@ -334,11 +334,11 @@ class Editor extends React.Component<Props, State> {
       showAction,
       activeTrigger,
       activeAction,
-      selectedContentId
+      selectedContentId,
     } = this.state;
 
     const {
-      constants: { triggersConst, actionsConst, propertyTypesConst }
+      constants: { triggersConst, actionsConst, propertyTypesConst },
     } = this.props;
 
     const onBack = () => this.setState({ showTrigger: false });
@@ -347,7 +347,7 @@ class Editor extends React.Component<Props, State> {
     if (currentTab === 'triggers') {
       if (showTrigger && activeTrigger) {
         const triggerConst = triggersConst.find(
-          triggersConst => triggersConst.type === activeTrigger.type
+          (triggersConst) => triggersConst.type === activeTrigger.type,
         );
 
         return (
@@ -393,7 +393,7 @@ class Editor extends React.Component<Props, State> {
               triggerConfig={getTriggerConfig(
                 actions,
                 triggers,
-                activeAction.id
+                activeAction.id,
               )}
               actionsConst={actionsConst}
               propertyTypesConst={propertyTypesConst}
@@ -487,9 +487,9 @@ class Editor extends React.Component<Props, State> {
 
     this.setState({
       ...this.state,
-      [`${type}s`]: items.map(item =>
-        item.id === id ? { ...item, position } : item
-      )
+      [`${type}s`]: items.map((item) =>
+        item.id === id ? { ...item, position } : item,
+      ),
     });
   };
 
@@ -526,7 +526,7 @@ class Editor extends React.Component<Props, State> {
     const content = ({ closeModal }) => {
       return (
         <Form
-          renderContent={formProps => (
+          renderContent={(formProps) => (
             <TemplateForm
               formProps={formProps}
               closeModal={closeModal}
@@ -580,7 +580,7 @@ class Editor extends React.Component<Props, State> {
     const {
       automation,
       constants: { triggersConst, actionsConst },
-      automationNotes
+      automationNotes,
     } = this.props;
 
     if (!this.state.isActionTab) {
@@ -625,7 +625,7 @@ class Editor extends React.Component<Props, State> {
           title={`${(automation && automation.name) || 'Automation'}`}
           breadcrumb={[
             { title: __('Automations'), link: '/automations' },
-            { title: `${(automation && automation.name) || ''}` }
+            { title: `${(automation && automation.name) || ''}` },
           ]}
         />
 

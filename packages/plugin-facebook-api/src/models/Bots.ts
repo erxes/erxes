@@ -149,7 +149,6 @@ export const loadBotClass = (models: IModels) => {
             pageAccessToken: bot.token,
             persistentMenus: doc.persistentMenus,
           });
-          return { status: 'success' };
         } catch (error) {
           throw new Error(error.message);
         }

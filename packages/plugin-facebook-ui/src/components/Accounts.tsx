@@ -2,11 +2,11 @@ import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  FacebookButton
+  FacebookButton,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IAccount,
-  IntegrationTypes
+  IntegrationTypes,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { __, confirm } from 'coreui/utils';
 
@@ -25,6 +25,7 @@ type Props = {
   kind: IntegrationTypes;
   renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
+  selectedAccountId?: string;
 };
 
 class Accounts extends React.Component<Props, { accountId?: string }> {
@@ -39,6 +40,13 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts && accounts.length > 0) {
       this.onSelectAccount(accounts[0]._id, accounts[0]);
+    }
+
+    if (this.props?.selectedAccountId) {
+      const account = (accounts || []).find(
+        (account) => account._id === this.props.selectedAccountId,
+      );
+      this.onSelectAccount(this.props.selectedAccountId, account);
     }
   };
 
@@ -96,7 +104,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       );
     }
 
-    return accounts.map(account => (
+    return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>{account.name}</span>
 

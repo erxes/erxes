@@ -266,7 +266,7 @@ const facebookQueries = {
 
       const comment_ids = comment?.map((item) => item.comment_id);
       const search = await models.CommentConversationReply.find({
-        parent_id: comment_ids,
+        parentId: comment_ids,
       })
         .sort(sort)
         .skip(skip || 0);

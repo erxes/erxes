@@ -91,7 +91,7 @@ function CommentContent({ config }) {
   );
 }
 
-export default function TriggerContent({ triggerType, constant, config }) {
+export default function TriggerContent({ triggerType, constant, config = {} }) {
   const updatedProps = {
     constant,
     config,

@@ -16,6 +16,7 @@ import type {
 
 import { generateModels } from './connectionResolver';
 import {
+  RPResult,
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
@@ -45,24 +46,24 @@ export const initBroker = async () => {
 
       const { action } = data;
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
 
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, data._id) };
+          response.data = await removeAccount(models, data._id);
         }
 
         if (action === 'getTelnyxInfo') {
-          response = {
-            data: {
-              telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
-              integrations: await models.Integrations.find({ kind: 'telnyx' }),
-            },
+          response.data = {
+            telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
+            integrations: await models.Integrations.find({ kind: 'telnyx' }),
           };
         }
 
         if (action === 'getConfigs') {
-          response = { data: await models.Configs.find({}) };
+          response.data = await models.Configs.find({});
         }
 
         if (action === 'getDetails') {
@@ -70,10 +71,8 @@ export const initBroker = async () => {
             erxesApiId: data.inboxId,
           }).select(['-_id', '-kind', '-erxesApiId']);
 
-          response = { data: integration };
+          response.data = integration;
         }
-
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',

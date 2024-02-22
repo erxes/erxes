@@ -23,7 +23,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     this.state = {
       structure: (props.object && props.object.structure) || '',
-      vision: (props.object && props.object.vision) || ''
+      vision: (props.object && props.object.vision) || '',
     };
   }
 
@@ -46,7 +46,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       structure: this.state.structure,
-      vision: this.state.vision
+      vision: this.state.vision,
     };
   };
 

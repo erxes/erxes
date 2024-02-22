@@ -8,11 +8,6 @@ import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
   Form,
   FormControl,
   FormField,
@@ -20,16 +15,17 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import Loader from "@/components/ui/loader"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
+import DragNDrop from "@/components/DragNDrop"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
 import FormAttachments from "./FormAttachments"
 import FormImages from "./FormImages"
-import Uploader from "./uploader/Uploader"
 
 const FormSchema = z.object({
   description: z
@@ -46,9 +42,13 @@ const FormSchema = z.object({
 
 const PostForm = ({
   feed,
+  tab,
+  changeTab,
   setOpen,
 }: {
   feed?: IFeed
+  tab: string
+  changeTab: (tab: string) => void
   setOpen: (open: boolean) => void
 }) => {
   const [departmentIds, setDepartmentIds] = useState(feed?.departmentIds || [])
@@ -63,8 +63,7 @@ const PostForm = ({
   const [branchSearchValue, setBranchSearchvalue] = useState("")
   const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
   const [success, setSuccess] = useState(false)
-  const [imageUploading, setImageUploading] = useState(false)
-  const [attachmentUploading, setAttachmentUploading] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -133,47 +132,16 @@ const PostForm = ({
     onchangeFunc(ids)
   }
 
-  return (
-    <DialogContent className="max-h-[80vh] max-w-2xl overflow-auto">
-      <DialogHeader>
-        <DialogTitle>Create post</DialogTitle>
-      </DialogHeader>
-
-      {mutationLoading ? <LoadingPost /> : null}
-
-      {success ? <SuccessPost /> : null}
-
-      <Form {...form}>
-        <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    placeholder="Write a post"
-                    {...field}
-                    defaultValue={feed?.description || ""}
-                    className="p-0 border-none"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormAttachments
-            attachments={attachments || []}
-            setAttachments={setAttachments}
-          />
-          <FormImages images={images} setImage={setImage} />
-
+  const content = () => {
+    if (tab === "share") {
+      return (
+        <div className="flex flex-col gap-4 h-full relative">
+          <b className="text-center">Who would you like to share</b>
           <FormField
             control={form.control}
             name="departmentIds"
             render={() => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && !seDepartmentSearchvalue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -205,7 +173,7 @@ const PostForm = ({
             control={form.control}
             name="branchIds"
             render={() => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && branchSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -234,7 +202,7 @@ const PostForm = ({
             control={form.control}
             name="unitId"
             render={({}) => (
-              <FormItem>
+              <FormItem className="max-w-[500px] w-full mx-auto ">
                 <FormControl>
                   {loading && !reload && unitSearchValue ? (
                     <Input disabled={true} placeholder="Loading..." />
@@ -260,38 +228,99 @@ const PostForm = ({
               </FormItem>
             )}
           />
-          <div className="flex items-center border rounded-lg px-2 border-[hsl(var(--border))] justify-between">
-            <p className="text-[#444]">Add attachments</p>
-            <div className="flex">
-              <Uploader
-                defaultFileList={images || []}
-                onChange={setImage}
-                type={"image"}
-                icon={true}
-                iconSize={20}
-                setUploading={setImageUploading}
-              />
+          <div className="pt-6 border-t border-[#F2F4F7] mt-auto absolute bottom-[-20px] flex justify-between w-full">
+            <Button
+              className="font-semibold rounded-lg bg-white text-black border border-light hover:bg-white float-right w-[180px]"
+              onClick={() => changeTab("info")}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              className="font-semibold rounded-lg bg-primary float-right w-[180px]"
+              disabled={uploading}
+            >
+              Post
+            </Button>
+          </div>
+        </div>
+      )
+    }
 
-              <Uploader
-                defaultFileList={attachments || []}
-                onChange={setAttachments}
-                icon={true}
-                iconSize={20}
-                setUploading={setAttachmentUploading}
+    return (
+      <>
+        <div className="flex justify-center gap-6 mb-6 h-[calc(100%-50px)]">
+          <div className="max-w-[566px] border border-exm rounded-md w-full h-full">
+            <div className="overflow-auto h-[60%] px-4 pt-4">
+              {uploading && <Loader className="pb-4" />}
+              <FormImages images={images} setImage={setImage} />
+              <FormAttachments
+                attachments={attachments || []}
+                setAttachments={setAttachments}
+                type="form"
+              />
+            </div>
+
+            <div className="flex h-[40%] border-t border-exm p-4">
+              <DragNDrop
+                setAttachments={setAttachments}
+                setImage={setImage}
+                className="w-full h-full"
+                setUploading={setUploading}
+                defaultFileList={images.concat(attachments)}
               />
             </div>
           </div>
 
+          <div className="border border-exm rounded-md max-w-[566px] !w-full">
+            <div className="px-4 py-3 border-b-2 border-exm">Post</div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="h-[calc(100%-46px)]">
+                  <FormControl>
+                    <Textarea
+                      placeholder="Write a post"
+                      {...field}
+                      defaultValue={feed?.description || ""}
+                      className="p-3 border-none max-w-[566px] w-full !h-[100%] !max-h-[unset]"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+        <div className="pt-6 border-t border-[#F2F4F7]">
           <Button
-            type="submit"
-            className="font-semibold w-full rounded-lg bg-primary-light"
-            disabled={imageUploading || attachmentUploading}
+            className="font-semibold rounded-lg bg-primary float-right w-[180px]"
+            disabled={uploading}
+            onClick={() => changeTab("share")}
           >
-            Post
+            Next
           </Button>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <div>
+      {mutationLoading ? <LoadingPost /> : null}
+
+      {success ? <SuccessPost /> : null}
+
+      <Form {...form}>
+        <form
+          className="space-y-3 h-[calc(80vh-8rem)]"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          {content()}
         </form>
       </Form>
-    </DialogContent>
+    </div>
   )
 }
 

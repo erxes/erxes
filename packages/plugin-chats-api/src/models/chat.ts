@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import {
   chatMessageSchema,
+  chatMessageReactionSchema,
   chatSchema,
   IChat,
   IChatMessage,
@@ -8,7 +9,9 @@ import {
   IChatMessageDocument,
   IUserStatusDocument,
   IUserStatus,
-  userStatusSchema
+  userStatusSchema,
+  IChatMessageReactionDocument,
+  IChatMessageReaction,
 } from './definitions/chat';
 
 export interface IChatModel extends Model<IChatDocument> {
@@ -17,7 +20,7 @@ export interface IChatModel extends Model<IChatDocument> {
   updateChat(_id: string, doc: IChat, userId: string);
   removeChat(_id: string);
 }
-export const loadChatClass = models => {
+export const loadChatClass = (models) => {
   class Chat {
     /*
      * Get a chat
@@ -25,7 +28,7 @@ export const loadChatClass = models => {
     public static async getChat(_id: string, userId: string) {
       const chat = await models.Chats.findOne({
         _id,
-        participantIds: { $in: [userId] }
+        participantIds: { $in: [userId] },
       });
 
       if (!chat) {
@@ -40,14 +43,14 @@ export const loadChatClass = models => {
         ...doc,
         createdAt: new Date(),
         createdBy,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
     }
 
     public static async updateChat(_id: string, doc: IChat, userId: string) {
       await models.Chats.updateOne(
         { _id, participantIds: { $in: [userId] } },
-        { $set: doc }
+        { $set: doc },
       );
 
       return models.Chats.findOne({ _id, participantIds: { $in: [userId] } });
@@ -71,7 +74,7 @@ export interface IChatMessageModel extends Model<IChatMessageDocument> {
   updateChatMessage(_id: string, doc: IChatMessage);
   removeChatMessage(_id: string);
 }
-export const loadChatMessageClass = models => {
+export const loadChatMessageClass = (models) => {
   class ChatMessage {
     /*
      * Get a chat message
@@ -88,18 +91,18 @@ export const loadChatMessageClass = models => {
 
     public static async createChatMessage(
       doc: IChatMessage,
-      createdBy: string
+      createdBy: string,
     ) {
       const result = await models.Chats.findOne({
         _id: doc.chatId,
-        participantIds: { $in: [createdBy] }
+        participantIds: { $in: [createdBy] },
       });
 
       if (!result) throw new Error('Permission denied');
       return models.ChatMessages.create({
         ...doc,
         createdAt: new Date(),
-        createdBy
+        createdBy,
       });
     }
 
@@ -117,13 +120,63 @@ export const loadChatMessageClass = models => {
 
   return chatMessageSchema;
 };
+export interface IChatMessageReactionModel
+  extends Model<IChatMessageReactionDocument> {
+  getChatMessageReaction(_id: string);
+  createChatMessageReaction(doc: IChatMessageReaction);
+  updateChatMessageReaction(_id: string, doc: IChatMessageReaction);
+  removeChatMessageReaction(_id: string);
+}
+export const loadChatMessageReactionClass = (models) => {
+  class ChatMessageReaction {
+    /*
+     * Get a chat message
+     */
+    public static async getChatMessageReaction(_id: string) {
+      const ChatMessageReaction = await models.ChatMessageReactions.findOne({
+        _id,
+      });
+
+      if (!ChatMessageReaction) {
+        throw new Error('Chat message reaction not found');
+      }
+
+      return ChatMessageReaction;
+    }
+
+    public static async createChatMessageReaction(
+      doc: IChatMessageReaction,
+      createdBy: string,
+    ) {
+      return models.ChatMessageReactions.create({
+        ...doc,
+      });
+    }
+
+    public static async updateChatMessageReaction(
+      _id: string,
+      doc: IChatMessageReaction,
+    ) {
+      await models.ChatMessageReactions.updateOne({ _id }, { $set: doc });
+
+      return models.ChatMessageReactions.findOne({ _id });
+    }
+
+    public static removeChatMessageReaction(_id: string) {
+      return models.ChatMessageReactions.deleteOne({ _id });
+    }
+  }
+  chatMessageReactionSchema.loadClass(ChatMessageReaction);
+
+  return chatMessageReactionSchema;
+};
 
 export interface IUserStatusModel extends Model<IUserStatusDocument> {
   getChat(_id: string);
   createUserStatus(doc: IUserStatus): Promise<IUserStatusDocument>;
   updateChat(_id: string, doc: IUserStatus);
 }
-export const loadUserStatusClass = models => {
+export const loadUserStatusClass = (models) => {
   class UserStatus {
     /*
      * Get a UserStatus
@@ -140,13 +193,13 @@ export const loadUserStatusClass = models => {
 
     public static async createUserStatus(doc: IUserStatus) {
       return await models.UserStatus.create({
-        ...doc
+        ...doc,
       });
     }
 
     public static async updateUserStatusByUserId(
       userId: string,
-      doc: IUserStatus
+      doc: IUserStatus,
     ) {
       await models.UserStatus.updateOne({ userId }, { $set: doc });
 

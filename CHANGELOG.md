@@ -1,3 +1,39 @@
+## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
+
+## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
+
+
+### Reverts
+
+* Revert "fix" ([d3603c4](https://github.com/erxes/erxes/commit/d3603c408a4faa51d34cd4c794ba46902489449f))
+* Revert "fix" ([b186a6a](https://github.com/erxes/erxes/commit/b186a6ac18782613afd2d5b8a060165c192933a6))
+
+## [1.6.1-rc.1](https://github.com/erxes/erxes/compare/1.6.1-rc.0...1.6.1-rc.1) (2024-02-08)
+
+## [1.6.1-rc.0](https://github.com/erxes/erxes/compare/1.6.0...1.6.1-rc.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* add index on logs ([0cf5818](https://github.com/erxes/erxes/commit/0cf5818f9fda4fba152c194016b3e22da9dfd08a))
+* **clientportal:** fix sendSms function ([686c3fa](https://github.com/erxes/erxes/commit/686c3fa98d1a654843fb5e51c8f2e5c538394e78))
+* **payment:** fix qpay quick qr api response & return qr_image instead of generate qrData from string ([c8377d0](https://github.com/erxes/erxes/commit/c8377d05f53e784db73ca8d317e5f8dd704ca7a2))
+
+
+### Features
+
+* add labelSelect customProperty with value and label selector ([64e27ee](https://github.com/erxes/erxes/commit/64e27ee31963b3aa62bd71bc46d14c6f4c7dc42e))
+* add syncpolaris plugin ([#4941](https://github.com/erxes/erxes/issues/4941)) ([5ed2da9](https://github.com/erxes/erxes/commit/5ed2da99be80b001362ee08e73a7bbfcbe7313e0))
+* auto fill deals bank amount when cards:deal invoices status change to paid ([2b5e47b](https://github.com/erxes/erxes/commit/2b5e47b7d8e9252119fd2a9dcbf94e775cf4154e))
+* **clientportal:** send otp code via mail ([#4931](https://github.com/erxes/erxes/issues/4931)) ([975560f](https://github.com/erxes/erxes/commit/975560fa65113f388f4ebfffdf038a18fcb81b4c))
+
+
+### Performance Improvements
+
+* **editor:** Added toolbar control config props to editor component ([#4899](https://github.com/erxes/erxes/issues/4899)) ([56e4f65](https://github.com/erxes/erxes/commit/56e4f650dc85cdab061b4911410322fb52023e0a))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.6.0-rc.8...1.6.0) (2024-02-08)
+
 # [1.6.0-rc.8](https://github.com/erxes/erxes/compare/1.6.0-rc.7...1.6.0-rc.8) (2024-02-05)
 
 # [1.6.0-rc.7](https://github.com/erxes/erxes/compare/1.6.0-rc.6...1.6.0-rc.7) (2024-02-02)
