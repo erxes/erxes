@@ -1,3 +1,13 @@
+## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
+
+## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
+
+
+### Reverts
+
+* Revert "fix" ([d3603c4](https://github.com/erxes/erxes/commit/d3603c408a4faa51d34cd4c794ba46902489449f))
+* Revert "fix" ([b186a6a](https://github.com/erxes/erxes/commit/b186a6ac18782613afd2d5b8a060165c192933a6))
+
 ## [1.6.1-rc.1](https://github.com/erxes/erxes/compare/1.6.1-rc.0...1.6.1-rc.1) (2024-02-08)
 
 ## [1.6.1-rc.0](https://github.com/erxes/erxes/compare/1.6.0...1.6.1-rc.0) (2024-02-08)

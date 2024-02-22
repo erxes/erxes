@@ -50,7 +50,13 @@ const generateMessages = async (
       name: 'DOMAIN',
     });
 
-    return `${DOMAIN}/read-file?key=${key}`;
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (NODE_ENV !== 'production') {
+      return `${DOMAIN}/read-file?key=${key}`;
+    }
+
+    return `${DOMAIN}/gateway/read-file?key=${key}`;
   };
 
   const quickRepliesIndex = messages.findIndex(
@@ -265,6 +271,7 @@ export const actionCreateMessage = async (
   const { target } = execution || {};
   const { config } = action || {};
 
+  console.log(target?.content);
   const conversation = await models.Conversations.findOne({
     _id: target?.conversationId,
   });
@@ -351,7 +358,7 @@ export const actionCreateMessage = async (
     if (!optionalConnects?.length) {
       return result;
     }
-
+    console.log('done');
     return {
       result,
       objToWait: generateObjectToWait({
