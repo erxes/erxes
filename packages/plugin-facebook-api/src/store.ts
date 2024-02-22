@@ -315,12 +315,13 @@ export const getOrCreateComment = async (
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
     try {
-      console.log(conversation, 'conversation');
+      console.log(conversation, 'conversation 1');
+      console.log(conversation.erxesApiId, 'erxesApiIdsss 2');
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
-          _id: conversation._id,
+          _id: conversation?._id,
           integrationId: integration.erxesApiId,
           conversationId: conversation.erxesApiId,
         },
@@ -330,7 +331,7 @@ export const getOrCreateComment = async (
         `conversationMessageInserted:${conversation.erxesApiId}`,
         {
           conversationMessageInserted: {
-            _id: conversation._id,
+            _id: conversation?._id,
             content: commentParams.message,
             createdAt: new Date(),
             customerId: customer.erxesApiId,
