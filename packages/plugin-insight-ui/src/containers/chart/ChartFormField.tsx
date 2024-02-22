@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
+
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import { gql, useQuery } from '@apollo/client';
+
 import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
-import { gql, useQuery } from '@apollo/client';
 import { IFieldLogic } from '../../types';
-import { Alert } from '@erxes/ui/src/utils';
 
 export type IFilterType = {
   fieldName: string;
@@ -63,7 +65,7 @@ const ChartFormFieldList = (props: Props) => {
     }
   }
 
-  let queryFieldOptions;
+  let queryFieldOptions = [];
 
   if (queryExists) {
     const variables = logicFieldVariableExists
@@ -83,11 +85,12 @@ const ChartFormFieldList = (props: Props) => {
       fieldValueVariable &&
       fieldLabelVariable &&
       queryData[fieldQuery] &&
-      queryData[fieldQuery].length &&
-      queryData[fieldQuery].map((d) => ({
-        value: d[fieldValueVariable],
-        label: d[fieldLabelVariable],
-      }));
+      queryData[fieldQuery].length
+        ? queryData[fieldQuery].map((d) => ({
+            value: d[fieldValueVariable],
+            label: d[fieldLabelVariable],
+          }))
+        : [];
   }
 
   const checkLogic = () => {
@@ -109,7 +112,6 @@ const ChartFormFieldList = (props: Props) => {
       }
     }
 
-    Alert.info(`Please ${fieldLabel}`);
     return true;
   };
 
@@ -135,6 +137,7 @@ const ChartFormFieldList = (props: Props) => {
   if (!checkLogic()) {
     return <></>;
   }
+
   return (
     <ChartFormField
       fieldType={fieldType}
