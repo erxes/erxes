@@ -1,10 +1,11 @@
 import * as gq from '../graphql';
-import { storeConstantToStore } from '../../utils';
-import { CurrentUserQueryResponse } from '../types';
-import React from 'react';
+
+import { CurrentUserQueryResponse, IUser } from '../types';
 import { gql, useQuery } from '@apollo/client';
-import { IUser } from 'modules/auth/types';
+
+import React from 'react';
 import Spinner from '../../components/Spinner';
+import { storeConstantToStore } from '../../utils';
 
 type Props = {
   currentUserQuery: CurrentUserQueryResponse;
