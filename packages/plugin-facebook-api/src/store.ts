@@ -244,7 +244,7 @@ export const getOrCreateComment = async (
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
-
+  console.log(post, 'post');
   let attachment: any[] = [];
   if (commentParams.photo) {
     attachment = [
@@ -259,8 +259,9 @@ export const getOrCreateComment = async (
   if (!post) {
     throw new Error('Post not found');
   }
-
+  console.log(parentCommentConversation, 'parentCommentConversation');
   if (parentCommentConversation) {
+    console.log('1');
     comment = await models.CommentConversationReply.create({
       attachments: attachment,
       recipientId: pageId,
@@ -273,6 +274,7 @@ export const getOrCreateComment = async (
       parentId: commentParams.parent_id,
     });
   } else {
+    console.log('2');
     comment = await models.CommentConversation.create({
       attachments: attachment,
       recipientId: pageId,
@@ -293,7 +295,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
-
+  console.log(conversation, 'conversation');
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -310,9 +312,11 @@ export const getOrCreateComment = async (
       },
       isRPC: true,
     });
+    console.log(apiConversationResponse, 'apiConversationResponse');
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
     try {
+      console.log(conversation, 'conversation');
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
@@ -322,6 +326,7 @@ export const getOrCreateComment = async (
           conversationId: conversation.erxesApiId,
         },
       });
+      console.log('conversationClientMessageInserted');
       graphqlPubsub.publish(
         `conversationMessageInserted:${conversation.erxesApiId}`,
         {
