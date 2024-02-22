@@ -320,7 +320,7 @@ export const getOrCreateComment = async (
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
-          _id: conversation._id,
+          _id: conversation?._id,
           integrationId: integration.erxesApiId,
           conversationId: conversation.erxesApiId,
         },
@@ -330,7 +330,7 @@ export const getOrCreateComment = async (
         `conversationMessageInserted:${conversation.erxesApiId}`,
         {
           conversationMessageInserted: {
-            _id: conversation._id,
+            _id: conversation?._id,
             content: commentParams.message,
             createdAt: new Date(),
             customerId: customer.erxesApiId,
@@ -340,18 +340,22 @@ export const getOrCreateComment = async (
           integration,
         },
       );
+      try {
+        console.log('putCreateLog');
+        await putCreateLog(
+          models,
+          subdomain,
+          { type: 'comment', newData: conversation, object: conversation },
+          userId,
+        );
+      } catch (e) {
+        throw new Error(e.message);
+      }
     } catch {
       throw new Error(
         `Failed to update the database with the Erxes API response for this conversation.`,
       );
     }
-    await putCreateLog(
-      models,
-      subdomain,
-      { type: 'comment', newData: conversation, object: conversation },
-      userId,
-    );
-    return;
   } catch (error) {
     await models.CommentConversation.deleteOne({
       _id: conversation?._id,
