@@ -313,7 +313,6 @@ export const getOrCreateComment = async (
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
     try {
-      console.log(conversation, 'conversation');
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
