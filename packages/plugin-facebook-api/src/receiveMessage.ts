@@ -178,6 +178,19 @@ const receiveMessage = async (
       );
 
       conversationMessage = created;
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: 'messages',
+          newData: message,
+          object: {
+            ...conversationMessage.toObject(),
+            payload: JSON.parse(message.payload || '{}'),
+          },
+        },
+        customer._id,
+      );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
@@ -186,23 +199,6 @@ const receiveMessage = async (
       );
     }
   }
-  console.log(JSON.parse(message.payload || '{}'));
-
-  try {
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: 'messages',
-        newData: message,
-        object: {
-          ...conversationMessage.toObject(),
-          payload: JSON.parse(message.payload || '{}'),
-        },
-      },
-      customer._id,
-    );
-  } catch (error) {}
 };
 
 export default receiveMessage;
