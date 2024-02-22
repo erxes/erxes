@@ -9,6 +9,7 @@ import receivePost from './receivePost';
 import { FACEBOOK_POST_TYPES, INTEGRATION_KINDS } from './constants';
 import { getAdapter, getPageAccessTokenFromMap } from './utils';
 import { generateModels } from './connectionResolver';
+import { join } from 'node:path';
 
 const init = async (app) => {
   app.get('/fblogin', loginMiddleware);
@@ -148,6 +149,7 @@ const init = async (app) => {
               `Received comment data ${JSON.stringify(event.value)}`,
             );
             try {
+              console.log(JSON.stringify(event.value), 'event.value comment');
               await receiveComment(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`,
@@ -164,6 +166,7 @@ const init = async (app) => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`,
               );
+              console.log(JSON.stringify(event.value), 'event.value post');
               await receivePost(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`,

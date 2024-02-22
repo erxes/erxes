@@ -171,6 +171,10 @@ export const getOrCreatePostConversation = async (
   let postConversation = await models.PostConversations.findOne({
     postId,
   });
+  console.log(
+    postConversation,
+    'postConversation function name getOrCreatePostConversation',
+  );
   if (!postConversation) {
     throw new Error('Post not founds');
   }
@@ -240,9 +244,11 @@ export const getOrCreateComment = async (
   const parentCommentConversations = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
   });
+  console.log(parentCommentConversations, 'parentCommentConversations');
   const childCommentConversations = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
+  console.log(childCommentConversations, 'childCommentConversations');
   let comment;
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
@@ -287,6 +293,7 @@ export const getOrCreateComment = async (
       parentId: commentParams.parent_id,
     });
   }
+  console.log(comment, 'comment');
   let conversation;
   conversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
@@ -296,6 +303,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
+  console.log(conversation, 'conversation');
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -318,6 +326,7 @@ export const getOrCreateComment = async (
     } else {
       conversationId = apiConversationResponse._id;
     }
+    console.log(conversationId, 'conversationId');
     let comment_conversations = await models.CommentConversation.findOne({
       comment_id: commentParams.comment_id,
     });
@@ -328,7 +337,8 @@ export const getOrCreateComment = async (
     if (!comment_conversations && !comment_conversations_reply) {
       throw new Error('No matching documents found.');
     }
-
+    console.log(comment_conversations, 'comment_conversations');
+    console.log(comment_conversations_reply, 'comment_conversations');
     if (comment_conversations) {
       await models.CommentConversation.updateOne(
         { comment_id: commentParams.comment_id },
@@ -351,7 +361,7 @@ export const getOrCreateComment = async (
           conversationId: conversationId,
         },
       });
-
+      console.log(inboxIntegration, 'inboxIntegration');
       graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
         conversationMessageInserted: {
           _id: comment._id,
