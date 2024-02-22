@@ -348,13 +348,13 @@ export const getOrCreateComment = async (
     await putCreateLog(
       models,
       subdomain,
-      { type: 'comment', newData: comment, object: comment },
+      { type: 'comment', newData: conversation, object: conversation },
       userId,
     );
     return;
   } catch (error) {
     await models.CommentConversation.deleteOne({
-      _id: parentCommentConversation?._id,
+      _id: conversation?._id,
     });
     throw new Error(error.message);
   }
