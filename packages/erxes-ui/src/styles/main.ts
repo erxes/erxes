@@ -508,7 +508,16 @@ const TextWrapper = styled.div`
   }
 `;
 
-const Loader = styledTS<IAnimatedLoader>(styled.div)`
+const Loader = styledTS<{
+  height?: string;
+  width?: string;
+  color?: string;
+  $round?: boolean;
+  margin?: string;
+  marginRight?: string;
+  isBox?: boolean;
+  withImage?: boolean;
+}>(styled.div)`
   animation-duration: 1.25s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
