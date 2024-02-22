@@ -112,6 +112,7 @@ export const validateOrder = async (
   const products = await models.Products.find({
     _id: { $in: items.map((i) => i.productId) },
   }).lean();
+
   const productIds = products.map((p) => p._id);
 
   for (const item of items) {

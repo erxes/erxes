@@ -21,6 +21,7 @@ const paymentInputDefs = `
 export const orderTypeFields = `
   ${commonFields}
   status: String
+  saleStatus: String
   customerId: String
   number: String
   ${paymentInputDefs}
@@ -66,8 +67,9 @@ const addEditParams = `
   origin: String,
   dueDate: Date,
   status: String,
-  buttonType: String
-  description: String
+  saleStatus: String,
+  buttonType: String,
+  description: String,
   isPre: Boolean
 `;
 
@@ -164,6 +166,7 @@ export const types = `
 export const ordersQueryParams = `
   searchValue: String,
   statuses: [String],
+  saleStatus: String,
   customerId: String,
   customerType: String,
   startDate: Date,
@@ -185,7 +188,7 @@ export const mutations = `
   ordersEdit(_id: String!, ${addEditParams}): Order
   ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
   orderChangeStatus(_id: String!, status: String): Order
-  ordersChange(_id: String!, dueDate: Date, branchId: String, deliveryInfo: JSON, description: String): Order
+  ordersChange(_id: String!, dueDate: Date, branchId: String, deliveryInfo: JSON, description: String, saleStatus: String): Order
   ordersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
   ordersCancel(_id: String!): JSON
   ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse

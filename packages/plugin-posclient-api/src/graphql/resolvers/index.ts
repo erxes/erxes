@@ -9,7 +9,6 @@ import Cover from './cover';
 
 const resolvers: any = async () => ({
   ...customScalars,
-
   PosConfig,
   PoscProduct,
   Order,
@@ -17,7 +16,7 @@ const resolvers: any = async () => ({
   Cover,
   PosOrderItem: OrderItem,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

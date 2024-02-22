@@ -58,6 +58,12 @@ export const ORDER_STATUSES = {
   FULL: ['paid', 'done', 'complete'],
 };
 
+export const ORDER_SALE_STATUS = {
+  CART: 'cart',
+  CONFIRMED: 'confirmed',
+  ALL: ['cart', 'confirmed'],
+};
+
 export const ORDER_ITEM_STATUSES = {
   NEW: 'new',
   CONFIRM: 'confirm',
