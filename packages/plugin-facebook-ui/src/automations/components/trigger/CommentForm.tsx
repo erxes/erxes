@@ -75,7 +75,6 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
   };
 
   const handleChange = (name, value) => {
-    console.log({ name, value });
     setConfig({ ...config, [name]: value });
   };
 
