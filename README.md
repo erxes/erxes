@@ -1,11 +1,10 @@
 <br>
 
 <p align="center">
- <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
+ <img src="https://github.com/erxes/erxes/assets/1748857/53a70732-7385-475d-9cb5-efd0ec801db5" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
-</p>
+<p align="center">Welcome to erxes, the source available experience management infrastructure. Pioneering the future of experiences through XOS (Experience Operating System), a term coined by us. erxes serves as an alternative to the combined functionalities of Hubspot (CRM & Marketing automation) and Qualitics (Experience management)</p>
 
 <p align="center">
   <a href="https://erxes.io/resource-center">Docs</a>
@@ -50,7 +49,7 @@
 </p>
 
 <p align="center">
- <a href="https://erxes.io" target="_blank" rel="noopener noreferrer"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)">
+ <a href="https://erxes.io" target="_blank" rel="noopener noreferrer"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: the source available experience management infrastructure">
 </a>
 </p>
 
@@ -59,7 +58,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 
 
 
-- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is open-source software, but even better.
+- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is the source available software, but even better.
 - **100% customizable:** Our plugin-based architecture provides unlimited customization and lets you meet all your needs, no matter how specific they are.
 - **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
 - **100% in control:** You can build any experience you want, where all the channels your business operates on are connected and integrated.
@@ -68,10 +67,12 @@ Achieving growth and unity within your company is possible with erxes, because i
 
 ## What does erxes mean? How do you pronounce it?
 
-erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
+erxes (pronounced 'erk-sis') is a Mongolian word meaning “galaxy”. A galaxy is a system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity. The word is derived from the Greek galaxias (γαλαξίας), literally 'milky', a reference to the Milky Way galaxy that contains the Solar System. It is branded as “erxes” with all lowercase letters.
+
+erxes - Improving everyday experiences can significantly enhance the quality of life. These small, incremental improvements can lead to substantial benefits and better living. Better living and happier people will have a contagious effect on everything they touch, eventually improving the universe. 
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/intro/architecture">erxes architecture in our documentation</a>.**
+erxes is a secure, self-hosted, and scalable source available experience management infrastructure that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/intro/architecture">erxes architecture in our documentation</a>.**
 
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**

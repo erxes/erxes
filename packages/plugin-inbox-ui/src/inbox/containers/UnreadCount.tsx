@@ -32,16 +32,16 @@ class UnreadCountContainer extends React.Component<FinalProps> {
         variables: { subdomain: getSubdomain(), userId: currentUser._id },
         updateQuery: (prev, { subscriptionData: { data } }) => {
           const { conversationClientMessageInserted } = data;
-          const { content } = conversationClientMessageInserted;
+          const { content } = conversationClientMessageInserted || {};
 
           this.props.unreadConversationsCountQuery.refetch();
 
           // no need to send notification for bot message
           sendDesktopNotification({
             title: 'You have a new message',
-            content: strip(content || '')
+            content: strip(content || ''),
           });
-        }
+        },
       });
   }
 
@@ -55,7 +55,7 @@ class UnreadCountContainer extends React.Component<FinalProps> {
 
     const props = {
       ...this.props,
-      unreadConversationsCount
+      unreadConversationsCount,
     };
 
     return <UnreadCount {...props} />;
@@ -70,10 +70,10 @@ export default withProps<Props>(
         name: 'unreadConversationsCountQuery',
         options: () => ({
           fetchPolicy: 'network-only',
-          notifyOnNetworkStatusChange: true
+          notifyOnNetworkStatusChange: true,
         }),
-        skip: !isEnabled('inbox') ? true : false
-      }
-    )
-  )(withCurrentUser(UnreadCountContainer))
+        skip: !isEnabled('inbox') ? true : false,
+      },
+    ),
+  )(withCurrentUser(UnreadCountContainer)),
 );

@@ -4,7 +4,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
@@ -12,6 +12,7 @@ import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IConfigsMap } from '../../types';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import { KEY_LABELS } from '../../constants';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -32,11 +33,11 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false
+      hasOpen: false,
     };
   }
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -48,7 +49,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.setState({
       config: {
-        title: 'New MSDynamic Config',
+        title: config.title,
         brandId: '',
         itemApi: '',
         itemCategoryApi: '',
@@ -57,12 +58,24 @@ class PerSettings extends React.Component<Props, State> {
         salesApi: '',
         salesLineApi: '',
         username: '',
-        password: ''
-      }
+        password: '',
+        genBusPostingGroup: '',
+        vatBusPostingGroup: '',
+        paymentTermsCode: '',
+        paymentMethodCode: '',
+        customerPostingGroup: '',
+        customerPricingGroup: '',
+        customerDiscGroup: '',
+        locationCode: '',
+        responsibilityCenter: '',
+        billType: '',
+        dealType: '',
+        syncType: '',
+      },
     });
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -82,12 +95,12 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderInput = (key: string, title?: string) => {
+  renderInput = (key: string) => {
     const { config } = this.state;
 
     return (
       <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
+        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         <FormControl
           defaultValue={config[key]}
           onChange={this.onChangeInput.bind(this, key)}
@@ -125,19 +138,40 @@ class PerSettings extends React.Component<Props, State> {
 
         <FormWrapper>
           <FormColumn>
-            {this.renderInput('itemApi', 'itemApi')}
-            {this.renderInput('itemCategoryApi', 'itemCategoryApi')}
-            {this.renderInput('priceApi', 'priceApi')}
-            {this.renderInput('username', 'username')}
+            {this.renderInput('itemApi')}
+            {this.renderInput('itemCategoryApi')}
+            {this.renderInput('priceApi')}
+            {this.renderInput('username')}
           </FormColumn>
 
           <FormColumn>
-            {this.renderInput('customerApi', 'customerApi')}
-            {this.renderInput('salesApi', 'salesApi')}
-            {this.renderInput('salesLineApi', 'salesLineApi')}
-            {this.renderInput('password', 'password')}
+            {this.renderInput('customerApi')}
+            {this.renderInput('salesApi')}
+            {this.renderInput('salesLineApi')}
+            {this.renderInput('password')}
           </FormColumn>
         </FormWrapper>
+
+        <CollapseContent title="General settings">
+          <FormWrapper>
+            <FormColumn>
+              {this.renderInput('genBusPostingGroup')}
+              {this.renderInput('vatBusPostingGroup')}
+              {this.renderInput('customerPostingGroup')}
+              {this.renderInput('customerPricingGroup')}
+              {this.renderInput('customerDiscGroup')}
+              {this.renderInput('syncType')}
+            </FormColumn>
+            <FormColumn>
+              {this.renderInput('locationCode')}
+              {this.renderInput('responsibilityCenter')}
+              {this.renderInput('billType')}
+              {this.renderInput('dealType')}
+              {this.renderInput('paymentTermsCode')}
+              {this.renderInput('paymentMethodCode')}
+            </FormColumn>
+          </FormWrapper>
+        </CollapseContent>
 
         <ModalFooter>
           <Button

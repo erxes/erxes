@@ -1,12 +1,19 @@
 import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
-import { receivePutLogCommand, sendToApi } from './utils';
+import { receivePutLogCommand } from './utils';
 
 import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
-let client;
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 const hasMetaLogs = async (serviceName: string) => {
   const service = await getService(serviceName);
@@ -31,11 +38,7 @@ const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
   return enabled && hasMeta;
 };
 
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -198,22 +201,8 @@ export const getDbSchemaLabels = async (serviceName: string, args) => {
   const enabled = await isEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
+    ? sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
     : [];
-};
-
-export const getActivityContentItem = async (
-  activityLog: IActivityLogDocument,
-) => {
-  const [serviceName] = activityLog.contentType.split(':');
-
-  const enabled = await isServiceEnabled(serviceName);
-
-  return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
-        activityLog,
-      })
-    : null;
 };
 
 export const getContentTypeDetail = async (
@@ -225,7 +214,7 @@ export const getContentTypeDetail = async (
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
+    ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
         subdomain,
         data: activityLog,
       })
@@ -238,7 +227,7 @@ export const collectServiceItems = async (contentType: string, data) => {
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs.collectItems`, data)
+    ? sendRPCMessage(`${serviceName}:logs.collectItems`, data)
     : [];
 };
 
@@ -249,7 +238,7 @@ export const getContentIds = async (subdomain, data) => {
 
   return enabled
     ? (
-        await client.sendRPCMessage(`${serviceName}:logs.getContentIds`, {
+        await sendRPCMessage(`${serviceName}:logs.getContentIds`, {
           subdomain,
           data,
         })
@@ -257,25 +246,22 @@ export const getContentIds = async (subdomain, data) => {
     : [];
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
     serviceName: 'inbox',
     ...args,
   });
 };
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
     serviceName: 'clientportal',
     ...args,
   });
@@ -292,7 +278,6 @@ export const fetchService = async (
 
   return sendMessage({
     subdomain,
-    client,
     isRPC: true,
     serviceName,
     action: `logs.${action}`,
@@ -303,7 +288,3 @@ export const fetchService = async (
     defaultValue,
   });
 };
-
-export default function () {
-  return client;
-}

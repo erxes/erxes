@@ -1,3 +1,79 @@
+## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
+
+## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
+
+
+### Reverts
+
+* Revert "fix" ([d3603c4](https://github.com/erxes/erxes/commit/d3603c408a4faa51d34cd4c794ba46902489449f))
+* Revert "fix" ([b186a6a](https://github.com/erxes/erxes/commit/b186a6ac18782613afd2d5b8a060165c192933a6))
+
+## [1.6.1-rc.1](https://github.com/erxes/erxes/compare/1.6.1-rc.0...1.6.1-rc.1) (2024-02-08)
+
+## [1.6.1-rc.0](https://github.com/erxes/erxes/compare/1.6.0...1.6.1-rc.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* add index on logs ([0cf5818](https://github.com/erxes/erxes/commit/0cf5818f9fda4fba152c194016b3e22da9dfd08a))
+* **clientportal:** fix sendSms function ([686c3fa](https://github.com/erxes/erxes/commit/686c3fa98d1a654843fb5e51c8f2e5c538394e78))
+* **payment:** fix qpay quick qr api response & return qr_image instead of generate qrData from string ([c8377d0](https://github.com/erxes/erxes/commit/c8377d05f53e784db73ca8d317e5f8dd704ca7a2))
+
+
+### Features
+
+* add labelSelect customProperty with value and label selector ([64e27ee](https://github.com/erxes/erxes/commit/64e27ee31963b3aa62bd71bc46d14c6f4c7dc42e))
+* add syncpolaris plugin ([#4941](https://github.com/erxes/erxes/issues/4941)) ([5ed2da9](https://github.com/erxes/erxes/commit/5ed2da99be80b001362ee08e73a7bbfcbe7313e0))
+* auto fill deals bank amount when cards:deal invoices status change to paid ([2b5e47b](https://github.com/erxes/erxes/commit/2b5e47b7d8e9252119fd2a9dcbf94e775cf4154e))
+* **clientportal:** send otp code via mail ([#4931](https://github.com/erxes/erxes/issues/4931)) ([975560f](https://github.com/erxes/erxes/commit/975560fa65113f388f4ebfffdf038a18fcb81b4c))
+
+
+### Performance Improvements
+
+* **editor:** Added toolbar control config props to editor component ([#4899](https://github.com/erxes/erxes/issues/4899)) ([56e4f65](https://github.com/erxes/erxes/commit/56e4f650dc85cdab061b4911410322fb52023e0a))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.6.0-rc.8...1.6.0) (2024-02-08)
+
+# [1.6.0-rc.8](https://github.com/erxes/erxes/compare/1.6.0-rc.7...1.6.0-rc.8) (2024-02-05)
+
+# [1.6.0-rc.7](https://github.com/erxes/erxes/compare/1.6.0-rc.6...1.6.0-rc.7) (2024-02-02)
+
+# [1.6.0-rc.6](https://github.com/erxes/erxes/compare/1.6.0-rc.5...1.6.0-rc.6) (2024-02-02)
+
+# [1.6.0-rc.5](https://github.com/erxes/erxes/compare/1.6.0-rc.4...1.6.0-rc.5) (2024-02-01)
+
+# [1.6.0-rc.4](https://github.com/erxes/erxes/compare/1.6.0-rc.3...1.6.0-rc.4) (2024-02-01)
+
+
+
+# [1.6.0-rc.2](https://github.com/erxes/erxes/compare/1.6.0-rc.1...1.6.0-rc.2) (2024-01-31)
+
+
+
+
+
+# [1.6.0-rc.1](https://github.com/erxes/erxes/compare/1.6.0-rc.0...1.6.0-rc.1) (2024-01-29)
+
+# [1.6.0-rc.0](https://github.com/erxes/erxes/compare/1.5.10...1.6.0-rc.0) (2024-01-25)
+
+
+### Bug Fixes
+
+* **core:** Enforce jpg file extension during Cloudflare Images upload if provided extension is .JPG or .JPEG ([9045a98](https://github.com/erxes/erxes/commit/9045a986f88e187cc2a8249508cfea84751c0e56))
+* posclient products sort by unitPrice ([deacf8f](https://github.com/erxes/erxes/commit/deacf8fea0c02d3eedba72101404c5b5ff7a9eee))
+* **viber:** save inbox conversationId on viber conversation ([#4903](https://github.com/erxes/erxes/issues/4903)) ([67d0a28](https://github.com/erxes/erxes/commit/67d0a288e770c728590df9e1014ef80a2ad06654))
+
+
+### Features
+
+* **engage:** introduce client portal notification type in engage plugin ([#4915](https://github.com/erxes/erxes/issues/4915)) ([c7999e8](https://github.com/erxes/erxes/commit/c7999e8c1b7171f1c83899210bae41a6bfbe7711))
+* syncerkhet sync products with weight ([d86acf3](https://github.com/erxes/erxes/commit/d86acf3286d2a40f56b3f9bd5cbeffb2202eed29))
+* **xyp:** set customer properties from xypdan data ([#4910](https://github.com/erxes/erxes/issues/4910)) ([b6abdf9](https://github.com/erxes/erxes/commit/b6abdf9df11d9b7c09414d5c792c07d157d15077))
+
+
+
+## [1.5.10](https://github.com/erxes/erxes/compare/1.5.9...1.5.10) (2024-01-17)
+
 ## [1.5.9](https://github.com/erxes/erxes/compare/1.5.8...1.5.9) (2024-01-12)
 
 

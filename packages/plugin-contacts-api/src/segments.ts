@@ -1,16 +1,16 @@
 import {
   fetchByQuery,
-  fetchByQueryWithScroll
+  fetchByQueryWithScroll,
 } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
   getName,
-  getServiceName
+  getServiceName,
 } from '@erxes/api-utils/src/segments';
 import * as _ from 'underscore';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
-const successMessage = ids => {
+const successMessage = (ids) => {
   return { data: ids, status: 'success' };
 };
 
@@ -25,16 +25,16 @@ export default {
       type: 'lead',
       description: 'Lead',
       esIndex: 'customers',
-      notAssociated: true
-    }
+      notAssociated: true,
+    },
   ],
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery }
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
   }) => {
     const associatedTypes: string[] = await gatherAssociatedTypes(
-      changeType(mainType)
+      changeType(mainType),
     );
 
     let ids: string[] = [];
@@ -47,10 +47,8 @@ export default {
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
-
-      console.log({ mainTypeIds });
 
       ids = await sendCoreMessage({
         subdomain,
@@ -58,12 +56,10 @@ export default {
         data: {
           mainType: getName(changeType(propertyType)),
           mainTypeIds,
-          relType: getName(changeType(mainType))
+          relType: getName(changeType(mainType)),
         },
-        isRPC: true
+        isRPC: true,
       });
-
-      // console.log({ids})
 
       return successMessage(ids);
     }
@@ -74,7 +70,7 @@ export default {
         index: 'form_submissions',
         _source: 'customerId',
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
     } else {
       const serviceName = getServiceName(propertyType);
@@ -91,10 +87,10 @@ export default {
           mainType,
           propertyType,
           positiveQuery,
-          negativeQuery
+          negativeQuery,
         },
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -110,10 +106,10 @@ export default {
   initialSelector: async () => {
     const negative = {
       term: {
-        status: 'deleted'
-      }
+        status: 'deleted',
+      },
     };
 
     return { data: { negative }, status: 'success' };
-  }
+  },
 };

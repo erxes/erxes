@@ -17,12 +17,12 @@ type Props = {
 
 function HomeContainer(props: Props) {
   const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
   const totalCountQuery = useQuery(
     gql(queries.usersTotalCount),
-    options({ queryParams: props.queryParams || {} })
+    options({ queryParams: props.queryParams || {} }),
   );
 
   const getRefetchQueries = () => {
@@ -35,7 +35,7 @@ function HomeContainer(props: Props) {
     isSubmitted,
     callback,
     object,
-    beforeSubmit
+    beforeSubmit,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate

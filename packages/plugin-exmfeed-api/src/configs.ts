@@ -12,6 +12,7 @@ import cronjobs, {
 import automations from './automations';
 import segments from './segments';
 import forms from './forms';
+import app from '@erxes/api-utils/src/app';
 
 export let debug;
 export let mainDb;
@@ -38,8 +39,6 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    const app = options.app;
-
     app.get('/trigger-cron', async (req, res) => {
       const subdomain = getSubdomain(req);
 
@@ -49,7 +48,7 @@ export default {
       return res.send('ok');
     });
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

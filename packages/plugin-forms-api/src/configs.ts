@@ -13,7 +13,6 @@ import dashboards from './dashboards';
 export let mainDb;
 export let debug;
 
-
 export default {
   name: 'forms',
   permissions,
@@ -23,12 +22,12 @@ export default {
     initialSetup,
     // for fixing permissions
     permissions,
-    segments
+    segments,
   },
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -38,11 +37,11 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-  }
+  },
 };

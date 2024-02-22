@@ -28,12 +28,13 @@ import * as ws from 'ws';
 import {
   getService,
   getServices,
-  isAvailable,
   isEnabled,
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
 import { applyInspectorEndpoints } from '../inspect';
+import app from '@erxes/api-utils/src/app';
+import { consumeQueue, consumeRPCQueue } from '../messageBroker';
 
 const {
   MONGO_URL,
@@ -42,8 +43,6 @@ const {
   PORT,
   USE_BRAND_RESTRICTIONS,
 } = process.env;
-
-export const app = express();
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
@@ -73,16 +72,9 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
   }
 
-  app.disable('x-powered-by');
-
   app.use(cors(configs.corsOptions || {}));
 
   app.use(cookieParser());
-
-  // for health checking
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   if (configs.hasSubscriptions) {
     app.get('/subscriptionPlugin.js', async (req, res) => {
@@ -264,14 +256,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   // connect to mongo database
   const db = await connect(mongoUrl);
 
-  const messageBrokerClient = await initBroker(
-    {
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      app,
-    },
-    configs.reconnectRMQ,
-  );
+  await initBroker(configs.reconnectRMQ);
 
   if (configs.meta) {
     const {
@@ -293,8 +278,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       reports,
       cpCustomerHandle,
     } = configs.meta;
-
-    const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
 
@@ -339,7 +322,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (logs) {
       logConsumers({
         name: configs.name,
-        consumeRPCQueue,
         getActivityContent: logs.getActivityContent,
         getContentTypeDetail: logs.getContentTypeDetail,
         collectItems: logs.collectItems,
@@ -432,7 +414,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        consumeRPCQueue,
         generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
       });
     }
@@ -506,6 +487,15 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args),
+          }),
+        );
+      }
+      if (automations?.checkCustomTrigger) {
+        consumeRPCQueue(
+          `${configs.name}:automations.checkCustomTrigger`,
+          async (args) => ({
+            status: 'success',
+            data: await automations.checkCustomTrigger(args),
           }),
         );
       }
@@ -651,15 +641,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   configs.onServerInit({
     db,
-    app,
-    messageBrokerClient,
     debug: {
       info: debugInfo,
       error: debugError,
     },
   });
 
-  applyInspectorEndpoints(app, configs.name);
+  applyInspectorEndpoints(configs.name);
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 

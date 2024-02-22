@@ -7,8 +7,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 export let mainDb;
 export let debug;
 
-
-
 export default {
   name: 'ecommerce',
   graphql: async () => {
@@ -26,7 +24,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

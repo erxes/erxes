@@ -68,7 +68,7 @@ const messageListen = async (
   }
 
   try {
-    await sendInboxMessage({
+    const apiConversationResponse = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
       data: {
@@ -84,6 +84,9 @@ const messageListen = async (
       isRPC: true,
       defaultValue: null,
     });
+
+    conversation.erxesApiId = apiConversationResponse._id;
+    await conversation.save();
   } catch (e) {
     console.error(e);
   }

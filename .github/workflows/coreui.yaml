@@ -22,18 +22,18 @@ jobs:
 
     steps:
       - name: Use Node.js 18.17.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18.17.x
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -60,6 +60,13 @@ jobs:
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
           aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
+
+      - name: Deploy Core UI
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/dev')
+        run: |
+          tar -czf build.tar --directory=packages/core-ui/dist .
+          cp build.tar packages/core-ui/dist
+          aws s3 sync packages/core-ui/dist s3://erxes-dev-plugins/uis/core-ui --delete
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')

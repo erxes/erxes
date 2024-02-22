@@ -8,6 +8,7 @@ import { getFileUploadConfigs } from '../messageBroker';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import fetch from 'node-fetch';
 import { pipeline } from 'node:stream/promises';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -61,14 +62,14 @@ export const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
   });
 };
 
-export const createAWS = async () => {
+export const createAWS = async (subdomain) => {
   const {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
-  } = await getFileUploadConfigs();
+  } = await getFileUploadConfigs(subdomain);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -96,12 +97,12 @@ export const createAWS = async () => {
   return new AWS.S3(options);
 };
 
-export const createCFR2 = async () => {
+export const createCFR2 = async (subdomain) => {
   const {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDFLARE_ACCESS_KEY_ID,
     CLOUDFLARE_SECRET_ACCESS_KEY,
-  } = await getFileUploadConfigs();
+  } = await getFileUploadConfigs(subdomain);
 
   const CLOUDFLARE_ENDPOINT = `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
@@ -126,25 +127,27 @@ export const createCFR2 = async () => {
   return new AWS.S3(options);
 };
 
-export const getImportCsvInfo = async (fileName: string) => {
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+export const getImportCsvInfo = async (subdomain, fileName: string) => {
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
+  const sanitizedFilename = sanitizeFilename(fileName);
 
   const service: any = await getService('core');
 
-  const url = `${service.address}/get-import-file`;
+  const url = `${service.address}/get-import-file/${sanitizedFilename}`;
 
   try {
-    const response = await fetch(url, { headers: { fileName } });
+    const response = await fetch(url);
+
     if (!response.ok) {
       throw new Error(response.statusText);
     }
     await pipeline(
       response.body,
-      fs.createWriteStream(`${uploadsFolderPath}/${fileName}`),
+      fs.createWriteStream(`${uploadsFolderPath}/${sanitizedFilename}`),
     );
   } catch (e) {
     console.error(
-      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${fileName} failed.`,
+      `${service.name} csv download from ${url} to ${uploadsFolderPath}/${sanitizedFilename} failed.`,
       e.message,
     );
   }
@@ -155,7 +158,7 @@ export const getImportCsvInfo = async (fileName: string) => {
       let i = 0;
 
       const readStream = fs.createReadStream(
-        `${uploadsFolderPath}/${fileName}`,
+        `${uploadsFolderPath}/${sanitizedFilename}`,
       );
 
       readStream
@@ -177,14 +180,17 @@ export const getImportCsvInfo = async (fileName: string) => {
         });
     } else {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
-        await getFileUploadConfigs();
+        await getFileUploadConfigs(subdomain);
+
       const s3 =
-        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
+        UPLOAD_SERVICE_TYPE === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
+      const params = { Bucket: bucket, Key: sanitizedFilename };
 
       const request = s3.getObject(params);
       const readStream = request.createReadStream();
@@ -214,12 +220,15 @@ export const getImportCsvInfo = async (fileName: string) => {
   });
 };
 
-export const getCsvHeadersInfo = async (fileName: string) => {
-  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+export const getCsvHeadersInfo = async (subdomain, fileName: string) => {
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
+  const sanitizedFilename = sanitizeFilename(fileName);
 
   return new Promise(async (resolve) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
-      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      const readSteam = fs.createReadStream(
+        `${uploadsFolderPath}/${sanitizedFilename}`,
+      );
 
       let columns;
       let total = 0;
@@ -246,15 +255,17 @@ export const getCsvHeadersInfo = async (fileName: string) => {
       });
     } else {
       const { AWS_BUCKET, CLOUDFLARE_BUCKET_NAME } =
-        await getFileUploadConfigs();
+        await getFileUploadConfigs(subdomain);
 
       const s3 =
-        UPLOAD_SERVICE_TYPE === 'AWS' ? await createAWS() : await createCFR2();
+        UPLOAD_SERVICE_TYPE === 'AWS'
+          ? await createAWS(subdomain)
+          : await createCFR2(subdomain);
 
       const bucket =
         UPLOAD_SERVICE_TYPE === 'AWS' ? AWS_BUCKET : CLOUDFLARE_BUCKET_NAME;
 
-      const params = { Bucket: bucket, Key: fileName };
+      const params = { Bucket: bucket, Key: sanitizedFilename };
       // exclude column
 
       const columns = await getS3FileInfo({

@@ -1,4 +1,4 @@
-export const types = tagsAvailable => `
+export const types = (tagsAvailable) => `
   
   extend type User @key(fields: "_id") {
     _id: String! @external
@@ -34,6 +34,11 @@ export const types = tagsAvailable => `
 
     createdAt:Date
     createdBy: User
+
+    sectionId: String
+    
+    serviceName: String
+    serviceType: String
   }
 
   enum VisibilityType {
@@ -65,11 +70,13 @@ export const types = tagsAvailable => `
     reportId: String!
     contentType: String
     serviceName: String
+    serviceType: String
     templateType: String
     order: Int
     chartType: ChartType
     chartTypes: [ChartType]
     filter: JSON
+    dimension: JSON
     defaultFilter: ChartFilter
     layout: String
     vizState: String
@@ -114,6 +121,12 @@ export const types = tagsAvailable => `
     charts: [ReportChart]
     totalCount: Int
   }
+
+  input ReportChartsAddParams {
+    reportTemplateType: String
+    serviceName: String!
+    chartTemplateTypes: [JSON]
+  }
 `;
 
 const queryParams = `
@@ -136,7 +149,7 @@ export const queries = `
 
   reportChartGetTemplates(serviceName: String!): JSON
   reportChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
-  reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON): JSON
+  reportChartGetResult(serviceName: String!, templateType: String!, filter: JSON, dimension: JSON): JSON
   reportsCountByTags:JSON
 `;
 
@@ -155,6 +168,7 @@ const report_chart_common_params = `
   vizState: String
   layout: String
   filter: JSON
+  dimension: JSON
   serviceName: String
   templateType: String
 `;
@@ -167,6 +181,8 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
+  serviceType: String
+  sectionId: String
   charts: [JSON]
 `;
 
@@ -176,8 +192,11 @@ export const mutations = `
   reportsRemoveMany(ids: [String]!): JSON 
    
   reportsEdit(_id:String!, ${report_params}): Report
+  reportsDuplicate(_id: String!): Report
 
   reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON
   reportChartsEdit(_id: String!, ${report_chart_common_params}): ReportChart
-`;
+  reportChartsEditMany( reportId: String!, ${report_params}): JSON
+  reportChartsAddMany( charts: [ReportChartsAddParams] ,reportId: String!): [ReportChart] 
+  `;

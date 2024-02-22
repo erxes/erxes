@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -819,32 +820,19 @@ const queries = {
   posOrderRecordsCount: async (
     _root,
     params,
-    { models, commonQuerySelector, user }: IContext,
+    { subdomain, models, commonQuerySelector, user }: IContext,
   ) => {
     return posOrderRecordsCountQuery(models, params, commonQuerySelector, user);
   },
-
-  posOrdersInformation: async (_root, params, { models }: IContext) => {
-    const { customerId } = params;
-    let idGroup: any = {};
-    const res = await models.PosOrders.aggregate([
-      { $match: { customerId } },
-      {
-        $project: {
-          totalAmount: '$totalAmount',
-        },
-      },
-      {
-        $group: {
-          _id: idGroup,
-          totalAmount: { $sum: '$totalAmount' },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-    console.log(res);
-    return res;
-  },
 };
+
+checkPermission(queries, 'posOrders', 'showOrders');
+checkPermission(queries, 'posOrdersTotalCount', 'showOrders');
+checkPermission(queries, 'posOrderDetail', 'showOrders');
+checkPermission(queries, 'posOrdersSummary', 'showOrders');
+checkPermission(queries, 'posOrdersGroupSummary', 'showOrders');
+checkPermission(queries, 'posProducts', 'showOrders');
+checkPermission(queries, 'posOrderRecords', 'showOrders');
+checkPermission(queries, 'posOrderRecordsCount', 'showOrders');
 
 export default queries;

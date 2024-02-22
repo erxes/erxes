@@ -4,13 +4,15 @@ import { IModels, generateModels } from './connectionResolver';
 const generateBotOptions = async (models: IModels, fields) => {
   const bots = await models.Bots.find({});
 
-  const selectOptions: Array<{ label: string; value: any }> = bots.map(bot => ({
-    value: bot._id,
-    label: bot.name
-  }));
+  const selectOptions: Array<{ label: string; value: any }> = bots.map(
+    (bot) => ({
+      value: bot._id,
+      label: bot.name,
+    }),
+  );
 
-  return fields.map(field =>
-    field.name === 'botId' ? { ...field, selectOptions } : field
+  return fields.map((field) =>
+    field.name === 'botId' ? { ...field, selectOptions } : field,
   );
 };
 
@@ -19,7 +21,7 @@ const generateFields = async ({ subdomain, data }) => {
 
   const models = await generateModels(subdomain);
 
-  const { ConversationMessages, Comments } = models;
+  const { ConversationMessages, CommentConversation } = models;
 
   let schema: any;
   let fields: Array<{
@@ -39,7 +41,7 @@ const generateFields = async ({ subdomain, data }) => {
       break;
 
     case 'comments':
-      schema = Comments.schema;
+      schema = CommentConversation.schema;
       break;
   }
 
@@ -54,7 +56,7 @@ const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -63,8 +65,8 @@ const generateFields = async ({ subdomain, data }) => {
   fields = [
     ...fields,
     ...[
-      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' }
-    ]
+      { _id: Math.random(), name: 'content', label: 'Content', type: 'String' },
+    ],
   ];
 
   fields = await generateBotOptions(models, fields);
@@ -75,7 +77,7 @@ const generateFields = async ({ subdomain, data }) => {
 export default {
   types: [
     { description: 'Facebook Messages', type: 'messages' },
-    { description: 'Facebook Comments', type: 'comments' }
+    { description: 'Facebook Comments', type: 'comments' },
   ],
-  fields: generateFields
+  fields: generateFields,
 };

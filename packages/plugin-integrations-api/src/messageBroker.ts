@@ -6,24 +6,24 @@ import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 import {
   callproCreateIntegration,
-  callproGetAudio
+  callproGetAudio,
 } from './callpro/controller';
-import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage
+import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
+import {
+  RPResult,
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue, consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'integrations:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -33,9 +33,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // listen for rpc queue =========
@@ -46,44 +46,42 @@ export const initBroker = async cl => {
 
       const { action } = data;
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
 
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, data._id) };
+          response.data = await removeAccount(models, data._id);
         }
 
         if (action === 'getTelnyxInfo') {
-          response = {
-            data: {
-              telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
-              integrations: await models.Integrations.find({ kind: 'telnyx' })
-            }
+          response.data = {
+            telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
+            integrations: await models.Integrations.find({ kind: 'telnyx' }),
           };
         }
 
         if (action === 'getConfigs') {
-          response = { data: await models.Configs.find({}) };
+          response.data = await models.Configs.find({});
         }
 
         if (action === 'getDetails') {
           const integration = await models.Integrations.findOne({
-            erxesApiId: data.inboxId
+            erxesApiId: data.inboxId,
           }).select(['-_id', '-kind', '-erxesApiId']);
 
-          response = { data: integration };
+          response.data = integration;
         }
-
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message
+          errorMessage: e.message,
         };
       }
 
       return response;
-    }
+    },
   );
 
   // '/callpro/get-audio',
@@ -94,9 +92,9 @@ export const initBroker = async cl => {
 
       return {
         data: await callproGetAudio(models, data),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -109,10 +107,10 @@ export const initBroker = async cl => {
       } else {
         return {
           status: 'error',
-          errorMessage: `Unsupported kind: ${kind}`
+          errorMessage: `Unsupported kind: ${kind}`,
         };
       }
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -122,25 +120,25 @@ export const initBroker = async cl => {
       const details = JSON.parse(doc.data);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
+        erxesApiId: integrationId,
       });
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.'
+          errorMessage: 'Integration not found.',
         };
       }
 
       await models.Integrations.updateOne(
         { erxesApiId: integrationId },
-        { $set: details }
+        { $set: details },
       );
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   // '/integrations/remove',
@@ -152,7 +150,7 @@ export const initBroker = async cl => {
       await removeIntegration(models, integrationId);
 
       return { status: 'success' };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -162,9 +160,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Configs.findOne({ code }),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -174,9 +172,9 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Configs.find(selector).lean(),
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeQueue('integrations:notification', async ({ subdomain, data }) => {
@@ -197,14 +195,9 @@ export const initBroker = async cl => {
   });
 };
 
-export default function() {
-  return client;
-}
-
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };

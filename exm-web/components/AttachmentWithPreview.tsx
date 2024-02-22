@@ -73,7 +73,7 @@ export const AttachmentWithPreview = ({
         {index > 0 && (
           <button
             type="button"
-            className="absolute top-0 left-[-60px] z-30 flex items-center justify-center h-full px-4 cursor-pointer focus:outline-none"
+            className="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer focus:outline-none"
             onClick={() => handleClick("previous")}
           >
             <span className="inline-flex items-center justify-center w-6 h-6">
@@ -100,7 +100,7 @@ export const AttachmentWithPreview = ({
         {index < images.length - 1 && (
           <button
             type="button"
-            className="absolute top-0 right-[-60px] z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+            className="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
             onClick={() => handleClick("next")}
           >
             <span className="inline-flex items-center justify-center w-6 h-6">

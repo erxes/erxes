@@ -1,27 +1,21 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
 import { checkPricing, getMainConditions } from './utils';
 import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('pricing:checkPricing', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const {
-      prioritizeRule,
-      totalAmount,
-      departmentId,
-      branchId,
-      products
-    } = data;
+    const { prioritizeRule, totalAmount, departmentId, branchId, products } =
+      data;
 
     return {
       data:
@@ -32,9 +26,9 @@ export const initBroker = async cl => {
           totalAmount,
           departmentId,
           branchId,
-          products
+          products,
         )) || {},
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -48,7 +42,7 @@ export const initBroker = async cl => {
       productsById[product._id] = product;
     }
 
-    const productIds = products.map(pr => pr._id);
+    const productIds = products.map((pr) => pr._id);
     const rulesByProductId = {};
 
     const conditions = getMainConditions(branchId, departmentId);
@@ -56,7 +50,7 @@ export const initBroker = async cl => {
 
     const plans = await models.PricingPlans.find({
       ...conditions,
-      'quantityRules.0': { $exists: true }
+      'quantityRules.0': { $exists: true },
     }).sort({ value: -1 });
 
     let value = 0;
@@ -68,7 +62,7 @@ export const initBroker = async cl => {
       const allowedProductIds = await getAllowedProducts(
         subdomain,
         plan,
-        productIds || []
+        productIds || [],
       );
 
       const rules = plan.quantityRules || [];
@@ -95,13 +89,13 @@ export const initBroker = async cl => {
             unitPrice,
             (unitPrice / 100) * discountValue,
             adjustType,
-            adjustFactor
+            adjustFactor,
           );
 
         if (price < prePrice) {
           rulesByProductId[allowProductId] = {
             value,
-            price
+            price,
           };
         }
       }
@@ -109,39 +103,34 @@ export const initBroker = async cl => {
 
     return {
       data: rulesByProductId,
-      status: 'success'
+      status: 'success',
     };
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

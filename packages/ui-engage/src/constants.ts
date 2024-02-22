@@ -6,20 +6,20 @@ export const MESSAGE_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
   MANUAL: 'manual',
-  ALL_LIST: ['auto', 'visitorAuto', 'manual']
+  ALL_LIST: ['auto', 'visitorAuto', 'manual'],
 };
 
 export const statusFilters = [
   { key: 'live', value: 'Live' },
   { key: 'draft', value: 'draft' },
   { key: 'paused', value: 'Paused' },
-  { key: 'yours', value: 'Your messages' }
+  { key: 'yours', value: 'Your messages' },
 ];
 
 export const MESSAGE_KIND_FILTERS = [
   { name: 'auto', text: 'Auto' },
   { name: 'visitorAuto', text: 'Visitor auto' },
-  { name: 'manual', text: 'Manual' }
+  { name: 'manual', text: 'Manual' },
 ];
 
 export const MESSENGER_KINDS = {
@@ -30,15 +30,16 @@ export const MESSENGER_KINDS = {
   SELECT_OPTIONS: [
     { value: 'chat', text: 'Chat' },
     { value: 'note', text: 'Note' },
-    { value: 'post', text: 'Post' }
-  ]
+    { value: 'post', text: 'Post' },
+  ],
 };
 
 export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
-  ALL_LIST: ['messenger', 'email', 'sms']
+  NOTIFICATION: 'notification',
+  ALL_LIST: ['messenger', 'email', 'sms', 'notification'],
 };
 
 export const SENT_AS_CHOICES = {
@@ -49,8 +50,8 @@ export const SENT_AS_CHOICES = {
   SELECT_OPTIONS: [
     { value: 'badge', text: 'Badge' },
     { value: 'snippet', text: 'Snippet' },
-    { value: 'fullMessage', text: 'Show the full message' }
-  ]
+    { value: 'fullMessage', text: 'Show the full message' },
+  ],
 };
 
 export const SCHEDULE_TYPES = [
@@ -66,7 +67,7 @@ export const SCHEDULE_TYPES = [
   { value: 4, label: 'Every Thursday' },
   { value: 5, label: 'Every Friday' },
   { value: 6, label: 'Every Saturday' },
-  { value: 0, label: 'Every Sunday' }
+  { value: 0, label: 'Every Sunday' },
 ];
 
 export const SMS_DELIVERY_STATUSES = {
@@ -88,7 +89,7 @@ export const SMS_DELIVERY_STATUSES = {
     'delivery_failed',
     'delivery_unconfirmed',
     'webhook_delivered',
-    'error'
+    'error',
   ],
   OPTIONS: [
     {
@@ -96,7 +97,7 @@ export const SMS_DELIVERY_STATUSES = {
       label: 'Queued',
       icon: 'list-ul',
       description: `The message is queued up on Telnyx's side`,
-      color: colors.colorCoreGray
+      color: colors.colorCoreGray,
     },
     {
       value: 'sending',
@@ -104,14 +105,14 @@ export const SMS_DELIVERY_STATUSES = {
       icon: 'comment-alt-message',
       description:
         'The message is currently being sent to an upstream provider',
-      color: colors.colorCoreTeal
+      color: colors.colorCoreTeal,
     },
     {
       value: 'sent',
       label: 'Sent',
       icon: 'send',
       description: 'The message has been sent to the upstream provider',
-      color: colors.colorCoreBlue
+      color: colors.colorCoreBlue,
     },
     {
       value: 'delivered',
@@ -119,7 +120,7 @@ export const SMS_DELIVERY_STATUSES = {
       icon: 'checked',
       description:
         'The upstream provider has confirmed delivery of the message',
-      color: colors.colorCoreGreen
+      color: colors.colorCoreGreen,
     },
     {
       value: 'sending_failed',
@@ -127,7 +128,7 @@ export const SMS_DELIVERY_STATUSES = {
       icon: 'comment-alt-block',
       description:
         'Telnyx has failed to send the message to the upstream provider',
-      color: colors.colorCoreRed
+      color: colors.colorCoreRed,
     },
     {
       value: 'delivery_failed',
@@ -135,7 +136,7 @@ export const SMS_DELIVERY_STATUSES = {
       icon: 'multiply',
       description:
         'The upstream provider has failed to send the message to the receiver',
-      color: colors.colorCoreYellow
+      color: colors.colorCoreYellow,
     },
     {
       value: 'delivery_unconfirmed',
@@ -143,23 +144,23 @@ export const SMS_DELIVERY_STATUSES = {
       icon: 'comment-alt-question',
       description:
         'There is no indication whether or not the message has reached the receiver',
-      color: colors.colorCoreYellow
+      color: colors.colorCoreYellow,
     },
     {
       value: 'webhook_delivered',
       label: 'Delivered through webhook',
       icon: 'checked',
       description: 'Delivered through configured webhook',
-      color: colors.colorCoreGreen
+      color: colors.colorCoreGreen,
     },
     {
       value: 'error',
       label: 'Error occurred',
       icon: 'times-circle',
       description: 'Error occurred',
-      color: colors.colorCoreRed
-    }
-  ]
+      color: colors.colorCoreRed,
+    },
+  ],
 };
 
 export const AWS_EMAIL_DELIVERY_STATUSES = {
@@ -177,59 +178,65 @@ export const AWS_EMAIL_DELIVERY_STATUSES = {
       label: 'Sent',
       description:
         'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email',
-      icon: 'telegram-alt'
+      icon: 'telegram-alt',
     },
     {
       value: 'delivery',
       label: 'Delivered',
       description: `Amazon SES successfully delivered the email to the recipient's mail server`,
-      icon: 'comment-check'
+      icon: 'comment-check',
     },
     {
       value: 'open',
       label: 'Opened',
       description:
         'The recipient received the message and opened it in their email client',
-      icon: 'envelope-open'
+      icon: 'envelope-open',
     },
     {
       value: 'click',
       label: 'Clicked',
       description: 'The recipient clicked one or more links in the email',
-      icon: 'mouse-alt'
+      icon: 'mouse-alt',
     },
     {
       value: 'complaint',
       label: 'Complaint/Spam',
       description:
         'The email was successfully delivered to the recipient. The recipient marked the email as spam',
-      icon: 'frown'
+      icon: 'frown',
     },
     {
       value: 'bounce',
       label: 'Bounce',
       description: `The recipient's mail server permanently rejected the email`,
-      icon: 'arrows-up-right'
+      icon: 'arrows-up-right',
     },
     {
       value: 'reject',
       label: 'Rejected',
       description:
         'Amazon SES accepted the email, determined that it contained a virus, and rejected it',
-      icon: 'times-circle'
+      icon: 'times-circle',
     },
     {
       value: 'renderingfailure',
       label: 'Rendering failure',
       description: `The email wasn't sent because of a template rendering issue`,
-      icon: 'ban'
-    }
-  ]
+      icon: 'ban',
+    },
+  ],
 };
 
 export const CAMPAIGN_TARGET_TYPES = {
   SEGMENT: 'segments:segment',
   TAG: 'tags:tag',
   BRAND: 'core:brand',
-  ALL: ['segments:segment', 'tags:tag', 'core:brand']
+  ALL: ['segments:segment', 'tags:tag', 'core:brand'],
+};
+
+export const BUSINESS_PORTAL_KINDS = {
+  CLIENT: 'client',
+  VENDOR: 'vendor',
+  ALL: ['client', 'vendor'],
 };

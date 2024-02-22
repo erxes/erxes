@@ -22,7 +22,7 @@ import {
   BOT_MESSAGE_TYPES,
 } from '../../models/definitions/constants';
 
-import { getEnv } from '@erxes/api-utils/src';
+import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -31,7 +31,6 @@ import { IContext, IModels } from '../../connectionResolver';
 import { VERIFY_EMAIL_TRANSLATIONS } from '../../constants';
 import { trackViewPageEvent } from '../../events';
 import {
-  client as msgBrokerClient,
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage,
@@ -39,7 +38,6 @@ import {
   sendIntegrationsMessage,
   sendLogsMessage,
   sendProductsMessage,
-  sendToWebhook,
 } from '../../messageBroker';
 import { solveSubmissions } from '../../widgetUtils';
 import fetch from 'node-fetch';
@@ -57,7 +55,7 @@ interface IWidgetEmailParams {
 export const pConversationClientMessageInserted = async (
   models,
   subdomain,
-  message,
+  message: { _id: string; [other: string]: any },
 ) => {
   const conversation = await models.Conversations.findOne(
     {
@@ -91,6 +89,13 @@ export const pConversationClientMessageInserted = async (
       channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
     }
   }
+
+  graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
+    conversationClientMessageInserted: message,
+    subdomain,
+    conversation,
+    integration,
+  });
 
   for (const userId of channelMemberIds) {
     graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
@@ -681,6 +686,13 @@ const widgetMutations = {
       }
     }
 
+    if (!integration.isConnected) {
+      await models.Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { isConnected: true } },
+      );
+    }
+
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
@@ -1136,7 +1148,6 @@ const widgetMutations = {
 
     if (customer && form) {
       const replacedContent = await new EditorAttributeUtil(
-        msgBrokerClient,
         `${process.env.DOMAIN}/gateway/pl:core`,
         await getServices(),
         subdomain,

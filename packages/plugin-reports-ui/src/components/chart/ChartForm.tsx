@@ -9,13 +9,13 @@ import {
   FormChart,
   FormContainer,
   RightDrawerContainer,
-  ScrolledContent
+  ScrolledContent,
 } from '../../styles';
 
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 
@@ -25,9 +25,20 @@ import { __, router } from '@erxes/ui/src/utils';
 import ChartRenderer from '../../containers/chart/ChartRenderer';
 import { IChart } from '../../types';
 import ChartFormField, {
-  IFilterType
+  IFilterType,
 } from '../../containers/chart/ChartFormField';
 
+const DIMENSION_OPTIONS = [
+  { label: 'Team members', value: 'teamMember' },
+  { label: 'Departments', value: 'department' },
+  { label: 'Branches', value: 'branch' },
+  { label: 'Source/Channel', value: 'source' },
+  { label: 'Brands', value: 'brand' },
+  { label: 'Tags', value: 'tag' },
+  { label: 'Labels', value: 'label' },
+  { label: 'Frequency (day, week, month)', value: 'frequency' },
+  { label: 'Status', value: 'status' },
+];
 type Props = {
   toggleForm: () => void;
 
@@ -54,7 +65,7 @@ const ChartForm = (props: Props) => {
     chartsAdd,
     chartsEdit,
 
-    serviceNames
+    serviceNames,
   } = props;
 
   const [name, setName] = useState(chart?.name || '');
@@ -66,15 +77,20 @@ const ChartForm = (props: Props) => {
   const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
+  const [dimension, setDimension] = useState<any>(chart?.dimension || {});
+  const [dimensions, setDimensions] = useState<any>([]);
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
-      t => t.templateType === templateType
+      (t) => t.templateType === templateType,
     );
 
     if (findChartTemplate) {
       setChartTypes(findChartTemplate.chartTypes);
       setFilterTypes(findChartTemplate.filterTypes);
+      if (findChartTemplate.dimensions) {
+        setDimensions(findChartTemplate.dimensions);
+      }
     }
   }, [[...chartTemplates]]);
 
@@ -83,25 +99,25 @@ const ChartForm = (props: Props) => {
     setName(e.target.value);
   };
 
-  const renderChartTemplates = chartTemplates.map(c => ({
+  const renderChartTemplates = chartTemplates.map((c) => ({
     label: c.name,
-    value: c.templateType
+    value: c.templateType,
   }));
 
-  const renderChartTypes = chartTypes.map(c => ({ label: c, value: c }));
+  const renderChartTypes = chartTypes.map((c) => ({ label: c, value: c }));
 
-  const onServiceNameChange = selVal => {
+  const onServiceNameChange = (selVal) => {
     router.setParams(history, { serviceName: selVal.value });
     setServiceName(selVal.value);
   };
 
-  const onChartTemplateChange = selVal => {
+  const onChartTemplateChange = (selVal) => {
     router.setParams(history, { chartTemplateType: selVal.value });
     setName(selVal.label);
     setChartTemplate(selVal.value);
   };
 
-  const onChartTypeChange = chartSelVal => {
+  const onChartTypeChange = (chartSelVal) => {
     setChartType(chartSelVal.value);
   };
 
@@ -113,28 +129,38 @@ const ChartForm = (props: Props) => {
             chartType,
             name,
             filter: filters,
+            dimension,
             serviceName,
-            templateType
+            templateType,
           },
-          toggleForm
+          toggleForm,
         )
       : chartsAdd({
           chartType,
           name,
           serviceName,
           templateType,
-          filter: filters
+          filter: filters,
         });
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value || !value.length) {
+    if (!value) {
       delete filters[fieldName];
-      setFilters({ ...filters, ...chart?.filter });
+      setFilters({ ...filters });
       return;
     }
 
-    setFilters({ ...filters, [fieldName]: value });
+    if (Array.isArray(value) && !value.length) {
+      delete filters[fieldName];
+      setFilters({ ...filters });
+      return;
+    }
+
+    filters[fieldName] = value;
+
+    setFilters({ ...filters });
+    return;
   };
 
   const renderFilterTypes = filterTypes.length ? (
@@ -143,13 +169,24 @@ const ChartForm = (props: Props) => {
         <ChartFormField
           initialValue={filters[f.fieldName]}
           filterType={f}
+          fieldValues={filters}
           key={f.fieldName}
           setFilter={setFilter}
+          startDate={filters['startDate']}
+          endDate={filters['endDate']}
         />
       ))}
     </FlexColumn>
   ) : (
     <></>
+  );
+
+  const renderDimensionSelection = (
+    <Select
+      options={dimensions}
+      value={dimension?.x}
+      onChange={(sel) => setDimension({ x: sel.value })}
+    />
   );
 
   return (
@@ -166,6 +203,7 @@ const ChartForm = (props: Props) => {
               chartType={chartType}
               chartVariables={{ serviceName, templateType }}
               filter={filters}
+              dimension={dimension}
               history={history}
               queryParams={queryParams}
             />
@@ -198,10 +236,10 @@ const ChartForm = (props: Props) => {
                 <ControlLabel required={true}>{__('Service')}</ControlLabel>
 
                 <Select
-                  options={serviceNames.map(st => {
+                  options={serviceNames.map((st) => {
                     return {
                       label: st,
-                      value: st
+                      value: st,
                     };
                   })}
                   value={serviceName}
@@ -236,6 +274,14 @@ const ChartForm = (props: Props) => {
                       placeholder={__(`Choose type`)}
                     />
                   </FormGroup>
+                  {dimensions.length ? (
+                    <FormGroup>
+                      <ControlLabel>Dimension</ControlLabel>
+                      {renderDimensionSelection}
+                    </FormGroup>
+                  ) : (
+                    <></>
+                  )}
                   <FormGroup>{renderFilterTypes}</FormGroup>
                 </>
               ) : (

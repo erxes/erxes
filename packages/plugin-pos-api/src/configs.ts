@@ -20,16 +20,17 @@ export let debug;
 
 export let mainDb;
 
-
 export default {
   name: 'pos',
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig },
     { path: `/file-export`, method: exportFileRunner },
   ],
-  postHandlers: [{ path: `/api/unfetch-order-info`, method: unfetchOrderInfo }],
+  postHandlers: [
+    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
+    { path: `/pos-sync-config`, method: posSyncConfig },
+  ],
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
@@ -48,7 +49,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

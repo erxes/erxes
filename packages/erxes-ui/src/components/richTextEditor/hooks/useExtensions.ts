@@ -32,7 +32,7 @@ import {
   FontSize,
   MentionExtended,
   TableImproved,
-  ImageResize
+  ImageResize,
 } from '../extensions';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
@@ -40,7 +40,7 @@ import TableRow from '@tiptap/extension-table-row';
 import { DivTag, SpanNode, StyleNode } from '../nodes';
 import {
   MentionSuggestionParams,
-  getMentionSuggestions
+  getMentionSuggestions,
 } from '../utils/getMentionSuggestions';
 import { generateJSON } from '@tiptap/html';
 
@@ -76,18 +76,18 @@ export type UseExtensionsOptions = {
 // https://github.com/ueberdosis/tiptap/issues/2572, and
 // https://github.com/ueberdosis/tiptap/issues/514
 const CustomLinkExtension = Link.extend({
-  inclusive: false
+  inclusive: false,
 });
 // Make subscript and superscript mutually exclusive
 // https://github.com/ueberdosis/tiptap/pull/1436#issuecomment-1031937768
 
 /// @later config these
 const CustomSubscript = Subscript.extend({
-  excludes: 'superscript'
+  excludes: 'superscript',
 });
 
 const CustomSuperscript = Superscript.extend({
-  excludes: 'subscript'
+  excludes: 'subscript',
 });
 
 /**
@@ -97,12 +97,12 @@ export default function useExtensions({
   placeholder,
   showMentions,
   mentionSuggestion,
-  limit
+  limit,
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
   return useMemo(
     () => [
       TableImproved.configure({
-        resizable: true
+        resizable: true,
       }),
       TableRow,
       TableHeader,
@@ -110,7 +110,16 @@ export default function useExtensions({
       Document,
       BulletList,
       CodeBlock,
-      HardBreak,
+      HardBreak.extend({
+        addKeyboardShortcuts() {
+          return {
+            // ctrl + enter [Win] = cmd + enter [macOS]
+            'Shift-Enter': () => this.editor.commands.setHardBreak(),
+            'Mod-Enter': () => false,
+            'Control-Enter': () => false,
+          };
+        },
+      }),
       ListItem,
       OrderedList,
       Paragraph,
@@ -124,7 +133,7 @@ export default function useExtensions({
       Underline,
       ImageResize.configure({
         inline: true,
-        allowBase64: true
+        allowBase64: true,
       }),
       Strike,
       CustomLinkExtension.configure({
@@ -137,11 +146,11 @@ export default function useExtensions({
         // how a lot of other tools behave as well.
         autolink: true,
         linkOnPaste: true,
-        openOnClick: false
+        openOnClick: false,
       }),
       Gapcursor,
       TextAlign.configure({
-        types: ['heading', 'paragraph', 'image']
+        types: ['heading', 'paragraph', 'image'],
       }),
       Color,
       FontFamily,
@@ -156,23 +165,24 @@ export default function useExtensions({
         ? [
             MentionExtended.configure({
               renderLabel({ options, node }) {
-                return `${options.suggestion.char}${node.attrs.label ??
-                  node.attrs.id}`;
+                return `${options.suggestion.char}${
+                  node.attrs.label ?? node.attrs.id
+                }`;
               },
-              suggestion: getMentionSuggestions(mentionSuggestion)
-            })
+              suggestion: getMentionSuggestions(mentionSuggestion),
+            }),
           ]
         : []),
       SpanNode,
       StyleNode,
       CharacterCount.configure({
-        limit
+        limit,
       }),
       Placeholder.configure({
-        placeholder
-      })
+        placeholder,
+      }),
     ],
-    [showMentions]
+    [showMentions],
   );
 }
 
@@ -215,6 +225,6 @@ export function useGenerateJSON(html: string) {
     SpanNode,
     StyleNode,
     CharacterCount,
-    Placeholder
+    Placeholder,
   ]);
 }

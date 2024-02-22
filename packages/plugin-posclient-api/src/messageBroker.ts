@@ -1,6 +1,10 @@
 import { generateModels } from './connectionResolver';
 
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import {
   importProducts,
   importSlots,
@@ -10,13 +14,15 @@ import {
   receiveProductCategory,
   receiveUser,
 } from './graphql/utils/syncUtils';
-import { sendRPCMessageMq } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessageMq,
+} from '@erxes/api-utils/src/messageBroker';
 import { updateMobileAmount } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-let client;
-
-export const initBroker = async (cl) => {
+export const initBroker = async () => {
   const { SKIP_REDIS } = process.env;
 
   let channelToken = '';
@@ -34,9 +40,6 @@ export const initBroker = async (cl) => {
 
     channelToken = `_${config.token}`;
   }
-
-  client = cl;
-  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
     `posclient:configs.manage${channelToken}`,
@@ -239,41 +242,37 @@ export const initBroker = async (cl) => {
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
 
 export const sendMessageWrapper = async (
   serviceName: string,
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
 
   if (SKIP_REDIS) {
-    const { action, isRPC, defaultValue } = args;
-
-    if (!client) {
-      return defaultValue;
-    }
+    const { action, isRPC, defaultValue, subdomain } = args;
 
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
-      const longTask = async () =>
-        await sendRPCMessageMq('core:isServiceEnabled', serviceName);
-
-      const timeout = (cb, interval) => () =>
-        new Promise((resolve) => setTimeout(() => cb(resolve), interval));
-
-      const onTimeout = timeout((resolve) => resolve(false), 1000);
-
-      let response = false;
-      await Promise.race([longTask, onTimeout].map((f) => f())).then(
-        (result) => (response = result as boolean),
+      const longTask: Promise<boolean> = sendRPCMessageMq(
+        'core:isServiceEnabled',
+        {
+          subdomain,
+          data: serviceName,
+        },
       );
+
+      const timeout = new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), 1000),
+      );
+
+      const response = await Promise.race([longTask, timeout]);
 
       args.isMQ = true;
 
@@ -283,7 +282,6 @@ export const sendMessageWrapper = async (
     }
 
     return sendMessage({
-      client,
       serviceName: '',
       ...args,
       action: `${serviceName}:${action}`,
@@ -291,68 +289,71 @@ export const sendMessageWrapper = async (
   }
 
   return sendMessage({
-    client,
     serviceName,
     ...args,
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessageWrapper('pos', args);
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessageWrapper('core', args);
 };
 
 export const sendInventoriesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('inventories', args);
 };
 
 export const sendContactsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('contacts', args);
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('cards', args);
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('inbox', args);
 };
 
 export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('loyalties', args);
 };
 
 export const sendPricingMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
 
-export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessageWrapper('tags', args);
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
 };
 
 export const sendFormsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('forms', args);
 };
@@ -369,7 +370,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
-
-export default function () {
-  return client;
-}

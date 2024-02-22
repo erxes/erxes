@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs';
 import {
   connectAndQueryFromMsSql,
-  findUnfinishedShiftsAndUpdate
+  findUnfinishedShiftsAndUpdate,
 } from '../utils';
 import { Db, MongoClient } from 'mongodb';
 import { generateModels } from '../connectionResolver';
@@ -11,7 +11,7 @@ const createLogWhenImportedFromMssql = async (
   queryEndTime: string,
   timeclocksCreated: boolean,
   importedTimeclocksCount: number,
-  errorMsg?: string
+  errorMsg?: string,
 ) => {
   let db: Db;
 
@@ -39,9 +39,9 @@ const createLogWhenImportedFromMssql = async (
       queryStartTime,
       queryEndTime,
       errorMsg,
-      importedTimeclocksCount
+      importedTimeclocksCount,
     })
-    .catch(err => console.error(err));
+    .catch((err) => console.error(err));
 
   console.log('Created log at ' + NOW);
   console.log(`Imported ${importedTimeclocksCount} timeclocks`);
@@ -57,7 +57,7 @@ const connectAndImportFromMysql = async (subdomain: string) => {
     const returnQuery = await connectAndQueryFromMsSql(subdomain, {
       startDate: YESTERDAY.format(format),
       endDate: NOW.format(format),
-      extractAll: true
+      extractAll: true,
     });
 
     if (returnQuery instanceof Error) {
@@ -66,7 +66,7 @@ const connectAndImportFromMysql = async (subdomain: string) => {
         NOW.format(format),
         false,
         0,
-        returnQuery.message
+        returnQuery.message,
       );
 
       return;
@@ -76,7 +76,7 @@ const connectAndImportFromMysql = async (subdomain: string) => {
       YESTERDAY.format(format),
       NOW.format(format),
       returnQuery.length > 0,
-      returnQuery.length
+      returnQuery.length,
     );
 
     return returnQuery;
@@ -88,7 +88,7 @@ const connectAndImportFromMysql = async (subdomain: string) => {
       NOW.format(format),
       false,
       0,
-      error.message
+      error.message,
     );
   }
 };
@@ -113,9 +113,7 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
     db = client.db('erxes') as Db;
 
     const NOW = new Date();
-    const YESTERDAY = dayjs(new Date())
-      .add(-1, 'day')
-      .toDate();
+    const YESTERDAY = dayjs(new Date()).add(-1, 'day').toDate();
 
     const agg = await db
       .collection('timeclocks')
@@ -124,27 +122,27 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
           $match: {
             shiftStart: {
               $gte: YESTERDAY,
-              $lte: NOW
+              $lte: NOW,
             },
             deviceType: { $regex: /^(?!.*shift request).*/gi },
             $or: [
               { shiftNotClosed: false },
-              { shiftNotClosed: { $exists: false } }
-            ]
-          }
+              { shiftNotClosed: { $exists: false } },
+            ],
+          },
         },
         {
           $sort: {
-            shiftStart: 1
-          }
+            shiftStart: 1,
+          },
         },
 
         {
           $group: {
             _id: '$userId',
-            docs: { $push: '$$ROOT' }
-          }
-        }
+            docs: { $push: '$$ROOT' },
+          },
+        },
       ])
       .toArray();
 
@@ -202,14 +200,14 @@ const checkTimeclocksAndUpdate = async (subdomain: any) => {
                 shiftEnd,
                 shiftActive: false,
                 outDevice,
-                outDeviceType
-              }
-            }
-          }
+                outDeviceType,
+              },
+            },
+          },
         });
 
         bulkWriteOps.push({
-          deleteMany: { filter: { _id: { $in: deleteIds } } }
+          deleteMany: { filter: { _id: { $in: deleteIds } } },
         });
       }
     }
@@ -253,9 +251,9 @@ const updateTimeclocks = async (subdomain: any) => {
       .collection('timeclock_unfinished_shifts')
       .insertOne({
         createdAt: NOW,
-        totalCount: bulkWriteResult.modifiedCount
+        totalCount: bulkWriteResult.modifiedCount,
       })
-      .catch(async err => {
+      .catch(async (err) => {
         console.error(err);
         await db.collection('timeclock_unfinished_shifts').insertOne({ err });
       });
@@ -264,14 +262,4 @@ const updateTimeclocks = async (subdomain: any) => {
   console.log('Created log at ' + NOW);
 };
 
-export default {
-  handleDailyJob: async ({ subdomain }) => {
-    await connectAndImportFromMysql(subdomain);
-  },
-  handleMinutelyJob: async ({ subdomain }) => {
-    console.log('minutely job is working');
-
-    await checkTimeclocksAndUpdate(subdomain);
-    await updateTimeclocks(subdomain);
-  }
-};
+export default {};

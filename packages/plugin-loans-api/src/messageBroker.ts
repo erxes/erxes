@@ -1,21 +1,70 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { getCloseInfo } from './models/utils/closeUtils';
 
-let client;
-
-export const initBroker = async (cl) => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
       data: await models.Contracts.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('loans:contract.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'loans:contracts.updateContractNumber',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Contracts.updateOne(
+          { _id: data._id },
+          { number: data.number },
+        ),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    'loans:contracts.getCloseInfo',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contract = await models.Contracts.getContract({
+        _id: data.contractId,
+      });
+      const closeInfo = await getCloseInfo(
+        models,
+        subdomain,
+        contract,
+        data.closeDate,
+      );
+      return {
+        status: 'success',
+        data: closeInfo,
+      };
+    },
+  );
+
+  consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ContractTypes.findOne(data).lean(),
     };
   });
 
@@ -44,12 +93,14 @@ export const initBroker = async (cl) => {
   );
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     console.log('subdomain, data', subdomain, data);
-    return [];
+    return {
+      status: 'success',
+    };
   });
 };
 
 export const sendMessageBroker = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
   name:
     | 'core'
     | 'cards'
@@ -59,48 +110,46 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
-    | 'ebarimt',
+    | 'ebarimt'
+    | 'syncpolaris',
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: name,
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'core',
     ...args,
   });
 };
 
 export const sendCardsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'cards',
     ...args,
   });
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs,
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
     serviceName: 'reactions',
     ...args,
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    client,
     ...args,
   });
 };
@@ -165,7 +214,3 @@ export const sendSms = async (
     }
   }
 };
-
-export default function () {
-  return client;
-}

@@ -13,7 +13,6 @@ import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { initBroker, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import fetch from 'node-fetch';
-import { app } from '../../../configs';
 import { IPutResponseDocument } from '../../../models/definitions/putResponses';
 
 const configMutations = {
@@ -59,18 +58,9 @@ const configMutations = {
       throw new Error(e.message);
     }
 
-    const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+    await initBrokerMain(initBroker);
 
-    const messageBrokerClient = await initBrokerMain(
-      {
-        RABBITMQ_HOST,
-        MESSAGE_BROKER_PREFIX,
-        app,
-      },
-      initBroker,
-    );
-
-    await initBroker(messageBrokerClient)
+    await initBroker()
       .then(() => {
         console.log('Message broker has started.');
       })
@@ -94,6 +84,7 @@ const configMutations = {
       },
       body: JSON.stringify({ token, type }),
       timeout: 300000,
+      method: 'POST',
     });
 
     if (!response.ok) {

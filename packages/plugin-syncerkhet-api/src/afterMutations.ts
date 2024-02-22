@@ -2,7 +2,7 @@ import { sendRPCMessage } from './messageBrokerErkhet';
 import { getPostData, getMoveData } from './utils/ebarimtData';
 import {
   productToErkhet,
-  productCategoryToErkhet
+  productCategoryToErkhet,
 } from './utils/productToErkhet';
 import { getConfig, sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
@@ -17,7 +17,7 @@ const allowTypes = {
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
-  'contacts:company': ['create', 'update', 'delete']
+  'contacts:company': ['create', 'update', 'delete'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -32,7 +32,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     createdAt: new Date(),
     createdBy: user._id,
     consumeData: params,
-    consumeStr: JSON.stringify(params)
+    consumeStr: JSON.stringify(params),
   };
 
   if (!Object.keys(allowTypes).includes(type)) {
@@ -56,12 +56,22 @@ export const afterMutationHandlers = async (subdomain, params) => {
           return;
         }
 
+        const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+        if (
+          !mainConfig ||
+          !mainConfig.apiKey ||
+          !mainConfig.apiSecret ||
+          !mainConfig.apiToken
+        ) {
+          return;
+        }
+
         const configs = await getConfig(subdomain, 'ebarimtConfig', {});
         const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
         const returnConfigs = await getConfig(
           subdomain,
           'returnEbarimtConfig',
-          {}
+          {},
         );
 
         // return
@@ -69,14 +79,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const returnConfig = {
             ...returnConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...mainConfig,
           };
 
           const orderInfos = [
             {
               orderId: deal._id,
-              returnKind: 'note'
-            }
+              returnKind: 'note',
+            },
           ];
 
           const postData = {
@@ -84,7 +94,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             token: returnConfig.apiToken,
             apiKey: returnConfig.apiKey,
             apiSecret: returnConfig.apiSecret,
-            orderInfos: JSON.stringify(orderInfos)
+            orderInfos: JSON.stringify(orderInfos),
           };
 
           await sendRPCMessage(
@@ -96,8 +106,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isJson: true,
               isEbarimt: false,
               payload: JSON.stringify(postData),
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           return;
@@ -108,7 +118,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const moveConfig = {
             ...moveConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...(await getConfig(subdomain, 'ERKHET', {})),
           };
 
           const postData = await getMoveData(subdomain, moveConfig, deal);
@@ -122,14 +132,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isJson: true,
               isEbarimt: false,
               payload: JSON.stringify(postData),
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (moveConfig.responseField) {
               await sendCardInfo(subdomain, deal, moveConfig, txt);
@@ -146,7 +156,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const config = {
             ...configs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...(await getConfig(subdomain, 'ERKHET', {})),
           };
           const postData = await getPostData(subdomain, config, deal);
 
@@ -159,14 +169,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               isJson: true,
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           if (response && (response.message || response.error)) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
@@ -193,10 +203,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
           return;
         }
 
+        const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+        if (
+          !mainConfig ||
+          !mainConfig.apiKey ||
+          !mainConfig.apiSecret ||
+          !mainConfig.apiToken
+        ) {
+          return;
+        }
+
         const incomeConfigs = await getConfig(
           subdomain,
           'stageInIncomeConfig',
-          {}
+          {},
         );
 
         // income
@@ -204,13 +224,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const incomeConfig = {
             ...incomeConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {}))
+            ...mainConfig,
           };
 
           const postData = await getIncomeData(
             subdomain,
             incomeConfig,
-            purchase
+            purchase,
           );
 
           const response = await sendRPCMessage(
@@ -222,14 +242,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isJson: true,
               isEbarimt: false,
               payload: JSON.stringify(postData),
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (incomeConfig.responseField) {
               await sendCardInfo(subdomain, purchase, incomeConfig, txt);
@@ -246,30 +266,72 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
 
     if (type === 'products:product') {
+      const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+      if (
+        !mainConfig ||
+        !mainConfig.apiKey ||
+        !mainConfig.apiSecret ||
+        !mainConfig.apiToken
+      ) {
+        return;
+      }
+
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        productToErkhet(subdomain, models, syncLog, params, 'create');
+        productToErkhet(
+          subdomain,
+          models,
+          mainConfig,
+          syncLog,
+          params,
+          'create',
+        );
         return;
       }
       if (action === 'update') {
-        productToErkhet(subdomain, models, syncLog, params, 'update');
+        productToErkhet(
+          subdomain,
+          models,
+          mainConfig,
+          syncLog,
+          params,
+          'update',
+        );
         return;
       }
       if (action === 'delete') {
-        productToErkhet(subdomain, models, syncLog, params, 'delete');
+        productToErkhet(
+          subdomain,
+          models,
+          mainConfig,
+          syncLog,
+          params,
+          'delete',
+        );
         return;
       }
       return;
     }
     if (type === 'products:productCategory') {
+      const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+      if (
+        !mainConfig ||
+        !mainConfig.apiKey ||
+        !mainConfig.apiSecret ||
+        !mainConfig.apiToken
+      ) {
+        return;
+      }
+
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
         productCategoryToErkhet(
           subdomain,
           models,
+          mainConfig,
           syncLog,
           params,
-          'createCategory'
+          'createCategory',
         );
         return;
       }
@@ -278,9 +340,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
         productCategoryToErkhet(
           subdomain,
           models,
+          mainConfig,
           syncLog,
           params,
-          'updateCategory'
+          'updateCategory',
         );
         return;
       }
@@ -289,51 +352,81 @@ export const afterMutationHandlers = async (subdomain, params) => {
         productCategoryToErkhet(
           subdomain,
           models,
+          mainConfig,
           syncLog,
           params,
-          'deleteCategory'
+          'deleteCategory',
         );
         return;
       }
     }
 
     if (type === 'contacts:customer') {
+      const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+      if (
+        !mainConfig ||
+        !mainConfig.apiKey ||
+        !mainConfig.apiSecret ||
+        !mainConfig.apiToken
+      ) {
+        return;
+      }
+
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        customerToErkhet(subdomain, models, syncLog, params, 'create');
+        customerToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
 
       if (action === 'update') {
-        customerToErkhet(subdomain, models, syncLog, params, 'update');
+        customerToErkhet(models, mainConfig, syncLog, params, 'update');
         return;
       }
 
       if (action === 'delete') {
-        customerToErkhet(subdomain, models, syncLog, params, 'delete');
+        customerToErkhet(models, mainConfig, syncLog, params, 'delete');
         return;
       }
     }
 
     if (type === 'contacts:company') {
+      const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+      if (
+        !mainConfig ||
+        !mainConfig.apiKey ||
+        !mainConfig.apiSecret ||
+        !mainConfig.apiToken
+      ) {
+        return;
+      }
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        companyToErkhet(subdomain, models, syncLog, params, 'create', user);
+        companyToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
 
       if (action === 'update') {
-        companyToErkhet(subdomain, models, syncLog, params, 'update', user);
+        companyToErkhet(models, mainConfig, syncLog, params, 'update');
         return;
       }
 
       if (action === 'delete') {
-        companyToErkhet(subdomain, models, syncLog, params, 'delete', user);
+        companyToErkhet(models, mainConfig, syncLog, params, 'delete');
         return;
       }
     }
 
     if (type === 'core:user') {
+      const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+      if (
+        !mainConfig ||
+        !mainConfig.apiKey ||
+        !mainConfig.apiSecret ||
+        !mainConfig.apiToken
+      ) {
+        return;
+      }
+
       if (action === 'create' || action === 'update') {
         const user = params.updatedDocument || params.object;
         const oldUser = params.object;
@@ -347,14 +440,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
 
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-        userToErkhet(subdomain, models, syncLog, params, 'create');
+        userToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
     }
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } }
+      { $set: { error: e.message } },
     );
   }
 };

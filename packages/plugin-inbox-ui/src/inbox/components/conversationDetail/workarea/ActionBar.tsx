@@ -22,7 +22,7 @@ const Participators = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
     ),
-  { height: '30px', width: '30px', round: true }
+  { height: '30px', width: '30px', round: true },
 );
 
 const ConvertTo = asyncComponent(
@@ -30,9 +30,16 @@ const ConvertTo = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
     ),
-  { height: '22px', width: '71px' }
+  { height: '22px', width: '71px' },
 );
 
+const Post = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
+    ),
+  { height: '22px', width: '71px' },
+);
 type Props = {
   currentConversation: IConversation;
 };
@@ -41,6 +48,7 @@ export default class ActionBar extends React.Component<Props> {
   render() {
     const { currentConversation } = this.props;
 
+    const { kind } = currentConversation.integration;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
@@ -90,10 +98,12 @@ export default class ActionBar extends React.Component<Props> {
         {participatedUsers && (
           <Participators participatedUsers={participatedUsers} limit={3} />
         )}
-
         {loadDynamicComponent('inboxConversationDetailActionBar', {
-          conversation: currentConversation
+          conversation: currentConversation,
         })}
+        {kind === 'facebook-post' && (
+          <Post conversation={currentConversation} />
+        )}
       </ActionBarLeft>
     );
 

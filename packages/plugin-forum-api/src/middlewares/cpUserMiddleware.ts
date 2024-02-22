@@ -1,18 +1,13 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
-  const subdomain = getSubdomain(req);
-  const authHeader = req.headers.authorization;
-
-  const token = req.cookies['client-auth-token']
-    ? req.cookies['client-auth-token']
-    : authHeader && authHeader.split(' ')[1];
+  const token = extractClientportalToken(req);
 
   if (!token) {
     return next();
@@ -20,7 +15,7 @@ export default async function cpUserMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const cpUser: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
+    const cpUser = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
     if (!cpUser) {
       throw new Error(`Cannot verify client portal user in forum-api`);

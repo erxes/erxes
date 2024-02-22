@@ -15,8 +15,6 @@ export let debug;
 
 export let mainDb;
 
-export let app;
-
 dotenv.config();
 
 export default {
@@ -99,14 +97,11 @@ export default {
 
   onServerInit: async (options) => {
     mainDb = options.db;
-    app = options.app;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },
 
-  reconnectRMQ: async (messageBrokerClient) => {
-    initBroker(messageBrokerClient);
-  },
+  reconnectRMQ: initBroker,
 };

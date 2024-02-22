@@ -10,11 +10,13 @@ import {
 } from '../controllers';
 import { zaloSend } from '../../zalo';
 import { generateAttachmentUrl } from '../../utils';
-
-export const conversationMessagesBroker = ({
-  consumeRPCQueue,
+import {
+  RPResult,
   consumeQueue,
-}) => {
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
+
+export const conversationMessagesBroker = () => {
   consumeRPCQueue(
     'zalo:conversationMessages.find',
     async ({ subdomain, data }) => {
@@ -36,7 +38,9 @@ export const conversationMessagesBroker = ({
       const { action, type, payload } = data;
       const doc = JSON.parse(payload || '{}');
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
 
       if (type !== 'zalo') {
         return {
@@ -162,10 +166,9 @@ export const conversationMessagesBroker = ({
         );
 
         response = {
+          status: 'success',
           data: localMessage.toObject(),
         };
-
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',

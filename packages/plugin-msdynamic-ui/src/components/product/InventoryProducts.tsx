@@ -5,7 +5,7 @@ import {
   CollapseContent,
   DataWithLoader,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -29,20 +29,20 @@ const InventoryProducts = ({
   queryParams,
   setBrand,
   toCheckProducts,
-  toSyncProducts
+  toSyncProducts,
 }: Props) => {
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
         label={__('Choose brands')}
-        onSelect={brand => setBrand(brand as string)}
+        onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
           label: 'No Brand (noBrand)',
-          value: ''
+          value: '',
         }}
       />
 
@@ -60,11 +60,6 @@ const InventoryProducts = ({
   const header = <Wrapper.ActionBar right={checkButton} />;
 
   const calculatePagination = (data: any) => {
-    console.log(
-      Object.keys(queryParams).length,
-      'Object.keys(queryParams).length'
-    );
-
     if (Object.keys(queryParams).length !== 1) {
       if (queryParams.perPage !== undefined && queryParams.page === undefined) {
         data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
@@ -75,12 +70,12 @@ const InventoryProducts = ({
           data = data.slice(
             Number(queryParams.page - 1) * queryParams.perPage,
             Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage)
+              Number(queryParams.perPage),
           );
         } else {
           data = data.slice(
             (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20
+            (queryParams.page - 1) * 20 + 20,
           );
         }
       }
@@ -95,7 +90,7 @@ const InventoryProducts = ({
     data = calculatePagination(data);
 
     const excludeSyncTrue = (syncData: any) => {
-      return syncData.filter(d => d.syncStatus === false);
+      return syncData.filter((d) => d.syncStatus === false);
     };
 
     const onClickSync = () => {
@@ -108,7 +103,7 @@ const InventoryProducts = ({
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map(p => (
+      return rowData.map((p) => (
         <Row key={p.code} product={p} action={rowSction} />
       ));
     };
@@ -153,7 +148,7 @@ const InventoryProducts = ({
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : '')
+          'Create products' + (items.create ? ':  ' + items.create.count : ''),
         )}
       >
         <>
@@ -172,7 +167,7 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : '')
+          'Update products' + (items.update ? ':  ' + items.update.count : ''),
         )}
       >
         <>
@@ -191,7 +186,7 @@ const InventoryProducts = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete products' + (items.delete ? ':  ' + items.delete.count : ''),
         )}
       >
         <>

@@ -7,7 +7,7 @@ import { ColorPickerWrapper, MenuItem, PickerAction } from './styles';
 import Icon from '../../Icon';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import { Flex } from '../../../styles/main';
 import Tip from '../../Tip';
@@ -22,16 +22,16 @@ export const RichTextEditorHighlightControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [pickerColor, setPickerColor] = useState(colors.colorPrimary);
-  const [color, setColor] = useState(colors.colorPrimary);
+  const [color, setColor] = useState('');
 
   const { editor, labels } = useRichTextEditorContext();
 
   useEffect(() => {
-    editor
-      ?.chain()
-      .focus()
-      .setHighlight({ color })
-      .run();
+    if (!color) {
+      editor?.chain().focus().unsetHighlight().run();
+    } else {
+      editor?.chain().focus().setHighlight({ color }).run();
+    }
   }, [color]);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const RichTextEditorHighlightControl = () => {
       : [];
 
     const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs.map(
-      attrs => attrs.color
+      (attrs) => attrs.color,
     );
 
     const numUniqueSelectionTextColors = new Set(currentSelectionTextColors)
@@ -60,11 +60,7 @@ export const RichTextEditorHighlightControl = () => {
   };
 
   const handleClear = () => {
-    editor
-      ?.chain()
-      .focus()
-      .unsetHighlight()
-      .run();
+    editor?.chain().focus().unsetHighlight().run();
     overLayRef.hide();
   };
 
@@ -90,7 +86,7 @@ export const RichTextEditorHighlightControl = () => {
     : [];
 
   const currentHighlights: string[] = allCurrentTextStyleAttrs.map(
-    attrs => attrs.color
+    (attrs) => attrs.color,
   );
 
   const numUniqueCurrentHighlights = new Set(currentHighlights).size;
@@ -149,7 +145,7 @@ export const RichTextEditorHighlightControl = () => {
 
   return (
     <OverlayTrigger
-      ref={overlayTrigger => {
+      ref={(overlayTrigger) => {
         overLayRef = overlayTrigger;
       }}
       trigger="click"

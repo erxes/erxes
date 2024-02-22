@@ -1,12 +1,30 @@
 import React from 'react';
-import ReplyFbMessage from './components/ReplyFbMessage';
+import ReplyFbMessage from './components/action/ReplyFbMessage';
 import OptionalContent from './components/OptionalContent';
+import MessageForm from './components/trigger/MessageForm';
+import TriggerContent from './components/trigger/Content';
+import CommnetForm from './components/trigger/CommentForm';
+import Label from '@erxes/ui/src/components/Label';
+import Tip from '@erxes/ui/src/components/Tip';
 
-const Automations = props => {
-  const { componentType, activeAction } = props;
+const Automations = (props) => {
+  const { componentType, activeAction, activeTrigger } = props || {};
 
-  if (componentType === 'historyName') {
-    return <>{'-'}</>;
+  if (componentType === 'triggerForm') {
+    const [_serviceName, contentType] = activeTrigger?.type.split(':');
+
+    switch (contentType) {
+      case 'messages':
+        return <MessageForm {...props} />;
+      case 'comments':
+        return <CommnetForm {...props} />;
+      default:
+        return null;
+    }
+  }
+
+  if (componentType === 'triggerContent') {
+    return <TriggerContent {...props} />;
   }
 
   if (componentType === 'optionalContent') {
@@ -15,7 +33,7 @@ const Automations = props => {
 
   if (componentType === 'actionForm') {
     const { type } = activeAction;
-    const [serviceName, contentType, action] = type
+    const [_serviceName, contentType, _action] = type
       .replace('.', ':')
       .split(':');
 
@@ -29,7 +47,19 @@ const Automations = props => {
 
   if (componentType === 'historyActionResult') {
     const { result } = props;
-    return <>{JSON.stringify(result || {})}</>;
+
+    if (result?.error) {
+      return (
+        <Tip text={result?.error}>
+          <Label lblStyle="danger">{'Error'}</Label>
+        </Tip>
+      );
+    }
+
+    return <Label lblStyle="success">{'Sent'}</Label>;
+  }
+  if (componentType === 'historyName') {
+    return <>{'-'}</>;
   }
 };
 

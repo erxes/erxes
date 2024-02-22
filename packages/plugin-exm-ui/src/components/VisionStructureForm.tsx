@@ -1,10 +1,10 @@
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import React from 'react';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 
 type Props = {
   object?: any;
@@ -12,30 +12,31 @@ type Props = {
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
-const Form: React.FC<Props & ICommonFormProps> = props => {
-  const { object, type, renderButton } = props;
+type State = {
+  vision: string;
+  structure: string;
+};
 
-  const [state, setState] = useState({
-    structure: (props.object && props.object.structure) || '',
-    vision: (props.object && props.object.vision) || ''
-  });
+class Form extends React.Component<Props & ICommonFormProps, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const onEditorChange = e => {
-    if (type === 'vision') {
-      setState(prevState => ({ ...prevState, vision: e.editor.getData() }));
+    this.state = {
+      structure: (props.object && props.object.structure) || '',
+      vision: (props.object && props.object.vision) || '',
+    };
+  }
+
+  onEditorChange = (content: string) => {
+    if (this.props.type === 'vision') {
+      this.setState({ vision: content });
     } else {
-      setState(prevState => ({
-        ...prevState,
-        structure: e.editor.getData()
-      }));
+      this.setState({ structure: content });
     }
   };
 
-  const generateDoc = (values: {
-    _id?: string;
-    name: string;
-    content: string;
-  }) => {
+  generateDoc = (values: { _id?: string; name: string; content: string }) => {
+    const { object } = this.props;
     const finalValues = values;
 
     if (object) {
@@ -44,41 +45,49 @@ const Form: React.FC<Props & ICommonFormProps> = props => {
 
     return {
       _id: finalValues._id,
-      structure: state.structure,
-      vision: state.vision
+      structure: this.state.structure,
+      vision: this.state.vision,
     };
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const object = props.object || ({} as any);
+  renderContent = (formProps: IFormProps) => {
+    const object = this.props.object || ({} as any);
 
     return (
       <FormGroup>
-        <EditorCK
-          content={type === 'vision' ? state.vision : state.structure}
-          onChange={onEditorChange}
+        <RichTextEditor
+          content={
+            this.props.type === 'vision'
+              ? this.state.vision
+              : this.state.structure
+          }
+          onChange={this.onEditorChange}
           autoGrow={true}
           isSubmitted={formProps.isSaved}
           name={`vision_structure_${object._id || 'create'}`}
-          contentType={type}
+          contentType={this?.props?.type}
         />
       </FormGroup>
     );
   };
 
-  return (
-    <CommonForm
-      {...props}
-      renderButton={renderButton}
-      name="exm"
-      renderContent={renderContent}
-      generateDoc={generateDoc}
-      object={object}
-      createdAt={
-        object && object.modifiedAt !== object.createdAt && object.createdAt
-      }
-    />
-  );
-};
+  render() {
+    const { object } = this.props;
+
+    return (
+      <CommonForm
+        {...this.props}
+        name="exm"
+        renderButton={this.props.renderButton}
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+        object={object}
+        createdAt={
+          object && object.modifiedAt !== object.createdAt && object.createdAt
+        }
+      />
+    );
+  }
+}
 
 export default Form;

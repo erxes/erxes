@@ -7,7 +7,6 @@ import { periodLockSchema } from './models/definitions/periodLocks';
 import { contractTypeSchema } from './models/definitions/contractTypes';
 
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src';
-import messageBroker from './messageBroker';
 import * as _ from 'underscore';
 
 const gatherContractFieldNames = async (_models, _doc, prevList = null) => {
@@ -63,19 +62,47 @@ export async function createLog(subdomain, user, logData) {
     type: `loans:${logData.type}`,
     activityType: `loans:${logData.type}`,
     contentType: `loans:contract`,
-    contentId: logData.contractId
+    contentId: logData.contractId,
   });
 
   await putCreateLog(
     subdomain,
-    messageBroker(),
     {
       ...logData,
       ...descriptions,
-      type: `loans:${logData.type}`
+      type: `loans:${logData.type}`,
     },
-    user
+    user,
   );
+}
+
+export const prepareCocLogData = (coc) => {
+  // condition logic was in ActivityLogs model before
+  let action = 'create';
+  let content: string[] = [];
+
+  if (coc.mergedIds && coc.mergedIds.length > 0) {
+    action = 'merge';
+    content = coc.mergedIds;
+  }
+
+  return {
+    createdBy: coc.ownerId || coc.integrationId,
+    action,
+    content,
+    contentId: coc._id,
+  };
+};
+
+export async function activityLog(subdomain, logData) {
+  const { data } = logData;
+
+  const updatedParams = {
+    ...logData,
+    subdomain,
+    data: { ...data, contentType: `contacts:${data.contentType}` },
+  };
+  await putActivityLog(subdomain, updatedParams);
 }
 
 export async function updateLog(subdomain, user, logData) {
@@ -83,13 +110,12 @@ export async function updateLog(subdomain, user, logData) {
 
   await putUpdateLog(
     subdomain,
-    messageBroker(),
     {
       ...logData,
       ...descriptions,
-      type: `loans:${logData.type}`
+      type: `loans:${logData.type}`,
     },
-    user
+    user,
   );
 }
 
@@ -97,9 +123,8 @@ export async function deleteLog(subdomain, user, logData) {
   const descriptions = gatherDescriptions(logData);
   await putDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logData, ...descriptions, type: `loans:${logData.type}` },
-    user
+    user,
   );
 }
 
@@ -111,7 +136,7 @@ export default {
       { name: 'transaction', schemas: [transactionSchema] },
       { name: 'classification', schemas: [classificationSchema] },
       { name: 'periodLock', schemas: [periodLockSchema] },
-      { name: 'contractType', schemas: [contractTypeSchema] }
-    ])
-  })
+      { name: 'contractType', schemas: [contractTypeSchema] },
+    ]),
+  }),
 };

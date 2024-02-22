@@ -14,11 +14,10 @@ import { initBroker } from './messageBroker';
 import { callbackHandler } from './utils';
 import i18n = require('i18n');
 import { PAYMENTS } from './api/constants';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
-
-
 
 export default {
   name: 'payment',
@@ -74,11 +73,9 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-
-    const { app } = options;
 
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');

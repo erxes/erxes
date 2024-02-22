@@ -41,7 +41,7 @@ export default {
 
     console.log('on server init .....');
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

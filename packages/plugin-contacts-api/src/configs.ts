@@ -24,6 +24,7 @@ import {
 import exporter from './exporter';
 import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
+import app from '@erxes/api-utils/src/app';
 
 export let mainDb;
 export let debug;
@@ -70,7 +71,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    const app = options.app;
     mainDb = options.db;
 
     app.get(
@@ -156,7 +156,7 @@ export default {
       return res.send('Successfully verified, you can close this tab now');
     });
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
   },

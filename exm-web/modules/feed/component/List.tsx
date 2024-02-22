@@ -2,9 +2,6 @@
 
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import { IUser } from "@/modules/auth/types"
-import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"
 
 import LoadingCard from "@/components/ui/loading-card"
@@ -26,21 +23,19 @@ const List = ({ contentType }: { contentType: string }) => {
   const { feeds, feedsCount, loading, handleLoadMore } = useFeeds(contentType)
 
   const datas = feeds || []
-  const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
-
-  const checkExmPermission =
-    (currentUser.permissionActions &&
-      currentUser.permissionActions.manageExmActivityFeed) ||
-    false
 
   const pinnedList = datas.filter((data) => data.isPinned)
   const normalList = datas.filter((data) => !data.isPinned)
 
   const showList = (items: IFeed[]) => {
     if (contentType === "event") {
-      return items.map((filteredItem: any, index) => (
-        <EventItem postId={filteredItem._id} key={index} />
-      ))
+      return (
+        <div className="max-w-[880px] w-full flex flex-wrap gap-4">
+          {items.map((filteredItem: any, index) => (
+            <EventItem postId={filteredItem._id} key={index} />
+          ))}
+        </div>
+      )
     }
 
     return items.map((filteredItem: any) => (
@@ -63,23 +58,15 @@ const List = ({ contentType }: { contentType: string }) => {
     )
   }
 
-  const renderForm = () => {
-    if (contentType === "publicHoliday") {
-      return checkExmPermission && <FeedForm contentType={contentType} />
-    }
-
-    return <FeedForm contentType={contentType} />
-  }
-
   return (
-    <div className="h-[calc(100vh-65px)] pl-[25px] pr-[20px] overflow-auto">
-      {renderForm()}
-      {showList(pinnedList)}
+    <div className="h-[calc(100vh-124px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4">
+      <FeedForm contentType={contentType} />
+      {pinnedList.length > 0 && showList(pinnedList)}
       {showList(normalList)}
 
       {loading && (
         <>
-          <LoadingCard type="chatlist" />
+          <LoadingCard />
         </>
       )}
 

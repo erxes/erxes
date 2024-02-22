@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { getService, getServices } from '../../redis';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import fetch from 'node-fetch';
 import { pipeline } from 'node:stream/promises';
 

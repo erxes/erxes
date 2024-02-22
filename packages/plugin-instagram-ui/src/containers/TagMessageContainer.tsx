@@ -30,7 +30,7 @@ const TagMessageContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    hasTaggedMessages: taggedMessagesQuery.instagramHasTaggedMessages
+    hasTaggedMessages: taggedMessagesQuery.instagramHasTaggedMessages,
   };
 
   return <TagMessage {...updatedProps} />;
@@ -42,8 +42,8 @@ export default withProps<Props>(
       name: 'taggedMessagesQuery',
       options: ({ conversationId }: Props) => ({
         fetchPolicy: 'network-only',
-        variables: { conversationId }
-      })
-    })
-  )(TagMessageContainer)
+        variables: { conversationId },
+      }),
+    }),
+  )(TagMessageContainer),
 );

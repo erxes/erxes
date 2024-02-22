@@ -35,7 +35,7 @@ export default class Attribution extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: '',
     };
   }
 
@@ -43,7 +43,7 @@ export default class Attribution extends React.Component<Props, State> {
     this.overlay.hide();
   };
 
-  getComma = preValue => {
+  getComma = (preValue) => {
     if (this.props.fieldType === 'select' && preValue) {
       return ', ';
     }
@@ -55,7 +55,7 @@ export default class Attribution extends React.Component<Props, State> {
     return '';
   };
 
-  onClickAttribute = item => {
+  onClickAttribute = (item) => {
     this.overlay.hide();
 
     const { config, setConfig, onlySet, inputName = 'value' } = this.props;
@@ -64,7 +64,7 @@ export default class Attribution extends React.Component<Props, State> {
       config[inputName] = `{{ ${item.name} }}`;
     } else {
       config[inputName] = `${config[inputName] || ''}${this.getComma(
-        config[inputName]
+        config[inputName],
       )}{{ ${item.name} }}`;
     }
 
@@ -76,7 +76,7 @@ export default class Attribution extends React.Component<Props, State> {
     const { searchValue } = this.state;
     let filterAttrs = attributions;
 
-    const onSearch = e => {
+    const onSearch = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       this.setState({ searchValue: value });
@@ -85,7 +85,7 @@ export default class Attribution extends React.Component<Props, State> {
     if (attrType && attrType !== 'String') {
       filterAttrs = filterAttrs.filter(
         ({ type, validation = '' }) =>
-          type === attrType || validation === attrType.toLowerCase()
+          type === attrType || validation === attrType.toLowerCase(),
       );
     }
 
@@ -93,13 +93,13 @@ export default class Attribution extends React.Component<Props, State> {
       filterAttrs = filterAttrs.filter(
         ({ type, validation = '' }) =>
           attrTypes.includes(type) ||
-          attrTypes.includes(capitalizeFirstLetter(validation))
+          attrTypes.includes(capitalizeFirstLetter(validation)),
       );
     }
 
     if (searchValue) {
-      filterAttrs = filterAttrs.filter(option =>
-        new RegExp(searchValue, 'i').test(option.label)
+      filterAttrs = filterAttrs.filter((option) =>
+        new RegExp(searchValue, 'i').test(option.label),
       );
     }
 
@@ -118,7 +118,7 @@ export default class Attribution extends React.Component<Props, State> {
             <li>
               <b>{__('Attributions')}</b>
             </li>
-            {filterAttrs.map(item => (
+            {filterAttrs.map((item) => (
               <li
                 key={item.name}
                 onClick={this.onClickAttribute.bind(this, item)}
@@ -135,7 +135,7 @@ export default class Attribution extends React.Component<Props, State> {
   render() {
     return (
       <OverlayTrigger
-        ref={overlay => {
+        ref={(overlay) => {
           this.overlay = overlay;
         }}
         trigger="click"
