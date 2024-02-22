@@ -7,6 +7,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './call': './src/containers/SipProvider.tsx',
+    './chadlaa': './src/containers/Chadlaa.tsx',
     './inboxIntegrationForm': './src/components/IntegrationForm.tsx',
     './integrationDetailsForm': './src/components/IntegrationEditForm.tsx',
     './integrationCustomActions': './src/components/TokenButton.tsx'
