@@ -1,8 +1,10 @@
 import { IUser } from "@/modules/auth/types"
+import dayjs from "dayjs"
 import { MapPinIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import Image from "@/components/ui/image"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 import { ImageGrid } from "@/components/ImageGrid"
 
@@ -33,6 +35,7 @@ export default function FeedDetail({
   handleLoadMore,
   open,
   userDetail,
+  myEvent,
 }: {
   setDetailOpen: (state: boolean) => void
   handleLoadMore: () => void
@@ -44,13 +47,14 @@ export default function FeedDetail({
   commentLoading: boolean
   emojiOpen: boolean
   feed: any
-  updatedDescription: string
+  updatedDescription?: string
   currentUser: IUser
   commentsCount: number
   emojiReactedUser: any[]
   comments: any[]
   open: boolean
   userDetail: any
+  myEvent?: boolean
 }) {
   const dialogHandler = () => {
     setDetailOpen(!detailOpen)
@@ -71,7 +75,41 @@ export default function FeedDetail({
 
   const renderTrigger = () => {
     if (feed.contentType === "event") {
-      return <Button className="rounded-lg px-3 h-auto">View Details</Button>
+      if (myEvent) {
+        const endSameDay =
+          dayjs(feed.eventData.startDate).format("MMM DD, YYYY") ===
+          dayjs(feed.eventData.endDate).format("MMM DD, YYYY")
+
+        const { eventData, title, background, images, description } = feed
+
+        return (
+          <div className="flex p-2 gap-3 cursor-pointer hover:bg-[#F9FAFB] w-full">
+            <Image
+              alt="image"
+              src={background ? background.url : images[0]?.url || ""}
+              width={200}
+              height={85}
+              className={`object-cover w-[170px] h-[85px] rounded-sm shrink-0`}
+            />
+            <div className="w-full overflow-hidden">
+              <h3>{title}</h3>
+              <div>
+                {dayjs(eventData.startDate).format("MMM DD, YYYY @ HH:mm")} ~{" "}
+                {endSameDay
+                  ? dayjs(eventData.endDate).format("HH:mm")
+                  : dayjs(eventData.endDate).format("MMM DD, YYYY @ HH:mm")}
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPinIcon size={15} />
+                {eventData.where}
+              </div>
+              <div className="truncate w-[calc(100%-180px)]">{description}</div>
+            </div>
+          </div>
+        )
+      } else {
+        return <Button className="rounded-lg px-3 h-auto">View Details</Button>
+      }
     } else {
       return renderImages()
     }
@@ -80,7 +118,7 @@ export default function FeedDetail({
   const content = () => {
     if (feed.contentType === "event") {
       const { eventData, title } = feed
-      
+
       return (
         <div className="px-4 py-3 flex flex-col gap-2">
           <h3 className="font-semibold text-[30px]">{title}</h3>
@@ -115,7 +153,7 @@ export default function FeedDetail({
             indexProp={0}
             className="w-[calc(100%-430px)]"
           />
-          <div className="w-[430px] px-4 relative bg-white">
+          <div className="w-[430px] px-4 relative bg-white float-right ml-auto">
             <div className=" h-[calc(100%-70px)] overflow-auto">
               <PostHeader
                 feed={feed}
