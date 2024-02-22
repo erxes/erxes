@@ -20,7 +20,7 @@ const Widget = (props: Props) => {
     >
       <NotifButton>
         <Tip text={__('Call')} placement="bottom">
-          <Icon icon="phone" size={20} />
+          <Icon icon="phone" size={26} />
         </Tip>
       </NotifButton>
     </OverlayTrigger>

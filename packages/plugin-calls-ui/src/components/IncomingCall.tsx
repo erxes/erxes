@@ -16,7 +16,7 @@ import {
   InCallFooter,
   CallTab,
   CallTabsContainer,
-  CallTabContent
+  CallTabContent,
 } from '../styles';
 import { caller, inCallTabs } from '../constants';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
@@ -64,7 +64,7 @@ const getSpentTime = (seconds: number) => {
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   });
 };
 
@@ -78,13 +78,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     taggerRefetchQueries,
     conversation,
     hasMicrophone,
-    addNote
+    addNote,
   } = props;
   const primaryPhone = customer?.primaryPhone;
 
   const [currentTab, setCurrentTab] = useState('');
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false
+    primaryPhone ? true : false,
   );
   const [shrink, setShrink] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -98,7 +98,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   if (conversation) {
     conversationDetail = {
       ...conversation,
-      _id: conversation.erxesApiId
+      _id: conversation.erxesApiId,
     };
   }
 
@@ -106,7 +106,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     let timer: NodeJS.Timeout;
     if (status === 'accepted') {
       timer = setInterval(() => {
-        setTimeSpent(prevTimeSpent => prevTimeSpent + 1);
+        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
       }, 1000);
     }
 
@@ -131,7 +131,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     toggleSectionWithPhone(primaryPhone);
   };
 
-  const onChangeText = e =>
+  const onChangeText = (e) =>
     setNoteContent((e.currentTarget as HTMLInputElement).value);
 
   const sendMessage = () => {
@@ -212,12 +212,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
     }
-
+    console.log('onAcceptCall');
     setStatus('accepted');
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
 
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
+      console.log('accepted');
       answerCall();
     }
   };
@@ -302,7 +303,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
         </CallInfo>
         <ContactItem>
           <CallTabsContainer full={true}>
-            {inCallTabs.map(tab => (
+            {inCallTabs.map((tab) => (
               <CallTab
                 key={tab}
                 className={currentTab === tab ? 'active' : ''}
@@ -388,6 +389,6 @@ IncomingCall.contextTypes = {
   hold: PropTypes.func,
   unhold: PropTypes.func,
   isMuted: PropTypes.func,
-  isHolded: PropTypes.func
+  isHolded: PropTypes.func,
 };
 export default IncomingCall;
