@@ -186,6 +186,7 @@ const receiveMessage = async (
       );
     }
   }
+  console.log(JSON.parse(message.payload || '{}'));
 
   try {
     await putCreateLog(
