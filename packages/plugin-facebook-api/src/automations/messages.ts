@@ -271,6 +271,7 @@ export const actionCreateMessage = async (
   const { target } = execution || {};
   const { config } = action || {};
 
+  console.log(target?.content);
   const conversation = await models.Conversations.findOne({
     _id: target?.conversationId,
   });
@@ -357,7 +358,7 @@ export const actionCreateMessage = async (
     if (!optionalConnects?.length) {
       return result;
     }
-
+    console.log('done');
     return {
       result,
       objToWait: generateObjectToWait({

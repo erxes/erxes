@@ -5,7 +5,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
-import { ButtonRow, Container } from '../../styles';
+import { ButtonRow, Container, Row } from '../../styles';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { FormContainer } from '@erxes/ui-cards/src/boards/styles/common';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
@@ -117,16 +117,18 @@ function ButtonsGenerator({
         };
 
         return (
-          <>
-            <LinkAction
-              container={this}
-              onChange={onChangeLink}
-              link={button.link}
-            />
+          <Row>
+            <div onClick={(e) => e.stopPropagation()}>
+              <LinkAction
+                container={this}
+                onChange={onChangeLink}
+                link={button.link}
+              />
+            </div>
             <Button btnStyle="link" size="small">
               {__('Link')} <Icon icon="angle-down" />
             </Button>
-          </>
+          </Row>
         );
       }
 
