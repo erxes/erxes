@@ -3,7 +3,10 @@ import {
   fetchByQuery,
   fetchEs,
   fetchEsWithScroll,
+  generateElkId,
+  generateElkIds,
   getDbNameFromConnectionString,
+  getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
@@ -37,13 +40,13 @@ export const isInSegment = async (
   subdomain: string,
   segmentId: string,
   idToCheck: string,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<boolean> => {
   options.returnCount = true;
   options.defaultMustSelector = [
     {
       match: {
-        _id: idToCheck,
+        _id: await generateElkId(idToCheck, subdomain),
       },
     },
   ];
@@ -58,7 +61,7 @@ export const fetchSegment = async (
   models: IModels,
   subdomain: string,
   segment,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<any> => {
   const { contentType } = segment;
 
@@ -72,7 +75,7 @@ export const fetchSegment = async (
     if (
       contentType.includes(`${serviceName}:`) &&
       getDbNameFromConnectionString(
-        service?.config?.dbConnectionString || ''
+        service?.config?.dbConnectionString || '',
       ) !== 'erxes'
     ) {
       mongoConnectionString = service?.config?.dbConnectionString || '';
@@ -112,9 +115,10 @@ export const fetchSegment = async (
     });
 
     const items = itemsResponse.hits.hits;
-    const itemIds = items.map(i => i._id);
+    const itemIds = items.map((i) => getRealIdFromElk(i._id));
 
-    const getType = type => type.replace('contacts:', '').replace('cards:', '');
+    const getType = (type) =>
+      type.replace('contacts:', '').replace('cards:', '');
 
     const associationIds = await sendCoreMessage({
       subdomain,
@@ -132,7 +136,7 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: _.uniq(associationIds),
+              _id: await generateElkIds(associationIds, subdomain),
             },
           },
         ],
@@ -146,7 +150,6 @@ export const fetchSegment = async (
 
   // count entries
   if (options.returnCount) {
-    console.log('returncount:', JSON.stringify({ query: selector }));
     const countResponse = await fetchEs({
       subdomain,
       action: 'count',
@@ -157,8 +160,6 @@ export const fetchSegment = async (
       },
       defaultValue: { count: -1 },
     });
-
-    console.log({ countResponse });
 
     return countResponse.count;
   }
@@ -218,8 +219,8 @@ export const fetchSegment = async (
       const { hits = {} } = resp.shift();
 
       if (hits.hits) {
-        hits.hits.forEach(hit => {
-          results.push(hit._id);
+        hits.hits.forEach((hit) => {
+          results.push(getRealIdFromElk(hit._id));
         });
       }
 
@@ -244,15 +245,18 @@ export const fetchSegment = async (
   const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
-    return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
+    return response.hits.hits.map((hit) => ({
+      _id: getRealIdFromElk(hit._id),
+      ...hit._source,
+    }));
   }
 
-  return response.hits.hits.map(hit => hit._id);
+  return response.hits.hits.map((hit) => getRealIdFromElk(hit._id));
 };
 
 const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
   if (isInitialCall && defaultMustSelector) {
-    return defaultMustSelector.map(s => ({ ...s }));
+    return defaultMustSelector.map((s) => ({ ...s }));
   }
 
   return [];
@@ -284,7 +288,7 @@ export const generateQueryBySegment = async (
     serviceConfigs: any;
     options?: IOptions;
     isInitialCall?: boolean;
-  }
+  },
 ) => {
   const { segment, serviceConfigs, options = {}, isInitialCall } = args;
 
@@ -514,7 +518,7 @@ export const generateQueryBySegment = async (
 
         propertiesPositive.push({
           terms: {
-            _id: ids.filter(id => id),
+            _id: ids.filter((id) => id),
           },
         });
       }
@@ -590,13 +594,11 @@ export const generateQueryBySegment = async (
 
       propertiesPositive.push({
         terms: {
-          _id: idsByEvents,
+          _id: await generateElkIds(idsByEvents, subdomain),
         },
       });
     }
   }
-
-  console.log('main:', JSON.stringify(propertiesPositive));
 
   selectorPositiveList.push(...propertiesPositive);
   selectorNegativeList.push(...propertiesNegative);
@@ -607,7 +609,7 @@ export const generateNestedQuery = (
   field: string,
   operator: string,
   query: any,
-  fixedValue: any
+  fixedValue: any,
 ) => {
   const fieldKey = field.replace(`${kind}.`, '');
 
@@ -629,7 +631,7 @@ export const generateNestedQuery = (
 
   updatedQuery = JSON.stringify(updatedQuery).replace(
     `${kind}.${fieldKey}`,
-    `${kind}.${fieldValue}`
+    `${kind}.${fieldValue}`,
   );
   updatedQuery = JSON.parse(updatedQuery);
 
@@ -650,8 +652,6 @@ export const generateNestedQuery = (
       },
     },
   };
-
-  console.log('nested:', JSON.stringify(er));
 
   return er;
 };
@@ -846,7 +846,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           positiveQuery,
-          fixedValue
+          fixedValue,
         );
       }
 
@@ -856,7 +856,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           negativeQuery,
-          fixedValue
+          fixedValue,
         );
       }
     }
@@ -879,7 +879,7 @@ const associationPropertyFilter = async (
     propertyType: string;
     positiveQuery: any;
     negativeQuery: any;
-  }
+  },
 ) => {
   const service = await getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;

@@ -28,7 +28,7 @@ const EditorContainer = (props: FinalProps) => {
   const insertItems = {
     items,
     title: 'Attributes',
-    label: 'Attributes'
+    label: 'Attributes',
   };
 
   return <RichTextEditor {...props} placeholderProp={insertItems} />;
@@ -41,10 +41,10 @@ export default withProps<Props>(
       options: ({ contentType }) => {
         return {
           variables: {
-            contentType
-          }
+            contentType,
+          },
         };
-      }
-    })
-  )(EditorContainer)
+      },
+    }),
+  )(EditorContainer),
 );

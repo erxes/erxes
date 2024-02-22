@@ -2,11 +2,11 @@ import {
   Content,
   ContentWrapper,
   LeftContainer,
-  TitleRow
+  TitleRow,
 } from '../../styles/item';
 import {
   EditorActions,
-  EditorWrapper
+  EditorWrapper,
 } from '@erxes/ui-internalnotes/src/components/Form';
 import { IItem, IItemParams, IOptions } from '../../types';
 import React, { useEffect, useState } from 'react';
@@ -55,7 +55,7 @@ const Description = (props: DescProps) => {
   };
 
   const toggleEdit = () => {
-    setEdit(currentValue => !currentValue);
+    setEdit((currentValue) => !currentValue);
     setSubmit(false);
   };
 
@@ -104,7 +104,7 @@ const Description = (props: DescProps) => {
             dangerouslySetInnerHTML={{
               __html: item.description
                 ? xss(item.description)
-                : `${__('Add a more detailed description')}...`
+                : `${__('Add a more detailed description')}...`,
             }}
           />
         ) : (
@@ -124,7 +124,7 @@ const Description = (props: DescProps) => {
                 'link',
                 'unlink',
                 '|',
-                'image'
+                'image',
               ]}
             />
 
@@ -160,7 +160,7 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard,
     onChangeStage,
-    onChangeRefresh
+    onChangeRefresh,
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>

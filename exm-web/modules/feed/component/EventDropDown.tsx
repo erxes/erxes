@@ -31,54 +31,63 @@ const EventDropDown = ({ event }: { event: IFeed }) => {
   const checkUserInterestedStatus =
     event?.eventData?.interestedUserIds.includes(currentUser._id)
 
+  const style = "flex items-center cursor-pointer gap-2 px-3 py-2"
+
+  const renderOptions = (type: string) => {
+    const Icon =
+      type === "interested" ? HeartIcon : type === "going" ? CheckCheckIcon : X
+
+    const colored =
+      (type === "interested" && checkUserInterestedStatus) ||
+      (type === "going" && checkUserGoingStatus) ||
+      (type === "neither" &&
+        !checkUserGoingStatus &&
+        !checkUserInterestedStatus)
+
+    return (
+      <div
+        className={`${style} hover:bg-[#F0F0F0] capitalize ${
+          colored && "text-primary"
+        }`}
+        onClick={() => eventAction(event._id, type)}
+      >
+        <Icon size={15} /> {type}
+      </div>
+    )
+  }
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="w-full">
+      <DropdownMenuTrigger>
         <div
           className={`${
             checkUserGoingStatus
               ? "bg-success-foreground text-white"
               : checkUserInterestedStatus
-              ? "bg-primary text-white"
+              ? "bg-primary-light text-white"
               : "bg-[#EAEAEA]"
-          } text-[14px] pr-2 rounded-lg flex items-center w-full justify-between`}
+          } text-[14px] rounded-lg flex items-center w-full justify-between`}
           onClick={() => eventAction(event._id, "interested")}
         >
           {checkUserGoingStatus ? (
-            <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
+            <div className={style}>
               <CheckCheckIcon size={15} /> Going
             </div>
           ) : checkUserInterestedStatus ? (
-            <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
+            <div className={style}>
               <HeartIcon size={15} /> Interested
             </div>
           ) : (
-            <div className="flex items-center cursor-pointer gap-2 px-3 py-2">
-              <X size={15} /> Not interested
+            <div className={style}>
+              <X size={15} /> Not reacted
             </div>
           )}
-          <ChevronDown size={18} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="border-0 shadow-none p-0 flex-col">
-        <div
-          className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-          onClick={() => eventAction(event._id, "interested")}
-        >
-          <HeartIcon size={15} /> Interested
-        </div>
-        <div
-          className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-          onClick={() => eventAction(event._id, "going")}
-        >
-          <CheckCheckIcon size={15} /> Going
-        </div>
-        <div
-          className="flex items-center cursor-pointer gap-2 px-3 py-2 hover:bg-[#F0F0F0]"
-          onClick={() => eventAction(event._id, "neither")}
-        >
-          <X size={15} /> Not interested
-        </div>
+      <DropdownMenuContent className="shadow-none p-0 flex-col">
+        {renderOptions("interested")}
+        {renderOptions("going")}
+        {renderOptions("neither")}
       </DropdownMenuContent>
     </DropdownMenu>
   )

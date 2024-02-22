@@ -15,6 +15,15 @@ export const initBroker = async () => {
     };
   });
 
+  consumeRPCQueue('loans:contract.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue(
     'loans:contracts.updateContractNumber',
     async ({ subdomain, data }) => {
@@ -101,7 +110,8 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
-    | 'ebarimt',
+    | 'ebarimt'
+    | 'syncpolaris',
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

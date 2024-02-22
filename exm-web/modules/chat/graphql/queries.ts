@@ -197,6 +197,18 @@ const getUnreadChatCount = gql`
   }
 `
 
+const sharedMedia = gql`
+  query ChatMessageAttachments($chatId: String, $limit: Int, $skip: Int) {
+    chatMessageAttachments(chatId: $chatId, limit: $limit, skip: $skip) {
+      list {
+        _id
+        attachments
+      }
+      totalCount
+    }
+  }
+`
+
 export default {
   getUnreadChatCount,
   chatsPinned,
@@ -206,4 +218,5 @@ export default {
   chatDetail,
   chatMessages,
   getChatIdByUserIds,
+  sharedMedia,
 }

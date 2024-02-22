@@ -1,4 +1,5 @@
 export interface IPolarisCustomer {
+  custCode?: string;
   custSegCode: string;
   isVatPayer: number;
   sexCode: string;

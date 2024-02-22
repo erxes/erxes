@@ -66,14 +66,6 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
     activeTrigger.config || { postType: 'specific' },
   );
 
-  const onSave = (conditions) => {
-    // const updatedConfig = { ...config, conditions };
-
-    setConfig(config);
-    addConfig(activeTrigger, activeTrigger.id, config);
-    closeModal();
-  };
-
   const handleChange = (name, value) => {
     setConfig({ ...config, [name]: value });
   };
@@ -141,7 +133,6 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
             </Flex>
           </Padding>
         </Features>
-        {/* </BorderedCollapseContent> */}
       </Common>
     </DrawerDetail>
   );

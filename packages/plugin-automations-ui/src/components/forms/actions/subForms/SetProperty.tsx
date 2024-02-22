@@ -53,7 +53,7 @@ class SetProperty extends React.Component<Props, State> {
     this.state = {
       config: fillConfig,
       type: fillConfig.module || '',
-      fields: this.props.fields || []
+      fields: this.props.fields || [],
     };
   }
 
@@ -77,12 +77,12 @@ class SetProperty extends React.Component<Props, State> {
       .query({
         query: gql(formQueries.fieldsCombinedByContentType),
         fetchPolicy: 'network-only',
-        variables: { contentType: type, excludedNames }
+        variables: { contentType: type, excludedNames },
       })
-      .then(data => {
+      .then((data) => {
         this.setState({ fields: data.data.fieldsCombinedByContentType });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
 
@@ -123,9 +123,9 @@ class SetProperty extends React.Component<Props, State> {
     this.setState({ config });
   };
 
-  removeRule = id => {
+  removeRule = (id) => {
     const { config } = this.state;
-    config.rules = config.rules.filter(r => r.id !== id);
+    config.rules = config.rules.filter((r) => r.id !== id);
     this.setState({ config });
   };
 
@@ -133,14 +133,14 @@ class SetProperty extends React.Component<Props, State> {
     const { triggerType, triggerConfig } = this.props;
     const { type, config, fields } = this.state;
 
-    return config.rules.map(rule => {
+    return config.rules.map((rule) => {
       const chosenField: FieldsCombinedByType = fields.find(
-        f => f.name === rule.field
+        (f) => f.name === rule.field,
       ) || {
         _id: String(Math.random()),
         type: 'Default',
         name: 'name',
-        label: 'label'
+        label: 'label',
       };
 
       const operatorType: string = chosenField.name.includes('customFieldsData')
@@ -157,25 +157,27 @@ class SetProperty extends React.Component<Props, State> {
 
         this.onChangeField(
           'rules',
-          config.rules.map(r => (r.id === rule.id ? { ...rule } : r))
+          config.rules.map((r) => (r.id === rule.id ? { ...rule } : r)),
         );
       };
 
-      const onChangeValue = rConf => {
+      const onChangeValue = (rConf) => {
         this.onChangeField(
           'rules',
-          config.rules.map(r => (r.id === rule.id ? { ...rule, ...rConf } : r))
+          config.rules.map((r) =>
+            r.id === rule.id ? { ...rule, ...rConf } : r,
+          ),
         );
       };
 
-      const onChangeForwardToValue = e => {
+      const onChangeForwardToValue = (e) => {
         const value = e.currentTarget.value;
 
         rule = { ...rule, forwardTo: value };
 
         this.onChangeField(
           'rules',
-          config.rules.map(r => (r.id === rule.id ? { ...rule } : r))
+          config.rules.map((r) => (r.id === rule.id ? { ...rule } : r)),
         );
       };
 
@@ -186,9 +188,9 @@ class SetProperty extends React.Component<Props, State> {
 
             <Select
               value={rule.field}
-              options={fields.map(f => ({
+              options={fields.map((f) => ({
                 label: f.label,
-                value: f.name
+                value: f.name,
               }))}
               onChange={onChangeSelect.bind(this, 'field')}
               placeholder={__('Choose field')}
@@ -200,9 +202,9 @@ class SetProperty extends React.Component<Props, State> {
 
             <Select
               value={rule.operator}
-              options={operators.map(f => ({
+              options={operators.map((f) => ({
                 label: f.label,
-                value: f.value
+                value: f.value,
               }))}
               onChange={onChangeSelect.bind(this, 'operator')}
               placeholder={__('Choose operator')}
@@ -258,9 +260,9 @@ class SetProperty extends React.Component<Props, State> {
           <Select
             isRequired={true}
             value={type || ''}
-            options={propertyTypesConst.map(p => ({
+            options={propertyTypesConst.map((p) => ({
               label: p.label,
-              value: p.value
+              value: p.value,
             }))}
             onChange={this.onChangeType}
             placeholder={__('Choose type')}

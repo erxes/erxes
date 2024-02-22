@@ -50,26 +50,6 @@ const ChartFormField = (props: Props) => {
 
   const [fieldValue, setFieldValue] = useState(initialValue);
 
-  const checkLogic = () => {
-    if (!fieldLogics) {
-      return true;
-    }
-
-    for (const logic of fieldLogics) {
-      const { logicFieldName, logicFieldValue } = logic;
-      if (!fieldValues[logicFieldName]) {
-        return false;
-      }
-
-      if (fieldValues[logicFieldName] !== logicFieldValue) {
-        return false;
-      }
-    }
-
-    Alert.error(`Please ${fieldLabel}`);
-    return true;
-  };
-
   const onSelect = (e) => {
     if (multi && Array.isArray(e)) {
       const arr = e.map((sel) => sel.value);
@@ -98,10 +78,6 @@ const ChartFormField = (props: Props) => {
     }
   };
 
-  if (!checkLogic()) {
-    return <></>;
-  }
-
   switch (fieldQuery) {
     case 'users':
       return (
@@ -125,6 +101,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectDepartments
             multi={multi}
+            filterParams={{ withoutUserFilter: true }}
             name="chartAssignedDepartmentIds"
             label={fieldLabel}
             onSelect={onChange}
@@ -140,6 +117,7 @@ const ChartFormField = (props: Props) => {
 
           <SelectBranches
             multi={multi}
+            filterParams={{ withoutUserFilter: true }}
             name="chartAssignedBranchIds"
             label={fieldLabel}
             onSelect={onChange}
