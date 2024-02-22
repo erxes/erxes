@@ -314,53 +314,49 @@ export const getOrCreateComment = async (
     console.log(apiConversationResponse, 'apiConversationResponse');
     conversation.erxesApiId = apiConversationResponse._id;
     await conversation.save();
-    try {
-      console.log(conversation, 'conversation');
-      await sendInboxMessage({
-        subdomain,
-        action: 'conversationClientMessageInserted',
-        data: {
-          _id: conversation?._id,
-          integrationId: integration.erxesApiId,
-          conversationId: conversation.erxesApiId,
-        },
-      });
-      console.log('conversationClientMessageInserted');
-      graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: {
-            _id: conversation?._id,
-            content: commentParams.message,
-            createdAt: new Date(),
-            customerId: customer.erxesApiId,
-            conversationId: conversation.erxesApiId,
-          },
-          conversation,
-          integration,
-        },
-      );
-      try {
-        console.log('putCreateLog');
-        await putCreateLog(
-          models,
-          subdomain,
-          { type: 'comment', newData: conversation, object: conversation },
-          userId,
-        );
-      } catch (e) {
-        throw new Error(e.message);
-      }
-    } catch {
-      throw new Error(
-        `Failed to update the database with the Erxes API response for this conversation.`,
-      );
-    }
   } catch (error) {
     await models.CommentConversation.deleteOne({
       _id: conversation?._id,
     });
     throw new Error(error.message);
+  }
+
+  try {
+    console.log(conversation, 'conversation');
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        ...conversation.toObject(),
+        conversationId: conversation.erxesApiId,
+      },
+    });
+    console.log('conversationClientMessageInserted');
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...conversation.toObject(),
+          conversationId: conversation.erxesApiId,
+        },
+      },
+    );
+  } catch {
+    throw new Error(
+      `Failed to update the database with the Erxes API response for this conversation.`,
+    );
+  }
+
+  try {
+    console.log('');
+    await putCreateLog(
+      models,
+      subdomain,
+      { type: 'comment', newData: conversation, object: conversation },
+      userId,
+    );
+  } catch (e) {
+    throw new Error(e.message);
   }
 };
 
