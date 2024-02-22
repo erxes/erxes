@@ -21,7 +21,7 @@ const receiveComment = async (
       { kind: INTEGRATION_KINDS.POST },
     ],
   });
-
+  console.log(integration, 'integration receiveComment');
   if (userId === pageId) {
     return;
   }

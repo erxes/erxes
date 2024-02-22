@@ -171,6 +171,10 @@ export const getOrCreatePostConversation = async (
   let postConversation = await models.PostConversations.findOne({
     postId,
   });
+  console.log(
+    postConversation,
+    'postConversation function name getOrCreatePostConversation',
+  );
   if (!postConversation) {
     throw new Error('Post not founds');
   }
@@ -240,9 +244,11 @@ export const getOrCreateComment = async (
   const parentCommentConversations = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
   });
+  console.log(parentCommentConversations, 'parentCommentConversations');
   const childCommentConversations = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
+  console.log(childCommentConversations, 'childCommentConversations');
   let comment;
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
@@ -287,6 +293,7 @@ export const getOrCreateComment = async (
       parentId: commentParams.parent_id,
     });
   }
+  console.log(comment, 'comment');
   let conversation;
   conversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
@@ -296,6 +303,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
+  console.log(conversation, 'conversation');
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -312,62 +320,35 @@ export const getOrCreateComment = async (
       },
       isRPC: true,
     });
-    let conversationId;
-    if (apiConversationResponse._id === conversation.erxesApiId) {
-      conversationId = conversation.erxesApiId;
-    } else {
-      conversationId = apiConversationResponse._id;
-    }
-    let comment_conversations = await models.CommentConversation.findOne({
-      comment_id: commentParams.comment_id,
-    });
-    let comment_conversations_reply = await models.CommentConversation.findOne({
-      comment_id: commentParams.parent_id,
-    });
-
-    if (!comment_conversations && !comment_conversations_reply) {
-      throw new Error('No matching documents found.');
-    }
-
-    if (comment_conversations) {
-      await models.CommentConversation.updateOne(
-        { comment_id: commentParams.comment_id },
-        { $set: { erxesApiId: conversationId } },
-      );
-    }
-    if (comment_conversations_reply) {
-      await models.CommentConversation.updateOne(
-        { comment_id: commentParams.parent_id },
-        { $set: { erxesApiId: conversationId } },
-      );
-    }
+    conversation.erxesApiId = apiConversationResponse._id;
+    await conversation.save();
     try {
-      const inboxIntegration = await sendInboxMessage({
+      await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           _id: comment._id,
           integrationId: integration.erxesApiId,
-          conversationId: conversationId,
+          conversationId: conversation.erxesApiId,
         },
       });
-
-      graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
-        conversationMessageInserted: {
-          _id: comment._id,
-          content: commentParams.message,
-          createdAt: new Date(),
-          customerId: customer.erxesApiId,
-          conversationId: conversationId,
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            _id: comment._id,
+            content: commentParams.message,
+            createdAt: new Date(),
+            customerId: customer.erxesApiId,
+            conversationId: conversation.erxesApiId,
+          },
+          comment,
+          integration,
         },
-        comment,
-        integration: inboxIntegration,
-      });
-    } catch (error) {
+      );
+    } catch {
       throw new Error(
-        error.message.includes('duplicate')
-          ? 'Concurrent request: conversation message duplication'
-          : error,
+        `Failed to update the database with the Erxes API response for this conversation.`,
       );
     }
     await putCreateLog(
