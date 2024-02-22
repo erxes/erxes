@@ -394,6 +394,43 @@ const emojiReactedUsers = gql`
   }
 `
 
+const userEvents = gql`
+  query ExmFeedEventsByUser($userId: String) {
+    exmFeedEventsByUser(userId: $userId) {
+      goingEvents {
+        _id
+        attachments
+        background
+        eventData {
+          endDate
+          goingUserIds
+          interestedUserIds
+          startDate
+          where
+        }
+        images
+        description
+        title
+      }
+      interestedEvents {
+        _id
+        attachments
+        background
+        eventData {
+          endDate
+          goingUserIds
+          interestedUserIds
+          startDate
+          where
+        }
+        images
+        description
+        title
+      }
+    }
+  }
+`
+
 export default {
   feed,
   exmFeedDetail,
@@ -412,4 +449,5 @@ export default {
   emojiCount,
   emojiIsReacted,
   emojiReactedUsers,
+  userEvents,
 }
