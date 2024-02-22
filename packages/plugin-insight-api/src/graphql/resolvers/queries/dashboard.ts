@@ -1,6 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendReportsMessage } from '../../../messageBroker';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date, endDate } = params;
@@ -58,11 +59,35 @@ const DashboardQueries = {
   },
 
   /**
-   * Get one goal
+   * Get one dashboard
    */
   async dashboardDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     const dashboard = await models.Dashboards.getDashboard(_id);
     return dashboard;
+  },
+
+  /**
+   * Get last dashboard
+   */
+  async dashboardGetLast(_root, params, { models, subdomain }: IContext) {
+    const dashboard = await models.Dashboards.findOne({}).sort({
+      createdAt: -1,
+    });
+
+    if (dashboard) {
+      return { _id: dashboard._id, type: 'dashboard' };
+    }
+
+    const report = await sendReportsMessage({
+      subdomain,
+      action: 'findLast',
+      data: {},
+      isRPC: true,
+    });
+
+    if (report) {
+      return { _id: report._id, type: 'report' };
+    }
   },
 };
 

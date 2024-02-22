@@ -5,6 +5,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/index';
 import {
   CollapsibleListWrapper,
@@ -13,11 +14,7 @@ import {
   ItemText,
   ToggleIcon,
 } from '@erxes/ui/src/components/collapsibleList/styles';
-import {
-  ActionButtons,
-  FlexBetween,
-  ItemCount,
-} from '@erxes/ui-settings/src/styles';
+import { ActionButtons, ItemCount } from '@erxes/ui-settings/src/styles';
 
 import { IDashboard, IGoalType, IReport, ISection } from '../../types';
 import { SectionListItem } from '../../styles';
@@ -106,14 +103,15 @@ const SectionList = (props: Props) => {
           <SectionListItem isActive={false}>
             <Icon className="list-icon" icon="layer-group" />
             <ItemText>
-              <FlexBetween>
+              <FlexCenter>
                 {section.name}
+                {renderIcon(!!section?.list?.length)}
                 <ItemCount className="product-count">
                   {section.listCount}
                 </ItemCount>
-              </FlexBetween>
+              </FlexCenter>
             </ItemText>
-            {renderIcon(!!section?.list?.length)}
+
             {renderActions()}
           </SectionListItem>
         </FlexRow>

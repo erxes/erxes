@@ -1,6 +1,12 @@
-import React from 'react';
-import Insight from '../components/Insight';
+import React, { useEffect } from 'react';
+
+import { gql, useQuery } from '@apollo/client';
+
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { router } from '@erxes/ui/src/utils';
+
+import Insight from '../components/Insight';
+import { queries } from '../graphql';
 
 const Dashboard = asyncComponent(
   () =>
@@ -22,12 +28,13 @@ const Empty = asyncComponent(
   () => import(/* webpackChunkName: "InsightList" */ '../components/Empty'),
 );
 
-type Props = {
+type FinalProps = {
   history: any;
   queryParams: any;
+  currentDashboardId: string;
 };
 
-const InsightContainer = (props: Props) => {
+const InsightContainer = (props: FinalProps) => {
   const { queryParams } = props;
   const { goalId, dashboardId, reportId } = queryParams;
 
@@ -56,4 +63,43 @@ const InsightContainer = (props: Props) => {
   return <Insight {...updatedProps} />;
 };
 
-export default InsightContainer;
+type Props = {
+  history: any;
+  queryParams: any;
+};
+
+const withLastDashboard = (props: Props) => {
+  const { queryParams, history } = props;
+  const { goalId, dashboardId, reportId } = queryParams;
+
+  const dashboardGetLastQuery = useQuery(gql(queries.dashboardGetLast), {
+    skip: dashboardId || goalId || reportId,
+    fetchPolicy: 'network-only',
+  });
+
+  const dashboard = dashboardGetLastQuery?.data?.dashboardGetLast;
+
+  useEffect(() => {
+    if (
+      Object.keys(queryParams).length === 0 &&
+      dashboard &&
+      !dashboardGetLastQuery.loading
+    ) {
+      router.setParams(
+        history,
+        { [dashboard?.type + 'Id']: dashboard?._id },
+        true,
+      );
+      return;
+    }
+  }, [dashboard]);
+
+  const updatedProps = {
+    ...props,
+    currentDashboardId: dashboard?._id,
+  };
+
+  return <InsightContainer {...updatedProps} />;
+};
+
+export default withLastDashboard;

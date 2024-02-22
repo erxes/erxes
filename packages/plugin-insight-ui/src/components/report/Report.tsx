@@ -288,7 +288,7 @@ const Report = (props: Props) => {
             classNames="slide-in-right"
             unmountOnExit={true}
           >
-            <RightDrawerContainer width={1100}>
+            <RightDrawerContainer width={100}>
               {
                 <Form
                   history={history}

@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -24,12 +25,20 @@ type Props = {
 
   sections: ISection[];
   dashboards: IDashboard[];
+  loading: boolean;
 
   removeDashboard: (id: string) => void;
 };
 
 const DashboardSection = (props: Props) => {
-  const { queryParams, history, sections, dashboards, removeDashboard } = props;
+  const {
+    queryParams,
+    history,
+    sections,
+    dashboards,
+    loading,
+    removeDashboard,
+  } = props;
 
   const wrapperRef = useRef<any>(null);
 
@@ -123,7 +132,11 @@ const DashboardSection = (props: Props) => {
   };
 
   const renderContent = () => {
-    if (sections?.length === 0) {
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (sections?.length === 0 && dashboards?.length === 0) {
       return <EmptyState icon="align-justify" text="No data for dashboard" />;
     }
 

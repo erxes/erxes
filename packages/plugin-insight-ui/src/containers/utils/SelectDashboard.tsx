@@ -5,13 +5,13 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import Alert from '@erxes/ui/src/utils/Alert/index';
 
 import SelectDashboard from '../../components/utils/SelectDashboard';
-import { IReport, IGoalType, SectionsListQueryResponse } from '../../types';
+import { IReport, SectionsListQueryResponse } from '../../types';
 import { queries, mutations } from '../../graphql';
 
 type Props = {
   queryParams: any;
   history: any;
-  data: IReport | IGoalType;
+  data: IReport;
 };
 
 const SelectDashboardContainer = (props: Props) => {
@@ -40,11 +40,13 @@ const SelectDashboardContainer = (props: Props) => {
     dashboardAddToMutation({
       variables: {
         ...data,
+        serviceNames: [data.serviceName],
+        serviceTypes: [data.serviceType],
         sectionId: id,
       },
     })
       .then((res) => {
-        Alert.success('Successfully created dashboard');
+        Alert.success('Successfully added to dashboard');
         const { _id } = res.data.dashboardAddTo;
         if (_id) {
           history.push(`/insight?dashboardId=${_id}`);

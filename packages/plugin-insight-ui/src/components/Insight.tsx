@@ -8,22 +8,15 @@ type Props = {
   history: any;
   queryParams: any;
   component: any;
-  loading?: any;
 };
 
 const Insight = (props: Props) => {
-  const { queryParams, history, component, loading } = props;
+  const { queryParams, history, component } = props;
 
   const renderContent = () => {
     const Component = component;
 
-    return (
-      <Component
-        queryParams={queryParams}
-        history={history}
-        loading={loading}
-      />
-    );
+    return <Component queryParams={queryParams} history={history} />;
   };
 
   return (

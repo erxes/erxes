@@ -66,11 +66,13 @@ const DashboardSectionContainer = (props: Props) => {
 
   const sections = sectionsQuery?.data?.sections || [];
   const dashboards = dashboardsQuery?.data?.dashboards || [];
+  const loading = dashboardsQuery.loading && sectionsQuery.loading;
 
   const updatedProps = {
     ...props,
     sections,
     dashboards,
+    loading,
     removeDashboard,
   };
 
