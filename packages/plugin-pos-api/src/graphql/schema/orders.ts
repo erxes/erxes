@@ -133,7 +133,6 @@ export const queries = `
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int
-  posOrdersInformation(customerId: String!): JSON
 `;
 
 export const mutations = `
