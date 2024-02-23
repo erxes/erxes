@@ -272,7 +272,6 @@ export const getOrCreateComment = async (
   if (mainConversation || replyConversation) {
     return;
   }
-  console.log('1');
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
@@ -301,7 +300,6 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
   };
-  console.log('2');
   if (parentConversation) {
     await models.CommentConversationReply.create({
       ...doc,
@@ -311,7 +309,6 @@ export const getOrCreateComment = async (
       ...doc,
     });
   }
-  console.log('3');
   let conversation;
   conversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
@@ -321,9 +318,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
-  console.log('4');
   try {
-    console.log(conversation, 'conversation');
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
@@ -339,7 +334,6 @@ export const getOrCreateComment = async (
       },
       isRPC: true,
     });
-    console.log(apiConversationResponse, 'apiConversationResponse');
     conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
@@ -349,7 +343,6 @@ export const getOrCreateComment = async (
     throw new Error(error.message);
   }
   try {
-    console.log('conversationClientMessageInserted');
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
@@ -358,7 +351,6 @@ export const getOrCreateComment = async (
         conversationId: conversation.erxesApiId,
       },
     });
-    console.log(conversation, 'conversion11111');
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
@@ -368,27 +360,11 @@ export const getOrCreateComment = async (
         },
       },
     );
-    console.log('test1');
   } catch {
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
     );
   }
-
-  // try {
-  //   await putCreateLog(
-  //     models,
-  //     subdomain,
-  //     {
-  //       type: 'comment',
-  //       newData: conversation,
-  //       object: conversation
-  //     },
-  //     userId
-  //   );
-  // } catch (e) {
-  //   throw new Error(e.message);
-  // }
 };
 
 export const getOrCreateCustomer = async (
