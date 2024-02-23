@@ -272,7 +272,6 @@ export const getOrCreateComment = async (
   if (mainConversation || replyConversation) {
     return;
   }
-
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
@@ -301,6 +300,7 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
   };
+  ('2');
   if (parentConversation) {
     await models.CommentConversationReply.create({
       ...doc,
@@ -319,7 +319,6 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
-
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -336,8 +335,7 @@ export const getOrCreateComment = async (
       },
       isRPC: true,
     });
-
-    conversation.erxesApiId = apiConversationResponse._id;
+    conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
     await models.CommentConversation.deleteOne({
@@ -345,7 +343,6 @@ export const getOrCreateComment = async (
     });
     throw new Error(error.message);
   }
-
   try {
     await sendInboxMessage({
       subdomain,
@@ -368,17 +365,6 @@ export const getOrCreateComment = async (
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
     );
-  }
-
-  try {
-    await putCreateLog(
-      models,
-      subdomain,
-      { type: 'comment', newData: conversation, object: conversation },
-      userId,
-    );
-  } catch (e) {
-    throw new Error(e.message);
   }
 };
 
