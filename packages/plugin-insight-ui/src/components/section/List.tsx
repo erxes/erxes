@@ -10,14 +10,13 @@ import { __ } from '@erxes/ui/src/utils/index';
 import {
   CollapsibleListWrapper,
   FlexRow,
-  SidebarListItem,
   ItemText,
   ToggleIcon,
 } from '@erxes/ui/src/components/collapsibleList/styles';
 import { ActionButtons, ItemCount } from '@erxes/ui-settings/src/styles';
 
 import { IDashboard, IGoalType, IReport, ISection } from '../../types';
-import { SectionListItem } from '../../styles';
+import { SectionListItem, Title } from '../../styles';
 
 type Props = {
   queryParamName: string;
@@ -104,7 +103,7 @@ const SectionList = (props: Props) => {
             <Icon className="list-icon" icon="layer-group" />
             <ItemText>
               <FlexCenter>
-                {section.name}
+                <Title isOpen={isOpen}>{section.name}</Title>
                 {renderIcon(!!section?.list?.length)}
                 <ItemCount className="product-count">
                   {section.listCount}

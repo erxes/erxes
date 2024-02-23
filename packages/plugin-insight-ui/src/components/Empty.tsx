@@ -4,13 +4,19 @@ import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 import { ContentContainer } from '../styles';
+import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
   history: any;
+  loading: boolean;
 };
 
-const Empty = (props: Props) => {
+const Empty = ({ loading }: Props) => {
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
     <ContentContainer>
       <PageContent transparent={false}>

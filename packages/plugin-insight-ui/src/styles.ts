@@ -504,6 +504,15 @@ const SectionListItem = styledTS<{
   }
 `;
 
+const Title = styledTS<{ isOpen: boolean }>(styled.p)`
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${(props) =>
+    props.isOpen ? 'overflow-wrap: break-word' : 'white-space: nowrap'};
+  margin: unset;
+`;
+
 const FormChart = styled.div`
   background-image: radial-gradient(
     ${colors.bgActive} 20%,
@@ -553,6 +562,7 @@ export {
   Content,
   SectionListWrapper,
   SectionListItem,
+  Title,
   FormChart,
   FormWrapper,
 };

@@ -32,6 +32,7 @@ type FinalProps = {
   history: any;
   queryParams: any;
   currentDashboardId: string;
+  loading: boolean;
 };
 
 const InsightContainer = (props: FinalProps) => {
@@ -97,6 +98,7 @@ const withLastDashboard = (props: Props) => {
   const updatedProps = {
     ...props,
     currentDashboardId: dashboard?._id,
+    loading: dashboardGetLastQuery.loading,
   };
 
   return <InsightContainer {...updatedProps} />;

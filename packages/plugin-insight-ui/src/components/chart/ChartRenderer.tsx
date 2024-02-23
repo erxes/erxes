@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { ChartType, Colors } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js/auto';
@@ -92,10 +92,13 @@ const ChartRenderer = (props: IChartProps) => {
   }, [chartType]);
 
   return (
-    <div style={{ width: `auto`, height: `${chartHeight}px` }}>
+    <div
+      className="canvas"
+      style={{ width: `auto`, height: `${chartHeight}px` }}
+    >
       <canvas ref={chartRef} />
     </div>
   );
 };
 
-export default ChartRenderer;
+export default memo(ChartRenderer);

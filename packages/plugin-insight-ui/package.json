@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "@erxes/ui": "*",
-    "chart.js": "^4.4.1",
-    "chartjs-plugin-datalabels": "^2.2.0",
-    "react-grid-layout": "^1.4.4"
+    "chart.js": "^4.4.0",
+    "chartjs-plugin-datalabels": "2.2.0",
+    "react-grid-layout": "^1.3.4"
   }
 }
