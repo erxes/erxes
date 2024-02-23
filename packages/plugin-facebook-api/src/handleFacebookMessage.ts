@@ -45,7 +45,20 @@ export const handleFacebookMessage = async (
     const commentConversationResult = await models.CommentConversation.findOne({
       erxesApiId: conversationId,
     });
+    const post = await models.PostConversations.findOne({
+      $or: [
+        { erxesApiId: conversationId },
+        {
+          postId: commentConversationResult
+            ? commentConversationResult.postId
+            : '',
+        },
+      ],
+    });
 
+    if (!post) {
+      throw new Error('Post not found');
+    }
     if (commentConversationResult) {
       const { recipientId, comment_id, senderId } = commentConversationResult;
       await models.CommentConversationReply.create({
@@ -77,7 +90,16 @@ export const handleFacebookMessage = async (
         message: strippedContent,
         attachment_url: attachment.payload ? attachment.payload.url : undefined,
       };
+      const id = commentConversationResult
+        ? commentConversationResult.comment_id
+        : post.postId;
 
+      if (commentConversationResult && commentConversationResult.comment_id) {
+        data = {
+          message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
+          attachment_url: attachment.url,
+        };
+      }
       try {
         const inboxConversation = await sendInboxMessage({
           isRPC: true,
@@ -85,10 +107,9 @@ export const handleFacebookMessage = async (
           action: 'conversations.findOne',
           data: { query: { _id: conversationId } },
         });
-
         await sendReply(
           models,
-          `${comment_id}/comments`,
+          `${id}/comments`,
           data,
           recipientId,
           inboxConversation && inboxConversation.integrationId,

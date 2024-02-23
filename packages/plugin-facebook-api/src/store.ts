@@ -351,8 +351,7 @@ export const getOrCreateComment = async (
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
-        _id: conversation?._id,
-        integrationId: integration.erxesApiId,
+        ...conversation?.toObject(),
         conversationId: conversation.erxesApiId,
       },
     });
@@ -360,10 +359,7 @@ export const getOrCreateComment = async (
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          _id: conversation?._id,
-          content: commentParams.message,
-          createdAt: new Date(),
-          customerId: customer.erxesApiId,
+          ...conversation?.toObject(),
           conversationId: conversation.erxesApiId,
         },
       },
