@@ -112,11 +112,15 @@ export const loadBotClass = (models: IModels) => {
         bot.accountId = relatedAccount._id;
       }
 
-      await this.connectBotPageMessenger({
-        botId: bot._id,
-        pageAccessToken: bot.token,
-        persistentMenus: bot.persistentMenus,
-      });
+      try {
+        await this.connectBotPageMessenger({
+          botId: bot._id,
+          pageAccessToken: bot.token,
+          persistentMenus: bot.persistentMenus,
+        });
+      } catch (err) {
+        throw new Error(err.message);
+      }
 
       return { status: 'success' };
     }
@@ -198,6 +202,10 @@ export const loadBotClass = (models: IModels) => {
           }
         }
       }
+
+      await graphRequest.post('/me/subscribed_apps', pageAccessToken, {
+        subscribed_fields: ['messages', 'messaging_postbacks'],
+      });
 
       await graphRequest.post('/me/messenger_profile', pageAccessToken, {
         get_started: { payload: JSON.stringify({ botId: botId }) },

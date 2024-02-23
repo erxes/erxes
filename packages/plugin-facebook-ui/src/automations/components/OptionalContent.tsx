@@ -88,10 +88,10 @@ function OptionalContent({ action, handle }: Props) {
     attachments,
     input,
   }: any) => {
-    const botId = automation.triggers.find(
+    const botId = automation?.triggers.find(
       (trigger) =>
-        trigger.type.includes('facebook') && !!trigger?.config?.botId,
-    ).config.botId;
+        trigger?.type?.includes('facebook') && !!trigger?.config?.botId,
+    )?.config?.botId;
 
     switch (type) {
       case 'text':
