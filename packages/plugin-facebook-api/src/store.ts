@@ -358,7 +358,7 @@ export const getOrCreateComment = async (
         conversationId: conversation.erxesApiId,
       },
     });
-    console.log('conversationClientMessageInserted2');
+    console.log(conversation, 'conversion11111');
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
@@ -368,22 +368,27 @@ export const getOrCreateComment = async (
         },
       },
     );
+    console.log('test1');
   } catch {
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
     );
   }
 
-  try {
-    await putCreateLog(
-      models,
-      subdomain,
-      { type: 'comment', newData: conversation, object: conversation },
-      userId,
-    );
-  } catch (e) {
-    throw new Error(e.message);
-  }
+  // try {
+  //   await putCreateLog(
+  //     models,
+  //     subdomain,
+  //     {
+  //       type: 'comment',
+  //       newData: conversation,
+  //       object: conversation
+  //     },
+  //     userId
+  //   );
+  // } catch (e) {
+  //   throw new Error(e.message);
+  // }
 };
 
 export const getOrCreateCustomer = async (
