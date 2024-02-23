@@ -263,7 +263,7 @@ export const getOrCreateComment = async (
   const mainConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
   });
-  const subConversation = await models.CommentConversation.findOne({
+  const parentConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
   const replyConversation = await models.CommentConversationReply.findOne({
@@ -301,11 +301,11 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
   };
-  if (subConversation) {
+  if (parentConversation) {
     await models.CommentConversationReply.create({
       ...doc,
     });
-  } else if (mainConversation === null && subConversation === null) {
+  } else {
     await models.CommentConversation.create({
       ...doc,
     });
