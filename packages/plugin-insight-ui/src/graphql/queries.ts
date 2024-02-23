@@ -674,6 +674,12 @@ const dashboardDetail = `
   }
 `;
 
+const dashboardGetLast = `
+  query dashboardGetLast {
+    dashboardGetLast
+  }
+`;
+
 const sectionList = `
   query sections($type: String) {
     sections(type: $type) {
@@ -690,6 +696,7 @@ export default {
   //dashboard
   dashboardList,
   dashboardDetail,
+  dashboardGetLast,
 
   //section
   sectionList,

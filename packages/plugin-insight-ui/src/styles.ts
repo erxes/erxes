@@ -1,14 +1,12 @@
-import RGL, { WidthProvider } from 'react-grid-layout';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { ContentBox, Contents, FlexContent } from '@erxes/ui/src/layout/styles';
+import RGL, { WidthProvider } from 'react-grid-layout';
+
+import { ContentBox, Contents } from '@erxes/ui/src/layout/styles';
+import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import Popover from 'react-bootstrap/Popover';
-import { PageContent } from '@erxes/ui/src';
-import { SidebarListItem } from '@erxes/ui/src/components/collapsibleList/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -157,7 +155,8 @@ const RightDrawerContainer = styledTS<{ width?: number } & any>(
   styled(RightMenuContainer),
 )`
   background: ${colors.colorWhite};
-  width: ${(props) => (props.width ? props.width : '500')}px;
+  width: ${(props) =>
+    props.width ? `calc(100% - ${props.width}px)` : '500px'};
   padding: ${dimensions.unitSpacing}px;
   z-index: 10;
   top: 0;
@@ -169,7 +168,6 @@ const MarginY = styledTS<{ margin: number }>(styled.div)`
 
 const Description = styled.div`
   margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
-
   h4 {
     margin: 0;
     font-size: 16px;
@@ -435,7 +433,7 @@ const SectionListItem = styledTS<{
   }px;
 
   span {
-    flex: 0;
+    flex: 1;
     width: auto;
 
   }
@@ -499,11 +497,20 @@ const SectionListItem = styledTS<{
     ${ActionButtons} {
       position:absolute;
       right : 0;
-      width: 45px;
+      width: 40px;
       z-index: 1;
       background: ${(props) => (props.isActive ? '#e2dcf2' : colors.bgLight)};
     }
   }
+`;
+
+const Title = styledTS<{ isOpen: boolean }>(styled.p)`
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${(props) =>
+    props.isOpen ? 'overflow-wrap: break-word' : 'white-space: nowrap'};
+  margin: unset;
 `;
 
 const FormChart = styled.div`
@@ -524,6 +531,12 @@ const FormChart = styled.div`
 
 const FormWrapper = styled.div`
   display: flex;
+
+  .left-column .canvas {
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+  }
 
   .right-column {
     max-width: 500px !important;
@@ -549,6 +562,7 @@ export {
   Content,
   SectionListWrapper,
   SectionListItem,
+  Title,
   FormChart,
   FormWrapper,
 };

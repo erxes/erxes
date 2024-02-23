@@ -2,19 +2,19 @@ import React from 'react';
 
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
 
 import { ContentContainer } from '../styles';
+import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
   history: any;
-  loading?: boolean;
+  loading: boolean;
 };
 
 const Empty = ({ loading }: Props) => {
   if (loading) {
-    <Spinner />;
+    return <Spinner />;
   }
 
   return (

@@ -20,6 +20,7 @@ import Participators from '../utils/Participators';
 import Form from '../../containers/chart/Form';
 import SelectMembersPopover from '../utils/SelectMembersPopover';
 import SelectDashboard from '../../containers/utils/SelectDashboard';
+import { defaultLayout, deserializeItem } from '../../utils';
 import { IReport } from '../../types';
 import {
   ChartTitle,
@@ -27,28 +28,6 @@ import {
   ContentContainer,
   RightDrawerContainer,
 } from '../../styles';
-
-const DEFAULT_GRID_DIMENSIONS = {
-  w: 3,
-  h: 3,
-};
-
-const deserializeItem = (i) => {
-  return {
-    ...i,
-    layout: i.layout ? JSON.parse(i.layout) : {},
-    vizState: i.vizState ? JSON.parse(i.vizState) : {},
-  };
-};
-
-const defaultLayout = (i, index) => ({
-  x: i.layout.x || 0,
-  y: i.layout.y || 0,
-  w: i.layout.w || DEFAULT_GRID_DIMENSIONS.w,
-  h: i.layout.h || DEFAULT_GRID_DIMENSIONS.h,
-  minW: 1,
-  minH: 1,
-});
 
 type Props = {
   queryParams: any;
@@ -288,7 +267,7 @@ const Report = (props: Props) => {
             classNames="slide-in-right"
             unmountOnExit={true}
           >
-            <RightDrawerContainer width={1100}>
+            <RightDrawerContainer width={100}>
               {
                 <Form
                   history={history}
