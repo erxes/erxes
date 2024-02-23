@@ -109,10 +109,11 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         customerId
       });
 
-      if (
-        isCustomerExistsSaas &&
-        syncedCustomer?.status === CUSTOMER_STATUSES.APPROVED
-      ) {
+      const isApproved = !!sync?.checkApproved
+        ? syncedCustomer?.status === CUSTOMER_STATUSES.APPROVED
+        : true;
+
+      if (isCustomerExistsSaas && isApproved) {
         sync.customerId = customerId;
 
         return sync;
