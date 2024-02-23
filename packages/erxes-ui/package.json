@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "dependencies": {
-    "@apollo/client": "~3.8.9",
+    "@apollo/client": "^3.9.5",
     "@codemirror/lang-html": "^6.4.6",
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@popperjs/core": "^2.11.8",

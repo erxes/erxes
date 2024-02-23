@@ -2,7 +2,7 @@
   "name": "@erxes/ui-tags",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "lodash.flowright": "^3.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.1.0",

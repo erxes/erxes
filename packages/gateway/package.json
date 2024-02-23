@@ -7,7 +7,7 @@
     "build": "yarn tsc"
   },
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "@erxes/api-utils": "*",
     "@graphql-tools/schema": "^9.0.16",
     "agentkeepalive": "^4.3.0",

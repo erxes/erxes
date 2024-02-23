@@ -21,6 +21,7 @@ const withCurrentUser = (WrappedComponent) => {
     );
 
     if (loading || !data) {
+      // return null;
       return <Spinner />;
     }
 

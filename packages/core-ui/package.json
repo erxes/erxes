@@ -4,7 +4,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "@erxes/ui": "*",
     "@headlessui/react": "^1.7.18",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",

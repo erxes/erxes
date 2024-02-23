@@ -2,7 +2,7 @@
   "name": "@erxes/ui-engage",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "dayjs": "1.8.15",
     "lodash.flowright": "3.5.0",

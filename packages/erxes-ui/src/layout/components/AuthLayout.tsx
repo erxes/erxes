@@ -1,17 +1,18 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __, bustIframe } from '../../utils';
-import React from 'react';
-import Container from 'react-bootstrap/Container';
 import {
-  AuthWrapper,
   AuthBox,
-  AuthItem,
   AuthContent,
   AuthCustomDescription,
   AuthDescription,
+  AuthItem,
+  AuthWrapper,
   CenterContent,
-  MobileRecommend
+  MobileRecommend,
 } from '../styles';
+import { __, bustIframe } from '../../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import Container from 'react-bootstrap/Container';
+import React from 'react';
 import { getThemeItem } from '../../utils/core';
 
 type Props = {
@@ -44,7 +45,7 @@ class AuthLayout extends React.Component<Props, {}> {
       if (userAgent.match(/Android/i)) {
         return this.renderContent(
           'Download android app for free on the Google play',
-          'https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0'
+          'https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0',
         );
       }
     }

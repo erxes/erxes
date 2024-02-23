@@ -1,5 +1,5 @@
-import { QueryResponse } from '../types';
 import { IBrand } from '../brands/types';
+import { QueryResponse } from '../types';
 
 export interface IOnboardingHistory {
   _id: string;
@@ -105,6 +105,8 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  onboardingDone?: boolean;
+  contactRemaining?: boolean;
 };
 
 export interface IUserOrganization {

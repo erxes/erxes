@@ -2,7 +2,7 @@
   "name": "@erxes/ui-contacts",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "~3.8.9",
+    "@apollo/client": "^3.9.5",
     "lodash.flowright": "3.5.0",
     "react": "^18.1.0",
     "react-router-dom": "^6.21.2",

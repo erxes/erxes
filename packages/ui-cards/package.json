@@ -2,7 +2,7 @@
   "name": "@erxes/ui-cards",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "@fullcalendar/core": "^5.11.2",
     "@fullcalendar/interaction": "^5.11.3",
     "@fullcalendar/react": "^5.11.2",

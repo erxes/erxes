@@ -6,7 +6,7 @@ const ErrorFallback = ({ error }: { error: Error | null }) => (
   <p>Something went wrong. ({error?.message})</p>
 );
 
-const ErrorBoundary: React.FC<{ children: any; pluginName: string }> = ({
+const ErrorBoundary: React.FC<{ children: any; pluginName?: string }> = ({
   children,
   pluginName,
 }) => {
