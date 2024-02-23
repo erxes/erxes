@@ -36,11 +36,6 @@ export const handleFacebookMessage = async (
       extraInfo,
       userId,
     } = doc;
-
-    let strippedContent = strip(content);
-
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
-
     const commentConversationResult = await models.CommentConversation.findOne({
       erxesApiId: conversationId,
     });
@@ -55,68 +50,71 @@ export const handleFacebookMessage = async (
         },
       ],
     });
-
+    if (!commentConversationResult) {
+      throw new Error('comment not found');
+    }
     if (!post) {
       throw new Error('Post not found');
     }
-    if (commentConversationResult) {
-      const { recipientId, comment_id, senderId } = commentConversationResult;
-      await models.CommentConversationReply.create({
-        recipientId: recipientId,
-        senderId: senderId,
-        attachments: attachments,
-        userId: userId,
-        createdAt: new Date(Date.now()),
-        content: strippedContent,
-        parentId: comment_id,
-      });
+    let strippedContent = strip(content);
 
-      let attachment: {
-        url?: string;
-        type?: string;
-        payload?: { url: string };
-      } = {};
+    strippedContent = strippedContent.replace(/&amp;/g, '&');
 
-      if (attachments && attachments.length > 0) {
-        attachment = {
-          type: 'file',
-          payload: {
-            url: attachments[0].url,
-          },
-        };
-      }
+    const { recipientId, comment_id, senderId } = commentConversationResult;
+    await models.CommentConversationReply.create({
+      recipientId: recipientId,
+      senderId: senderId,
+      attachments: attachments,
+      userId: userId,
+      createdAt: new Date(Date.now()),
+      content: strippedContent,
+      parentId: comment_id,
+    });
 
-      let data = {
-        message: strippedContent,
-        attachment_url: attachment.payload ? attachment.payload.url : undefined,
+    let attachment: {
+      url?: string;
+      type?: string;
+      payload?: { url: string };
+    } = {};
+
+    if (attachments && attachments.length > 0) {
+      attachment = {
+        type: 'file',
+        payload: {
+          url: attachments[0].url,
+        },
       };
-      const id = commentConversationResult
-        ? commentConversationResult.comment_id
-        : post.postId;
-      if (commentConversationResult && commentConversationResult.comment_id) {
-        data = {
-          message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
-          attachment_url: attachment.url,
-        };
-      }
-      try {
-        const inboxConversation = await sendInboxMessage({
-          isRPC: true,
-          subdomain,
-          action: 'conversations.findOne',
-          data: { query: { _id: conversationId } },
-        });
-        await sendReply(
-          models,
-          `${id}/comments`,
-          data,
-          recipientId,
-          inboxConversation && inboxConversation.integrationId,
-        );
-        return { status: 'success' };
-      } catch (e) {
-        throw new Error(e.message);
-      }
+    }
+    let data = {
+      message: strippedContent,
+      attachment_url: attachment.payload ? attachment.payload.url : undefined,
+    };
+    const id = commentConversationResult
+      ? commentConversationResult.comment_id
+      : post.postId;
+    if (commentConversationResult && commentConversationResult.comment_id) {
+      data = {
+        message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
+        attachment_url: attachment.url,
+      };
+    }
+    try {
+      const inboxConversation = await sendInboxMessage({
+        isRPC: true,
+        subdomain,
+        action: 'conversations.findOne',
+        data: { query: { _id: conversationId } },
+      });
+      await sendReply(
+        models,
+        `${id}/comments`,
+        data,
+        recipientId,
+        inboxConversation && inboxConversation.integrationId,
+      );
+      return { status: 'success' };
+    } catch (e) {
+      throw new Error(e.message);
     }
   }
   if (action === 'reply-messenger') {
