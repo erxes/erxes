@@ -93,7 +93,7 @@ const List = ({ contentType }: { contentType: string }) => {
     )
   }
 
-  if (seeAllEvent) {
+  if (contentType === "event" && seeAllEvent) {
     return (
       <div className="h-[calc(100vh-124px)] overflow-auto w-full flex flex-col items-center gap-4 relative pb-4 px-4 mt-4">
         <ReactedEventList />
