@@ -60,6 +60,7 @@ const commonFields = `
   $commitmentInterest: Float
   $endDate: Date
   $savingContractId: String
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -121,6 +122,7 @@ const commonVariables = `
   commitmentInterest:$commitmentInterest
   endDate:$endDate
   savingContractId: $savingContractId
+  customFieldsData: $customFieldsData
 `;
 
 const contractsAdd = `
@@ -240,5 +242,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn
+  interestReturn,
 };

@@ -34,6 +34,7 @@ export const types = ({ products, tags, forms }) => `
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
+    isConnected: Boolean
     webhookData: JSON
 
     brand: Brand
@@ -50,7 +51,6 @@ export const types = ({ products, tags, forms }) => `
 
     visibility: String
     departmentIds: [String]
-    data: JSON
 
     details: JSON
   }
@@ -217,6 +217,23 @@ export const queries = `
 `;
 
 export const mutations = `
+  integrationsCreateMessengerOnboarding(
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+    
+    
+  integrationsEditMessengerOnboarding(
+    _id: String!,
+    brandId: String!,
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+ 
   integrationsCreateMessengerIntegration(
     name: String!,
     brandId: String!,

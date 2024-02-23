@@ -110,7 +110,16 @@ export default function useExtensions({
       Document,
       BulletList,
       CodeBlock,
-      HardBreak,
+      HardBreak.extend({
+        addKeyboardShortcuts() {
+          return {
+            // ctrl + enter [Win] = cmd + enter [macOS]
+            'Shift-Enter': () => this.editor.commands.setHardBreak(),
+            'Mod-Enter': () => false,
+            'Control-Enter': () => false,
+          };
+        },
+      }),
       ListItem,
       OrderedList,
       Paragraph,

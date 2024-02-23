@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
 const contractFields = `
@@ -32,6 +32,7 @@ const contractFields = `
   isAllowIncome
   isAllowOutcome
   isDeposit
+  customFieldsData
 `;
 
 const listParamsDef = `
@@ -208,6 +209,12 @@ const savingsContractsAlert = `
   }
 `;
 
+const getPolarisData = `
+  query Query($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
+
 export default {
   contracts,
   contractsMain,
@@ -216,5 +223,6 @@ export default {
   scheduleYears,
   closeInfo,
   documents,
-  savingsContractsAlert
+  savingsContractsAlert,
+  getPolarisData,
 };

@@ -56,7 +56,10 @@ export const getPostDetails = async (
   }
 
   try {
-    const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
+    const response: any = await graphRequest.get(
+      `/${postId}?fields=permalink_url,message,created_time`,
+      pageAccessToken,
+    );
 
     return response;
   } catch (e) {
@@ -420,6 +423,26 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   }
 
   return messages;
+};
+
+export const fetchPagePost = async (postId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${postId}?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response || null;
+};
+
+export const fetchPagePosts = async (pageId: string, accessToken: string) => {
+  const fields = 'message,created_time,full_picture,picture,permalink_url';
+
+  const response = await graphRequest.get(
+    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
+  );
+
+  return response.data || [];
 };
 
 export const checkFacebookPages = async (models: IModels, pages: any) => {

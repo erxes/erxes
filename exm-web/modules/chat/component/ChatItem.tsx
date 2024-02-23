@@ -58,20 +58,17 @@ export const ChatItem = ({
   const searchParams = useSearchParams()
 
   const [open, setOpen] = useState(false)
+  const [showActionBtn, setShowActionBtn] = useState(false)
 
   const chatId = searchParams.get("id")
+
+  const isSeen = chat && chat.isSeen ? chat.isSeen : false
 
   const users: any[] = chat?.participantUsers || []
   const user: any =
     users?.length > 1
       ? users?.filter((u) => u._id !== currentUser?._id)[0]
       : users?.[0]
-
-  const isSeen = chat
-    ? chat.lastMessage?.createdUser?._id === currentUser?._id
-      ? true
-      : chat.isSeen
-    : true
 
   const handleClick = () => {
     if (chat) {
@@ -118,7 +115,9 @@ export const ChatItem = ({
     return (
       <Popover>
         <PopoverTrigger asChild={true}>
-          <MoreVerticalIcon size={16} />
+          <div className="shrink-0 bg-[#F2F4F7] p-1 rounded-full border border-exm ml-auto">
+            <MoreVerticalIcon size={16} />
+          </div>
         </PopoverTrigger>
         <PopoverContent className="w-44 p-3" align="start">
           <div
@@ -194,7 +193,7 @@ export const ChatItem = ({
           alt="avatar"
           width={60}
           height={60}
-          className="w-12 h-12 rounded-full object-cover border border-primary"
+          className="w-12 h-12 rounded-full object-cover"
         />
       )
     }
@@ -210,7 +209,7 @@ export const ChatItem = ({
         alt="avatar"
         width={60}
         height={60}
-        className="w-12 h-12 rounded-full object-cover border border-primary"
+        className="w-12 h-12 rounded-full object-cover"
       />
     )
   }
@@ -245,42 +244,49 @@ export const ChatItem = ({
     }
 
     return (
-      <div className={`text-sm text-[#444] w-9/12`}>
+      <div
+        className={`text-sm text-[#444] ${
+          showActionBtn ? "w-[calc(100%-90px)]" : "w-[calc(100%-60px)]"
+        }`}
+      >
         <div className="flex justify-between">
-          <p className="w-4/5 truncate">{renderName()}</p>
+          <p className="w-[calc(100%-14px)] text-[16px] truncate font-bold flex">
+            {!handleForward && isPinned && (
+              <Pin size={16} color="#6A45E6" className="shrink-0" />
+            )}
+            <span className="w-1/2 truncate">{renderName()}</span>
+            <span className="w-1/2 truncate text-sm">
+              {chat.type === "direct" && user?.details.position && (
+                <>
+                  <span className="text-[18px] text-black">&nbsp;∙&nbsp;</span>
+                  <span className="font-normal">{user?.details.position}</span>
+                </>
+              )}
+            </span>
+          </p>
           {!handleForward &&
             chat &&
             chat.muteUserIds.includes(currentUser._id) && <BellOff size={14} />}
         </div>
-        <div className="flex justify-between w-full text-xs">
-          <p className="w-1/2 truncate">
-            {chat.type === "direct" ? (
-              user?.details.position ? (
-                <span className="text-[10px]"> ({user?.details.position})</span>
-              ) : (
-                "(Active now)"
-              )
-            ) : (
-              "(Active now)"
-            )}
-          </p>
-          {!handleForward && (
-            <p className="text-primary-light text-[10px]">
+        {!handleForward && (
+          <div className="flex justify-between w-full text-sm text-[#667085]">
+            <p
+              className="truncate max-w-[150px]"
+              dangerouslySetInnerHTML={{
+                __html:
+                  (chat?.lastMessage &&
+                    (chat?.lastMessage.content === ""
+                      ? "Media message"
+                      : chat?.lastMessage.content)) ||
+                  "",
+              }}
+            />
+            <p>
               {chat.lastMessage &&
                 chat.lastMessage.createdAt &&
-                "⋅" + dayjs(chat.lastMessage.createdAt).fromNow()}
+                dayjs(chat.lastMessage.createdAt).fromNow(true)}
             </p>
-          )}
-        </div>
-        {!handleForward && (
-          <p
-            className="truncate max-w-[150px]"
-            dangerouslySetInnerHTML={
-              {
-                __html: (chat?.lastMessage && chat?.lastMessage.content) || "",
-              } || ""
-            }
-          />
+          </div>
         )}
       </div>
     )
@@ -290,12 +296,12 @@ export const ChatItem = ({
     <Card
       className={`${
         !handleForward && chatId === chat._id
-          ? "bg-[#f0eef9]"
+          ? "bg-[#F2F4F7] border border-exm"
           : "bg-transparent"
-      } ${
-        isSeen ? "" : "font-bold"
-      } px-5 rounded-none py-2.5 cursor-pointer flex items-center shadow-none border-none hover:bg-[#F0F0F0] mb-3 sm:rounded-lg `}
+      } px-3 rounded-none py-4 cursor-pointer flex items-center shadow-none border-none mb-3 relative`}
       onClick={handleClick}
+      onMouseEnter={() => setShowActionBtn(true)}
+      onMouseLeave={() => setShowActionBtn(false)}
     >
       <div className="items-end flex mr-3">
         <div className="w-12 h-12 rounded-full relative">
@@ -306,8 +312,14 @@ export const ChatItem = ({
 
       {renderInfo()}
 
-      {!handleForward && renderChatActions()}
+      {!handleForward && showActionBtn && renderChatActions()}
       {handleForward && renderForwardAction()}
+
+      {!isSeen && (
+        <span className="rounded-full bg-primary absolute top-[10px] right-[10px] w-2.5 h-2.5">
+          &nbsp;
+        </span>
+      )}
     </Card>
   )
 }

@@ -1,0 +1,30 @@
+.custom-popover {
+  & .arrow {
+    display: none;
+  }
+
+  & input:focus {
+    border-color: #aaa;
+  }
+}
+
+.dropdown-container {
+  top: 8px !important;
+}
+
+.dropdown-menu li a {
+  color: #888;
+  font-weight: 500;
+  padding: 5px 20px;
+
+  & i {
+    margin-right: 5px;
+    color: inherit;
+  }
+
+  &:hover,
+  &:focus,
+  & i:hover {
+    color: #888;
+  }
+}

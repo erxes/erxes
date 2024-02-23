@@ -51,7 +51,7 @@ class Form extends React.PureComponent<Prop, State> {
     super(props);
 
     this.state = {
-      content: props.content || ''
+      content: props.content || '',
     };
   }
 
@@ -140,7 +140,7 @@ class Form extends React.PureComponent<Prop, State> {
             'link',
             'unlink',
             '|',
-            'image'
+            'image',
           ]}
         />
 

@@ -84,7 +84,7 @@ const init = async (app) => {
     if (data.object !== 'page') {
       return;
     }
-
+    console.log(data, 'data');
     const adapter = await getAdapter(models);
 
     for (const entry of data.entry) {
@@ -147,6 +147,7 @@ const init = async (app) => {
             debugFacebook(
               `Received comment data ${JSON.stringify(event.value)}`,
             );
+            console.log('receiveComment');
             try {
               await receiveComment(models, subdomain, event.value, entry.id);
               debugFacebook(
@@ -164,6 +165,7 @@ const init = async (app) => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`,
               );
+              console.log('receivePost');
               await receivePost(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`,

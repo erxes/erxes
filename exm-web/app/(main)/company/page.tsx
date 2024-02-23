@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
-import RightNavbar from "@/modules/navbar/component/RightNavbar"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -50,7 +49,6 @@ const CompanyPage = () => {
                 Company
               </TabsTrigger>
             </div>
-            <RightNavbar />
           </div>
         </TabsList>
 

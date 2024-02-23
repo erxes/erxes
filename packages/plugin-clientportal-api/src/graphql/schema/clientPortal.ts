@@ -2,7 +2,7 @@ export const types = (
   cardAvailable,
   kbAvailable,
   formsAvailable,
-  productsAvailable
+  productsAvailable,
 ) => `
 ${
   cardAvailable
@@ -298,7 +298,7 @@ ${
 export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
-  clientPortalGetConfigByDomain: ClientPortal
+  clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
   ${
@@ -338,7 +338,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   }
 `;
 
-export const mutations = cardAvailable => `
+export const mutations = (cardAvailable) => `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal

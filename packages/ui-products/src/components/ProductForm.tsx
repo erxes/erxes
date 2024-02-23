@@ -636,7 +636,7 @@ class Form extends React.Component<Props, State> {
                   'link',
                   'unlink',
                   '|',
-                  'image'
+                  'image',
                 ]}
               />
             </FormGroup>
@@ -769,7 +769,7 @@ class Form extends React.Component<Props, State> {
                   'link',
                   'unlink',
                   '|',
-                  'image'
+                  'image',
                 ]}
               />
             </FormGroup>

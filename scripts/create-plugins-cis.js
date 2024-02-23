@@ -71,6 +71,7 @@ var plugins = [
   { name: 'msdynamic', api: true, ui: true },
   { name: 'dailyco', api: true, ui: true },
   { name: 'zms', api: true, ui: true },
+  { name: 'syncpolaris', api: true, ui: true },
   { name: 'reports', api: true, ui: true },
   { name: 'instagram', api: true, ui: true }
 ];

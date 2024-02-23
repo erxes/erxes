@@ -43,6 +43,7 @@ const commonPipelineParamsDef = `
   $metric: String,
   $hackScoringType: String,
   $templateId: String,
+  $isCheckDate: Boolean
   $isCheckUser: Boolean
   $isCheckDepartment: Boolean
   $excludeCheckUserIds: [String],
@@ -65,6 +66,7 @@ const commonPipelineParams = `
   endDate: $endDate,
   metric: $metric,
   templateId: $templateId,
+  isCheckDate: $isCheckDate,
   isCheckUser: $isCheckUser,
   isCheckDepartment: $isCheckDepartment
   excludeCheckUserIds: $excludeCheckUserIds,
@@ -136,5 +138,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

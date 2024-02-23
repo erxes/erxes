@@ -8,6 +8,19 @@ import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
+const checkIsBot = async (models: IModels, message, recipientId) => {
+  if (message?.payload) {
+    const payload = JSON.parse(message?.payload || '{}');
+    if (payload.botId) {
+      return payload.botId;
+    }
+  }
+
+  const bot = await models.Bots.findOne({ pageId: recipientId });
+
+  return bot?._id;
+};
+
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
@@ -30,10 +43,8 @@ const receiveMessage = async (
       mid: postback.mid,
     };
 
-    if (text !== 'Get Started') {
-      if (postback.payload) {
-        message.payload = postback.payload;
-      }
+    if (postback.payload) {
+      message.payload = postback.payload;
     }
   }
   if (message.quick_reply) {
@@ -66,8 +77,7 @@ const receiveMessage = async (
     recipientId: recipient.id,
   });
 
-  const isBot = postback && postback.title === 'Get Started' ? true : false;
-  const botId = isBot ? postback.payload : undefined;
+  const botId = await checkIsBot(models, message, recipient.id);
 
   // create conversation
   if (!conversation) {
@@ -80,7 +90,7 @@ const receiveMessage = async (
         recipientId: recipient.id,
         content: text,
         integrationId: integration._id,
-        isBot,
+        isBot: !!botId,
         botId,
       });
     } catch (e) {
@@ -168,6 +178,19 @@ const receiveMessage = async (
       );
 
       conversationMessage = created;
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: 'messages',
+          newData: message,
+          object: {
+            ...conversationMessage.toObject(),
+            payload: JSON.parse(message.payload || '{}'),
+          },
+        },
+        customer._id,
+      );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
@@ -176,22 +199,6 @@ const receiveMessage = async (
       );
     }
   }
-
-  try {
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: 'messages',
-        newData: message,
-        object: {
-          ...conversationMessage.toObject(),
-          payload: JSON.parse(message.payload || '{}'),
-        },
-      },
-      customer._id,
-    );
-  } catch (error) {}
 };
 
 export default receiveMessage;
