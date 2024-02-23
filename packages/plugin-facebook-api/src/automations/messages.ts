@@ -357,7 +357,6 @@ export const actionCreateMessage = async (
     if (!optionalConnects?.length) {
       return result;
     }
-
     return {
       result,
       objToWait: generateObjectToWait({
