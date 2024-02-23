@@ -300,7 +300,6 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
   };
-  ('2');
   if (parentConversation) {
     await models.CommentConversationReply.create({
       ...doc,
