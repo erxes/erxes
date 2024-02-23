@@ -1,3 +1,22 @@
+## [1.6.2-rc.0](https://github.com/erxes/erxes/compare/1.6.1...1.6.2-rc.0) (2024-02-22)
+
+
+### Bug Fixes
+
+* **exm:** Update feed ([#4967](https://github.com/erxes/erxes/issues/4967)) ([c25b5e5](https://github.com/erxes/erxes/commit/c25b5e511928a633309dabdfeeec424666adb80e))
+* syncpolaris ([fc12fff](https://github.com/erxes/erxes/commit/fc12fff071c64669b7a9c1d1413b961869b5d2ae))
+* **welcome:** Tutorial link ([#4960](https://github.com/erxes/erxes/issues/4960)) ([0ac29e9](https://github.com/erxes/erxes/commit/0ac29e90bc4c786ad78f1b26e3fadbcdb4d3fa72))
+
+
+### Features
+
+* **core:** merge saas with os ([202405a](https://github.com/erxes/erxes/commit/202405a505961811a97f6f26d48b34712325acbc))
+
+
+### Performance Improvements
+
+* **exm:** Update chat and feeds ([#4973](https://github.com/erxes/erxes/issues/4973)) ([58be121](https://github.com/erxes/erxes/commit/58be121d193708447967bbba09092b20775fe4e8))
+
 ## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
 
 ## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
