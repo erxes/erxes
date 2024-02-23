@@ -41,7 +41,7 @@ export interface IReportItem {
 
 enum ReportVisibility {
   public = 'public',
-  private = 'private'
+  private = 'private',
 }
 
 export interface IReportTemplate {
@@ -63,6 +63,7 @@ export interface IChart {
   serviceName?: string;
   templateType?: string;
   filter?: any;
+  dimension?: any;
 
   data?: number[];
   layout?: any;
@@ -77,6 +78,12 @@ export interface IChartGetResultVariables {
 export interface IType {
   _id: string;
   name: string;
+}
+
+export interface IFieldLogic {
+  logicFieldName: string;
+  logicFieldValue: any;
+  logicFieldVariable?: string;
 }
 
 // queries

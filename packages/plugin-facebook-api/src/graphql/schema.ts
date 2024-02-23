@@ -62,10 +62,25 @@ export const types = `
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
-    
+    permalink_url:String
+    postContent: String
     customer: Customer
     user: User
   }
+
+  type FacebookPostMessage {
+    _id: String!
+    ${commonCommentAndMessageFields}
+    attachments: [Attachment]
+    customerId: String
+    userId: String
+    createdAt: Date
+    commentId: String
+
+    customer: Customer
+    user: User
+  }
+
 
   type FacebookPost @key(fields: "_id") {
     _id: String!
@@ -74,17 +89,17 @@ export const types = `
   }
 
   type BotPersistentMenuType {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   input BotPersistentMenuInput {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   type FacebookMessengerBot {
@@ -96,6 +111,7 @@ export const types = `
     page: JSON
     createdAt: Date
     persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
   }
 `;
 
@@ -104,12 +120,7 @@ export const queries = `
   facebookGetIntegrations(kind: String): JSON
   facebookGetIntegrationDetail(erxesApiId: String): JSON 
   facebookGetConfigs: JSON
-  facebookGetComments(
-    ${commentQueryParamDefs},
-    commentId: String,
-    senderId: String,
-    ${pageParams}
-  ): [FacebookComment]
+  facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
   facebookConversationDetail(_id: String!): JSON
@@ -117,8 +128,14 @@ export const queries = `
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
   facebookHasTaggedMessages(conversationId: String!): Boolean
+
+  facebookPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
+  facebookPostMessagesCount(conversationId: String!): Int
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
+  facebootMessengerBot(_id:String):FacebookMessengerBot
+  facebookGetBotPosts(botId:String):JSON
+  facebookGetBotPost(botId:String,postId:String):JSON
 `;
 
 export const mutations = `
@@ -126,6 +143,7 @@ export const mutations = `
   facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerRemoveBot(_id:String):JSON
+  facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment

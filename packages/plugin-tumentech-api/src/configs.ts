@@ -16,20 +16,18 @@ import * as permissions from './permissions';
 import segments from './segments';
 import { getTransportData, updateTrackingData } from './utils';
 import payment from './payment';
+import app from '@erxes/api-utils/src/app';
 
 export let debug;
-export let graphqlPubsub;
 export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'tumentech',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers()
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
@@ -37,19 +35,19 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js'
+    'subscriptionPlugin.js',
   ),
   hasDashboard: true,
 
   postHandlers: [
     {
       path: `/transports`,
-      method: getTransportData
+      method: getTransportData,
     },
     {
       path: `/tracking`,
-      method: updateTrackingData
-    }
+      method: updateTrackingData,
+    },
   ],
 
   getHandlers: [
@@ -62,19 +60,19 @@ export default {
 
         if (isiOS) {
           return res.redirect(
-            'https://apps.apple.com/us/app/%D1%82%D2%AF%D0%BC%D1%8D%D0%BD-%D1%82%D1%8D%D1%8D%D1%85/id1610092431'
+            'https://apps.apple.com/us/app/%D1%82%D2%AF%D0%BC%D1%8D%D0%BD-%D1%82%D1%8D%D1%8D%D1%85/id1610092431',
           );
         }
 
         if (isAndroid) {
           return res.redirect(
-            'https://play.google.com/store/apps/details?id=com.tumentech'
+            'https://play.google.com/store/apps/details?id=com.tumentech',
           );
         }
 
         return res.redirect('https://www.tumentech.mn/');
-      }
-    }
+      },
+    },
   ],
 
   meta: {
@@ -83,7 +81,7 @@ export default {
     afterMutations,
     exporter,
     dashboards,
-    payment
+    payment,
   },
 
   apolloServerContext: async (context, req) => {
@@ -99,16 +97,13 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware],
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    const { app } = options;
-
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
 
     app.use('/static', express.static(path.join(__dirname, '/public')));
-  }
+  },
 };

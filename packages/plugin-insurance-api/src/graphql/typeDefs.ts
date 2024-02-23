@@ -27,23 +27,23 @@ import {
   queries as categoryQueries,
   types as categoryTypes
 } from './schema/categories';
-
 import { types as commonTypes } from './schema/commonTypes';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const isClientportalEnabled = await serviceDiscovery.isEnabled(
+const typeDefs = async () => {
+  const isContactsEnabled = await isEnabled('contacts');
+  const isClientportalEnabled = await isEnabled(
     'clientportal'
   );
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: isContactsEnabled,
     clientportal: isClientportalEnabled
   };
 
   return gql`
-    ${commonTypes(isEnabled)}
-    ${itemTypes(isEnabled)}
+    ${commonTypes(isEnabledTable)}
+    ${itemTypes(isEnabledTable)}
     ${packageTypes}
     ${riskTypes}
     ${productTypes}

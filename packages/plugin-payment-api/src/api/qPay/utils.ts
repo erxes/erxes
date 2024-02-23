@@ -1,6 +1,6 @@
 import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../constants';
 import { IPaymentDocument } from '../../models/definitions/payments';
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 import { QPAY_ACTIONS, QPAY_ENDPOINT } from '../../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
@@ -15,7 +15,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
   }
 
   const invoice = await models.Invoices.getInvoice({
-    identifier
+    identifier,
   });
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
@@ -33,9 +33,9 @@ export const qPayHandler = async (models: IModels, queryParams) => {
         {
           $set: {
             status: PAYMENT_STATUS.PAID,
-            resolvedAt: new Date()
-          }
-        }
+            resolvedAt: new Date(),
+          },
+        },
       );
     }
   } catch (e) {
@@ -44,24 +44,25 @@ export const qPayHandler = async (models: IModels, queryParams) => {
   return invoice;
 };
 
-export const getToken = async config => {
+export const getToken = async (config) => {
   const { qpayMerchantUser, qpayMerchantPassword } = config;
 
   const requestOptions = {
-    url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.GET_TOKEN}`,
     method: 'POST',
     headers: {
       Authorization:
         'Basic ' +
         Buffer.from(`${qpayMerchantUser}:${qpayMerchantPassword}`).toString(
-          'base64'
-        )
+          'base64',
+        ),
     },
-    body: {}
   };
 
   try {
-    const res = await sendRequest(requestOptions);
+    const res = await fetch(
+      `${QPAY_ENDPOINT}${QPAY_ACTIONS.GET_TOKEN}`,
+      requestOptions,
+    ).then((res) => res.json());
 
     return res.access_token;
   } catch (e) {
@@ -71,7 +72,7 @@ export const getToken = async config => {
 
 export const createInvoice = async (
   invoice: IInvoiceDocument,
-  payment: IPaymentDocument
+  payment: IPaymentDocument,
 ) => {
   const MAIN_API_DOMAIN = process.env.DOMAIN
     ? `${process.env.DOMAIN}/gateway`
@@ -86,25 +87,27 @@ export const createInvoice = async (
       invoice_receiver_code: 'terminal',
       invoice_description: invoice.description || 'test invoice',
       amount: invoice.amount,
-      callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENT_KINDS.QPAY}?identifier=${invoice.identifier}`
+      callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENT_KINDS.QPAY}?identifier=${invoice.identifier}`,
     };
 
     const requestOptions = {
-      url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}`,
       method: 'POST',
       headers: {
         Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: data
+      body: JSON.stringify(data),
     };
 
     try {
-      const res = await sendRequest(requestOptions);
+      const res = await fetch(
+        `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}`,
+        requestOptions,
+      ).then((res) => res.json());
 
       return {
         ...res,
-        qrData: `data:image/jpg;base64,${res.qr_image}`
+        qrData: `data:image/jpg;base64,${res.qr_image}`,
       };
     } catch (e) {
       throw new Error(e.message);
@@ -116,7 +119,7 @@ export const createInvoice = async (
 
 export const getInvoice = async (
   invoiceId: string,
-  payment: IPaymentDocument
+  payment: IPaymentDocument,
 ) => {
   try {
     const token = await getToken(payment.config);
@@ -124,11 +127,10 @@ export const getInvoice = async (
       url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}/${invoiceId}`,
       method: 'GET',
       headers: { Authorization: 'Bearer ' + token },
-      redirect: 'follow'
+      redirect: 'follow',
     };
 
     try {
-      // return sendRequest(requestOptions);
       return { invoice_status: 'CLOSED' };
     } catch (e) {
       throw new Error(e.message);
@@ -140,15 +142,13 @@ export const getInvoice = async (
 
 export const cancelInvoice = async (
   invoiceId: string,
-  payment: IPaymentDocument
+  payment: IPaymentDocument,
 ) => {
   const token = await getToken(payment.config);
-  const requestOptions = {
-    url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}/${invoiceId}`,
+
+  return fetch(`${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}/${invoiceId}`, {
     method: 'DELETE',
     headers: { Authorization: 'Bearer ' + token },
-    redirect: 'follow'
-  };
-
-  return sendRequest(requestOptions);
+    redirect: 'follow',
+  }).then((res) => res.json());
 };

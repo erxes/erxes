@@ -9,27 +9,24 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import * as bodyParser from 'body-parser';
-
+import app from '@erxes/api-utils/src/app';
 export let mainDb;
 export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
 
 export default {
   name: 'dac',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: false,
 
   meta: {
     afterMutations,
-    permissions
+    permissions,
   },
 
   // getHandlers: [
@@ -60,19 +57,13 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware, bodyParser.json()],
-  onServerInit: async options => {
-    const { app } = options;
+  onServerInit: async (options) => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
+    initBroker();
 
     debug = options.debug;
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-
     app.use(dacRouter);
-  }
+  },
 };

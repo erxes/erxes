@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { mutations, queries } from './schema/msdynamic';
 
 const types = `
-  type SyncHistory {
+  type SyncMsdHistory {
     _id: String!
     type: String
     contentType: String
@@ -21,7 +21,7 @@ const types = `
   }
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

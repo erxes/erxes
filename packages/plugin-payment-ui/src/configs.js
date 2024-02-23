@@ -16,7 +16,7 @@ module.exports = {
   },
   selectPayments: './SelectPayments',
   paymentConfig: './paymentConfig',
-  invoiceSection: './invoiceSection',
+  conversationDetailSidebar: './invoiceSection',
   menus: [
     {
       text: 'Invoices',

@@ -1,0 +1,17 @@
+export const SALARY_FIELDS = [
+  'employeeId',
+  'totalWorkHours',
+  'totalWorkedHours',
+  'mainSalary',
+  'adequateSalary',
+  'vacation',
+  'totalAddition',
+  'kpi',
+  'otherAddition',
+  'mainDeduction',
+  'ndsh',
+  'hhoat',
+  'otherDeduction',
+  'preliminarySalary',
+  'endSalary',
+];

@@ -5,8 +5,8 @@ export const MentionExtended = Mention.extend({
   parseHTML() {
     return [
       {
-        tag: `span[data-type="${this.name}"]`
-      }
+        tag: `span[data-type="${this.name}"]`,
+      },
     ];
   },
 
@@ -16,15 +16,15 @@ export const MentionExtended = Mention.extend({
       mergeAttributes(
         { 'data-type': this.name },
         this.options.HTMLAttributes,
-        HTMLAttributes
+        HTMLAttributes,
       ),
       [
         'strong',
         this.options.renderLabel({
           options: this.options,
-          node
-        })
-      ]
+          node,
+        }),
+      ],
     ];
-  }
+  },
 });

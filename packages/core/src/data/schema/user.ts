@@ -1,5 +1,6 @@
 const commonDetailFields = `
   avatar: String
+  coverPhoto: String
   fullName: String
   shortName: String
   birthDate: Date
@@ -138,7 +139,6 @@ export const mutations = `
     email: String!,
     details: UserDetails,
     links: JSON
-    password: String!
     employeeId: String
   ): User
   usersEdit(_id: String!, ${commonParams}): User

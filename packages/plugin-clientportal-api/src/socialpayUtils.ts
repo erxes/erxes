@@ -9,9 +9,9 @@ export const encrypt = (data, publicKey) => {
     const encrypted = crypto.publicEncrypt(
       {
         key: pubKey,
-        padding: crypto.constants.RSA_PKCS1_PADDING
+        padding: crypto.constants.RSA_PKCS1_PADDING,
       },
-      bufferData
+      bufferData,
     );
     return encrypted.toString('base64');
   } catch (ex) {
@@ -27,9 +27,9 @@ export const decrypt = (cipherText, privateKey) => {
     const decrypted = crypto.privateDecrypt(
       {
         key: privKey,
-        padding: crypto.constants.RSA_PKCS1_PADDING
+        padding: crypto.constants.RSA_PKCS1_PADDING,
       },
-      bufferCipherText
+      bufferCipherText,
     );
     return decrypted.toString('utf-8');
   } catch (ex) {
@@ -38,20 +38,17 @@ export const decrypt = (cipherText, privateKey) => {
   }
 };
 
-export const getHex = data => {
-  return crypto
-    .createHash('sha256')
-    .update(data)
-    .digest('hex');
+export const getHex = (data) => {
+  return crypto.createHash('sha256').update(data).digest('hex');
 };
 
 export const fetchUserFromSocialpay = async (
   token: string,
-  clientPortal: IClientPortal
+  clientPortal: IClientPortal,
 ) => {
   const socialpayConfig = clientPortal.socialpayConfig || {
     certId: undefined,
-    publicKey: undefined
+    publicKey: undefined,
   };
   const pubKey = socialpayConfig.publicKey;
   const certId = socialpayConfig.certId;
@@ -71,13 +68,13 @@ export const fetchUserFromSocialpay = async (
         headers: {
           'content-type': 'application/json',
           'X-Golomt-Cert-Id': certId,
-          'X-Golomt-Signature': signature
+          'X-Golomt-Signature': signature,
         },
         body: JSON.stringify({
-          token
-        })
-      }
-    ).then(r => r.json());
+          token,
+        }),
+      },
+    ).then((r) => r.json());
 
     return response;
   } catch (e) {

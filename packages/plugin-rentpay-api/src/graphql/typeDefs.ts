@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 
 import { types, mutations, queries } from './schema/rentpay';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const cardsEnabled = await serviceDiscovery.isEnabled('cards');
-  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+const typeDefs = async () => {
+  const cardsEnabled = await isEnabled('cards');
+  const formsEnabled = await isEnabled('forms');
 
   return gql`
     scalar JSON

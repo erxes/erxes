@@ -1,9 +1,9 @@
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { sendRPCMessage } from './messageBrokerErkhet';
 import { getPostData } from './utils/ebarimtData';
 import {
   productToErkhet,
-  productCategoryToErkhet
+  productCategoryToErkhet,
 } from './utils/productToErkhet';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
 import { generateModels } from './connectionResolver';
@@ -14,7 +14,7 @@ const allowTypes = {
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
-  'contacts:company': ['create', 'update', 'delete']
+  'contacts:company': ['create', 'update', 'delete'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -40,24 +40,28 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
+      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
+      if (!mainConfigs || !Object.keys(mainConfigs || {}).length) {
+        return;
+      }
+
       const saleConfigs = await models.Configs.getConfig(
         'stageInSaleConfig',
-        {}
+        {},
       );
 
       const returnConfigs = await models.Configs.getConfig(
         'stageInReturnConfig',
-        {}
+        {},
       );
-
-      const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
 
       // return
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = returnConfigs[destinationStageId];
 
         const sameSaleStageId = (Object.keys(saleConfigs).filter(
-          stageId => saleConfigs[stageId].pipelineId === returnConfig.pipelineId
+          (stageId) =>
+            saleConfigs[stageId].pipelineId === returnConfig.pipelineId,
         ) || [])[0];
 
         if (!sameSaleStageId) {
@@ -68,8 +72,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const orderInfos = [
           {
             orderId: deal._id,
-            returnKind: 'note'
-          }
+            returnKind: 'note',
+          },
         ];
 
         const ebarimtResponses: any[] = [];
@@ -93,10 +97,10 @@ export const afterMutationHandlers = async (subdomain, params) => {
             token: mainConfig.apiToken,
             apiKey: mainConfig.apiKey,
             apiSecret: mainConfig.apiSecret,
-            orderInfos: JSON.stringify(orderInfos)
+            orderInfos: JSON.stringify(orderInfos),
           };
           const syncLog = await models.SyncLogs.syncLogsAdd(
-            getSyncLogDoc(params)
+            getSyncLogDoc(params),
           );
           const resp = await sendRPCMessage(
             models,
@@ -107,30 +111,32 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isJson: true,
               isEbarimt: true,
               payload: JSON.stringify(postData),
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           ebarimtResponses.push(resp);
         }
 
-        await graphqlPubsub.publish('multierkhetResponded', {
-          multierkhetResponded: {
-            userId: user._id,
-            responseId: ebarimtResponses.map(er => er._id).join('-'),
-            sessionCode: user.sessionCode || '',
-            content: ebarimtResponses.map(er => ({
-              ...er.ebarimt,
-              _id: er._id,
-              error: er.error,
-              success: Boolean(er.message) ? 'false' : 'true',
-              message:
-                typeof er.message === 'string'
-                  ? er.message
-                  : er.message?.message || er.message?.error || ''
-            }))
-          }
-        });
+        if (ebarimtResponses.length) {
+          await graphqlPubsub.publish('multierkhetResponded', {
+            multierkhetResponded: {
+              userId: user._id,
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
+              sessionCode: user.sessionCode || '',
+              content: ebarimtResponses.map((er) => ({
+                ...er.ebarimt,
+                _id: er._id,
+                error: er.error,
+                success: Boolean(er.message) ? 'false' : 'true',
+                message:
+                  typeof er.message === 'string'
+                    ? er.message
+                    : er.message?.message || er.message?.error || '',
+              })),
+            },
+          });
+        }
         return;
       }
 
@@ -138,17 +144,32 @@ export const afterMutationHandlers = async (subdomain, params) => {
       if (Object.keys(saleConfigs).includes(destinationStageId)) {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
 
-        const brandIds = Object.keys(brandRules).filter(b =>
-          Object.keys(mainConfigs).includes(b)
+        const brandIds = Object.keys(brandRules).filter((b) =>
+          Object.keys(mainConfigs).includes(b),
         );
 
         const configs = {};
         for (const brandId of brandIds) {
+          const mainConfig = mainConfigs[brandId];
+          const saleConfig = brandRules[brandId];
+          if (
+            !mainConfig ||
+            !saleConfig ||
+            !mainConfig.apiKey ||
+            !mainConfig.apiSecret ||
+            !mainConfig.apiToken
+          ) {
+            continue;
+          }
           configs[brandId] = {
             ...mainConfigs[brandId],
             ...brandRules[brandId],
-            hasPayment: saleConfigs[destinationStageId].hasPayment
+            hasPayment: saleConfigs[destinationStageId].hasPayment,
           };
+        }
+
+        if (!Object.keys(configs)) {
+          return;
         }
 
         const postDatas = (await getPostData(
@@ -156,7 +177,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           models,
           user,
           configs,
-          deal
+          deal,
         )) as any;
 
         const ebarimtResponses: any[] = [];
@@ -172,30 +193,33 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: true,
               payload: JSON.stringify(postData),
               isJson: false,
-              thirdService: true
-            }
+              thirdService: true,
+            },
           );
 
           ebarimtResponses.push(response);
         }
 
-        await graphqlPubsub.publish('multierkhetResponded', {
-          multierkhetResponded: {
-            userId: user._id,
-            responseId: ebarimtResponses.map(er => er._id).join('-'),
-            sessionCode: user.sessionCode || '',
-            content: ebarimtResponses.map(er => ({
-              response: er,
-              _id: er._id,
-              error: er.error,
-              success: er.success,
-              message:
-                typeof er.message === 'string'
-                  ? er.message
-                  : er.message?.message || er.message?.error || ''
-            }))
-          }
-        });
+        if (ebarimtResponses.length) {
+          await graphqlPubsub.publish('multierkhetResponded', {
+            multierkhetResponded: {
+              userId: user._id,
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
+              sessionCode: user.sessionCode || '',
+              content: ebarimtResponses.map((er) => ({
+                response: er,
+                _id: er._id,
+                error: er.error,
+                success: er.success,
+                message:
+                  typeof er.message === 'string'
+                    ? er.message
+                    : er.message?.message || er.message?.error || '',
+              })),
+            },
+          });
+        }
+
         return;
       }
       return;

@@ -36,13 +36,14 @@ import {
   queries as accountQueries,
   types as accountTypes
 } from './schema/accounts';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const cardsAvailable = await serviceDiscovery.isEnabled('cards');
-  const xypAvailable = await serviceDiscovery.isEnabled('xyp');
+const typeDefs = async () => {
+  const isContactsEnabled = await isEnabled('contacts');
+  const cardsAvailable = await isEnabled('cards');
+  const xypAvailable = await isEnabled('xyp');
 
-  const isEnabled = {
+  const enabled = {
     contacts: isContactsEnabled,
     cards: cardsAvailable,
     xyp: xypAvailable
@@ -63,13 +64,13 @@ const typeDefs = async serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
-    ${tumentechTypes(isEnabled)}
+    ${tumentechTypes(enabled)}
     ${placeTypes}
     ${routeTypes}
     ${directionTypes}
-    ${tripTypes(isEnabled)}
-    ${tumentechDealTypes(isEnabled)}
-    ${accountTypes(isEnabled)}
+    ${tripTypes(enabled)}
+    ${tumentechDealTypes(enabled)}
+    ${accountTypes(enabled)}
     
     extend type Query {
       ${placeQueries}

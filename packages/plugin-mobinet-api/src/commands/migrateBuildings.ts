@@ -1,6 +1,6 @@
 import mongoDb from 'mongodb';
 
-import requestify from 'requestify';
+import fetch from 'node-fetch';
 import fs from 'fs';
 import { nanoid } from 'nanoid';
 const MongoClient = mongoDb.MongoClient;
@@ -24,7 +24,7 @@ let FormFields;
 let FieldsGroups;
 
 let InternalNotes;
-const getLocation = input => {
+const getLocation = (input) => {
   const regex = /(-?\d+\.\d+)\s*-\s*(-?\d+\.\d+)/;
   if (input) {
     const match = input.match(regex);
@@ -37,13 +37,13 @@ const getLocation = input => {
     } else {
       return {
         lat: '0',
-        lng: '0'
+        lng: '0',
       } as any;
     }
   }
   return {
     lat: '0',
-    lng: '0'
+    lng: '0',
   } as any;
 };
 
@@ -66,19 +66,19 @@ const command = async () => {
   const buildingsRows = buildingsData.split(',&&N');
 
   const fieldsGroups = await FieldsGroups.findOne({
-    name: 'SUH'
+    name: 'SUH',
   });
 
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
-    'Accept-language': 'en'
+    'Accept-language': 'en',
   };
 
   let formFields = [];
   if (fieldsGroups) {
     const form_fields = await FormFields.find({
-      groupId: fieldsGroups._id
+      groupId: fieldsGroups._id,
     }).toArray();
     formFields = form_fields;
   }
@@ -88,7 +88,7 @@ const command = async () => {
     const columns = buildingsRows[i].split(',');
     const companyData: any = {
       primaryName: columns[2],
-      _id: nanoid()
+      _id: nanoid(),
     };
 
     let customFieldsData: any[] = [];
@@ -98,38 +98,38 @@ const command = async () => {
           customFieldsData.push({
             field: formField._id,
             value: columns[0],
-            stringValue: columns[0]?.toString()
+            stringValue: columns[0]?.toString(),
           });
         formField.code === 'c_aoa_contract_number' &&
           customFieldsData.push({
             field: formField._id,
             value: columns[1],
-            stringValue: columns[1]?.toString()
+            stringValue: columns[1]?.toString(),
           });
         formField.code === 'c_elevator_contact' &&
           customFieldsData.push({
             field: formField._id,
             value: columns[3],
-            stringValue: columns[3]?.toString()
+            stringValue: columns[3]?.toString(),
           });
         formField.code === 'c_support_office_contact' &&
           customFieldsData.push({
             field: formField._id,
             value: columns[4],
-            stringValue: columns[4]?.toString()
+            stringValue: columns[4]?.toString(),
           });
         formField.code === 'c_support_office_name' &&
           customFieldsData.push({
             field: formField._id,
             value: columns[5],
-            stringValue: columns[5]?.toString()
+            stringValue: columns[5]?.toString(),
           });
       }
     });
     companyData.customFieldsData = customFieldsData;
 
     let company = await Companies.findOne({
-      primaryName: companyData.primaryName
+      primaryName: companyData.primaryName,
     });
 
     if (!company) {
@@ -143,14 +143,14 @@ const command = async () => {
     let buildingData = {};
     if (columns) {
       const quarter = await Quarters.findOne({
-        code: columns?.[8] || ''
+        code: columns?.[8] || '',
       });
       const building = await Buildings.findOne({
-        name: `${columns[19]} ${columns[20]}`
+        name: `${columns[19]} ${columns[20]}`,
       });
 
       const company = await Companies.findOne({
-        primaryName: columns?.[2]
+        primaryName: columns?.[2],
       });
       if (company) {
         buildingData = {
@@ -166,42 +166,41 @@ const command = async () => {
             columns[23] === 'Сүлжээ орсон'
               ? 'active'
               : columns[23] === 'Сүлжээ ороогүй'
-              ? 'inactive'
-              : columns[23] === 'СӨХ зөвшөөрөөгүй'
-              ? 'inprogress'
-              : 'inactive',
+                ? 'inactive'
+                : columns[23] === 'СӨХ зөвшөөрөөгүй'
+                  ? 'inprogress'
+                  : 'inactive',
 
           suhId: company._id,
           networkType: 'ftth',
-          quarterId: (quarter && quarter._id) || ''
+          quarterId: (quarter && quarter._id) || '',
         };
 
         const { lat, lng } = columns?.[22] && getLocation(columns[22]);
         if (lat && lng) {
           const districtQry = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
 
-          const distResponse = await requestify.request(districtQry, {
-            method: 'GET',
-            headers
+          const distResponse = await fetch(districtQry, {
+            headers,
           });
 
-          const distResponseJson = await JSON.parse(distResponse.body);
+          const distResponseJson = await distResponse.json();
           buildingData = {
             ...buildingData,
             boundingbox: {
               minLat: distResponseJson?.boundingbox?.[0],
               maxLat: distResponseJson?.boundingbox?.[1],
               minLong: distResponseJson?.boundingbox?.[2],
-              maxLong: distResponseJson?.boundingbox?.[3]
+              maxLong: distResponseJson?.boundingbox?.[3],
             },
             osmbId: distResponseJson.osm_id,
             location: {
               type: 'Point',
               coordinates: [
                 parseFloat(distResponseJson.lon),
-                parseFloat(distResponseJson.lat)
-              ]
-            }
+                parseFloat(distResponseJson.lat),
+              ],
+            },
           };
           if (!building) {
             await Buildings.insertOne(buildingData);
@@ -216,7 +215,7 @@ const command = async () => {
     const columns = buildingsRows[i].split(',');
     if (columns) {
       const building = await Buildings.findOne({
-        name: `${columns[19]} ${columns[20]}`
+        name: `${columns[19]} ${columns[20]}`,
       });
       if (building) {
         for (let k = 11; k <= 15; k++) {
@@ -232,7 +231,7 @@ const command = async () => {
             contentType: 'mobinet:buildings',
             contentTypeId: building._id,
             type: 'buildings',
-            createdAt: Date.now()
+            createdAt: Date.now(),
           };
           internalNoteData && (await InternalNotes.insertOne(internalNoteData));
         }

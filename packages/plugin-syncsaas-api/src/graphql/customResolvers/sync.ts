@@ -1,4 +1,4 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -16,13 +16,11 @@ export default {
     let response;
 
     try {
-      response = await sendRequest({
-        url: `${SAAS_CORE_URL}/check-subdomain`,
-        method: 'GET',
+      response = await fetch(`${SAAS_CORE_URL}/check-subdomain`, {
         headers: {
-          origin: `${subdomain}..app.erxes.io`
-        }
-      });
+          origin: `${subdomain}..app.erxes.io`,
+        },
+      }).then((res) => res.json());
     } catch (error) {
       return null;
     }
@@ -37,7 +35,7 @@ export default {
       variableValues || {};
 
     let selector: any = {
-      $or: [{ customerId }, { customerId: { $in: customerIds } }]
+      $or: [{ customerId }, { customerId: { $in: customerIds } }],
     };
 
     if (status) {
@@ -46,10 +44,10 @@ export default {
 
     if (!!excludeCustomerIds?.length) {
       selector.customerId = {
-        $nin: excludeCustomerIds
+        $nin: excludeCustomerIds,
       };
     }
 
     return await models.SyncedCustomers.find(selector);
-  }
+  },
 };

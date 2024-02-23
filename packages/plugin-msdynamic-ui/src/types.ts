@@ -41,59 +41,61 @@ export type EditMutationResponse = {
 };
 
 export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: {
+  toCheckMsdProducts: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncProductsMutationResponse = {
-  toSyncProducts: (mutation: {
+  toSyncMsdProducts: (mutation: {
     variables: { brandId: string; action: string; products: any[] };
   }) => Promise<any>;
 };
 
 export type ToCheckPricesMutationResponse = {
-  toCheckPrices: (mutation: { variables: { brandId: string } }) => Promise<any>;
+  toCheckMsdPrices: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
 };
 
 export type ToSyncPricesMutationResponse = {
-  toSyncPrices: (mutation: {
+  toSyncMsdPrices: (mutation: {
     variables: { brandId: string; action: string; prices: any[] };
   }) => Promise<any>;
 };
 
 export type ToCheckCategoriesMutationResponse = {
-  toCheckProductCategories: (mutation: {
+  toCheckMsdProductCategories: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
-  toSyncProductCategories: (mutation: {
+  toSyncMsdProductCategories: (mutation: {
     variables: { brandId: string; action: string; categories: any[] };
   }) => Promise<any>;
 };
 
 export type ToCheckCustomersMutationResponse = {
-  toCheckCustomers: (mutation: {
+  toCheckMsdCustomers: (mutation: {
     variables: { brandId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncCustomersMutationResponse = {
-  toSyncCustomers: (mutation: {
+  toSyncMsdCustomers: (mutation: {
     variables: { brandId: string; action: string; customers: any[] };
   }) => Promise<any>;
 };
 
 export type SyncHistoriesQueryResponse = {
-  syncHistories: any[];
+  syncMsdHistories: any[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type SyncHistoriesCountQueryResponse = {
-  syncHistoriesCount: number;
+  syncMsdHistoriesCount: number;
   loading: boolean;
   refetch: () => void;
 };

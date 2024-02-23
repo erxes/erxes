@@ -1,11 +1,13 @@
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import { ControlLabel, SelectTeamMembers } from '@erxes/ui/src';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { Alert } from '@erxes/ui/src/utils';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import React, { useState } from 'react';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
-import DateRange from '../datepicker/DateRange';
 import { MarginY } from '../../styles';
+import DateRange from '../datepicker/DateRange';
+import { IFieldLogic } from '../../types';
 
 type Props = {
   fieldType: string;
@@ -15,7 +17,12 @@ type Props = {
   fieldOptions: any[];
   initialValue?: any;
   onChange: (input: any) => void;
-  valtotalHoursWorkedue?: any;
+  setFilter?: (fieldName: string, value: any) => void;
+  startDate?: Date;
+  endDate?: Date;
+  fieldValues?: any;
+  fieldLogics?: IFieldLogic[];
+  fieldDefaultValue?: any;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -23,29 +30,52 @@ const ChartFormField = (props: Props) => {
     fieldType,
     fieldOptions,
     fieldLabel,
+    fieldLogics,
     initialValue,
     multi,
-    onChange
+    onChange,
+    setFilter,
+    startDate,
+    endDate,
+    fieldValues,
+    fieldDefaultValue,
   } = props;
-  const [fieldValue, setFieldValue] = useState(initialValue);
-  const [dateRangeStart, setDateStart] = useState(new Date());
-  const [dateRangeEnd, setDateEnd] = useState(new Date());
 
-  const onSelect = e => {
+  useEffect(() => {
+    if (fieldDefaultValue) {
+      setFieldValue(fieldDefaultValue);
+      onChange(fieldDefaultValue);
+    }
+  }, [fieldDefaultValue]);
+
+  const [fieldValue, setFieldValue] = useState(initialValue);
+
+  const onSelect = (e) => {
+    if (multi && Array.isArray(e)) {
+      const arr = e.map((sel) => sel.value);
+
+      onChange(arr);
+      setFieldValue(arr);
+      return;
+    }
+
     setFieldValue(e.value);
     onChange(e);
   };
 
-  const onDateRangeStartChange = (newStart: Date) => {
-    setDateStart(newStart);
+  const onSaveDateRange = (dateRange: any) => {
+    const { startDate, endDate } = dateRange;
+
+    if (setFilter) {
+      setFilter('startDate', startDate);
+      setFilter('endDate', endDate);
+    }
   };
 
-  const onDateRangeEndChange = (newEnd: Date) => {
-    setDateEnd(newEnd);
-  };
-
-  const onSaveDateRange = () => {
-    console.log('save');
+  const OnSaveBrands = (brandIds: string[] | string) => {
+    if (setFilter) {
+      setFilter('brandIds', brandIds);
+    }
   };
 
   switch (fieldQuery) {
@@ -79,22 +109,6 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'tags':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-
-          <SelectTags
-            tagsType="reports:reports"
-            multi={multi}
-            name="chartTags"
-            label={fieldLabel}
-            onSelect={onChange}
-            initialValue={fieldValue}
-          />
-        </div>
-      );
-
     case 'branches':
       return (
         <div>
@@ -110,29 +124,42 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'date':
+    case 'brands':
       return (
         <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={fieldValue}
-            onChange={onSelect}
-            options={fieldOptions}
-            placeholder={fieldLabel}
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectBrands
+            multi={true}
+            name="selectedBrands"
+            label={'Choose brands'}
+            onSelect={OnSaveBrands}
+            initialValue={fieldValue}
           />
+        </div>
+      );
+    case 'date':
+      return (
+        <>
+          <div>
+            <ControlLabel>{fieldLabel}</ControlLabel>
+            <Select
+              value={fieldValue}
+              onChange={onSelect}
+              options={fieldOptions}
+              placeholder={fieldLabel}
+            />
+          </div>
           {fieldValue === 'customDate' && (
-            <MarginY margin={20}>
+            <MarginY margin={15}>
               <DateRange
                 showTime={false}
-                startDate={dateRangeStart}
-                endDate={dateRangeEnd}
-                onChangeEnd={onDateRangeEndChange}
-                onChangeStart={onDateRangeStartChange}
                 onSaveButton={onSaveDateRange}
+                startDate={startDate}
+                endDate={endDate}
               />
             </MarginY>
           )}
-        </div>
+        </>
       );
 
     default:
@@ -146,6 +173,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
             value={fieldValue}
+            multi={multi}
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}

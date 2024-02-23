@@ -1,8 +1,9 @@
 import {
+  escapeRegExp,
   getPureDate,
   getToday,
   getTomorrow,
-  paginate
+  paginate,
 } from '@erxes/api-utils/src/core';
 // import {
 //   checkPermission,
@@ -30,7 +31,7 @@ const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IParam,
-  commonQuerySelector
+  commonQuerySelector,
 ) => {
   const {
     search,
@@ -44,7 +45,7 @@ const generateFilter = async (
     jobReferId,
     jobCategoryId,
     productCategoryId,
-    productId
+    productId,
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -86,17 +87,17 @@ const generateFilter = async (
       subdomain,
       action: 'count',
       data: { categoryId: productCategoryId },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
-      isRPC: true
+      isRPC: true,
     });
 
-    selector.typeId = { $in: products.map(pr => pr._id) };
+    selector.typeId = { $in: products.map((pr) => pr._id) };
   }
 
   if (productId) {
@@ -105,16 +106,19 @@ const generateFilter = async (
 
   if (jobCategoryId) {
     const category = await models.JobCategories.findOne({
-      _id: jobCategoryId
+      _id: jobCategoryId,
     }).lean();
+
     const categories = await models.JobCategories.find(
-      { order: { $regex: new RegExp(`^${category.order}`) } },
-      { _id: 1 }
+      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+      { _id: 1 },
     ).lean();
+
     const jobRefers = await models.JobRefers.find({
-      categoryId: { $in: categories.map(c => c._id) }
+      categoryId: { $in: categories.map((c) => c._id) },
     }).lean();
-    selector.typeId = { $in: jobRefers.map(jr => jr._id) };
+
+    selector.typeId = { $in: jobRefers.map((jr) => jr._id) };
   }
 
   if (jobReferId) {
@@ -141,37 +145,34 @@ const workQueries = {
       page: number;
       perPage: number;
     },
-    { subdomain, models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
-    return paginate(
-      models.Works.find(selector)
-        .sort({ dueDate: -1 })
-        .lean(),
-      { ...params }
-    );
+    return paginate(models.Works.find(selector).sort({ dueDate: -1 }).lean(), {
+      ...params,
+    });
   },
 
   async worksTotalCount(
     _root,
     params: IParam,
-    { subdomain, models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     return models.Works.find(selector).count();
-  }
+  },
 };
 
 // checkPermission(workQueries, 'flows', 'showWorks');

@@ -1,5 +1,5 @@
 import { withFilter } from 'graphql-subscriptions';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export default {
   /*
@@ -15,10 +15,10 @@ export default {
 
         return Boolean(
           (payload.slotsStatusUpdated || []).filter(
-            s => s.posToken === variables.posToken
-          ).length
+            (s) => s.posToken === variables.posToken,
+          ).length,
         );
-      }
-    )
-  }
+      },
+    ),
+  },
 };

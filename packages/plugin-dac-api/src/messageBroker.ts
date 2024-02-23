@@ -1,15 +1,12 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './aftermutations';
-import { serviceDiscovery } from './configs';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = client;
-
+export const initBroker = async () => {
   consumeQueue('dac:afterMutation', async ({ data }) => {
     try {
       await afterMutationHandlers(data);
@@ -20,59 +17,41 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = (args: ISendMessageArgs) => {
+export const sendCoreMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
-export const sendFormsMessage = (args: ISendMessageArgs) => {
+export const sendFormsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export const sendCarsMessage = (args: ISendMessageArgs) => {
+export const sendCarsMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cars',
-    ...args
+    ...args,
   });
 };
 
-export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
     serviceName: 'clientportal',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

@@ -3,19 +3,20 @@ import {
   fetchByQuery,
   fetchEs,
   fetchEsWithScroll,
-  getDbNameFromConnectionString
+  getDbNameFromConnectionString,
 } from '@erxes/api-utils/src/elasticsearch';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 
 import {
   SEGMENT_DATE_OPERATORS,
-  SEGMENT_NUMBER_OPERATORS
+  SEGMENT_NUMBER_OPERATORS,
 } from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
-import { serviceDiscovery } from '../../../configs';
+
 import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 type IOptions = {
   returnAssociated?: { mainType: string; relType: string };
@@ -36,15 +37,15 @@ export const isInSegment = async (
   subdomain: string,
   segmentId: string,
   idToCheck: string,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<boolean> => {
   options.returnCount = true;
   options.defaultMustSelector = [
     {
       match: {
-        _id: idToCheck
-      }
-    }
+        _id: idToCheck,
+      },
+    },
   ];
 
   const segment = await models.Segments.getSegment(segmentId);
@@ -57,21 +58,21 @@ export const fetchSegment = async (
   models: IModels,
   subdomain: string,
   segment,
-  options: IOptions = {}
+  options: IOptions = {},
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const serviceNames = await serviceDiscovery.getServices();
+  const serviceNames = await getServices();
   const serviceConfigs: any = [];
   let mongoConnectionString = '';
 
   for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName);
+    const service = await getService(serviceName);
     const segmentMeta = (service.config.meta || {}).segments;
     if (
       contentType.includes(`${serviceName}:`) &&
       getDbNameFromConnectionString(
-        service?.config?.dbConnectionString || ''
+        service?.config?.dbConnectionString || '',
       ) !== 'erxes'
     ) {
       mongoConnectionString = service?.config?.dbConnectionString || '';
@@ -90,7 +91,7 @@ export const fetchSegment = async (
     selector: selector.bool,
     options,
     serviceConfigs,
-    isInitialCall: true
+    isInitialCall: true,
   });
 
   const { returnAssociated } = options;
@@ -105,15 +106,16 @@ export const fetchSegment = async (
       index: await getEsIndexByContentType(returnAssociated.mainType),
       body: {
         query: selector,
-        _source: '_id'
+        _source: '_id',
       },
-      defaultValue: { hits: { hits: [] } }
+      defaultValue: { hits: { hits: [] } },
     });
 
     const items = itemsResponse.hits.hits;
-    const itemIds = items.map(i => i._id);
+    const itemIds = items.map((i) => i._id);
 
-    const getType = type => type.replace('contacts:', '').replace('cards:', '');
+    const getType = (type) =>
+      type.replace('contacts:', '').replace('cards:', '');
 
     const associationIds = await sendCoreMessage({
       subdomain,
@@ -121,9 +123,9 @@ export const fetchSegment = async (
       data: {
         mainType: getType(returnAssociated.mainType),
         mainTypeIds: itemIds,
-        relType: getType(returnAssociated.relType)
+        relType: getType(returnAssociated.relType),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     selector = {
@@ -131,11 +133,11 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: _.uniq(associationIds)
-            }
-          }
-        ]
-      }
+              _id: _.uniq(associationIds),
+            },
+          },
+        ],
+      },
     };
   }
 
@@ -151,9 +153,9 @@ export const fetchSegment = async (
       connectionString: mongoConnectionString,
       index,
       body: {
-        query: selector
+        query: selector,
       },
-      defaultValue: { count: -1 }
+      defaultValue: { count: -1 },
     });
 
     return countResponse.count;
@@ -166,7 +168,7 @@ export const fetchSegment = async (
   if (page && perPage) {
     pagination = {
       from: (page - 1) * perPage,
-      size: perPage
+      size: perPage,
     };
   }
 
@@ -179,9 +181,9 @@ export const fetchSegment = async (
             ? sortDirection === -1
               ? 'desc'
               : 'asc'
-            : 'desc'
-        }
-      }
+            : 'desc',
+        },
+      },
     };
   }
 
@@ -193,9 +195,9 @@ export const fetchSegment = async (
     body: {
       _source: options.returnFields || options.returnFullDoc || false,
       query: selector,
-      ...pagination
+      ...pagination,
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   };
 
   if (options.scroll && options.perPage) {
@@ -214,7 +216,7 @@ export const fetchSegment = async (
       const { hits = {} } = resp.shift();
 
       if (hits.hits) {
-        hits.hits.forEach(hit => {
+        hits.hits.forEach((hit) => {
           results.push(hit._id);
         });
       }
@@ -240,10 +242,35 @@ export const fetchSegment = async (
   const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
-    return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
+    return response.hits.hits.map((hit) => ({ _id: hit._id, ...hit._source }));
   }
 
-  return response.hits.hits.map(hit => hit._id);
+  return response.hits.hits.map((hit) => hit._id);
+};
+
+const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
+  if (isInitialCall && defaultMustSelector) {
+    return defaultMustSelector.map((s) => ({ ...s }));
+  }
+
+  return [];
+};
+
+const generatePositiveNegativeSelector = ({ cj, selector = {} as any }) => {
+  let selectorPositiveList: any[] = [];
+  let selectorNegativeList: any[] = [];
+
+  if (cj === 'and') {
+    selectorPositiveList = selector.must;
+    selectorNegativeList = selector.must_not;
+  } else {
+    const selectorMustBool = selector.must[0].bool;
+
+    selectorPositiveList = selectorMustBool.should;
+    selectorNegativeList = selectorMustBool.must_not;
+  }
+
+  return { selectorPositiveList, selectorNegativeList };
 };
 
 export const generateQueryBySegment = async (
@@ -255,24 +282,21 @@ export const generateQueryBySegment = async (
     serviceConfigs: any;
     options?: IOptions;
     isInitialCall?: boolean;
-  }
+  },
 ) => {
-  const {
-    segment,
-    selector,
-    serviceConfigs,
-    options = {},
-    isInitialCall
-  } = args;
+  const { segment, serviceConfigs, options = {}, isInitialCall } = args;
+
+  let { selector } = args;
 
   const { contentType } = segment;
   const [serviceName, collectionType] = contentType.split(':');
   const { defaultMustSelector } = options;
 
-  const defaultSelector =
-    isInitialCall && defaultMustSelector
-      ? defaultMustSelector.map(s => ({ ...s }))
-      : [];
+  // generated default selector of service
+  const defaultSelector = generateDefaultSelector({
+    defaultMustSelector,
+    isInitialCall,
+  });
 
   const cj = segment.conditionsConjunction || 'and';
 
@@ -284,21 +308,21 @@ export const generateQueryBySegment = async (
       {
         bool: {
           should: [],
-          must_not: []
-        }
+          must_not: [],
+        },
       },
-      ...defaultSelector
+      ...defaultSelector,
     ];
   }
 
-  const selectorPositiveList =
-    cj === 'and' ? selector.must : selector.must[0].bool.should;
+  // generate positive and negative selector list based on conjunction of segment
 
-  const selectorNegativeList =
-    cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
+  const { selectorPositiveList, selectorNegativeList } =
+    generatePositiveNegativeSelector({ cj, selector });
 
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
+  //extend query of parent segment query
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     selector.must.push({ bool: {} });
 
@@ -306,7 +330,7 @@ export const generateQueryBySegment = async (
       ...args,
       selector: selector.must[selector.must.length - 1].bool,
       segment: parentSegment,
-      isInitialCall: false
+      isInitialCall: false,
     });
   }
 
@@ -318,11 +342,8 @@ export const generateQueryBySegment = async (
   const propertiesNegative: any = [];
 
   for (const serviceConfig of serviceConfigs) {
-    const {
-      contentTypes,
-      esTypesMapAvailable,
-      initialSelectorAvailable
-    } = serviceConfig;
+    const { contentTypes, esTypesMapAvailable, initialSelectorAvailable } =
+      serviceConfig;
 
     if (contentTypes) {
       for (const ct of contentTypes) {
@@ -337,8 +358,8 @@ export const generateQueryBySegment = async (
             isRPC: true,
             action: 'segments.esTypesMap',
             data: {
-              collectionType
-            }
+              collectionType,
+            },
           });
 
           typesMap = response.typesMap;
@@ -352,8 +373,8 @@ export const generateQueryBySegment = async (
             action: 'segments.initialSelector',
             data: {
               segment,
-              options
-            }
+              options,
+            },
           });
 
           if (negative) {
@@ -375,13 +396,12 @@ export const generateQueryBySegment = async (
 
   for (const condition of conditions) {
     if (condition.type === 'property') {
-      if (condition.propertyType !== 'forms:form_submission') {
-        propertyConditions.push(condition);
-      } else {
-        const formFieldCondition = { ...condition };
-
-        formFieldCondition.propertyName = 'formFieldId';
-        formFieldCondition.propertyValue = condition.propertyName;
+      if (condition.propertyType === 'forms:form_submission') {
+        const formFieldCondition = {
+          ...condition,
+          propertyName: 'formFieldId',
+          propertyValue: condition.propertyName,
+        };
 
         if (
           condition.propertyOperator &&
@@ -393,7 +413,10 @@ export const generateQueryBySegment = async (
         }
 
         propertyConditions.push(formFieldCondition);
+        continue;
       }
+
+      propertyConditions.push(condition);
     }
 
     if (condition.type === 'event') {
@@ -416,7 +439,7 @@ export const generateQueryBySegment = async (
         ...args,
         segment: subSegment || ({} as ISegment),
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
-        isInitialCall: false
+        isInitialCall: false,
       });
     }
   }
@@ -429,22 +452,19 @@ export const generateQueryBySegment = async (
         field,
         type: typesMap[field],
         operator: condition.propertyOperator || '',
-        value: condition.propertyValue || ''
+        value: condition.propertyValue || '',
       });
 
       negativeQuery = negativeQuery;
 
       for (const serviceConfig of serviceConfigs) {
-        const {
-          contentTypes,
-          propertyConditionExtenderAvailable
-        } = serviceConfig;
+        const { contentTypes, propertyConditionExtenderAvailable } =
+          serviceConfig;
 
-        const [
-          propertyServiceName,
-          propertyContentType
-        ] = condition.propertyType.split(':');
+        const [propertyServiceName, propertyContentType] =
+          condition.propertyType.split(':');
 
+        //pass positive query to service for get extend positive query if service has property condition extender
         if (contentTypes && propertyConditionExtenderAvailable) {
           for (const ct of contentTypes) {
             if (ct.type !== propertyContentType) {
@@ -455,7 +475,7 @@ export const generateQueryBySegment = async (
               serviceName: propertyServiceName,
               isRPC: true,
               action: 'segments.propertyConditionExtender',
-              data: { condition, positiveQuery }
+              data: { condition, positiveQuery },
             });
 
             if (positive) {
@@ -463,14 +483,15 @@ export const generateQueryBySegment = async (
                 bool: {
                   must: ignoreThisPostiveQuery
                     ? [positive]
-                    : [positiveQuery, positive]
-                }
+                    : [positiveQuery, positive],
+                },
               };
             }
           }
         }
       }
 
+      // push positive negative query if property type is equal
       if (contentType === condition.propertyType) {
         if (positiveQuery) {
           propertiesPositive.push(positiveQuery);
@@ -480,18 +501,19 @@ export const generateQueryBySegment = async (
           propertiesNegative.push(negativeQuery);
         }
       } else {
+        // send message to get ids of contents generated by service
         const ids = await associationPropertyFilter(subdomain, {
           serviceName,
           mainType: contentType,
           propertyType: condition.propertyType,
           positiveQuery,
-          negativeQuery
+          negativeQuery,
         });
 
         propertiesPositive.push({
           terms: {
-            _id: ids.map(id => id)
-          }
+            _id: ids.filter((id) => id),
+          },
         });
       }
     }
@@ -502,20 +524,20 @@ export const generateQueryBySegment = async (
       eventOccurence,
       eventName,
       eventOccurenceValue,
-      eventAttributeFilters = []
+      eventAttributeFilters = [],
     } = condition;
 
     eventPositive.push({
       term: {
-        name: eventName
-      }
+        name: eventName,
+      },
     });
 
     if (eventOccurence === 'exactly') {
       eventPositive.push({
         term: {
-          count: eventOccurenceValue
-        }
+          count: eventOccurenceValue,
+        },
       });
     }
 
@@ -523,9 +545,9 @@ export const generateQueryBySegment = async (
       eventPositive.push({
         range: {
           count: {
-            gte: eventOccurenceValue
-          }
-        }
+            gte: eventOccurenceValue,
+          },
+        },
       });
     }
 
@@ -533,9 +555,9 @@ export const generateQueryBySegment = async (
       eventPositive.push({
         range: {
           count: {
-            lte: eventOccurenceValue
-          }
-        }
+            lte: eventOccurenceValue,
+          },
+        },
       });
     }
 
@@ -543,7 +565,7 @@ export const generateQueryBySegment = async (
       const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field: `attributes.${filter.name}`,
         operator: filter.operator,
-        value: filter.value
+        value: filter.value,
       });
 
       if (positiveQuery) {
@@ -561,13 +583,13 @@ export const generateQueryBySegment = async (
         index: 'events',
         _source: contentType === 'company' ? 'companyId' : 'customerId',
         positiveQuery: eventPositive,
-        negativeQuery: eventNegative
+        negativeQuery: eventNegative,
       });
 
       propertiesPositive.push({
         terms: {
-          _id: idsByEvents
-        }
+          _id: idsByEvents,
+        },
       });
     }
   }
@@ -581,7 +603,7 @@ export const generateNestedQuery = (
   field: string,
   operator: string,
   query: any,
-  fixedValue: any
+  fixedValue: any,
 ) => {
   const fieldKey = field.replace(`${kind}.`, '');
 
@@ -603,11 +625,11 @@ export const generateNestedQuery = (
 
   updatedQuery = JSON.stringify(updatedQuery).replace(
     `${kind}.${fieldKey}`,
-    `${kind}.${fieldValue}`
+    `${kind}.${fieldValue}`,
   );
   updatedQuery = JSON.parse(updatedQuery);
 
-  return {
+  const er = {
     nested: {
       path: kind,
       query: {
@@ -615,15 +637,17 @@ export const generateNestedQuery = (
           must: [
             {
               term: {
-                [`${kind}.field`]: fieldKey
-              }
+                [`${kind}.field`]: fieldKey,
+              },
             },
-            updatedQuery
-          ]
-        }
-      }
-    }
+            updatedQuery,
+          ],
+        },
+      },
+    },
   };
+
+  return er;
 };
 
 export function elkConvertConditionToQuery(args: {
@@ -649,11 +673,11 @@ export function elkConvertConditionToQuery(args: {
   if (['e', 'numbere'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numbere') {
       positiveQuery = {
-        term: { [field]: value }
+        term: { [field]: value },
       };
     } else {
       positiveQuery = {
-        match_phrase: { [field]: value }
+        match_phrase: { [field]: value },
       };
     }
   }
@@ -662,11 +686,11 @@ export function elkConvertConditionToQuery(args: {
   if (['dne', 'numberdne'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numberdne') {
       negativeQuery = {
-        term: { [field]: value }
+        term: { [field]: value },
       };
     } else {
       negativeQuery = {
-        match_phrase: { [field]: value }
+        match_phrase: { [field]: value },
       };
     }
   }
@@ -675,8 +699,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'c') {
     positiveQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`
-      }
+        [field]: `*${fixedValue}*`,
+      },
     };
   }
 
@@ -684,8 +708,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'dnc') {
     negativeQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`
-      }
+        [field]: `*${fixedValue}*`,
+      },
     };
   }
 
@@ -694,9 +718,9 @@ export function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          gte: fixedValue
-        }
-      }
+          gte: fixedValue,
+        },
+      },
     };
   }
 
@@ -705,9 +729,9 @@ export function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          lte: fixedValue
-        }
-      }
+          lte: fixedValue,
+        },
+      },
     };
   }
 
@@ -715,8 +739,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'it') {
     positiveQuery = {
       term: {
-        [field]: true
-      }
+        [field]: true,
+      },
     };
   }
 
@@ -724,8 +748,8 @@ export function elkConvertConditionToQuery(args: {
   if (operator === 'if') {
     positiveQuery = {
       term: {
-        [field]: false
-      }
+        [field]: false,
+      },
     };
   }
 
@@ -733,8 +757,8 @@ export function elkConvertConditionToQuery(args: {
   if (['is', 'dateis'].includes(operator)) {
     positiveQuery = {
       exists: {
-        field
-      }
+        field,
+      },
     };
   }
 
@@ -742,8 +766,8 @@ export function elkConvertConditionToQuery(args: {
   if (['ins', 'dateins'].includes(operator)) {
     negativeQuery = {
       exists: {
-        field
-      }
+        field,
+      },
     };
   }
 
@@ -794,8 +818,8 @@ export function elkConvertConditionToQuery(args: {
 
     positiveQuery = {
       wildcard: {
-        [field]: `????-${month}-${day < 10 ? '0' + day : day}???:??:??.????`
-      }
+        [field]: `????-${month}-${day < 10 ? '0' + day : day}???:??:??.????`,
+      },
     };
   }
   // date relative less than
@@ -816,7 +840,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           positiveQuery,
-          fixedValue
+          fixedValue,
         );
       }
 
@@ -826,7 +850,7 @@ export function elkConvertConditionToQuery(args: {
           field,
           operator,
           negativeQuery,
-          fixedValue
+          fixedValue,
         );
       }
     }
@@ -842,20 +866,20 @@ const associationPropertyFilter = async (
     mainType,
     propertyType,
     positiveQuery,
-    negativeQuery
+    negativeQuery,
   }: {
     serviceName: string;
     mainType: string;
     propertyType: string;
     positiveQuery: any;
     negativeQuery: any;
-  }
+  },
 ) => {
-  const service = await serviceDiscovery.getService(serviceName);
+  const service = await getService(serviceName);
   const segmentMeta = (service.config.meta || {}).segments;
 
   if (segmentMeta && segmentMeta.associationFilterAvailable) {
-    const response = await sendMessage({
+    return await sendMessage({
       subdomain,
       serviceName,
       isRPC: true,
@@ -864,11 +888,10 @@ const associationPropertyFilter = async (
         mainType,
         propertyType,
         positiveQuery,
-        negativeQuery
-      }
+        negativeQuery,
+      },
+      defaultValue: [],
     });
-
-    return response;
   }
 
   return [];

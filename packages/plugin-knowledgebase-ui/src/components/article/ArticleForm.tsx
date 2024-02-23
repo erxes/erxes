@@ -15,7 +15,7 @@ import { __, extractAttachment } from 'coreui/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -128,8 +128,8 @@ class ArticleForm extends React.Component<Props, State> {
     };
   };
 
-  onChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
   onChangeReactions = (options: IOption[]) => {
@@ -496,7 +496,7 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}

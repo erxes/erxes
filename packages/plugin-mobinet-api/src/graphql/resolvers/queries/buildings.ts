@@ -1,16 +1,17 @@
 import { paginate } from '@erxes/api-utils/src';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import { ServiceStatus } from '../../../models/definitions/buildings';
 
-const buildQuery = (params: any) => {
+const buildQuery = async (params: any, models: IModels) => {
   const {
     searchValue,
     cityId,
     districtId,
     quarterId,
     customQuery,
-    networkType
+    networkType,
+    serviceStatus,
   } = params;
   const filter: any = {};
 
@@ -19,11 +20,20 @@ const buildQuery = (params: any) => {
   }
 
   if (cityId) {
-    filter.cityId = cityId;
+    const districts = await models.Districts.find({ cityId }).select('_id');
+    const ones = await models.Quarters.find({
+      districtId: { $in: districts.map((d) => d._id) },
+    }).select('_id');
+
+    filter.quarterId = { $in: ones.map((d) => d._id) };
   }
 
   if (districtId) {
-    filter.districtId = districtId;
+    const ones = await models.Quarters.find({
+      districtId: districtId,
+    }).select('_id');
+
+    filter.quarterId = { $in: ones.map((d) => d._id) };
   }
 
   if (quarterId) {
@@ -33,53 +43,56 @@ const buildQuery = (params: any) => {
   if (networkType) {
     filter.networkType = networkType;
   }
+  if (serviceStatus) {
+    filter.serviceStatus = serviceStatus;
+  }
 
   return { ...filter, ...customQuery };
 };
 
 const queries = {
   buildingList: async (_root, params, { models }: IContext) => {
-    const filter: any = buildQuery(params);
+    const filter: any = await buildQuery(params, models);
     const { page, perPage } = params;
 
     return {
       list: paginate(
-        models.Buildings.find(filter)
-          .sort({ updatedAt: -1 })
-          .lean(),
+        models.Buildings.find(filter).sort({ updatedAt: -1 }).lean(),
         {
           page: page || 1,
-          perPage: perPage || 20
-        }
+          perPage: perPage || 20,
+        },
       ),
-      totalCount: models.Buildings.find(filter).count()
+      totalCount: models.Buildings.find(filter).count(),
     };
   },
 
   buildings: async (_root, params, { models }: IContext) => {
-    const filter: any = buildQuery(params);
+    const filter: any = await buildQuery(params, models);
     const { page, perPage } = params;
 
     return paginate(models.Buildings.find(filter).lean(), {
       page: page || 1,
-      perPage: perPage || 20
+      perPage: perPage || 20,
     });
   },
 
   buildingDetail: async (
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
-    return models.Buildings.findOne({
-      $or: [{ _id }, { osmbId: Number(_id) }]
-    });
+    const query = {
+      $or: [{ _id }, { osmbId: Number(_id) }, { osmbId: _id }],
+    };
+
+    return models.Buildings.findOne(query).lean();
   },
 
   buildingGet: async (
     _root,
     { osmbId }: { osmbId: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return models.Buildings.getBuilding({ osmbId });
   },
@@ -88,14 +101,14 @@ const queries = {
     _root,
     {
       bounds,
-      serviceStatuses
+      serviceStatuses,
     }: { bounds: any; serviceStatuses: [ServiceStatus] },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const qry: any = {
       location: {
-        $geoWithin: { $polygon: bounds }
-      }
+        $geoWithin: { $polygon: bounds },
+      },
     };
 
     if (serviceStatuses) {
@@ -103,7 +116,7 @@ const queries = {
     }
 
     return models.Buildings.find(qry).lean();
-  }
+  },
 };
 
 export default queries;

@@ -1,14 +1,16 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { sendSms } from './utils';
+import { afterMutationHandlers } from './aftermutations';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   // consumeQueue('mobinet:send', async ({ data }) => {
   //   Mobinets.send(data);
 
@@ -17,6 +19,11 @@ export const initBroker = async cl => {
   //   };
   // });
 
+  consumeQueue('mobinet:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
+  });
+
   consumeRPCQueue('mobinet:sendSms', async ({ data }) => {
     const { phoneNumber, content } = data;
 
@@ -24,28 +31,20 @@ export const initBroker = async cl => {
     try {
       await sendSms(phoneNumber, content);
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       console.log('*************** mobinet:sendSms error', e);
       return {
         status: 'error',
-        message: e.message
+        errorMessage: e.message,
       };
     }
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

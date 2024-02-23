@@ -6,16 +6,12 @@ import { PlaceholderWrapper } from './styles';
 
 export const RichTextEditorPlaceholderControl = ({
   placeholderProp,
-  toolbarPlacement
+  toolbarPlacement,
 }) => {
   const { editor, isSourceEnabled } = useRichTextEditorContext();
 
   const handlePlaceholder = (placeholderValue: string) => {
-    editor
-      ?.chain()
-      .focus()
-      .insertContent(`{{${placeholderValue}}}`)
-      .run();
+    editor?.chain().focus().insertContent(`{{ ${placeholderValue} }}`).run();
   };
 
   return (

@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
+  IActivityLogForMonth,
 } from '@erxes/ui-log/src/activityLogs/types';
 import { ITransaction } from '../transactions/types';
 
@@ -42,6 +42,7 @@ export interface IContract {
   depositAccount: string;
   customers?: any;
   loansOfForeclosed?: any;
+  customFieldsData?: any;
 }
 
 export interface IContractDoc extends IContract {

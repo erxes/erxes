@@ -1,5 +1,4 @@
 const variables = `
-    $code: String!
     $name: String!
     $bounds: JSON
     $location: JSON
@@ -11,10 +10,10 @@ const variables = `
     $serviceStatus: ServiceStatus
     $suhId: String
     $networkType: NetworkType
+    $customFieldsData: JSON
 `;
 
 const fields = `
-    code: $code
     name: $name
     bounds: $bounds
     location: $location
@@ -26,6 +25,7 @@ const fields = `
     serviceStatus: $serviceStatus
     suhId: $suhId
     networkType: $networkType
+    customFieldsData: $customFieldsData
 `;
 
 const addMutation = `
@@ -62,5 +62,5 @@ export default {
   addMutation,
   editMutation,
   removeMutation,
-  buildingsUpdate
+  buildingsUpdate,
 };

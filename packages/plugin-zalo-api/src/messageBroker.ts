@@ -1,29 +1,25 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+
 // import { Customers, Integrations, Messages } from './models';
 import { generateModels } from './connectionResolver';
 import {
   zaloCreateIntegration,
-  removeIntegration
+  removeIntegration,
   // repairIntegrations
 } from './helpers';
+import { RPResult, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const initBroker = async () => {
   consumeRPCQueue(
     'zalo:createIntegration',
-    async ({ subdomain, data: { doc, kind } }) => {
+    async ({ subdomain, data: { doc, kind } }): Promise<RPResult> => {
       const models = await generateModels(subdomain);
 
       if (kind === 'zalo') {
@@ -32,9 +28,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'error',
-        data: 'Wrong kind'
+        errorMessage: 'Wrong kind',
       };
-    }
+    },
     // async ({ data: { doc, integrationId } }) => {
 
     //   await Integrations.create({
@@ -58,9 +54,9 @@ export const initBroker = async cl => {
       // await Integrations.remove({ inboxId: integrationId });
 
       return {
-        status: 'success'
+        status: 'success',
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -70,31 +66,23 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: /* await models.ConversationMessages.find(data).lean() */ []
+        data: /* await models.ConversationMessages.find(data).lean() */ [],
       };
-    }
+    },
   );
 };
 
-export default function() {
-  return client;
-}
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
     timeout: 50000,
-    ...args
+    ...args,
   });
 };

@@ -1,10 +1,10 @@
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { CUSTOMER_STATUSES } from '../common/constants';
 import {
   customerDetail as customerDetailQuery,
-  customersAdd as customersAddQueries
+  customersAdd as customersAddQueries,
 } from '../common/customerQueries';
 import { IModels } from '../connectionResolver';
 import { sendContactsMessage } from '../messageBroker';
@@ -30,17 +30,15 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
 
       const { SAAS_CORE_URL } = process.env;
 
-      await sendRequest({
-        url: `${SAAS_CORE_URL}/check-subdomain`,
-        method: 'GET',
+      await fetch(`${SAAS_CORE_URL}/check-subdomain`, {
         headers: {
-          origin: `${doc.subdomain}..app.erxes.io`
-        }
+          origin: `${doc.subdomain}..app.erxes.io`,
+        },
       });
 
       const extendedDoc = {
         ...doc,
-        createdUserId: user._id
+        createdUserId: user._id,
       };
 
       return await models.Sync.create({ ...extendedDoc });
@@ -62,12 +60,10 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       }
 
       if (sync.subdomain !== doc.subdomain) {
-        await sendRequest({
-          url: `${SAAS_CORE_URL}/check-subdomain`,
-          method: 'GET',
+        await fetch(`${SAAS_CORE_URL}/check-subdomain`, {
           headers: {
-            origin: `${doc.subdomain}..app.erxes.io`
-          }
+            origin: `${doc.subdomain}..app.erxes.io`,
+          },
         });
       }
       return await models.Sync.updateOne({ _id }, { $set: doc });
@@ -87,7 +83,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
 
     public static async getSyncedSaas(
       { subdomain, customerId },
-      mainSubDomain
+      mainSubDomain,
     ) {
       const sync = await models.Sync.findOne({ subdomain }).lean();
 
@@ -102,11 +98,11 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
       const isCustomerExistsSaas = await this.checkSaasCustomer(
         sync.subdomain,
         sync.appToken,
-        customerId
+        customerId,
       );
       const syncedCustomer = await models.SyncedCustomers.findOne({
         syncId: sync?._id,
-        customerId
+        customerId,
       });
 
       const isApproved = !!sync?.checkApproved
@@ -131,7 +127,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         action: 'customers.findOne',
         data: { _id: customerId },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!customer) {
@@ -148,13 +144,13 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         syncId: sync._id,
         customerId: customer._id,
         syncedCustomerId: newCustomer._id,
-        status: !!sync?.checkApproved ? CUSTOMER_STATUSES.WAITING : undefined
+        status: !!sync?.checkApproved ? CUSTOMER_STATUSES.WAITING : undefined,
       });
 
       if (!!sync?.checkApproved) {
         return {
           subdomain,
-          customerId: customer._id
+          customerId: customer._id,
         };
       }
 
@@ -186,7 +182,7 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
             'firstName',
             'lastName',
             'middleName',
-            'primaryEmail'
+            'primaryEmail',
           ].includes(key)
         ) {
           customerDoc[key] = customer[key];
@@ -197,18 +193,20 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
     }
 
     public static async createCustomerToSaas(sync, customer) {
-      const { data, errors } = await sendRequest({
-        url: `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'erxes-app-token': sync.appToken
+      const { data, errors } = await fetch(
+        `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'erxes-app-token': sync.appToken,
+          },
+          body: JSON.stringify({
+            query: customersAddQueries,
+            variables: { ...(await this.getCustomerDoc(customer)) },
+          }),
         },
-        body: {
-          query: customersAddQueries,
-          variables: { ...(await this.getCustomerDoc(customer)) }
-        }
-      });
+      ).then((res) => res.json());
 
       if (errors) {
         throw new Error(errors[0]?.message);
@@ -224,25 +222,27 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
 
       const syncedCustomer = await models.SyncedCustomers.findOne({
         syncId: sync?._id,
-        customerId
+        customerId,
       });
 
       if (!syncedCustomer) {
         return false;
       }
 
-      const { data, errors } = await sendRequest({
-        url: `https://${subdomain}.app.erxes.io/gateway/graphql`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'erxes-app-token': appToken
+      const { data, errors } = await fetch(
+        `https://${subdomain}.app.erxes.io/gateway/graphql`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'erxes-app-token': appToken,
+          },
+          body: JSON.stringify({
+            query: customerDetailQuery,
+            variables: { _id: syncedCustomer?.syncedCustomerId },
+          }),
         },
-        body: {
-          query: customerDetailQuery,
-          variables: { _id: syncedCustomer?.syncedCustomerId }
-        }
-      });
+      ).then((res) => res.json());
 
       if (errors) {
         throw new Error(errors[0]?.message);

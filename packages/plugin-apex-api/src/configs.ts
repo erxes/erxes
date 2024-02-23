@@ -10,16 +10,12 @@ import * as permissions from './permissions';
 import * as customCommand from './customCommand';
 
 export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export let debug;
 
 export default {
   name: 'apex',
   permissions,
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
       resolvers
@@ -45,9 +41,8 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
-    initBroker(options.messageBrokerClient);
+    initBroker();
 
     debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   }
 };

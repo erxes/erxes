@@ -272,7 +272,7 @@ type CustomerRelatedCustomers {
     o_c_registerno: String,
   }
 
-  type Customer {
+  type ZmsCustomer {
     o_c_customer_information: CustomerImpormation,
   }
 
@@ -287,7 +287,7 @@ type CustomerRelatedCustomers {
   }
   type Zms {
     _id:String,
-    customer: Customer
+    customer: ZmsCustomer
   }
 `;
 const paramsZmsInquire = `
@@ -334,7 +334,7 @@ const mutations = `
   sendZms(isClosed: Boolean):JSON
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

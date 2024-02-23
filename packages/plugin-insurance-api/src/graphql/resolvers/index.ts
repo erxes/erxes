@@ -8,7 +8,7 @@ import { RiskConfig } from './riskConfig';
 import mutations from './mutations';
 import queries from './queries';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Risk,
   InsuranceProduct,
