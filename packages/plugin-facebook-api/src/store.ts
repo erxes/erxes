@@ -244,7 +244,6 @@ export const getOrCreatePost = async (
   }
 
   doc.permalink_url = postUrl;
-  console.log(doc, 'asd)');
   post = await models.PostConversations.create(doc);
 
   return post;
@@ -261,16 +260,16 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
 ) => {
-  const commentConversation = await models.CommentConversation.findOne({
+  const mainConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
   });
   const subConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
-  const sendReply = await models.CommentConversationReply.findOne({
+  const replyConversation = await models.CommentConversationReply.findOne({
     comment_id: commentParams.comment_id,
   });
-  if (commentConversation || sendReply) {
+  if (mainConversation || replyConversation) {
     return;
   }
 
@@ -306,7 +305,7 @@ export const getOrCreateComment = async (
     await models.CommentConversationReply.create({
       ...doc,
     });
-  } else if (commentConversation === null && subConversation === null) {
+  } else if (mainConversation === null && subConversation === null) {
     await models.CommentConversation.create({
       ...doc,
     });
@@ -347,23 +346,24 @@ export const getOrCreateComment = async (
     throw new Error(error.message);
   }
 
-
   try {
-    console.log(conversation, 'conversation');
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
-        ...conversation.toObject(),
+        _id: conversation?._id,
+        integrationId: integration.erxesApiId,
         conversationId: conversation.erxesApiId,
       },
     });
-    console.log('conversationClientMessageInserted');
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          ...conversation.toObject(),
+          _id: conversation?._id,
+          content: commentParams.message,
+          createdAt: new Date(),
+          customerId: customer.erxesApiId,
           conversationId: conversation.erxesApiId,
         },
       },
