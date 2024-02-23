@@ -5,6 +5,7 @@ import { createGlobalStyle } from 'styled-components';
 const style = `
 html {
   height: 100%;
+  background: red;
 }
 
 body {
@@ -1400,4 +1401,4 @@ const globalStyle = [`${style}`] as any;
 
 globalStyle.raw = [`${style}`];
 
-createGlobalStyle(globalStyle);
+export const GlobalStyle = createGlobalStyle(globalStyle);

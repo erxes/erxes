@@ -1,12 +1,12 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import 'erxes-icon/css/erxes.min.css';
-// global style
-import '@erxes/ui/src/styles/global-styles.ts';
 
 import { getEnv, readFile } from 'modules/common/utils';
 
 import { ApolloProvider } from '@apollo/client';
+// global style
+import { GlobalStyle } from '@erxes/ui/src/styles/global-styles';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import dayjs from 'dayjs';
@@ -67,6 +67,11 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
     }
 
     return root.render(
-      <ApolloProvider client={apolloClient}>{body}</ApolloProvider>,
+      <ApolloProvider client={apolloClient}>
+        <React.Fragment>
+          <GlobalStyle />
+          {body}
+        </React.Fragment>
+      </ApolloProvider>,
     );
   });

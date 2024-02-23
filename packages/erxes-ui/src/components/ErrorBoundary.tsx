@@ -25,7 +25,7 @@ const ErrorBoundary: React.FC<{ children: any; pluginName?: string }> = ({
 
   return (
     <ReactErrorBoundary fallbackRender={ErrorFallback} onError={handleError}>
-      {pluginName} {children}
+      {children}
     </ReactErrorBoundary>
   );
 };
