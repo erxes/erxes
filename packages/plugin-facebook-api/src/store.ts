@@ -344,7 +344,6 @@ export const getOrCreateComment = async (
     throw new Error(error.message);
   }
   try {
-    ('conversationClientMessageInserted');
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
