@@ -14,7 +14,6 @@ export const handleFacebookMessage = async (
 ) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
-
   if (doc.internal) {
     const conversation = await models.Conversations.getConversation({
       erxesApiId: doc.conversationId,
@@ -45,6 +44,7 @@ export const handleFacebookMessage = async (
     const commentConversationResult = await models.CommentConversation.findOne({
       erxesApiId: conversationId,
     });
+
     const post = await models.PostConversations.findOne({
       $or: [
         { erxesApiId: conversationId },
@@ -93,7 +93,6 @@ export const handleFacebookMessage = async (
       const id = commentConversationResult
         ? commentConversationResult.comment_id
         : post.postId;
-
       if (commentConversationResult && commentConversationResult.comment_id) {
         data = {
           message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
@@ -114,20 +113,6 @@ export const handleFacebookMessage = async (
           recipientId,
           inboxConversation && inboxConversation.integrationId,
         );
-
-        sendInboxMessage({
-          action: 'sendNotifications',
-          isRPC: false,
-          subdomain,
-          data: {
-            userId,
-            conversations: [inboxConversation],
-            type: 'conversationStateChange',
-            mobile: true,
-            messageContent: content,
-          },
-        });
-
         return { status: 'success' };
       } catch (e) {
         throw new Error(e.message);
