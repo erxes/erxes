@@ -238,7 +238,6 @@ export const getOrCreatePost = async (
     facebookPageTokensMap,
     postParams.post_id || '',
   );
-  console.log(postParams, 'postParams');
   const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
@@ -347,7 +346,10 @@ export const getOrCreateComment = async (
     });
     throw new Error(error.message);
   }
+
+
   try {
+    console.log(conversation, 'conversation');
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
@@ -373,7 +375,6 @@ export const getOrCreateComment = async (
   }
 
   try {
-    console.log('putCreateLog');
     await putCreateLog(
       models,
       subdomain,
