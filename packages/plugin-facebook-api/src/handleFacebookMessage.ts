@@ -112,6 +112,18 @@ export const handleFacebookMessage = async (
         recipientId,
         inboxConversation && inboxConversation.integrationId,
       );
+      sendInboxMessage({
+        action: 'sendNotifications',
+        isRPC: false,
+        subdomain,
+        data: {
+          userId,
+          conversations: [inboxConversation],
+          type: 'conversationStateChange',
+          mobile: true,
+          messageContent: content,
+        },
+      });
       return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
