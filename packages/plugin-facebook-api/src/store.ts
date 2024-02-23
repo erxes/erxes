@@ -358,7 +358,6 @@ export const getOrCreateComment = async (
         conversationId: conversation.erxesApiId,
       },
     });
-    console.log('conversationClientMessageInserted2');
     console.log(conversation, 'conversion11111');
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
