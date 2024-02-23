@@ -1,3 +1,8 @@
+export const DEFAULT_GRID_DIMENSIONS = {
+  w: 3,
+  h: 3,
+};
+
 export const ENTITY = [
   { name: 'Deal Based Goal', value: 'deal' },
   { name: 'Task Based Goal', value: 'task' },
