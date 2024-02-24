@@ -1,3 +1,15 @@
+## [1.6.2-rc.2](https://github.com/erxes/erxes/compare/1.6.2-rc.1...1.6.2-rc.2) (2024-02-24)
+
+
+### Bug Fixes
+
+* **facebook:** check comment id ([a8fc2e0](https://github.com/erxes/erxes/commit/a8fc2e003551a2cafebcdbb38c672ff11961abb7))
+* **facebook:** check facebook comment id ([6675336](https://github.com/erxes/erxes/commit/6675336a34d74ab4782ce86ed51ec05dc0fb5017))
+* **facebook:** debug Facebook ([f142462](https://github.com/erxes/erxes/commit/f142462d00cd960e82dd0e6189116fde54432b20))
+* **facebook:** debug Facebook post ([2eca3a4](https://github.com/erxes/erxes/commit/2eca3a485d752a6e34e0c9471286e5b9576c6af9))
+* **Facebook:** refactor Facebook ([5df6447](https://github.com/erxes/erxes/commit/5df6447deb87fbd7f88c8abfc391e1e89609c2ae))
+* **facebook:** remove logs and refactor code ([df864b6](https://github.com/erxes/erxes/commit/df864b6f8b298270895bf2638ccacbb67f43132b))
+
 ## [1.6.2-rc.1](https://github.com/erxes/erxes/compare/1.6.2-rc.0...1.6.2-rc.1) (2024-02-23)
 
 ## [1.6.2-rc.0](https://github.com/erxes/erxes/compare/1.6.1...1.6.2-rc.0) (2024-02-22)

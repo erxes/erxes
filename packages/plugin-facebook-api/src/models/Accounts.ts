@@ -19,22 +19,22 @@ export const accountSchema = new Schema({
   _id: field({ pkey: true }),
   kind: { type: String },
   token: {
-    type: String
+    type: String,
   },
   tokenSecret: {
     type: String,
-    optional: true
+    optional: true,
   },
   scope: {
     type: String,
-    optional: true
+    optional: true,
   },
   expireDate: {
     type: String,
-    optional: true
+    optional: true,
   },
   name: { type: String },
-  uid: { type: String }
+  uid: { type: String },
 });
 
 export interface IAccountModel extends Model<IAccountDocument> {
