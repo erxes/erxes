@@ -70,6 +70,23 @@ const PopoverButton = styled.div`
   }
 `;
 
+const PopoverHeader = styled.h3`
+  display: block;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: 10px 20px;
+  background: ${colors.colorWhite};
+  font-size: 13px;
+  text-transform: capitalize;
+  border-radius: 4px 4px 0 0;
+  margin: 0;
+  font-weight: 600;
+
+  > a {
+    color: ${colors.colorCoreGray};
+    float: right;
+  }
+`;
+
 const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
@@ -540,6 +557,7 @@ const Loader = styledTS<{
 export {
   Actions,
   PopoverButton,
+  PopoverHeader,
   BoxRoot,
   ColorPick,
   ColorPicker,

@@ -1,8 +1,10 @@
+import { PopoverButton, PopoverHeader } from '../styles/main';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import Alert from '../utils/Alert';
 import Button from './Button';
 import Icon from './Icon';
 import { Popover } from '@headlessui/react';
-import { PopoverButton } from '../styles/main';
 import React from 'react';
 import { __ } from '../utils/core';
 import asyncComponent from './AsyncComponent';
@@ -40,7 +42,6 @@ const DateName = styled.div`
 
 type Props = {
   queryParams?: any;
-  history: any;
   countQuery?: string;
   countQueryParam?: string;
 };
@@ -126,6 +127,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   };
 
   filterByDate = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const { startDate, endDate } = this.state;
 
     const formattedStartDate = dayjs(startDate).format(format);
@@ -134,7 +138,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     if (formattedStartDate > formattedEndDate) {
       return Alert.error('The start date must be earlier than the end date.');
     }
-    setParams(this.props.history, {
+    setParams(navigate, location, {
       startDate: formattedStartDate,
       endDate: formattedEndDate,
     });
@@ -181,8 +185,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     };
 
     return (
-      <Popover.Panel>
-        <h3>{__('Filter by date')}</h3>
+      <div id="date-popover">
+        <PopoverHeader>{__('Filter by date')}</PopoverHeader>
         <FlexRow>
           <div>
             <DateName>Start Date</DateName>
@@ -216,17 +220,24 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
             Filter
           </Button>
         </FlexRow>
-      </Popover.Panel>
+      </div>
     );
   };
 
   render() {
     return (
       <Popover>
-        <PopoverButton>
-          {__('Date')}
-          <Icon icon="angle-down" />
-        </PopoverButton>
+        {({ open }) => (
+          <>
+            <Popover.Button>
+              <PopoverButton>
+                {__('Date')}
+                <Icon icon={open ? 'angle-up' : 'angle-down'} />
+              </PopoverButton>
+            </Popover.Button>
+            <Popover.Panel>{this.renderPopover()}</Popover.Panel>
+          </>
+        )}
       </Popover>
     );
   }

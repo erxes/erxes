@@ -145,7 +145,6 @@ class LeftSidebar extends React.Component<Props, State> {
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}
-            history={history}
             countQuery={queries.totalConversationsCount}
             countQueryParam="conversationsTotalCount"
           />

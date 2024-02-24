@@ -5,7 +5,6 @@ import { createGlobalStyle } from 'styled-components';
 const style = `
 html {
   height: 100%;
-  background: red;
 }
 
 body {
@@ -380,16 +379,32 @@ a:hover {
   z-index: 1040;
 }
 
-.popover {
+[id^="headlessui-popover-button-"] {
+  padding: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+}
+
+[id^="headlessui-popover-panel-"] {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   border: none;
   border-radius: 4px;
   font-size: inherit;
   padding: 0;
   color: ${colors.textPrimary};
+  background-color: ${colors.colorWhite};
+  word-wrap: break-word;
+  z-index: 1060;
   font-weight: inherit;
   box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
   max-width: 310px;
+  position: absolute;
+  will-change: transform;
+  top: 10px;
+  left: 0px;
+  transform: translate3d(0px, 18px, 0px);
+  transition: opacity .15s linear;
 }
 
 .bs-popover-bottom > .arrow::before,
