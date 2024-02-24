@@ -45,72 +45,82 @@ export const handleFacebookMessage = async (
     const commentConversationResult = await models.CommentConversation.findOne({
       erxesApiId: conversationId,
     });
+    const post = await models.PostConversations.findOne({
+      $or: [
+        { erxesApiId: conversationId },
+        {
+          postId: commentConversationResult
+            ? commentConversationResult.postId
+            : '',
+        },
+      ],
+    });
 
-    if (commentConversationResult) {
-      const { recipientId, comment_id, senderId } = commentConversationResult;
-      await models.CommentConversationReply.create({
-        recipientId: recipientId,
-        senderId: senderId,
-        attachments: attachments,
-        userId: userId,
-        createdAt: new Date(Date.now()),
-        content: strippedContent,
-        parentId: comment_id,
-      });
+    if (!post) {
+      throw new Error('Post not found');
+    }
+    if (!commentConversationResult) {
+      throw new Error('comment not found');
+    }
 
-      let attachment: {
-        url?: string;
-        type?: string;
-        payload?: { url: string };
-      } = {};
+    const { recipientId, comment_id, senderId } = commentConversationResult;
+    await models.CommentConversationReply.create({
+      recipientId: recipientId,
+      senderId: senderId,
+      attachments: attachments,
+      userId: userId,
+      createdAt: new Date(Date.now()),
+      content: strippedContent,
+      parentId: comment_id,
+    });
 
-      if (attachments && attachments.length > 0) {
-        attachment = {
-          type: 'file',
-          payload: {
-            url: attachments[0].url,
-          },
-        };
-      }
+    let attachment: {
+      url?: string;
+      type?: string;
+      payload?: { url: string };
+    } = {};
 
-      let data = {
-        message: strippedContent,
-        attachment_url: attachment.payload ? attachment.payload.url : undefined,
+    if (attachments && attachments.length > 0) {
+      attachment = {
+        type: 'file',
+        payload: {
+          url: attachments[0].url,
+        },
       };
+    }
 
-      try {
-        const inboxConversation = await sendInboxMessage({
-          isRPC: true,
-          subdomain,
-          action: 'conversations.findOne',
-          data: { query: { _id: conversationId } },
-        });
+    let data = {
+      message: strippedContent,
+      attachment_url: attachment.payload ? attachment.payload.url : undefined,
+    };
+    const id = commentConversationResult
+      ? commentConversationResult.comment_id
+      : post.postId;
 
-        await sendReply(
-          models,
-          `${comment_id}/comments`,
-          data,
-          recipientId,
-          inboxConversation && inboxConversation.integrationId,
-        );
+    if (commentConversationResult && commentConversationResult.comment_id) {
+      data = {
+        message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
+        attachment_url: attachment.url,
+      };
+    }
+    try {
+      const inboxConversation = await sendInboxMessage({
+        isRPC: true,
+        subdomain,
+        action: 'conversations.findOne',
+        data: { query: { _id: conversationId } },
+      });
+      await sendReply(
+        models,
+        `${id}/comments`,
+        data,
+        recipientId,
+        inboxConversation && inboxConversation.integrationId,
+      );
 
-        sendInboxMessage({
-          action: 'sendNotifications',
-          isRPC: false,
-          subdomain,
-          data: {
-            userId,
-            conversations: [inboxConversation],
-            type: 'conversationStateChange',
-            mobile: true,
-            messageContent: content,
-          },
-        });
-
-        return { status: 'success' };
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      return { status: 'success' };
+    } catch (e) {
+      throw new Error(e.message);
     }
   }
   if (action === 'reply-messenger') {
