@@ -1,22 +1,22 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, router } from 'coreui/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { Alert, __, router } from 'coreui/utils';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
+import { PopoverButton, PopoverHeader } from '@erxes/ui/src/styles/eindex';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import { Popover } from '@headlessui/react';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import client from '@erxes/ui/src/apolloClient';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
-  history: any;
   queryParams: any;
   refetchRequired: string;
 };
@@ -34,7 +34,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
     this.state = {
       counts: {},
-      loading: true
+      loading: true,
     };
   }
 
@@ -45,12 +45,12 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       .query({
         query: gql(queries.conversationCounts),
         variables: generateParams(queryParams),
-        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts, loading });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -66,12 +66,15 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
   };
 
   clearStatusFilter = () => {
-    router.setParams(this.props.history, {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    router.setParams(navigate, location, {
       participating: '',
       status: '',
       unassigned: '',
       starred: '',
-      awaitingResponse: ''
+      awaitingResponse: '',
     });
   };
 
@@ -79,14 +82,15 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     paramName: string,
     paramValue: string,
     text: string,
-    count: number
+    count: number,
   ) => {
-    const { history } = this.props;
-
     const onClick = () => {
+      const location = useLocation();
+      const navigate = useNavigate();
+
       // clear previous values
       this.clearStatusFilter();
-      router.setParams(history, { [paramName]: paramValue });
+      router.setParams(navigate, location, { [paramName]: paramValue });
       this.overlayTrigger.hide();
     };
 
@@ -111,69 +115,65 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
     if (loading) {
       return (
-        <Popover id="filter-popover">
-          <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
-          <Popover.Content>
+        <div id="filter-popover">
+          <PopoverHeader>{__('Filter by status')}</PopoverHeader>
+          <div>
             <Spinner objective={true} />
-          </Popover.Content>
-        </Popover>
+          </div>
+        </div>
       );
     }
 
     return (
-      <Popover id="filter-popover">
-        <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
-        <Popover.Content>
-          <SidebarList>
-            {this.renderSingleFilter(
-              'unassigned',
-              'true',
-              'Unassigned',
-              counts.unassigned
-            )}
-            {this.renderSingleFilter(
-              'participating',
-              'true',
-              'Participating',
-              counts.participating
-            )}
+      <div id="filter-popover" className="popover-body">
+        <PopoverHeader>{__('Filter by status')}</PopoverHeader>
+        <SidebarList>
+          {this.renderSingleFilter(
+            'unassigned',
+            'true',
+            'Unassigned',
+            counts.unassigned,
+          )}
+          {this.renderSingleFilter(
+            'participating',
+            'true',
+            'Participating',
+            counts.participating,
+          )}
 
-            {this.renderSingleFilter(
-              'awaitingResponse',
-              'true',
-              'Awaiting Response',
-              counts.awaitingResponse
-            )}
+          {this.renderSingleFilter(
+            'awaitingResponse',
+            'true',
+            'Awaiting Response',
+            counts.awaitingResponse,
+          )}
 
-            {this.renderSingleFilter(
-              'status',
-              'closed',
-              'Resolved',
-              counts.resolved
-            )}
-          </SidebarList>
-        </Popover.Content>
-      </Popover>
+          {this.renderSingleFilter(
+            'status',
+            'closed',
+            'Resolved',
+            counts.resolved,
+          )}
+        </SidebarList>
+      </div>
     );
   };
 
   render() {
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom"
-        overlay={this.renderPopover()}
-        container={this}
-        rootClose={true}
-      >
-        <PopoverButton onClick={this.onClick}>
-          {__('Status')}
-          <Icon icon="angle-down" />
-        </PopoverButton>
-      </OverlayTrigger>
+      <Popover>
+        {({ open }) => (
+          <>
+            <Popover.Button>
+              <PopoverButton onClick={this.onClick}>
+                {__('Status')}
+                <Icon icon={open ? 'angle-up' : 'angle-down'} />
+              </PopoverButton>
+            </Popover.Button>
+            <Popover.Panel>{this.renderPopover()}</Popover.Panel>
+          </>
+        )}
+      </Popover>
     );
   }
 }

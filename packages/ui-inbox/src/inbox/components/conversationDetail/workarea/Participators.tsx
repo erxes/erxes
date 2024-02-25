@@ -10,10 +10,8 @@ const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   margin-left: 10px;
-
-  &:hover {
-    cursor: pointer;
-  }
+  display: flex;
+  cursor: pointer;
 `;
 
 const ParticipatorImg = styled.img`

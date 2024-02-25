@@ -49,6 +49,11 @@ a:hover {
 .text-warning {
   color: ${colors.colorCoreYellow} !important;
 }
+
+.relative {
+  position: relative;
+}
+
 /* override */
 
 .modal {

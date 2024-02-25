@@ -182,8 +182,7 @@ const AssigneeImg = styled.img`
 `;
 
 const SidebarActions = styled.div`
-  #date-popover,
-  [id^='headlessui-popover-panel-'] {
+  .date-popover {
     max-width: 470px;
     width: 500px;
   }

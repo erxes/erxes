@@ -104,7 +104,7 @@ class LeftSidebar extends React.Component<Props, State> {
   };
 
   renderSidebarActions() {
-    const { queryParams, history, bulk, emptyBulk } = this.props;
+    const { queryParams, bulk, emptyBulk } = this.props;
 
     if (bulk.length > 0) {
       return (
@@ -148,7 +148,7 @@ class LeftSidebar extends React.Component<Props, State> {
             countQuery={queries.totalConversationsCount}
             countQueryParam="conversationsTotalCount"
           />
-          <StatusFilterPopover queryParams={queryParams} history={history} />
+          <StatusFilterPopover queryParams={queryParams} />
         </DropdownWrapper>
       </Sidebar.Header>
     );

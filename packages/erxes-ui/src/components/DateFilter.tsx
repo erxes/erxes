@@ -185,7 +185,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     };
 
     return (
-      <div id="date-popover">
+      <>
         <PopoverHeader>{__('Filter by date')}</PopoverHeader>
         <FlexRow>
           <div>
@@ -220,7 +220,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
             Filter
           </Button>
         </FlexRow>
-      </div>
+      </>
     );
   };
 
@@ -235,7 +235,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
                 <Icon icon={open ? 'angle-up' : 'angle-down'} />
               </PopoverButton>
             </Popover.Button>
-            <Popover.Panel>{this.renderPopover()}</Popover.Panel>
+            <Popover.Panel className="date-popover">
+              {this.renderPopover()}
+            </Popover.Panel>
           </>
         )}
       </Popover>
