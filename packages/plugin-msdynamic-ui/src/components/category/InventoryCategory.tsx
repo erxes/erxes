@@ -5,44 +5,62 @@ import {
   CollapseContent,
   DataWithLoader,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import Button from '@erxes/ui/src/components/Button';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { menuDynamic } from '../../constants';
 import Row from './InventoryCategoryRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
+  setCategory: (brandId: string) => void;
   toCheckCategory: () => void;
   toSyncCategory: (action: string, categories: any[]) => void;
   items: any;
+  productCategories: IProductCategory[];
 };
 
 const InventoryCategory = ({
   items,
+  productCategories,
   loading,
   queryParams,
   setBrand,
+  setCategory,
   toCheckCategory,
-  toSyncCategory
+  toSyncCategory,
 }: Props) => {
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
+      <SelectProductCategory
+        label="Choose product category"
+        name="productCategoryId"
+        initialValue={queryParams.categoryId || ''}
+        customOption={{
+          value: '',
+          label: '...Clear product category filter',
+        }}
+        onSelect={(category) => setCategory(category as string)}
+        multi={false}
+      />
+
       <SelectBrands
         label={__('Choose brands')}
-        onSelect={brand => setBrand(brand as string)}
+        onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
           label: 'No Brand (noBrand)',
-          value: ''
+          value: '',
         }}
       />
 
@@ -70,12 +88,12 @@ const InventoryCategory = ({
           data = data.slice(
             Number(queryParams.page - 1) * queryParams.perPage,
             Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage)
+              Number(queryParams.perPage),
           );
         } else {
           data = data.slice(
             (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20
+            (queryParams.page - 1) * 20 + 20,
           );
         }
       }
@@ -90,7 +108,7 @@ const InventoryCategory = ({
     data = calculatePagination(data);
 
     const excludeSyncTrue = (syncData: any) => {
-      return syncData.filter(d => d.syncStatus === false);
+      return syncData.filter((d) => d.syncStatus === false);
     };
 
     const onClickSync = () => {
@@ -103,7 +121,7 @@ const InventoryCategory = ({
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map(p => (
+      return rowData.map((p) => (
         <Row key={p.code} category={p} action={rowSction} />
       ));
     };
@@ -148,7 +166,8 @@ const InventoryCategory = ({
       <br />
       <CollapseContent
         title={__(
-          'Create categories' + (items.create ? ':  ' + items.create.count : '')
+          'Create categories' +
+            (items.create ? ':  ' + items.create.count : ''),
         )}
       >
         <>
@@ -167,7 +186,8 @@ const InventoryCategory = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update categories' + (items.update ? ':  ' + items.update.count : '')
+          'Update categories' +
+            (items.update ? ':  ' + items.update.count : ''),
         )}
       >
         <>
@@ -186,7 +206,8 @@ const InventoryCategory = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete categories' + (items.delete ? ':  ' + items.delete.count : '')
+          'Delete categories' +
+            (items.delete ? ':  ' + items.delete.count : ''),
         )}
       >
         <>

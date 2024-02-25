@@ -1,3 +1,7 @@
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
+
+const productCategories = productQueries.productCategories;
+
 const commonHistoryParams = `
   $page: Int,
   $perPage: Int,
@@ -89,4 +93,5 @@ export default {
   syncMsdHistoriesCount,
   dynamicConfigs,
   configs,
+  productCategories,
 };

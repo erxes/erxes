@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
+import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse,
@@ -9,7 +10,7 @@ import {
 import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import InventoryCategory from '../components/category/InventoryCategory';
@@ -19,17 +20,26 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = {} & Props &
+type FinalProps = {
+  productCategoriesQuery: ProductCategoriesQueryResponse;
+} & Props &
   ToCheckCategoriesMutationResponse &
   ToSyncCategoriesMutationResponse;
 
 const InventoryCategoryContainer = (props: FinalProps) => {
+  const { productCategoriesQuery } = props;
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
   const brandId = props.queryParams.brandId || 'noBrand';
+  const categoryId = props.queryParams.categoryId || 'noCategory';
 
   const setBrand = (brandId: string) => {
     router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
+
+  const setCategory = (categoryId: string) => {
+    router.setParams(props.history, { categoryId: categoryId });
     return router;
   };
 
@@ -62,7 +72,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckMsdProductCategories({
-        variables: { brandId },
+        variables: { brandId, categoryId },
       })
       .then((response) => {
         const data = response.data.toCheckMsdProductCategories;
@@ -87,6 +97,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
         variables: {
           brandId,
           action,
+          categoryId,
           categories,
         },
       })
@@ -106,10 +117,14 @@ const InventoryCategoryContainer = (props: FinalProps) => {
       });
   };
 
+  const productCategories = productCategoriesQuery.productCategories || [];
+
   const updatedProps = {
     ...props,
     loading,
     items,
+    productCategories,
+    setCategory,
     setBrand,
     toCheckCategory,
     toSyncCategory,
@@ -132,6 +147,18 @@ export default withProps<Props>(
       gql(mutations.toSyncCategories),
       {
         name: 'toSyncMsdProductCategories',
+      },
+    ),
+    graphql<Props, ProductCategoriesQueryResponse>(
+      gql(queries.productCategories),
+      {
+        name: 'productCategoriesQuery',
+        options: () => ({
+          variables: {
+            parentId: null,
+          },
+          fetchPolicy: 'network-only',
+        }),
       },
     ),
   )(InventoryCategoryContainer),
