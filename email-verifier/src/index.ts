@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 const urlencodedMiddleware = express.urlencoded({
-  extended: true
+  extended: true,
 }) as express.RequestHandler;
 const jsonMiddleware = express.json() as express.RequestHandler;
 
@@ -81,7 +81,9 @@ const { PORT } = process.env;
 
 app.listen(PORT, async () => {
   await connect();
-  initRedis();
+  const redisClient = initRedis((callback) => {
+    debugBase('Redis client is connectedd');
+  });
   debugBase(`Email verifier server is running on port ${PORT}`);
 });
 

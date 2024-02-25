@@ -4,13 +4,15 @@ import {
   EMAIL_VALIDATION_STATUSES,
   Emails,
 } from './models';
-import { getArray, setArray } from './redisClient';
-import { debugBase, debugError, sendRequest } from './utils';
+import { popFromQueue, pushToQueue } from './redisClient';
+import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 const { SENDGRID_API_KEY, TRUE_MAIL_API_KEY } = process.env;
+
+const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
 console.log('TRUE_MAIL_API_KEY', TRUE_MAIL_API_KEY);
 
@@ -75,6 +77,11 @@ console.log('SENDGRID_API_KEY', SENDGRID_API_KEY);
 //     throw e;
 //   }
 // };
+
+export const bulkVerification = async (
+  emails: string[],
+  hostname: string,
+) => {};
 
 export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
@@ -144,6 +151,7 @@ export const single = async (email: string, hostname: string) => {
     // console.log('status', response.status);
   } catch (e) {
     debugError(`Error occured during single sendgrid validation ${e.message}`);
+    console.error('email', email);
     throw e;
   }
 
@@ -221,6 +229,16 @@ export const bulk = async (emails: string[], hostname: string) => {
     debugBase(`Sending  unverified email to truemail`);
 
     // return bulkTrueMail(unverifiedEmails, hostname);
+
+    unverifiedEmails.forEach((email) => {
+      if (!isEmailValid(email)) {
+        return;
+      }
+
+      enqueueEmail(email, hostname);
+    });
+
+    await processQueue(hostname);
   }
 };
 
@@ -290,3 +308,50 @@ export const bulk = async (emails: string[], hostname: string) => {
 //     }
 //   });
 // };
+
+const enqueueEmail = async (email: string, hostname: string) => {
+  const doc = { email, hostname };
+  // redis.rpush(REDIS_QUEUE_KEY, JSON.stringify(doc));
+  pushToQueue(REDIS_QUEUE_KEY, JSON.stringify(doc));
+};
+
+const dequeueEmail = async () => {
+  // return redis.lpop(REDIS_QUEUE_KEY);
+  return popFromQueue(REDIS_QUEUE_KEY);
+};
+
+const sleep = (ms: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
+
+const processQueue = async (hostname: string) => {
+  const inverval = 1000;
+
+  while (true) {
+    const result: any = await dequeueEmail();
+
+    if (!result) {
+      break;
+    }
+
+    const obj = JSON.parse(result);
+
+    if (obj.hostname !== hostname) {
+      continue;
+    }
+
+    const { email } = obj;
+
+    try {
+      await single(email, hostname);
+    } catch (e) {
+      debugError(
+        `Error occured during single email validation ${e.message}, email: ${email}`,
+      );
+    }
+
+    await sleep(inverval);
+  }
+};
