@@ -4,7 +4,8 @@ import { field } from './utils';
 export interface SyncedDeal {
   dealId: string;
   syncId: string;
-  syncedCustomerId: string;
+  syncedContactType: string;
+  syncedContactTypeId: string;
 }
 
 export interface SyncedDealDocuments extends SyncedDeal, Document {
@@ -15,5 +16,6 @@ export const syncedDealSchema = new Schema({
   _id: field({ pkey: true }),
   dealId: field({ type: String, label: 'Deal Id' }),
   syncId: field({ type: String, label: 'Sync Id' }),
-  syncedCustomerId: field({ type: String, label: 'Customer Id' })
+  syncedContactTypeId: field({ type: String, label: 'Customer Id' }),
+  syncedContactType: field({ type: String, label: 'Contact Type' }),
 });

@@ -8,6 +8,34 @@ import { IModels } from '../connectionResolver';
 import { SyncedDealDocuments, syncedDealSchema } from './definitions//deals';
 import { ISyncDocument } from './definitions/sync';
 
+const generateSyncedDealsDocs = ({
+  syncId,
+  dealId,
+  customerIds,
+  companyIds,
+}) => {
+  const contactIds = customerIds || companyIds || [];
+
+  let comtactType = '';
+  if (customerIds) {
+    comtactType = 'customer';
+  }
+  if (companyIds) {
+    comtactType = 'company';
+  }
+
+  if (!comtactType) {
+    return [];
+  }
+
+  return contactIds.map((contactId) => ({
+    syncedContactTypeId: contactId,
+    syncedContactType: comtactType,
+    dealId,
+    syncId,
+  }));
+};
+
 export interface ISyncDealModel extends Model<SyncedDealDocuments> {
   addDeal(syncId: any, doc: any): Promise<SyncedDealDocuments>;
   dealDetail(
@@ -52,18 +80,19 @@ export const loadSyncDealClass = (models: IModels, subdomain: string) => {
       }
 
       const { dealsAdd } = data;
-      const { customerIds } = doc;
+      const { customerIds, companyIds } = doc;
 
       if (!dealsAdd) {
         throw new Error('Something went wrong');
       }
 
       await models.SyncedDeals.insertMany(
-        customerIds.map((customerId) => ({
-          syncedCustomerId: customerId,
-          dealId: dealsAdd._id,
+        generateSyncedDealsDocs({
           syncId: sync._id,
-        })),
+          dealId: dealsAdd._id,
+          customerIds,
+          companyIds,
+        }),
       );
       return dealsAdd;
     }

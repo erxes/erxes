@@ -1,25 +1,46 @@
-import fetch from 'node-fetch';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import { CUSTOMER_STATUSES } from '../common/constants';
+import fetch from 'node-fetch';
 import {
+  companiesAdd as companiesAddMutation,
+  companiesQuery,
+  companyDetail as companyDetailQuery,
+} from '../common/companyQueries';
+import { CONTACT_STATUSES } from '../common/constants';
+import {
+  customersAdd as customerAddMutation,
   customerDetail as customerDetailQuery,
-  customersAdd as customersAddQueries,
+  customersQuery,
 } from '../common/customerQueries';
 import { IModels } from '../connectionResolver';
 import { sendContactsMessage } from '../messageBroker';
-import { ISyncDocument, syncSaasSchema } from './definitions/sync';
-import { validateDoc } from './utils';
+import {
+  ISyncDocument,
+  ISyncedContactsDocument,
+  syncSaasSchema,
+} from './definitions/sync';
+import {
+  fetchDataFromSaas,
+  getCompanyDoc,
+  getCustomerDoc,
+  validateDoc,
+} from './utils';
 
 export interface ISyncModel extends Model<ISyncDocument> {
   addSync(doc: any, user: any): Promise<ISyncDocument>;
   editSync(_id: string, doc: any): Promise<ISyncDocument>;
   removeSync(_id: string): Promise<ISyncDocument>;
-  getSyncedSaas({ subdomain, customerId }, mainSubDomain): Promise<any>;
+  getSyncedSaas({ subdomain, customerId }): Promise<any>;
   getCustomerDoc(customer: any): Promise<any>;
+  searchContactFromSaas(
+    syncId: string,
+    email: string,
+    contactType: string,
+  ): Promise<any>;
+  syncSaasContact(params: any): Promise<ISyncedContactsDocument>;
 }
 
-export const loadSyncClass = (models: IModels, subdomain: string) => {
+export const loadSyncClass = (models: IModels, mainSubdomain: string) => {
   class Sync {
     public static async addSync(doc: any, user: IUserDocument) {
       try {
@@ -76,15 +97,12 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find sync');
       }
 
-      await models.SyncedCustomers.deleteMany({ syncId: _id });
+      await models.SyncedContacts.deleteMany({ syncId: _id });
 
       return await models.Sync.findByIdAndDelete(_id);
     }
 
-    public static async getSyncedSaas(
-      { subdomain, customerId },
-      mainSubDomain,
-    ) {
+    public static async getSyncedSaas({ subdomain, customerId, companyId }) {
       const sync = await models.Sync.findOne({ subdomain }).lean();
 
       if (!sync) {
@@ -95,162 +113,226 @@ export const loadSyncClass = (models: IModels, subdomain: string) => {
         throw new Error('This sync expired');
       }
 
-      const isCustomerExistsSaas = await this.checkSaasCustomer(
-        sync.subdomain,
-        sync.appToken,
-        customerId,
-      );
-      const syncedCustomer = await models.SyncedCustomers.findOne({
-        syncId: sync?._id,
-        customerId,
+      if (customerId && companyId) {
+        throw new Error('Please provide a companyId or customerId');
+      }
+
+      let selector;
+
+      if (customerId) {
+        selector = { contactType: 'customer', contactTypeId: customerId };
+      }
+
+      if (companyId) {
+        selector = { contactType: 'company', contactTypeId: companyId };
+      }
+
+      return this.syncContact(sync, selector);
+    }
+
+    static async syncContact(sync, selector) {
+      const { contactType, contactTypeId } = selector;
+
+      const syncedContact = await models.SyncedContacts.findOne({
+        syncId: sync._id,
+        ...selector,
+      });
+
+      const isContactExistsSaas = await this.checkSaasContact({
+        sync,
+        syncedContact,
+        contactType,
       });
 
       const isApproved = !!sync?.checkApproved
-        ? syncedCustomer?.status === CUSTOMER_STATUSES.APPROVED
+        ? syncedContact?.status === CONTACT_STATUSES.APPROVED
         : true;
 
-      if (isCustomerExistsSaas && isApproved) {
-        sync.customerId = customerId;
+      if (isContactExistsSaas && isApproved) {
+        sync.contactTypeId = contactTypeId;
 
         return sync;
       }
 
       if (
-        isCustomerExistsSaas &&
-        syncedCustomer?.status === CUSTOMER_STATUSES.WAITING
+        isContactExistsSaas &&
+        syncedContact?.status === CONTACT_STATUSES.WAITING
       ) {
         throw new Error('Customer not approved in synced saas');
       }
 
-      const customer = await sendContactsMessage({
-        subdomain: mainSubDomain,
-        action: 'customers.findOne',
-        data: { _id: customerId },
+      let action: string = '';
+      if (contactType === 'company') {
+        action = 'companies.findOne';
+      }
+      if (contactType === 'customer') {
+        action = 'customers.findOne';
+      }
+
+      const contact = await sendContactsMessage({
+        subdomain: mainSubdomain,
+        action,
+        data: { _id: contactTypeId },
         isRPC: true,
         defaultValue: null,
       });
 
-      if (!customer) {
-        throw new Error('Cannot find customer');
+      if (!contact) {
+        throw new Error('Cannot find contact');
       }
 
-      const newCustomer = await this.createCustomerToSaas(sync, customer);
-
-      if (!newCustomer) {
-        throw new Error('Somthing went wrong');
-      }
-
-      await models.SyncedCustomers.create({
-        syncId: sync._id,
-        customerId: customer._id,
-        syncedCustomerId: newCustomer._id,
-        status: !!sync?.checkApproved ? CUSTOMER_STATUSES.WAITING : undefined,
-      });
+      await this.createContactToSaas({ sync, contact, contactType });
 
       if (!!sync?.checkApproved) {
         return {
-          subdomain,
-          customerId: customer._id,
+          subdomain: sync.subdomain,
+          contactType,
+          contactTypeId: contact._id,
         };
       }
 
-      const updatedSync = await models.Sync.findOne({ _id: sync._id }).lean();
-
-      updatedSync.customerId = customer._id;
-      return updatedSync;
+      sync.contactTypeId = contact._id;
+      return sync;
     }
 
-    public static async getCustomerDoc(customer) {
-      let customerDoc = {};
+    static async createContactToSaas({ sync, contact, contactType }) {
+      let data: any = {
+        subdomain: sync.subdomain,
+        appToken: sync.appToken,
+      };
 
-      for (const key of Object.keys(customer)) {
-        if (
-          [
-            'state',
-            'sex',
-            'emails',
-            'emailValidationStatus',
-            'phones',
-            'phoneValidationStatus',
-            'status',
-            'hasAuthority',
-            'doNotDisturb',
-            'isSubscribed',
-            'relatedIntegrationIds',
-            'links',
-            'deviceTokens',
-            'firstName',
-            'lastName',
-            'middleName',
-            'primaryEmail',
-          ].includes(key)
-        ) {
-          customerDoc[key] = customer[key];
-        }
+      if (contactType === 'customer') {
+        data = {
+          ...data,
+          query: customerAddMutation,
+          variables: { ...(await getCustomerDoc(contact)) },
+          name: 'customersAdd',
+        };
       }
 
-      return customerDoc;
-    }
-
-    public static async createCustomerToSaas(sync, customer) {
-      const { data, errors } = await fetch(
-        `https://${sync.subdomain}.app.erxes.io/gateway/graphql`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'erxes-app-token': sync.appToken,
-          },
-          body: JSON.stringify({
-            query: customersAddQueries,
-            variables: { ...(await this.getCustomerDoc(customer)) },
-          }),
-        },
-      ).then((res) => res.json());
-
-      if (errors) {
-        throw new Error(errors[0]?.message);
+      if (contactType === 'company') {
+        data = {
+          ...data,
+          query: companiesAddMutation,
+          variables: { ...(await getCompanyDoc(contact)) },
+          name: 'companiesAdd',
+        };
       }
 
-      const newCustomer = data?.customersAdd ? data?.customersAdd : null;
+      const newContact = await fetchDataFromSaas(data);
 
-      return newCustomer;
-    }
+      if (!newContact) {
+        throw new Error('Error occurred while creating contact to saas');
+      }
 
-    public static async checkSaasCustomer(subdomain, appToken, customerId) {
-      const sync = await models.Sync.findOne({ subdomain });
-
-      const syncedCustomer = await models.SyncedCustomers.findOne({
-        syncId: sync?._id,
-        customerId,
+      await models.SyncedContacts.create({
+        syncId: sync._id,
+        contactType,
+        contactTypeId: contact._id,
+        syncedContactTypeId: newContact._id,
+        status: !!sync?.checkApproved ? CONTACT_STATUSES.WAITING : undefined,
       });
+    }
 
-      if (!syncedCustomer) {
+    static async checkSaasContact({ sync, syncedContact, contactType }) {
+      const { subdomain, appToken } = sync;
+
+      if (!syncedContact?.syncedContactTypeId) {
         return false;
       }
 
-      const { data, errors } = await fetch(
-        `https://${subdomain}.app.erxes.io/gateway/graphql`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'erxes-app-token': appToken,
-          },
-          body: JSON.stringify({
-            query: customerDetailQuery,
-            variables: { _id: syncedCustomer?.syncedCustomerId },
-          }),
-        },
-      ).then((res) => res.json());
+      const data: any = {
+        variables: { _id: syncedContact?.syncedContactTypeId },
+      };
 
-      if (errors) {
-        throw new Error(errors[0]?.message);
+      if (contactType === 'customer') {
+        data.query = customerDetailQuery;
+        data.name = 'customerDetail';
       }
 
-      const { customerDetail } = data;
+      if (contactType === 'company') {
+        data.query = companyDetailQuery;
+        data.name = 'companyDetail';
+      }
 
-      return !!customerDetail;
+      const contactDetail = await fetchDataFromSaas({
+        subdomain,
+        appToken,
+        ...data,
+      });
+
+      return !!contactDetail;
+    }
+
+    public static async searchContactFromSaas(
+      syncId: string,
+      email: string,
+      contactType: string,
+    ) {
+      const sync = await models.Sync.findOne({ _id: syncId });
+
+      if (!sync) {
+        throw new Error('Not found sync');
+      }
+
+      let data: any = {};
+
+      if (contactType === 'customer') {
+        data = { query: customersQuery, name: 'customers' };
+      }
+      if (contactType === 'company') {
+        data = { query: companiesQuery, name: 'companies' };
+      }
+
+      const contacts = await fetchDataFromSaas({
+        subdomain: sync.subdomain,
+        appToken: sync.appToken,
+        ...data,
+        variables: { searchValue: email },
+      });
+
+      return contacts;
+    }
+
+    public static async syncSaasContact(params) {
+      const { syncId, contactTypeId, contactType, syncContactId } = params;
+
+      let action: string = '';
+
+      if (contactType === 'customer') {
+        action = 'customers.findOne';
+      }
+
+      if (contactType === 'company') {
+        action = 'companies.findOne';
+      }
+
+      if (!action) {
+        throw new Error('Unsupported contact type');
+      }
+
+      const contact = await sendContactsMessage({
+        subdomain: mainSubdomain,
+        action,
+        data: {
+          _id: contactTypeId,
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+
+      if (!contact) {
+        throw new Error('Not found contact');
+      }
+
+      const syncedContacts = await models.SyncedContacts.create({
+        syncId,
+        contactType,
+        contactTypeId: contact._id,
+        syncedContactTypeId: syncContactId,
+      });
+
+      return syncedContacts;
     }
   }
 

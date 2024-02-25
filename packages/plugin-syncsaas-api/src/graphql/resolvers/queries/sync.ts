@@ -12,8 +12,8 @@ const generateFilters = async (params: any, models: IModels) => {
       $or: [
         { name: searchValue },
         { subdomain: searchValue },
-        { appToken: searchValue }
-      ]
+        { appToken: searchValue },
+      ],
     };
   }
 
@@ -29,24 +29,27 @@ const generateFilters = async (params: any, models: IModels) => {
   }
 
   if (params?.customerId) {
-    const syncIds = await models.SyncedCustomers.find({
-      customerId: params?.customerId
+    const syncIds = await models.SyncedContacts.find({
+      contactType: 'customer',
+      contactTypeId: params?.customerId,
     }).distinct('syncId');
 
     filter._id = { $in: syncIds };
   }
 
   if (params?.customerIds) {
-    const syncIds = await models.SyncedCustomers.find({
-      customerId: { $in: params?.customerIds }
+    const syncIds = await models.SyncedContacts.find({
+      contactType: 'customer',
+      contactTypeId: { $in: params?.customerIds },
     }).distinct('syncId');
 
     filter._id = { $in: syncIds };
   }
 
   if (params?.excludeCustomerIds) {
-    const syncIds = await models.SyncedCustomers.find({
-      customerId: { $in: params?.excludeCustomerIds }
+    const syncIds = await models.SyncedContacts.find({
+      contactType: 'customer',
+      contactTypeId: { $in: params?.excludeCustomerIds },
     }).distinct('syncId');
 
     filter._id = { $nin: syncIds };
@@ -68,9 +71,10 @@ const generateFilters = async (params: any, models: IModels) => {
     if (!!params?.customerIds?.length)
       customerIds = [...customerIds, params.customerIds];
 
-    const syncIds = await models.SyncedCustomers.find({
-      customerId: { $in: customerIds },
-      status: params.status
+    const syncIds = await models.SyncedContacts.find({
+      contactType: 'customer',
+      contactTypeId: { $in: customerIds },
+      status: params.status,
     }).distinct('syncId');
 
     filter._id = { $in: syncIds };
@@ -97,9 +101,20 @@ const syncQueries = {
     }
     return sync;
   },
-  async getSyncedSaas(_root, args, { models, subdomain }: IContext) {
-    return await models.Sync.getSyncedSaas(args, subdomain);
-  }
+  async getSyncedSaas(_root, args, { models }: IContext) {
+    return await models.Sync.getSyncedSaas(args);
+  },
+  async searchContactFromSaas(
+    _root,
+    { syncId, email, contactType },
+    { models }: IContext,
+  ) {
+    if (!syncId || !email || !contactType) {
+      throw new Error('Please provide a sync ID or email address');
+    }
+
+    return await models.Sync.searchContactFromSaas(syncId, email, contactType);
+  },
 };
 
 export default syncQueries;

@@ -1,21 +1,6 @@
-import {
-  MessageArgs,
-  MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
-import { afterMutationHandlers } from './afterMutations';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {
-  consumeQueue('syncsaas:afterMutation', async ({ subdomain, data }) => {
-    try {
-      await afterMutationHandlers(subdomain, data);
-      return;
-    } catch (e) {
-      console.log('Error in after mutation handler', e);
-    }
-  });
-};
+export const initBroker = async () => {};
 
 export const sendContactsMessage = (
   args: MessageArgsOmitService,

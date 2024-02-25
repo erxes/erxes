@@ -4,7 +4,6 @@ import typeDefs from './graphql/typeDefs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
-import afterMutations from './afterMutations';
 import { postHandler } from './postHandler';
 
 export let mainDb;
@@ -28,16 +27,14 @@ export default {
     return context;
   },
 
-  meta: {
-    afterMutations
-  },
+  meta: {},
   postHandlers: [{ path: `/handleSync`, method: postHandler }],
 
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker();
 
     debug = options.debug;
-  }
+  },
 };

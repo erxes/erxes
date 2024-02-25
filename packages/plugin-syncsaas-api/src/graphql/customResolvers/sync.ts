@@ -1,6 +1,53 @@
 import fetch from 'node-fetch';
 import { IContext } from '../../connectionResolver';
 
+const contactsGenerateFilter = (variableValues) => {
+  const {
+    customerId,
+    customerIds,
+    companyId,
+    companyIds,
+    status,
+    excludeCustomerIds,
+    excludeCompanyIds,
+  } = variableValues || {};
+
+  let selector: any = {};
+
+  if (customerId) {
+    selector.contactTypeId = customerId;
+  }
+
+  if (customerIds) {
+    selector.contactTypeId = { $in: customerIds };
+  }
+  if (companyId) {
+    selector.contactTypeId = companyId;
+  }
+
+  if (companyIds) {
+    selector.contactTypeId = { $in: companyIds };
+  }
+
+  if (status) {
+    selector.status = status;
+  }
+
+  if (!!excludeCustomerIds?.length) {
+    selector.contentTypeId = {
+      $nin: excludeCustomerIds,
+      contentType: 'customer',
+    };
+  }
+
+  if (!!excludeCompanyIds?.length) {
+    selector.contentTypeId = {
+      $nin: excludeCompanyIds,
+      contentType: 'company',
+    };
+  }
+};
+
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.Sync.findOne({ _id });
@@ -28,26 +75,12 @@ export default {
     return response ? response : null;
   },
 
-  async customersDetail(parent, args, { models }: IContext, info) {
+  async contactsDetail(parent, args, { models }: IContext, info) {
     const { variableValues } = info;
+    let selector = contactsGenerateFilter(variableValues);
 
-    const { customerId, customerIds, status, excludeCustomerIds } =
-      variableValues || {};
+    const syncedContact = await models.SyncedContacts.find(selector);
 
-    let selector: any = {
-      $or: [{ customerId }, { customerId: { $in: customerIds } }],
-    };
-
-    if (status) {
-      selector.status = status;
-    }
-
-    if (!!excludeCustomerIds?.length) {
-      selector.customerId = {
-        $nin: excludeCustomerIds,
-      };
-    }
-
-    return await models.SyncedCustomers.find(selector);
+    return syncedContact;
   },
 };

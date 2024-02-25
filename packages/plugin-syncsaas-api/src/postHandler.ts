@@ -1,11 +1,11 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { CUSTOMER_STATUSES } from './common/constants';
+import { CONTACT_STATUSES } from './common/constants';
 import { generateModels } from './connectionResolver';
 import { sendCustomerMobileNotification } from './utils';
 import { sendCPMessage } from './messageBroker';
 
-const sendErrorMessage = messsage => {
+const sendErrorMessage = (messsage) => {
   return { message: messsage };
 };
 
@@ -33,7 +33,7 @@ export const postHandler = async (req, res) => {
   res.send(sendErrorMessage('sendErrorMessage'));
 };
 
-const generateIds = value => {
+const generateIds = (value) => {
   if (value.includes(', ')) {
     return value.split(', ');
   }
@@ -56,32 +56,37 @@ const customerRequest = async (subdomain, data, triggerType) => {
     return 'no data';
   }
 
-  let syncCustomerIds: any = {};
+  let syncContactIds: any = {};
 
   if (triggerType.includes('cards')) {
-    const { customers } = data;
+    const { customers, companies } = data;
 
-    syncCustomerIds = generateIds(customers);
+    if (companies) {
+      syncContactIds = generateIds(companies);
+    }
+    if (customers) {
+      syncContactIds = generateIds(customers);
+    }
   }
 
   if (triggerType.includes('contacts')) {
-    syncCustomerIds = data?._id ? [data._id] : [];
+    syncContactIds = data?._id ? [data._id] : [];
   }
 
-  const customersSyncs = await models.SyncedCustomers.find({
-    syncedCustomerId: { $in: syncCustomerIds }
+  const contactsSyncs = await models.SyncedContacts.find({
+    syncedContactId: { $in: syncContactIds },
   });
 
-  if (!!customersSyncs?.length) {
-    const customerIds = customersSyncs.map(
-      customerSync => customerSync.customerId
+  if (!!contactsSyncs?.length) {
+    const contactIds = contactsSyncs.map(
+      (contactSync) => contactSync.contactTypeId,
     );
 
     const syncs = await models.Sync.find({
-      _id: customersSyncs.map(customersSync => customersSync.syncId)
+      _id: contactsSyncs.map((customersSync) => customersSync.syncId),
     });
 
-    const syncNames = syncs.map(sync => sync.name).join(',');
+    const syncNames = syncs.map((sync) => sync.name).join(',');
 
     try {
       await sendCPMessage({
@@ -89,32 +94,35 @@ const customerRequest = async (subdomain, data, triggerType) => {
         action: 'sendNotification',
         data: {
           title: `Customer Approved`,
-          receivers: customerIds,
+          receivers: contactIds,
           notifType: 'system',
           content: `You approved on ${syncNames}`,
-          eventData: customersSyncs.map(({ customerId, syncId }) => {
-            const syncDetail = syncs.find(sync => sync._id === syncId);
-            return {
-              customerId,
-              subdomain: syncDetail?.subdomain,
-              name: syncDetail?.name
-            };
-          }),
-          isMobile: true
-        }
+          eventData: contactsSyncs.map(
+            ({ contactType, contactTypeId, syncId }) => {
+              const syncDetail = syncs.find((sync) => sync._id === syncId);
+              return {
+                contactType,
+                contactTypeId,
+                subdomain: syncDetail?.subdomain,
+                name: syncDetail?.name,
+              };
+            },
+          ),
+          isMobile: true,
+        },
       });
     } catch (error) {
       debugError(
-        `Error occurred during send customer notification: ${error.message}`
+        `Error occurred during send customer notification: ${error.message}`,
       );
     }
   }
 
-  await models.SyncedCustomers.updateMany(
+  await models.SyncedContacts.updateMany(
     {
-      _id: { $in: customersSyncs.map(customersSync => customersSync._id) }
+      _id: { $in: contactsSyncs.map((customersSync) => customersSync._id) },
     },
-    { $set: { status: CUSTOMER_STATUSES.APPROVED } }
+    { $set: { status: CONTACT_STATUSES.APPROVED } },
   );
 
   return { message: 'done' };
@@ -140,18 +148,23 @@ const dealStageChange = async (subdomain, data, triggerType) => {
 
   const dealDetail = await models.SyncedDeals.dealDetail(sync, data?._id);
 
-  const customerIds = await models.SyncedCustomers.find({
-    syncedCustomerId: syncedDeal.syncedCustomerId
+  const contactIds = await models.SyncedContacts.find({
+    contactTypeId: syncedDeal.syncedContactTypeId,
+    contactType: syncedDeal.syncedContactType,
   }).distinct('customerId');
 
   const cpUsers = await sendCPMessage({
     subdomain,
     action: 'clientPortalUsers.find',
     data: {
-      erxesCustomerId: { $in: customerIds }
+      $or: [
+        { erxesCustomerId: { $in: contactIds } },
+        { erxesCompanyId: { $in: contactIds } },
+      ],
+      type: syncedDeal.syncedContactType,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   try {
@@ -160,21 +173,21 @@ const dealStageChange = async (subdomain, data, triggerType) => {
       action: 'sendNotification',
       data: {
         title: `${triggerType.split(':')[1]} changed`,
-        receivers: cpUsers.map(cpUser => cpUser._id),
+        receivers: cpUsers.map((cpUser) => cpUser._id),
         notifType: 'system',
         content: `${dealDetail?.name} moved to ${dealDetail?.stage?.name} on ${sync.subdomain}`,
         eventData: {
           appToken: sync?.appToken,
           subdomain: sync?.subdomain,
-          dealId: dealDetail._id
+          dealId: dealDetail._id,
         },
-        isMobile: true
-      }
+        isMobile: true,
+      },
     });
     return 'done';
   } catch (error) {
     debugError(
-      `Error occurred during send customer notification: ${error.message}`
+      `Error occurred during send customer notification: ${error.message}`,
     );
   }
 };

@@ -15,7 +15,10 @@ const syncMutations = {
   },
   async syncSaasDealsAdd(_root, { syncId, dealData }, { models }: IContext) {
     return await models.SyncedDeals.addDeal(syncId, dealData);
-  }
+  },
+  async syncSaasContact(_root, params, { models }: IContext) {
+    return await models.Sync.syncSaasContact(params);
+  },
 };
 
 export default syncMutations;

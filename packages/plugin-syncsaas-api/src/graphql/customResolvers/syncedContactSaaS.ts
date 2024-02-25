@@ -22,25 +22,32 @@ export default {
     return response ? response : null;
   },
 
-  async syncedCustomerId(
-    { _id, syncId, customerId },
+  async syncedContactId(
+    { _id, syncId, contactTypeId },
     args,
     { models }: IContext,
   ) {
-    let selector = { syncId: _id, customerId };
+    let selector = { syncId: _id, contactTypeId };
 
     if (syncId) {
       selector.syncId = syncId;
     }
 
-    const syncedCustomer = await models.SyncedCustomers.findOne(selector);
+    const syncedContact = await models.SyncedContacts.findOne(selector);
 
-    return syncedCustomer ? syncedCustomer.syncedCustomerId : null;
+    return syncedContact ? syncedContact.syncedContactTypeId : null;
   },
 
-  async customerStatus({ customerId }, {}, { models }: IContext) {
-    const syncedCustomer = await models.SyncedCustomers.findOne({ customerId });
+  async contactStatus(
+    { contactType, contactTypeId },
+    {},
+    { models }: IContext,
+  ) {
+    const syncedContact = await models.SyncedContacts.findOne({
+      contactTypeId,
+      contactType,
+    });
 
-    return syncedCustomer ? syncedCustomer?.status : null;
+    return syncedContact ? syncedContact?.status : null;
   },
 };
