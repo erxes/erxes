@@ -37,9 +37,12 @@ const CustomersContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const setSyncStatusTrue = (data: any, products: any, action: string) => {
+  const setSyncStatusTrue = (data: any, customers: any, action: string) => {
+    console.log(data[action].items, 'data[action].items');
+    console.log(customers, 'customers');
+
     data[action].items = data[action].items.map((i) => {
-      if (products.find((c) => c.code === i.code)) {
+      if (customers.find((c) => c.No === i.No)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
