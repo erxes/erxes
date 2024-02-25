@@ -1,6 +1,6 @@
 import { FontSelectWrapper } from './styles';
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
@@ -9,7 +9,7 @@ export type SelectProps = {
   label: string | number;
 };
 
-const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<string | number> = [
+const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<any> = [
   'default',
   '8',
   '9',
@@ -89,18 +89,17 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
 
   return (
     <FontSelectWrapper $toolbarPlacement={toolbarPlacement}>
-      {/* <Select
-        autosize={true}
+      <Select
         placeholder="Size"
-        multi={false}
-        value={currentFontSize}
-        onChange={(val: SelectProps) => setSize(val.value)}
+        isMulti={false}
+        value={currentFontSize || ''}
+        onChange={(val: any) => setSize(val.value)}
         options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
           value: size,
           label: size,
         }))}
-        disabled={isSourceEnabled}
-      /> */}
+        isDisabled={isSourceEnabled}
+      />
     </FontSelectWrapper>
   );
 };
