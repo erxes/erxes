@@ -49,9 +49,10 @@ const InventoryCategoryContainer = (props: FinalProps) => {
 
   const setSyncStatusTrue = (data: any, categories: any, action: string) => {
     data[action].items = data[action].items.map((i) => {
-      if (categories.find((c) => c.code === i.code)) {
+      if (categories.find((c) => c.Code === i.Code)) {
         const temp = i;
         temp.syncStatus = true;
+
         return temp;
       }
       return i;
