@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { models } from '../../../connectionResolver';
 const productreviewQueries = {
@@ -28,7 +29,7 @@ const productreviewQueries = {
     params,
     { models: { ProductReview } }: IContext,
   ) => {
-    const { customerId, productIds, skip, limit } = params;
+    const { customerId, productIds, ...pagintationArgs } = params;
 
     const filter: any = {};
 
@@ -37,12 +38,10 @@ const productreviewQueries = {
     }
 
     if (productIds) {
-      filter.productId = productIds;
+      filter.productId = { $in: productIds };
     }
 
-    return ProductReview.find(filter)
-      .skip(skip || 0)
-      .limit(limit || 20);
+    return paginate(ProductReview.find(filter), pagintationArgs);
   },
 };
 export default productreviewQueries;
