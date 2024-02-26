@@ -142,22 +142,16 @@ export const RichTextEditorHighlightControl = () => {
   );
 
   return (
-    <Popover
-    // ref={(overlayTrigger) => {
-    //   overLayRef = overlayTrigger;
-    // }}
-    // trigger="click"
-    // rootClose={true}
-    // placement="bottom"
-    // overlay={renderColorPickerOverlay()}
-    >
-      <Popover.Button>{renderColorPickerOverlay}</Popover.Button>
-      <RichTextEditorControlBase
-        icon={LinkIcon}
-        aria-label={labels.highlightControlLabel}
-        title={labels.highlightControlLabel}
-        active={isActive}
-      />
+    <Popover id="background-color-picker">
+      <Popover.Button>
+        <RichTextEditorControlBase
+          icon={LinkIcon}
+          aria-label={labels.highlightControlLabel}
+          title={labels.highlightControlLabel}
+          active={isActive}
+        />
+      </Popover.Button>
+      <Popover.Panel>{renderColorPickerOverlay()}</Popover.Panel>
     </Popover>
   );
 };

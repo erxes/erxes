@@ -1,9 +1,9 @@
 import React, { ReactNode, useRef } from 'react';
 
 import { ControlsGroupWrapper } from './styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import { Menu } from '@headlessui/react';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
+
 export interface IRichTextEditorControlsGroupProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -39,25 +39,24 @@ export const RichTextEditorControlsGroup = (
         $isActive={isActive}
         $toolbarPlacement={toolbarPlacement}
       >
-        <Dropdown>
-          <Dropdown.Toggle
-            as="span"
+        <Menu>
+          <Menu.Button
             id="rte-controls-group-dropdown-button"
             disabled={isSourceEnabled}
           >
             {firstChild}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
+          </Menu.Button>
+          <Menu.Items>
             {React.Children.map(childrenArray, (child, index) => {
               return (
                 /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
-                <Dropdown.Item as="span" key={`${child.toString()}-${index}`}>
+                <Menu.Item as="span" key={`${child.toString()}-${index}`}>
                   {child}
-                </Dropdown.Item>
+                </Menu.Item>
               );
             })}
-          </Dropdown.Menu>
-        </Dropdown>
+          </Menu.Items>
+        </Menu>
       </ControlsGroupWrapper>
     );
   }
