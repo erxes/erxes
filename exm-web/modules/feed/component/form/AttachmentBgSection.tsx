@@ -43,7 +43,20 @@ export default function AttachmentBgSection({
   const activeStyle = "border-[1.5px] !border-primary"
 
   useEffect(() => {
-    setBackground(customColor ? { type: "color", item: `#${customColor}` } : bg)
+    if (bg.color === "") {
+      setBackground(null)
+    }
+
+    setBackground(
+      customColor
+        ? {
+            type: "color",
+            color: `#${customColor}`,
+            url: "noUrl",
+            name: "custom color",
+          }
+        : bg
+    )
   }, [bg, customColor])
 
   const onClickHandler = (type: string, item: string) => {
