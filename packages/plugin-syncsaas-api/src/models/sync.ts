@@ -30,7 +30,7 @@ export interface ISyncModel extends Model<ISyncDocument> {
   addSync(doc: any, user: any): Promise<ISyncDocument>;
   editSync(_id: string, doc: any): Promise<ISyncDocument>;
   removeSync(_id: string): Promise<ISyncDocument>;
-  getSyncedSaas({ subdomain, customerId }): Promise<any>;
+  getSyncedSaas({ subdomain, customerId, companyId }): Promise<any>;
   getCustomerDoc(customer: any): Promise<any>;
   searchContactFromSaas(
     syncId: string,
