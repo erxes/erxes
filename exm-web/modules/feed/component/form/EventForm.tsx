@@ -4,6 +4,7 @@ import "react-datetime-picker/dist/DateTimePicker.css"
 import "react-calendar/dist/Calendar.css"
 import "react-clock/dist/Clock.css"
 import { useEffect, useState } from "react"
+import { IAttachment } from "@/modules/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -32,14 +33,12 @@ import {
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
-import DragNDrop from "@/components/DragNDrop"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
-import FormAttachments from "./FormAttachments"
-import FormImages from "./FormImages"
+import AttachmentBgSection from "./AttachmentBgSection"
 
 dayjs.extend(relativeTime)
 
@@ -118,6 +117,7 @@ const EventForm = ({
   const [success, setSuccess] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [background, setBackground] = useState({} as IAttachment)
 
   const callBack = (result: string) => {
     if (result === "success") {
@@ -354,25 +354,16 @@ const EventForm = ({
       <>
         <div className="flex justify-center gap-6 mb-6 h-[calc(100%-65px)]">
           <div className="max-w-[566px] border border-exm rounded-md w-full h-full">
-            <div className="overflow-auto h-[60%] px-4 pt-4">
-              {uploading && <Loader className="pb-4" />}
-              <FormImages images={images} setImage={setImage} />
-              <FormAttachments
-                attachments={attachments || []}
-                setAttachments={setAttachments}
-                type="form"
-              />
-            </div>
-
-            <div className="flex h-[40%] border-t border-exm p-4">
-              <DragNDrop
-                setAttachments={setAttachments}
-                setImage={setImage}
-                className="w-full h-full"
-                setUploading={setUploading}
-                defaultFileList={images.concat(attachments)}
-              />
-            </div>
+            <AttachmentBgSection
+              uploading={uploading}
+              images={images}
+              setImage={setImage}
+              attachments={attachments}
+              setAttachments={setAttachments}
+              setUploading={setUploading}
+              setBackground={setBackground}
+              background={background}
+            />
           </div>
           <div className="border border-exm rounded-md max-w-[566px] w-full h-full">
             <div className="px-4 py-3 border-b-2 border-[#0BA5EC] text-[#0BA5EC]">
