@@ -166,14 +166,14 @@ const SideContent = styledTS<{
 
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
-  uppercase?: boolean;
-  bold?: boolean;
+  $uppercase?: boolean;
+  $bold?: boolean;
 }>(styled.div)`
   height: ${dimensions.headerSpacing}px;
   align-items: center;
   border-bottom: 1px solid ${colors.borderPrimary};
-  text-transform: ${(props) => props.uppercase && 'uppercase'};
-  font-weight: ${(props) => (props.bold ? 'bold' : '500')};
+  text-transform: ${(props) => props.$uppercase && 'uppercase'};
+  font-weight: ${(props) => (props.$bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
@@ -183,7 +183,11 @@ const SidebarHeader = styledTS<{
 
 const SidebarTitle = styledTS<{
   children: any;
-}>(styled(styled.h3(SidebarHeader as any)))`
+}>(
+  styled(SidebarHeader).attrs({
+    as: 'h3',
+  }),
+)`
   padding: 0;
   margin: 0px ${dimensions.coreSpacing}px;
   text-transform: uppercase;
@@ -399,7 +403,7 @@ const SectionContainer = styledTS<{ $hasShadow?: boolean }>(styled.div)`
   position: relative;
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${(props) =>
-    props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
+    props.$hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
 
   > div {
     margin-bottom: 0;

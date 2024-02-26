@@ -93,7 +93,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { isSmall } = this.props;
 
     return (
-      <span>
+      <Button size="small" btnStyle="default">
         {isSmall ? (
           <Icon icon="ellipsis-h" />
         ) : (
@@ -101,7 +101,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             {__('Action')} <Icon icon="angle-down" />
           </>
         )}
-      </span>
+      </Button>
     );
   }
 
@@ -117,14 +117,14 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     };
 
     return (
-      <li>
+      <Menu.Item>
         <ModalTrigger
           title="Edit basic info"
           trigger={<a>{__('Edit')}</a>}
           size="lg"
           content={cocType === 'company' ? companyForm : customerForm}
         />
-      </li>
+      </Menu.Item>
     );
   }
 
@@ -224,9 +224,9 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     return (
       <Menu>
         <Menu.Button>{this.renderButton()}</Menu.Button>
-        <Menu.Items>
+        <Menu.Items className="absolute">
           {this.renderEditButton()}
-          <li>
+          <Menu.Item>
             <TargetMerge
               onSave={merge}
               object={coc}
@@ -238,13 +238,13 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
                 cocType === 'customer' ? generateOptions : targetMergeOptions
               }
             />
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <a href="#delete" onClick={onClick}>
               {__('Delete')}
             </a>
-          </li>
-          <li>{this.renderChangeStateForm()}</li>
+          </Menu.Item>
+          <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
         </Menu.Items>
       </Menu>
     );

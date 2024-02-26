@@ -2,7 +2,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { __ } from '@erxes/ui/src/utils';
 import debounce from 'lodash/debounce';
 
@@ -52,30 +52,29 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     const MergeForm = mergeForm;
 
-    return (
-      <MergeForm
-        objects={[object, selectedObject]}
-        save={onSave}
-        closeModal={closeModal}
-      />
-    );
+    return null;
+    // return (
+    //   <MergeForm
+    //     objects={[object, selectedObject]}
+    //     save={onSave}
+    //     closeModal={closeModal}
+    //   />
+    // );
   }
 
   renderSelect() {
     const { objects } = this.state;
     const { generateOptions } = this.props;
 
-    return null;
-
-    // return (
-    //   <Select
-    //     placeholder="Search"
-    //     onInputChange={this.handleSearch}
-    //     onFocus={this.handleSearch.bind(this, '')}
-    //     onChange={this.onSelect}
-    //     options={generateOptions(objects)}
-    //   />
-    // );
+    return (
+      <Select
+        placeholder="Search"
+        onInputChange={this.handleSearch}
+        onFocus={this.handleSearch.bind(this, '')}
+        onChange={this.onSelect}
+        options={generateOptions(objects) as any}
+      />
+    );
   }
 
   render() {

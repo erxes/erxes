@@ -1,15 +1,15 @@
 import * as routerUtils from '../utils/router';
 
+import { Dialog, Transition } from '@headlessui/react';
 import { __, router } from '../utils/core';
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CloseModal } from '../styles/main';
 import Icon from './Icon';
-import { Modal } from 'react-bootstrap';
 import React from 'react';
-import { Transition } from 'react-transition-group';
+// import { Transition } from 'react-transition-group';
 import queryString from 'query-string';
-import { useParams } from 'react-router-dom';
 
 type Props = {
   title: string;
@@ -50,14 +50,14 @@ const ModalTrigger: React.FC<Props> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(propIsOpen || false);
   const [autoOpenKeyState, setAutoOpenKey] = useState('');
-  const history = {} as any;
-  // const navigate = useNavigate();
-  // const location = useLocation();
+  // const history = {} as any;
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
   useEffect(() => {
     if (autoOpenKey !== autoOpenKeyState) {
-      if (routerUtils.checkHashKeyInURL(history, autoOpenKey)) {
+      if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
         setIsOpen(true);
         setAutoOpenKey(autoOpenKey || '');
       }
@@ -73,7 +73,7 @@ const ModalTrigger: React.FC<Props> = ({
       urlIsOpen !== null
     ) {
       if (isOpen && !queryParams.isOpen) {
-        router.setParams(history, {
+        router.setParams(navigate, location, {
           isModalOpen: isOpen,
         });
       }
@@ -102,9 +102,9 @@ const ModalTrigger: React.FC<Props> = ({
     }
 
     return (
-      <Modal.Header closeButton={true} className={paddingContent}>
-        <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
-      </Modal.Header>
+      // <Modal.Header closeButton={true} className={paddingContent}>
+      <Dialog.Title>{ignoreTrans ? title : __(title)}</Dialog.Title>
+      // </Modal.Header>
     );
   };
 
@@ -127,24 +127,29 @@ const ModalTrigger: React.FC<Props> = ({
     <>
       {triggerComponent}
 
-      <Modal
-        dialogClassName={dialogClassName}
-        size={size}
-        show={isOpen}
-        onHide={onHideHandler}
-        backdrop={backDrop}
-        enforceFocus={enforceFocus}
-        onExit={onExit}
-        animation={isAnimate}
-        centered={centered}
-      >
-        {renderHeader()}
-        <Modal.Body className={paddingContent}>
-          <Transition in={isOpen} timeout={300} unmountOnExit={true}>
-            {content({ closeModal })}
-          </Transition>
-        </Modal.Body>
-      </Modal>
+      <Transition appear show={isOpen} as={React.Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={closeModal}
+          // dialogClassName={dialogClassName}
+          // size={size}
+          // show={isOpen}
+          // onHide={onHideHandler}
+          // backdrop={backDrop}
+          // enforceFocus={enforceFocus}
+          // onExit={onExit}
+          // animation={isAnimate}
+          // centered={centered}
+        >
+          <Dialog.Panel className={paddingContent}>
+            {renderHeader()}
+            {/* <Transition in={isOpen} timeout={300} unmountOnExit={true}> */}
+            <Dialog.Description>{content({ closeModal })}</Dialog.Description>
+            {/* </Transition> */}
+          </Dialog.Panel>
+        </Dialog>
+      </Transition>
     </>
   );
 };

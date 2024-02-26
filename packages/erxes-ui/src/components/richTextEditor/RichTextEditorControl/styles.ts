@@ -207,11 +207,15 @@ const FileInputAction = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
 const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
-  .Select {
+  .css-13cymwt-control {
     border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
     height: 1.75rem;
+  }
+  .css-1hb7zxy-IndicatorsContainer {
+    display: none;
   }
   .Select-clear-zone {
     display: none;
@@ -256,7 +260,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
       cursor: default;
     }
   }
-  .Select-menu-outer {
+  .css-1nmdiq5-menu {
     z-index: 100;
     width: max-content;
     .Select-menu {
