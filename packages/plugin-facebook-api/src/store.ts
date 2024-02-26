@@ -244,7 +244,6 @@ export const getOrCreatePost = async (
   }
 
   doc.permalink_url = postUrl;
-  console.log(doc, 'asd)');
   post = await models.PostConversations.create(doc);
 
   return post;
@@ -261,19 +260,18 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
 ) => {
-  const commentConversation = await models.CommentConversation.findOne({
+  const mainConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id,
   });
-  const subConversation = await models.CommentConversation.findOne({
+  const parentConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
-  const sendReply = await models.CommentConversationReply.findOne({
+  const replyConversation = await models.CommentConversationReply.findOne({
     comment_id: commentParams.comment_id,
   });
-  if (commentConversation || sendReply) {
+  if (mainConversation || replyConversation) {
     return;
   }
-
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
@@ -302,11 +300,11 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
   };
-  if (subConversation) {
+  if (parentConversation) {
     await models.CommentConversationReply.create({
       ...doc,
     });
-  } else if (commentConversation === null && subConversation === null) {
+  } else {
     await models.CommentConversation.create({
       ...doc,
     });
@@ -320,7 +318,6 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
-
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -337,8 +334,7 @@ export const getOrCreateComment = async (
       },
       isRPC: true,
     });
-
-    conversation.erxesApiId = apiConversationResponse._id;
+    conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
     await models.CommentConversation.deleteOne({
@@ -346,24 +342,20 @@ export const getOrCreateComment = async (
     });
     throw new Error(error.message);
   }
-
-
   try {
-    console.log(conversation, 'conversation');
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
-        ...conversation.toObject(),
+        ...conversation?.toObject(),
         conversationId: conversation.erxesApiId,
       },
     });
-    console.log('conversationClientMessageInserted');
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          ...conversation.toObject(),
+          ...conversation?.toObject(),
           conversationId: conversation.erxesApiId,
         },
       },
@@ -372,17 +364,6 @@ export const getOrCreateComment = async (
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
     );
-  }
-
-  try {
-    await putCreateLog(
-      models,
-      subdomain,
-      { type: 'comment', newData: conversation, object: conversation },
-      userId,
-    );
-  } catch (e) {
-    throw new Error(e.message);
   }
 };
 
