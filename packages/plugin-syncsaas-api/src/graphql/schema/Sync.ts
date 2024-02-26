@@ -32,9 +32,10 @@ export const types = `
 const commonQueryParams = `
     searchValue:String,
     dateFilters:JSON,
-    customerId:String,
-    customerIds:[String],
-    excludeCustomerIds:[String]
+    contactType:String,
+    contactTypeId:String,
+    contactTypeIds:[String],
+    excludeContactTypeIds:[String]
     categoryId:String,
     status:String,
 `;

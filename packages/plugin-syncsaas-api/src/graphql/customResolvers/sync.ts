@@ -3,49 +3,37 @@ import { IContext } from '../../connectionResolver';
 
 const contactsGenerateFilter = (variableValues) => {
   const {
-    customerId,
-    customerIds,
-    companyId,
-    companyIds,
+    contactTypeId,
+    contactTypeIds,
     status,
-    excludeCustomerIds,
-    excludeCompanyIds,
+    contactType,
+    excludeContactTypeIds,
   } = variableValues || {};
 
   let selector: any = {};
 
-  if (customerId) {
-    selector.contactTypeId = customerId;
+  if (contactType) {
+    selector.contactType = contactType;
   }
 
-  if (customerIds) {
-    selector.contactTypeId = { $in: customerIds };
-  }
-  if (companyId) {
-    selector.contactTypeId = companyId;
+  if (contactTypeId) {
+    selector.contactTypeId = contactTypeId;
   }
 
-  if (companyIds) {
-    selector.contactTypeId = { $in: companyIds };
+  if (contactTypeIds) {
+    selector.contactTypeId = { $in: contactTypeIds };
   }
-
   if (status) {
     selector.status = status;
   }
 
-  if (!!excludeCustomerIds?.length) {
+  if (!!excludeContactTypeIds?.length) {
     selector.contentTypeId = {
-      $nin: excludeCustomerIds,
-      contentType: 'customer',
+      $nin: excludeContactTypeIds,
     };
   }
 
-  if (!!excludeCompanyIds?.length) {
-    selector.contentTypeId = {
-      $nin: excludeCompanyIds,
-      contentType: 'company',
-    };
-  }
+  return selector;
 };
 
 export default {

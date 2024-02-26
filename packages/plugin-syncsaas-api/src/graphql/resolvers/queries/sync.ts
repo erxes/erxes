@@ -28,31 +28,34 @@ const generateFilters = async (params: any, models: IModels) => {
     }
   }
 
-  if (params?.customerId) {
-    const syncIds = await models.SyncedContacts.find({
-      contactType: 'customer',
-      contactTypeId: params?.customerId,
-    }).distinct('syncId');
+  if (params?.contactType) {
+    const contactType = params.contactType;
 
-    filter._id = { $in: syncIds };
-  }
+    if (params.contactTypeId) {
+      const syncIds = await models.SyncedContacts.find({
+        contactType,
+        contactTypeId: params?.contactTypeId,
+      }).distinct('syncId');
 
-  if (params?.customerIds) {
-    const syncIds = await models.SyncedContacts.find({
-      contactType: 'customer',
-      contactTypeId: { $in: params?.customerIds },
-    }).distinct('syncId');
+      filter._id = { $in: syncIds };
+    }
 
-    filter._id = { $in: syncIds };
-  }
+    if (params?.contactTypeIds) {
+      const syncIds = await models.SyncedContacts.find({
+        contactType,
+        contactTypeId: { $in: params?.contactTypeIds },
+      }).distinct('syncId');
 
-  if (params?.excludeCustomerIds) {
-    const syncIds = await models.SyncedContacts.find({
-      contactType: 'customer',
-      contactTypeId: { $in: params?.excludeCustomerIds },
-    }).distinct('syncId');
+      filter._id = { $in: syncIds };
+    }
+    if (params?.excludeContactTypeIds) {
+      const syncIds = await models.SyncedContacts.find({
+        contactType,
+        contactTypeId: { $in: params?.excludeContactTypeIds },
+      }).distinct('syncId');
 
-    filter._id = { $nin: syncIds };
+      filter._id = { $nin: syncIds };
+    }
   }
 
   if (params?.categoryId) {
