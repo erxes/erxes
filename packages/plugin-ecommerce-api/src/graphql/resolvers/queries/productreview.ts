@@ -20,6 +20,7 @@ const productreviewQueries = {
       average:
         reviews.reduce((sum, cur) => sum + cur.review, 0) / reviews.length,
       length: reviews.length,
+      reviews,
     };
   },
   productreviews: async (
@@ -27,11 +28,21 @@ const productreviewQueries = {
     params,
     { models: { ProductReview } }: IContext,
   ) => {
-    const { customerId, productIds } = params;
+    const { customerId, productIds, skip, limit } = params;
 
-    return ProductReview.find({
-      $or: [{ customerId }, { productId: { $in: productIds } }],
-    });
+    const filter: any = {};
+
+    if (customerId) {
+      filter.customerId = customerId;
+    }
+
+    if (productIds) {
+      filter.productId = productIds;
+    }
+
+    return ProductReview.find(filter)
+      .skip(skip || 0)
+      .limit(limit || 20);
   },
 };
 export default productreviewQueries;
