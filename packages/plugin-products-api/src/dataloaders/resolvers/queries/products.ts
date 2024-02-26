@@ -196,6 +196,9 @@ const productQueries = {
     params: IQueryParams,
     { commonQuerySelector, models, subdomain, user }: IContext,
   ) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 24000);
+    });
     const filter = await generateFilter(
       subdomain,
       models,

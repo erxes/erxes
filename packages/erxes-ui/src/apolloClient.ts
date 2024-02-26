@@ -2,7 +2,7 @@ import {
   createHttpLink,
   from,
   ApolloClient,
-  InMemoryCache
+  InMemoryCache,
 } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
@@ -16,10 +16,33 @@ import addMergeKeyfieldPolicy from './add-merge-keyfield-policy';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
+const fetchWithTimeout = async (uri, options = {}, time) => {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Request timed out.'));
+    }, time);
+    fetch(uri, options).then(
+      (response) => {
+        clearTimeout(timer);
+        resolve(response);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+};
+
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
-  credentials: 'include'
+  credentials: 'include',
+  fetch: (uri, options) => {
+    const timeoutFromHeader = options?.headers?.['x-timeout'];
+    const timeout = timeoutFromHeader || 8000;
+    return fetchWithTimeout(uri, options, timeout);
+  },
 });
 
 // Error handler
@@ -37,8 +60,8 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      sessioncode: sessionStorage.getItem('sessioncode') || ''
-    }
+      sessioncode: sessionStorage.getItem('sessioncode') || '',
+    },
   };
 });
 
@@ -52,9 +75,9 @@ export const wsLink: any = new GraphQLWsLink(
     url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
     retryAttempts: 1000,
     retryWait: async () => {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-  })
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    },
+  }),
 );
 
 type Definintion = {
@@ -70,7 +93,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLinkWithMiddleware
+  httpLinkWithMiddleware,
 );
 
 const typePolicies = {};
@@ -81,11 +104,11 @@ addMergeKeyfieldPolicy(typePolicies, noIdNestedTypes);
 const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies,
-    addTypename: true
+    addTypename: true,
   }),
   queryDeduplication: true,
   link,
-  connectToDevTools: true
+  connectToDevTools: true,
 });
 
 export default client;
