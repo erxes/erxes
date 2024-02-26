@@ -99,15 +99,13 @@ const EventItem = ({
     }
 
     return (
-      <div className="overflow-hidden rounded-lg h-[150px] w-full shrink-0 rounded-bl-none rounded-br-none ">
-        <Image
-          alt="image"
-          src={feed.images[0].url || ""}
-          width={500}
-          height={150}
-          className={`object-cover w-full h-full`}
-        />
-      </div>
+      <Image
+        alt="image"
+        src={feed.images[0].url || ""}
+        width={500}
+        height={150}
+        className={`object-cover w-full h-full`}
+      />
     )
   }
 
@@ -140,7 +138,9 @@ const EventItem = ({
     <>
       <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-exm flex-1 rounded-lg shrink-0">
         <CardContent className="p-0 relative">
-          {renderImage()}
+          <div className="overflow-hidden rounded-lg h-[150px] w-full shrink-0 rounded-bl-none rounded-br-none ">
+            {renderImage()}
+          </div>
           <FeedActions
             feed={feed}
             open={open}

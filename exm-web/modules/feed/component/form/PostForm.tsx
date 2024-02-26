@@ -58,7 +58,7 @@ const PostForm = ({
   const [images, setImage] = useState(feed?.images || [])
   const [attachments, setAttachments] = useState(feed?.attachments || [])
   const [unitSearchValue, setUnitsSearchvalue] = useState("")
-  const [background, setBackground] = useState({} as IAttachment)
+  const [background, setBackground] = useState(feed?.background || {} as IAttachment)
   const [branchSearchValue, setBranchSearchvalue] = useState("")
   const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
   const [success, setSuccess] = useState(false)
@@ -106,7 +106,7 @@ const PostForm = ({
     }
     form.reset({ ...defaultValues })
   }, [feed])
-console.log('background', background)
+
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     feedMutation(
       {

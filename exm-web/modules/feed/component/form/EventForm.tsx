@@ -33,12 +33,14 @@ import {
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
+import DragNDrop from "@/components/DragNDrop"
 import SelectUsers from "@/components/select/SelectUsers"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
-import AttachmentBgSection from "./AttachmentBgSection"
+import FormAttachments from "./FormAttachments"
+import FormImages from "./FormImages"
 
 dayjs.extend(relativeTime)
 
@@ -354,16 +356,25 @@ const EventForm = ({
       <>
         <div className="flex justify-center gap-6 mb-6 h-[calc(100%-65px)]">
           <div className="max-w-[566px] border border-exm rounded-md w-full h-full">
-            <AttachmentBgSection
-              uploading={uploading}
-              images={images}
-              setImage={setImage}
-              attachments={attachments}
-              setAttachments={setAttachments}
-              setUploading={setUploading}
-              setBackground={setBackground}
-              background={background}
-            />
+            <div className="overflow-auto h-[60%] px-4 pt-4">
+              {uploading && <Loader className="pb-4" />}
+              <FormImages images={images} setImage={setImage} />
+              <FormAttachments
+                attachments={attachments || []}
+                setAttachments={setAttachments}
+                type="form"
+              />
+            </div>
+
+            <div className="flex h-[40%] border-t border-exm p-4">
+              <DragNDrop
+                setAttachments={setAttachments}
+                setImage={setImage}
+                className="w-full h-full"
+                setUploading={setUploading}
+                defaultFileList={images.concat(attachments)}
+              />
+            </div>
           </div>
           <div className="border border-exm rounded-md max-w-[566px] w-full h-full">
             <div className="px-4 py-3 border-b-2 border-[#0BA5EC] text-[#0BA5EC]">

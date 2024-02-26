@@ -62,7 +62,7 @@ const BravoForm = ({
   )
   const [uploading, setUploading] = useState(false)
   const [departmentSearchValue, setDepartmentSearchValue] = useState("")
-  const [background, setBackground] = useState({} as IAttachment)
+  const [background, setBackground] = useState(feed?.background || {} as IAttachment)
 
   const { departmentOptions, loading } = useTeamMembers({
     departmentSearchValue,
@@ -118,6 +118,7 @@ const BravoForm = ({
           contentType: "bravo",
           recipientIds: recipientIds.concat(department),
           images,
+          background,
           attachments,
         },
         feed?._id || ""
