@@ -50,8 +50,22 @@ a:hover {
   color: ${colors.colorCoreYellow} !important;
 }
 
+/* positions */
+
 .relative {
   position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
 }
 
 /* override */
@@ -384,11 +398,27 @@ a:hover {
   z-index: 1040;
 }
 
-[id^="headlessui-popover-button-"] {
+[id^="headlessui-popover-button-"], [id^="headlessui-menu-button-"], #rte-controls-group-dropdown-button {
   padding: 0;
   background: none;
   border: 0;
   outline: 0;
+}
+
+[id^="headlessui-listbox-options-"] {
+  padding: 0;
+  margin: 0;
+  focus: 0;
+  outline: 0;
+  list-style: none;
+  z-index: 5;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05);
+  background: ${colors.colorWhite};
+}
+
+[id^="headlessui-listbox-options-"] span {
+  border: 0;
 }
 
 [id^="headlessui-popover-panel-"] {

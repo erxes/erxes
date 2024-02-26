@@ -1,7 +1,7 @@
-import React, { ReactNode, useRef } from 'react';
+import { Listbox, Transition } from '@headlessui/react';
+import React, { ReactNode, useRef, useState } from 'react';
 
 import { ControlsGroupWrapper } from './styles';
-import { Menu } from '@headlessui/react';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export interface IRichTextEditorControlsGroupProps
@@ -34,29 +34,49 @@ export const RichTextEditorControlsGroup = (
     const childrenArray = React.Children.toArray(children);
     const firstChild = childrenArray?.length > 0 ? childrenArray[0] : null;
 
+    const [selectedItem, setSelectedItem] = useState(firstChild);
+
     return (
       <ControlsGroupWrapper
         $isActive={isActive}
         $toolbarPlacement={toolbarPlacement}
       >
-        <Menu>
-          <Menu.Button
-            id="rte-controls-group-dropdown-button"
-            disabled={isSourceEnabled}
-          >
-            {firstChild}
-          </Menu.Button>
-          <Menu.Items>
-            {React.Children.map(childrenArray, (child, index) => {
-              return (
-                /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
-                <Menu.Item as="span" key={`${child.toString()}-${index}`}>
-                  {child}
-                </Menu.Item>
-              );
-            })}
-          </Menu.Items>
-        </Menu>
+        <Listbox
+          value={selectedItem}
+          onChange={setSelectedItem}
+          disabled={isSourceEnabled}
+        >
+          {({ open }) => (
+            <div className="relative">
+              <Listbox.Button id="rte-controls-group-dropdown-button">
+                {selectedItem}
+              </Listbox.Button>
+              <Transition
+                show={open}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+                className="absolute mt-1 w-full rounded-md bg-white shadow-lg"
+              >
+                <Listbox.Options static>
+                  {React.Children.map(childrenArray, (child, index) => {
+                    return (
+                      /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
+                      <Listbox.Option
+                        key={`${child.toString()}-${index}`}
+                        value={child}
+                        disabled={isSourceEnabled}
+                        as="span"
+                      >
+                        {child}
+                      </Listbox.Option>
+                    );
+                  })}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          )}
+        </Listbox>
       </ControlsGroupWrapper>
     );
   }
