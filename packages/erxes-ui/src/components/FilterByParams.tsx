@@ -2,6 +2,7 @@ import { ChildList, PopoverContent, ToggleIcon } from './filterableList/styles';
 import { FieldStyle, SidebarCounter, SidebarList } from '../layout/styles';
 // import { withRouter } from 'react-router-dom';
 import { getParam, removeParams, setParams } from '../utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import DataWithLoader from './DataWithLoader';
 import EmptyState from './EmptyState';
@@ -10,7 +11,7 @@ import { IRouterProps } from '../types';
 import Icon from './Icon';
 import React from 'react';
 
-interface IProps extends IRouterProps {
+interface IProps {
   fields: any[];
   counts: any;
   paramKey: string;
@@ -48,10 +49,12 @@ class FilterByParams extends React.Component<IProps, State> {
   };
 
   onClick = (id: string) => {
-    const { history, paramKey, multiple } = this.props;
+    const { paramKey, multiple } = this.props;
+    const location = useLocation();
+    const navigate = useNavigate();
 
     if (!multiple) {
-      setParams(history, { [paramKey]: id });
+      setParams(navigate, location, { [paramKey]: id });
     } else {
       // multi select
       const value = getParam(history, [paramKey]);
@@ -65,7 +68,7 @@ class FilterByParams extends React.Component<IProps, State> {
         params.push(id);
       }
 
-      setParams(history, { [paramKey]: params.toString() });
+      setParams(navigate, location, { [paramKey]: params.toString() });
     }
 
     removeParams(history, 'page');
@@ -108,7 +111,7 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 
   renderItems() {
-    const { history, fields, paramKey, icon, searchable, multiple, treeView } =
+    const { fields, paramKey, icon, searchable, multiple, treeView } =
       this.props;
     const { key } = this.state;
 
