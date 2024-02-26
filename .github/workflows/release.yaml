@@ -554,6 +554,13 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-multierkhet-api:master --tag  erxes/plugin-multierkhet-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-insight-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker buildx imagetools create erxes/plugin-insight-api:master --tag  erxes/plugin-insight-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -734,3 +741,7 @@ jobs:
       - name: multierkhet ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-multierkhet-ui
           s3://erxes-release-plugins/uis/plugin-multierkhet-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: insight ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-insight-ui
+          s3://erxes-release-plugins/uis/plugin-insight-ui/${GITHUB_REF#refs/tags/}/
