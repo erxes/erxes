@@ -2,7 +2,6 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse,
@@ -20,14 +19,11 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-} & Props &
+type FinalProps = {} & Props &
   ToCheckCategoriesMutationResponse &
   ToSyncCategoriesMutationResponse;
 
 const InventoryCategoryContainer = (props: FinalProps) => {
-  const { productCategoriesQuery } = props;
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
   const brandId = props.queryParams.brandId || 'noBrand';
@@ -118,13 +114,10 @@ const InventoryCategoryContainer = (props: FinalProps) => {
       });
   };
 
-  const productCategories = productCategoriesQuery.productCategories || [];
-
   const updatedProps = {
     ...props,
     loading,
     items,
-    productCategories,
     setCategory,
     setBrand,
     toCheckCategory,
@@ -148,18 +141,6 @@ export default withProps<Props>(
       gql(mutations.toSyncCategories),
       {
         name: 'toSyncMsdProductCategories',
-      },
-    ),
-    graphql<Props, ProductCategoriesQueryResponse>(
-      gql(queries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-        options: () => ({
-          variables: {
-            parentId: null,
-          },
-          fetchPolicy: 'network-only',
-        }),
       },
     ),
   )(InventoryCategoryContainer),

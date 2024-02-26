@@ -12,7 +12,6 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { menuDynamic } from '../../constants';
 import Row from './InventoryCategoryRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
@@ -24,12 +23,10 @@ type Props = {
   toCheckCategory: () => void;
   toSyncCategory: (action: string, categories: any[]) => void;
   items: any;
-  productCategories: IProductCategory[];
 };
 
 const InventoryCategory = ({
   items,
-  productCategories,
   loading,
   queryParams,
   setBrand,
