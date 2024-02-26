@@ -1,8 +1,7 @@
-import * as dotenv from 'dotenv';
-
+const dotenv = require('dotenv');
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
@@ -11,9 +10,9 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
-let db: Db;
-let SyncedCustomers: Collection<any>;
-let SyncedContacts: Collection<any>;
+let db;
+let SyncedCustomers;
+let SyncedContacts;
 
 const command = async () => {
   console.log(`starting ... ${MONGO_URL}`);
@@ -41,7 +40,7 @@ const command = async () => {
       contactTypeId: customerId,
       contactType: 'customer',
       syncedContactTypeId: syncedCustomerId,
-    }),
+    })
   );
 
   console.log('generating contacts done');
