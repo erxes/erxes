@@ -40,6 +40,7 @@ const commonFeedFields = `
   isPinned
   commentCount
   recipientIds
+  background
   createdUser {
     ${userFields}
   }

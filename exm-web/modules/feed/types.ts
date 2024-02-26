@@ -113,4 +113,5 @@ export interface IFeedVariable {
   branchIds?: string[]
   unitId?: string
   createdUser?: IUser
+  background?: any
 }

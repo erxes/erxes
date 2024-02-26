@@ -15,7 +15,6 @@ import LoadingCard from "@/components/ui/loading-card"
 import { useComments } from "../hooks/useComment"
 import { useReactionQuery } from "../hooks/useReactionQuery"
 import EventDropDown from "./EventDropDown"
-import EventUsersAvatar from "./EventUsersAvatar"
 import FeedActions from "./FeedActions"
 import FeedDetail from "./FeedDetail"
 
