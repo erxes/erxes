@@ -23,6 +23,15 @@ export const initBroker = async () => {
     };
   });
 
+  consumeRPCQueue('reports:findLast', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Reports.findOne(data).sort({ createdAt: -1 }),
+      status: 'success',
+    };
+  });
+
   consumeRPCQueue(
     'reports:updateMany',
     async ({ subdomain, data: { selector, modifier } }) => {

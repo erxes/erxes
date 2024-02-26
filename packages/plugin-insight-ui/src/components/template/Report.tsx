@@ -30,12 +30,16 @@ const ReportTemplate = (props: Props) => {
     handleTemplateClick,
   } = props;
 
-  const [showMore, setShowMore] = useState<boolean>(false);
+  const [showMore, setShowMore] = useState<boolean>(
+    !!report && selectedTemplateType?.includes(template?.serviceType),
+  );
 
   useEffect(() => {
-    setShowMore(
-      !!report && selectedTemplateType?.includes(template?.serviceType),
-    );
+    if (report?.__typename === 'Report') {
+      setShowMore(
+        !!report && selectedTemplateType?.includes(template?.serviceType),
+      );
+    }
   }, [selectedTemplateType]);
 
   return (

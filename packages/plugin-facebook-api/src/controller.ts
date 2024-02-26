@@ -84,7 +84,6 @@ const init = async (app) => {
     if (data.object !== 'page') {
       return;
     }
-
     const adapter = await getAdapter(models);
 
     for (const entry of data.entry) {
