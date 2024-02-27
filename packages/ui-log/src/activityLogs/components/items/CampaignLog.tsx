@@ -12,7 +12,7 @@ export default function CampaignLog({ activity }: IActivityLogItemProps) {
   const renderContent = () => {
     return (
       <span>
-        Campaign{' '}
+        Broadcast{' '}
         <Link to={`/campaigns/show/${content.campaignId}`} target="_blank">
           <strong>"{content && content.title}"</strong>
         </Link>{' '}

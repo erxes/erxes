@@ -234,6 +234,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         delete doc.shortMessage;
       }
     }
+
     const response = this.props.validateDoc(type, doc);
     if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
       return Alert.warning(
@@ -446,6 +447,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               handleClientPortalKindChange={
                 this.props.handleClientPortalKindChange
               }
+              selectedCpId={this.state.cpId}
             />
           </Step>
 

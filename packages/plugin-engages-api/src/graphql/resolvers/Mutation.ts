@@ -201,7 +201,7 @@ const engageMutations = {
           isLive: draftCampaign.isLive,
           isDraft: draftCampaign.isDraft,
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`,
+        description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
       user,
     );
