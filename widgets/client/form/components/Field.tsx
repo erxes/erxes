@@ -23,6 +23,7 @@ import Product from "./Product";
 import { __ } from "../../utils";
 import { connection } from "../connection";
 import uploadHandler from "../../uploadHandler";
+import PhoneInput from "./fields/PhoneInput";
 
 type Props = {
   field: IField;
@@ -629,6 +630,15 @@ export default class Field extends React.Component<Props, State> {
     }
 
     switch (field.type) {
+      case "phone": 
+        const updatedProps = {
+          value: value,
+          onChange: this.onInputChange,
+          id: field._id,
+
+        }
+        return <PhoneInput {...updatedProps}/>;
+
       case "select":
         return Field.renderSelect(options, {
           onChange: this.onSelectChange,
