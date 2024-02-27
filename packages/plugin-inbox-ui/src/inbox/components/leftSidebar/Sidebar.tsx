@@ -9,6 +9,8 @@ import {
   SidebarContent,
   ToggleButton,
 } from './styles';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Button from '@erxes/ui/src/components/Button';
 import { CONVERSATION_STATUSES } from '../../constants';
@@ -18,7 +20,6 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import React from 'react';
 import Resolver from '../../containers/Resolver';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
@@ -72,39 +73,39 @@ type Props = {
   resolveAll: () => void;
 };
 
-type State = {
-  isOpen: boolean;
-  counts?: any;
-};
+const LeftSidebar: React.FC<Props> = (props) => {
+  const {
+    currentUser,
+    currentConversationId,
+    history,
+    queryParams,
+    bulk,
+    toggleBulk,
+  } = props;
 
-class LeftSidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    this.state = {
-      isOpen: props.config.showAddition,
-      counts: {},
-    };
-  }
+  const [isOpen, setIsOpen] = useState<boolean>(props.config.showAddition);
+  const [counts, setItemCounts] = useState<any>({});
 
-  renderTrigger(text: string) {
+  const renderTrigger = (text: string) => {
     return (
       <PopoverButton>
         {__(text)} <Icon icon="angle-down" />
       </PopoverButton>
     );
-  }
+  };
 
-  onToggleSidebar = () => {
-    const { toggleSidebar } = this.props;
-    const { isOpen } = this.state;
+  const onToggleSidebar = () => {
+    const { toggleSidebar } = props;
 
-    this.setState({ isOpen: !isOpen });
+    setIsOpen(!isOpen);
     toggleSidebar({ isOpen: !isOpen });
   };
 
-  renderSidebarActions() {
-    const { queryParams, bulk, emptyBulk } = this.props;
+  const renderSidebarActions = () => {
+    const { queryParams, bulk, emptyBulk } = props;
 
     if (bulk.length > 0) {
       return (
@@ -113,10 +114,10 @@ class LeftSidebar extends React.Component<Props, State> {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={this.renderTrigger('Assign')}
+              trigger={renderTrigger('Assign')}
             />
 
-            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
+            <Tagger targets={bulk} trigger={renderTrigger('Tag')} />
           </RightItems>
         </Sidebar.Header>
       );
@@ -127,17 +128,13 @@ class LeftSidebar extends React.Component<Props, State> {
         <FlexCenter>
           <ToggleButton
             id="btn-inbox-channel-visible"
-            $isActive={this.state.isOpen}
-            onClick={this.onToggleSidebar}
+            $isActive={isOpen}
+            onClick={onToggleSidebar}
           >
             <Icon icon="subject" />
           </ToggleButton>
           {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
-            <Button
-              size="small"
-              btnStyle="simple"
-              onClick={this.props.resolveAll}
-            >
+            <Button size="small" btnStyle="simple" onClick={props.resolveAll}>
               Resolve all
             </Button>
           )}
@@ -152,28 +149,28 @@ class LeftSidebar extends React.Component<Props, State> {
         </DropdownWrapper>
       </Sidebar.Header>
     );
-  }
+  };
 
-  renderSidebarHeader() {
-    return <SidebarActions>{this.renderSidebarActions()}</SidebarActions>;
-  }
+  const renderSidebarHeader = () => {
+    return <SidebarActions>{renderSidebarActions()}</SidebarActions>;
+  };
 
-  renderAdditionalSidebar(refetchRequired: string) {
-    const { queryParams, currentUser } = this.props;
+  const renderAdditionalSidebar = (refetchRequired: string) => {
+    const { queryParams, currentUser } = props;
 
     if (!currentUser) {
       return null;
     }
 
     const setCounts = (counts: any) => {
-      const current = { ...this.state.counts };
+      const current = { ...counts };
 
-      this.setState({ counts: { ...current, ...counts } });
+      setItemCounts({ ...current, ...counts });
     };
 
     return (
       <Transition
-        in={this.state.isOpen}
+        in={isOpen}
         appear={true}
         timeout={300}
         classNames="fade-in"
@@ -288,46 +285,37 @@ class LeftSidebar extends React.Component<Props, State> {
         </SidebarContent>
       </Transition>
     );
-  }
+  };
 
-  render() {
-    const {
-      currentUser,
-      currentConversationId,
-      history,
-      queryParams,
-      bulk,
-      toggleBulk,
-    } = this.props;
-
-    return (
-      <LeftContent $isOpen={this.state.isOpen}>
-        <InboxManagementActionConsumer>
-          {({ refetchRequired }) => (
-            <AdditionalSidebar>
-              {this.renderAdditionalSidebar(refetchRequired)}
-            </AdditionalSidebar>
-          )}
-        </InboxManagementActionConsumer>
-        <Sidebar
-          wide={true}
-          full={true}
-          header={this.renderSidebarHeader()}
-          hasBorder={true}
-        >
-          <ConversationList
-            currentUser={currentUser}
-            currentConversationId={currentConversationId}
-            history={history}
-            queryParams={queryParams}
-            toggleRowCheckbox={toggleBulk}
-            selectedConversations={bulk}
-            counts={this.state.counts}
-          />
-        </Sidebar>
-      </LeftContent>
-    );
-  }
-}
+  return (
+    <LeftContent $isOpen={isOpen}>
+      <InboxManagementActionConsumer>
+        {({ refetchRequired }) => (
+          <AdditionalSidebar>
+            {renderAdditionalSidebar(refetchRequired)}
+          </AdditionalSidebar>
+        )}
+      </InboxManagementActionConsumer>
+      <Sidebar
+        wide={true}
+        full={true}
+        header={renderSidebarHeader()}
+        hasBorder={true}
+      >
+        <ConversationList
+          currentUser={currentUser}
+          currentConversationId={currentConversationId}
+          history={history}
+          queryParams={queryParams}
+          toggleRowCheckbox={toggleBulk}
+          selectedConversations={bulk}
+          counts={counts}
+          location={location}
+          navigate={navigate}
+        />
+      </Sidebar>
+    </LeftContent>
+  );
+};
 
 export default LeftSidebar;

@@ -8,7 +8,7 @@ import Spinner from '../../components/Spinner';
 import { storeConstantToStore } from '../../utils';
 
 type Props = {
-  currentUserQuery: CurrentUserQueryResponse;
+  // currentUserQuery: CurrentUserQueryResponse;
 };
 
 const withCurrentUser = (WrappedComponent) => {
