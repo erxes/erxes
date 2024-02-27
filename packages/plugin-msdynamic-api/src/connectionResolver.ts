@@ -7,20 +7,15 @@ export interface IModels {
   SyncLogs: ISyncLogModel;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
     'msdynamics_synclogs',
-    loadSyncLogClass(models)
+    loadSyncLogClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

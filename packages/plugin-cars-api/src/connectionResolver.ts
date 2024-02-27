@@ -6,7 +6,7 @@ import {
   loadCarClass,
   loadCarCategoryClass,
   ICarCategoryModel,
-  ICarModel
+  ICarModel,
 } from './models/Cars';
 import { MongoClient } from 'mongodb';
 
@@ -23,7 +23,7 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string,
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -35,13 +35,13 @@ export const generateModels = async (
 };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Cars = db.model<ICarDocument, ICarModel>('cars', loadCarClass(models));
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
     'car_categories',
-    loadCarCategoryClass(models)
+    loadCarCategoryClass(models),
   );
 
   return models;

@@ -72,10 +72,8 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
   models.CommentConversation = db.model<
     ICommentConversationDocument,
     ICommentConversationModel
