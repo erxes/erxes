@@ -1,3 +1,10 @@
+## [1.6.2-rc.3](https://github.com/erxes/erxes/compare/1.6.2-rc.2...1.6.2-rc.3) (2024-02-26)
+
+
+### Bug Fixes
+
+* **contacts:** add missing db index ([77c94a2](https://github.com/erxes/erxes/commit/77c94a2662544a5cfaa073bbd2c5378367399a7c))
+
 ## [1.6.2-rc.2](https://github.com/erxes/erxes/compare/1.6.2-rc.1...1.6.2-rc.2) (2024-02-24)
 
 
