@@ -2,15 +2,7 @@ import * as dotenv from 'dotenv';
 import redis from './redis';
 dotenv.config();
 
-const {
-  NODE_ENV,
-  LOAD_BALANCER_ADDRESS,
-  ENABLED_SERVICES_JSON,
-  REDIS_HOST,
-  REDIS_PORT,
-  REDIS_PASSWORD,
-  SKIP_REDIS,
-} = process.env;
+const { NODE_ENV, LOAD_BALANCER_ADDRESS, ENABLED_SERVICES_JSON } = process.env;
 
 const isDev = NODE_ENV === 'development';
 

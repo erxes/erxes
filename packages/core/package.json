@@ -36,9 +36,12 @@
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*",
+    "@apollo/server": "^4.9.3",
+    "@erxes/api-utils": "*",
+    "@kubernetes/client-node": "^0.20.0",
+    "@sendgrid/mail": "^7.7.0",
+    "@workos-inc/node": "^3.1.0",
     "agentkeepalive": "^4.3.0",
-    "@apollo/server" : "^4.9.3",
     "apollo-datasource-rest": "^0.5.1",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",
@@ -51,6 +54,7 @@
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.3",
     "helmet": "^3.23.3",
+    "jimp": "^0.22.10",
     "json2csv": "^5.0.1",
     "node-fetch": "^2.6.7",
     "node-schedule": "^1.2.5",
@@ -59,9 +63,8 @@
     "sha256": "^0.2.0",
     "stream-array": "^1.1.2",
     "ts-node": "10.9.1",
+    "tus-js-client": "^3.1.1",
     "validator": "^13.5.2",
-    "xlsx-populate": "^1.20.1",
-    "jimp":"^0.22.10",
-    "tus-js-client": "^3.1.1"
+    "xlsx-populate": "^1.20.1"
   }
 }

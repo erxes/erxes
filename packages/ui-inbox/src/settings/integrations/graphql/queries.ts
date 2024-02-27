@@ -122,7 +122,6 @@ const integrations = `
             `
           : ''
       }
-      data
       details
       healthStatus
     }
@@ -238,5 +237,5 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations
+  imapIntegrations,
 };

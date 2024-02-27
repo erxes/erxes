@@ -1,15 +1,16 @@
 import { IModels } from './connectionResolver';
 import { fetchService, sendInboxMessage } from './messageBroker';
 import { IFormSubmissionFilter } from './models/definitions/forms';
+import { getRealIdFromElk } from '@erxes/api-utils/src/elasticsearch';
 
 export const getCustomFields = async (
   models: IModels,
   contentType: string,
-  validation?: string
+  validation?: string,
 ) => {
   const qry: any = {
     contentType,
-    isDefinedByErxes: false
+    isDefinedByErxes: false,
   };
 
   validation && (qry.validation = validation);
@@ -42,8 +43,8 @@ export const fieldsCombinedByContentType = async (
     excludedNames,
     segmentId,
     config,
-    onlyDates
-  }: ICombinedParams
+    onlyDates,
+  }: ICombinedParams,
 ) => {
   let fields: Array<{
     _id: number;
@@ -63,36 +64,36 @@ export const fieldsCombinedByContentType = async (
     {
       segmentId,
       usageType,
-      config: config || {}
+      config: config || {},
     },
-    []
+    [],
   );
 
   let validation;
 
   if (onlyDates) {
-    fields = fields.filter(f => f.type === 'Date');
+    fields = fields.filter((f) => f.type === 'Date');
     validation = 'date';
   }
 
   const type = [
     'contacts:visitor',
     'contacts:lead',
-    'contacts:customer'
+    'contacts:customer',
   ].includes(contentType)
     ? 'contacts:customer'
     : contentType;
 
   const customFields = await getCustomFields(models, type, validation);
 
-  const generateSelectOptions = options => {
+  const generateSelectOptions = (options) => {
     const selectOptions: Array<{ label: string; value: any }> = [];
 
     if (options && options.length > 0) {
       for (const option of options) {
         selectOptions.push({
           value: option,
-          label: option
+          label: option,
         });
       }
     }
@@ -111,19 +112,19 @@ export const fieldsCombinedByContentType = async (
     ) {
       fields.push({
         _id: Math.random(),
-        name: `customFieldsData.${customField._id}`,
+        name: `customFieldsData.${getRealIdFromElk(customField._id)}`,
         label: customField.text,
         options: customField.options,
         selectOptions: generateSelectOptions(customField.options),
         validation: customField.validation,
-        type: customField.type
+        type: customField.type,
       });
     }
   }
 
   fields = [...fields];
 
-  return fields.filter(field => !(excludedNames || []).includes(field.name));
+  return fields.filter((field) => !(excludedNames || []).includes(field.name));
 };
 
 export const formSubmissionsQuery = async (
@@ -134,14 +135,14 @@ export const formSubmissionsQuery = async (
     tagId,
     contentTypeIds,
     customerId,
-    filters
+    filters,
   }: {
     formId: string;
     tagId: string;
     contentTypeIds: string[];
     customerId: string;
     filters: IFormSubmissionFilter[];
-  }
+  },
 ) => {
   const integrationsSelector: any = { kind: 'lead', isActive: true };
   let conversationIds: string[] = [];
@@ -176,21 +177,21 @@ export const formSubmissionsQuery = async (
         case 'c':
           submissionFilters.push({
             formFieldId,
-            value: { $regex: new RegExp(value) }
+            value: { $regex: new RegExp(value) },
           });
           break;
 
         case 'gte':
           submissionFilters.push({
             formFieldId,
-            value: { $gte: value }
+            value: { $gte: value },
           });
           break;
 
         case 'lte':
           submissionFilters.push({
             formFieldId,
-            value: { $lte: value }
+            value: { $lte: value },
           });
           break;
 
@@ -200,9 +201,9 @@ export const formSubmissionsQuery = async (
     }
 
     const subs = await models.FormSubmissions.find({
-      $and: submissionFilters
+      $and: submissionFilters,
     }).lean();
-    conversationIds = subs.map(e => e.contentTypeId);
+    conversationIds = subs.map((e) => e.contentTypeId);
   }
 
   const integration = await sendInboxMessage({
@@ -210,7 +211,7 @@ export const formSubmissionsQuery = async (
     action: 'integrations.findOne',
     data: integrationsSelector,
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   if (!integration._id) {

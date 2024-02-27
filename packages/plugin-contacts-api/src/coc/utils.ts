@@ -1,4 +1,8 @@
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchEs,
+  generateElkIds,
+  getRealIdFromElk,
+} from '@erxes/api-utils/src/elasticsearch';
 
 import { debug } from '../configs';
 import { IModels } from '../connectionResolver';
@@ -318,11 +322,15 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by id
-  public idsFilter(ids: string[]): void {
+  public async idsFilter(ids: string[]): Promise<void> {
     if (this.params.excludeIds) {
-      this.negativeList.push({ terms: { _id: ids } });
+      this.negativeList.push({
+        terms: { _id: await generateElkIds(ids, this.subdomain) },
+      });
     } else {
-      this.positiveList.push({ terms: { _id: ids } });
+      this.positiveList.push({
+        terms: { _id: await generateElkIds(ids, this.subdomain) },
+      });
     }
   }
 
@@ -377,7 +385,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
       this.positiveList.push({
         terms: {
-          _id: relTypeIds || [],
+          _id: await generateElkIds(relTypeIds || [], this.subdomain),
         },
       });
     }
@@ -397,7 +405,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
       this.positiveList.push({
         terms: {
-          _id: relTypeIds || [],
+          _id: await generateElkIds(relTypeIds || [], this.subdomain),
         },
       });
     }
@@ -562,7 +570,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     const list = response.hits.hits.map((hit) => {
       return {
-        _id: hit._id,
+        _id: getRealIdFromElk(hit._id),
         ...hit._source,
       };
     });

@@ -1,10 +1,13 @@
 import { IUser } from "@/modules/auth/types"
+import { MapPinIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { AttachmentWithPreview } from "@/components/AttachmentWithPreview"
 import { ImageGrid } from "@/components/ImageGrid"
 
+import EventDropDown from "./EventDropDown"
+import EventUsersAvatar from "./EventUsersAvatar"
 import FeedComment from "./FeedComment"
 import EmojiCount from "./FeedEmojiCount"
 import PostFooter from "./FeedFooter"
@@ -74,6 +77,34 @@ export default function FeedDetail({
     }
   }
 
+  const content = () => {
+    if (feed.contentType === "event") {
+      const { eventData, title } = feed
+      
+      return (
+        <div className="px-4 py-3 flex flex-col gap-2">
+          <h3 className="font-semibold text-[30px]">{title}</h3>
+          <b>About this event:</b>
+          <div className="flex bg-[#E0E2FF] rounded-[24px] px-3 py-[6px] text-primary gap-2 items-center">
+            <div className="bg-primary rounded-full flex justify-center items-center w-[25px] h-[25px]">
+              <MapPinIcon size={15} color="#fff" />
+            </div>
+            {eventData.where}
+          </div>
+          <p className="text-[#475467] ">{updatedDescription}</p>
+          {eventData && <EventUsersAvatar eventData={eventData} />}
+          <p className="text-[#475467]">
+            {eventData.goingUserIds.length} going ~{" "}
+            {eventData.interestedUserIds.length} interested
+          </p>
+          <EventDropDown event={feed} />
+        </div>
+      )
+    }
+
+    return <p className="text-black px-4 py-3">{updatedDescription}</p>
+  }
+
   return (
     <Dialog open={detailOpen} onOpenChange={() => dialogHandler()}>
       <DialogTrigger asChild={true}>{renderTrigger()}</DialogTrigger>
@@ -93,7 +124,7 @@ export default function FeedDetail({
                 setOpen={setOpen}
                 isDetail={true}
               />
-              <p className="text-black px-4 py-3">{updatedDescription}</p>
+              {content()}
               <FormAttachments
                 type="postItem"
                 attachments={feed.attachments || []}

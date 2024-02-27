@@ -11,7 +11,6 @@ export interface ICommentConversation {
   content: string;
   erxesApiId?: string;
   customerId?: string;
-  parentId: string;
   createdAt?: Date;
   updatedAt?: Date;
   attachments?: any;
@@ -33,7 +32,6 @@ export const commentConversationSchema = new Schema({
   content: String,
   erxesApiId: String,
   customerId: { type: String, optional: true },
-  parentId: String,
   createdAt: { type: Date, default: Date.now, label: 'Created At' },
   updatedAt: field({ type: Date, index: true, label: 'Updated At' }),
   attachments: [attachmentSchema],

@@ -6,12 +6,16 @@ import {
   fetchPolaris,
   updateLoanNumber,
   customFieldToObject,
+  getFullDate,
 } from '../utils';
 import { activeLoan } from './activeLoan';
-import { createLoanSchedule } from './createSchedule';
+import { createSavingLoan } from './createSavingLoan';
 
 export const createLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
+
+  if (loan.leaseType === 'saving')
+    return await createSavingLoan(subdomain, params);
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
@@ -37,11 +41,11 @@ export const createLoan = async (subdomain, params) => {
     curCode: loanData.currency,
     approvAmount: loanData.leaseAmount,
     impairmentPer: 0,
-    approvDate: loanData.startDate,
+    approvDate: getFullDate(loanData.startDate),
     acntManager: leasingExpert.employeeId,
     brchCode: branch.code,
-    startDate: loanData.startDate,
-    endDate: loanData.endDate,
+    startDate: getFullDate(loanData.startDate),
+    endDate: getFullDate(loanData.endDate),
     termLen: loanData.tenor,
     IsGetBrchFromOutside: '0',
     segCode: '1',
@@ -60,26 +64,15 @@ export const createLoan = async (subdomain, params) => {
     secType: 0,
   };
 
-  console.log('sendData', sendData);
-
   const result = await fetchPolaris({
     op: '13610253',
     data: [sendData],
     subdomain,
   }).then((a) => JSON.parse(a));
 
-  console.log('result', result);
-
   if (typeof result === 'string') {
     await updateLoanNumber(subdomain, loan._id, result);
-    const activate = await activeLoan(subdomain, [result, 'данс нээв', null]);
-
-    console.log('activate', activate);
-
-    loan.number = result;
-    const createSchedule = await createLoanSchedule(subdomain, loanData);
-
-    console.log('createSchedule', createSchedule);
+    await activeLoan(subdomain, [result, 'данс нээв', null]);
   }
 
   return result;

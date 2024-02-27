@@ -39,12 +39,14 @@ const receiveComment = async (
 
   const postConversation = await getOrCreatePostConversation(
     models,
+    pageId,
     subdomain,
     postId,
     integration,
     customer,
     params,
   );
+
   await getOrCreateComment(
     models,
     subdomain,

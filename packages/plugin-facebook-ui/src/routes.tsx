@@ -9,14 +9,14 @@ const CreateFacebook = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Settings CreateFacebook" */ './containers/Form'
-    )
+    ),
 );
 
 const MessengerBotForm = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Settings Messenger Bots" */ './automations/bots/containers/Form'
-    )
+    ),
 );
 
 const createFacebook = ({ location, history }) => {
