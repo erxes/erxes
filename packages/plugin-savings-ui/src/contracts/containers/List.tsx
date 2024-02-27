@@ -12,12 +12,13 @@ import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
 import { FILTER_PARAMS_CONTRACT } from '../../constants';
 
 type Props = {
   queryParams: any;
+  isDeposit: boolean;
   history: any;
 };
 
@@ -43,7 +44,7 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -86,19 +87,19 @@ class ContractListContainer extends React.Component<FinalProps, State> {
     const {
       contractsMainQuery,
       contractsRemove,
-      savingsContractsAlertQuery
+      savingsContractsAlertQuery,
       // contractsMerge,
     } = this.props;
 
     const removeContracts = ({ contractIds }, emptyBulk) => {
       contractsRemove({
-        variables: { contractIds }
+        variables: { contractIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a contract');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -121,10 +122,10 @@ class ContractListContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
-    const contractsList = props => {
+    const contractsList = (props) => {
       return <ContractList {...updatedProps} {...props} />;
     };
 
@@ -137,51 +138,52 @@ class ContractListContainer extends React.Component<FinalProps, State> {
 }
 
 const generateOptions = () => ({
-  refetchQueries: ['contractsMain']
+  refetchQueries: ['contractsMain'],
 });
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
-      gql(queries.contractsMain),
-      {
-        name: 'contractsMainQuery',
-        options: ({ queryParams }) => {
-          return {
-            variables: {
-              ...router.generatePaginationParams(queryParams || {}),
-              ids: queryParams.ids,
-              searchValue: queryParams.searchValue,
-              isExpired: queryParams.isExpired,
-              closeDateType: queryParams.closeDateType,
-              startStartDate: queryParams.startStartDate,
-              endStartDate: queryParams.endStartDate,
-              startCloseDate: queryParams.startCloseDate,
-              contractTypeId: queryParams.contractTypeId,
-              endCloseDate: queryParams.endCloseDate,
-              customerId: queryParams.customerId,
-              branchId: queryParams.branchId,
+    graphql<
+      { queryParams: any; isDeposit: boolean },
+      MainQueryResponse,
+      ListQueryVariables
+    >(gql(queries.contractsMain), {
+      name: 'contractsMainQuery',
+      options: ({ queryParams, isDeposit }) => {
+        return {
+          variables: {
+            ...router.generatePaginationParams(queryParams || {}),
+            ids: queryParams.ids,
+            searchValue: queryParams.searchValue,
+            isExpired: queryParams.isExpired,
+            closeDateType: queryParams.closeDateType,
+            startStartDate: queryParams.startStartDate,
+            endStartDate: queryParams.endStartDate,
+            startCloseDate: queryParams.startCloseDate,
+            contractTypeId: queryParams.contractTypeId,
+            endCloseDate: queryParams.endCloseDate,
+            customerId: queryParams.customerId,
+            branchId: queryParams.branchId,
+            isDeposit: isDeposit,
+            savingAmount: !!queryParams.savingAmount
+              ? parseFloat(queryParams.savingAmount)
+              : undefined,
+            interestRate: !!queryParams.interestRate
+              ? parseFloat(queryParams.interestRate)
+              : undefined,
+            tenor: !!queryParams.tenor
+              ? parseInt(queryParams.tenor)
+              : undefined,
 
-              savingAmount: !!queryParams.savingAmount
-                ? parseFloat(queryParams.savingAmount)
-                : undefined,
-              interestRate: !!queryParams.interestRate
-                ? parseFloat(queryParams.interestRate)
-                : undefined,
-              tenor: !!queryParams.tenor
-                ? parseInt(queryParams.tenor)
-                : undefined,
-
-              sortField: queryParams.sortField,
-              sortDirection: queryParams.sortDirection
-                ? parseInt(queryParams.sortDirection, 10)
-                : undefined
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
-      }
-    ),
+            sortField: queryParams.sortField,
+            sortDirection: queryParams.sortDirection
+              ? parseInt(queryParams.sortDirection, 10)
+              : undefined,
+          },
+          fetchPolicy: 'network-only',
+        };
+      },
+    }),
     graphql<{ queryParams: any }, any, any>(
       gql(queries.savingsContractsAlert),
       {
@@ -189,20 +191,20 @@ export default withProps<Props>(
         options: () => {
           return {
             variables: {
-              date: new Date()
+              date: new Date(),
             },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           };
-        }
-      }
+        },
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractsRemove),
       {
         name: 'contractsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(ContractListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(withRouter<IRouterProps>(ContractListContainer)),
 );

@@ -95,7 +95,7 @@ const ForwardMessage = ({ content, attachments }: Props) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild={true}>
-        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+        <div className="text-[#98A2B3] rounded-full cursor-pointer">
           <Upload size={16} />
         </div>
       </DialogTrigger>

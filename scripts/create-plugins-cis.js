@@ -55,9 +55,9 @@ var main = async () => {
         uiContent
       );
 
-      const uiConfigs = require(filePath(
-        `./packages/plugin-${plugin.name}-ui/src/configs.js`
-      ));
+      const uiConfigs = require(
+        filePath(`./packages/plugin-${plugin.name}-ui/src/configs.js`)
+      );
 
       delete uiConfigs.port;
 
@@ -73,7 +73,7 @@ var main = async () => {
       }
 
       pluginsMap[plugin.name] = {
-        ui: uiConfigs
+        ui: uiConfigs,
       };
     }
 
@@ -90,17 +90,17 @@ var main = async () => {
       let essyncer;
 
       try {
-        permissions = require(filePath(
-          `./packages/plugin-${plugin.name}-api/src/permissions.js`
-        ));
+        permissions = require(
+          filePath(`./packages/plugin-${plugin.name}-api/src/permissions.js`)
+        );
       } catch (e) {
         console.log(`no permissions file found for ${plugin.name}`);
       }
 
       try {
-        essyncer = require(filePath(
-          `./packages/plugin-${plugin.name}-api/src/essyncer.js`
-        ));
+        essyncer = require(
+          filePath(`./packages/plugin-${plugin.name}-api/src/essyncer.js`)
+        );
       } catch (e) {
         console.log(`no essyncer file found for ${plugin.name}`);
       }

@@ -12,9 +12,9 @@ type Props = {
 function Row({ bot, remove, repair }: Props) {
   return (
     <tr key={bot._id}>
-      <td>{__(bot?.name || '-')}</td>
-      <td>{__(bot?.account?.name || '-')}</td>
-      <td>{__(bot?.page?.name || '-')}</td>
+      <td>{bot?.name || '-'}</td>
+      <td>{bot?.account?.name || '-'}</td>
+      <td>{bot?.page?.name || '-'}</td>
       <td>
         <ActionButtons>
           <Button

@@ -14,7 +14,6 @@ import {
   Users2Icon,
 } from "lucide-react"
 
-
 import { useChatNotif } from "../hooks/useChatNotif"
 
 export const Sidebar = () => {
@@ -42,11 +41,13 @@ export const Sidebar = () => {
       <Link href={`/${href}`} passHref={true}>
         <li
           className={`${
-            activeClass === active ? "bg-[#F9FAFB] border-t border-b border-exm" : ""
+            activeClass === active
+              ? "bg-[#F9FAFB] border-t border-b border-exm"
+              : ""
           } flex px-[16px] py-[12px] h-[58px] items-center  text-black hover:text-black cursor-pointer hover:transition-all`}
           onClick={() => handleLink(href)}
         >
-          <div className="relative pr-[9px]">
+          <div className="pr-[9px]">
             <Icon
               size={18}
               color={activeClass === active ? "#5B38CA" : "#667085"}
@@ -69,6 +70,13 @@ export const Sidebar = () => {
             </span>
             <span className="text-[8px] text-[#A0AEC0]">{desc}</span>
           </div>
+          {active === "chats" && unreadCount > 0 ? (
+            <div className="ml-auto float-right">
+              <span className="bg-primary text-white rounded-lg w-6 h-6 flex items-center justify-center text-xs">
+                {"+" + unreadCount}
+              </span>
+            </div>
+          ) : null}
         </li>
       </Link>
     )
@@ -86,7 +94,9 @@ export const Sidebar = () => {
           />
           {Object.entries(MAIN_NAVIGATION).map(([key, arrays]) => (
             <>
-              <h2 className="px-[16px] py-[8px] capitalize text-[16px] font-bold">{key}</h2>
+              <h2 className="px-[16px] py-[8px] capitalize text-[16px] font-bold">
+                {key}
+              </h2>
               {arrays.map((items) => (
                 <NavigationItem {...items} />
               ))}

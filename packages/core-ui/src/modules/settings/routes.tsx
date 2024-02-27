@@ -9,6 +9,7 @@ import ProfileRoutes from './profile/routes';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import TeamRoutes from './team/routes';
+import PlanRoutes from '../saas/settings/plans/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -20,6 +21,7 @@ const routes = () => (
     <ImportHistory key="ImportHistory" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
+    <PlanRoutes key="Plan" />
     <MarketplaceRoutes key="Store" />
   </React.Fragment>
 );

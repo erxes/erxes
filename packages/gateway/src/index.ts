@@ -23,11 +23,28 @@ import {
 } from './subscription';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
+import * as mongoose from 'mongoose';
+import { connectionOptions } from '@erxes/api-utils/src/core';
 
-const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
-  process.env;
+const {
+  DOMAIN,
+  WIDGETS_DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
+  ALLOWED_ORIGINS,
+  PORT,
+  MONGO_URL,
+  VERSION,
+} = process.env;
+
+if (!MONGO_URL) {
+  throw new Error('MONGO_URL is not defined');
+}
 
 (async () => {
+  if (VERSION && VERSION === 'saas') {
+    await mongoose.connect(MONGO_URL, connectionOptions);
+  }
+
   app.use((req, _res, next) => {
     // this is important for security reasons
     delete req.headers['user'];

@@ -1,7 +1,7 @@
 // TODO: check if related stages are selected in client portal config
 import { paginate } from '@erxes/api-utils/src';
 
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCommonMessage,
@@ -11,13 +11,17 @@ import {
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
 
-const getByHost = async (models, requestInfo) => {
+const getByHost = async (models: IModels, requestInfo, clientPortalName?) => {
   const origin = requestInfo.headers.origin;
   const pattern = `.*${origin}.*`;
 
-  const config = await models.ClientPortals.findOne({
-    url: { $regex: pattern },
-  });
+  let config = await models.ClientPortals.findOne({ url: { $regex: pattern } });
+
+  if (clientPortalName) {
+    config = await models.ClientPortals.findOne({
+      name: clientPortalName,
+    });
+  }
 
   if (!config) {
     throw new Error('Not found');
@@ -60,10 +64,10 @@ const configClientPortalQueries = {
 
   async clientPortalGetConfigByDomain(
     _root,
-    _args,
+    { clientPortalName },
     { models, requestInfo }: IContext,
   ) {
-    return getByHost(models, requestInfo);
+    return await getByHost(models, requestInfo, clientPortalName);
   },
 
   async clientPortalGetTaskStages(

@@ -36,7 +36,7 @@ export const MoreButtonControl = (props: IRichTextEditorMoreControlProps) => {
 
   return (
     <OverlayTrigger
-      rootClose={true}
+      rootClose={false}
       trigger="click"
       placement={toolbarPlacement === 'top' ? 'bottom-end' : 'top'}
       overlay={renderMenu}

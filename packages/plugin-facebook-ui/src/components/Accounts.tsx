@@ -25,6 +25,7 @@ type Props = {
   kind: IntegrationTypes;
   renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
+  selectedAccountId?: string;
 };
 
 class Accounts extends React.Component<Props, { accountId?: string }> {
@@ -39,6 +40,13 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts && accounts.length > 0) {
       this.onSelectAccount(accounts[0]._id, accounts[0]);
+    }
+
+    if (this.props?.selectedAccountId) {
+      const account = (accounts || []).find(
+        (account) => account._id === this.props.selectedAccountId,
+      );
+      this.onSelectAccount(this.props.selectedAccountId, account);
     }
   };
 

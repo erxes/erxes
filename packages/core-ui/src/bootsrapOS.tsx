@@ -22,10 +22,10 @@ const target = document.querySelector('#root');
 const envs = getEnv();
 
 fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
-  credentials: 'include'
+  credentials: 'include',
 })
-  .then(response => response.text())
-  .then(res => {
+  .then((response) => response.text())
+  .then((res) => {
     if (res !== 'no owner') {
       localStorage.setItem('erxes_theme_configs', res);
 
@@ -46,8 +46,8 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
     const { OwnerDescription } = require('modules/auth/components/OwnerSetup');
     const OwnerSetup = require('modules/auth/containers/OwnerSetup').default;
     const Routes = require('./routes').default;
-    const AuthLayout = require('@erxes/ui/src/layout/components/AuthLayout')
-      .default;
+    const AuthLayout =
+      require('@erxes/ui/src/layout/components/AuthLayout').default;
 
     if (envs.REACT_APP_APM_SERVER_URL) {
       // TODO: Grafana Faro
@@ -67,6 +67,6 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
 
     return render(
       <ApolloProvider client={apolloClient}>{body}</ApolloProvider>,
-      target
+      target,
     );
   });
