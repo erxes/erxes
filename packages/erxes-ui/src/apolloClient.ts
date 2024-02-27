@@ -16,33 +16,40 @@ import addMergeKeyfieldPolicy from './add-merge-keyfield-policy';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
-const fetchWithTimeout = async (uri, options = {}, time) => {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error('Request timed out.'));
-    }, time);
-    fetch(uri, options).then(
-      (response) => {
-        clearTimeout(timer);
-        resolve(response);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
-};
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined
+) {
+  const timeout = init?.headers?.['x-timeout'] || 30_000;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort('Request timed out'), timeout);
+
+  try {
+    const response = await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (e) {
+    if (controller.signal.aborted) {
+      console.error(
+        `Request timed out. Client side timeout limit ${timeout}ms exceeded.`,
+        init
+      );
+      throw new Error(controller.signal.reason || 'Request timed out');
+    } else {
+      throw e;
+    }
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
   credentials: 'include',
-  fetch: (uri, options) => {
-    const timeoutFromHeader = options?.headers?.['x-timeout'];
-    const timeout = timeoutFromHeader || 8000;
-    return fetchWithTimeout(uri, options, timeout);
-  },
+  fetch: fetchWithTimeout,
 });
 
 // Error handler
@@ -66,7 +73,6 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // Combining httpLink and warelinks altogether
-// const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
 const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
@@ -77,7 +83,7 @@ export const wsLink: any = new GraphQLWsLink(
     retryWait: async () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     },
-  }),
+  })
 );
 
 type Definintion = {
@@ -93,7 +99,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLinkWithMiddleware,
+  httpLinkWithMiddleware
 );
 
 const typePolicies = {};
