@@ -26,7 +26,7 @@ export const types = () => `
     seenDate: Date
   }
 
-  type ChatReaction {
+  type ChatMessageReaction {
     user: User
     reaction: String
   }
@@ -41,7 +41,7 @@ export const types = () => `
     createdUser: User
     createdAt: Date
     seenList: [SeenInfo]
-    reactions: [ChatReaction]
+    reactions: [ChatMessageReaction]
   }
 
   type ChatUserDetails {

@@ -24,8 +24,8 @@ export const mutations = `
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
   toCheckMsdPrices(brandId: String): JSON
   toSyncMsdPrices(brandId: String, action: String, prices: [JSON]): JSON
-  toCheckMsdProductCategories(brandId: String): JSON
-  toSyncMsdProductCategories(brandId: String, action: String, categories: [JSON]): JSON
+  toCheckMsdProductCategories(brandId: String, categoryId: String): JSON
+  toSyncMsdProductCategories(brandId: String, action: String, categoryId: String, categories: [JSON]): JSON
   toCheckMsdCustomers(brandId: String): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
 `;

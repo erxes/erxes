@@ -167,13 +167,6 @@ var main = async () => {
   }
 
   fs.writeFileSync(
-    filePath('./scripts/pluginsMap.js'),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
-  );
-
-  fs.writeFileSync(
     filePath('./scripts/ownCloud/core-ui/plugins.js'),
     `
      window.plugins = ${JSON.stringify(uiPlugins)}

@@ -66,11 +66,13 @@ const ReportSectionContainer = (props: Props) => {
 
   const sections = sectionsQuery?.data?.sections || [];
   const { list = [], totalCount = 0 } = reportsQuery?.data?.reportsList || {};
+  const loading = reportsQuery.loading && sectionsQuery.loading;
 
   const updatedProps = {
     ...props,
     reports: list,
     sections,
+    loading,
     removeReports,
   };
 

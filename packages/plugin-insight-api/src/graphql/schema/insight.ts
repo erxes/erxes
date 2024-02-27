@@ -112,6 +112,7 @@ const queryParams = `
 export const queries = `
   dashboards(${queryParams}): [Dashboard]
   dashboardDetail(_id: String!): Dashboard
+  dashboardGetLast: JSON
 
   sections(type: String): [Section]
 

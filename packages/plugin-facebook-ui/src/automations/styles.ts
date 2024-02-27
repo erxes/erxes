@@ -24,6 +24,12 @@ export const Padding = styled.div`
   padding: 10px;
 `;
 
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 export const Wrapper = styled(DrawerDetail)`
   display: flex;
   flex-direction: column;

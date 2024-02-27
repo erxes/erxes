@@ -1,3 +1,43 @@
+## [1.6.2-rc.3](https://github.com/erxes/erxes/compare/1.6.2-rc.2...1.6.2-rc.3) (2024-02-26)
+
+
+### Bug Fixes
+
+* **contacts:** add missing db index ([77c94a2](https://github.com/erxes/erxes/commit/77c94a2662544a5cfaa073bbd2c5378367399a7c))
+
+## [1.6.2-rc.2](https://github.com/erxes/erxes/compare/1.6.2-rc.1...1.6.2-rc.2) (2024-02-24)
+
+
+### Bug Fixes
+
+* **facebook:** check comment id ([a8fc2e0](https://github.com/erxes/erxes/commit/a8fc2e003551a2cafebcdbb38c672ff11961abb7))
+* **facebook:** check facebook comment id ([6675336](https://github.com/erxes/erxes/commit/6675336a34d74ab4782ce86ed51ec05dc0fb5017))
+* **facebook:** debug Facebook ([f142462](https://github.com/erxes/erxes/commit/f142462d00cd960e82dd0e6189116fde54432b20))
+* **facebook:** debug Facebook post ([2eca3a4](https://github.com/erxes/erxes/commit/2eca3a485d752a6e34e0c9471286e5b9576c6af9))
+* **Facebook:** refactor Facebook ([5df6447](https://github.com/erxes/erxes/commit/5df6447deb87fbd7f88c8abfc391e1e89609c2ae))
+* **facebook:** remove logs and refactor code ([df864b6](https://github.com/erxes/erxes/commit/df864b6f8b298270895bf2638ccacbb67f43132b))
+
+## [1.6.2-rc.1](https://github.com/erxes/erxes/compare/1.6.2-rc.0...1.6.2-rc.1) (2024-02-23)
+
+## [1.6.2-rc.0](https://github.com/erxes/erxes/compare/1.6.1...1.6.2-rc.0) (2024-02-22)
+
+
+### Bug Fixes
+
+* **exm:** Update feed ([#4967](https://github.com/erxes/erxes/issues/4967)) ([c25b5e5](https://github.com/erxes/erxes/commit/c25b5e511928a633309dabdfeeec424666adb80e))
+* syncpolaris ([fc12fff](https://github.com/erxes/erxes/commit/fc12fff071c64669b7a9c1d1413b961869b5d2ae))
+* **welcome:** Tutorial link ([#4960](https://github.com/erxes/erxes/issues/4960)) ([0ac29e9](https://github.com/erxes/erxes/commit/0ac29e90bc4c786ad78f1b26e3fadbcdb4d3fa72))
+
+
+### Features
+
+* **core:** merge saas with os ([202405a](https://github.com/erxes/erxes/commit/202405a505961811a97f6f26d48b34712325acbc))
+
+
+### Performance Improvements
+
+* **exm:** Update chat and feeds ([#4973](https://github.com/erxes/erxes/issues/4973)) ([58be121](https://github.com/erxes/erxes/commit/58be121d193708447967bbba09092b20775fe4e8))
+
 ## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
 
 ## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
