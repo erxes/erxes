@@ -5,11 +5,11 @@ import {
   SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { PopoverButton, PopoverHeader } from '@erxes/ui/src/styles/eindex';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Icon from '@erxes/ui/src/components/Icon';
 import { Popover } from '@headlessui/react';
-import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import client from '@erxes/ui/src/apolloClient';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
@@ -21,26 +21,17 @@ type Props = {
   refetchRequired: string;
 };
 
-type State = {
-  counts: any;
-  loading: boolean;
-};
+const StatusFilterPopover: React.FC<Props> = ({
+  queryParams,
+  refetchRequired,
+}) => {
+  const [counts, setCounts] = useState<any>({});
+  const [loading, setLoading] = useState<boolean>(true);
 
-export default class StatusFilterPopover extends React.Component<Props, State> {
-  private overlayTrigger;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      counts: {},
-      loading: true,
-    };
-  }
-
-  fetchData = (ignoreCache = false) => {
-    const { queryParams } = this.props;
-
+  const fetchData = (ignoreCache = false) => {
     client
       .query({
         query: gql(queries.conversationCounts),
@@ -48,27 +39,25 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
-        this.setState({ counts: data.conversationCounts, loading });
+        setCounts(data.conversationCounts);
+        setLoading(loading);
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  componentDidUpdate(prevProps) {
-    if (this.props.refetchRequired !== prevProps.refetchRequired) {
-      this.fetchData(true);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (refetchRequired) {
+      fetchData(true);
     }
-  }
+  }, [refetchRequired]);
 
-  onClick = () => {
-    this.fetchData();
-  };
-
-  clearStatusFilter = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-
+  const clearStatusFilter = () => {
     router.setParams(navigate, location, {
       participating: '',
       status: '',
@@ -78,20 +67,15 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     });
   };
 
-  renderSingleFilter = (
+  const renderSingleFilter = (
     paramName: string,
     paramValue: string,
     text: string,
     count: number,
   ) => {
     const onClick = () => {
-      const location = useLocation();
-      const navigate = useNavigate();
-
-      // clear previous values
-      this.clearStatusFilter();
+      clearStatusFilter();
       router.setParams(navigate, location, { [paramName]: paramValue });
-      this.overlayTrigger.hide();
     };
 
     return (
@@ -99,7 +83,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         <a
           href="#link"
           className={
-            router.getParam(history, [paramName]) === paramValue ? 'active' : ''
+            router.getParam(location, [paramName]) === paramValue
+              ? 'active'
+              : ''
           }
           onClick={onClick}
         >
@@ -110,9 +96,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     );
   };
 
-  renderPopover = () => {
-    const { loading, counts } = this.state;
-
+  const renderPopover = () => {
     if (loading) {
       return (
         <div id="filter-popover">
@@ -128,52 +112,45 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       <div id="filter-popover" className="popover-body">
         <PopoverHeader>{__('Filter by status')}</PopoverHeader>
         <SidebarList>
-          {this.renderSingleFilter(
+          {renderSingleFilter(
             'unassigned',
             'true',
             'Unassigned',
             counts.unassigned,
           )}
-          {this.renderSingleFilter(
+          {renderSingleFilter(
             'participating',
             'true',
             'Participating',
             counts.participating,
           )}
-
-          {this.renderSingleFilter(
+          {renderSingleFilter(
             'awaitingResponse',
             'true',
             'Awaiting Response',
             counts.awaitingResponse,
           )}
-
-          {this.renderSingleFilter(
-            'status',
-            'closed',
-            'Resolved',
-            counts.resolved,
-          )}
+          {renderSingleFilter('status', 'closed', 'Resolved', counts.resolved)}
         </SidebarList>
       </div>
     );
   };
 
-  render() {
-    return (
-      <Popover>
-        {({ open }) => (
-          <>
-            <Popover.Button>
-              <PopoverButton onClick={this.onClick}>
-                {__('Status')}
-                <Icon icon={open ? 'angle-up' : 'angle-down'} />
-              </PopoverButton>
-            </Popover.Button>
-            <Popover.Panel>{this.renderPopover()}</Popover.Panel>
-          </>
-        )}
-      </Popover>
-    );
-  }
-}
+  return (
+    <Popover>
+      {({ open }) => (
+        <>
+          <Popover.Button>
+            <PopoverButton onClick={() => fetchData()}>
+              {__('Status')}
+              <Icon icon={open ? 'angle-up' : 'angle-down'} />
+            </PopoverButton>
+          </Popover.Button>
+          <Popover.Panel>{renderPopover()}</Popover.Panel>
+        </>
+      )}
+    </Popover>
+  );
+};
+
+export default StatusFilterPopover;
