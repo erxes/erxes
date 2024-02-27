@@ -1,5 +1,3 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-
 import queryString from 'query-string';
 
 /**
@@ -33,9 +31,7 @@ const setParams = (
 /**
  * @param {String} name
  */
-const getParam = (history: any, name: string | string[]) => {
-  const location = Object.assign({}, history.location);
-
+const getParam = (location: any, name: string | string[]) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
@@ -45,9 +41,11 @@ const getParam = (history: any, name: string | string[]) => {
 /**
  * @param {...String} queryNames
  */
-const removeParams = (history: any, ...queryNames: string[]) => {
-  const location = Object.assign({}, history.location);
-
+const removeParams = (
+  navigate: any,
+  location: any,
+  ...queryNames: string[]
+) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
@@ -58,7 +56,7 @@ const removeParams = (history: any, ...queryNames: string[]) => {
   const stringified = queryString.stringify(parsed);
 
   // go to new url
-  history.push(`${location.pathname}?${stringified}`);
+  navigate(`${location.pathname}?${stringified}`);
 };
 
 /*
@@ -80,12 +78,12 @@ const refetchIfUpdated = (history: any, query: any) => {
  * @param {Object} params - Updated params
  * @query {Object} query
  */
-const replaceParam = (history: any, params: any, query: any) => {
+const replaceParam = (navigate: any, params: any, query: any) => {
   Object.assign(params, query);
 
   const stringified = queryString.stringify(params);
 
-  return history.push(`${window.location.pathname}?${stringified}`);
+  return navigate(`${window.location.pathname}?${stringified}`);
 };
 
 export const generatePaginationParams = (queryParams: {

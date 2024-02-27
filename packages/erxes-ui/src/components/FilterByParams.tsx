@@ -1,13 +1,10 @@
 import { ChildList, PopoverContent, ToggleIcon } from './filterableList/styles';
 import { FieldStyle, SidebarCounter, SidebarList } from '../layout/styles';
-// import { withRouter } from 'react-router-dom';
 import { getParam, removeParams, setParams } from '../utils/router';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import DataWithLoader from './DataWithLoader';
 import EmptyState from './EmptyState';
 import Filter from './filterableList/Filter';
-import { IRouterProps } from '../types';
 import Icon from './Icon';
 import React from 'react';
 
@@ -15,6 +12,8 @@ interface IProps {
   fields: any[];
   counts: any;
   paramKey: string;
+  location: any;
+  navigate: any;
   icon?: string;
   loading: boolean;
   searchable?: boolean;
@@ -48,16 +47,14 @@ class FilterByParams extends React.Component<IProps, State> {
     }
   };
 
-  onClick = (id: string) => {
-    const { paramKey, multiple } = this.props;
-    const location = useLocation();
-    const navigate = useNavigate();
+  onClick = async (id: string) => {
+    const { paramKey, multiple, location, navigate } = this.props;
 
     if (!multiple) {
-      setParams(navigate, location, { [paramKey]: id });
+      await setParams(navigate, location, { [paramKey]: id });
     } else {
       // multi select
-      const value = getParam(history, [paramKey]);
+      const value = getParam(location, [paramKey]);
       const params = value ? value.split(',') : [];
 
       if (params.includes(id)) {
@@ -68,10 +65,16 @@ class FilterByParams extends React.Component<IProps, State> {
         params.push(id);
       }
 
-      setParams(navigate, location, { [paramKey]: params.toString() });
+      await setParams(navigate, location, { [paramKey]: params.toString() });
     }
 
-    removeParams(history, 'page');
+    // Schedule the removal of "page" parameter after 30 seconds
+    const timeoutId = setTimeout(() => {
+      removeParams(navigate, location, 'page');
+    }, 30000); // 30 seconds in milliseconds
+
+    // Clean up the timeout to avoid side effects when the component unmounts
+    return () => clearTimeout(timeoutId);
   };
 
   groupByParent = (array: any[]) => {
@@ -111,7 +114,7 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 
   renderItems() {
-    const { fields, paramKey, icon, searchable, multiple, treeView } =
+    const { fields, paramKey, icon, searchable, multiple, treeView, location } =
       this.props;
     const { key } = this.state;
 
@@ -131,7 +134,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
       let className = '';
       const _id = field._id;
-      const value = getParam(history, [paramKey]);
+      const value = getParam(location, [paramKey]);
 
       if (value === _id) {
         className = 'active';

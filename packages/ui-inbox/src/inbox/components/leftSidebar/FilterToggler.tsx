@@ -37,7 +37,7 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <GroupTitle isOpen={isOpen}>
+        <GroupTitle $isOpen={isOpen}>
           <span onClick={this.onClick}>
             {__(groupText)}
             <Icon icon="angle-down" />

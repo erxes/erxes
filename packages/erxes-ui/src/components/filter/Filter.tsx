@@ -1,7 +1,7 @@
 import { removeParams, setParams } from '../../utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Chip from '../Chip';
-import { IRouterProps } from '../../types';
 import React from 'react';
 import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';
@@ -10,7 +10,7 @@ import { gql } from '@apollo/client';
 // import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
-interface IProps extends IRouterProps {
+interface IProps {
   queryParams?: any;
   filterTitle?: string;
 }
@@ -19,22 +19,25 @@ const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, filterTitle, history }: IProps) {
+function Filter({ queryParams = {}, filterTitle }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation() as any;
+
   const onClickClose = (paramKey) => {
     for (const key of paramKey) {
-      removeParams(history, key);
+      removeParams(navigate, location, key);
     }
   };
 
   const onClickRemove = (paramKey: string, ids: string[], id: string) => {
     if (ids.length === 1) {
-      removeParams(history, paramKey);
+      removeParams(navigate, location, paramKey);
     } else {
       const index = ids.indexOf(id);
 
       ids.splice(index, 1);
 
-      setParams(history, { [paramKey]: ids.toString() });
+      setParams(navigate, location, { [paramKey]: ids.toString() });
     }
   };
 
@@ -145,9 +148,9 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('state', false)}
       {renderFilterParam('categoryApprovalState', false)}
-      {location.href.includes('forum') &&
+      {(location?.href || '').includes('forum') &&
         renderFilterWithData('categoryId', 'forum')}
-      {location.href.includes('product') &&
+      {(location?.href || '').includes('product') &&
         renderFilterWithData(
           'categoryId',
           'productCategory',
