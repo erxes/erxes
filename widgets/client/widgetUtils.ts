@@ -60,14 +60,14 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
 };
 
 export const getBrowserInfo = async () => {
-  if (window.location.hostname === 'localhost') {
-    return {
-      url: window.location.pathname,
-      hostname: window.location.href,
-      language: navigator.language,
-      userAgent: navigator.userAgent
-    };
-  }
+  // if (window.location.hostname === 'localhost') {
+  //   return {
+  //     url: window.location.pathname,
+  //     hostname: window.location.href,
+  //     language: navigator.language,
+  //     userAgent: navigator.userAgent
+  //   };
+  // }
 
   let location;
 
@@ -75,6 +75,8 @@ export const getBrowserInfo = async () => {
     const response = await fetch('https://geo.erxes.io');
 
     location = await response.json();
+
+    console.log('location', location);
   } catch (e) {
     location = {
       city: '',

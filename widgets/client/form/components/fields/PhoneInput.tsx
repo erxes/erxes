@@ -1,87 +1,88 @@
 import * as React from 'react';
+import { COUNTRY_CODES } from '../../constants';
+import { FieldValue } from '../../types';
+import { connection } from '../../connection';
 
 type Props = {
-  field: any;
-  otherFields: any[];
-  onClick?: (field: any) => void;
-  onChangeLocationOptions?: (locationOptions: any[]) => void;
+  id: string;
+  value: string;
+  onChange: (value: FieldValue) => void;
 };
 
 const PhoneInputWithCountryCode = (props: any) => {
   const { onChange } = props;
-  const [countryCode, setCountryCode] = React.useState('US'); // State for the country code
-  const [phoneNumber, setPhoneNumber] = React.useState(''); // State for the phone number
-  const [showDropdown, setShowDropdown] = React.useState(false);
-  const selectRef:any = React.createRef();
+
+  const [dialCode, setDialCode] = React.useState('+1');
+  const [phoneNumber, setPhoneNumber] = React.useState('');
+  const selectRef: any = React.createRef();
+
+  React.useEffect(() => {
+    if (connection.browserInfo) {
+      const countryCode = connection.browserInfo.countryCode;
+      const country = COUNTRY_CODES.find(
+        (country) => country.code === countryCode
+      );
+      if (country) {
+        setDialCode(country.dialCode);
+      }
+    }
+  }, [connection.browserInfo]);
 
   const handleCountryCodeChange = (e: any) => {
-    setCountryCode(e.target.value);
-
+    setDialCode(e.target.value);
     // Pass the country code and phone number to the parent component
-    onChange({
-      target: {
-        value: `+${e.target.value}${phoneNumber}`,
-      },
-    });
+    onChange(`${e.target.value}${phoneNumber}`);
   };
 
   const handlePhoneNumberChange = (e: any) => {
     setPhoneNumber(e.target.value);
-
     // Pass the country code and phone number to the parent component
-    onChange({
-      target: {
-        value: `+${countryCode}${e.target.value}`,
-      },
-    });
+    onChange(`${dialCode}${e.target.value}`);
   };
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-
-    if (!showDropdown && selectRef.current) {
-      // Focus on the select element to enable keyboard navigation
-      console.log(selectRef.current);
-      (selectRef.current as any).click();
-    }
-  };
-
-  const countryCodes = [
-    { code: 'US', name: 'United States', flag: '🇺🇸' },
-    { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-    // Add more countries as needed
-  ];
-
-  const flag = countryCodes.find((country) => country.code === countryCode)?.flag;
+  const country = COUNTRY_CODES.find(
+    (country) => country.dialCode === dialCode
+  );
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div className="dropdown-header" onClick={toggleDropdown}>
-        {countryCodes.find((country) => country.code === countryCode)?.flag}{' '}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+      }}
+    >
+      <div className="form-control" style={{ width: '130px' }}>
+        {country && `${country.emoji} ${country.dialCode}`}
       </div>
-
-      <select
-        id="country-select"
-        ref={selectRef}
-        value={countryCode}
-        onChange={handleCountryCodeChange}
-        className="form-control"
-
-        // style={{ display: showDropdown ? 'block' : 'none' }}
-      >
-        {countryCodes.map((country) => (
-          <option key={country.code} value={country.code}>
-            {country.flag} (+{country.code})
-          </option>
-        ))}
-      </select>
+      <div style={{ height: '36px' }}>
+        <select
+          id="country-select"
+          ref={selectRef}
+          value={country?.dialCode}
+          onChange={handleCountryCodeChange}
+          className="form-control"
+          style={{
+            width: '120px',
+            opacity: 0,
+            position: 'absolute',
+            left: 0,
+            cursor: 'pointer',
+          }}
+        >
+          {COUNTRY_CODES.map((country) => (
+            <option key={country.code} value={country.dialCode}>
+              {country.name} {country.emoji}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <input
         className="form-control"
         type="tel"
         value={phoneNumber}
         onChange={handlePhoneNumberChange}
-        placeholder="1234567890" // Set a default placeholder or leave it empty
       />
     </div>
   );

@@ -242,6 +242,9 @@ export default class Field extends React.Component<Props, State> {
       value,
       groupId: field.groupId,
     });
+
+    console.log("Field value: ", value);
+    
   };
 
   onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -633,9 +636,8 @@ export default class Field extends React.Component<Props, State> {
       case "phone": 
         const updatedProps = {
           value: value,
-          onChange: this.onInputChange,
+          onChange: this.onChange,
           id: field._id,
-
         }
         return <PhoneInput {...updatedProps}/>;
 
