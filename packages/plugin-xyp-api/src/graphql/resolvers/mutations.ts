@@ -28,7 +28,7 @@ const xypMutations = {
     { _id },
     { models, user, subdomain }: IContext,
   ) {
-    return await convertToPropertyData(subdomain, { customerId: _id });
+    return await convertToPropertyData(models, subdomain, { customerId: _id });
   },
 };
 
