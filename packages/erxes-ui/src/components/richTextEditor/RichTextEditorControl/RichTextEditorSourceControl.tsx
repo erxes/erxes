@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   RichTextEditorControlBase,
-  IRichTextEditorControlBaseProps
+  IRichTextEditorControlBaseProps,
 } from './RichTextEditorControl';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import { FileEarmarkCode } from 'react-bootstrap-icons';
@@ -11,23 +11,14 @@ const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
 );
 
 export const RichTextEditorSourceControl = () => {
-  const {
-    editor,
-    labels,
-    toggleSource,
-    codeMirrorRef,
-    isSourceEnabled
-  } = useRichTextEditorContext();
+  const { editor, labels, toggleSourceView, codeMirrorRef, isSourceEnabled } =
+    useRichTextEditorContext();
 
   const handleSourceEditMode = () => {
     if (isSourceEnabled) {
       const codeText = codeMirrorRef?.current?.view?.state.doc.toString() || '';
 
-      editor
-        ?.chain()
-        .focus()
-        .setContent(codeText)
-        .run();
+      editor?.chain().focus().setContent(codeText).run();
     } else {
       const plainHtml = editor?.getHTML() || '';
 
@@ -36,11 +27,11 @@ export const RichTextEditorSourceControl = () => {
         changes: {
           from: 0,
           to: viewState?.doc.length,
-          insert: formatHtmlCode(plainHtml)
-        }
+          insert: formatHtmlCode(plainHtml),
+        },
       });
     }
-    toggleSource();
+    toggleSourceView();
   };
 
   function formatHtmlCode(htmlCode: string): string {
@@ -64,7 +55,7 @@ export const RichTextEditorSourceControl = () => {
 
           result += '\n' + indent + '<' + elementNode.tagName.toLowerCase();
 
-          Array.from(elementNode.attributes).forEach(attr => {
+          Array.from(elementNode.attributes).forEach((attr) => {
             result += ` ${attr.name}="${attr.value}"`;
           });
 
@@ -72,7 +63,7 @@ export const RichTextEditorSourceControl = () => {
             result += '/>';
           } else {
             result += '>';
-            Array.from(elementNode.childNodes).forEach(child => {
+            Array.from(elementNode.childNodes).forEach((child) => {
               result += addIndentation(child, depth + 1);
             });
             result += '\n' + indent + `</${elementNode.tagName.toLowerCase()}>`;

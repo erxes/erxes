@@ -379,7 +379,13 @@ export const consumePrice = async (subdomain, config, doc, action) => {
   }
 };
 
-export const consumeCategory = async (subdomain, config, doc, action) => {
+export const consumeCategory = async (
+  subdomain,
+  config,
+  categoryId,
+  doc,
+  action,
+) => {
   const updateCode = action === 'delete' ? doc.code : doc.Code;
 
   const productCategory = await sendProductsMessage({
@@ -402,6 +408,7 @@ export const consumeCategory = async (subdomain, config, doc, action) => {
       code: doc?.Code,
       description: doc?.Description,
       scopeBrandIds: brandIds,
+      parentId: categoryId,
       status: 'active',
     };
 
@@ -794,7 +801,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           Location_Code: config.locationCode || 'BEV-01',
         };
 
-        const responseSaleLine = await fetch(`${salesLineApi}`, {
+        await fetch(`${salesLineApi}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

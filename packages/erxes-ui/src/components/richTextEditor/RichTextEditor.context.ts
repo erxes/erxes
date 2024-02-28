@@ -6,13 +6,11 @@ interface IRichTextEditorContext {
   editor: Editor | null;
   labels: IRichTextEditorLabels;
   isSourceEnabled: boolean;
-  toggleSource: () => void;
+  toggleSourceView: () => void;
   codeMirrorRef?: React.RefObject<ReactCodeMirrorRef>;
 }
 
-export const [
-  RichTextEditorProvider,
-  useRichTextEditorContext
-] = createSafeContext<IRichTextEditorContext>(
-  'RichTextEditor component was not found in tree'
-);
+export const [RichTextEditorProvider, useRichTextEditorContext] =
+  createSafeContext<IRichTextEditorContext>(
+    'RichTextEditor component was not found in tree',
+  );

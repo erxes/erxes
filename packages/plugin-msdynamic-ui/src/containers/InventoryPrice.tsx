@@ -39,7 +39,7 @@ const InventoryPriceContainer = (props: FinalProps) => {
 
   const setSyncStatusTrue = (data: any, prices: any, action: string) => {
     data[action].items = data[action].items.map((i) => {
-      if (prices.find((c) => c.code === i.code)) {
+      if (prices.find((c) => c.Item_No === i.Item_No)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;

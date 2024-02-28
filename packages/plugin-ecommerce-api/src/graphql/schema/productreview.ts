@@ -24,7 +24,7 @@ const mutationParams = `
 
 export const queries = `
   productreview(productId: String!): AverageReview
-  productreviews(productIds: [String], customerId : String):[Productreview]
+  productreviews(productIds: [String], customerId: String, page: Int, perPage: Int):[Productreview]
 `;
 
 export const mutations = `

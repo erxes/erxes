@@ -65,6 +65,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
+        timeout: 59000,
       }).then((res) => res.json());
 
       const resultCodes =
@@ -255,7 +256,7 @@ const msdynamicCheckMutations = {
 
   async toCheckMsdProductCategories(
     _root,
-    { brandId }: { brandId: string },
+    { brandId, categoryId }: { brandId: string; categoryId: string },
     { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
@@ -317,7 +318,10 @@ const msdynamicCheckMutations = {
         if (categoryCodes.includes(resProd.Code)) {
           const category = categoryByCode[resProd.Code];
 
-          if (resProd?.Code === category.code) {
+          if (
+            resProd?.Code === category.code &&
+            categoryId === category?.parentId
+          ) {
             matchedCount = matchedCount + 1;
           } else {
             updateCategories.push(resProd);
@@ -396,6 +400,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
+        timeout: 59000,
       }).then((res) => res.json());
 
       const resultCodes =

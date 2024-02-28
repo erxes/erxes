@@ -95,8 +95,14 @@ const msdynamicSyncMutations = {
     {
       brandId,
       action,
+      categoryId,
       categories,
-    }: { brandId: string; action: string; categories: any[] },
+    }: {
+      brandId: string;
+      action: string;
+      categoryId: string;
+      categories: any[];
+    },
     { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
@@ -106,19 +112,31 @@ const msdynamicSyncMutations = {
       switch (action) {
         case 'CREATE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, config, category, 'create');
+            await consumeCategory(
+              subdomain,
+              config,
+              categoryId,
+              category,
+              'create',
+            );
           }
           break;
         }
         case 'UPDATE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, config, category, 'update');
+            await consumeCategory(
+              subdomain,
+              config,
+              categoryId,
+              category,
+              'update',
+            );
           }
           break;
         }
         case 'DELETE': {
           for (const category of categories) {
-            await consumeCategory(subdomain, config, category, 'delete');
+            await consumeCategory(subdomain, config, '', category, 'delete');
           }
           break;
         }

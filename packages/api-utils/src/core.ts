@@ -385,11 +385,17 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
+      if(!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``)
+      }
+
       await getCoreConnection();
 
       const organization = await coreModelOrganizations.findOne({ subdomain });
 
-      if (!organization) return models;
+      if (!organization) {
+        throw new Error(`Organization with subdomain = ${subdomain} is not found`);
+      }
 
       const DB_NAME = getEnv({ name: 'DB_NAME' });
       const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
@@ -399,14 +405,12 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
       // @ts-ignore
       const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
-        // so that conn.model method can use cache
+        // so that conn.model method can use cached connection
         useCache: true,
         noListener: true,
       });
 
-      models = await loadClasses(tenantCon, subdomain);
-
-      return models;
+      return await loadClasses(tenantCon, subdomain);
     };
   }
 };

@@ -9,7 +9,7 @@ import {
 import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import InventoryCategory from '../components/category/InventoryCategory';
@@ -27,9 +27,15 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
   const brandId = props.queryParams.brandId || 'noBrand';
+  const categoryId = props.queryParams.categoryId || 'noCategory';
 
   const setBrand = (brandId: string) => {
     router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
+
+  const setCategory = (categoryId: string) => {
+    router.setParams(props.history, { categoryId: categoryId });
     return router;
   };
 
@@ -39,9 +45,10 @@ const InventoryCategoryContainer = (props: FinalProps) => {
 
   const setSyncStatusTrue = (data: any, categories: any, action: string) => {
     data[action].items = data[action].items.map((i) => {
-      if (categories.find((c) => c.code === i.code)) {
+      if (categories.find((c) => c.Code === i.Code)) {
         const temp = i;
         temp.syncStatus = true;
+
         return temp;
       }
       return i;
@@ -62,7 +69,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     setLoading(true);
     props
       .toCheckMsdProductCategories({
-        variables: { brandId },
+        variables: { brandId, categoryId },
       })
       .then((response) => {
         const data = response.data.toCheckMsdProductCategories;
@@ -87,6 +94,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
         variables: {
           brandId,
           action,
+          categoryId,
           categories,
         },
       })
@@ -110,6 +118,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setCategory,
     setBrand,
     toCheckCategory,
     toSyncCategory,

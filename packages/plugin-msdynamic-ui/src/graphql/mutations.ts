@@ -17,14 +17,14 @@ const toSyncProducts = `
 `;
 
 const toCheckCategories = `
-  mutation toCheckMsdProductCategories($brandId: String) {
-    toCheckMsdProductCategories(brandId: $brandId)
+  mutation toCheckMsdProductCategories($brandId: String, $categoryId: String) {
+    toCheckMsdProductCategories(brandId: $brandId, categoryId: $categoryId)
   }
 `;
 
 const toSyncCategories = `
-  mutation toSyncMsdProductCategories($brandId: String, $action: String, $categories: [JSON]) {
-    toSyncMsdProductCategories(brandId: $brandId, action: $action, categories: $categories)
+  mutation toSyncMsdProductCategories($brandId: String, $action: String, $categoryId: String, $categories: [JSON]) {
+    toSyncMsdProductCategories(brandId: $brandId, action: $action, categoryId: $categoryId, categories: $categories)
   }
 `;
 

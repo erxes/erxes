@@ -44,7 +44,8 @@ type ToolbarItem = string | DropdownControlType;
 
 export type EditorMethods = {
   getIsFocused: () => boolean | undefined;
-  editor: Editor | null;
+  getEditor: () => Editor | null;
+  focus: (position?: 'start' | 'end' | 'all' | number | boolean | null) => void;
 };
 
 export interface IRichTextEditorProps extends IRichTextEditorContentProps {
@@ -75,20 +76,6 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   props: IRichTextEditorProps,
   ref: React.ForwardedRef<EditorMethods>,
 ) {
-  const editorRef: React.MutableRefObject<Editor | null> = useRef(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
-  const [isSourceEnabled, setIsSourceEnabled] = useState(false);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      editor: editor,
-      getIsFocused: () => editorRef.current?.isFocused,
-    }),
-    [],
-  );
-
   const {
     placeholder,
     content = '',
@@ -117,27 +104,10 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     autoGrowMinHeight,
   };
 
-  const mergedLabels = useMemo(
-    () => ({ ...DEFAULT_LABELS, ...labels }),
-    [labels],
-  );
-
-  const handleEditorChange = useCallback(
-    ({ editor: editorInstance }) => {
-      if (onChange) {
-        onChange(editorInstance.getHTML());
-      }
-
-      if (name) {
-        localStorage.setItem(name, content);
-      }
-    },
-    [name],
-  );
-
-  const toggleSource = () => {
-    setIsSourceEnabled(!isSourceEnabled);
-  };
+  const editorRef: React.MutableRefObject<Editor | null> = useRef(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
+  const [isSourceEnabled, setIsSourceEnabled] = useState(false);
 
   const extensions = useExtensions({
     placeholder: placeholder ?? '',
@@ -149,7 +119,6 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   const editor = useEditor(
     {
       extensions,
-      content,
       parseOptions: { preserveWhitespace: 'full' },
       autofocus: autoFocus,
     },
@@ -157,7 +126,17 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   );
 
   useEffect(() => {
+    const handleEditorChange = ({ editor }) => {
+      const editorContent = editor.getHTML();
+      onChange && onChange(editorContent);
+
+      if (name) {
+        localStorage.setItem(name, editorContent);
+      }
+    };
+
     editor && editor.on('update', handleEditorChange);
+
     return () => {
       editor && editor.off('update', handleEditorChange);
     };
@@ -165,14 +144,18 @@ const RichTextEditor = forwardRef(function RichTextEditor(
 
   useEffect(() => {
     if (editor) {
-      editor.commands.setContent(content, false, {
-        preserveWhitespace: true,
-      });
-      if (onChange) {
-        onChange(content);
-      }
+      const { from, to } = editor.state.selection;
+      editor
+        .chain()
+        .setContent(content, false, {
+          preserveWhitespace: true,
+        })
+        .setTextSelection({ from, to })
+        .run();
+
+      onChange && onChange(content);
     }
-  }, [content]);
+  }, [editor, content]);
 
   useEffect(() => {
     if (editor && name) {
@@ -183,17 +166,31 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       editor.commands.setContent(storedContent, false, {
         preserveWhitespace: true,
       });
-      if (onChange) {
-        onChange(editor.getHTML());
-      }
+
+      onChange && onChange(storedContent);
     }
-  }, [name, isSubmitted]);
+  }, [editor, name]);
 
   useEffect(() => {
     if (name && isSubmitted) {
       localStorage.removeItem(name);
     }
   }, [name, isSubmitted]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getEditor: () => editorRef.current,
+      getIsFocused: () => editorRef.current?.isFocused,
+      focus: (position) => editorRef.current?.commands.focus(position),
+    }),
+    [],
+  );
+
+  const mergedLabels = useMemo(
+    () => ({ ...DEFAULT_LABELS, ...labels }),
+    [labels],
+  );
 
   const editorParts = useMemo(
     () => [
@@ -311,6 +308,10 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     );
   }, []);
 
+  const toggleSourceView = () => {
+    setIsSourceEnabled(!isSourceEnabled);
+  };
+
   if (!editor) return null;
   editorRef.current = editor;
   return (
@@ -319,7 +320,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
         editor,
         labels: mergedLabels,
         isSourceEnabled,
-        toggleSource,
+        toggleSourceView,
         codeMirrorRef,
       }}
     >
