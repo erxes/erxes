@@ -10,7 +10,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'tags',
@@ -38,8 +37,6 @@ export default {
   middlewares: [(serverTiming as any)()],
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

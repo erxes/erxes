@@ -7,8 +7,6 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './models';
 import { initBroker, createRoutes } from './server';
 
-export let mainDb;
-
 export let debug;
 
 export default {
@@ -35,8 +33,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     debug = options.debug;
 
     console.log('options.messageBrokerClient', options.messageBrokerClient);

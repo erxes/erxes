@@ -9,7 +9,6 @@ import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
-export let mainDb;
 export let serviceDiscovery;
 
 export default {
@@ -32,8 +31,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     await initBroker();
 
     debug = options.debug;

@@ -9,7 +9,6 @@ import { pageReplacer } from './utils';
 const permissions = require('./permissions');
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -33,8 +32,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

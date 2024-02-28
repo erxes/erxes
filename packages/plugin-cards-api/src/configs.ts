@@ -27,7 +27,6 @@ import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 
 import { NOTIFICATION_MODULES } from './constants';
-export let mainDb;
 export let debug;
 
 export default {
@@ -82,8 +81,6 @@ export default {
   },
   middlewares: [(serverTiming as any)()],
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {

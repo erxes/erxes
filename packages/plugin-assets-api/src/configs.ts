@@ -12,7 +12,6 @@ import internalNotes from './internalNotes';
 import logUtils from './logUtils';
 import * as permissions from './permissions';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -45,8 +44,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

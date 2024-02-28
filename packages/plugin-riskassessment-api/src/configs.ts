@@ -11,7 +11,6 @@ import * as permissions from './permissions';
 import tags from './tags';
 import forms from './forms';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -35,8 +34,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;
