@@ -119,7 +119,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               onClick={() => this.onTypeChange("phone")}
               style={{ borderColor: color }}
             >
-              {__("SMS")}
+              {__("Phone")}
             </span>
           </p>
 
