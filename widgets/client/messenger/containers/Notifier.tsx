@@ -65,7 +65,7 @@ const withPollInterval = compose(
       },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: "network-only",
-      skip: !connection.data.customerId,
+      skip: !connection.data.customerId || !connection.enabledServices.engage,
       // every minute
       pollInterval: 60000
     })
