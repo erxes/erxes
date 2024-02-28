@@ -107,6 +107,10 @@ const List = (props: Props) => {
         if (foundBuilding && foundBuilding?.serviceStatus === 'inprogress') {
           return '#ffcc00';
         }
+        if (foundBuilding && foundBuilding?.serviceStatus === 'unavailable') {
+          return '#00bbff';
+        }
+
         if (current) {
           return '#00bbff';
         }

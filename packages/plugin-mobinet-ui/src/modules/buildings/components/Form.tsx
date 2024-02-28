@@ -322,11 +322,13 @@ const BuildingForm = (props: Props) => {
             name="serviceStatus"
             onChange={onChangeInput}
           >
-            {['inactive', 'active', 'inprogress'].map((p, index) => (
-              <option key={index} value={p}>
-                {p}
-              </option>
-            ))}
+            {['inactive', 'active', 'inprogress', 'unavailable'].map(
+              (p, index) => (
+                <option key={index} value={p}>
+                  {p}
+                </option>
+              ),
+            )}
           </FormControl>
         </FormGroup>
 
