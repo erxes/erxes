@@ -5,7 +5,7 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 import {
   IConversationModel,
-  loadConversationClass
+  loadConversationClass,
 } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
 
@@ -15,22 +15,22 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IConversationMessageDocument } from './models/definitions/conversationMessages';
 import {
   IConversationMessageModel,
-  loadConversationMessageClass
+  loadConversationMessageClass,
 } from './models/ConversationMessages';
 import {
   IAccountDocument,
   IAccountModel,
-  loadAccountClass
+  loadAccountClass,
 } from './models/Accounts';
 import {
   IConfigDocument,
   IConfigModel,
-  loadConfigClass
+  loadConfigClass,
 } from './models/Configs';
 import {
   IIntegrationDocument,
   IIntegrationModel,
-  loadIntegrationClass
+  loadIntegrationClass,
 } from './models/Integrations';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { ILogDocument } from './models/definitions/logs';
@@ -50,33 +50,31 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'instagram_accounts',
-    loadAccountClass(models)
+    loadAccountClass(models),
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'instagram_configs',
-    loadConfigClass(models)
+    loadConfigClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'instagram_integrations',
-    loadIntegrationClass(models)
+    loadIntegrationClass(models),
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'instagram_conversations',
-    loadConversationClass(models)
+    loadConversationClass(models),
   );
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'instagram_customers',
-    loadCustomerClass(models)
+    loadCustomerClass(models),
   );
 
   models.ConversationMessages = db.model<
@@ -87,7 +85,4 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

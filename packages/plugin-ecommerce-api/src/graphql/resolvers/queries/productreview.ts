@@ -1,6 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { models } from '../../../connectionResolver';
 const productreviewQueries = {
   productreview: async (
     _root,

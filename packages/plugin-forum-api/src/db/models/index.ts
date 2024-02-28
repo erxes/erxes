@@ -5,7 +5,7 @@ import { generateCategoryModel, ICategoryModel } from './category';
 import { generateCommentModel, ICommentModel } from './comment';
 import {
   generateForumClientPortalUserModel,
-  IForumClientPortalUserModel
+  IForumClientPortalUserModel,
 } from './forumClientPortalUser';
 import { generateFollowCpUserModel, IFollowCpUserModel } from './followCpUser';
 import { generatePostModel, IPostModel } from './post';
@@ -16,11 +16,11 @@ import { IPermissionGroupUserModel } from './permissionGroupModels/permissionGro
 import { IPermissionGroupCategoryPermitModel } from './permissionGroupModels/permissionGroupCategoryPermit';
 import {
   generateSubscriptionProductModel,
-  ISubscriptionProductModel
+  ISubscriptionProductModel,
 } from './subscription/subscriptionProduct';
 import {
   generateSubscriptionOrderModel,
-  ISubscriptionOrderModel
+  ISubscriptionOrderModel,
 } from './subscription/subscriptionOrder';
 import { generatePageModel, IPageModel } from './page';
 import { generateFollowTagModel, IFollowTagModel } from './followTag';
@@ -31,7 +31,7 @@ import {
   generateQuizModels,
   QuizChoiceModel,
   QuizModel,
-  QuizQuestionModel
+  QuizQuestionModel,
 } from './quiz';
 
 export interface IModels {
@@ -59,12 +59,9 @@ export interface IModels {
   QuizChoice: QuizChoiceModel;
 }
 
-export let models: IModels | null = null;
-
 export const generateModels = createGenerateModels<IModels>(
-  models,
   (connection: Connection, subdomain: string): IModels => {
-    models = {} as IModels;
+    const models = {} as IModels;
     generateCategoryModel(subdomain, connection, models);
     generatePostModel(subdomain, connection, models);
     generateCommentModel(subdomain, connection, models);
@@ -81,5 +78,5 @@ export const generateModels = createGenerateModels<IModels>(
     generatePollVoteModel(subdomain, connection, models);
     generateQuizModels(subdomain, connection, models);
     return models;
-  }
+  },
 );

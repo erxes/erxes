@@ -359,10 +359,16 @@ export const connectionOptions: mongoose.ConnectionOptions = {
   family: 4,
 };
 
-export const createGenerateModels = <IModels>(models, loadClasses) => {
+export const createGenerateModels = <IModels>(
+  loadClasses: (
+    db: mongoose.Connection,
+    subdomain: string,
+  ) => IModels | Promise<IModels>,
+) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   if (VERSION && VERSION !== 'saas') {
+    let models: IModels | null = null;
     return async (hostnameOrSubdomain: string): Promise<IModels> => {
       if (models) {
         return models;
@@ -370,9 +376,9 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
       const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
-      const db = await mongoose.connect(MONGO_URL, connectionOptions);
+      await mongoose.connect(MONGO_URL, connectionOptions);
 
-      models = loadClasses(db, hostnameOrSubdomain);
+      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
 
       return models;
     };
@@ -385,8 +391,8 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
-      if(!subdomain) {
-        throw new Error(`Subdomain is \`${subdomain}\``)
+      if (!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``);
       }
 
       await getCoreConnection();
@@ -394,7 +400,9 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
       const organization = await coreModelOrganizations.findOne({ subdomain });
 
       if (!organization) {
-        throw new Error(`Organization with subdomain = ${subdomain} is not found`);
+        throw new Error(
+          `Organization with subdomain = ${subdomain} is not found`,
+        );
       }
 
       const DB_NAME = getEnv({ name: 'DB_NAME' });

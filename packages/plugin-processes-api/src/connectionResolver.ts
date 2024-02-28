@@ -6,7 +6,7 @@ import { IFlowModel, loadFlowClass } from './models/Flows';
 import { IJobCategoryDocument } from './models/definitions/jobCategories';
 import {
   IJobCategoryModel,
-  loadJobCategoryClass
+  loadJobCategoryClass,
 } from './models/JobCategories';
 import { IJobReferDocument } from './models/definitions/jobs';
 import { IJobReferModel, loadJobReferClass } from './models/Jobs';
@@ -30,40 +30,35 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.JobCategories = db.model<IJobCategoryDocument, IJobCategoryModel>(
     'job_categories',
-    loadJobCategoryClass(models)
+    loadJobCategoryClass(models),
   );
   models.JobRefers = db.model<IJobReferDocument, IJobReferModel>(
     'job_refers',
-    loadJobReferClass(models)
+    loadJobReferClass(models),
   );
   models.Flows = db.model<IFlowDocument, IFlowModel>(
     'flows',
-    loadFlowClass(models)
+    loadFlowClass(models),
   );
   models.Processes = db.model<IProcessDocument, IProcessModel>(
     'processes',
-    loadProcessClass(models)
+    loadProcessClass(models),
   );
   models.Works = db.model<IWorkDocument, IWorkModel>(
     'works',
-    loadWorkClass(models)
+    loadWorkClass(models),
   );
   models.Performs = db.model<IPerformDocument, IPerformModel>(
     'performs',
-    loadPerformClass(models)
+    loadPerformClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);
