@@ -9,8 +9,6 @@ import beforeResolvers from './beforeResolvers';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'ebarimt',
   permissions,
@@ -35,8 +33,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

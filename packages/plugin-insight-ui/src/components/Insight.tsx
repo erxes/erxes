@@ -8,7 +8,7 @@ type Props = {
   history: any;
   queryParams: any;
   component: any;
-  loading?: any;
+  loading: boolean;
 };
 
 const Insight = (props: Props) => {

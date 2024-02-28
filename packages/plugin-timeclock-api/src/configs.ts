@@ -10,7 +10,6 @@ import { buildFile } from './reportExport';
 import * as permissions from './permissions';
 import { removeDuplicates } from './removeDuplicateTimeclocks';
 import app from '@erxes/api-utils/src/app';
-export let mainDb;
 export let debug;
 
 export default {
@@ -39,8 +38,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     app.get(
       '/remove-duplicates',
       routeErrorHandling(async (req: any, res) => {

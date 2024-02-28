@@ -10,7 +10,6 @@ import automations from './automations';
 import forms from './forms';
 import segments from './segments';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -47,8 +46,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     await initBroker();
 
     await initApp();

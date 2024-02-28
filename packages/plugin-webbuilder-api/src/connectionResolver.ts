@@ -29,40 +29,35 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Sites = db.model<ISiteDocument, ISiteModel>(
     'webbuilder_sites',
-    loadSiteClass(models)
+    loadSiteClass(models),
   );
 
   models.Pages = db.model<IPageDocument, IPageModel>(
     'webbuilder_pages',
-    loadPageClass(models)
+    loadPageClass(models),
   );
 
   models.ContentTypes = db.model<IContentTypeDocument, IContentTypeModel>(
     'webbuilder_contenttypes',
-    loadTypeClass(models)
+    loadTypeClass(models),
   );
 
   models.Entries = db.model<IEntryDocument, IEntryModel>(
     'webbuilder_entries',
-    loadEntryClass(models)
+    loadEntryClass(models),
   );
 
   models.Templates = db.model<ITemplateDocument, ITemplateModel>(
     'webbuilder_templates',
-    loadTemplateClass(models)
+    loadTemplateClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -17,7 +17,6 @@ import { getOrganizations } from '@erxes/api-utils//src/saas/saas';
 import logs from './logUtils';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -45,8 +44,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     debug = options.debug;
 
     initBroker();

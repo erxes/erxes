@@ -8,7 +8,6 @@ import * as permissions from './permissions';
 import automations from './automations';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'webhooks',
@@ -29,8 +28,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

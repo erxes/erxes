@@ -8,7 +8,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'integrations',
@@ -34,8 +33,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     initApp();

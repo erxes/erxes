@@ -230,6 +230,14 @@ const fieldQueries = {
       relationType: { $exists: true },
     });
   },
+
+  async fieldByCode(
+    _root,
+    { contentType, code }: { contentType: string; code: string },
+    { models }: IContext,
+  ) {
+    return models.Fields.findOne({ contentType, code });
+  },
 };
 
 requireLogin(fieldQueries, 'fieldsCombinedByContentType');

@@ -56,7 +56,10 @@ export const getPostDetails = async (
   }
 
   try {
-    const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
+    const response: any = await graphRequest.get(
+      `/${postId}?fields=permalink_url,message,created_time`,
+      pageAccessToken,
+    );
 
     return response;
   } catch (e) {
