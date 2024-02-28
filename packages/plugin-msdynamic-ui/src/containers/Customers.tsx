@@ -129,6 +129,13 @@ export default withProps<Props>(
       gql(mutations.toCheckCustomers),
       {
         name: 'toCheckMsdCustomers',
+        options: () => ({
+          context: {
+            headers: {
+              'x-timeout': 60000, // Set custom timeout 60 seconds for this request
+            },
+          },
+        }),
       },
     ),
     graphql<Props, ToSyncCustomersMutationResponse, {}>(
