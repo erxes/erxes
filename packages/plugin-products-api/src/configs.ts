@@ -18,7 +18,6 @@ import documents from './documents';
 import dashboards from './dashboards';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'products',

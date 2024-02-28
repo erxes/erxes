@@ -9,8 +9,6 @@ import * as permissions from './permissions';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'productplaces',
   permissions,
@@ -36,8 +34,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     await initBroker();
 
     debug = options.debug;

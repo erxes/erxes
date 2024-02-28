@@ -10,7 +10,6 @@ import initialSetup from './initialSetup';
 import segments from './segments';
 import dashboards from './dashboards';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -38,8 +37,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

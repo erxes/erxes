@@ -13,8 +13,6 @@ import { loadSubscriptions } from './subscriptions';
 
 export let debug;
 
-export let mainDb;
-
 dotenv.config();
 
 export default {
@@ -96,8 +94,6 @@ export default {
   ],
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

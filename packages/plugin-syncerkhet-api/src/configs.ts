@@ -11,7 +11,6 @@ import afterQueries from './afterQueries';
 import { getOrderInfo } from './routes';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'syncerkhet',
@@ -33,8 +32,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     await initBrokerErkhet();
     await initBroker();
 

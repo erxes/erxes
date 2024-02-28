@@ -1,12 +1,11 @@
 import * as xlsxPopulate from 'xlsx-populate';
-import * as mongoose from 'mongoose';
 import * as moment from 'moment';
 import * as fs from 'fs';
-import { connect } from '../utils';
 import { createAWS, createCFR2, uploadsFolderPath } from '../../data/utils';
 import { getFileUploadConfigs } from '../../messageBroker';
 import { generateModels, IModels } from '../../connectionResolvers';
 import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -169,8 +168,8 @@ export const uploadFileCloudflare = async (
   return { file, rowIndex, error };
 };
 
-connect()
-  .then(async () => {
+async function main() {
+  try {
     console.log(`Worker message recieved`);
 
     const {
@@ -298,15 +297,17 @@ connect()
       finalResponse,
     );
 
-    mongoose.connection.close();
-
     console.log(`Worker done`);
 
     parentPort.postMessage({
       action: 'remove',
       message: 'Successfully finished the job',
     });
-  })
-  .catch((e) => {
-    throw e;
-  });
+
+    await disconnect();
+  } catch (e) {
+    console.log(`Worker error`, e);
+  }
+}
+
+main();
