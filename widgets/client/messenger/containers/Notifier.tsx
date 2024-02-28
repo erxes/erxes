@@ -56,6 +56,7 @@ class Notifier extends React.Component<Props> {
 const withPollInterval = compose(
   graphql<Props>(gql(graphqlTypes.getEngageMessage), {
     name: "engageMessageQuery",
+    skip: !connection.data.customerId || !connection.enabledServices.engage,
     options: ownProps => ({
       variables: {
         integrationId: connection.data.integrationId,
@@ -65,7 +66,6 @@ const withPollInterval = compose(
       },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: "network-only",
-      skip: !connection.data.customerId || !connection.enabledServices.engage,
       // every minute
       pollInterval: 60000
     })
