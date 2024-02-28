@@ -15,13 +15,11 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'multierkhet_configs',
@@ -36,7 +34,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses,
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

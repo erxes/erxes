@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import app from '@erxes/api-utils/src/app';
