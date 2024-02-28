@@ -37,7 +37,6 @@ export const saveBrowserInfo = () => {
       setting: connection.setting,
     },
     callback: (browserInfo) => {
-      console.log('browserInfoooooo', browserInfo);
       connection.browserInfo = browserInfo;
     },
   });
