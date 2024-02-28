@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IXypData, IXypconfigDocument } from './models/definitions/xypdata';
 import { IXypDataModel, loadxypConfigClass } from './models/xypdata';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   XypData: IXypDataModel;
@@ -14,21 +15,10 @@ export interface IContext extends IMainContext {
   cpUser: any;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string,
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
-
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+): IModels => {
   const models = {} as IModels;
 
   models.XypData = db.model<IXypconfigDocument, IXypDataModel>(
@@ -38,3 +28,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(loadClasses);

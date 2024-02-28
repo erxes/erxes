@@ -60,7 +60,6 @@ export interface IModels {
 }
 
 export const generateModels = createGenerateModels<IModels>(
-  models,
   (connection: Connection, subdomain: string): IModels => {
     const models = {} as IModels;
     generateCategoryModel(subdomain, connection, models);
