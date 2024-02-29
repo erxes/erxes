@@ -152,7 +152,7 @@ interface IRenderData {
   toggleSection: () => void;
 }
 
-class Index extends React.Component<IndexProps, IndexState> {
+class RightSidebar extends React.Component<IndexProps, IndexState> {
   constructor(props) {
     super(props);
 
@@ -376,4 +376,4 @@ class Index extends React.Component<IndexProps, IndexState> {
   }
 }
 
-export default Index;
+export default RightSidebar;

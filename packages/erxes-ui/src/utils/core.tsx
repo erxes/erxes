@@ -620,7 +620,6 @@ export const bustIframe = () => {
     const antiClickjack = document.getElementById('anti-clickjack');
 
     if (antiClickjack && antiClickjack.parentNode) {
-      console.log('heree1222222222====================');
       antiClickjack.parentNode.removeChild(antiClickjack);
     }
   } else {
