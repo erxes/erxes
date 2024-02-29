@@ -1,4 +1,4 @@
-import { IContext, models } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 import { IGrantRequest } from '../../models/definitions/grant';
 
@@ -10,7 +10,7 @@ export default {
   async users(
     request: { _id: string } & IGrantRequest,
     {},
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     if (!request?.userIds?.length) {
       return null;
@@ -18,7 +18,7 @@ export default {
 
     const responses = await models.Responses.find({
       requestId: request._id,
-      userId: request.userIds
+      userId: request.userIds,
     });
 
     const users = await sendCoreMessage({
@@ -26,15 +26,17 @@ export default {
       action: 'users.find',
       data: {
         query: {
-          _id: { $in: request.userIds }
-        }
+          _id: { $in: request.userIds },
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const user of users) {
-      const response = responses.find(response => response.userId === user._id);
+      const response = responses.find(
+        (response) => response.userId === user._id,
+      );
       if (response) {
         user.grantResponse = response.response;
       } else {
@@ -49,27 +51,27 @@ export default {
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: { $in: requesterId }
+        _id: { $in: requesterId },
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
   },
 
   async detail(
     { contentType, contentTypeId, scope }: IGrantRequest,
     {},
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const detail = await sendCommonMessage({
       subdomain,
       serviceName: scope,
       action: `${contentType}s.findOne`,
       data: {
-        _id: contentTypeId
+        _id: contentTypeId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     return detail ? detail : null;
@@ -77,7 +79,7 @@ export default {
   async responses(
     { _id }: { _id: string } & IGrantRequest,
     {},
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.Responses.find({ requestId: _id });
   },
@@ -85,7 +87,8 @@ export default {
   async actionLabel({ action }: IGrantRequest, {}, { models }: IContext) {
     const actions = await models.Requests.getGrantActions();
     return (
-      actions.find(grantAction => grantAction.action === action)?.label || null
+      actions.find((grantAction) => grantAction.action === action)?.label ||
+      null
     );
-  }
+  },
 };

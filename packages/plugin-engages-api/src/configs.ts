@@ -12,7 +12,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -39,8 +38,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     // Insert routes below
     app.use('/telnyx', telnyx);
 

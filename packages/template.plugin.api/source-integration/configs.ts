@@ -4,7 +4,6 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import init from './controller';
 
-export let mainDb;
 
 
 
@@ -29,7 +28,7 @@ export default {
   },
 
   onServerInit: async options => {
-    mainDb = options.db;
+    
 
     debug = options.debug;
     

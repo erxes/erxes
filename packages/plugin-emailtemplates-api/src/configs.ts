@@ -9,8 +9,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'emailtemplates',
   permissions,
@@ -29,8 +27,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

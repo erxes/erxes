@@ -16,7 +16,6 @@ import i18n = require('i18n');
 import { PAYMENTS } from './api/constants';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -71,8 +70,6 @@ export default {
   middlewares: [cookieParser(), bodyParser.json()],
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

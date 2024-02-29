@@ -13,7 +13,6 @@ import { storeInterestCron } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'savings',
@@ -35,8 +34,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;
