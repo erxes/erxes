@@ -2,24 +2,27 @@ import { __, router } from '../utils/core';
 
 import Box from './Box';
 import FilterByParams from './FilterByParams';
-import { IRouterProps } from '../types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from './Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // import { withRouter } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   tags: ITag[];
   counts: any;
   manageUrl: string;
   loading: boolean;
 }
 
-function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
+function CountsByTag({ tags, counts, manageUrl, loading }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onClick = () => {
-    router.setParams(history, { tag: null });
+    router.setParams(navigate, location, { tag: null });
   };
 
   const extraButtons = (
@@ -28,7 +31,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
         <Icon icon="cog" />
       </Link>
 
-      {router.getParam(history, 'tag') && (
+      {router.getParam(location, 'tag') && (
         <a href="#cancel" tabIndex={0} onClick={onClick}>
           <Icon icon="times-circle" />
         </a>
@@ -50,6 +53,8 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
         icon="tag-alt"
         loading={loading}
         treeView={true}
+        location={location}
+        navigate={navigate}
       />
     </Box>
   );

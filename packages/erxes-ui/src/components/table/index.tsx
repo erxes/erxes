@@ -3,14 +3,14 @@ import { StyledTable, TableWrapper } from './styles';
 
 type Props = {
   children: React.ReactNode;
-  striped?: boolean;
-  bordered?: boolean;
-  condensed?: boolean;
-  hover?: boolean;
-  responsive?: boolean;
-  whiteSpace?: string;
-  alignTop?: boolean;
-  wideHeader?: boolean;
+  $striped?: boolean;
+  $bordered?: boolean;
+  $condensed?: boolean;
+  $hover?: boolean;
+  $responsive?: boolean;
+  $whiteSpace?: string;
+  $alignTop?: boolean;
+  $wideHeader?: boolean;
 };
 
 class Table extends React.Component<Props> {
@@ -21,7 +21,7 @@ class Table extends React.Component<Props> {
     condensed: false,
     hover: false,
     responsive: false,
-    alignTop: false
+    alignTop: false,
   };
 
   render() {

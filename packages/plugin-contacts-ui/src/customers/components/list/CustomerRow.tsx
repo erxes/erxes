@@ -1,10 +1,10 @@
 import {
   BooleanStatus,
-  ClickableRow
+  ClickableRow,
 } from '@erxes/ui-contacts/src/customers/styles';
 import {
   GENDER_TYPES,
-  LEAD_STATUS_TYPES
+  LEAD_STATUS_TYPES,
 } from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
 
@@ -37,7 +37,7 @@ function displayObjectListItem(customer, customerFieldName, subFieldName) {
   const subFieldKey = subFieldName.replace(`${customerFieldName}.`, '');
 
   const subField = objectList.find
-    ? objectList.find(obj => obj.field === subFieldKey)
+    ? objectList.find((obj) => obj.field === subFieldKey)
     : [];
 
   if (!subField) {
@@ -147,22 +147,22 @@ function CustomerRow({
   toggleBulk,
   isChecked,
   history,
-  index
+  index,
 }: Props) {
   const tags = customer.getTags;
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
   const onTrClick = () => {
-    history.push(`/contacts/details/${customer._id}`);
+    history(`/contacts/details/${customer._id}`);
   };
 
   return (

@@ -13,9 +13,9 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 // import { withRouter } from 'react-router-dom';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   integrations: IIntegration[];
   loading: boolean;
@@ -23,24 +23,19 @@ interface IProps extends IRouterProps {
   all: number;
 }
 
-function Leads({
-  history,
-  counts,
-  integrations = [],
-  loading,
-  loadMore,
-  all,
-}: IProps) {
+function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
   let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = useState(
-    router.getParam(history, 'searchTarget') || '',
+    router.getParam(location, 'searchTarget') || '',
   );
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = useState(false);
 
   const onClick = (formId) => {
-    router.setParams(history, { form: formId });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { form: formId });
+    router.removeParams(navigate, location, 'page');
   };
 
   const search = (e) => {
@@ -57,7 +52,7 @@ function Leads({
       setDisableLoadMoreBtn(false);
     }
     timer = setTimeout(() => {
-      router.setParams(history, { searchTarget: inputValue });
+      router.setParams(navigate, location, { searchTarget: inputValue });
     }, 1000);
   };
 
@@ -78,7 +73,7 @@ function Leads({
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'form') === form._id ? 'active' : ''
+              router.getParam(location, 'form') === form._id ? 'active' : ''
             }
             onClick={onClick.bind(null, form._id)}
           >

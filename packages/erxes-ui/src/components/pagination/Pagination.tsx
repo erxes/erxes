@@ -7,6 +7,7 @@ import Icon from '../Icon';
 import PerPageChooser from './PerPageChooser';
 import React from 'react';
 import { router } from '../../utils/core';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // pages calculation
 const generatePages = (pageCount: number, currentPage: number): number[] => {
@@ -71,12 +72,13 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
 
 // page chooser component
 class Page extends React.Component<{
-  history: any;
   page: number;
   currentPage: number;
 }> {
   goto(page) {
-    router.setParams(this.props.history, { page });
+    const navigate = useNavigate();
+    const location = useLocation();
+    router.setParams(navigate, location, { page });
   }
 
   onClick = (e) => {
@@ -110,7 +112,7 @@ class Page extends React.Component<{
   }
 }
 
-interface IPaginationProps extends IRouterProps {
+interface IPaginationProps {
   totalPagesCount: number;
   pages?: number[];
   count?: number;
@@ -121,7 +123,9 @@ interface IPaginationProps extends IRouterProps {
 // main pagination component
 class Pagination extends React.Component<IPaginationProps> {
   goto(page) {
-    router.setParams(this.props.history, { page });
+    const navigate = useNavigate();
+    const location = useLocation();
+    router.setParams(navigate, location, { page });
   }
 
   onPrev = (e) => {
@@ -148,7 +152,6 @@ class Pagination extends React.Component<IPaginationProps> {
 
   renderBar() {
     const {
-      history,
       totalPagesCount,
       pages = [],
       currentPage = 1,
@@ -179,12 +182,7 @@ class Pagination extends React.Component<IPaginationProps> {
         </li>
 
         {pages.map((page, index) => (
-          <Page
-            key={index}
-            history={history}
-            currentPage={currentPage}
-            page={page}
-          />
+          <Page key={index} currentPage={currentPage} page={page} />
         ))}
 
         <li className={nextClass}>
@@ -207,15 +205,16 @@ class Pagination extends React.Component<IPaginationProps> {
   }
 }
 
-interface IPaginationContainerProps extends IRouterProps {
+interface IPaginationContainerProps {
   count?: number;
 }
 
 const PaginationContainer = (props: IPaginationContainerProps) => {
-  const { history, count = 100 } = props;
+  const { count = 100 } = props;
+  const location = useLocation();
 
-  const currentPage = Number(router.getParam(history, 'page')) || 1;
-  const perPage = Number(router.getParam(history, 'perPage')) || 20;
+  const currentPage = Number(router.getParam(location, 'page')) || 1;
+  const perPage = Number(router.getParam(location, 'perPage')) || 20;
 
   let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 

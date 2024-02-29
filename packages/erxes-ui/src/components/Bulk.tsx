@@ -38,7 +38,7 @@ const Bulk: React.FC<Props> = (props) => {
     }
 
     toggleCheckBoxes(containerId, !isAllSelected);
-    setIsAllSelected((prevIsAllSelected) => !prevIsAllSelected);
+    setIsAllSelected(!isAllSelected);
   };
 
   const emptyBulk = () => {

@@ -7,21 +7,25 @@ import { IBrand } from '../../brands/types';
 import { IRouterProps } from '../../types';
 import React from 'react';
 // import { withRouter } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;
   emptyText?: string;
 }
 
-function Brands({ history, counts, brands, loading, emptyText }: IProps) {
+function Brands({ counts, brands, loading, emptyText }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const data = (
     <SidebarList>
       {brands.map((brand) => {
         const onClick = () => {
-          router.setParams(history, { brand: brand._id });
-          router.removeParams(history, 'page');
+          router.setParams(navigate, location, { brand: brand._id });
+          router.removeParams(navigate, location, 'page');
         };
 
         return (
@@ -30,7 +34,7 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'brand') === brand._id ? 'active' : ''
+                router.getParam(location, 'brand') === brand._id ? 'active' : ''
               }
               onClick={onClick}
             >
@@ -48,7 +52,7 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
       title={__('Filter by brand')}
       collapsible={brands.length > 5}
       name="showFilterByBrand"
-      isOpen={router.getParam(history, 'brand')}
+      isOpen={router.getParam(location, 'brand')}
     >
       <DataWithLoader
         data={data}
