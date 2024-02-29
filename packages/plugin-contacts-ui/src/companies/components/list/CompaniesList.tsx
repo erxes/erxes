@@ -6,18 +6,15 @@ import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/C
 import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
 import CompanyRow from './CompanyRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ICompany } from '../../types';
 import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
@@ -29,10 +26,12 @@ import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { queries } from '../../graphql';
-import { withRouter } from 'react-router-dom';
+// import { withRouter } from 'react-router-dom';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Menu } from '@headlessui/react';
 
-interface IProps extends IRouterProps {
+interface IProps {
   companies: ICompany[];
   columnsConfig: IConfigColumn[];
   loading: boolean;
@@ -58,310 +57,299 @@ interface IProps extends IRouterProps {
   perPage: number;
 }
 
-type State = {
-  searchValue?: string;
-};
+const CompaniesList: React.FC<IProps> = (props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  let timer;
 
-class CompaniesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+  const [searchValue, setSearchValue] = useState<string | undefined>(
+    props.searchValue,
+  );
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, companies } = this.props;
+  const onChange = () => {
+    const { toggleAll, companies } = props;
     toggleAll(companies, 'companies');
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue(searchValue);
+    timer = setTimeout(() => {
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
-  removeCompanies = (companies) => {
+  const removeCompanies = (companies) => {
     const companyIds: string[] = [];
 
     companies.forEach((company) => {
       companyIds.push(company._id);
     });
 
-    this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
+    props.removeCompanies({ companyIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
   };
 
-  afterTag = () => {
-    this.props.emptyBulk();
+  const afterTag = () => {
+    props.emptyBulk();
 
-    if (this.props.refetch) {
-      this.props.refetch();
+    if (props.refetch) {
+      props.refetch();
     }
   };
 
-  render() {
-    const {
-      columnsConfig,
-      companies,
-      history,
-      location,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      mergeCompanies,
-      queryParams,
-      exportCompanies,
-      isExpand,
-      renderExpandButton,
-      perPage,
-      page,
-    } = this.props;
+  const {
+    columnsConfig,
+    companies,
+    loading,
+    toggleBulk,
+    bulk,
+    isAllSelected,
+    totalCount,
+    mergeCompanies,
+    queryParams,
+    exportCompanies,
+    isExpand,
+    renderExpandButton,
+    perPage,
+    page,
+  } = props;
 
-    const mainContent = (
-      <withTableWrapper.Wrapper>
-        <Table
-          whiteSpace="nowrap"
-          bordered={true}
-          hover={true}
-          wideHeader={true}
-          responsive={true}
-        >
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              {columnsConfig.map(({ name, label, _id }) => (
-                <th key={name}>
-                  {_id !== '#' ? (
-                    <SortHandler sortField={name} label={__(label)} />
-                  ) : (
-                    <>#</>
-                  )}
-                </th>
-              ))}
-              <th>{__('Tags')}</th>
-            </tr>
-          </thead>
-          <tbody id="companies" className={isExpand ? 'expand' : ''}>
-            {companies.map((company, i) => (
-              <CompanyRow
-                index={(page - 1) * perPage + i + 1}
-                company={company}
-                columnsConfig={columnsConfig}
-                isChecked={bulk.includes(company)}
-                key={company._id}
-                history={history}
-                toggleBulk={toggleBulk}
+  const mainContent = (
+    <withTableWrapper.Wrapper>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $wideHeader={true}
+        $responsive={true}
+      >
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={onChange}
               />
+            </th>
+            {columnsConfig.map(({ name, label, _id }) => (
+              <th key={name}>
+                {_id !== '#' ? (
+                  <SortHandler sortField={name} label={__(label)} />
+                ) : (
+                  <>#</>
+                )}
+              </th>
             ))}
-          </tbody>
-        </Table>
-      </withTableWrapper.Wrapper>
-    );
+            <th>{__('Tags')}</th>
+          </tr>
+        </thead>
+        <tbody id="companies" className={isExpand ? 'expand' : ''}>
+          {companies.map((company, i) => (
+            <CompanyRow
+              index={(page - 1) * perPage + i + 1}
+              company={company}
+              columnsConfig={columnsConfig}
+              isChecked={bulk.includes(company)}
+              key={company._id}
+              history={navigate}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
+    </withTableWrapper.Wrapper>
+  );
 
-    const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        Add company
+  const addTrigger = (
+    <Button btnStyle="success" size="small" icon="plus-circle">
+      Add company
+    </Button>
+  );
+
+  const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
+
+  const mergeButton = (
+    <Button btnStyle="primary" size="small" icon="merge">
+      Merge
+    </Button>
+  );
+
+  let actionBarLeft: React.ReactNode;
+
+  const companiesMerge = (props) => {
+    return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
+  };
+
+  if (bulk.length > 0) {
+    const tagButton = (
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        Tag
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
+    const onClick = () =>
+      confirm()
+        .then(() => {
+          removeCompanies(bulk);
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
 
-    const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="merge">
-        Merge
-      </Button>
-    );
-
-    let actionBarLeft: React.ReactNode;
-
-    const companiesMerge = (props) => {
-      return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
+    const refetchQuery = {
+      query: gql(queries.companyCounts),
+      variables: { only: 'byTag' },
     };
 
-    if (bulk.length > 0) {
-      const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
-        </Button>
-      );
-
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeCompanies(bulk);
-          })
-          .catch((error) => {
-            Alert.error(error.message);
-          });
-
-      const refetchQuery = {
-        query: gql(queries.companyCounts),
-        variables: { only: 'byTag' },
-      };
-
-      actionBarLeft = (
-        <BarItems>
-          {isEnabled('tags') && (
-            <TaggerPopover
-              type={TAG_TYPES.COMPANY}
-              successCallback={this.afterTag}
-              targets={bulk}
-              trigger={tagButton}
-              refetchQueries={[refetchQuery]}
-            />
-          )}
-
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Companies"
-              size="xl"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={companiesMerge}
-            />
-          )}
-
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Remove
-          </Button>
-        </BarItems>
-      );
-    }
-
-    const manageColumns = (props) => {
-      return (
-        <ManageColumns
-          {...props}
-          location={location}
-          history={history}
-          contentType="contacts:company"
-        />
-      );
-    };
-
-    const companyForm = (props) => {
-      return <CompanyForm {...props} queryParams={queryParams} />;
-    };
-
-    const actionBarRight = (
+    actionBarLeft = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
-        {renderExpandButton()}
-
-        {isEnabled('segments') && (
-          <TemporarySegment contentType={`contacts:company`} />
+        {isEnabled('tags') && (
+          <TaggerPopover
+            type={TAG_TYPES.COMPANY}
+            successCallback={afterTag}
+            targets={bulk}
+            trigger={tagButton}
+            refetchQueries={[refetchQuery]}
+          />
         )}
 
-        <Dropdown className="dropdown-btn" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-            <Button btnStyle="simple" size="small">
-              {__('Customize ')} <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <ModalTrigger
-                title="Manage Columns"
-                trigger={editColumns}
-                content={manageColumns}
-              />
-            </li>
-            <li>
-              <Link to="/settings/properties?type=contacts:company">
-                {__('Manage properties')}
-              </Link>
-            </li>
-            <li>
-              <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__('Export this companies')}
-              </a>
-            </li>
-          </Dropdown.Menu>
-        </Dropdown>
-        <Link to="/settings/importHistories?type=contacts:company">
-          <Button btnStyle="primary" size="small" icon="arrow-from-right">
-            {__('Go to import')}
-          </Button>
-        </Link>
-        <ModalTrigger
-          title="New company"
-          trigger={addTrigger}
-          autoOpenKey="showCompanyModal"
-          size="lg"
-          content={companyForm}
-          backDrop="static"
-        />
+        {bulk.length === 2 && (
+          <ModalTrigger
+            title="Merge Companies"
+            size="xl"
+            dialogClassName="modal-1000w"
+            trigger={mergeButton}
+            content={companiesMerge}
+          />
+        )}
+
+        <Button
+          btnStyle="danger"
+          size="small"
+          icon="cancel-1"
+          onClick={onClick}
+        >
+          Remove
+        </Button>
       </BarItems>
     );
+  }
 
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
+  const manageColumns = (props) => {
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Companies`) + ` (${totalCount})`}
-            queryParams={queryParams}
-            submenu={menuContacts}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={companies.length}
-            emptyText="Add in your first company!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-        hasBorder={true}
+      <ManageColumns
+        {...props}
+        location={location}
+        history={navigate}
+        contentType="contacts:company"
       />
     );
-  }
-}
+  };
+
+  const companyForm = (props) => {
+    return <CompanyForm {...props} queryParams={queryParams} />;
+  };
+
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+
+      {renderExpandButton()}
+
+      {isEnabled('segments') && (
+        <TemporarySegment contentType={`contacts:company`} />
+      )}
+
+      <Menu>
+        <Menu.Button id="dropdown-customize">
+          <Button btnStyle="simple" size="small">
+            {__('Customize ')} <Icon icon="angle-down" />
+          </Button>
+        </Menu.Button>
+        <Menu.Items>
+          <li>
+            <ModalTrigger
+              title="Manage Columns"
+              trigger={editColumns}
+              content={manageColumns}
+            />
+          </li>
+          <li>
+            <Link to="/settings/properties?type=contacts:company">
+              {__('Manage properties')}
+            </Link>
+          </li>
+          <li>
+            <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
+              {__('Export this companies')}
+            </a>
+          </li>
+        </Menu.Items>
+      </Menu>
+      <Link to="/settings/importHistories?type=contacts:company">
+        <Button btnStyle="primary" size="small" icon="arrow-from-right">
+          {__('Go to import')}
+        </Button>
+      </Link>
+      <ModalTrigger
+        title="New company"
+        trigger={addTrigger}
+        autoOpenKey="showCompanyModal"
+        size="lg"
+        content={companyForm}
+        backDrop="static"
+      />
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Companies`) + ` (${totalCount})`}
+          queryParams={queryParams}
+          submenu={menuContacts}
+        />
+      }
+      actionBar={actionBar}
+      footer={<Pagination count={totalCount} />}
+      leftSidebar={<Sidebar loadingMainQuery={loading} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={companies.length}
+          emptyText="Add in your first company!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+      $hasBorder={true}
+    />
+  );
+};
 
 export default withTableWrapper('Company', CompaniesList);

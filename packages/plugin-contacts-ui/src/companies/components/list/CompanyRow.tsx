@@ -23,7 +23,7 @@ function displayObjectListItem(company, customFieldName, subFieldName) {
   const subFieldKey = subFieldName.replace(`${customFieldName}.`, '');
 
   const subField = objectList.find
-    ? objectList.find(obj => obj.field === subFieldKey)
+    ? objectList.find((obj) => obj.field === subFieldKey)
     : [];
 
   if (!subField) {
@@ -66,22 +66,22 @@ function CompanyRow({
   history,
   isChecked,
   toggleBulk,
-  index
+  index,
 }: Props) {
   const tags = company.getTags || [];
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(company, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
   const onTrClick = () => {
-    history.push(`/companies/details/${company._id}`);
+    history(`/companies/details/${company._id}`);
   };
 
   return (

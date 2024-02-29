@@ -91,8 +91,18 @@ export const generatePaginationParams = (queryParams: {
   perPage?: string;
 }) => {
   return {
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
+    page:
+      Object.keys(queryParams || {}).length > 0
+        ? queryParams.page
+          ? parseInt(queryParams.page, 10)
+          : 1
+        : 1,
+    perPage:
+      Object.keys(queryParams || {}).length > 0
+        ? queryParams.perPage
+          ? parseInt(queryParams.perPage, 10)
+          : 20
+        : 20,
   };
 };
 

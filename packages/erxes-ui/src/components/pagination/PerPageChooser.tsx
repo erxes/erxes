@@ -4,22 +4,25 @@ import { __, router } from '../../utils/core';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '../DropdownToggle';
-import { IRouterProps } from '../../types';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../Icon';
 import React from 'react';
 
 type Props = {
   count?: number;
-} & IRouterProps;
+};
 
 // per page chooser component
-const PerPageChooser = ({ history }: Props) => {
-  const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
+const PerPageChooser = ({ count }: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentPerPage = Number(router.getParam(location, 'perPage')) || 20;
 
   const onClick = (perPage) => {
     if (perPage !== currentPerPage) {
-      router.setParams(history, { perPage });
-      router.setParams(history, { page: 1 });
+      router.setParams(navigate, location, { perPage });
+      router.setParams(navigate, location, { page: 1 });
 
       const storageValue = window.localStorage.getItem('pagination:perPage');
 

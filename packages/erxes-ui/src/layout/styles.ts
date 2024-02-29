@@ -38,7 +38,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
+const Contents = styledTS<{ $hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
   margin: ${dimensions.unitSpacing}px 0 0 ${dimensions.unitSpacing}px;
@@ -49,9 +49,9 @@ const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   bottom: 0;
   top: 0;
   overflow-x: auto;
-  border: ${(props) => props.hasBorder && `1px solid ${colors.borderPrimary}`};
-  border-radius: ${(props) => props.hasBorder && `${dimensions.unitSpacing}px`};
-  margin: ${(props) => props.hasBorder && dimensions.unitSpacing * 2}px;
+  border: ${(props) => props.$hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${(props) => props.$hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${(props) => props.$hasBorder && dimensions.unitSpacing * 2}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -318,9 +318,9 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
 `;
 
 const SidebarList = styledTS<{
-  capitalize?: boolean;
-  noTextColor?: boolean;
-  noBackground?: boolean;
+  $capitalize?: boolean;
+  $noTextColor?: boolean;
+  $noBackground?: boolean;
 }>(styled.ul)`
   margin: 0;
   padding: 0;
@@ -342,7 +342,7 @@ const SidebarList = styledTS<{
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
-    text-transform: ${(props) => (props.capitalize ? 'capitalize' : 'normal')};
+    text-transform: ${(props) => (props.$capitalize ? 'capitalize' : 'normal')};
     outline: 0;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
@@ -352,11 +352,11 @@ const SidebarList = styledTS<{
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${(props) => !props.noBackground && colors.bgActive};
+      background: ${(props) => !props.$noBackground && colors.bgActive};
       text-decoration: none;
       outline: 0;
       color: ${(props) =>
-        !props.noTextColor && lighten(colors.textPrimary, 40)};
+        !props.$noTextColor && lighten(colors.textPrimary, 40)};
     }
     &.active {
       background: ${rgba(colors.colorPrimary, 0.2)};

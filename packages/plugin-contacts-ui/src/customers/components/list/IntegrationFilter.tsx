@@ -8,23 +8,22 @@ import { __, router } from 'coreui/utils';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 // import { withRouter } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   integrationsGetUsedTypes: Array<{ _id: string; name: string }>;
 }
 
-function IntegrationFilter({
-  history,
-  counts,
-  integrationsGetUsedTypes,
-}: IProps) {
+function IntegrationFilter({ counts, integrationsGetUsedTypes }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onClick = (kind) => {
-    router.setParams(history, { integrationType: kind });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { integrationType: kind });
+    router.removeParams(navigate, location, 'page');
   };
 
   const data = (
@@ -35,7 +34,7 @@ function IntegrationFilter({
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'integrationType') === kind._id
+              router.getParam(location, 'integrationType') === kind._id
                 ? 'active'
                 : ''
             }

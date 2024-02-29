@@ -3,7 +3,7 @@ import {
   FlexItem,
   FlexRow,
   InputBar,
-  Title
+  Title,
 } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
@@ -21,6 +21,7 @@ import Row from './Row';
 import Sidebar from './Sidebar';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   types: any[];
@@ -45,7 +46,7 @@ function List({
   types,
   history,
   total,
-  queryParams
+  queryParams,
 }: Props) {
   const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
   const contentType = (tagType || '').split(':')[1];
@@ -56,7 +57,7 @@ function List({
     </Button>
   );
 
-  const modalContent = props => (
+  const modalContent = (props) => (
     <FormComponent
       {...props}
       tagType={tagType}
@@ -66,12 +67,14 @@ function List({
     />
   );
 
-  const search = e => {
+  const search = (e) => {
     const inputValue = e.target.value;
 
     setSearchValue(inputValue);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    router.setParams(history, { searchValue: inputValue });
+    router.setParams(navigate, location, { searchValue: inputValue });
   };
 
   const actionBarRight = (
@@ -101,7 +104,7 @@ function List({
   );
 
   const title = (
-    <Title capitalize={true}>
+    <Title $capitalize={true}>
       {contentType || 'All'} {__('tags')}&nbsp;
       {`(${total || 0})`}
     </Title>
@@ -122,7 +125,7 @@ function List({
         </tr>
       </thead>
       <tbody id={'TagsShowing'}>
-        {tags.map(tag => {
+        {tags.map((tag) => {
           const order = tag.order || '';
           const foundedString = order.match(/[/]/gi);
 
@@ -147,7 +150,7 @@ function List({
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Tags'), link: '/settings/tags' }
+    { title: __('Tags'), link: '/settings/tags' },
   ];
 
   return (
@@ -172,7 +175,7 @@ function List({
       }
       leftSidebar={<Sidebar types={types} type={tagType} />}
       transparent={true}
-      hasBorder={true}
+      $hasBorder={true}
       footer={<Pagination count={!loading ? total : 0} />}
     />
   );

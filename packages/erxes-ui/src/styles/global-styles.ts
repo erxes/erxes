@@ -549,6 +549,9 @@ a:hover {
   max-width: 405px;
   width: 405px;
   height: 400px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
 .popover-template .popover-body {

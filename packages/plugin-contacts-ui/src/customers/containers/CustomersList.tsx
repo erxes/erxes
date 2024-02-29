@@ -24,7 +24,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import CustomersList from '../components/list/CustomersList';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { ListConfigQueryResponse } from '../../companies/types';
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -48,237 +48,224 @@ type FinalProps = {
   IRouterProps &
   ChangeStateBulkMutationResponse;
 
-type State = {
-  loading: boolean;
-  mergeCustomerLoading: boolean;
-  responseId: string;
-};
+const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
+  let timer;
+  const { queryParams } = props;
+  const [responseId, setResponseId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [mergeCustomerLoading, setMergeCustomerLoading] = useState(false);
+  const prevQueryParams = useRef(queryParams);
 
-class CustomerListContainer extends React.Component<FinalProps, State> {
-  private timer?: NodeJS.Timer;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      mergeCustomerLoading: false,
-      responseId: '',
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
-  }
+  }, [timer]);
 
-  componentWillUnmount() {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  useEffect(() => {
+    if (queryParams.page !== prevQueryParams.current.page) {
+      props.customersMainQuery.refetch();
     }
-  }
+    prevQueryParams.current = queryParams;
+  }, [queryParams.page, props.customersMainQuery]);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.queryParams.page !== prevProps.queryParams.page) {
-      this.props.customersMainQuery.refetch();
-    }
-  }
-
-  refetchWithDelay = () => {
-    this.timer = setTimeout(() => {
-      this.props.customersMainQuery.refetch();
+  const refetchWithDelay = () => {
+    timer = setTimeout(() => {
+      props.customersMainQuery.refetch();
     }, 5500);
   };
 
-  render() {
-    const {
-      customersMainQuery,
-      customersListConfigQuery,
-      customersRemove,
-      customersMerge,
-      customersVerify,
-      customersChangeVerificationStatus,
-      type,
-      history,
-      customersChangeStateBulk,
-    } = this.props;
+  const {
+    customersMainQuery,
+    customersListConfigQuery,
+    customersRemove,
+    customersMerge,
+    customersVerify,
+    customersChangeVerificationStatus,
+    type,
+    history,
+    customersChangeStateBulk,
+  } = props;
 
-    let columnsConfig = (customersListConfigQuery &&
-      customersListConfigQuery.fieldsDefaultColumnsConfig) || [
-      { name: 'firstName', label: 'First name', order: 1 },
-      { name: 'lastName', label: 'Last name', order: 2 },
-      { name: 'primaryEmail', label: 'Primary email', order: 3 },
-      { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
-      { name: 'sessionCount', label: 'Session count', order: 5 },
-      { name: 'profileScore', label: 'Profile score', order: 6 },
-      { name: 'middleName', label: 'Middle name', order: 7 },
-    ];
+  let columnsConfig = (customersListConfigQuery &&
+    customersListConfigQuery.fieldsDefaultColumnsConfig) || [
+    { name: 'firstName', label: 'First name', order: 1 },
+    { name: 'lastName', label: 'Last name', order: 2 },
+    { name: 'primaryEmail', label: 'Primary email', order: 3 },
+    { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
+    { name: 'sessionCount', label: 'Session count', order: 5 },
+    { name: 'profileScore', label: 'Profile score', order: 6 },
+    { name: 'middleName', label: 'Middle name', order: 7 },
+  ];
 
-    // load config from local storage
-    const localConfig = localStorage.getItem(
-      `erxes_contacts:${type}_columns_config`,
-    );
+  // load config from local storage
+  const localConfig = localStorage.getItem(
+    `erxes_contacts:${type}_columns_config`,
+  );
 
-    if (localConfig) {
-      columnsConfig = JSON.parse(localConfig).filter((conf) => {
-        return conf && conf.checked;
+  if (localConfig) {
+    columnsConfig = JSON.parse(localConfig).filter((conf) => {
+      return conf && conf.checked;
+    });
+  }
+
+  const removeCustomers = ({ customerIds }, emptyBulk) => {
+    customersRemove({
+      variables: { customerIds },
+    })
+      .then(() => {
+        emptyBulk();
+        Alert.success(
+          'You successfully deleted a customer. The changes will take a few seconds',
+          4500,
+        );
+
+        refetchWithDelay();
+      })
+      .catch((e) => {
+        Alert.error(e.message);
       });
+  };
+
+  const mergeCustomers = ({ ids, data, callback }) => {
+    setMergeCustomerLoading(true);
+
+    customersMerge({
+      variables: {
+        customerIds: ids,
+        customerFields: data,
+      },
+    })
+      .then((result: any) => {
+        callback();
+        setMergeCustomerLoading(false);
+        Alert.success('You successfully merged a customer');
+        history(`/contacts/details/${result.data.customersMerge._id}`);
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+        setMergeCustomerLoading(false);
+      });
+  };
+
+  const verifyCustomers = ({ verificationType }) => {
+    setMergeCustomerLoading(true);
+
+    customersVerify({
+      variables: {
+        verificationType,
+      },
+    })
+      .then(() => {
+        Alert.success(
+          'Your request has been successfully sent. Your contacts will be verified after a while',
+        );
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
+  const changeVerificationStatus = ({
+    customerIds,
+    verificationType,
+    status,
+  }) => {
+    customersChangeVerificationStatus({
+      variables: {
+        customerIds,
+        type: verificationType,
+        status,
+      },
+    })
+      .then((result: any) => {
+        Alert.success('You successfully changed a status');
+
+        customersMainQuery.refetch();
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
+  const exportData = (bulk: Array<{ _id: string }>) => {
+    const { REACT_APP_API_URL } = getEnv();
+    const { queryParams } = props;
+    const checkedConfigs: any[] = [];
+
+    // queryParams page parameter needs convert to int.
+    if (queryParams.page) {
+      queryParams.page = parseInt(queryParams.page, 10);
     }
 
-    const removeCustomers = ({ customerIds }, emptyBulk) => {
-      customersRemove({
-        variables: { customerIds },
-      })
-        .then(() => {
-          emptyBulk();
-          Alert.success(
-            'You successfully deleted a customer. The changes will take a few seconds',
-            4500,
-          );
+    if (bulk.length > 0) {
+      queryParams.ids = bulk.map((customer) => customer._id);
+    }
 
-          this.refetchWithDelay();
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
+    columnsConfig.forEach((checked) => {
+      checkedConfigs.push(checked.name);
+    });
+
+    const exportQuery = {
+      ...queryParams,
+      type,
+      configs: JSON.stringify(checkedConfigs),
     };
 
-    const mergeCustomers = ({ ids, data, callback }) => {
-      this.setState({ mergeCustomerLoading: true });
+    const stringified = queryString.stringify(exportQuery);
 
-      customersMerge({
-        variables: {
-          customerIds: ids,
-          customerFields: data,
-        },
-      })
-        .then((result: any) => {
-          callback();
-          this.setState({ mergeCustomerLoading: false });
-          Alert.success('You successfully merged a customer');
-          history.push(`/contacts/details/${result.data.customersMerge._id}`);
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-          this.setState({ mergeCustomerLoading: false });
-        });
-    };
-
-    const verifyCustomers = ({ verificationType }) => {
-      this.setState({ mergeCustomerLoading: true });
-
-      customersVerify({
-        variables: {
-          verificationType,
-        },
-      })
-        .then(() => {
-          Alert.success(
-            'Your request has been successfully sent. Your contacts will be verified after a while',
-          );
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    };
-
-    const changeVerificationStatus = ({
-      customerIds,
-      verificationType,
-      status,
-    }) => {
-      customersChangeVerificationStatus({
-        variables: {
-          customerIds,
-          type: verificationType,
-          status,
-        },
-      })
-        .then((result: any) => {
-          Alert.success('You successfully changed a status');
-
-          customersMainQuery.refetch();
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    };
-
-    const exportData = (bulk: Array<{ _id: string }>) => {
-      const { REACT_APP_API_URL } = getEnv();
-      const { queryParams } = this.props;
-      const checkedConfigs: any[] = [];
-
-      // queryParams page parameter needs convert to int.
-      if (queryParams.page) {
-        queryParams.page = parseInt(queryParams.page, 10);
-      }
-
-      if (bulk.length > 0) {
-        queryParams.ids = bulk.map((customer) => customer._id);
-      }
-
-      columnsConfig.forEach((checked) => {
-        checkedConfigs.push(checked.name);
-      });
-
-      const exportQuery = {
-        ...queryParams,
-        type,
-        configs: JSON.stringify(checkedConfigs),
-      };
-
-      const stringified = queryString.stringify(exportQuery);
-
-      window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
-        '_blank',
-      );
-    };
-
-    const changeStateBulk = (_ids: string[], value: string) => {
-      customersChangeStateBulk({ variables: { _ids, value } })
-        .then(() => {
-          Alert.success('Customer state has been changed');
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    };
-
-    const searchValue = this.props.queryParams.searchValue || '';
-
-    const { list = [], totalCount = 0 } =
-      customersMainQuery.customersMain || {};
-
-    const updatedProps = {
-      ...this.props,
-      columnsConfig,
-      customers: list,
-      totalCount,
-      exportData,
-      searchValue,
-      loading: customersMainQuery.loading || this.state.loading,
-      mergeCustomers,
-      responseId: this.state.responseId,
-      removeCustomers,
-      verifyCustomers,
-      changeVerificationStatus,
-      mergeCustomerLoading: this.state.mergeCustomerLoading,
-      refetch: this.refetchWithDelay,
-      changeStateBulk,
-    };
-
-    const content = (props) => {
-      return (
-        <CustomersList
-          {...updatedProps}
-          {...props}
-          {...generatePaginationParams(this.props.queryParams)}
-        />
-      );
-    };
-
-    return (
-      <Bulk content={content} refetch={this.props.customersMainQuery.refetch} />
+    window.open(
+      `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
+      '_blank',
     );
-  }
-}
+  };
+
+  const changeStateBulk = (_ids: string[], value: string) => {
+    customersChangeStateBulk({ variables: { _ids, value } })
+      .then(() => {
+        Alert.success('Customer state has been changed');
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
+  const searchValue = props.queryParams.searchValue || '';
+
+  const { list = [], totalCount = 0 } = customersMainQuery.customersMain || {};
+
+  const updatedProps = {
+    ...props,
+    columnsConfig,
+    customers: list,
+    totalCount,
+    exportData,
+    searchValue,
+    loading: customersMainQuery.loading || loading,
+    mergeCustomers,
+    responseId,
+    removeCustomers,
+    verifyCustomers,
+    changeVerificationStatus,
+    mergeCustomerLoading,
+    refetch: refetchWithDelay,
+    changeStateBulk,
+  };
+
+  const content = (props) => {
+    return (
+      <CustomersList
+        {...updatedProps}
+        {...props}
+        {...generatePaginationParams(props.queryParams)}
+      />
+    );
+  };
+
+  return <Bulk content={content} refetch={props.customersMainQuery.refetch} />;
+};
 
 const generateParams = ({ queryParams, type }) => {
   return {

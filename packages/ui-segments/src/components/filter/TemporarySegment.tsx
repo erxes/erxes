@@ -9,7 +9,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import RTG from 'react-transition-group';
@@ -54,9 +54,12 @@ type Props = {
   refetchQueries?: any;
   btnSize?: string;
   afterSave?: (response: any) => void;
-} & IRouterProps;
+};
 
-function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
+function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [showDrawer, setShowDrawer] = useState(false);
   const [name, setName] = useState('');
 
@@ -156,7 +159,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
 
             delete data.conditionSegments;
 
-            routerUtils.setParams(history, {
+            routerUtils.setParams(navigate, location, {
               segmentData: JSON.stringify(data),
             });
           }}
