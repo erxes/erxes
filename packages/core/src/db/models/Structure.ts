@@ -10,6 +10,7 @@ import {
   IBranchDocument,
   branchSchema,
   IStructureDocument,
+  IPositionDocument,
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 import { checkCodeDuplication } from './utils';
@@ -365,6 +366,152 @@ export const loadBranchClass = (models: IModels) => {
       });
 
       return branch;
+    }
+
+    /*
+     * Update a branch
+     */
+    public static async updateBranch(
+      _id: string,
+      doc: any,
+      user: IUserDocument,
+    ) {
+      const branch = await models.Branches.getBranch({ _id });
+
+      if (branch?.code !== doc.code) {
+        await checkCodeDuplication(models.Branches, doc.code);
+      }
+
+      const parent = await models.Branches.findOne({ _id: doc.parentId });
+
+      if (parent && parent?.parentId === _id) {
+        throw new Error('Cannot change a branch');
+      }
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
+      const children = await models.Branches.find({
+        order: { $regex: new RegExp(`^${escapeRegExp(branch.order)}`) },
+      });
+
+      for (const child of children) {
+        let order = child.order;
+
+        order = order.replace(branch.order, doc.order);
+
+        await models.Branches.updateOne(
+          {
+            _id: child._id,
+          },
+          {
+            $set: { order },
+          },
+        );
+      }
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: doc.userIds || [],
+        contentType: 'branch',
+        contentTypeId: _id,
+        createdBy: user._id,
+      });
+
+      await models.Branches.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id,
+        },
+      );
+
+      return models.Branches.findOne({ _id });
+    }
+
+    /*
+     * Remove a branch
+     */
+
+    public static async removeBranches(ids: string[]) {
+      const branches = await models.Branches.find({ _id: { $in: ids } });
+
+      const branchIds = branches.map((branch) => branch._id);
+      const userMovements = await models.UserMovements.find({
+        contentType: 'branch',
+        contentTypeId: { $in: branchIds },
+      });
+
+      if (!!userMovements.length) {
+        return await models.Branches.updateMany(
+          {
+            $or: [
+              { _id: { $in: branchIds } },
+              { parentId: { $in: branchIds } },
+            ],
+          },
+          { $set: { status: STRUCTURE_STATUSES.DELETED } },
+        );
+      }
+
+      return await models.Branches.deleteMany({
+        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }],
+      });
+    }
+  }
+
+  branchSchema.loadClass(Branch);
+
+  return branchSchema;
+};
+export interface IPositionModel extends Model<IPositionDocument> {
+  getPosition(doc: any): IPositionDocument;
+  createPosition(doc: any, user: IUserDocument): IPositionDocument;
+  updatePosition(_id: string, doc: any, user: IUserDocument): IPositionDocument;
+  removePositions(ids?: string[]): IPositionDocument;
+}
+
+export const loadPositionClass = (models: IModels) => {
+  class Branch {
+    /*
+     * Get a branch
+     */
+    public static async getPosition(doc: any) {
+      const branch = await models.Branches.findOne(doc);
+
+      if (!branch) {
+        throw new Error('Branch not found');
+      }
+
+      return branch;
+    }
+
+    /*
+     * Create a branch
+     */
+    public static async createPosition(doc: any, user: IUserDocument) {
+      await checkCodeDuplication(models.Positions, doc.code);
+
+      console.log(doc, ' doc');
+
+      const parent = await models.Positions.findOne({
+        _id: doc.parentId,
+      }).lean();
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
+      const position = await models.Positions.create({
+        ...doc,
+        createdAt: new Date(),
+        createdBy: user?._id,
+      });
+
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: position.userIds || [],
+        contentType: 'position',
+        contentTypeId: position._id,
+        createdBy: user?._id,
+      });
+
+      return position;
     }
 
     /*
