@@ -9,7 +9,6 @@ import segments from './segments';
 import tags from './tags';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'cars',
@@ -31,8 +30,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

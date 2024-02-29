@@ -8,14 +8,14 @@ import { loadPeriodLockClass, IPeriodLockModel } from './models/periodLock';
 import { loadContractClass, IContractModel } from './models/contracts';
 import {
   loadContractTypeClass,
-  IContractTypeModel
+  IContractTypeModel,
 } from './models/contractTypes';
 import { loadTransactionClass, ITransactionModel } from './models/transactions';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 import {
   IStoredInterestModel,
-  savingStoredInterestClass
+  savingStoredInterestClass,
 } from './models/storedInterest';
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
 
@@ -32,29 +32,27 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.PeriodLocks = db.model<IPeriodLockDocument, IPeriodLockModel>(
     'saving_period_locks',
-    loadPeriodLockClass(models)
+    loadPeriodLockClass(models),
   );
 
   models.Contracts = db.model<IContractDocument, IContractModel>(
     'saving_contracts',
-    loadContractClass(models)
+    loadContractClass(models),
   );
 
   models.ContractTypes = db.model<IContractTypeDocument, IContractTypeModel>(
     'saving_contract_types',
-    loadContractTypeClass(models)
+    loadContractTypeClass(models),
   );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'saving_transactions',
-    loadTransactionClass(models)
+    loadTransactionClass(models),
   ) as ITransactionModel;
 
   models.StoredInterest = db.model<
@@ -62,13 +60,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IStoredInterestModel
   >(
     'saving_stored_interest',
-    savingStoredInterestClass(models)
+    savingStoredInterestClass(models),
   ) as IStoredInterestModel;
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

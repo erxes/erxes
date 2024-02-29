@@ -6,8 +6,6 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import automations from './automations';
 
-export let mainDb;
-
 export let debug;
 
 export default {
@@ -34,8 +32,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

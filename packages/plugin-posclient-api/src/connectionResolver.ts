@@ -2,13 +2,13 @@ import * as mongoose from 'mongoose';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IConfigDocument,
-  IProductsConfigDocument
+  IProductsConfigDocument,
 } from './models/definitions/configs';
 import {
   IConfigModel,
   IProductsConfigModel,
   loadConfigClass,
-  loadProductsConfigClass
+  loadProductsConfigClass,
 } from './models/Configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IOrderDocument } from './models/definitions/orders';
@@ -21,13 +21,13 @@ import { IPosUserDocument } from './models/definitions/posUsers';
 import { IPosUserModel, loadPosUserClass } from './models/PosUsers';
 import {
   IProductCategoryDocument,
-  IProductDocument
+  IProductDocument,
 } from './models/definitions/products';
 import {
   IProductCategoryModel,
   IProductModel,
   loadProductCategoryClass,
-  loadProductClass
+  loadProductClass,
 } from './models/Products';
 import { IPutResponseDocument } from './models/definitions/putResponses';
 import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
@@ -53,34 +53,32 @@ export interface IContext extends IMainContext {
   config: IConfigDocument;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string
+  _subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.PosUsers = db.model<IPosUserDocument, IPosUserModel>(
     'posclient_user',
-    loadPosUserClass(models)
+    loadPosUserClass(models),
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'posclient_configs',
-    loadConfigClass(models)
+    loadConfigClass(models),
   );
 
   models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
     'posclient_order_items',
-    loadOrderItemClass(models)
+    loadOrderItemClass(models),
   );
   models.Orders = db.model<IOrderDocument, IOrderModel>(
     'posclient_orders',
-    loadOrderClass(models)
+    loadOrderClass(models),
   );
   models.Products = db.model<IProductDocument, IProductModel>(
     'posclient_products',
-    loadProductClass(models)
+    loadProductClass(models),
   );
   models.ProductCategories = db.model<
     IProductCategoryDocument,
@@ -88,15 +86,15 @@ export const loadClasses = (
   >('posclient_product_categories', loadProductCategoryClass(models));
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
     'posclient_put_responses',
-    loadPutResponseClass(models)
+    loadPutResponseClass(models),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'posclient_slots',
-    loadPosSlotClass(models)
+    loadPosSlotClass(models),
   );
   models.Covers = db.model<ICoverDocument, ICoverModel>(
     'posclient_covers',
-    loadCoverClass(models)
+    loadCoverClass(models),
   );
   models.ProductsConfigs = db.model<
     IProductsConfigDocument,
@@ -106,7 +104,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

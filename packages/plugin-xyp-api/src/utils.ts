@@ -3,7 +3,7 @@ import { sendCommonMessage } from './messageBroker';
 import { xypServiceData } from './models/definitions/xypdata';
 
 import { nanoid } from 'nanoid';
-import { models } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 /*
  * Mongoose field options wrapper
@@ -34,7 +34,11 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
   return schemaWrapper(schema);
 };
 
-export const convertToPropertyData = async (subdomain: string, doc: any) => {
+export const convertToPropertyData = async (
+  models: IModels,
+  subdomain: string,
+  doc: any,
+) => {
   const customerId = doc.customerId;
 
   const customer = await sendCommonMessage({

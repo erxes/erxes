@@ -1,13 +1,14 @@
 import { PopoverButton, PopoverHeader } from '../styles/main';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Alert from '../utils/Alert';
 import Button from './Button';
 import Icon from './Icon';
 import { Popover } from '@headlessui/react';
-import React from 'react';
 import { __ } from '../utils/core';
 import asyncComponent from './AsyncComponent';
+import client from '@erxes/ui/src/apolloClient';
 import dayjs from 'dayjs';
 import { dimensions } from '../styles';
 import { gql } from '@apollo/client';
@@ -46,60 +47,42 @@ type Props = {
   countQueryParam?: string;
 };
 
-type ApolloClientProps = {
-  client: any;
-};
-
-type State = {
-  startDate: Date;
-  endDate: Date;
-  totalCount: number;
-};
-
 const format = 'YYYY-MM-DD HH:mm';
 
-class DateFilter extends React.Component<Props & ApolloClientProps, State> {
-  constructor(props) {
-    super(props);
+const DateFilter: React.FC<Props> = (props) => {
+  const { queryParams, countQuery, countQueryParam } = props;
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [totalCount, setTotalCount] = useState<number>(0);
 
-    const { startDate, endDate } = props.queryParams;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    const state: State = {
-      startDate: new Date(),
-      endDate: new Date(),
-      totalCount: 0,
-    };
+  useEffect(() => {
+    const { startDate, endDate } = queryParams;
 
     if (startDate) {
-      state.startDate = dayjs(startDate).toDate();
+      setStartDate(dayjs(startDate).toDate());
     }
 
     if (endDate) {
-      state.endDate = dayjs(endDate).toDate();
+      setEndDate(dayjs(endDate).toDate());
     }
+  }, [queryParams]);
 
-    this.state = state;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { queryParams } = nextProps;
-
-    if (nextProps.countQuery) {
-      if (queryParams.startDate && queryParams.endDate) {
-        this.refetchCountQuery();
-      }
+  useEffect(() => {
+    if (countQuery && queryParams.startDate && queryParams.endDate) {
+      refetchCountQuery();
     }
-  }
+  }, [countQuery, queryParams]);
 
-  onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
+  const onDateChange = (type: 'startDate' | 'endDate', date: Date) => {
     if (typeof date !== 'string') {
-      this.setState({ [type]: date } as unknown as Pick<State, keyof State>);
+      type === 'startDate' ? setStartDate(date) : setEndDate(date);
     }
   };
 
-  refetchCountQuery = () => {
-    const { client, queryParams, countQuery, countQueryParam } = this.props;
-
+  const refetchCountQuery = () => {
     if (!countQuery || !countQueryParam) {
       return;
     }
@@ -115,43 +98,34 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         query: gql(countQuery),
         variables,
       })
-
       .then(({ data }) => {
-        this.setState({
-          totalCount: data[countQueryParam],
-        });
+        setTotalCount(data[countQueryParam]);
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  filterByDate = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    const { startDate, endDate } = this.state;
-
+  const filterByDate = () => {
     const formattedStartDate = dayjs(startDate).format(format);
     const formattedEndDate = dayjs(endDate).format(format);
 
     if (formattedStartDate > formattedEndDate) {
       return Alert.error('The start date must be earlier than the end date.');
     }
+
     setParams(navigate, location, {
       startDate: formattedStartDate,
       endDate: formattedEndDate,
     });
 
-    if (this.props.countQuery) {
-      this.refetchCountQuery();
+    if (countQuery) {
+      refetchCountQuery();
     }
   };
 
-  renderCount = () => {
-    const { totalCount } = this.state;
-
-    if (this.props.countQuery) {
+  const renderCount = () => {
+    if (countQuery) {
       return (
         <FlexItem>
           <span>
@@ -164,9 +138,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     return null;
   };
 
-  renderPopover = () => {
+  const renderPopover = () => {
     const props = {
-      inputProps: { placeholder: __('Select a date') },
+      inputProps: { placeholder: 'Select a date' },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: false,
@@ -174,13 +148,13 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
     const onChangeStart = (date) => {
       if (typeof date !== 'string') {
-        this.onDateChange('startDate', date);
+        onDateChange('startDate', date);
       }
     };
 
     const onChangeEnd = (date) => {
       if (typeof date !== 'string') {
-        this.onDateChange('endDate', date);
+        onDateChange('endDate', date);
       }
     };
 
@@ -193,7 +167,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
             <Datetime
               {...props}
               input={false}
-              value={this.state.startDate}
+              value={startDate}
               onChange={onChangeStart}
             />
           </div>
@@ -203,17 +177,17 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
             <Datetime
               {...props}
               input={false}
-              value={this.state.endDate}
+              value={endDate}
               onChange={onChangeEnd}
             />
           </div>
         </FlexRow>
 
         <FlexRow>
-          {this.renderCount()}
+          {renderCount()}
           <Button
             btnStyle="warning"
-            onClick={this.filterByDate}
+            onClick={filterByDate}
             icon="filter-1"
             size="small"
           >
@@ -224,25 +198,23 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     );
   };
 
-  render() {
-    return (
-      <Popover>
-        {({ open }) => (
-          <>
-            <Popover.Button>
-              <PopoverButton>
-                {__('Date')}
-                <Icon icon={open ? 'angle-up' : 'angle-down'} />
-              </PopoverButton>
-            </Popover.Button>
-            <Popover.Panel className="date-popover">
-              {this.renderPopover()}
-            </Popover.Panel>
-          </>
-        )}
-      </Popover>
-    );
-  }
-}
+  return (
+    <Popover>
+      {({ open }) => (
+        <>
+          <Popover.Button>
+            <PopoverButton>
+              {__('Date')}
+              <Icon icon={open ? 'angle-up' : 'angle-down'} />
+            </PopoverButton>
+          </Popover.Button>
+          <Popover.Panel className="date-popover">
+            {renderPopover()}
+          </Popover.Panel>
+        </>
+      )}
+    </Popover>
+  );
+};
 
 export default withApollo<Props>(DateFilter);

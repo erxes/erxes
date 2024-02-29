@@ -1,5 +1,6 @@
 import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 
+import ConversationDetail from '../containers/conversationDetail/ConversationDetail';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';
 import { __ } from 'coreui/utils';
@@ -11,14 +12,6 @@ const Sidebar = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar'
     ),
-);
-
-const ConversationDetail = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail'
-    ),
-  { height: 'auto', width: '100%', color: '#fff', margin: '10px 10px 10px 0' },
 );
 
 type Props = {

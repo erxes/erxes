@@ -1,17 +1,19 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import AssignBox from '../components/AssignBox';
-import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   AssignMutationResponse,
   AssignMutationVariables,
   IConversation,
   UnAssignMutationResponse,
-  UnAssignMutationVariables
+  UnAssignMutationVariables,
 } from '@erxes/ui-inbox/src/inbox/types';
+
+import AssignBox from '../components/AssignBox';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
@@ -28,20 +30,21 @@ const AssignBoxContainer = (props: FinalProps) => {
   const assign = (
     {
       conversationIds,
-      assignedUserId
+      assignedUserId,
     }: { conversationIds?: string[]; assignedUserId: string },
-    callback: (e) => void
+    callback: (e) => void,
   ) => {
     assignMutation({
       variables: {
         conversationIds,
-        assignedUserId
-      }
+        assignedUserId,
+      },
     })
       .then(() => {
+        console.log('kkk');
         Alert.success('The conversation Assignee has been renewed.');
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
         Alert.error(e.message);
       });
@@ -50,13 +53,13 @@ const AssignBoxContainer = (props: FinalProps) => {
   const clear = (conversationIds: string[]) => {
     conversationsUnassign({
       variables: {
-        _ids: conversationIds
-      }
+        _ids: conversationIds,
+      },
     })
       .then(() => {
         Alert.success('The conversation Assignee removed');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -64,7 +67,7 @@ const AssignBoxContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     assign,
-    clear
+    clear,
   };
 
   return <AssignBox {...updatedProps} />;
@@ -76,15 +79,15 @@ export default withProps<Props>(
       gql(mutations.conversationsAssign),
       {
         name: 'assignMutation',
-        options: () => refetchSidebarConversationsOptions()
-      }
+        options: () => refetchSidebarConversationsOptions(),
+      },
     ),
     graphql<Props, UnAssignMutationResponse, UnAssignMutationVariables>(
       gql(mutations.conversationsUnassign),
       {
         name: 'conversationsUnassign',
-        options: () => refetchSidebarConversationsOptions()
-      }
-    )
-  )(AssignBoxContainer)
+        options: () => refetchSidebarConversationsOptions(),
+      },
+    ),
+  )(AssignBoxContainer),
 );

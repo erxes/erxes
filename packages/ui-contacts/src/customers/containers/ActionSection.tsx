@@ -13,7 +13,6 @@ import {
 import { mutations, queries } from '../graphql';
 
 import ActionSection from '../components/common/ActionSection';
-// import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import client from '@erxes/ui/src/apolloClient';

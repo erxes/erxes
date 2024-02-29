@@ -26,7 +26,6 @@ import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -71,8 +70,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {

@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import {
   IDiscussionModel,
   loadDiscussionClass,
-  IDiscussionDocument
+  IDiscussionDocument,
 } from './models/Discussions';
 import { IVoteModel, loadVoteClass, IVoteDocument } from './models/Votes';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -17,28 +17,23 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string
+  _subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Discussions = db.model<IDiscussionDocument, IDiscussionModel>(
     'discussions',
-    loadDiscussionClass(models)
+    loadDiscussionClass(models),
   );
 
   models.Votes = db.model<IVoteDocument, IVoteModel>(
     'discussions_votes',
-    loadVoteClass(models)
+    loadVoteClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

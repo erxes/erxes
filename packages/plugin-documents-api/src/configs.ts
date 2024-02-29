@@ -7,7 +7,6 @@ import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -261,8 +260,6 @@ export default {
   ],
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

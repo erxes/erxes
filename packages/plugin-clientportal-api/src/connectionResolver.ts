@@ -1,7 +1,7 @@
 import { ICPUserCardDocument } from './models/definitions/clientPortalUserCards';
 import {
   ICPNotificationModel,
-  loadNotificationClass
+  loadNotificationClass,
 } from './models/ClientPortalNotifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -9,18 +9,18 @@ import * as mongoose from 'mongoose';
 
 import {
   IClientPortalModel,
-  loadClientPortalClass
+  loadClientPortalClass,
 } from './models/ClientPortal';
 import {
   IUserModel,
-  loadClientPortalUserClass
+  loadClientPortalUserClass,
 } from './models/ClientPortalUser';
 import { IClientPortalDocument } from './models/definitions/clientPortal';
 import { IUserDocument } from './models/definitions/clientPortalUser';
 import { ICPNotificationDocument } from './models/definitions/clientPortalNotifications';
 import {
   ICPUserCardModel,
-  loadUserCardClass
+  loadUserCardClass,
 } from './models/ClientPortalUserCard';
 import { ICommentModel, loadCommentClass } from './models/Comment';
 import { ICommentDocument } from './models/definitions/comment';
@@ -28,7 +28,7 @@ import { IFieldConfigModel, loadFieldConfigClass } from './models/FieldConfigs';
 import { IFieldConfigDocument } from './models/definitions/fieldConfigs';
 import {
   IClientCompanyModel,
-  loadCompanyClass
+  loadCompanyClass,
 } from './models/ClientPortalCompany';
 import { IClientCompanyDocument } from './models/definitions/clientPortalCompany';
 
@@ -48,19 +48,17 @@ export interface IContext extends IMainContext {
   cpUser?: IUserDocument;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.ClientPortals = db.model<IClientPortalDocument, IClientPortalModel>(
     'client_portals',
-    loadClientPortalClass(models)
+    loadClientPortalClass(models),
   );
 
   models.ClientPortalUsers = db.model<IUserDocument, IUserModel>(
     'client_portal_users',
-    loadClientPortalUserClass(models)
+    loadClientPortalUserClass(models),
   );
 
   models.ClientPortalUserCards = db.model<
@@ -75,23 +73,20 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'client_portal_comments',
-    loadCommentClass(models)
+    loadCommentClass(models),
   );
 
   models.FieldConfigs = db.model<IFieldConfigDocument, IFieldConfigModel>(
     'client_portal_field_configs',
-    loadFieldConfigClass(models)
+    loadFieldConfigClass(models),
   );
 
   models.Companies = db.model<IClientCompanyDocument, IClientCompanyModel>(
     'client_portal_companies',
-    loadCompanyClass(models)
+    loadCompanyClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

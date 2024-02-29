@@ -7,23 +7,23 @@ import { IConfigDocument, IConfigModel, loadConfigClass } from './Configs';
 import {
   IIntegrationDocument,
   IIntegrationModel,
-  loadIntegrationClass
+  loadIntegrationClass,
 } from './Integrations';
 import {
   IConversationDocument,
   IConversationModel,
-  loadConversationClass
+  loadConversationClass,
 } from './Conversations';
 import {
   IConversationMessageDocument,
   IConversationMessageModel,
-  loadConversationMessageClass
+  loadConversationMessageClass,
 } from './ConversationMessages';
 
 import {
   ICustomerDocument,
   ICustomerModel,
-  loadCustomerClass
+  loadCustomerClass,
 } from './Customers';
 export interface IModels {
   Accounts: IAccountModel;
@@ -39,26 +39,24 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'zalo_accounts',
-    loadAccountClass(models)
+    loadAccountClass(models),
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'zalo_configs',
-    loadConfigClass(models)
+    loadConfigClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'zalo_integrations',
-    loadIntegrationClass(models)
+    loadIntegrationClass(models),
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'zalo_conversations',
-    loadConversationClass(models)
+    loadConversationClass(models),
   );
   models.ConversationMessages = db.model<
     IConversationMessageDocument,
@@ -66,12 +64,9 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   >('zalo_conversation_messages', loadConversationMessageClass(models));
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'zalo_customers',
-    loadCustomerClass(models)
+    loadCustomerClass(models),
   );
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);
