@@ -7,15 +7,16 @@ import {
   FormControl,
   FormGroup,
   Uploader,
-  extractAttachment
+  extractAttachment,
 } from '@erxes/ui/src';
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
+  IFormProps,
 } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICarCategory } from '../../types';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   categories: ICarCategory[];
@@ -27,6 +28,7 @@ type Props = {
 type State = {
   image?: IAttachment;
   secondaryImages?: IAttachment[];
+  productCategoryId?: String;
 };
 
 class CategoryForm extends React.Component<Props, State> {
@@ -34,11 +36,12 @@ class CategoryForm extends React.Component<Props, State> {
     super(props);
 
     const category = props.category || ({} as ICarCategory);
-    const { image, secondaryImages } = category;
+    const { image, secondaryImages, productCategoryId } = category;
 
     this.state = {
       image: image ? image : undefined,
-      secondaryImages: secondaryImages ? secondaryImages : undefined
+      secondaryImages: secondaryImages ? secondaryImages : undefined,
+      productCategoryId: productCategoryId ? productCategoryId : '',
     };
   }
 
@@ -46,10 +49,11 @@ class CategoryForm extends React.Component<Props, State> {
     _id?: string;
     image?: IAttachment;
     secondaryImages?: IAttachment[];
+    productCategoryId?: string;
   }) => {
     const { category } = this.props;
     const finalValues = values;
-    const { image, secondaryImages } = this.state;
+    const { image, secondaryImages, productCategoryId } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -60,7 +64,8 @@ class CategoryForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       image,
-      secondaryImages
+      secondaryImages,
+      productCategoryId,
     };
   };
   onChangeAttachment = (files: IAttachment[]) => {
@@ -69,6 +74,10 @@ class CategoryForm extends React.Component<Props, State> {
 
   onChangeAttachmentMore = (files: IAttachment[]) => {
     this.setState({ secondaryImages: files ? files : undefined });
+  };
+
+  onSelectChange = (value) => {
+    this.setState({ productCategoryId: value });
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -157,6 +166,22 @@ class CategoryForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Product Category</ControlLabel>
+
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={object.productCategoryId || ''}
+            customOption={{
+              value: '',
+              label: '...Clear product category filter',
+            }}
+            onSelect={(categoryId) => this.onSelectChange(categoryId)}
+            multi={false}
+          />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -172,7 +197,7 @@ class CategoryForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>
