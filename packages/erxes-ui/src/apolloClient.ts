@@ -18,7 +18,7 @@ const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
 async function fetchWithTimeout(
   input: RequestInfo | URL,
-  init?: RequestInit | undefined
+  init?: RequestInit | undefined,
 ) {
   const timeout = init?.headers?.['x-timeout'] || 30_000;
   const controller = new AbortController();
@@ -34,7 +34,7 @@ async function fetchWithTimeout(
     if (controller.signal.aborted) {
       console.error(
         `Request timed out. Client side timeout limit ${timeout}ms exceeded.`,
-        init
+        init,
       );
       throw new Error(controller.signal.reason || 'Request timed out');
     } else {
@@ -83,7 +83,7 @@ export const wsLink: any = new GraphQLWsLink(
     retryWait: async () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     },
-  })
+  }),
 );
 
 type Definintion = {
@@ -99,7 +99,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLinkWithMiddleware
+  httpLinkWithMiddleware,
 );
 
 const typePolicies = {};

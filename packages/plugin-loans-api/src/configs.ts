@@ -13,7 +13,6 @@ import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let mainDb;
 
 interface IConfig {
   name: string;
@@ -58,8 +57,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

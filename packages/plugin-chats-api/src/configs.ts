@@ -8,8 +8,6 @@ import { NOTIFICATION_MODULES } from './constants';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'chats',
   permissions,
@@ -37,8 +35,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

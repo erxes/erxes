@@ -9,7 +9,6 @@ import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'inventories',
@@ -31,8 +30,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;
