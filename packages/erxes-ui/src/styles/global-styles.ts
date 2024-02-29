@@ -1,4 +1,4 @@
-import { colors, typography } from './';
+import { colors, dimensions, typography } from './';
 
 import { createGlobalStyle } from 'styled-components';
 
@@ -338,6 +338,34 @@ a:hover {
 
 .gjs-four-color, .gjs-four-color-h:hover {
   color: #6569df !important;
+}
+
+/* modal */
+[id^="headlessui-dialog-panel-"] {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-duration: .15s;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 10px -3px;
+  opacity: 1;
+  vertical-align: middle;
+  text-align: left;
+  background: ${colors.colorWhite};
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 500px;
+}
+
+[id^="headlessui-dialog-title-"] {
+  margin: 0;
+  font-size: 18px;
+  text-transform: capitalize;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+}
+
+[id^="headlessui-description-"].dialog-description {
+  padding: 20px 30px 30px;
+  margin: 0;
 }
 
 /* tooltip */
