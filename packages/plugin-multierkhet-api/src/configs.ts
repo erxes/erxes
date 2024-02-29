@@ -12,8 +12,6 @@ import { getOrderInfo } from './routes';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'multierkhet',
   permissions,
@@ -40,8 +38,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     await initBrokerErkhet();
     await initBroker();
 

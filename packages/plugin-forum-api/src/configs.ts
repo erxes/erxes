@@ -14,7 +14,6 @@ import cronjobs from './cronjobs';
 import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -55,8 +54,6 @@ export default {
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

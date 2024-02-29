@@ -9,7 +9,6 @@ import exporter from './exporter';
 import segments from './segment';
 import forms from './forms';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -34,8 +33,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

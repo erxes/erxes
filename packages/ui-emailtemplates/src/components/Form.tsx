@@ -63,10 +63,10 @@ const Form = (props: Props) => {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <RichTextEditor
-            height={300}
             content={content}
             onChange={onEditorChange}
             autoGrow={true}
+            autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
             name={`emailTemplates_${_id || 'create'}`}
             contentType={contentType}

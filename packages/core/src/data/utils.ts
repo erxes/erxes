@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
-import { IModels, models } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import {

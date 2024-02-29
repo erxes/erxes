@@ -23,6 +23,8 @@ const MoreIcon: IRichTextEditorControlBaseProps['icon'] = () => (
 );
 
 export const MoreButtonControl = (props: IRichTextEditorMoreControlProps) => {
+  let overLayRef;
+
   const { labels } = useRichTextEditorContext();
   const { toolbarPlacement, children } = props;
 

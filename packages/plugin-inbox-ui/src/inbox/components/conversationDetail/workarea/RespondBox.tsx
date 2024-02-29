@@ -16,12 +16,16 @@ import {
   RespondBoxStyled,
   SmallEditor,
 } from '@erxes/ui-inbox/src/inbox/styles';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   getPluginConfig,
   isEnabled,
   loadDynamicComponent,
 } from '@erxes/ui/src/utils/core';
+import {
+  useDebounce,
+  useDebouncedCallback,
+} from '@erxes/ui/src/components/richTextEditor/hooks';
 
 import Button from '@erxes/ui/src/components/Button';
 import Editor from './Editor';
@@ -39,7 +43,6 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
 import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import useDebouncedValue from '../../../hooks/useDeboucedValue';
 import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
 
 type Props = {
@@ -72,9 +75,16 @@ type State = {
 };
 
 const RespondBox = (props: Props) => {
+  const {
+    conversation,
+    currentUser,
+    sendMessage,
+    setAttachmentPreview,
+    responseTemplates,
+  } = props;
+
   const forwardedRef = useRef<EditorMethods>(null);
   const [content, setContent] = useState('');
-  const debouncedContent = useDebouncedValue(content, 300);
   const [state, setState] = useState<State>({
     isInactive: !checkIsActive(props.conversation),
     isInternal: props.showInternal || false,
@@ -84,19 +94,7 @@ const RespondBox = (props: Props) => {
     mentionedUserIds: [],
     loading: {},
   });
-
-  const {
-    conversation,
-    currentUser,
-    sendMessage,
-    setAttachmentPreview,
-    responseTemplates,
-  } = props;
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyEvents);
-    return () => window.removeEventListener('keydown', handleKeyEvents);
-  }, [handleKeyEvents]);
+  const [debouncedContent] = useDebounce(content, 200);
 
   useEffect(() => {
     setState((prevState) => ({
@@ -108,12 +106,17 @@ const RespondBox = (props: Props) => {
       ...prevState,
       isInternal: props.showInternal,
     }));
-  }, [props]);
+  }, [props.conversation, props.showInternal]);
 
   useEffect(() => {
     const textContent = debouncedContent.toLowerCase().replace(/<[^>]+>/g, '');
     props.refetchResponseTemplates(textContent);
   }, [debouncedContent]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyEvents);
+    return () => window.removeEventListener('keydown', handleKeyEvents);
+  }, [handleKeyEvents]);
 
   function handleKeyEvents(event: KeyboardEvent) {
     const isFocused = forwardedRef?.current?.getIsFocused();
@@ -125,35 +128,21 @@ const RespondBox = (props: Props) => {
     }
   }
 
-  function isContentWritten() {
-    // empty content
-    if (content === '<p><br></p>' || content === '') {
-      return false;
-    }
-
-    return true;
-  }
-
-  const getUnsendMessage = (id: string) => {
-    return localStorage.getItem(id) || '';
-  };
-
   // save editor current content to state
-  const onEditorContentChange = useCallback((editorContent: string) => {
-    setContent(editorContent);
+  const onEditorContentChange = useDebouncedCallback(
+    (editorContent: string) => {
+      setContent(editorContent);
 
-    if (isContentWritten()) {
-      localStorage.setItem(props.conversation._id, editorContent);
-    }
+      if (props.conversation.integration.kind === 'telnyx') {
+        const characterCount = calcCharacterCount(160);
 
-    if (props.conversation.integration.kind === 'telnyx') {
-      const characterCount = calcCharacterCount(160);
-
-      if (characterCount < 1) {
-        Alert.warning(__('You have reached maximum number of characters'));
+        if (characterCount < 1) {
+          Alert.warning(__('You have reached maximum number of characters'));
+        }
       }
-    }
-  }, []);
+    },
+    200,
+  );
 
   function checkIsActive(conversation: IConversation) {
     if (conversation.integration.kind === 'messenger') {
@@ -187,7 +176,7 @@ const RespondBox = (props: Props) => {
 
     onEditorContentChange(responseTemplate.content);
 
-    return setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       responseTemplate: responseTemplate.content,
       // set attachment from response template files
@@ -392,14 +381,13 @@ const RespondBox = (props: Props) => {
       <Editor
         ref={forwardedRef}
         currentConversation={conversation._id}
-        defaultContent={getUnsendMessage(conversation._id)}
         integrationKind={conversation.integration.kind}
         onChange={onEditorContentChange}
         placeholder={placeholder}
+        content={content}
         showMentions={isInternal}
         mentionSuggestion={props.mentionSuggestion}
         responseTemplates={responseTemplates}
-        content={content}
         limit={
           props.conversation.integration.kind === 'telnyx' ? 160 : undefined
         }
@@ -482,6 +470,7 @@ const RespondBox = (props: Props) => {
       </EditorActions>
     );
   }
+
   function renderBody() {
     return (
       <>

@@ -10,7 +10,6 @@ import logs from './logUtils';
 import { initBroker } from './messageBroker';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'processes',

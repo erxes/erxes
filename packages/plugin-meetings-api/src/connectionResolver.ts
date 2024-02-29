@@ -13,29 +13,24 @@ export interface IModels {
   PinnedUsers: IPinnedUserModel;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Meetings = db.model<IMeetingDocument, IMeetingModel>(
     'meetings',
-    loadMeetingClass(models)
+    loadMeetingClass(models),
   );
   models.Topics = db.model<ITopicDocument, ITopicModel>(
     'meeting_topics',
-    loadTopicClass(models)
+    loadTopicClass(models),
   );
 
   models.PinnedUsers = db.model<IPinnedUserDocument, IPinnedUserModel>(
     'meeting_pinned_users',
-    loadPinnedUserClass(models)
+    loadPinnedUserClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

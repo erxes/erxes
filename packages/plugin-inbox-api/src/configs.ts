@@ -32,7 +32,6 @@ import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 import exporter from './exporter';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -85,8 +84,6 @@ export default {
   },
   middlewares: [(serverTiming as any)()],
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     // events
     app.post(
       '/events-receive',

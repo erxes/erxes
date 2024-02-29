@@ -10,7 +10,6 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -59,8 +58,6 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;
