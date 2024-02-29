@@ -15,9 +15,7 @@ type Props = {
 };
 
 class AssignBoxPopover extends React.Component<Props> {
-  private overlayTrigger;
-
-  hidePopover = () => {
+  hidePopover = (closePopover) => {
     const { afterSave, notifyHandler } = this.props;
 
     if (afterSave) {
@@ -28,20 +26,20 @@ class AssignBoxPopover extends React.Component<Props> {
       notifyHandler();
     }
 
-    this.overlayTrigger.hide();
+    closePopover();
   };
 
   render() {
     const { targets, trigger } = this.props;
 
-    const popover = (
+    const popover = (close) => (
       <>
         <PopoverHeader>{__('Choose person')}</PopoverHeader>
         <div className="popover-content">
           <AssignBox
             targets={targets}
             event="onClick"
-            afterSave={this.hidePopover}
+            afterSave={() => this.hidePopover(close)}
           />
         </div>
       </>
@@ -50,7 +48,9 @@ class AssignBoxPopover extends React.Component<Props> {
     return (
       <Popover className="relative">
         <Popover.Button>{trigger}</Popover.Button>
-        <Popover.Panel className="assign-popover">{popover}</Popover.Panel>
+        <Popover.Panel className="assign-popover">
+          {({ close }) => popover(close)}
+        </Popover.Panel>
       </Popover>
     );
   }
