@@ -1,7 +1,7 @@
 import { colors, dimensions, typography } from '../styles';
 import styled, { css, keyframes } from 'styled-components';
+import { Popover } from '@headlessui/react';
 
-import { IAnimatedLoader } from '../types';
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
 
@@ -93,6 +93,19 @@ const PopoverHeader = styled.h3`
     color: ${colors.colorCoreGray};
     float: right;
   }
+`;
+
+const PopoverPanel = styledTS<{
+  top?: string;
+  bottom?: string;
+  right?: string;
+  left?: string;
+}>(styled(Popover.Panel))`
+  max-width: fit-content;
+  ${(props) => props.top && `top: ${props.top};`}
+  ${(props) => props.bottom && `bottom: ${props.bottom};`}
+  ${(props) => props.right && `right: ${props.right};`}
+  ${(props) => props.left && `left: ${props.left};`}
 `;
 
 const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
@@ -607,4 +620,5 @@ export {
   MapContainer,
   ImageWrapper,
   TextWrapper,
+  PopoverPanel,
 };

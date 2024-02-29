@@ -71,7 +71,7 @@ const MailRespondBox = styled(RespondBoxStyled)`
 `;
 
 const ResponseTemplateStyled = styled.div`
-  display: inline-block;
+  display: flex;
 
   button {
     margin-right: 10px;

@@ -6,7 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import { Popover } from '@headlessui/react';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { PopoverHeader } from '@erxes/ui/src/styles/main';
+import { PopoverHeader, PopoverPanel } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -26,11 +26,11 @@ class ResponseTemplate extends React.Component<Props> {
     const { brands, content, brandId, attachments } = this.props;
 
     const saveTrigger = (
-      <Button id="response-template-handler" btnStyle="link">
-        <Tip text={__('Save as template')}>
+      <Tip placement="top" text={__('Save as template')}>
+        <Button id="response-template-handler" btnStyle="link">
           <Icon icon="file-upload-alt" />
-        </Tip>
-      </Button>
+        </Button>
+      </Tip>
     );
 
     const popover = (close) => (
@@ -42,25 +42,17 @@ class ResponseTemplate extends React.Component<Props> {
 
     return (
       <ResponseTemplateStyled>
-        <Popover
-        // trigger="click"
-        // placement="top"
-        // overlay={popover}
-        // rootClose={true}
-        // ref={overlayTrigger => {
-        //   this.overlayRef = overlayTrigger;
-        // }}
-        >
+        <Popover style={{ position: 'relative' }}>
           {({ close }) => (
             <>
-              <Popover.Button>
-                <Button btnStyle="link" id="overlay-trigger-button">
-                  <Tip text={__('Response template')}>
-                    <Icon icon="file-bookmark-alt" />
-                  </Tip>
-                </Button>
-              </Popover.Button>
-              <Popover.Panel>{popover(close)}</Popover.Panel>
+              <Tip placement="top" text={__('Response template')}>
+                <Popover.Button style={{ cursor: 'pointer' }}>
+                  <Icon icon="file-bookmark-alt" />
+                </Popover.Button>
+              </Tip>
+              <PopoverPanel top="unset" bottom="45px" left="unset" right="0">
+                {popover(close)}
+              </PopoverPanel>
             </>
           )}
         </Popover>
