@@ -222,22 +222,23 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     };
 
     return (
-      <Menu>
+      <Menu as="div" className="relative">
         <Menu.Button>{this.renderButton()}</Menu.Button>
         <Menu.Items className="absolute">
           {this.renderEditButton()}
           <Menu.Item>
-            <TargetMerge
+            <span>aa</span>
+            {/* <TargetMerge
               onSave={merge}
               object={coc}
               searchObject={search}
               mergeForm={
-                cocType === 'customer' ? CustomersMerge : CompaniesMerge
+                cocType === "customer" ? CustomersMerge : CompaniesMerge
               }
               generateOptions={
-                cocType === 'customer' ? generateOptions : targetMergeOptions
+                cocType === "customer" ? generateOptions : targetMergeOptions
               }
-            />
+            /> */}
           </Menu.Item>
           <Menu.Item>
             <a href="#delete" onClick={onClick}>

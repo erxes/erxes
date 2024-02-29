@@ -52,14 +52,13 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     const MergeForm = mergeForm;
 
-    return null;
-    // return (
-    //   <MergeForm
-    //     objects={[object, selectedObject]}
-    //     save={onSave}
-    //     closeModal={closeModal}
-    //   />
-    // );
+    return (
+      <MergeForm
+        objects={[object, selectedObject]}
+        save={onSave}
+        closeModal={closeModal}
+      />
+    );
   }
 
   renderSelect() {

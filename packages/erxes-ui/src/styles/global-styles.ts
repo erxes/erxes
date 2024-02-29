@@ -287,21 +287,26 @@ a:hover {
 	vertical-align: middle
 }
 
-.dropdown-menu {
+[id^="headlessui-menu-items-"] {
   margin-top: 0 !important;
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  right: 0;
+  float: left;
+  background: ${colors.colorWhite};
+  border-radius: 4px;
 }
 
 .dropdown-menu > span {
   display: block;
 }
 
-.dropdown-menu li a,
-.dropdown-menu li button {
+[id^="headlessui-menu-items-"] a,
+[id^="headlessui-menu-items-"] button {
   display: block;
   padding: 3px 20px;
   color: ${colors.textPrimary};
@@ -310,21 +315,21 @@ a:hover {
   margin: 0;
 }
 
-.dropdown-menu > li > a {
+[id^="headlessui-menu-items-"] > a {
   color: ${colors.textPrimary};
   font-weight: normal;
 }
 
-.dropdown-menu > li.active > a {
+[id^="headlessui-menu-items-"].active > a {
   background: ${colors.bgActive};
 }
 
-.dropdown-menu > li > a:focus,
-.dropdown-menu > li > a:hover,
-.dropdown-menu li a:focus,
-.dropdown-menu li a:hover,
-.dropdown-menu li button:focus,
-.dropdown-menu li button:hover {
+[id^="headlessui-menu-items-"] > a:focus,
+[id^="headlessui-menu-items-"] > a:hover,
+[id^="headlessui-menu-items-"] a:focus,
+[id^="headlessui-menu-items-"] a:hover,
+[id^="headlessui-menu-items-"] button:focus,
+[id^="headlessui-menu-items-"] button:hover {
   color: ${colors.colorCoreDarkGray};
   background: ${colors.bgActive};
   outline: 0;
