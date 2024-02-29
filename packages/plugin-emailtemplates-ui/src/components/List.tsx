@@ -5,7 +5,7 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo,
-  Templates
+  Templates,
 } from '@erxes/ui-emailtemplates/src/styles';
 import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 
@@ -21,6 +21,7 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { router } from '@erxes/ui/src';
+import { IUserDetails } from '@erxes/ui/src/auth/types';
 
 type Props = {
   queryParams: any;
@@ -30,22 +31,22 @@ type Props = {
 } & ICommonListProps;
 
 class EmailTemplateList extends React.Component<Props> {
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  removeTemplate = object => {
+  removeTemplate = (object) => {
     this.props.remove(object._id);
   };
 
-  duplicateTemplate = id => {
+  duplicateTemplate = (id) => {
     this.props.duplicate(id);
   };
 
-  renderEditAction = object => {
+  renderEditAction = (object) => {
     const { save } = this.props;
 
-    const content = props => {
+    const content = (props) => {
       return this.renderForm({ ...props, object, save });
     };
 
@@ -120,6 +121,7 @@ class EmailTemplateList extends React.Component<Props> {
                 ) : (
                   <p>erxes Inc</p>
                 )}
+
               </TemplateInfo>
             </div>
           </TemplateBoxInfo>
@@ -128,7 +130,7 @@ class EmailTemplateList extends React.Component<Props> {
     });
   };
 
-  searchHandler = event => {
+  searchHandler = (event) => {
     const { history } = this.props;
 
     router.setParams(history, { page: 1, searchValue: event.target.value });
@@ -162,7 +164,7 @@ class EmailTemplateList extends React.Component<Props> {
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Email templates') }
+          { title: __('Email templates') },
         ]}
         title={__('Email templates')}
         leftActionBar={
@@ -170,11 +172,11 @@ class EmailTemplateList extends React.Component<Props> {
             icon="/images/actions/22.svg"
             title="Email templates"
             description={`${__(
-              `It's all about thinking ahead for your customers`
+              `It's all about thinking ahead for your customers`,
             )}.${__(
-              'Team members will be able to choose from email templates and send out one message to multiple recipients'
+              'Team members will be able to choose from email templates and send out one message to multiple recipients',
             )}.${__(
-              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
+              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members',
             )}`}
           />
         }

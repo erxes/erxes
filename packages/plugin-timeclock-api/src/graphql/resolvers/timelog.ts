@@ -1,4 +1,3 @@
-import { models } from '../../connectionResolver';
 import { ITimeLogDocument } from '../../models/definitions/timeclock';
 
 export default {
@@ -6,18 +5,18 @@ export default {
     return (
       timelog.userId && {
         __typename: 'User',
-        _id: timelog.userId
+        _id: timelog.userId,
       }
     );
   },
-  async deviceName(timelog: ITimeLogDocument) {
+  async deviceName(timelog: ITimeLogDocument, _, { models }) {
     return (
       timelog.deviceSerialNo &&
       (
         await models?.DeviceConfigs.findOne({
-          serialNo: timelog.deviceSerialNo
+          serialNo: timelog.deviceSerialNo,
         })
       )?.deviceName
     );
-  }
+  },
 };

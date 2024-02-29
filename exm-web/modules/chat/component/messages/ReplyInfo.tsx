@@ -1,5 +1,5 @@
 import React from "react"
-import { ReplyIcon, XCircleIcon } from "lucide-react"
+import { X } from "lucide-react"
 
 const ReplyInfo = ({
   reply,
@@ -10,26 +10,23 @@ const ReplyInfo = ({
 }) => {
   if (reply) {
     return (
-      <div className="flex flex-col p-2 text-xs text-[#444] rounded-lg bg-[#E2F0FF]">
+      <div className="flex flex-col p-2 text-sm text-[#444] border-t border-b border-exm">
         <div className="flex justify-between">
           <div className="flex items-center">
-            <ReplyIcon size={15} className="mr-2" />
-            <p>
+            <b>
               Replying to{" "}
-              <b>
-                {reply?.createdUser?.details?.fullName ||
-                  reply?.createdUser?.email}
-              </b>
-            </p>
+              {reply?.createdUser?.details?.fullName ||
+                reply?.createdUser?.email}
+            </b>
           </div>
-          <XCircleIcon
+          <X
             className="cursor-pointer"
             size={18}
             onClick={() => setReply(null)}
           />
         </div>
-        <p className="max-w-md overflow-hidden truncate">
-          {reply.content === "<p></p>" ? "File" : reply.content}
+        <p className="max-w-full overflow-hidden truncate">
+          {(reply.content === "<p></p>" || reply.content === "") ? "File" : reply.content}
         </p>
       </div>
     )

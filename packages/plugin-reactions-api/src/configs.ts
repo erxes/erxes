@@ -8,8 +8,6 @@ import forms from './forms';
 
 export let debug;
 
-export let mainDb;
-
 export default {
   name: 'reactions',
   graphql: async () => {
@@ -29,8 +27,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

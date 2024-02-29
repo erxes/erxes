@@ -10,7 +10,6 @@ import app from '@erxes/api-utils/src/app';
 import tags from './tags';
 import { buildFile } from './reportExport';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -34,7 +33,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
     initBroker();
 
     debug = options.debug;

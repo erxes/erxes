@@ -5,18 +5,18 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IActivityLogModel,
   IActivityLogDocument,
-  loadClass as loadActivityLogClass
+  loadClass as loadActivityLogClass,
 } from './models/ActivityLogs';
 import { ILogModel, ILogDocument, loadLogClass } from './models/Logs';
 import {
   IVisitorModel,
   IVisitorDocument,
-  loadVisitorClass
+  loadVisitorClass,
 } from './models/Visitors';
 import {
   IEmailDeliveriesDocument,
   IEmailDeliveryModel,
-  loadEmailDeliveryClass
+  loadEmailDeliveryClass,
 } from './models/EmailDeliveries';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -32,24 +32,22 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogModel>(
     'activity_logs',
-    loadActivityLogClass(models, subdomain)
+    loadActivityLogClass(models, subdomain),
   );
 
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
   models.Visitors = db.model<IVisitorDocument, IVisitorModel>(
     'visitors',
-    loadVisitorClass(models)
+    loadVisitorClass(models),
   );
 
   models.EmailDeliveries = db.model<
@@ -60,7 +58,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -15,7 +15,6 @@ import forms from './forms';
 import app from '@erxes/api-utils/src/app';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'exmfeed',
@@ -37,8 +36,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     app.get('/trigger-cron', async (req, res) => {
       const subdomain = getSubdomain(req);
 

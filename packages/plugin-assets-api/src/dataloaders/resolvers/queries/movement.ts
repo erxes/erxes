@@ -4,11 +4,11 @@ import { generateFilter } from '../../../utils';
 
 const movementQueries = {
   async assetMovements(_root, params, { models, subdomain }: IContext) {
-    const filter = await generateFilter(params, 'movement', subdomain);
+    const filter = await generateFilter(models, params, 'movement', subdomain);
 
     return paginate(
       models.Movements.find(filter).sort({ createdAt: -1 }),
-      params
+      params,
     );
   },
   async assetMovement(_root, { _id }, { models }: IContext) {
@@ -18,12 +18,12 @@ const movementQueries = {
   async assetMovementTotalCount(
     _root,
     params,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(params, 'movement', subdomain);
+    const filter = await generateFilter(models, params, 'movement', subdomain);
 
     return models.Movements.find(filter).countDocuments();
-  }
+  },
 };
 
 export default movementQueries;

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Mic, MicOff, Pause, Play } from "lucide-react"
+import { ArrowUp, Mic, Pause, Play } from "lucide-react"
 import WaveSurfer from "wavesurfer.js"
 import RecordPlugin from "wavesurfer.js/dist/plugins/record"
 
@@ -36,7 +36,7 @@ const AudioRecorder = ({ sendAudio }: Props) => {
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: "rgb(100, 0, 100)",
+      waveColor: "rgb(255, 255, 255)",
       cursorWidth: 0,
       barWidth: 2,
       barGap: 2,
@@ -118,24 +118,22 @@ const AudioRecorder = ({ sendAudio }: Props) => {
   }
 
   return (
-    <>
-      <div className="flex gap-4">
-        <button onClick={isRecording ? stopRecording : startRecording}>
-          {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
-        </button>
-
-        <button onClick={isPaused ? resumeRecording : pauseRecording}>
-          {isPaused ? <Play size={16} /> : <Pause size={16} />}
-        </button>
+    <div className="flex w-full items-center gap-2 p-5 rounded-lg bg-primary-light drop-shadow-md text-white">
+      <button onClick={isPaused ? resumeRecording : pauseRecording}>
+        {isPaused ? (
+          <Play size={16} fill="#fff" />
+        ) : (
+          <Pause size={16} fill="#fff" />
+        )}
+      </button>
+      <div ref={containerRef} className="w-full " />
+      <div className="text-center text-[14px] text-semibold">
+        {formatTime(recordTime)}
       </div>
-
-      <div className="flex w-full items-center gap-4 p-5 rounded-lg bg-[#F5FAFF] drop-shadow-md">
-        <div className=" w-1/12 text-center text-[14px] text-semibold">
-          {formatTime(recordTime)}
-        </div>
-        <div ref={containerRef} className="w-full " />
-      </div>
-    </>
+      <button onClick={isRecording ? stopRecording : startRecording}>
+        {isRecording ? <ArrowUp size={18} /> : <Mic size={16} />}
+      </button>
+    </div>
   )
 }
 

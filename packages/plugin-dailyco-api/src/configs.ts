@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -21,8 +20,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     debug = options.debug;
 
     initBroker();

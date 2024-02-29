@@ -1,0 +1,23 @@
+module.exports = [
+	'forms',
+	'tags',
+	'products',
+	'automations',
+	'cards',
+	'contacts',
+	'dashboard',
+	'engages',
+	'inbox',
+	'integrations',
+	'internalnotes',
+	'knowledgebase',
+	'logs',
+	'notifications',
+	'segments',
+	'workers',
+	'emailtemplates',
+	'webhooks',
+	'ebarimt',
+	'loyalties',
+	'pos'
+      ];

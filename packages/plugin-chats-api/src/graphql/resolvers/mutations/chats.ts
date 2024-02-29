@@ -3,6 +3,7 @@ import * as strip from 'strip';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { sendCoreMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
@@ -525,6 +526,32 @@ const chatMutations = {
     }
 
     return message;
+  },
+
+  chatMessageReactionAdd: async (_root, doc, { user, models }: IContext) => {
+    const findMessageReaction = await models.ChatMessageReactions.findOne({
+      userId: doc.userId || user._id,
+      chatMessageId: doc.chatMessageId,
+    });
+    // if user already added a reaction to a message
+    if (findMessageReaction) {
+      return await models.ChatMessageReactions.updateChatMessageReaction(
+        findMessageReaction._id,
+        {
+          userId: doc.userId || user._id,
+          ...doc,
+        },
+      );
+    }
+
+    return await models.ChatMessageReactions.createChatMessageReaction({
+      userId: doc.userId || user._id,
+      ...doc,
+    });
+  },
+
+  chatMessageReactionRemove: (_root, { _id }, { models }: IContext) => {
+    return models.ChatMessageReactions.removeChatMessageReaction(_id);
   },
 };
 

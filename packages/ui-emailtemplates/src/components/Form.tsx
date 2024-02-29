@@ -22,7 +22,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || ''
+      content: (props.object && props.object.content) || '',
     };
   }
 
@@ -41,7 +41,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: this.state.content
+      content: this.state.content,
     };
   };
 
@@ -68,6 +68,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}
+            autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
             name={`emailTemplates_${object._id || 'create'}`}
             contentType={this?.props?.contentType}

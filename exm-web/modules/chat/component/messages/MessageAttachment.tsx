@@ -1,3 +1,4 @@
+import FormAttachments from "@/modules/feed/component/form/FormAttachments"
 import { IAttachment } from "@/modules/feed/types"
 
 import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPreview"
@@ -5,15 +6,15 @@ import { AttachmentWithChatPreview } from "@/components/AttachmentWithChatPrevie
 const MessageAttachmentSection = ({
   attachments,
   isMe,
-  isPinned
+  isPinned,
 }: {
   attachments: IAttachment[]
   isMe?: boolean
   isPinned?: boolean
 }) => {
   const style = isMe
-    ? `${"bg-primary-light text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}`
-    : `${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"}`
+    ? `${"bg-[#fff] text-[#000] rounded-lg"}`
+    : `${"bg-[#2970FF] text-[#fff] rounded-lg"}`
 
   const medias = attachments.filter((attachment) =>
     attachment.type.startsWith("image/")
@@ -30,29 +31,26 @@ const MessageAttachmentSection = ({
       {medias && (
         <AttachmentWithChatPreview
           attachments={medias}
-          className={`${isPinned ? "flex flex-wrap" : `grid ${
-            medias.length >= 3
-              ? "grid-cols-3"
-              : medias.length === 2
-              ? "grid-cols-2"
-              : "grid-cols-1"
-          }`} gap-3 py-1`}
+          className={`${
+            isPinned
+              ? "flex flex-wrap"
+              : `grid ${
+                  medias.length >= 3
+                    ? "grid-cols-3"
+                    : medias.length === 2
+                    ? "grid-cols-2"
+                    : "grid-cols-1"
+                }`
+          } gap-3 py-1`}
           isDownload={true}
           isMe={isMe}
         />
       )}
-      {files && (
-        <AttachmentWithChatPreview
-          attachments={files}
-          className={`flex flex-col gap-3 py-1`}
-          isDownload={true}
-          isMe={isMe}
-        />
-      )}
+      {files && <FormAttachments attachments={files} type="file" />}
       {audios && (
         <AttachmentWithChatPreview
           attachments={audios}
-          className={`${style} py-2.5 px-5 max-w-md drop-shadow-md font-medium`}
+          className={`${style} p-2 max-w-md drop-shadow-md font-medium`}
           isMe={isMe}
         />
       )}
