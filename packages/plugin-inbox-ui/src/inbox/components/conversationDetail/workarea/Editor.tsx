@@ -1,6 +1,6 @@
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import {
   EditorMethods,
   RichTextEditor,
@@ -9,13 +9,12 @@ import TemplateList from './TemplateList';
 
 type EditorProps = {
   currentConversation: string;
-  defaultContent?: string;
   integrationKind: string;
+  content: string;
   onChange: (content: string) => void;
   showMentions: boolean;
   responseTemplates: IResponseTemplate[];
   placeholder?: string;
-  content: string;
   limit?: number;
   mentionSuggestion?: MentionSuggestionParams;
 };
@@ -28,6 +27,18 @@ type State = {
 
 const Editor = forwardRef(
   (props: EditorProps, ref: React.ForwardedRef<EditorMethods>) => {
+    const {
+      showMentions,
+      content,
+      responseTemplates,
+      currentConversation,
+      placeholder,
+      integrationKind,
+      mentionSuggestion,
+      onChange,
+      limit,
+    } = props;
+
     const [state, setState] = useState<State>({
       collectedMentions: [],
       templatesState: null,
@@ -35,35 +46,23 @@ const Editor = forwardRef(
     });
 
     useEffect(() => {
-      const defaultContent = props.defaultContent || '';
-      props.onChange(defaultContent);
-    }, [props.currentConversation, props.defaultContent]);
-
-    useEffect(() => {
       setState((prevState) => ({
         ...prevState,
-        hideTemplates: props.showMentions,
+        hideTemplates: showMentions,
       }));
-    }, [props.showMentions]);
+    }, [showMentions]);
 
-    const onChange = useCallback((content: string) => {
-      props.onChange(content);
-      onTemplatesStateChange(getTemplatesState());
-      // window.requestAnimationFrame(() => {
-      //   onTemplatesStateChange(getTemplatesState());
-      // });
-    }, []);
+    useEffect(() => {
+      window.requestAnimationFrame(() => {
+        onTemplatesStateChange(getTemplatesState());
+      });
+    }, [content, responseTemplates]);
 
-    const onTemplatesStateChange = (templatesState) => {
+    const onTemplatesStateChange = (templatesState: any) => {
       setState((prevState) => ({ ...prevState, templatesState }));
     };
 
-    const getTemplatesState = (invalidate: boolean = true) => {
-      if (!invalidate) {
-        return state.templatesState;
-      }
-
-      const { responseTemplates, content } = props;
+    const getTemplatesState = () => {
       // get html content as text
       const textContent = content.toLowerCase().replace(/<[^>]+>/g, '');
 
@@ -90,8 +89,8 @@ const Editor = forwardRef(
     };
 
     const changeEditorContent = (content: string) => {
-      props.onChange(content);
-      return setState((prevState) => ({ ...prevState, templatesState: null }));
+      onChange(content);
+      setState((prevState) => ({ ...prevState, templatesState: null }));
     };
 
     const onSelectTemplate = (index?: number) => {
@@ -103,7 +102,7 @@ const Editor = forwardRef(
         return null;
       }
 
-      return changeEditorContent(selectedTemplate.content);
+      changeEditorContent(`${selectedTemplate.content}\n`);
     };
 
     // Render response templates suggestions
@@ -122,23 +121,25 @@ const Editor = forwardRef(
         />
       );
     };
+
     return (
       <div>
         {renderTemplates()}
         <RichTextEditor
           ref={ref}
-          placeholder={props.placeholder}
-          integrationKind={props.integrationKind}
-          showMentions={props.showMentions}
-          {...(props.showMentions && {
-            mentionSuggestion: props.mentionSuggestion,
+          name={currentConversation}
+          placeholder={placeholder}
+          integrationKind={integrationKind}
+          showMentions={showMentions}
+          {...(showMentions && {
+            mentionSuggestion: mentionSuggestion,
           })}
-          content={props.content}
+          content={content}
           onChange={onChange}
           autoGrow={true}
           autoGrowMinHeight={100}
           autoGrowMaxHeight="55vh"
-          limit={props.limit}
+          limit={limit}
         />
       </div>
     );
