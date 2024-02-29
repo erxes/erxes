@@ -30,7 +30,7 @@ class PageForm extends React.Component<Props, State> {
 
     this.state = {
       content: page.content ?? '',
-      title: page.title ?? ''
+      title: page.title ?? '',
     };
   }
 
@@ -56,7 +56,7 @@ class PageForm extends React.Component<Props, State> {
       thumbnail: finalValues.thumbnail,
       code: finalValues.code,
       listOrder: parseInt(finalValues.listOrder, 10),
-      description: finalValues.description
+      description: finalValues.description,
     };
   };
 
@@ -158,7 +158,7 @@ class PageForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: page
+            object: page,
           })}
         </ModalFooter>
       </>

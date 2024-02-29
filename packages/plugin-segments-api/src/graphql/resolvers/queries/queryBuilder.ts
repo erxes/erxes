@@ -3,7 +3,10 @@ import {
   fetchByQuery,
   fetchEs,
   fetchEsWithScroll,
+  generateElkId,
+  generateElkIds,
   getDbNameFromConnectionString,
+  getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
@@ -43,7 +46,7 @@ export const isInSegment = async (
   options.defaultMustSelector = [
     {
       match: {
-        _id: idToCheck,
+        _id: await generateElkId(idToCheck, subdomain),
       },
     },
   ];
@@ -112,7 +115,7 @@ export const fetchSegment = async (
     });
 
     const items = itemsResponse.hits.hits;
-    const itemIds = items.map((i) => i._id);
+    const itemIds = items.map((i) => getRealIdFromElk(i._id));
 
     const getType = (type) =>
       type.replace('contacts:', '').replace('cards:', '');
@@ -133,7 +136,7 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: _.uniq(associationIds),
+              _id: await generateElkIds(associationIds, subdomain),
             },
           },
         ],
@@ -217,7 +220,7 @@ export const fetchSegment = async (
 
       if (hits.hits) {
         hits.hits.forEach((hit) => {
-          results.push(hit._id);
+          results.push(getRealIdFromElk(hit._id));
         });
       }
 
@@ -242,10 +245,13 @@ export const fetchSegment = async (
   const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
-    return response.hits.hits.map((hit) => ({ _id: hit._id, ...hit._source }));
+    return response.hits.hits.map((hit) => ({
+      _id: getRealIdFromElk(hit._id),
+      ...hit._source,
+    }));
   }
 
-  return response.hits.hits.map((hit) => hit._id);
+  return response.hits.hits.map((hit) => getRealIdFromElk(hit._id));
 };
 
 const generateDefaultSelector = ({ defaultMustSelector, isInitialCall }) => {
@@ -588,7 +594,7 @@ export const generateQueryBySegment = async (
 
       propertiesPositive.push({
         terms: {
-          _id: idsByEvents,
+          _id: await generateElkIds(idsByEvents, subdomain),
         },
       });
     }

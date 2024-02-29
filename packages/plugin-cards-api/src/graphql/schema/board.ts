@@ -35,6 +35,7 @@ export const types = ({ tags }) => `
     hackScoringType: String
     templateId: String
     state: String
+    isCheckDate: Boolean
     isCheckUser: Boolean
     isCheckDepartment: Boolean
     excludeCheckUserIds: [String]
@@ -181,6 +182,7 @@ const pipelineParams = `
   metric: String,
   hackScoringType: String,
   templateId: String,
+  isCheckDate: Boolean
   isCheckUser: Boolean
   isCheckDepartment: Boolean
   excludeCheckUserIds: [String],

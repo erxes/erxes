@@ -4,18 +4,10 @@ import {
   getCustomer,
   getDepositAccount,
   getLoanContract,
-  getLoanContractAccount,
-  getLoanProduct,
 } from '../utils';
-import { IPolarisRepayment } from './types';
 
-export const createLoanPreRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (subdomain, transaction) => {
   const loanContract = await getLoanContract(subdomain, transaction.contractId);
-
-  const loanContractType = await getLoanProduct(
-    subdomain,
-    loanContract.contractTypeId,
-  );
 
   const customer = await getCustomer(subdomain, loanContract.customerId);
 
@@ -27,30 +19,42 @@ export const createLoanPreRepayment = async (subdomain, transaction) => {
     customer,
   );
 
-  const loanAccount = getLoanContractAccount(loanContractType, loanContract);
-
-  const loanChangeClassification: IPolarisRepayment = {
-    txnAcntCode: loanAccount,
+  const loanRepayment = {
+    txnAcntCode: loanContract.number,
     txnAmount: transaction.total,
     rate: 1,
-    rateTypeId: '16',
-    contAcntCode: deposit.number,
     contAmount: transaction.total,
+    contCurCode: transaction.currency,
+    curCode: transaction.currency,
+    contAcntCode: deposit.number,
     contRate: 1,
-    txnDesc: transaction.description,
+    txnDesc: `${customerData.registerCode} ${transaction.description}`,
+    tcustName: customerData.firstName,
+    tcustAddr: `${customerData.address}`,
     tcustRegister: customerData.registerCode,
     tcustRegisterMask: '3',
-    sourceType: 'TLLR',
+    tcustContact: customerData.mobile,
     isPreview: 0,
-    isPreviewFee: null,
+    isPreviewFee: 0,
     isTmw: 1,
-    addParams: [{ PAYCUSTCODE: '', contAcntType: 'BAC' }],
+    addParams: [
+      {
+        CALCMETHOD: 0,
+        PREINTAMT: transaction.total,
+        PREPRINCAMT: '',
+        CUSTCODE: '',
+        FUTUREPAYMENTDATE: transaction.payDate,
+      },
+    ],
+    tranAmt: transaction.total,
+    tranCurCode: transaction.currency,
+    cashBankNote: '',
   };
 
   const loanRepaymentReponse = await fetchPolaris({
     subdomain,
     op: '13610250',
-    data: [loanChangeClassification],
+    data: [loanRepayment],
   }).then((response) => JSON.parse(response));
 
   return loanRepaymentReponse.txnJrno;

@@ -5,7 +5,7 @@ import { generateModels, IModels } from './connectionResolver';
 import {
   fetchSegment,
   sendSegmentsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { debug } from './configs';
 
@@ -13,13 +13,13 @@ export interface ICountBy {
   [index: string]: number;
 }
 
-const gatherNames = async params => {
+const gatherNames = async (params) => {
   const {
     collection,
     idFields,
     foreignKey,
     prevList,
-    nameFields = []
+    nameFields = [],
   } = params;
   let options = [] as any;
 
@@ -60,14 +60,14 @@ const gatherCarFieldNames = async (models, doc, prevList = null) => {
       idFields: [doc.categoryId],
       foreignKey: 'categoryId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
 
   return options;
 };
 
-export const gatherDescriptions = async params => {
+export const gatherDescriptions = async (params) => {
   const { action, obj, type, updatedDocument, extraParams } = params;
   const { models } = extraParams;
 
@@ -84,7 +84,7 @@ export const gatherDescriptions = async params => {
         extraDesc = await gatherCarFieldNames(
           models,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
       break;
@@ -107,7 +107,7 @@ export const gatherDescriptions = async params => {
           collection: models.CarCategories,
           idFields: parentIds,
           foreignKey: 'parentId',
-          nameFields: ['name']
+          nameFields: ['name'],
         });
       }
     }
@@ -145,13 +145,13 @@ export const generateFields = async ({ subdomain }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
   }
 
-  fields = fields.filter(field => {
+  fields = fields.filter((field) => {
     if (
       field.name === 'parentCarCategoryId' ||
       field.name === 'carCategoryId'
@@ -163,11 +163,11 @@ export const generateFields = async ({ subdomain }) => {
   });
 
   const parentCategories = await models.CarCategories.find({
-    $or: [{ parentId: null }, { parentId: '' }]
+    $or: [{ parentId: null }, { parentId: '' }],
   });
 
   const categories = await models.CarCategories.find({
-    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }]
+    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }],
   });
 
   const additionalFields = [
@@ -176,35 +176,35 @@ export const generateFields = async ({ subdomain }) => {
       name: 'parentCarCategoryId',
       label: 'Category',
       type: 'String',
-      selectOptions: parentCategories.map(category => ({
+      selectOptions: parentCategories.map((category) => ({
         value: category._id,
-        label: category.name
-      }))
+        label: category.name,
+      })),
     },
     {
       _id: Math.random(),
       name: 'carCategoryId',
       label: 'Sub category',
       type: 'String',
-      selectOptions: categories.map(category => ({
+      selectOptions: categories.map((category) => ({
         value: category._id,
-        label: category.name
-      }))
+        label: category.name,
+      })),
     },
     {
       _id: Math.random(),
       name: 'drivers',
       label: 'Driver(s)',
       type: 'String',
-      selectOptions: undefined
+      selectOptions: undefined,
     },
     {
       _id: Math.random(),
       name: 'companies',
       label: 'Company(s)',
       type: 'String',
-      selectOptions: undefined
-    }
+      selectOptions: undefined,
+    },
   ];
 
   return [...additionalFields, ...fields];
@@ -213,7 +213,7 @@ export const generateFields = async ({ subdomain }) => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -224,7 +224,7 @@ export const countBySegment = async (
     action: 'find',
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const s of segments) {
@@ -289,7 +289,7 @@ export class Builder {
       const tag = await sendTagsMessage({
         subdomain: this.subdomain,
         action: 'find',
-        data: { _id: tagId }
+        data: { _id: tagId },
       });
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
@@ -297,8 +297,8 @@ export class Builder {
 
     this.positiveList.push({
       terms: {
-        tagIds
-      }
+        tagIds,
+      },
     });
   }
 
@@ -308,7 +308,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -338,7 +338,7 @@ export class Builder {
         isRPC: true,
         action: 'findOne',
         subdomain: this.subdomain,
-        data: { _id: this.params.segment }
+        data: { _id: this.params.segment },
       });
 
       await this.segmentFilter(segment);
@@ -350,9 +350,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -362,7 +362,7 @@ export class Builder {
       action: 'count',
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -371,23 +371,23 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
     if (action === 'count') {
       return response && response.count ? response.count : 0;
     }
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }

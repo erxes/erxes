@@ -12,7 +12,7 @@ const configsGetEnv = `
   query configsGetEnv {
     configsGetEnv {
       USE_BRAND_RESTRICTIONS
-      VERSION
+      RELEASE
     }
   }
 `;
@@ -54,5 +54,5 @@ export default {
   checkActivateInstallation,
   configsCheckPremiumService,
   configsGetEmailTemplate,
-  search
+  search,
 };

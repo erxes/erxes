@@ -26,5 +26,5 @@ export default {
   login,
   forgotPassword,
   resetPassword,
-  createOwner
+  createOwner,
 };

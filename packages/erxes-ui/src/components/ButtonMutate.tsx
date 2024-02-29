@@ -42,6 +42,7 @@ type Props = {
   confirmationUpdate?: boolean;
   beforeSubmit?: () => void;
   resetSubmit?: () => void;
+  style?: any;
 };
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
@@ -49,14 +50,14 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
   static defaultProps = {
     btnSize: 'medium',
-    icon: 'check-circle'
+    icon: 'check-circle',
   };
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      isLoading: false
+      isLoading: false,
     };
   }
 
@@ -75,7 +76,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       refetchQueries,
       beforeSubmit,
       disableLoading,
-      resetSubmit
+      resetSubmit,
     } = this.props;
 
     if (beforeSubmit) {
@@ -92,7 +93,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       .mutate({
         mutation: gql(mutation),
         variables,
-        refetchQueries
+        refetchQueries,
       })
 
       .then(({ data }) => {
@@ -108,10 +109,10 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
           this.setState({ isLoading: false });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.message.includes('Invalid login')) {
           Alert.error(
-            'The email address or password you entered is incorrect.'
+            'The email address or password you entered is incorrect.',
           );
         } else {
           Alert.error(error.message);
@@ -132,12 +133,12 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
     if (confirmationUpdate) {
       return confirm('This will permanently update are you absolutely sure?', {
-        hasUpdateConfirm: true
+        hasUpdateConfirm: true,
       })
         .then(() => {
           this.invokeMutate();
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     }
@@ -154,7 +155,8 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       btnStyle = 'success',
       disabled,
       block,
-      uppercase
+      uppercase,
+      style,
     } = this.props;
 
     const { isLoading } = this.state;
@@ -169,6 +171,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         onClick={type ? undefined : this.mutate}
         icon={isLoading ? undefined : icon}
         block={block}
+        style={style}
       >
         {isLoading && <SmallLoader />}
         {children}
