@@ -442,6 +442,22 @@ const orderMutations = {
     return await models.Orders.getOrder(_id);
   },
 
+  async orderChangeSaleStatus(
+    _root,
+    { _id, saleStatus }: { _id: string; saleStatus: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const oldOrder = await models.Orders.getOrder(_id);
+
+    await models.Orders.updateOrder(_id, {
+      ...oldOrder,
+      saleStatus,
+      modifiedAt: new Date(),
+    });
+
+    return await models.Orders.getOrder(_id);
+  },
+
   async ordersChange(
     _root,
     params: IOrderChangeParams,
@@ -661,6 +677,7 @@ const orderMutations = {
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
+        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
       },
     };
 
