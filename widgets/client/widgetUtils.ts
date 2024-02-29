@@ -65,7 +65,8 @@ export const getBrowserInfo = async () => {
       url: window.location.pathname,
       hostname: window.location.href,
       language: navigator.language,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
+      countryCode: 'MN',
     };
   }
 

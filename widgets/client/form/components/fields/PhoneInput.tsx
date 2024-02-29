@@ -2,47 +2,54 @@ import * as React from 'react';
 import { COUNTRY_CODES } from '../../constants';
 import { FieldValue } from '../../types';
 import { connection } from '../../connection';
+import { ICountry } from '../../../types';
 
 type Props = {
-  id: string;
-  value: string;
+  id?: string;
+  value?: string;
   onChange: (value: FieldValue) => void;
 };
 
-const PhoneInputWithCountryCode = (props: any) => {
+const PhoneInputWithCountryCode = (props: Props) => {
   const { onChange } = props;
 
-  const [dialCode, setDialCode] = React.useState('+1');
+  const [country, setCountry] = React.useState<ICountry | null>(() => {
+    if (connection.browserInfo) {
+      const countryCode = connection.browserInfo.countryCode;
+      return (
+        COUNTRY_CODES.find((country) => country.code === countryCode) || null
+      );
+    }
+    return COUNTRY_CODES[0];
+  });
+
   const [phoneNumber, setPhoneNumber] = React.useState('');
-  const selectRef: any = React.createRef();
 
   React.useEffect(() => {
     if (connection.browserInfo) {
       const countryCode = connection.browserInfo.countryCode;
-      const country = COUNTRY_CODES.find(
-        (country) => country.code === countryCode
-      );
-      if (country) {
-        setDialCode(country.dialCode);
+      const result = COUNTRY_CODES.find((c) => c.code === countryCode);
+      if (result) {
+        setCountry(result);
       }
     }
   }, [connection.browserInfo]);
 
   const handleCountryCodeChange = (e: any) => {
-    setDialCode(e.target.value);
+    const countryCode = e.target.value;
+    const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
+    if (selectedCountry) {
+      setCountry(selectedCountry);
+    }
     // Pass the country code and phone number to the parent component
-    onChange(`${e.target.value}${phoneNumber}`);
+    onChange(`${selectedCountry?.dialCode}${phoneNumber}`);
   };
 
   const handlePhoneNumberChange = (e: any) => {
     setPhoneNumber(e.target.value);
     // Pass the country code and phone number to the parent component
-    onChange(`${dialCode}${e.target.value}`);
+    onChange(`${country?.dialCode}${e.target.value}`);
   };
-
-  const country = COUNTRY_CODES.find(
-    (country) => country.dialCode === dialCode
-  );
 
   return (
     <div
@@ -57,9 +64,7 @@ const PhoneInputWithCountryCode = (props: any) => {
       </div>
       <div style={{ height: '36px' }}>
         <select
-          id="country-select"
-          ref={selectRef}
-          value={country?.dialCode}
+          value={country?.code}
           onChange={handleCountryCodeChange}
           className="form-control"
           style={{
@@ -71,7 +76,7 @@ const PhoneInputWithCountryCode = (props: any) => {
           }}
         >
           {COUNTRY_CODES.map((country) => (
-            <option key={country.code} value={country.dialCode}>
+            <option key={country.code} value={country.code}>
               {country.name} {country.emoji}
             </option>
           ))}
