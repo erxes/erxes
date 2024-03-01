@@ -632,7 +632,7 @@ export default class Field extends React.Component<Props, State> {
     switch (field.type) {
       case 'phone':
         const updatedProps = {
-          value: value,
+          value: value || '',
           onChange: this.onChange,
           id: field._id,
         };
@@ -676,7 +676,7 @@ export default class Field extends React.Component<Props, State> {
         });
 
       case 'location':
-        return Field.renderSelect(COUNTRIES, {
+        return Field.renderSelect(COUNTRIES.map(c => c.name), {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),

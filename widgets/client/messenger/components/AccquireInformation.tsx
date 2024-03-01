@@ -4,7 +4,7 @@ import { iconRight } from '../../icons/Icons';
 import { __ } from '../../utils';
 import TopBar from '../containers/TopBar';
 import { connection } from '../connection';
-import { COUNTRY_CODES } from '../../form/constants';
+import { COUNTRIES } from '../../form/constants';
 import { ICountry } from '../../types';
 
 type Props = {
@@ -27,7 +27,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const currentCountry = COUNTRY_CODES.find(
+    const currentCountry = COUNTRIES.find(
       (country) => country.code === connection.browserInfo?.countryCode
     );
 
@@ -36,7 +36,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
       value: '',
       isValidated: true,
       isLoading: props.loading,
-      country: currentCountry || COUNTRY_CODES[0],
+      country: currentCountry || COUNTRIES[0],
     };
 
     this.save = this.save.bind(this);
@@ -162,7 +162,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                     value={country?.code}
                     onChange={(e) =>
                       this.setState({
-                        country: COUNTRY_CODES.find(
+                        country: COUNTRIES.find(
                           (c) => c.code === e.target.value
                         ),
                       })
@@ -176,7 +176,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                       cursor: 'pointer',
                     }}
                   >
-                    {COUNTRY_CODES.map((country) => (
+                    {COUNTRIES.map((country) => (
                       <option key={country.code} value={country.code}>
                         {country.name} {country.emoji}
                       </option>

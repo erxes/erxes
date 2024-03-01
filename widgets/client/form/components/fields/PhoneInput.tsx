@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { COUNTRY_CODES } from '../../constants';
+import { COUNTRIES } from '../../constants';
 import { FieldValue } from '../../types';
 import { connection } from '../../connection';
 import { ICountry } from '../../../types';
 
 type Props = {
   id?: string;
-  value?: string;
+  value?: any;
   onChange: (value: FieldValue) => void;
 };
 
@@ -17,10 +17,10 @@ const PhoneInputWithCountryCode = (props: Props) => {
     if (connection.browserInfo) {
       const { countryCode } = connection.browserInfo;
       return (
-        COUNTRY_CODES.find((country) => country.code === countryCode) || null
+        COUNTRIES.find((country) => country.code === countryCode) || null
       );
     }
-    return COUNTRY_CODES[0];
+    return COUNTRIES[0];
   });
 
   const [phoneNumber, setPhoneNumber] = React.useState('');
@@ -28,7 +28,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
   React.useEffect(() => {
     if (connection.browserInfo) {
       const { countryCode } = connection.browserInfo;
-      const result = COUNTRY_CODES.find((c) => c.code === countryCode);
+      const result = COUNTRIES.find((c) => c.code === countryCode);
       if (result) {
         setCountry(result);
       }
@@ -37,7 +37,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
 
   const handleCountryCodeChange = (e: any) => {
     const countryCode = e.target.value;
-    const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
+    const selectedCountry = COUNTRIES.find((c) => c.code === countryCode);
     if (selectedCountry) {
       setCountry(selectedCountry);
     }
@@ -75,7 +75,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
             cursor: 'pointer',
           }}
         >
-          {COUNTRY_CODES.map((country) => (
+          {COUNTRIES.map((country) => (
             <option key={country.code} value={country.code}>
               {country.name} {country.emoji}
             </option>
