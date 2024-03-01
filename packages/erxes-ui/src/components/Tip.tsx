@@ -1,6 +1,7 @@
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import React from 'react';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React, { useState } from 'react';
+import { Popover } from '@headlessui/react';
+import { TipContent } from '@erxes/ui/src/styles/main';
+import { usePopper } from 'react-popper';
 
 type Props = {
   text?: string | React.ReactNode;
@@ -23,19 +24,46 @@ type Props = {
     | 'left-start';
 };
 
-function Tip({ text, children, placement }: Props) {
-  const tooltip = <Tooltip id="tooltip">{text}</Tooltip>;
-  const placementValue = placement || 'auto';
+const Tip = ({ text, children, placement }: Props) => {
+  const [opens, setOpen] = useState(false);
+
+  let [referenceElement, setReferenceElement] = useState(null);
+  let [popperElement, setPopperElement] = useState(null);
+  let { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement,
+  });
 
   return (
-    <OverlayTrigger
-      overlay={tooltip}
-      placement={placementValue}
-      delay={{ show: 250, hide: 250 }}
-    >
-      {children}
-    </OverlayTrigger>
+    <Popover>
+      {({ open, close }) => (
+        <>
+          <div
+            ref={setReferenceElement}
+            onMouseEnter={() => {
+              setOpen(true);
+              open;
+            }}
+            onMouseLeave={() => {
+              setOpen(false);
+              close;
+            }}
+          >
+            {children}
+          </div>
+
+          {opens && (
+            <TipContent
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+            >
+              {text}
+            </TipContent>
+          )}
+        </>
+      )}
+    </Popover>
   );
-}
+};
 
 export default Tip;

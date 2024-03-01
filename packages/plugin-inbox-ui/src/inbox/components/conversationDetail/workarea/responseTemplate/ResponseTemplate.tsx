@@ -7,11 +7,12 @@ import Modal from '../../../../containers/conversationDetail/responseTemplate/Mo
 import { Popover } from '@headlessui/react';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 import { PopoverHeader, PopoverPanel } from '@erxes/ui/src/styles/main';
-import React from 'react';
+import React, { useState } from 'react';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
+import { usePopper } from 'react-popper';
 
 type Props = {
   brandId?: string;
@@ -21,52 +22,59 @@ type Props = {
   content?: string;
 };
 
-class ResponseTemplate extends React.Component<Props> {
-  render() {
-    const { brands, content, brandId, attachments } = this.props;
+const ResponseTemplate = (props: Props) => {
+  const { brands, content, brandId, attachments } = props;
+  let [referenceElement, setReferenceElement] = useState(null);
+  let [popperElement, setPopperElement] = useState(null);
+  let { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: 'left',
+  });
 
-    const saveTrigger = (
+  const saveTrigger = (
+    <Button id="response-template-handler" btnStyle="link">
       <Tip placement="top" text={__('Save as template')}>
-        <Button id="response-template-handler" btnStyle="link">
-          <Icon icon="file-upload-alt" />
-        </Button>
+        <Icon icon="file-upload-alt" />
       </Tip>
-    );
+    </Button>
+  );
 
-    const popover = (close) => (
-      <div className="popover-template" id="templates-popover">
-        <PopoverHeader>{__('Response Templates')}</PopoverHeader>
-        <PopoverContent {...this.props} onSelectTemplate={close} />
-      </div>
-    );
+  const popover = (close) => (
+    <div className="popover-template" id="templates-popover">
+      <PopoverHeader>{__('Response Templates')}</PopoverHeader>
+      <PopoverContent {...props} onSelectTemplate={close} />
+    </div>
+  );
 
-    return (
-      <ResponseTemplateStyled>
-        <Popover style={{ position: 'relative' }}>
-          {({ close }) => (
-            <>
+  return (
+    <ResponseTemplateStyled>
+      <Popover style={{ position: 'relative' }}>
+        {({ close }) => (
+          <>
+            <Popover.Button ref={setReferenceElement}>
               <Tip placement="top" text={__('Response template')}>
-                <Popover.Button style={{ cursor: 'pointer' }}>
-                  <Icon icon="file-bookmark-alt" />
-                </Popover.Button>
+                <Icon icon="file-bookmark-alt" />
               </Tip>
-              <PopoverPanel top="unset" bottom="45px" left="unset" right="0">
-                {popover(close)}
-              </PopoverPanel>
-            </>
-          )}
-        </Popover>
+            </Popover.Button>
+            <PopoverPanel
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+            >
+              {popover(close)}
+            </PopoverPanel>
+          </>
+        )}
+      </Popover>
 
-        <Modal
-          trigger={strip(content) ? saveTrigger : <span />}
-          content={content}
-          files={attachments}
-          brands={brands}
-          brandId={brandId}
-        />
-      </ResponseTemplateStyled>
-    );
-  }
-}
+      <Modal
+        trigger={strip(content) ? saveTrigger : <span />}
+        content={content}
+        files={attachments}
+        brands={brands}
+        brandId={brandId}
+      />
+    </ResponseTemplateStyled>
+  );
+};
 
 export default ResponseTemplate;
