@@ -1,5 +1,6 @@
 import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import { Box, States } from '../../styles';
+import { Dialog, Menu } from '@headlessui/react';
 
 import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
@@ -12,7 +13,6 @@ import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Menu } from '@headlessui/react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
@@ -30,12 +30,16 @@ type Props = {
   isSmall?: boolean;
 };
 
-class ActionSection extends React.Component<Props, { customerState: string }> {
+class ActionSection extends React.Component<
+  Props,
+  { customerState: string; show: boolean }
+> {
   constructor(props) {
     super(props);
 
     this.state = {
       customerState: props.cocType === 'customer' ? props.coc.state : '',
+      show: false,
     };
   }
 
@@ -222,7 +226,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     };
 
     return (
-      <Menu>
+      <Menu as="div" className="relative">
         <Menu.Button>{this.renderButton()}</Menu.Button>
         <Menu.Items className="absolute">
           {this.renderEditButton()}

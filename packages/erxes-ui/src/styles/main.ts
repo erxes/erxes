@@ -1,7 +1,7 @@
 import { colors, dimensions, typography } from '../styles';
 import styled, { css, keyframes } from 'styled-components';
-import { Popover } from '@headlessui/react';
 
+import { Popover } from '@headlessui/react';
 import { rgba } from '../styles/ecolor';
 import styledTS from 'styled-components-ts';
 
@@ -577,6 +577,31 @@ const Loader = styledTS<{
   float: left;
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1500;
+  width: 100%;
+  height: 100%;
+  background: rgba(48, 67, 92, 0.5);
+`;
+
+const DialogContent = styled.div`
+  display: flex;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+`;
+
+const DialogWrapper = styled.div`
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 2000;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -619,9 +644,12 @@ export {
   Column,
   Wrapper,
   Pin,
+  ModalOverlay,
   MapContainer,
   ImageWrapper,
   TextWrapper,
+  DialogWrapper,
+  DialogContent,
   PopoverPanel,
   TipContent,
 };

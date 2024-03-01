@@ -1,13 +1,17 @@
 import * as routerUtils from '../utils/router';
 
+import {
+  CloseModal,
+  DialogContent,
+  DialogWrapper,
+  ModalOverlay,
+} from '../styles/main';
 import { Dialog, Transition } from '@headlessui/react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { __, router } from '../utils/core';
-import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { CloseModal } from '../styles/main';
 import Icon from './Icon';
-import React from 'react';
 // import { Transition } from 'react-transition-group';
 import queryString from 'query-string';
 
@@ -55,34 +59,34 @@ const ModalTrigger: React.FC<Props> = ({
   const location = useLocation();
   const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
-  useEffect(() => {
-    if (autoOpenKey !== autoOpenKeyState) {
-      if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
-        setIsOpen(true);
-        setAutoOpenKey(autoOpenKey || '');
-      }
-    }
-  }, [autoOpenKey, autoOpenKeyState]);
+  // useEffect(() => {
+  //   if (autoOpenKey !== autoOpenKeyState) {
+  //     if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
+  //       setIsOpen(true);
+  //       setAutoOpenKey(autoOpenKey || "");
+  //     }
+  //   }
+  // }, [autoOpenKey, autoOpenKeyState]);
 
-  useEffect(() => {
-    const queryParams = queryString.parse(window.location.search);
+  // useEffect(() => {
+  //   const queryParams = queryString.parse(window.location.search);
 
-    if (
-      addisOpenToQueryParam &&
-      urlIsOpen !== undefined &&
-      urlIsOpen !== null
-    ) {
-      if (isOpen && !queryParams.isOpen) {
-        router.setParams(navigate, location, {
-          isModalOpen: isOpen,
-        });
-      }
+  //   if (
+  //     addisOpenToQueryParam &&
+  //     urlIsOpen !== undefined &&
+  //     urlIsOpen !== null
+  //   ) {
+  //     if (isOpen && !queryParams.isOpen) {
+  //       router.setParams(navigate, location, {
+  //         isModalOpen: isOpen,
+  //       });
+  //     }
 
-      if (queryParams.isModalOpen) {
-        router.removeParams(history, 'isModalOpen');
-      }
-    }
-  }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
+  //     if (queryParams.isModalOpen) {
+  //       router.removeParams(history, "isModalOpen");
+  //     }
+  //   }
+  // }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
 
   const openModal = () => {
     setIsOpen(true);
@@ -127,8 +131,10 @@ const ModalTrigger: React.FC<Props> = ({
     <>
       {triggerComponent}
 
-      <Transition appear show={isOpen} as={React.Fragment}>
+      {isOpen && (
+        // <Transition appear show={true} as={Fragment}>
         <Dialog
+          open={true}
           as="div"
           className="relative z-10"
           onClose={closeModal}
@@ -142,14 +148,34 @@ const ModalTrigger: React.FC<Props> = ({
           // animation={isAnimate}
           // centered={centered}
         >
-          <Dialog.Panel className={paddingContent}>
-            {renderHeader()}
-            {/* <Transition in={isOpen} timeout={300} unmountOnExit={true}> */}
-            <Dialog.Description>{content({ closeModal })}</Dialog.Description>
-            {/* </Transition> */}
-          </Dialog.Panel>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <ModalOverlay />
+          </Transition.Child>
+          <DialogWrapper>
+            <DialogContent>
+              <Dialog.Panel className={paddingContent}>
+                <Dialog.Title as="h3">
+                  {ignoreTrans ? title : __(title)}
+                </Dialog.Title>
+                <Transition.Child>
+                  <Dialog.Description className="dialog-description">
+                    {content({ closeModal })}
+                  </Dialog.Description>
+                </Transition.Child>
+              </Dialog.Panel>
+            </DialogContent>
+          </DialogWrapper>
         </Dialog>
-      </Transition>
+        // </Transition>
+      )}
     </>
   );
 };

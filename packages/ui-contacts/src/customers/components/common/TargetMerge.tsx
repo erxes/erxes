@@ -1,7 +1,7 @@
+import React, { useState } from 'react';
+
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import Select from 'react-select';
 import { __ } from '@erxes/ui/src/utils';
 import debounce from 'lodash/debounce';
@@ -11,92 +11,75 @@ type Props = {
   searchObject: (value: string, callback: (objects: any[]) => void) => void;
   mergeForm: any;
   generateOptions: (objects: any[]) => void;
-  onSave: (doc: { ids: string[]; data: ICustomer }) => void;
+  onSave: (doc: { ids: string[]; data: any }) => void;
 };
 
-type State = {
-  objects: any[];
-  selectedObject: any;
-};
+const TargetMergeModal: React.FC<Props> = ({
+  object,
+  searchObject,
+  mergeForm,
+  generateOptions,
+  onSave,
+}) => {
+  const [objects, setObjects] = useState<any[]>([]);
+  const [selectedObject, setSelectedObject] = useState<any>({});
 
-class TargetMergeModal extends React.Component<Props, State> {
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      objects: [],
-      selectedObject: {},
-    };
-  }
-
-  handleSearch = (value) => {
-    const { searchObject } = this.props;
-
-    debounce(
-      () => searchObject(value, (objs) => this.setState({ objects: objs })),
-      1000,
-    )();
+  const handleSearch = (value: string) => {
+    debounce(() => {
+      searchObject(value, (objs) => setObjects(objs));
+    }, 1000)();
   };
 
-  onSelect = (option) => {
-    this.setState({ selectedObject: JSON.parse(option.value) });
+  const onSelect = (option: any) => {
+    setSelectedObject(JSON.parse(option.value));
   };
 
-  renderMerger({ closeModal }) {
-    const { object, onSave, mergeForm } = this.props;
-    const { selectedObject } = this.state;
-
+  const renderMerger = ({ closeModal }: { closeModal: () => void }) => {
     if (!selectedObject._id) {
       return <EmptyState icon="search" text="Please select one to merge" />;
     }
 
     const MergeForm = mergeForm;
 
-    return null;
-    // return (
-    //   <MergeForm
-    //     objects={[object, selectedObject]}
-    //     save={onSave}
-    //     closeModal={closeModal}
-    //   />
-    // );
-  }
+    return (
+      <MergeForm
+        objects={[object, selectedObject]}
+        save={onSave}
+        closeModal={closeModal}
+      />
+    );
+  };
 
-  renderSelect() {
-    const { objects } = this.state;
-    const { generateOptions } = this.props;
-
+  const renderSelect = () => {
     return (
       <Select
         placeholder="Search"
-        onInputChange={this.handleSearch}
-        onFocus={this.handleSearch.bind(this, '')}
-        onChange={this.onSelect}
+        onInputChange={(value) => handleSearch(value)}
+        onFocus={() => handleSearch('')}
+        onChange={onSelect}
         options={generateOptions(objects) as any}
       />
     );
-  }
+  };
 
-  render() {
-    const modalContent = (props) => {
-      return (
-        <React.Fragment>
-          {this.renderSelect()}
-          <br />
-          {this.renderMerger(props)}
-        </React.Fragment>
-      );
-    };
-
+  const modalContent = (props: { closeModal: () => void }) => {
     return (
-      <ModalTrigger
-        title={__('Merge')}
-        trigger={<a>{__('Merge')}</a>}
-        size="lg"
-        content={modalContent}
-      />
+      <React.Fragment>
+        {renderSelect()}
+        <br />
+        {renderMerger(props)}
+      </React.Fragment>
     );
-  }
-}
+  };
+
+  return (
+    <ModalTrigger
+      title={__('Merge')}
+      trigger={<a>{__('Merge')}</a>}
+      size="lg"
+      content={modalContent}
+    />
+  );
+};
 
 export default TargetMergeModal;

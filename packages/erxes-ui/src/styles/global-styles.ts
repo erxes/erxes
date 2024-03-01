@@ -1,4 +1,4 @@
-import { colors, typography } from './';
+import { colors, dimensions, typography } from './';
 
 import { createGlobalStyle } from 'styled-components';
 
@@ -291,21 +291,26 @@ a:hover {
 	vertical-align: middle
 }
 
-.dropdown-menu {
+[id^="headlessui-menu-items-"] {
   margin-top: 0 !important;
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  right: 0;
+  float: left;
+  background: ${colors.colorWhite};
+  border-radius: 4px;
 }
 
 .dropdown-menu > span {
   display: block;
 }
 
-.dropdown-menu li a,
-.dropdown-menu li button {
+[id^="headlessui-menu-items-"] a,
+[id^="headlessui-menu-items-"] button {
   display: block;
   padding: 3px 20px;
   color: ${colors.textPrimary};
@@ -314,21 +319,21 @@ a:hover {
   margin: 0;
 }
 
-.dropdown-menu > li > a {
+[id^="headlessui-menu-items-"] > a {
   color: ${colors.textPrimary};
   font-weight: normal;
 }
 
-.dropdown-menu > li.active > a {
+[id^="headlessui-menu-items-"].active > a {
   background: ${colors.bgActive};
 }
 
-.dropdown-menu > li > a:focus,
-.dropdown-menu > li > a:hover,
-.dropdown-menu li a:focus,
-.dropdown-menu li a:hover,
-.dropdown-menu li button:focus,
-.dropdown-menu li button:hover {
+[id^="headlessui-menu-items-"] > a:focus,
+[id^="headlessui-menu-items-"] > a:hover,
+[id^="headlessui-menu-items-"] a:focus,
+[id^="headlessui-menu-items-"] a:hover,
+[id^="headlessui-menu-items-"] button:focus,
+[id^="headlessui-menu-items-"] button:hover {
   color: ${colors.colorCoreDarkGray};
   background: ${colors.bgActive};
   outline: 0;
@@ -337,6 +342,34 @@ a:hover {
 
 .gjs-four-color, .gjs-four-color-h:hover {
   color: #6569df !important;
+}
+
+/* modal */
+[id^="headlessui-dialog-panel-"] {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-duration: .15s;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 10px -3px;
+  opacity: 1;
+  vertical-align: middle;
+  text-align: left;
+  background: ${colors.colorWhite};
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 500px;
+}
+
+[id^="headlessui-dialog-title-"] {
+  margin: 0;
+  font-size: 18px;
+  text-transform: capitalize;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+}
+
+[id^="headlessui-description-"].dialog-description {
+  padding: 20px 30px 30px;
+  margin: 0;
 }
 
 /* tooltip */
