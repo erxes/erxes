@@ -58,7 +58,7 @@ export const single = async (email: string, hostname: string) => {
 
   try {
     const [body] = await client.request(request);
-    const statusCode = body.statusCode;
+    const { statusCode } = body;
     if (statusCode !== 200) {
       throw new Error(`Sendgrid returned status code ${statusCode}`);
     }
