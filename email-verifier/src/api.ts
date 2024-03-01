@@ -10,78 +10,9 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const { SENDGRID_API_KEY, TRUE_MAIL_API_KEY } = process.env;
+const { SENDGRID_API_KEY } = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
-
-console.log('TRUE_MAIL_API_KEY', TRUE_MAIL_API_KEY);
-
-console.log('SENDGRID_API_KEY', SENDGRID_API_KEY);
-
-// const singleTrueMail = async (email: string) => {
-//   try {
-//     const url = `${TRUE_MAIL_API_URL}/verify/single?access_token=${TRUE_MAIL_API_KEY}&email=${email}`;
-
-//     const response = await sendRequest({
-//       url,
-//       method: 'GET'
-//     });
-//     if (typeof response === 'string') {
-//       return JSON.parse(response);
-//     }
-
-//     return response;
-//   } catch (e) {
-//     debugError(`Error occured during single true mail validation ${e.message}`);
-//     throw e;
-//   }
-// };
-
-// const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
-//   const url = `${TRUE_MAIL_API_URL}/tasks/bulk?access_token=${TRUE_MAIL_API_KEY}`;
-
-//   try {
-//     const result = await sendRequest({
-//       url,
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       method: 'POST',
-//       body: {
-//         file: unverifiedEmails.map(e => ({ email: e }))
-//       }
-//     });
-
-//     let data;
-//     let error;
-
-//     if (typeof result === 'string') {
-//       data = JSON.parse(result).data;
-//       error = JSON.parse(result).error;
-//     } else {
-//       data = result.data;
-//       error = result.error;
-//     }
-
-//     if (data) {
-//       const taskIds = await getArray('erxes_email_verifier_task_ids');
-
-//       taskIds.push({ taskId: data.task_id, hostname });
-
-//       setArray('erxes_email_verifier_task_ids', taskIds);
-//     } else if (error) {
-//       throw new Error(error.message);
-//     }
-//   } catch (e) {
-//     // request may fail
-//     throw e;
-//   }
-// };
-
-export const bulkVerification = async (
-  emails: string[],
-  hostname: string,
-) => {};
 
 export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
@@ -114,20 +45,6 @@ export const single = async (email: string, hostname: string) => {
   }
 
   let response: { status?: string; verdict?: string } = {};
-
-  // if (EMAIL_VERIFICATION_TYPE === 'truemail') {
-  //   try {
-  //     debugBase(
-  //       `Email is not found on verifier DB. Sending request to truemail`
-  //     );
-  //     response = await singleTrueMail(email);
-
-  //     debugBase(`Received single email validation status`);
-  //   } catch (e) {
-  //     // request may fail
-  //     throw e;
-  //   }
-  // }
 
   const client = require('@sendgrid/client');
 
@@ -241,73 +158,6 @@ export const bulk = async (emails: string[], hostname: string) => {
     await processQueue(hostname);
   }
 };
-
-// export const checkTask = async (taskId: string) => {
-//   const url = `${TRUE_MAIL_API_URL}/tasks/${taskId}/status?access_token=${TRUE_MAIL_API_KEY}`;
-
-//   const response = await sendRequest({
-//     url,
-//     method: 'GET'
-//   });
-
-//   return JSON.parse(response).data;
-// };
-
-// export const getTrueMailBulk = async (taskId: string, hostname: string) => {
-//   debugBase(`Downloading bulk email validation result`);
-
-//   const url = `${TRUE_MAIL_API_URL}/tasks/${taskId}/download?access_token=${TRUE_MAIL_API_KEY}&timeout=30000`;
-
-//   const response = await sendRequest({
-//     url,
-//     method: 'GET'
-//   });
-
-//   const rows = response.split('\n');
-//   const emails: Array<{ email: string; status: string }> = [];
-
-//   for (const row of rows) {
-//     const rowArray = row.split(',');
-
-//     if (rowArray.length > 2) {
-//       const email = rowArray[0];
-//       const status = rowArray[2];
-
-//       emails.push({
-//         email,
-//         status
-//       });
-
-//       if (
-//         status === EMAIL_VALIDATION_STATUSES.VALID ||
-//         status === EMAIL_VALIDATION_STATUSES.INVALID
-//       ) {
-//         const found = await Emails.findOne({ email });
-
-//         if (!found) {
-//           const doc = {
-//             email,
-//             status,
-//             created: new Date()
-//           };
-
-//           await Emails.createEmail(doc);
-//         }
-//       }
-//     }
-//   }
-
-//   debugBase(`Sending bulk email validation result to erxes-api`);
-
-//   await sendRequest({
-//     url: `${hostname}/verifier/webhook`,
-//     method: 'POST',
-//     body: {
-//       emails,
-//       source: EMAIL_VALIDATION_SOURCES.TRUEMAIL
-//     }
-//   });
-// };
 
 const enqueueEmail = async (email: string, hostname: string) => {
   const doc = { email, hostname };
