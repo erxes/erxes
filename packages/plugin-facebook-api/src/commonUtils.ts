@@ -36,15 +36,21 @@ interface IRequestParams {
 
 export const getEnv = ({
   name,
+  subdomain,
   defaultValue,
 }: {
   name: string;
+  subdomain?: string;
   defaultValue?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (value && subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   if (!value) {
@@ -57,8 +63,8 @@ export const getEnv = ({
 /*
  * Generate url depending on given file upload publicly or not
  */
-export const generateAttachmentUrl = (urlOrName: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+export const generateAttachmentUrl = (subdomain: string, urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
   if (urlOrName.startsWith('http')) {
