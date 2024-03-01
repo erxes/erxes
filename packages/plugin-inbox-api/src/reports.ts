@@ -2431,7 +2431,7 @@ const chartTemplates = [
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
-  const models = generateModels(subdomain);
+  const models = await generateModels(subdomain);
   const { templateType, filter, dimension } = data;
 
   const template =
