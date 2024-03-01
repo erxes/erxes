@@ -187,9 +187,8 @@ export class AppProvider extends React.Component<{}, IState> {
     requestBrowserInfo({
       source: "fromMessenger",
       callback: (browserInfo: IBrowserInfo) => {
-        // console.log('browserInfo', browserInfo);
         connection.browserInfo = browserInfo;
-        console.log('connection', connection);
+        
         const variables = {
           visitorId: connection.data.visitorId,
           customerId: connection.data.customerId,
