@@ -79,21 +79,33 @@ export const sendEmail = async (
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
-  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '');
+  const DEFAULT_EMAIL_SERVICE = await getConfig(
+    'DEFAULT_EMAIL_SERVICE',
+    'SES',
+    models,
+  );
+  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
   const defaultTemplateType = await getConfig(
     'COMPANY_EMAIL_TEMPLATE_TYPE',
     '',
+    models,
   );
-  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
-  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '');
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
+  const AWS_SES_ACCESS_KEY_ID = await getConfig(
+    'AWS_SES_ACCESS_KEY_ID',
+    '',
+    models,
+  );
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SES_SECRET_ACCESS_KEY',
     '',
+    models,
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+
+  const VERSION = getEnv({ name: 'VERSION' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -110,7 +122,7 @@ export const sendEmail = async (
       models,
     );
 
-    if (transportMethod === 'sendgrid') {
+    if (transportMethod === 'sendgrid' || (VERSION && VERSION === 'saas')) {
       sendgridMail = require('@sendgrid/mail');
 
       const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
