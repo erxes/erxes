@@ -81,9 +81,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, async () => {
   await connect();
-  const redisClient = initRedis((callback) => {
-    debugBase('Redis client is connectedd');
-  });
+  initRedis();
   debugBase(`Email verifier server is running on port ${PORT}`);
 });
 
