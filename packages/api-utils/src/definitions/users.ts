@@ -80,7 +80,7 @@ export interface IUserDocument extends IUser, Document {
 const emailSignatureSchema = new Schema(
   {
     brandId: field({ type: String, label: 'Email signature nrand' }),
-    signature: fiupdateBrancheld({ type: String, label: 'Email signature' }),
+    signature: field({ type: String, label: 'Email signature' }),
   },
   { _id: false },
 );
