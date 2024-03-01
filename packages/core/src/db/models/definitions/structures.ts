@@ -115,6 +115,7 @@ export interface IBranchDocument extends IBranch, Document {
 export interface IPosition extends ICommonTypes {
   userIds?: string[];
   order: string;
+  status: string;
 }
 
 export interface IPositionDocument extends IPosition, Document {
@@ -142,5 +143,11 @@ export const positionSchema = schemaWrapper(
     ...commonSchemaFields,
     parentId: field({ type: String, optional: true }),
     order: field({ type: String, unique: true }),
+    userIds: field({ type: [String], label: 'Related users' }),
+    status: field({
+      type: String,
+      label: 'Status',
+      default: STRUCTURE_STATUSES.ACTIVE,
+    }),
   }),
 );

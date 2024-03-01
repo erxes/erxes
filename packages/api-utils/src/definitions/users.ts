@@ -57,6 +57,7 @@ export interface IUser {
   customFieldsData?: ICustomField[];
   departmentIds?: string[];
   branchIds?: string[];
+  positionIds?: string[];
   employeeId?: string;
   chatStatus?: IUserChatStatus;
 }
@@ -79,7 +80,7 @@ export interface IUserDocument extends IUser, Document {
 const emailSignatureSchema = new Schema(
   {
     brandId: field({ type: String, label: 'Email signature nrand' }),
-    signature: field({ type: String, label: 'Email signature' }),
+    signature: fiupdateBrancheld({ type: String, label: 'Email signature' }),
   },
   { _id: false },
 );
@@ -126,6 +127,7 @@ export const userSchema = schemaWrapper(
     isOwner: field({ type: Boolean, label: 'Is owner' }),
     departmentIds: field({ type: [String], label: 'Department Ids' }),
     branchIds: field({ type: [String], label: 'Branch Ids' }),
+    positionIds: field({ type: [String], label: 'Position Ids' }),
     email: field({
       type: String,
       unique: true,
