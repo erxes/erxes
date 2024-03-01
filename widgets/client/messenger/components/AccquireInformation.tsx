@@ -74,10 +74,10 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   }
 
   isEmailValid(email: string) {
-    const reg =
-      /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
-    return reg.test(email);
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return emailRegex.test(email);
   }
+
 
   save(e: React.FormEvent) {
     e.preventDefault();
