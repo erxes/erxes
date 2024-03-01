@@ -41,14 +41,14 @@ const PhoneInputWithCountryCode = (props: Props) => {
     if (selectedCountry) {
       setCountry(selectedCountry);
     }
-    // Pass the country code and phone number to the parent component
-    onChange(`${selectedCountry?.dialCode}${phoneNumber}`);
+    // Pass the country code and phone number 
+    onChange(`${selectedCountry?.dialCode} ${phoneNumber}`);
   };
 
   const handlePhoneNumberChange = (e: any) => {
     setPhoneNumber(e.target.value);
-    // Pass the country code and phone number to the parent component
-    onChange(`${country?.dialCode}${e.target.value}`);
+    // Pass the country code and phone number 
+    onChange(`${country?.dialCode} ${e.target.value}`);
   };
 
   return (
