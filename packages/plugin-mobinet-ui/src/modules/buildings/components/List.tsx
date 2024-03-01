@@ -77,7 +77,6 @@ const List = (props: Props) => {
   };
   React.useEffect(() => {
     if (props.buildings) {
-      console.log('buildings changed  ', props.buildings);
       setBuildings(props.buildings);
     }
 
