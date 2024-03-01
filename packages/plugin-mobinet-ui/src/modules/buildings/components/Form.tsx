@@ -25,10 +25,11 @@ type Props = {
   suhTagId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  buildings?: IBuilding[];
 };
 
 const BuildingForm = (props: Props) => {
-  const { building } = props;
+  const { building, buildings } = props;
 
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>(
@@ -220,6 +221,32 @@ const BuildingForm = (props: Props) => {
       return null;
     }
 
+    if (buildings && buildings.length > 0 && map) {
+      map.highlight((feature: { id: string | undefined }) => {
+        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
+        const isCurrent = osmBuilding?.id === feature.id;
+
+        if (foundBuilding) {
+          switch (foundBuilding.serviceStatus) {
+            case 'active':
+              return '#ff0000';
+            case 'inactive':
+              return '#00bbff';
+            case 'inprogress':
+              return '#ffcc00';
+            case 'unavailable':
+              return '#00ff00';
+            default:
+              break;
+          }
+        }
+
+        if (isCurrent) {
+          return '#00bbff';
+        }
+      });
+    }
+
     const selectedValues =
       (osmBuilding && [osmBuilding.id]) || (building && [building?.osmbId]);
 
@@ -235,6 +262,7 @@ const BuildingForm = (props: Props) => {
       style: { height: '300px', width: '100%' },
       selectedValues,
       onload,
+      buildings: props.buildings,
     };
 
     return <OSMBuildings {...mapProps} />;

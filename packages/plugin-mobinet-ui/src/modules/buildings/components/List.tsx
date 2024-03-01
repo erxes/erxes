@@ -15,7 +15,6 @@ import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
-import { CityListQueryResponse } from '../../cities/types';
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
@@ -82,16 +81,6 @@ const List = (props: Props) => {
       setBuildings(props.buildings);
     }
 
-    // if (buildings.length > 0 && map) {
-    //   map.highlight(feature => {
-    //     const foundBuilding = buildings.find(b => b.osmbId === feature.id);
-
-    //     if (foundBuilding) {
-    //       return foundBuilding.color;
-    //     }
-    //   });
-    // }
-
     if (buildings.length > 0 && map) {
       map.highlight((feature: { id: string }) => {
         console.log('feature  ', feature.id);
@@ -108,7 +97,7 @@ const List = (props: Props) => {
           return '#ffcc00';
         }
         if (foundBuilding && foundBuilding?.serviceStatus === 'unavailable') {
-          return '#00bbff';
+          return '#00ff00';
         }
 
         if (current) {
@@ -237,6 +226,7 @@ const List = (props: Props) => {
       center={center}
       osmBuilding={currentOsmBuilding}
       building={currentBuilding}
+      buildings={buildings}
     />
   );
 
