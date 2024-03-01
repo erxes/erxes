@@ -43,7 +43,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: DOMAIN,
+      state: `${DOMAIN}/gateway/pl:facebook`,
     });
 
     // checks whether a user denied the app facebook login/permissions
