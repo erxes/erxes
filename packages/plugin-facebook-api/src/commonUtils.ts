@@ -98,10 +98,16 @@ export const getConfigs = async (models: IModels) => {
 };
 
 export const getConfig = async (models: IModels, code, defaultValue?) => {
+  if (!models) {
+    return getEnv({ name: code, defaultValue });
+  }
+
   const configs = await getConfigs(models);
 
+  const envValue = getEnv({ name: code, defaultValue });
+
   if (!configs[code]) {
-    return defaultValue;
+    return envValue || defaultValue;
   }
 
   return configs[code];
