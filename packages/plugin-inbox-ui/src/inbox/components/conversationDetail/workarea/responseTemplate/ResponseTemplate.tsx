@@ -1,18 +1,17 @@
 import Button from '@erxes/ui/src/components/Button';
+import Popover from '@erxes/ui/src/components/Popover';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
-import { Popover } from '@headlessui/react';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { PopoverHeader, PopoverPanel } from '@erxes/ui/src/styles/main';
-import React, { useState } from 'react';
+import { PopoverHeader } from '@erxes/ui/src/styles/main';
+import React from 'react';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
-import { usePopper } from 'react-popper';
 
 type Props = {
   brandId?: string;
@@ -24,11 +23,6 @@ type Props = {
 
 const ResponseTemplate = (props: Props) => {
   const { brands, content, brandId, attachments } = props;
-  let [referenceElement, setReferenceElement] = useState(null);
-  let [popperElement, setPopperElement] = useState(null);
-  let { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: 'left',
-  });
 
   const saveTrigger = (
     <Button id="response-template-handler" btnStyle="link">
@@ -47,23 +41,16 @@ const ResponseTemplate = (props: Props) => {
 
   return (
     <ResponseTemplateStyled>
-      <Popover style={{ position: 'relative' }}>
-        {({ close }) => (
-          <>
-            <Popover.Button ref={setReferenceElement}>
-              <Tip placement="top" text={__('Response template')}>
-                <Icon icon="file-bookmark-alt" />
-              </Tip>
-            </Popover.Button>
-            <PopoverPanel
-              ref={setPopperElement}
-              style={styles.popper}
-              {...attributes.popper}
-            >
-              {popover(close)}
-            </PopoverPanel>
-          </>
-        )}
+      <Popover
+        placement="left-end"
+        closeAfterSelect={true}
+        trigger={
+          <Tip placement="top" text={__('Response template')}>
+            <Icon icon="file-bookmark-alt" />
+          </Tip>
+        }
+      >
+        {popover}
       </Popover>
 
       <Modal
