@@ -65,7 +65,6 @@ export const single = async (email: string, hostname: string) => {
 
     response = body.body.result;
     response.status = 'success';
-    // console.log('status', response.status);
   } catch (e) {
     debugError(`Error occured during single sendgrid validation ${e.message}`);
     console.error('email', email);
