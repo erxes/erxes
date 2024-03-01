@@ -15,7 +15,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
 
   const [country, setCountry] = React.useState<ICountry | null>(() => {
     if (connection.browserInfo) {
-      const countryCode = connection.browserInfo.countryCode;
+      const { countryCode } = connection.browserInfo;
       return (
         COUNTRY_CODES.find((country) => country.code === countryCode) || null
       );
@@ -27,7 +27,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
 
   React.useEffect(() => {
     if (connection.browserInfo) {
-      const countryCode = connection.browserInfo.countryCode;
+      const { countryCode } = connection.browserInfo;
       const result = COUNTRY_CODES.find((c) => c.code === countryCode);
       if (result) {
         setCountry(result);
