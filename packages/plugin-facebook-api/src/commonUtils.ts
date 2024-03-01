@@ -36,15 +36,21 @@ interface IRequestParams {
 
 export const getEnv = ({
   name,
+  subdomain,
   defaultValue,
 }: {
   name: string;
+  subdomain?: string;
   defaultValue?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (value && subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   if (!value) {
