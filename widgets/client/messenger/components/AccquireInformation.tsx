@@ -63,7 +63,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     }
 
     this.setState({
-      value: country?.dialCode + e.currentTarget.value,
+      value: `${country?.dialCode} ${e.currentTarget.value}`,
       isValidated: true,
     });
   }
