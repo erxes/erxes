@@ -142,7 +142,7 @@ export const loadDepartmentClass = (models: IModels) => {
         createdBy: user._id,
       });
       await models.UserMovements.manageStructureUsersMovement({
-        userIds: department.userIds || [],
+        userIds: doc.userIds || department.userIds || [],
         contentType: 'department',
         contentTypeId: department._id,
         createdBy: user._id,
@@ -359,7 +359,7 @@ export const loadBranchClass = (models: IModels) => {
       });
 
       await models.UserMovements.manageStructureUsersMovement({
-        userIds: branch.userIds || [],
+        userIds: doc.userIds || branch.userIds || [],
         contentType: 'branch',
         contentTypeId: branch._id,
         createdBy: user._id,
@@ -490,8 +490,6 @@ export const loadPositionClass = (models: IModels) => {
     public static async createPosition(doc: any, user: IUserDocument) {
       await checkCodeDuplication(models.Positions, doc.code);
 
-      console.log(doc, ' doc');
-
       const parent = await models.Positions.findOne({
         _id: doc.parentId,
       }).lean();
@@ -505,7 +503,7 @@ export const loadPositionClass = (models: IModels) => {
       });
 
       await models.UserMovements.manageStructureUsersMovement({
-        userIds: position.userIds || [],
+        userIds: doc.userIds || position.userIds || [],
         contentType: 'position',
         contentTypeId: position._id,
         createdBy: user?._id,
