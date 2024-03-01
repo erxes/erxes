@@ -98,6 +98,12 @@ export const getConfigs = async (models: IModels) => {
 };
 
 export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    return getEnv({ name: code, defaultValue });
+  }
+
   if (!models) {
     return getEnv({ name: code, defaultValue });
   }
