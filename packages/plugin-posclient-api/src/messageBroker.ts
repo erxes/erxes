@@ -265,6 +265,7 @@ export const sendMessageWrapper = async (
         {
           subdomain,
           data: serviceName,
+          thirdService: true,
         },
       );
 
@@ -284,6 +285,7 @@ export const sendMessageWrapper = async (
     return sendMessage({
       serviceName: '',
       ...args,
+      data: { ...(args.data || {}), thirdService: true },
       action: `${serviceName}:${action}`,
     });
   }
