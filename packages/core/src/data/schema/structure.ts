@@ -218,5 +218,5 @@ export const mutations = `
 
     positionsAdd(${commonPositionParams}):Position
     positionsEdit(_id: String!, ${commonPositionParams}):Position
-    positionsRemove(_id:String!): JSON
+    positionsRemove(ids:[String!]): JSON
 `;

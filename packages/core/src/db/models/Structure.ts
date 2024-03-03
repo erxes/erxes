@@ -11,6 +11,7 @@ import {
   branchSchema,
   IStructureDocument,
   IPositionDocument,
+  positionSchema,
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
 import { checkCodeDuplication } from './utils';
@@ -470,22 +471,22 @@ export interface IPositionModel extends Model<IPositionDocument> {
 }
 
 export const loadPositionClass = (models: IModels) => {
-  class Branch {
+  class Position {
     /*
-     * Get a branch
+     * Get a position
      */
     public static async getPosition(doc: any) {
-      const branch = await models.Branches.findOne(doc);
+      const position = await models.Positions.findOne(doc);
 
-      if (!branch) {
-        throw new Error('Branch not found');
+      if (!position) {
+        throw new Error('Position not found');
       }
 
-      return branch;
+      return position;
     }
 
     /*
-     * Create a branch
+     * Create a position
      */
     public static async createPosition(doc: any, user: IUserDocument) {
       await checkCodeDuplication(models.Positions, doc.code);
@@ -499,51 +500,51 @@ export const loadPositionClass = (models: IModels) => {
       const position = await models.Positions.create({
         ...doc,
         createdAt: new Date(),
-        createdBy: user?._id,
+        createdBy: user._id,
       });
 
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || position.userIds || [],
         contentType: 'position',
         contentTypeId: position._id,
-        createdBy: user?._id,
+        createdBy: user._id,
       });
 
       return position;
     }
 
     /*
-     * Update a branch
+     * Update a position
      */
-    public static async updateBranch(
+    public static async updatePosition(
       _id: string,
       doc: any,
       user: IUserDocument,
     ) {
-      const branch = await models.Branches.getBranch({ _id });
+      const position = await models.Positions.getPosition({ _id });
 
-      if (branch?.code !== doc.code) {
-        await checkCodeDuplication(models.Branches, doc.code);
+      if (position?.code !== doc.code) {
+        await checkCodeDuplication(models.Positions, doc.code);
       }
 
-      const parent = await models.Branches.findOne({ _id: doc.parentId });
+      const parent = await models.Positions.findOne({ _id: doc.parentId });
 
       if (parent && parent?.parentId === _id) {
-        throw new Error('Cannot change a branch');
+        throw new Error('Cannot change a position');
       }
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
-      const children = await models.Branches.find({
-        order: { $regex: new RegExp(`^${escapeRegExp(branch.order)}`) },
+      const children = await models.Positions.find({
+        order: { $regex: new RegExp(`^${escapeRegExp(position.order)}`) },
       });
 
       for (const child of children) {
         let order = child.order;
 
-        order = order.replace(branch.order, doc.order);
+        order = order.replace(position.order, doc.order);
 
-        await models.Branches.updateOne(
+        await models.Positions.updateOne(
           {
             _id: child._id,
           },
@@ -554,12 +555,12 @@ export const loadPositionClass = (models: IModels) => {
       }
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
-        contentType: 'branch',
+        contentType: 'position',
         contentTypeId: _id,
         createdBy: user._id,
       });
 
-      await models.Branches.update(
+      await models.Positions.update(
         { _id },
         {
           ...doc,
@@ -568,41 +569,44 @@ export const loadPositionClass = (models: IModels) => {
         },
       );
 
-      return models.Branches.findOne({ _id });
+      return models.Positions.findOne({ _id });
     }
 
     /*
      * Remove a branch
      */
 
-    public static async removeBranches(ids: string[]) {
-      const branches = await models.Branches.find({ _id: { $in: ids } });
+    public static async removePositions(ids: string[]) {
+      const positions = await models.Positions.find({ _id: { $in: ids } });
 
-      const branchIds = branches.map((branch) => branch._id);
+      const positionIds = positions.map((branch) => branch._id);
       const userMovements = await models.UserMovements.find({
-        contentType: 'branch',
-        contentTypeId: { $in: branchIds },
+        contentType: 'position',
+        contentTypeId: { $in: positionIds },
       });
 
       if (!!userMovements.length) {
-        return await models.Branches.updateMany(
+        return await models.Positions.updateMany(
           {
             $or: [
-              { _id: { $in: branchIds } },
-              { parentId: { $in: branchIds } },
+              { _id: { $in: positionIds } },
+              { parentId: { $in: positionIds } },
             ],
           },
           { $set: { status: STRUCTURE_STATUSES.DELETED } },
         );
       }
 
-      return await models.Branches.deleteMany({
-        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }],
+      return await models.Positions.deleteMany({
+        $or: [
+          { _id: { $in: positionIds } },
+          { parentId: { $in: positionIds } },
+        ],
       });
     }
   }
 
-  branchSchema.loadClass(Branch);
+  positionSchema.loadClass(Position);
 
-  return branchSchema;
+  return positionSchema;
 };
