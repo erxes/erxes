@@ -133,7 +133,7 @@ export const initBroker = async () => {
 
       await models.Orders.updateOne(
         { _id: order._id },
-        { $set: { ...order } },
+        { $set: { ...order, modifiedAt: new Date() } },
         { upsert: true },
       );
 
