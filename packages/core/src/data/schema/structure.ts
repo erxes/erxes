@@ -102,18 +102,24 @@ export const types = `
         totalCount: Int
         totalUsersCount:Int
     }
-
+    
     type DepartmentListQueryResponse {
         list:[Department]
         totalCount: Int
         totalUsersCount:Int
     }
-        type UnitListQueryResponse {
+    
+    type UnitListQueryResponse {
         list:[Unit]
         totalCount: Int
         totalUsersCount:Int
     }
-
+    
+    type PositionListQueryResponse {
+        list:[Position]
+        totalCount: Int
+        totalUsersCount:Int
+    }
 `;
 
 const commonParams = `
@@ -139,6 +145,10 @@ export const queries = `
     branches(${commonParams},withoutUserFilter:Boolean): [Branch]
     branchesMain(${commonParams},withoutUserFilter:Boolean): BranchListQueryResponse
     branchDetail(_id: String!): Branch
+    
+    positions(${commonParams},withoutUserFilter:Boolean): [Branch]
+    positionsMain(${commonParams}): PositionListQueryResponse
+    positionDetail(_id: String): Position
 
     structureDetail: Structure
 `;
