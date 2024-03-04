@@ -154,11 +154,13 @@ export interface RPError {
 export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
+
+let httpRPCEndpointSetup = {};
 export const consumeRPCQueue = async (
   queueName,
   procedure: RP,
 ): Promise<void> => {
-  const { procedureName } = splitPluginProcedureName(queueName);
+  const { pluginName, procedureName } = splitPluginProcedureName(queueName);
 
   if (procedureName.includes(':')) {
     throw new Error(
@@ -166,19 +168,22 @@ export const consumeRPCQueue = async (
     );
   }
 
-  const endpoint = `/rpc/${procedureName}`;
-
-  app.post(endpoint, async (req, res: Response<RPResult>) => {
-    try {
-      const response = await procedure(req.body);
-      res.json(response);
-    } catch (e) {
-      res.json({
-        status: 'error',
-        errorMessage: e.message,
-      });
-    }
-  });
+  if(!httpRPCEndpointSetup[pluginName]) {
+    const endpoint = `/rpc/${procedureName}`;
+  
+    app.post(endpoint, async (req, res: Response<RPResult>) => {
+      try {
+        const response = await procedure(req.body);
+        res.json(response);
+      } catch (e) {
+        res.json({
+          status: 'error',
+          errorMessage: e.message,
+        });
+      }
+    });
+    httpRPCEndpointSetup[pluginName] = true;
+  }
 
   await consumeRPCQueueMq(queueName, procedure);
 };
