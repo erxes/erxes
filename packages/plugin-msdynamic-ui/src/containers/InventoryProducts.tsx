@@ -126,13 +126,6 @@ export default withProps<Props>(
       gql(mutations.toCheckProducts),
       {
         name: 'toCheckMsdProducts',
-        options: () => ({
-          context: {
-            headers: {
-              'x-timeout': 60000, // Set custom timeout 60 seconds for this request
-            },
-          },
-        }),
       },
     ),
     graphql<Props, ToSyncProductsMutationResponse, {}>(
