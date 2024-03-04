@@ -3,13 +3,13 @@ import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   INeighborItemDocument,
-  INeighborDocument
+  INeighborDocument,
 } from './models/definitions/neighbor'; //INeighborItemDocument INeighborDocument
 import {
   INeighborModel,
   loadNeighborClass,
   INeighborItemModel,
-  loadNeighborItemClass
+  loadNeighborItemClass,
 } from './models/models';
 import { MongoClient } from 'mongodb';
 
@@ -31,7 +31,7 @@ export let models: IModels;
 export let coreModels: ICoreModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string,
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -63,23 +63,23 @@ const connectCore = async () => {
   db = client.db(dbName);
 
   coreModels = {
-    Users: db.collection('users')
+    Users: db.collection('users'),
   };
 
   return coreModels;
 };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Neighbor = db.model<INeighborDocument, INeighborModel>(
     'neighbors',
-    loadNeighborClass(models)
+    loadNeighborClass(models),
   );
 
   models.NeighborItem = db.model<INeighborItemDocument, INeighborItemModel>(
     'neighbor_items',
-    loadNeighborItemClass(models)
+    loadNeighborItemClass(models),
   );
 
   return models;

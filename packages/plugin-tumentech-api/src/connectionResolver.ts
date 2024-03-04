@@ -1,6 +1,6 @@
 import {
   IPurchaseHistoryModel,
-  loadPurchaseHistoryClass
+  loadPurchaseHistoryClass,
 } from './models/CustomerPurchaseHistory';
 import { ITopupDocument } from './models/definitions/topup';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -9,7 +9,7 @@ import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import {
   ICustomerAccountModel,
-  loadCustomerAccountClass
+  loadCustomerAccountClass,
 } from './models/CustomerAccount';
 import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
 import { IDealRouteModel, loadDealRouteClass } from './models/DealRoutes';
@@ -27,7 +27,7 @@ import {
   ICarCategoryDocument,
   ICarDocument,
   IProductCarCategoryDocument,
-  productCarCategorySchema
+  productCarCategorySchema,
 } from './models/definitions/tumentech';
 import { IDirectionModel, loadDirectionClass } from './models/Directions';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
@@ -38,19 +38,19 @@ import { ITripModel, loadTripClass } from './models/Trips';
 import {
   ITumentechDealModel,
   loadTrackingClass,
-  loadTumentechDealClass
+  loadTumentechDealClass,
 } from './models/TumentechDeal';
 import {
   ICarCategoryModel,
   ICarModel,
   IProductCarCategoryModel,
   loadCarCategoryClass,
-  loadCarsClass
+  loadCarsClass,
 } from './models/Tumentech';
 import { IPurchaseHistoryDocument } from './models/definitions/customerPurchaseHistory';
 import {
   ITransportDataModel,
-  loadTransportDataClass
+  loadTransportDataClass,
 } from './models/TransportDatas';
 import { ITransportDataDocument } from './models/definitions/transportDatas';
 
@@ -82,7 +82,7 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string,
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -94,16 +94,16 @@ export const generateModels = async (
 };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Cars = db.model<ICarDocument, ICarModel>(
     'cars',
-    loadCarsClass(models)
+    loadCarsClass(models),
   );
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
     'car_categories',
-    loadCarCategoryClass(models)
+    loadCarCategoryClass(models),
   );
 
   models.ProductCarCategories = db.model<
@@ -113,42 +113,42 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Participants = db.model<IParticipantDocument, IParticipantModel>(
     'participants',
-    loadParticipantClass(models)
+    loadParticipantClass(models),
   );
 
   models.Places = db.model<IPlaceDocument, IPlaceModel>(
     'places',
-    loadPlaceClass(models)
+    loadPlaceClass(models),
   );
 
   models.Directions = db.model<IDirectionDocument, IDirectionModel>(
     'directions',
-    loadDirectionClass(models)
+    loadDirectionClass(models),
   );
 
   models.Routes = db.model<IRouteDocument, IRouteModel>(
     'routes',
-    loadRouteClass(models)
+    loadRouteClass(models),
   );
 
   models.Trips = db.model<ITripDocument, ITripModel>(
     'trips',
-    loadTripClass(models)
+    loadTripClass(models),
   );
 
   models.TumentechDeals = db.model<ITumentechDealDocument, ITumentechDealModel>(
     'tumentech_deals',
-    loadTumentechDealClass(models)
+    loadTumentechDealClass(models),
   );
 
   models.DealPlaces = db.model<IDealPlaceDocument, IDealPlaceModel>(
     'deal_places',
-    loadDealPlaceClass(models)
+    loadDealPlaceClass(models),
   );
 
   models.DealRoutes = db.model<IDealRouteDocument, IDealRouteModel>(
     'deal_routes',
-    loadDealRouteClass(models)
+    loadDealRouteClass(models),
   );
 
   models.CustomerAccounts = db.model<
@@ -158,7 +158,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Topups = db.model<ITopupDocument, ITopupModel>(
     'tumentech_topups',
-    loadTopupClass(models)
+    loadTopupClass(models),
   );
 
   models.PurchaseHistories = db.model<
@@ -168,7 +168,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.TransportDatas = db.model<ITransportDataDocument, ITransportDataModel>(
     'tumentech_transport_datas',
-    loadTransportDataClass(models)
+    loadTransportDataClass(models),
   );
 
   models.Tracking = db.model('tumentech_tracking', loadTrackingClass(models));

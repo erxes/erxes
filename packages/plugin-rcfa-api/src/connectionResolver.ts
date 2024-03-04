@@ -16,28 +16,23 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.RCFA = db.model<IRCFADocument, IRCFAModel>(
     'rcfa_conformities',
-    loadRCFAClass(models, subdomain)
+    loadRCFAClass(models, subdomain),
   );
 
   models.Issues = db.model<IRCFAIssuesDocument, IRCFAQuestionModel>(
     'rcfa_issues',
-    loadRCFAIssuesClass(models, subdomain)
+    loadRCFAIssuesClass(models, subdomain),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

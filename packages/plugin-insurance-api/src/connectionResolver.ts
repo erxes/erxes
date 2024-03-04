@@ -12,7 +12,7 @@ import { IInsurancePackageModel, loadPackageClass } from './models/Packages';
 import { IInsurancePackageDocument } from './models/definitions/package';
 import {
   IInsuranceCategoryModel,
-  loadCategoryClass
+  loadCategoryClass,
 } from './models/Categories';
 import { IInsuranceCategoryDocument } from './models/definitions/category';
 
@@ -33,7 +33,7 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string,
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -45,26 +45,26 @@ export const generateModels = async (
 };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Risks = db.model<IRiskDocument, IRiskModel>(
     'insurance_risks',
-    loadRiskClass(models)
+    loadRiskClass(models),
   );
 
   models.Products = db.model<IInsuranceProductDocument, IInsuranceProductModel>(
     'insurance_products',
-    loadProductClass(models)
+    loadProductClass(models),
   );
 
   models.Items = db.model<IInsuranceItemDocument, IInsuranceItemModel>(
     'insurance_items',
-    loadItemClass(models)
+    loadItemClass(models),
   );
 
   models.Packages = db.model<IInsurancePackageDocument, IInsurancePackageModel>(
     'insurance_packages',
-    loadPackageClass(models)
+    loadPackageClass(models),
   );
 
   models.Categories = db.model<
