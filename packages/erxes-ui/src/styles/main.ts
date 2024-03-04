@@ -110,15 +110,17 @@ const TipContent = styled.div`
   border-radius: 4px;
 `;
 
-const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+const FullContent = styledTS<{ $center: boolean; $align?: boolean }>(
+  styled.div,
+)`
   flex: 1;
   display: flex;
   min-height: 100%;
-  justify-content: ${(props) => props.center && 'center'};
-  align-items: ${(props) => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${(props) => props.$center && 'center'};
+  align-items: ${(props) => (props.$align ? 'flex-start' : 'center')};
 `;
 
-const MiddleContent = styledTS<{ $transparent?: boolean; shrink?: boolean }>(
+const MiddleContent = styledTS<{ $transparent?: boolean; $shrink?: boolean }>(
   styled.div,
 )`
   width: 900px;
@@ -127,7 +129,7 @@ const MiddleContent = styledTS<{ $transparent?: boolean; shrink?: boolean }>(
   margin: 10px 0;
 
   ${(props) =>
-    !props.shrink &&
+    !props.$shrink &&
     css`
       height: 100%;
       height: calc(100% - 20px);

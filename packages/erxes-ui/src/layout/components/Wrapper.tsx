@@ -45,8 +45,8 @@ class Wrapper extends React.Component<Props> {
 
     if (center) {
       return (
-        <FullContent center={true} align={true}>
-          <MiddleContent shrink={shrink} $transparent={transparent}>
+        <FullContent $center={true} $align={true}>
+          <MiddleContent $shrink={shrink} $transparent={transparent}>
             <PageContent
               actionBar={actionBar}
               footer={footer}

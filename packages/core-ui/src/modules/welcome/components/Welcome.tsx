@@ -121,8 +121,8 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     return (
       <BoxHeader
         onClick={() => handleOpen()}
-        isOpen={isOpen}
-        isSetup={title === 'Getting Started'}
+        $isOpen={isOpen}
+        $isSetup={title === 'Getting Started'}
       >
         <Left>
           {image && <DescImg src={image} />}

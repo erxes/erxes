@@ -9,7 +9,7 @@ import {
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
 import { __, router } from '../utils/core';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Icon from './Icon';
 import queryString from 'query-string';
@@ -44,7 +44,7 @@ const ModalTrigger: React.FC<Props> = ({
   dialogClassName,
   enforceFocus,
   hideHeader,
-  isOpen: propIsOpen,
+  isOpen,
   addisOpenToQueryParam,
   paddingContent,
   onExit,
@@ -53,10 +53,10 @@ const ModalTrigger: React.FC<Props> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isOpen, setIsOpen] = useState(propIsOpen || false);
+  const [isOpenTrigger, setIsOpen] = useState(isOpen || false);
   const [autoOpenKeyState, setAutoOpenKey] = useState('');
 
-  const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
+  // const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
   useEffect(() => {
     if (autoOpenKey !== autoOpenKeyState) {
@@ -70,30 +70,27 @@ const ModalTrigger: React.FC<Props> = ({
   useEffect(() => {
     const queryParams = queryString.parse(window.location.search);
 
-    if (
-      addisOpenToQueryParam &&
-      urlIsOpen !== undefined &&
-      urlIsOpen !== null
-    ) {
-      if (isOpen && !queryParams.isOpen) {
+    if (addisOpenToQueryParam) {
+      if (isOpenTrigger && !queryParams.isOpen) {
         router.setParams(navigate, location, {
-          isModalOpen: isOpen,
+          isModalOpen: isOpenTrigger,
         });
       }
 
       if (queryParams.isModalOpen) {
-        router.removeParams(history, 'isModalOpen');
+        router.removeParams(navigate, location, 'isModalOpen');
       }
     }
-  }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
+  }, [addisOpenToQueryParam, isOpen]);
 
-  function openModal() {
+  const openModal = () => {
+    console.log('aaaa', isOpenTrigger);
     setIsOpen(true);
-  }
+  };
 
-  function closeModal() {
+  const closeModal = () => {
     setIsOpen(false);
-  }
+  };
 
   const renderHeader = () => {
     if (hideHeader) {
@@ -105,18 +102,11 @@ const ModalTrigger: React.FC<Props> = ({
     }
 
     return (
-      // <Modal.Header closeButton={true} className={paddingContent}>
-      <Dialog.Title>{ignoreTrans ? title : __(title)}</Dialog.Title>
-      // </Modal.Header>
+      <Dialog.Title as="h3">
+        {ignoreTrans ? title : __(title)}
+        <Icon icon="times" size={24} onClick={closeModal} />
+      </Dialog.Title>
     );
-  };
-
-  const onHideHandler = () => {
-    closeModal();
-
-    if (onExit) {
-      onExit();
-    }
   };
 
   // add onclick event to the trigger component
@@ -125,12 +115,12 @@ const ModalTrigger: React.FC<Props> = ({
         onClick: openModal,
       })
     : null;
-
+  console.log('isOpen:', isOpenTrigger);
   return (
     <>
       {triggerComponent}
 
-      {isOpen && (
+      {isOpenTrigger && (
         <Dialog
           open={true}
           as={as ? as : 'div'}
@@ -152,10 +142,7 @@ const ModalTrigger: React.FC<Props> = ({
           <DialogWrapper>
             <DialogContent>
               <Dialog.Panel className={`${paddingContent} dialog-size-${size}`}>
-                <Dialog.Title as="h3">
-                  {ignoreTrans ? title : __(title)}
-                  <Icon icon="times" size={24} onClick={closeModal} />
-                </Dialog.Title>
+                {renderHeader()}
                 <Transition.Child>
                   <div className="dialog-description">
                     {content({ closeModal })}
