@@ -18,7 +18,7 @@ export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
-    debugBase(`This email is already verified`);
+    debugBase(`This email is already verified`, email);
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -56,6 +56,8 @@ export const single = async (email: string, hostname: string) => {
     body: { email },
   };
 
+  console.log('verifying email on sendgrid', email);
+
   try {
     const [body] = await client.request(request);
     const { statusCode } = body;
@@ -71,6 +73,8 @@ export const single = async (email: string, hostname: string) => {
     throw e;
   }
 
+  console.log('email has been verified on sendgrid', email, response);
+
   if (response.status === 'success') {
     const doc = { email, status: response.verdict.toLowerCase() };
 
@@ -81,7 +85,10 @@ export const single = async (email: string, hostname: string) => {
       await Emails.createEmail(doc);
     }
 
-    debugBase(`Sending single email validation status to erxes-api`);
+    debugBase(
+      `Sending single email validation status to `,
+      `${hostname}/verifier/webhook`,
+    );
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
