@@ -72,11 +72,6 @@ class LoanContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
           Alert.success('Success. Please check again.');
         })
-        .finally(() => {
-          const data = this.state.items;
-
-          this.setState({ items: data });
-        })
         .catch((e) => {
           Alert.error(e.message);
           this.setState({ loading: false });
