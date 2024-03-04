@@ -28,6 +28,10 @@ body {
   }
 }
 
+button {
+  cursor: pointer;
+}
+
 a {
   color: ${colors.linkPrimary};
   transition: color 0.3s ease;

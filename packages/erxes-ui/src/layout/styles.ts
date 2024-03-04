@@ -209,7 +209,7 @@ const SidebarFooter = styledTS<{ children: any }>(styled(SidebarHeader))`
 const SidebarBox = styledTS<{
   noBackground?: boolean;
   noShadow?: boolean;
-  collapsible?: boolean;
+  $collapsible?: boolean;
   full?: boolean;
   noMargin?: boolean;
 }>(styled.div)`

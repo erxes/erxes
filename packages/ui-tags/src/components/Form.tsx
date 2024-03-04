@@ -9,11 +9,12 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ITag } from '../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+// import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
 import { getRandomNumber } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
+import Popover from '@erxes/ui/src/components/Popover';
 
 const ColorPick = styled.div`
   margin-top: 10px;
@@ -24,7 +25,7 @@ const ColorPick = styled.div`
 `;
 
 const ColorPicker = styled.div`
-  width: 100%;
+  width: 100px;
   height: 20px;
   border-radius: 2px;
 `;
@@ -114,17 +115,6 @@ const FormComponent: React.FC<FormComponentProps> = ({
     const { values, isSubmitted } = formProps;
     const object = tag || ({} as ITag);
 
-    const popoverContent = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="266px"
-          color={colorCode}
-          onChange={onColorChange}
-          colors={COLORS}
-        />
-      </Popover>
-    );
-
     return (
       <>
         <FormGroup>
@@ -140,16 +130,21 @@ const FormComponent: React.FC<FormComponentProps> = ({
 
         <FormGroup>
           <ControlLabel>Color</ControlLabel>
-          <OverlayTrigger
-            trigger="click"
-            rootClose={true}
-            placement="bottom"
-            overlay={popoverContent}
+          <Popover
+            placement="bottom-start"
+            trigger={
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: colorCode }} />
+              </ColorPick>
+            }
           >
-            <ColorPick>
-              <ColorPicker style={{ backgroundColor: colorCode }} />
-            </ColorPick>
-          </OverlayTrigger>
+            <TwitterPicker
+              width="266px"
+              color={colorCode}
+              onChange={onColorChange}
+              colors={COLORS}
+            />
+          </Popover>
         </FormGroup>
 
         <FormGroup>

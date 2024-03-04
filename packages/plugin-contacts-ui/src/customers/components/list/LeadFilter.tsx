@@ -3,7 +3,7 @@ import {
   SidebarCounter,
   SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { __, router } from 'coreui/utils';
 
 import Box from '@erxes/ui/src/components/Box';
@@ -33,9 +33,12 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = useState(false);
 
+  useEffect(() => {
+    router.removeParams(navigate, location, 'page');
+  }, [location.search]);
+
   const onClick = (formId) => {
     router.setParams(navigate, location, { form: formId });
-    router.removeParams(navigate, location, 'page');
   };
 
   const search = (e) => {
@@ -73,12 +76,14 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(location, 'form') === form._id ? 'active' : ''
+              router.getParam(location, 'form') === integration.formId
+                ? 'active'
+                : ''
             }
-            onClick={onClick.bind(null, form._id)}
+            onClick={onClick.bind(null, integration.formId)}
           >
             <FieldStyle>{integration.name}</FieldStyle>
-            <SidebarCounter>{counts[form._id]}</SidebarCounter>
+            <SidebarCounter>{counts[integration.formId]}</SidebarCounter>
           </a>
         </li>
       );

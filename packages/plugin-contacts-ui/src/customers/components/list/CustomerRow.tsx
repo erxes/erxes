@@ -118,7 +118,7 @@ function displayValue(customer, name, index) {
 
   if (name === 'sessionCount') {
     return (
-      <TextInfo textStyle="primary">{value ? value.toString() : '-'}</TextInfo>
+      <TextInfo $textStyle="primary">{value ? value.toString() : '-'}</TextInfo>
     );
   }
 

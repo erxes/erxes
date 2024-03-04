@@ -156,9 +156,9 @@ const ModalTrigger: React.FC<Props> = ({
                   {ignoreTrans ? title : __(title)}
                 </Dialog.Title>
                 <Transition.Child>
-                  <Dialog.Description className="dialog-description">
+                  <div className="dialog-description">
                     {content({ closeModal })}
-                  </Dialog.Description>
+                  </div>
                 </Transition.Child>
               </Dialog.Panel>
             </DialogContent>

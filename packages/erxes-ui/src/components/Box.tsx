@@ -84,7 +84,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
         <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
         {isOpen ? (
-          <Section noPadding={noPadding} collapsible={collapsible}>
+          <Section noPadding={noPadding} $collapsible={collapsible}>
             {children}
           </Section>
         ) : null}

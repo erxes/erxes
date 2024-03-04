@@ -37,7 +37,7 @@ function QuickButtons({
 
 type Props = {
   children: React.ReactNode;
-  collapsible?: boolean;
+  $collapsible?: boolean;
   className?: string;
   noShadow?: boolean;
   noBackground?: boolean;
@@ -84,7 +84,7 @@ class Section extends React.Component<Props, State> {
   render() {
     const {
       children,
-      collapsible,
+      $collapsible,
       noShadow,
       noBackground,
       full,
@@ -93,7 +93,7 @@ class Section extends React.Component<Props, State> {
       noPadding,
     } = this.props;
 
-    const style = collapsible
+    const style = $collapsible
       ? {
           maxHeight: this.state.collapse ? undefined : maxHeight,
         }
@@ -101,7 +101,7 @@ class Section extends React.Component<Props, State> {
 
     return (
       <SidebarBox
-        collapsible={collapsible}
+        $collapsible={$collapsible}
         style={style}
         noShadow={noShadow}
         noBackground={noBackground}
@@ -109,7 +109,7 @@ class Section extends React.Component<Props, State> {
         noMargin={noMargin}
       >
         <BoxContent noPadding={noPadding}>{children}</BoxContent>
-        {collapsible ? this.renderCollapseButton() : null}
+        {$collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );
   }

@@ -16,12 +16,12 @@ type Props = {
 class Table extends React.Component<Props> {
   static defaultProps = {
     required: false,
-    striped: false,
-    bordered: false,
-    condensed: false,
-    hover: false,
-    responsive: false,
-    alignTop: false,
+    $striped: false,
+    $bordered: false,
+    $condensed: false,
+    $hover: false,
+    $responsive: false,
+    $alignTop: false,
   };
 
   render() {

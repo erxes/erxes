@@ -444,14 +444,14 @@ class CustomerForm extends React.Component<Props, State> {
                   componentClass: 'radio',
                   options: [
                     {
-                      childNode: 'Yes',
+                      childnode: 'Yes',
                       value: 'Yes',
                       checked: this.state.hasAuthority === 'Yes',
                       onChange: (e) =>
                         this.setState({ hasAuthority: e.target.value }),
                     },
                     {
-                      childNode: 'No',
+                      childnode: 'No',
                       value: 'No',
                       checked: this.state.hasAuthority === 'No',
                       onChange: (e) =>
@@ -466,14 +466,14 @@ class CustomerForm extends React.Component<Props, State> {
                   componentClass: 'radio',
                   options: [
                     {
-                      childNode: 'Yes',
+                      childnode: 'Yes',
                       value: 'Yes',
                       checked: this.state.isSubscribed === 'Yes',
                       onChange: (e) =>
                         this.setState({ isSubscribed: e.target.value }),
                     },
                     {
-                      childNode: 'No',
+                      childnode: 'No',
                       value: 'No',
                       checked: this.state.isSubscribed === 'No',
                       onChange: (e) =>

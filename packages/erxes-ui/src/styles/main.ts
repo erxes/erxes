@@ -95,17 +95,19 @@ const PopoverHeader = styled.h3`
   }
 `;
 
-const PopoverPanel = styledTS<{
-  top?: string;
-  bottom?: string;
-  right?: string;
-  left?: string;
-}>(styled(Popover.Panel))`
+const PopoverPanel = styled(Popover.Panel)`
   max-width: fit-content;
-  ${(props) => props.top && `top: ${props.top};`}
-  ${(props) => props.bottom && `bottom: ${props.bottom};`}
-  ${(props) => props.right && `right: ${props.right};`}
-  ${(props) => props.left && `left: ${props.left};`}
+`;
+
+const TipContent = styled.div`
+  white-space: nowrap;
+  z-index: 99;
+  background: #fff;
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  padding: 4px;
+  border-radius: 4px;
 `;
 
 const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
@@ -591,6 +593,11 @@ const DialogContent = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
+
+  .dialog-description {
+    padding: 20px 30px 30px;
+    margin: 0;
+  }
 `;
 
 const DialogWrapper = styled.div`
@@ -649,4 +656,5 @@ export {
   DialogWrapper,
   DialogContent,
   PopoverPanel,
+  TipContent,
 };
