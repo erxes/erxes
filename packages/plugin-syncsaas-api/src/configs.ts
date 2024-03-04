@@ -3,7 +3,7 @@ import typeDefs from './graphql/typeDefs';
 
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { postHandler } from './postHandler';
 
 export default {
@@ -27,8 +27,7 @@ export default {
   meta: {},
   postHandlers: [{ path: `/handleSync`, method: postHandler }],
 
-  onServerInit: async (options) => {
-    initBroker();
+  onServerInit: async () => {
   },
   setupMessageConsumers,
 };

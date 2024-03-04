@@ -1,7 +1,7 @@
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 
 import app from '@erxes/api-utils/src/app';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -12,8 +12,7 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 
-export let mainDb;
-export let debug;
+
 
 export default {
   name: 'salary',
@@ -50,9 +49,7 @@ export default {
   },
   middlewares: [cookieParser(), userMiddleware],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     const { DOMAIN } = process.env;
 
     const corsOptions = {
@@ -61,10 +58,6 @@ export default {
     };
 
     app.use(cors(corsOptions));
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
 
     const upload = multer({ dest: __dirname + '../uploads/' });
 
@@ -103,4 +96,5 @@ export default {
       },
     );
   },
+  setupMessageConsumers,
 };

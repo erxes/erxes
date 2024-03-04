@@ -3,7 +3,7 @@ import { Polarissyncs } from './models';
 import { afterMutationHandlers } from './afterMutations';
 import { consumeQueue, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
 
   consumeQueue('bid:send', async ({ data }) => {
     Polarissyncs.send(data);

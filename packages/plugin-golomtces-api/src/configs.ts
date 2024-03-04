@@ -1,14 +1,13 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateExpiredToken } from './api';
 
-export let mainDb;
 
 
 
-export let debug;
+
 
 export default {
   name: 'golomtces',
@@ -50,12 +49,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    debug = options.debug;
-    
-
-    initBroker();
-  }
+  onServerInit: async () => {
+  },
+  setupMessageConsumers
 };

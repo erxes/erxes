@@ -1,7 +1,6 @@
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
 
-import { mainDb } from './configs';
 import { IInsuranceProductModel, loadProductClass } from './models/Products';
 import { IRiskModel, loadRiskClass } from './models/Risks';
 import { IInsuranceProductDocument } from './models/definitions/products';
@@ -15,6 +14,7 @@ import {
   loadCategoryClass,
 } from './models/Categories';
 import { IInsuranceCategoryDocument } from './models/definitions/category';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Risks: IRiskModel;
@@ -29,20 +29,6 @@ export interface IContext extends IMainContext {
   models: IModels;
   cpUser: any;
 }
-
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string,
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
@@ -74,3 +60,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels(loadClasses);

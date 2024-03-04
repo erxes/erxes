@@ -4,13 +4,12 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import * as customCommand from './customCommand';
 
-export let mainDb;
-export let debug;
+
 
 export default {
   name: 'apex',
@@ -38,11 +37,7 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {
+  },
+  setupMessageConsumers
 };
