@@ -4,14 +4,14 @@ import {
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+
 import { generateModels } from './connectionResolver';
 
 let client;
 
-export const setupMessageConsumers = async (cl) => {
+export const setupMessageConsumers = async (cl: any) => {
   client = cl;
-
-  const { consumeRPCQueue } = client;
 
   consumeRPCQueue('salary:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
