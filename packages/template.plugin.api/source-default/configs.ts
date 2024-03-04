@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 
-export let debug;
 
 export default {
   name: '{name}',
@@ -22,7 +21,5 @@ export default {
     
 
     initBroker();
-
-    debug = options.debug;
   }
 };

@@ -32,8 +32,6 @@ import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 import exporter from './exporter';
 
-export let debug;
-
 export default {
   name: 'inbox',
   permissions,
@@ -83,7 +81,7 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     // events
     app.post(
       '/events-receive',
@@ -139,7 +137,5 @@ export default {
     app.post('/webhooks/:id', webhookMiddleware);
 
     initBroker();
-
-    debug = options.debug;
   },
 };

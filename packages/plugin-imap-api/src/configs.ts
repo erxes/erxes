@@ -17,8 +17,6 @@ import { getOrganizations } from '@erxes/api-utils//src/saas/saas';
 import logs from './logUtils';
 import app from '@erxes/api-utils/src/app';
 
-export let debug;
-
 export default {
   name: 'imap',
   graphql: () => {
@@ -43,11 +41,8 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async (options) => {
-    debug = options.debug;
-
+  onServerInit: async () => {
     initBroker();
-
     app.get(
       '/read-mail-attachment',
       routeErrorHandling(

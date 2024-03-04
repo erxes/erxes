@@ -12,8 +12,6 @@ import payment from './payment';
 import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-
 interface IConfig {
   name: string;
   permissions: any;
@@ -56,10 +54,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     logs: { consumers: logs },

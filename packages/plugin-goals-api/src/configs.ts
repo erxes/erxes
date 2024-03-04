@@ -5,8 +5,6 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-
 export default {
   name: 'goals',
   graphql: async () => {
@@ -30,10 +28,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: {},

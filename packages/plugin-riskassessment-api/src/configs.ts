@@ -11,8 +11,6 @@ import * as permissions from './permissions';
 import tags from './tags';
 import forms from './forms';
 
-export let debug;
-
 export default {
   name: 'riskassessment',
   permissions,
@@ -33,10 +31,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     afterMutations,

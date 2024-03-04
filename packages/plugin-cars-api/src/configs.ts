@@ -8,8 +8,6 @@ import forms from './forms';
 import segments from './segments';
 import tags from './tags';
 
-export let debug;
-
 export default {
   name: 'cars',
   permissions,
@@ -29,10 +27,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: { forms, tags, segments },
 };

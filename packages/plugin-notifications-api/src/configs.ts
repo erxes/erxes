@@ -6,8 +6,6 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import automations from './automations';
 
-export let debug;
-
 export default {
   name: 'notifications',
   graphql: () => {
@@ -31,10 +29,8 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: { automations },

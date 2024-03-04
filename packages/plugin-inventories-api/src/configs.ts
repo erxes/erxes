@@ -8,8 +8,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
 
-export let debug;
-
 export default {
   name: 'inventories',
   permissions,
@@ -29,10 +27,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: {

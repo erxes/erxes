@@ -16,7 +16,6 @@ import imports from './imports';
 import exporter from './exporter';
 import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
-export let debug;
 
 export default {
   name: 'pos',
@@ -44,10 +43,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     afterMutations,

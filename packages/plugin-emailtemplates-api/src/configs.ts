@@ -7,8 +7,6 @@ import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-
 export default {
   name: 'emailtemplates',
   permissions,
@@ -26,10 +24,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: { logs: { consumers: logs }, permissions },
 };

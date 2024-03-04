@@ -1,15 +1,13 @@
 import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-
-import { debug } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-
 import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const initBroker = async () => {
   consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
@@ -65,7 +63,7 @@ export const initBroker = async () => {
   });
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
-    debug.info(`Receiving queue data ${JSON.stringify(data)}`);
+    debugInfo(`Receiving queue data ${JSON.stringify(data)}`);
     const models = (await generateModels(subdomain)) as IModels;
 
     try {
@@ -83,7 +81,7 @@ export const initBroker = async () => {
         await sendBulkSms(models, subdomain, realData);
       }
     } catch (e) {
-      debug.error(e.message);
+      debugError(e.message);
     }
   });
 

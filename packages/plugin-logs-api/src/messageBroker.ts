@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand } from './utils';
 
@@ -91,7 +91,7 @@ export const initBroker = async () => {
   );
 
   consumeQueue('putActivityLog', async (args) => {
-    debug.info(args);
+    debugInfo(args);
 
     const { data: obj, subdomain } = args;
 

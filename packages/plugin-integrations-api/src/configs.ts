@@ -7,8 +7,6 @@ import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
-export let debug;
-
 export default {
   name: 'integrations',
   graphql: async () => {
@@ -32,11 +30,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
     initApp();
-
-    debug = options.debug;
   },
 };

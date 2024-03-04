@@ -12,8 +12,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
 
-export let debug;
-
 export default {
   name: 'engages',
   permissions,
@@ -37,12 +35,10 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     // Insert routes below
     app.use('/telnyx', telnyx);
 
     initBroker();
-
-    debug = options.debug;
   },
 };
