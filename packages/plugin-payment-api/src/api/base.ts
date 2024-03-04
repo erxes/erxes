@@ -27,10 +27,13 @@ export class BaseAPI {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
-      const res = await fetch(
-        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
-        requestOptions,
-      );
+      let url = `${this.apiUrl}/${path}`;
+
+      if (params) {
+        url += '?' + new URLSearchParams(params);
+      }
+
+      const res = await fetch(url, requestOptions);
 
       return res;
     } catch (e) {

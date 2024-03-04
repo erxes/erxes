@@ -8,6 +8,7 @@ import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
+import { MinuPayAPI } from './minupay/api';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -18,6 +19,7 @@ class ErxesPayment {
   public wechatpay: WechatPayAPI;
   public qpayQuickqr: QPayQuickQrAPI;
   public pocket: PocketAPI;
+  public minupay: MinuPayAPI;
   public domain: string;
 
   private payment: any;
@@ -33,6 +35,7 @@ class ErxesPayment {
     this.wechatpay = new WechatPayAPI(payment.config, domain);
     this.qpayQuickqr = new QPayQuickQrAPI(payment.config, domain);
     this.pocket = new PocketAPI(payment.config, domain);
+    this.minupay = new MinuPayAPI(payment.config, domain);
   }
 
   async createInvoice(invoice: IInvoiceDocument) {

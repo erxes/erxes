@@ -46,6 +46,7 @@ async function onPaymentClick(payment, invoiceData, prefix) {
     'wechatpay',
     'paypal',
     'qpayQuickqr',
+    'minupay',
   ];
 
   modalContent.classList.remove(...payments.map((p) => `${p}-modal`));
@@ -194,6 +195,17 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
   // hide bank buttons
   bankButtons.style.display = 'none';
+
+  if (apiResponse.url && paymentObj.kind === 'minupay') {
+    // render minupay url in iframe
+    const iframe = document.createElement('iframe');
+    iframe.src = apiResponse.url;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    modalContent.appendChild(iframe);
+
+  }
 
   if (apiResponse.deeplink && isMobile) {
     deeplink.style.display = 'block';

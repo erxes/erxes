@@ -5,6 +5,7 @@ import QpayForm from './form/QpayForm';
 import QuickQrForm from './form/QuickQrForm';
 import SocialPayForm from './form/SocialPayForm';
 import StorepayForm from './form/StorePayForm';
+import MinuForm from './form/MinuForm';
 
 export const PAYMENTCONFIGS = [
   {
@@ -83,6 +84,17 @@ export const PAYMENTCONFIGS = [
     color: 'red',
   },
   {
+    name: 'MinuPay',
+    description: 'Minu pay',
+    isAvailable: true,
+    kind: 'minupay',
+    logo: 'images/payments/minupay.png',
+    createModal: MinuForm,
+    createUrl: '/settings/payments/createMinuPay',
+    category: 'Payment method',
+    color: 'green',
+  },
+  {
     name: 'Golomt E-Commerce',
     description:
       'Becoming an E-Commerce merchant for online sales and payment we offer products and services 24/7. Accepts most type of domestic and foreign card and provide opportunity to make and receive payment from anywhere',
@@ -127,6 +139,7 @@ export const PAYMENT_KINDS = {
   MONPAY: 'monpay',
   STOREPAY: 'storepay',
   POCKET: 'pocket',
+  MINUPAY: 'minupay',
   WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
 
@@ -140,6 +153,7 @@ export const PAYMENT_KINDS = {
     'wechatpay',
     'paypal',
     'qpayQuickqr',
+    'minupay',
   ],
 };
 
