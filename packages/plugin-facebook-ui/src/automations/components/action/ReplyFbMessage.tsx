@@ -177,6 +177,7 @@ function ReplyFbMessage({
           label="Upload Audio"
           fileType="audio/*"
           previewIcon="music-1"
+          limit="25MB"
         />
       </div>
     );
@@ -193,6 +194,7 @@ function ReplyFbMessage({
           label="Upload Video"
           fileType="video/*"
           previewIcon="film"
+          limit="25MB"
         />
       </div>
     );
@@ -210,7 +212,6 @@ function ReplyFbMessage({
     );
   };
   const renderInput = ({ _id, input }) => {
-    console.log('dsfsghg');
     const onChange = (name, value) => {
       handleChange(_id, 'input', { ...input, [name]: value });
     };

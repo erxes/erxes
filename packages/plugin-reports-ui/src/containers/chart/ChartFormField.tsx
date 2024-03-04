@@ -3,6 +3,7 @@ import ChartFormField from '../../components/chart/ChartFormField';
 import { queries } from '../../graphql';
 import { gql, useQuery } from '@apollo/client';
 import { IFieldLogic } from '../../types';
+import { Alert } from '@erxes/ui/src/utils';
 
 export type IFilterType = {
   fieldName: string;
@@ -29,7 +30,7 @@ type Props = {
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, setFilter } = props;
+  const { filterType, setFilter, fieldValues } = props;
 
   const {
     fieldName,
@@ -46,11 +47,30 @@ const ChartFormFieldList = (props: Props) => {
   } = filterType;
 
   const queryExists = queries[`${fieldQuery}`];
+  let logicFieldVariableExists = false;
+  const logicFieldVariables = {};
+
+  if (logics) {
+    for (const logic of logics) {
+      const { logicFieldName, logicFieldVariable } = logic;
+      if (logicFieldVariable) {
+        const logicFieldValue = fieldValues[logicFieldName];
+        if (logicFieldValue) {
+          logicFieldVariables[logicFieldVariable] = logicFieldValue;
+          logicFieldVariableExists = true;
+        }
+      }
+    }
+  }
+
   let queryFieldOptions;
+
   if (queryExists) {
-    const variables = fieldQueryVariables
-      ? JSON.parse(fieldQueryVariables)
-      : {};
+    const variables = logicFieldVariableExists
+      ? logicFieldVariables
+      : fieldQueryVariables
+        ? JSON.parse(fieldQueryVariables)
+        : {};
 
     const query = useQuery(gql(queries[`${fieldQuery}`]), {
       skip: fieldOptions ? true : false,
@@ -69,6 +89,29 @@ const ChartFormFieldList = (props: Props) => {
         label: d[fieldLabelVariable],
       }));
   }
+
+  const checkLogic = () => {
+    if (!logics) {
+      return true;
+    }
+
+    for (const logic of logics) {
+      const { logicFieldName, logicFieldValue } = logic;
+      if (!fieldValues[logicFieldName]) {
+        return false;
+      }
+
+      if (
+        !logicFieldVariableExists &&
+        fieldValues[logicFieldName] !== logicFieldValue
+      ) {
+        return false;
+      }
+    }
+
+    Alert.info(`Please ${fieldLabel}`);
+    return true;
+  };
 
   const onChange = (input: any) => {
     switch (fieldType) {
@@ -89,6 +132,9 @@ const ChartFormFieldList = (props: Props) => {
     }
   };
 
+  if (!checkLogic()) {
+    return <></>;
+  }
   return (
     <ChartFormField
       fieldType={fieldType}

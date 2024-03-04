@@ -21,6 +21,7 @@ import {
   consumeQueue,
   consumeRPCQueue,
   sendRPCMessage as RPC,
+  RPResult,
 } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
@@ -52,23 +53,24 @@ export const initBroker = async () => {
 
       const { action, type } = data;
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, data._id) };
+          response.data = await removeAccount(models, data._id);
         }
 
         if (action === 'repair-integrations') {
-          response = { data: await repairIntegrations(models, data._id) };
+          response.data = await repairIntegrations(models, data._id);
         }
 
         if (action === 'reply-messenger') {
-          response = { data: await handleInstagramMessage(models, data) };
+          response.data = await handleInstagramMessage(models, data);
         }
         if (action === 'getConfigs') {
-          response = { data: await models.Configs.find({}) };
+          response.data = await models.Configs.find({});
         }
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',

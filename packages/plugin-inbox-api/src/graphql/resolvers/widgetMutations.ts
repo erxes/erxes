@@ -90,6 +90,13 @@ export const pConversationClientMessageInserted = async (
     }
   }
 
+  graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
+    conversationClientMessageInserted: message,
+    subdomain,
+    conversation,
+    integration,
+  });
+
   for (const userId of channelMemberIds) {
     graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
       conversationClientMessageInserted: message,
@@ -677,6 +684,13 @@ const widgetMutations = {
           },
         });
       }
+    }
+
+    if (!integration.isConnected) {
+      await models.Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { isConnected: true } },
+      );
     }
 
     return {

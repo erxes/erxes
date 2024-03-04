@@ -5,7 +5,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import startDistributingJobs, {
   findAttachmentParts,
   createImap,
@@ -13,10 +13,10 @@ import startDistributingJobs, {
 } from './utils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { getOrganizations } from '@erxes/api-utils//src/saas/saas';
 import logs from './logUtils';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -44,8 +44,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     debug = options.debug;
 
     initBroker();
@@ -158,6 +156,17 @@ export default {
       ),
     );
 
-    startDistributingJobs('os');
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    if (VERSION && VERSION === 'saas') {
+      const organizations = await getOrganizations();
+
+      for (const org of organizations) {
+        console.log(`Started listening for organization [${org.subdomain}]`);
+        await startDistributingJobs(org.subdomain);
+      }
+    } else {
+      startDistributingJobs('os');
+    }
   },
 };

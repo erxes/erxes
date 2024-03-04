@@ -112,8 +112,8 @@ const knowledgeBaseTopics = `
   }
 `;
 const knowledgeBaseArticles = `
-  query knowledgeBaseArticles($categoryIds: [String],$perPage:Int) {
-    knowledgeBaseArticles(categoryIds: $categoryIds,perPage:$perPage) {
+  query knowledgeBaseArticles($articleIds: [String],$categoryIds: [String],$perPage:Int) {
+    knowledgeBaseArticles(articleIds: $articleIds,categoryIds: $categoryIds,perPage:$perPage) {
       _id
       title
       categoryId
@@ -130,5 +130,5 @@ export default {
   assetCategoryDetail,
   assetCategoriesTotalCount,
   knowledgeBaseArticles,
-  knowledgeBaseTopics
+  knowledgeBaseTopics,
 };

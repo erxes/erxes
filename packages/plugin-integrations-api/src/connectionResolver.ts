@@ -6,24 +6,24 @@ import {
   IConversationDocument as ICallProConversationDocument,
   IConversationModel as ICallProConversationModel,
   ICustomerDocument as ICallProCustomerDocument,
-  ICustomerModel as ICallProCustomerModel
+  ICustomerModel as ICallProCustomerModel,
 } from './callpro/models';
 
 import {
   IAccountDocument,
   IAccountModel,
-  loadAccountClass
+  loadAccountClass,
 } from './models/Accounts';
 import {
   IConfigDocument,
   IConfigModel,
-  loadConfigClass
+  loadConfigClass,
 } from './models/Configs';
 
 import {
   IIntegrationDocument,
   IIntegrationModel,
-  loadIntegrationClass
+  loadIntegrationClass,
 } from './models/Integrations';
 import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -43,22 +43,20 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection) => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
-    loadAccountClass(models)
+    loadAccountClass(models),
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'configs',
-    loadConfigClass(models)
+    loadConfigClass(models),
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',
-    loadIntegrationClass(models)
+    loadIntegrationClass(models),
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
@@ -74,7 +72,4 @@ export const loadClasses = (db: mongoose.Connection) => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

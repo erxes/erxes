@@ -28,6 +28,12 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
 
 (async () => {
+  app.use((req, _res, next) => {
+    // this is important for security reasons
+    delete req.headers['user'];
+    next();
+  });
+
   app.use(cookieParser());
 
   app.use(userMiddleware);

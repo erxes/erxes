@@ -10,15 +10,15 @@ import { IRemainderModel, loadRemainderClass } from './models/Remainders';
 import { ITransactionModel, loadTransactionClass } from './models/Transactions';
 import {
   ITransactionItemModel,
-  loadTransactionItemClass
+  loadTransactionItemClass,
 } from './models/TransactionItems';
 import {
   ISafeRemainderModel,
-  loadSafeRemainderClass
+  loadSafeRemainderClass,
 } from './models/SafeRemainders';
 import {
   ISafeRemainderItemModel,
-  loadSafeRemainderItemClass
+  loadSafeRemainderItemClass,
 } from './models/SafeRemainderItems';
 import { IReserveRemModel, loadReserveRemClass } from './models/ReserveRems';
 import { IReserveRemDocument } from './models/definitions/reserveRems';
@@ -39,14 +39,12 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'inv_transactions',
-    loadTransactionClass(models)
+    loadTransactionClass(models),
   );
   models.TransactionItems = db.model<
     ITransactionItemDocument,
@@ -54,11 +52,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   >('inv_transaction_items', loadTransactionItemClass(models));
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
     'remainders',
-    loadRemainderClass(models)
+    loadRemainderClass(models),
   );
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
-    loadSafeRemainderClass(models)
+    loadSafeRemainderClass(models),
   );
   models.SafeRemainderItems = db.model<
     ISafeRemainderItemDocument,
@@ -67,12 +65,9 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
-    loadReserveRemClass(models)
+    loadReserveRemClass(models),
   );
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -83,6 +83,7 @@ export interface IType {
 export interface IFieldLogic {
   logicFieldName: string;
   logicFieldValue: any;
+  logicFieldVariable?: string;
 }
 
 // queries

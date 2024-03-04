@@ -5,8 +5,6 @@ export const savingToPolaris = async (subdomain: string, params) => {
 
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
-  //console.log('savingContract:',savingContract)
-
   let sendData = {};
   sendData = [
     {

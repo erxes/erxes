@@ -1,6 +1,6 @@
 import {
   fetchByQuery,
-  fetchByQueryWithScroll
+  fetchByQueryWithScroll,
 } from '@erxes/api-utils/src/elasticsearch';
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 import * as _ from 'underscore';
@@ -12,8 +12,8 @@ export default {
     {
       type: 'conversation',
       description: 'Conversation',
-      esIndex: 'conversations'
-    }
+      esIndex: 'conversations',
+    },
   ],
 
   esTypesMap: async () => {
@@ -22,7 +22,7 @@ export default {
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery }
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
   }) => {
     let ids: string[] = [];
 
@@ -32,7 +32,7 @@ export default {
         index: await getEsIndexByContentType(mainType),
         _source: 'customerId',
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
     }
 
@@ -41,24 +41,19 @@ export default {
         subdomain,
         index: await getEsIndexByContentType(propertyType),
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
 
-      ids = await fetchByQuery({
+      ids = await fetchByQueryWithScroll({
         subdomain,
         index: 'conversations',
-        _source: '_id',
-        positiveQuery: customerIds.map(id => ({
-          match: {
-            customerId: id
-          }
-        })),
-        negativeQuery: []
+        positiveQuery: [{ terms: { 'customerId.keyword': customerIds } }],
+        negativeQuery: [],
       });
     }
 
     ids = _.uniq(ids);
 
     return { data: ids, status: 'success' };
-  }
+  },
 };

@@ -1,7 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
+import { IModels, generateModels } from './connectionResolver';
 
 const MMSTOMINS = 60000;
 
@@ -313,6 +313,7 @@ const returnDateRanges = (
 const chartTemplates = [
   {
     templateType: 'averageFirstResponseTime',
+    serviceType: 'inbox',
     name: 'Average first response time by rep in hours',
     chartTypes: [
       'bar',
@@ -323,7 +324,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const matchfilter = {
         'conversationMessages.internal': false,
         'conversationMessages.content': { $ne: '' },
@@ -341,7 +347,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -356,7 +365,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -373,7 +382,7 @@ const chartTemplates = [
       if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
         const { integrationTypes } = filter;
 
-        const integrations: any = await models?.Integrations.find({
+        const integrations: any = await models.Integrations.find({
           kind: { $in: integrationTypes },
         });
 
@@ -406,7 +415,7 @@ const chartTemplates = [
           }
         : { $exists: true };
 
-      const conversations = await models?.Conversations.aggregate([
+      const conversations = await models.Conversations.aggregate([
         {
           $lookup: {
             from: 'conversation_messages',
@@ -522,7 +531,10 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: Object.keys(usersWithRespondTime) } },
+          query: {
+            _id: { $in: Object.keys(usersWithRespondTime) },
+            isActive: true,
+          },
         },
         isRPC: true,
         defaultValue: [],
@@ -603,9 +615,15 @@ const chartTemplates = [
 
   {
     templateType: 'averageCloseTime',
+    serviceType: 'inbox',
     name: 'Average chat close time by rep in hours',
     chartTypes: ['bar', 'doughnut', 'radar', 'polarArea', 'table'],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const matchfilter = {
         status: /closed/gi,
         closedAt: { $exists: true },
@@ -622,7 +640,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -637,7 +658,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -659,7 +680,7 @@ const chartTemplates = [
       if (filter.integrationTypes && !filter.integrationTypes.includes('all')) {
         const { integrationTypes } = filter;
 
-        const integrations: any = await models?.Integrations.find({
+        const integrations: any = await models.Integrations.find({
           kind: { $in: integrationTypes },
         });
 
@@ -687,7 +708,7 @@ const chartTemplates = [
           }
         : { $exists: true };
 
-      const usersWithClosedTime = await models?.Conversations.aggregate([
+      const usersWithClosedTime = await models.Conversations.aggregate([
         {
           $match: matchfilter,
         },
@@ -722,7 +743,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -801,6 +822,7 @@ const chartTemplates = [
   },
   {
     templateType: 'closedConversationsCountByRep',
+    serviceType: 'inbox',
     name: 'Total closed conversations count by rep',
     chartTypes: [
       'bar',
@@ -811,7 +833,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -838,7 +865,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -852,7 +882,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -896,7 +926,7 @@ const chartTemplates = [
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds = integrations.map((i) => i._id);
 
@@ -910,7 +940,7 @@ const chartTemplates = [
         integrationFindQuery['kind'] = { $in: integrationTypes };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds: string[] = [];
 
@@ -939,7 +969,7 @@ const chartTemplates = [
         },
       };
 
-      const usersWithConvosCount = await models?.Conversations.aggregate([
+      const usersWithConvosCount = await models.Conversations.aggregate([
         {
           $match: matchfilter,
         },
@@ -953,7 +983,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -1047,6 +1077,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByTag',
+    serviceType: 'inbox',
     name: 'Total conversations count by tag',
     chartTypes: [
       'bar',
@@ -1057,7 +1088,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -1105,7 +1141,7 @@ const chartTemplates = [
         },
       };
 
-      const convosCountByTag = await models?.Conversations.aggregate([
+      const convosCountByTag = await models.Conversations.aggregate([
         {
           $match: { ...matchfilter, integrationId: { $exists: true } },
         },
@@ -1147,6 +1183,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountBySource',
+    serviceType: 'inbox',
     name: 'Total conversations count by source',
     chartTypes: [
       'bar',
@@ -1157,7 +1194,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -1195,14 +1237,14 @@ const chartTemplates = [
         }
       }
 
-      const convosCountBySource = await models?.Conversations.aggregate([
+      const convosCountBySource = await models.Conversations.aggregate([
         {
           $match: { ...matchfilter, integrationId: { $exists: true } },
         },
         groupByQuery,
       ]);
 
-      const integrations = await models?.Integrations.find({});
+      const integrations = await models.Integrations.find({});
 
       if (integrations) {
         for (const i of integrations) {
@@ -1259,6 +1301,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByRep',
+    serviceType: 'inbox',
     name: 'Total conversations count by rep',
     chartTypes: [
       'bar',
@@ -1269,7 +1312,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -1292,7 +1340,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -1307,7 +1358,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -1352,7 +1403,7 @@ const chartTemplates = [
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds = integrations.map((i) => i._id);
 
@@ -1366,7 +1417,7 @@ const chartTemplates = [
         integrationFindQuery['kind'] = { $in: integrationTypes };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds: string[] = [];
 
@@ -1418,7 +1469,7 @@ const chartTemplates = [
 
       if (filterStatus === 'unassigned') {
         const totalUnassignedConvosCount =
-          (await models?.Conversations.count(matchfilter)) || 0;
+          (await models.Conversations.count(matchfilter)) || 0;
 
         data.push(totalUnassignedConvosCount);
         labels.push('Total unassigned conversations');
@@ -1426,7 +1477,7 @@ const chartTemplates = [
         return { title, data, labels };
       }
 
-      const usersWithConvosCount = await models?.Conversations.aggregate([
+      const usersWithConvosCount = await models.Conversations.aggregate([
         {
           $match: matchfilter,
         },
@@ -1440,7 +1491,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -1539,6 +1590,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCountByStatus',
+    serviceType: 'inbox',
     name: 'Total conversations count by status',
     chartTypes: [
       'bar',
@@ -1549,7 +1601,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -1583,7 +1640,7 @@ const chartTemplates = [
         integrationFindQuery['kind'] = { $in: integrationTypes };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds: string[] = [];
 
@@ -1602,7 +1659,7 @@ const chartTemplates = [
         },
       };
 
-      const convosCountByStatus = await models?.Conversations.aggregate([
+      const convosCountByStatus = await models.Conversations.aggregate([
         {
           $match: matchfilter,
         },
@@ -1649,6 +1706,7 @@ const chartTemplates = [
   },
   {
     templateType: 'conversationsCount',
+    serviceType: 'inbox',
     name: 'Conversations count',
     chartTypes: [
       'bar',
@@ -1659,7 +1717,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const data: number[] = [];
       const labels: string[] = [];
 
@@ -1690,7 +1753,10 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { departmentIds: { $in: filter.departmentIds } },
+            query: {
+              departmentIds: { $in: filter.departmentIds },
+              isActive: true,
+            },
           },
           isRPC: true,
           defaultValue: [],
@@ -1705,7 +1771,7 @@ const chartTemplates = [
           subdomain,
           action: 'users.find',
           data: {
-            query: { branchIds: { $in: filter.branchIds } },
+            query: { branchIds: { $in: filter.branchIds }, isActive: true },
           },
           isRPC: true,
           defaultValue: [],
@@ -1749,7 +1815,7 @@ const chartTemplates = [
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         const integrationIds = integrations.map((i) => i._id);
 
@@ -1763,7 +1829,7 @@ const chartTemplates = [
         integrationFindQuery['kind'] = { $in: integrationTypes };
 
         const integrations: any =
-          await models?.Integrations.find(integrationFindQuery);
+          await models.Integrations.find(integrationFindQuery);
 
         totalIntegrations = integrations;
 
@@ -1820,7 +1886,7 @@ const chartTemplates = [
 
       if (filterStatus === 'unassigned') {
         const totalUnassignedConvosCount =
-          (await models?.Conversations.count(matchfilter)) || 0;
+          (await models.Conversations.count(matchfilter)) || 0;
 
         data.push(totalUnassignedConvosCount);
         labels.push('Total unassigned conversations');
@@ -1837,7 +1903,7 @@ const chartTemplates = [
           },
         };
 
-        const convosCountByStatus = await models?.Conversations.aggregate([
+        const convosCountByStatus = await models.Conversations.aggregate([
           {
             $match: matchfilter,
           },
@@ -1857,7 +1923,7 @@ const chartTemplates = [
         return datasets;
       }
 
-      const usersWithConvosCount = await models?.Conversations.aggregate([
+      const usersWithConvosCount = await models.Conversations.aggregate([
         {
           $match: matchfilter,
         },
@@ -1871,7 +1937,7 @@ const chartTemplates = [
         subdomain,
         action: 'users.find',
         data: {
-          query: { _id: { $in: getUserIds } },
+          query: { _id: { $in: getUserIds }, isActive: true },
         },
         isRPC: true,
         defaultValue: [],
@@ -2017,14 +2083,14 @@ const chartTemplates = [
           },
         };
 
-        const convosCountBySource = await models?.Conversations.aggregate([
+        const convosCountBySource = await models.Conversations.aggregate([
           {
             $match: { ...matchfilter, integrationId: { $exists: true } },
           },
           groupByQuery,
         ]);
 
-        const integrations = await models?.Integrations.find({});
+        const integrations = await models.Integrations.find({});
 
         if (integrations) {
           for (const i of integrations) {
@@ -2089,7 +2155,7 @@ const chartTemplates = [
           brandsMap[brand._id] = brand.name;
         }
 
-        const convosCountBySource = await models?.Conversations.aggregate([
+        const convosCountBySource = await models.Conversations.aggregate([
           {
             $match: { ...matchfilter, integrationId: { $exists: true } },
           },
@@ -2107,7 +2173,7 @@ const chartTemplates = [
           }
 
           const ingegrations =
-            (await models?.Integrations.find({
+            (await models.Integrations.find({
               _id: { $in: convosCountBySource.map((c) => c._id) },
             })) || [];
 
@@ -2162,7 +2228,7 @@ const chartTemplates = [
           },
         };
 
-        const convosCountByTag = await models?.Conversations.aggregate([
+        const convosCountByTag = await models.Conversations.aggregate([
           {
             $match: { ...matchfilter, integrationId: { $exists: true } },
           },
@@ -2185,7 +2251,7 @@ const chartTemplates = [
       // frequency
       if (dimensionX === 'frequency') {
         const convosCountByDateRange =
-          (await models?.Conversations.find(matchfilter)) || [];
+          (await models.Conversations.find(matchfilter)) || [];
 
         if (dateRange) {
           if (dateRange === 'today' || dateRange === 'yesterday') {
@@ -2209,7 +2275,7 @@ const chartTemplates = [
           );
 
           const convosCountByGivenDateRanges =
-            await models?.Conversations.aggregate([
+            await models.Conversations.aggregate([
               // Match documents within the specified date ranges
               {
                 $match: {
@@ -2365,12 +2431,13 @@ const chartTemplates = [
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
+  const models = await generateModels(subdomain);
   const { templateType, filter, dimension } = data;
 
   const template =
     chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(filter, dimension, subdomain);
+  return template.getChartResult(models, filter, dimension, subdomain);
 };
 
 export default {

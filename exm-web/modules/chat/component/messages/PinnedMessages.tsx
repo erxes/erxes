@@ -1,27 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { currentUserAtom } from "@/modules/JotaiProiveder"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import { ChevronRight, MessageCircle } from "lucide-react"
+import { useAtomValue } from "jotai"
+import { ArrowLeft, MessageCircle } from "lucide-react"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 
+import useChatsMutation from "../../hooks/useChatsMutation"
 import { usePinnedChats } from "../../hooks/usePinnedChats"
 import MessageAttachmentSection from "./MessageAttachment"
 
 dayjs.extend(relativeTime)
 
-export const PinnedMessages = () => {
+export const PinnedMessages = ({
+  setScreen,
+}: {
+  setScreen: (type: string) => void
+}) => {
   const { chatPinnedMessages } = usePinnedChats()
-  const [open, setOpen] = useState(false)
+  const currentUser = useAtomValue(currentUserAtom)
+
+  const { pinMessage } = useChatsMutation({
+    callBack: (result: string) => {},
+  })
 
   const messageContent = (text: string) => {
     const urlRegex =
@@ -49,12 +52,23 @@ export const PinnedMessages = () => {
           return null
         }
 
+        const isMe = currentUser?._id === message.createdUser._id
+
         return (
-          <div className="bg-[#F0F0F0] p-3 rounded-lg rounded-tl-none w-fit max-w-[396px]">
+          <div className="flex justify-between">
             <div
-              dangerouslySetInnerHTML={{ __html: messageContent(content) || "" }}
-              className=" truncate whitespace-wrap"
-            />
+              className={`${isMe ? "bg-[#F9FAFB]" : "bg-[#2970FF]"} ${
+                !isMe && "text-white"
+              } p-2 rounded-lg w-fit border border-exm`}
+            >
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: messageContent(content) || "",
+                }}
+                className="truncate whitespace-wrap"
+              />
+            </div>
+            <div onClick={() => pinMessage(message._id)} />
           </div>
         )
       }
@@ -62,8 +76,8 @@ export const PinnedMessages = () => {
       return (
         <div key={_id} className="mb-5">
           <div className="flex mb-4">
-            <div className="items-end flex mr-3">
-              <div className="w-12 h-12 rounded-full relative">
+            <div className="items-start mt-8 flex mr-1">
+              <div className="w-10 h-10 rounded-full relative">
                 <Image
                   src={
                     (createdUser && createdUser.details?.avatar) ||
@@ -72,13 +86,12 @@ export const PinnedMessages = () => {
                   alt="avatar"
                   width={60}
                   height={60}
-                  className="w-12 h-12 rounded-full object-cover border border-primary"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
-                <div className="indicator bg-success-foreground w-3 h-3 rounded-full border border-white mr-1 absolute bottom-0 right-0" />
               </div>
             </div>
-            <div className={`text-[#444] w-full`}>
-              <div className="flex justify-between">
+            <div className={`text-[#444] w-[calc(100%-45px)]`}>
+              <div className="flex justify-between items-center mb-2">
                 <p className="w-4/5 truncate text-base">
                   {createdUser?.details.fullName || createdUser?.email}
                 </p>
@@ -86,37 +99,31 @@ export const PinnedMessages = () => {
                   {createdAt && dayjs(createdAt).format("MMM D")}
                 </p>
               </div>
-              <p className="text-xs">({createdUser?.details.position})</p>
+              {renderContent()}
+              {attachments && attachments.length > 0 && (
+                <MessageAttachmentSection
+                  attachments={attachments}
+                  isPinned={true}
+                />
+              )}
             </div>
           </div>
-          {renderContent()}
-          {attachments && attachments.length > 0 && (
-            <MessageAttachmentSection attachments={attachments} isPinned={true} />
-          )}
         </div>
       )
     })
   }
 
   return (
-    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-      <DialogTrigger asChild={true}>
-        <div className="flex justify-between cursor-pointer text-black text-sm my-7">
-          View pinned messages
-          <ChevronRight size={18} />
-        </div>
-      </DialogTrigger>
-
-      <DialogContent className="p-0 gap-0 max-w-md">
-        <DialogHeader className="border-b p-4">
-          <DialogTitle className="flex justify-around">
-            Pinned messages
-          </DialogTitle>
-        </DialogHeader>
-        <div className="px-[25px] pt-[25px] max-h-[60vh] overflow-y-auto">
-          {renderPinnedMessages()}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <div
+        className="flex text-[#475467] font-medium text-base items-center gap-3 mb-5 cursor-pointer"
+        onClick={() => setScreen("main")}
+      >
+        <ArrowLeft size={18} color="#475467" /> Pinned chats
+      </div>
+      <div className="overflow-y-auto max-h-[calc(100%-90px)]">
+        {renderPinnedMessages()}
+      </div>
+    </>
   )
 }

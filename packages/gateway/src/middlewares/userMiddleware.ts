@@ -21,6 +21,8 @@ export default async function userMiddleware(
   _res: Response,
   next: NextFunction,
 ) {
+  // this is important for security reasons
+  delete req.headers['user'];
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 

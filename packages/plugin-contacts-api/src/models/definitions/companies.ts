@@ -147,7 +147,8 @@ export const companySchema = schemaWrapper(
       optional: true,
       label: 'Status',
       esType: 'keyword',
-      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES
+      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES,
+      index: true,
     }),
 
     businessType: field({

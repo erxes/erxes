@@ -10,13 +10,14 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PolarisData from '../polaris';
 
 const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 const ActivityLogs = asyncComponent(
@@ -24,7 +25,7 @@ const ActivityLogs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    )
+    ),
 );
 
 type Props = {
@@ -51,12 +52,12 @@ class ContractDetails extends React.Component<Props, State> {
     this.state = {
       amount: contract.amount || {},
       collateralsData: contract.collaterals
-        ? contract.collaterals.map(p => ({ ...p }))
+        ? contract.collaterals.map((p) => ({ ...p }))
         : [],
       // collecting data for ItemCounter component
       collaterals: contract.collaterals
-        ? contract.collaterals.map(p => p.collateral)
-        : []
+        ? contract.collaterals.map((p) => p.collateral)
+        : [],
     };
   }
 
@@ -71,7 +72,7 @@ class ContractDetails extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
-      { title }
+      { title },
     ];
 
     const content = (
@@ -92,10 +93,11 @@ class ContractDetails extends React.Component<Props, State> {
           contentId={contract._id}
           contentType="savingContract"
           extraTabs={[
-            { name: 'savings:interestStore', label: 'Interest store' }
+            { name: 'savings:interestStore', label: 'Interest store' },
           ]}
           activityRenderItem={ActivityItem}
         />
+        {isEnabled('syncpolaris') && <PolarisData contract={contract} />}
       </>
     );
 

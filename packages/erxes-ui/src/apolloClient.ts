@@ -2,7 +2,7 @@ import {
   createHttpLink,
   from,
   ApolloClient,
-  InMemoryCache
+  InMemoryCache,
 } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
@@ -19,7 +19,7 @@ const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
-  credentials: 'include'
+  credentials: 'include',
 });
 
 // Error handler
@@ -37,13 +37,12 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      sessioncode: sessionStorage.getItem('sessioncode') || ''
-    }
+      sessioncode: sessionStorage.getItem('sessioncode') || '',
+    },
   };
 });
 
 // Combining httpLink and warelinks altogether
-// const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
 const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
@@ -52,9 +51,9 @@ export const wsLink: any = new GraphQLWsLink(
     url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
     retryAttempts: 1000,
     retryWait: async () => {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-  })
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    },
+  }),
 );
 
 type Definintion = {
@@ -70,7 +69,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLinkWithMiddleware
+  httpLinkWithMiddleware,
 );
 
 const typePolicies = {};
@@ -81,11 +80,11 @@ addMergeKeyfieldPolicy(typePolicies, noIdNestedTypes);
 const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies,
-    addTypename: true
+    addTypename: true,
   }),
   queryDeduplication: true,
   link,
-  connectToDevTools: true
+  connectToDevTools: true,
 });
 
 export default client;

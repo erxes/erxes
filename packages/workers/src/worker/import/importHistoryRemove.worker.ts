@@ -1,25 +1,20 @@
-import * as mongoose from 'mongoose';
 import {
   removeCompanies,
   removeCustomers,
   removeDeals,
   removeTasks,
   removeTickets,
-  removePurchases
+  removePurchases,
 } from '../../messageBroker';
-
-import { connect } from '../utils';
 import { removeProducts } from '../../messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
 
-connect()
-  .then(async () => {
+async function main() {
+  try {
     const { result, contentType, subdomain } = workerData;
-
     const type = contentType.split(':')[1];
-
     switch (type) {
       case 'company':
         await removeCompanies(subdomain, result);
@@ -49,18 +44,16 @@ connect()
         break;
     }
 
-    mongoose.connection.close();
-
     parentPort.postMessage({
       action: 'remove',
-      message: 'Successfully finished the job'
+      message: 'Successfully finished the job',
     });
-  })
-  .catch(e => {
-    mongoose.connection.close();
-
+  } catch (e) {
     parentPort.postMessage({
       action: 'remove',
-      message: `Finished job with error ${e.message}`
+      message: `Finished job with error ${e.message}`,
     });
-  });
+  }
+}
+
+main();

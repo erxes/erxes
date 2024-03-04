@@ -119,10 +119,130 @@ const editIntegration = async (
   return updated;
 };
 
+interface IOnboardingPrams {
+  brandName: string;
+  logo?: string;
+  color?: string;
+  name: string;
+}
+
+interface IOnboardingPramsEdit extends IOnboardingPrams {
+  _id: string;
+  brandId: string;
+}
+
 const integrationMutations = {
+  /**
+   * Creates a new messenger onboarding
+   */
+  async integrationsCreateMessengerOnboarding(
+    _root,
+    doc: IOnboardingPramsEdit,
+    { user, models, subdomain }: IContext,
+  ) {
+    const integrationsCount = await models.Integrations.find({}).count();
+
+    if (integrationsCount > 0) {
+      return models.Integrations.findOne();
+    }
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.create',
+      data: { name: doc.brandName },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    let channel = await models.Channels.findOne({
+      name: 'Default channel',
+    });
+
+    if (!channel) {
+      channel = await models.Channels.createChannel(
+        { name: 'Default channel', memberIds: [user._id] },
+        user._id,
+      );
+    }
+
+    const integrationDocs = {
+      name: 'Default brand',
+      channelIds: [channel._id],
+      brandId: brand._id,
+      messengerData: {},
+    } as IIntegration;
+
+    const integration = await models.Integrations.createMessengerIntegration(
+      integrationDocs,
+      user._id,
+    );
+
+    const uiOptions = { ...doc };
+
+    await models.Integrations.saveMessengerAppearanceData(
+      integration._id,
+      uiOptions,
+    );
+
+    return createIntegration(
+      models,
+      subdomain,
+      integrationDocs,
+      integration,
+      user,
+      'messenger',
+    );
+  },
+
+  async integrationsEditMessengerOnboarding(
+    _root,
+    { _id, brandId, ...fields }: IOnboardingPramsEdit,
+    { user, models, subdomain }: IContext,
+  ) {
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.updateOne',
+      data: { _id: brandId, fields: { name: fields.brandName } },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    const integration = await models.Integrations.getIntegration({ _id });
+    const channel = await models.Channels.findOne({
+      name: 'Default channel',
+    });
+
+    const integrationDocs = {
+      name: 'Default brand',
+      brandId: brand._id,
+      channelIds: [channel?._id],
+    } as IIntegration;
+
+    const updated = await models.Integrations.updateMessengerIntegration(
+      _id,
+      integrationDocs,
+    );
+
+    const uiOptions = { logo: fields.logo, color: fields.color };
+
+    await models.Integrations.saveMessengerAppearanceData(
+      updated._id,
+      uiOptions,
+    );
+
+    return editIntegration(
+      subdomain,
+      integrationDocs,
+      integration,
+      user,
+      updated,
+      models,
+    );
+  },
+
   /**
    * Creates a new messenger integration
    */
+
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,

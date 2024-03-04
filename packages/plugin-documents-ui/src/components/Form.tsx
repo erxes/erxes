@@ -3,7 +3,7 @@ import {
   Form as CommonForm,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 
 import RichTextEditor from '../containers/RichTextEditor';
@@ -52,7 +52,7 @@ class Form extends React.Component<Props, State> {
       name,
       content,
       replacer,
-      subType
+      subType,
     });
   };
 
@@ -112,7 +112,7 @@ class Form extends React.Component<Props, State> {
             {...formProps}
           >
             <option key="" value="" />
-            {(subTypes || []).map(e => (
+            {(subTypes || []).map((e) => (
               <option key={e} value={e}>
                 {e}
               </option>

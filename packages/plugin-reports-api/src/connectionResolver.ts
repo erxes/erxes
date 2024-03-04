@@ -5,7 +5,7 @@ import {
   IChartModel,
   IReportModel,
   loadChartClass,
-  loadReportClass
+  loadReportClass,
 } from './models/Reports';
 import { IChartDocument, IReportDocument } from './models/definitions/reports';
 
@@ -19,25 +19,20 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Reports = db.model<IReportDocument, IReportModel>(
     'report',
-    loadReportClass(models)
+    loadReportClass(models),
   );
 
   models.Charts = db.model<IChartDocument, IChartModel>(
     'report_chart',
-    loadChartClass(models)
+    loadChartClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

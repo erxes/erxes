@@ -6,7 +6,7 @@ export const outcomeSaving = async (subdomain, params) => {
 
   const savingContract = await getSavingContract(
     subdomain,
-    savingTransactionParams.savingContractId,
+    savingTransactionParams.contractId,
   );
 
   if (!savingContract) {

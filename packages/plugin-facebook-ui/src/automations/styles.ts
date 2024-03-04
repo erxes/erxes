@@ -7,10 +7,27 @@ import styledTS from 'styled-components-ts';
 
 export const Container = styled.div`
   padding: 10px 0;
+
+  .dropdown-item {
+    > a {
+      color: ${colors.colorCoreGray};
+    }
+  }
+
+  .dropdown-item:active {
+    background-color: ${colors.colorShadowGray};
+    color: ${colors.colorLightGray};
+  }
 `;
 
 export const Padding = styled.div`
   padding: 10px;
+`;
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 export const Wrapper = styled(DrawerDetail)`

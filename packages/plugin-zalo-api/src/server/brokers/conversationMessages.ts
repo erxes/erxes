@@ -11,6 +11,7 @@ import {
 import { zaloSend } from '../../zalo';
 import { generateAttachmentUrl } from '../../utils';
 import {
+  RPResult,
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
@@ -37,7 +38,9 @@ export const conversationMessagesBroker = () => {
       const { action, type, payload } = data;
       const doc = JSON.parse(payload || '{}');
 
-      let response: any = null;
+      let response: RPResult = {
+        status: 'success',
+      };
 
       if (type !== 'zalo') {
         return {
@@ -163,10 +166,9 @@ export const conversationMessagesBroker = () => {
         );
 
         response = {
+          status: 'success',
           data: localMessage.toObject(),
         };
-
-        response.status = 'success';
       } catch (e) {
         response = {
           status: 'error',

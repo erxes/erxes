@@ -15,8 +15,6 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import * as cookieParser from 'cookie-parser';
 
 import * as http from 'http';
-
-import { connect } from './connection';
 import { debugInfo, debugError, initDebuggers } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
@@ -250,11 +248,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   console.log(
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
-
-  const mongoUrl = MONGO_URL || '';
-
-  // connect to mongo database
-  const db = await connect(mongoUrl);
 
   await initBroker(configs.reconnectRMQ);
 
@@ -633,14 +626,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   await join({
     name: configs.name,
     port: PORT || '',
-    dbConnectionString: mongoUrl,
     hasSubscriptions: configs.hasSubscriptions,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta,
   });
 
   configs.onServerInit({
-    db,
     debug: {
       info: debugInfo,
       error: debugError,

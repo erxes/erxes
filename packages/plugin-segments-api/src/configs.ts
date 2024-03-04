@@ -7,7 +7,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'segments',
@@ -30,7 +29,6 @@ export default {
   onServerInit: async (options) => {
     initBroker();
 
-    mainDb = options.db;
     debug = options.debug;
   },
   meta: { permissions },

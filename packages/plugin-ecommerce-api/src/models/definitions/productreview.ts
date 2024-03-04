@@ -5,6 +5,8 @@ export interface IProductreview {
   productId: string;
   customerId: string;
   review: number;
+  description: string;
+  info: any;
 }
 
 export interface IProductreviewDocument extends IProductreview, Document {
@@ -18,6 +20,8 @@ export const productreviewSchema = new Schema({
   productId: field({ type: String, label: 'Product' }),
   customerId: field({ type: String, label: 'Customer' }),
   review: field({ type: Number, label: 'Review' }),
+  description: field({ type: String, label: 'Description' }),
+  info: field({ type: Object, label: 'Info' }),
   createdAt: field({ type: Date, label: 'Created Date' }),
-  modifiedAt: field({ type: Date, label: 'Modified Date' })
+  modifiedAt: field({ type: Date, label: 'Modified Date' }),
 });
