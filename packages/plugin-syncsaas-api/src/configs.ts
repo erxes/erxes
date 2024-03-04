@@ -30,4 +30,5 @@ export default {
   onServerInit: async (options) => {
     initBroker();
   },
+  setupMessageConsumers,
 };

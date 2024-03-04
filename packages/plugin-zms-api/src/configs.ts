@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: 'zms',
@@ -17,6 +17,6 @@ export default {
   },
 
   onServerInit: async () => {
-    initBroker();
   },
+  setupMessageConsumers,
 };

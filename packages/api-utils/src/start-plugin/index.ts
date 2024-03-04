@@ -12,7 +12,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import * as cookieParser from 'cookie-parser';
 import { debugInfo, debugError } from '../debuggers';
 import * as http from 'http';
-import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
+import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
@@ -235,7 +235,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
-  await initBroker(configs.reconnectRMQ);
+  await connectToMessageBroker(configs.setupMessageConsumers);
 
   if (configs.meta) {
     const {
