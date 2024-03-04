@@ -5,6 +5,7 @@ export interface IRouterProps {
   history: any;
   location: any;
   match: any;
+  navigate: any;
 }
 
 export interface IAttachment {
