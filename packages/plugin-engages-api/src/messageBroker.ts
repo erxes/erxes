@@ -9,7 +9,7 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 

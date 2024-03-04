@@ -6,7 +6,7 @@ import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs';
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import tags from './tags';
 import forms from './forms';
@@ -32,8 +32,8 @@ export default {
     return context;
   },
   onServerInit: async () => {
-    initBroker();
   },
+  setupMessageConsumers,
   meta: {
     afterMutations,
     tags,

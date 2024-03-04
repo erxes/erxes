@@ -13,7 +13,7 @@ import { receiveTrigger } from './utils';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
     debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 

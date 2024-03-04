@@ -5,7 +5,7 @@ import * as bodyParser from 'body-parser';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import { debugBase } from './debuggers';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
@@ -42,7 +42,6 @@ export default {
       debugBase(`Error: ${msg}`);
       res.status(500).send(msg);
     });
-
-    initBroker();
   },
+  setupMessageConsumers,
 };
