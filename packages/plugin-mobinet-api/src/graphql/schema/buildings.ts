@@ -48,6 +48,7 @@ enum ServiceStatus {
   active
   inactive
   inprogress
+  unavailable
 }
 
 enum NetworkType {

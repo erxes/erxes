@@ -25,10 +25,11 @@ type Props = {
   suhTagId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  buildings?: IBuilding[];
 };
 
 const BuildingForm = (props: Props) => {
-  const { building } = props;
+  const { building, buildings } = props;
 
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>(
@@ -99,7 +100,32 @@ const BuildingForm = (props: Props) => {
     if (buildingObject && map) {
       map.highlight((feature) => {
         if (feature.id === buildingObject.osmbId) {
-          return getBuildingColor(buildingObject.serviceStatus);
+          return '#00bbff';
+        }
+      });
+    }
+    console.log('buildingObject', buildingObject);
+    if (buildings && buildings.length > 0 && map) {
+      map.highlight((feature: { id: string | undefined }) => {
+        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
+        const isCurrent = osmBuilding?.id === feature.id;
+
+        if (foundBuilding) {
+          switch (foundBuilding.serviceStatus) {
+            case 'active':
+              return '#ff0000';
+            case 'inactive':
+              return '#00bbff';
+            case 'inprogress':
+              return '#ffcc00';
+            case 'unavailable':
+              return '#00ff00';
+            default:
+              break;
+          }
+        }
+        if (isCurrent) {
+          return '#00bbff';
         }
       });
     }
@@ -235,6 +261,7 @@ const BuildingForm = (props: Props) => {
       style: { height: '300px', width: '100%' },
       selectedValues,
       onload,
+      buildings: props.buildings,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -322,11 +349,13 @@ const BuildingForm = (props: Props) => {
             name="serviceStatus"
             onChange={onChangeInput}
           >
-            {['inactive', 'active', 'inprogress'].map((p, index) => (
-              <option key={index} value={p}>
-                {p}
-              </option>
-            ))}
+            {['inactive', 'active', 'inprogress', 'unavailable'].map(
+              (p, index) => (
+                <option key={index} value={p}>
+                  {p}
+                </option>
+              ),
+            )}
           </FormControl>
         </FormGroup>
 

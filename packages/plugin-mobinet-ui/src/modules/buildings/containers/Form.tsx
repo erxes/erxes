@@ -6,6 +6,7 @@ import BuildingForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { queries as cityQueries } from '../../cities/graphql';
 import { queries as districtQueries } from '../../districts/graphql';
+import { queries as buildingtQueries } from '../../buildings/graphql';
 import { IBuilding } from '../types';
 import { CityByCoordinateQueryResponse } from '../../cities/types';
 import { ICoordinates } from '../../../types';
@@ -17,6 +18,7 @@ type Props = {
   center?: ICoordinates;
   closeModal: () => void;
   refetch: () => void;
+  buildings?: IBuilding[];
 };
 
 const BuildingFormContainer = (props: Props) => {
