@@ -698,6 +698,14 @@ span.red {
   background-image: linear-gradient(to top, #000, #f3204c);
 }
 
+// make modal responsive and size is equal to device width and height
+.minupay-modal {
+  background-image: linear-gradient(to top, #1f6f6d, #33a4a3);
+  width: 100%;
+  height: 100%;
+
+}
+
 .modal-header .close {
     color: #fff;
     opacity: 1;
