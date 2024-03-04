@@ -464,32 +464,37 @@ export const sendMessage = async (
   }
 };
 
-type ReconnectCallback = () => any;
+export type SetupMessageConsumers = () => any;
 
-const connect = async (reconnectCallback?: ReconnectCallback) => {
-  const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
-    noDelay: true,
-  });
-  con.once('close', () => {
-    con.removeAllListeners();
-    console.log('RabbitMQ connection is closing.');
-    reconnect(reconnectCallback);
-  });
-  con.once('error', (e) => {
-    console.error('RabbitMQ connection error:', e);
-    con.close();
-  });
+export const connectToMessageBroker = async (setupMessageConsumers: SetupMessageConsumers) => {
+  const firstReconnectInterval = 5000;
+  const maxRetryInterval = 1 * 24 * 60 * 60 * 1000;
+  const connect = async () => {
+    const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
+      noDelay: true,
+    });
+    con.once('close', () => {
+      con.removeAllListeners();
+      console.log('RabbitMQ connection is closing.');
+      connectToMessageBroker(setupMessageConsumers);
+    });
+    con.once('error', (e) => {
+      console.error('RabbitMQ connection error:', e);
+      con.close();
+    });
+  
+    channel = await con.createChannel();
+    await setupMessageConsumers();
+    console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
+  }
 
-  channel = await con.createChannel();
-  console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
-};
-
-const reconnect = async (reconnectCallback?: ReconnectCallback) => {
   channel = undefined;
-  let reconnectInterval = 5000;
+  let reconnectInterval = firstReconnectInterval;
+
   while (true) {
     try {
-      await connect(reconnectCallback);
+      await connect();
+      reconnectInterval = firstReconnectInterval;
       break;
     } catch (e) {
       console.error(
@@ -501,14 +506,7 @@ const reconnect = async (reconnectCallback?: ReconnectCallback) => {
       await new Promise<void>((resolve) =>
         setTimeout(resolve, reconnectInterval),
       );
-      reconnectInterval = reconnectInterval * 2;
+      reconnectInterval =  Math.min(maxRetryInterval,  reconnectInterval * 2);
     }
   }
-  reconnectCallback && (await reconnectCallback());
-};
-
-export const init = async (
-  reconnectCallback?: ReconnectCallback,
-): Promise<void> => {
-  await connect(reconnectCallback);
 };

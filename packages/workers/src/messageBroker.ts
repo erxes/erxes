@@ -3,7 +3,7 @@ import {
   sendRPCMessage,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   await initBrokerCore();
 };
 

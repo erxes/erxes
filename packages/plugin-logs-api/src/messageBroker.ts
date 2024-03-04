@@ -38,7 +38,7 @@ const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
   return enabled && hasMeta;
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
