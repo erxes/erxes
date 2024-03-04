@@ -15,10 +15,11 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // import { withRouter } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   fields: any[];
   loading: boolean;
@@ -26,9 +27,11 @@ interface IProps extends IRouterProps {
 }
 
 function DateFilters(props: IProps) {
-  const { history, fields, loading, emptyText } = props;
+  const { fields, loading, emptyText } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const { dateFilters = '{}' } = queryString.parse(props.location.search);
+  const { dateFilters = '{}' } = queryString.parse(location.search);
 
   const [filterParams, setFilterParams] = useState(JSON.parse(dateFilters));
 
@@ -37,12 +40,12 @@ function DateFilters(props: IProps) {
   }, [dateFilters]);
 
   const onRemove = () => {
-    router.removeParams(history, 'dateFilters');
+    router.removeParams(navigate, location, 'dateFilters');
   };
 
   const extraButtons = (
     <>
-      {router.getParam(history, 'dateFilters') && (
+      {router.getParam(location, 'dateFilters') && (
         <a href="#" tabIndex={0} onClick={onRemove}>
           <Icon icon="times-circle" />
         </a>
@@ -66,9 +69,11 @@ function DateFilters(props: IProps) {
   };
 
   const onChangeFilters = () => {
-    router.setParams(history, { dateFilters: JSON.stringify(filterParams) });
+    router.setParams(navigate, location, {
+      dateFilters: JSON.stringify(filterParams),
+    });
 
-    router.removeParams(history, 'page');
+    router.removeParams(location, 'page');
   };
 
   const data = (

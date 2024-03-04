@@ -6,42 +6,42 @@ import { colors } from '../styles';
 
 const types = {
   default: {
-    color: colors.colorSecondary
+    color: colors.colorSecondary,
   },
   primary: {
-    color: colors.colorPrimary
+    color: colors.colorPrimary,
   },
   success: {
-    color: colors.colorCoreGreen
+    color: colors.colorCoreGreen,
   },
   danger: {
-    color: colors.colorCoreRed
+    color: colors.colorCoreRed,
   },
   warning: {
-    color: colors.colorCoreYellow
+    color: colors.colorCoreYellow,
   },
   simple: {
-    color: colors.colorCoreLightGray
-  }
+    color: colors.colorCoreLightGray,
+  },
 };
 
-const Text = styledTS<{ textStyle: string; hugeness: string }>(styled.span)`
+const Text = styledTS<{ $textStyle: string; hugeness: string }>(styled.span)`
   text-transform: uppercase;
-  font-size: ${props => (props.hugeness !== 'small' ? '14px' : '10px')};
+  font-size: ${(props) => (props.hugeness !== 'small' ? '14px' : '10px')};
   font-weight: bold;
-  color: ${props => types[props.textStyle || 'default'].color}
+  color: ${(props) => types[props.$textStyle || 'default'].color}
 `;
 
 type Props = {
   children: React.ReactNode | string;
   ignoreTrans?: boolean;
-  textStyle?: string;
+  $textStyle?: string;
   hugeness?: string;
 };
 
 const defaultProps = {
-  textStyle: 'default',
-  hugeness: 'small'
+  $textStyle: 'default',
+  hugeness: 'small',
 };
 
 class TextInfo extends React.PureComponent<Props> {

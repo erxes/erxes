@@ -82,7 +82,7 @@ class FormControl extends React.Component<Props> {
 
   render() {
     const props = this.props;
-    const childNode = props.children;
+    const childnode = props.children;
     const elementType = props.componentClass;
     const errorMessage = props.errors && props.errors[props.name || ''];
 
@@ -149,7 +149,7 @@ class FormControl extends React.Component<Props> {
       return (
         <Column>
           <SelectWrapper $hasError={errorMessage}>
-            <Select {...attributes}>{childNode}</Select>
+            <Select {...attributes}>{childnode}</Select>
           </SelectWrapper>
           {errorMessage}
         </Column>
@@ -163,12 +163,12 @@ class FormControl extends React.Component<Props> {
             Radio,
             { key: index, ...attributes, ...option },
             elementType,
-            option.childNode,
+            option.childnode,
           );
         });
       }
 
-      return renderElement(Radio, attributes, elementType, childNode);
+      return renderElement(Radio, attributes, elementType, childnode);
     }
 
     if (elementType === 'poll') {
@@ -181,7 +181,7 @@ class FormControl extends React.Component<Props> {
           return (
             <Progress key={attributes.key ? attributes.key : null}>
               <div>
-                {renderElement(Radio, attributes, elementType, childNode)}
+                {renderElement(Radio, attributes, elementType, childnode)}
                 <b>{option}: </b>
                 <span>({percentage.toFixed(2)}%)</span>
               </div>
@@ -195,7 +195,7 @@ class FormControl extends React.Component<Props> {
     }
 
     if (elementType === 'checkbox') {
-      return renderElement(Checkbox, attributes, elementType, childNode);
+      return renderElement(Checkbox, attributes, elementType, childnode);
     }
 
     if (elementType === 'textarea') {

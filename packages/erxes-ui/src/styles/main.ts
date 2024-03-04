@@ -593,6 +593,11 @@ const DialogContent = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
+
+  .dialog-description {
+    padding: 20px 30px 30px;
+    margin: 0;
+  }
 `;
 
 const DialogWrapper = styled.div`

@@ -8,7 +8,7 @@ import { __, router } from 'coreui/utils';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
+import React, { useEffect } from 'react';
 // import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -21,15 +21,18 @@ function IntegrationFilter({ counts, integrationsGetUsedTypes }: IProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    router.removeParams(navigate, location, 'page');
+  }, [location.search]);
+
   const onClick = (kind) => {
     router.setParams(navigate, location, { integrationType: kind });
-    router.removeParams(navigate, location, 'page');
   };
 
   const data = (
     <SidebarList capitalize={true}>
       {integrationsGetUsedTypes.map((kind) => (
-        <li key={kind._id}>
+        <li key={Math.random()}>
           <a
             href="#filter"
             tabIndex={0}
@@ -38,7 +41,7 @@ function IntegrationFilter({ counts, integrationsGetUsedTypes }: IProps) {
                 ? 'active'
                 : ''
             }
-            onClick={onClick.bind(null, kind._id)}
+            onClick={() => onClick(kind._id)}
           >
             <FieldStyle>{kind.name}</FieldStyle>
             <SidebarCounter>{counts[kind._id] || 0}</SidebarCounter>

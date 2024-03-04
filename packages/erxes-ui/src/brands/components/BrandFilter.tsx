@@ -4,8 +4,7 @@ import { __, router } from '../../utils';
 import Box from '../../components/Box';
 import DataWithLoader from '../../components/DataWithLoader';
 import { IBrand } from '../../brands/types';
-import { IRouterProps } from '../../types';
-import React from 'react';
+import React, { useEffect } from 'react';
 // import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -20,12 +19,15 @@ function Brands({ counts, brands, loading, emptyText }: IProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    router.removeParams(navigate, location, 'page');
+  }, [location.search]);
+
   const data = (
     <SidebarList>
       {brands.map((brand) => {
         const onClick = () => {
           router.setParams(navigate, location, { brand: brand._id });
-          router.removeParams(navigate, location, 'page');
         };
 
         return (

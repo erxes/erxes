@@ -132,49 +132,49 @@ const ModalTrigger: React.FC<Props> = ({
       {triggerComponent}
 
       {isOpen && (
-        // <Transition appear show={true} as={Fragment}>
-        <Dialog
-          open={true}
-          as="div"
-          className="relative z-10"
-          onClose={closeModal}
-          // dialogClassName={dialogClassName}
-          // size={size}
-          // show={isOpen}
-          // onHide={onHideHandler}
-          // backdrop={backDrop}
-          // enforceFocus={enforceFocus}
-          // onExit={onExit}
-          // animation={isAnimate}
-          // centered={centered}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+        <Transition appear show={true} as={Fragment}>
+          <Dialog
+            open={true}
+            as="div"
+            className="relative z-10"
+            onClose={closeModal}
+            // dialogClassName={dialogClassName}
+            // size={size}
+            // show={isOpen}
+            // onHide={onHideHandler}
+            // backdrop={backDrop}
+            // enforceFocus={enforceFocus}
+            // onExit={onExit}
+            // animation={isAnimate}
+            // centered={centered}
           >
-            <ModalOverlay />
-          </Transition.Child>
-          <DialogWrapper>
-            <DialogContent>
-              <Dialog.Panel className={paddingContent}>
-                <Dialog.Title as="h3">
-                  {ignoreTrans ? title : __(title)}
-                </Dialog.Title>
-                <Transition.Child>
-                  <Dialog.Description className="dialog-description">
-                    {content({ closeModal })}
-                  </Dialog.Description>
-                </Transition.Child>
-              </Dialog.Panel>
-            </DialogContent>
-          </DialogWrapper>
-        </Dialog>
-        // </Transition>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <ModalOverlay />
+            </Transition.Child>
+            <DialogWrapper>
+              <DialogContent>
+                <Dialog.Panel className={paddingContent}>
+                  <Dialog.Title as="h3">
+                    {ignoreTrans ? title : __(title)}
+                  </Dialog.Title>
+                  <Transition.Child>
+                    <div className="dialog-description">
+                      {content({ closeModal })}
+                    </div>
+                  </Transition.Child>
+                </Dialog.Panel>
+              </DialogContent>
+            </DialogWrapper>
+          </Dialog>
+        </Transition>
       )}
     </>
   );

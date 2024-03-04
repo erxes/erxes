@@ -20,7 +20,7 @@ function ControlLabel(props: Props) {
   }
 
   return (
-    <Label uppercase={uppercase}>
+    <Label $uppercase={uppercase}>
       {content}
       {required && <span> *</span>}
     </Label>
