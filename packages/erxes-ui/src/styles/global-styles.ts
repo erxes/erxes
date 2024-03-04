@@ -368,6 +368,14 @@ a:hover {
   margin: 0;
 }
 
+.dialog-size-lg {
+  min-width: 800px;
+}
+
+.dialog-size-xl {
+  min-width: 1150px;
+}
+
 /* tooltip */
 
 .tooltip {

@@ -12,11 +12,11 @@ import { __, router } from '../utils/core';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import Icon from './Icon';
-// import { Transition } from 'react-transition-group';
 import queryString from 'query-string';
 
 type Props = {
   title: string;
+  as?: string | any;
   trigger?: React.ReactNode;
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
@@ -39,62 +39,61 @@ const ModalTrigger: React.FC<Props> = ({
   trigger,
   autoOpenKey,
   content,
-  size,
+  as = 'div',
+  size = 'sm',
   dialogClassName,
-  backDrop,
   enforceFocus,
   hideHeader,
   isOpen: propIsOpen,
   addisOpenToQueryParam,
   paddingContent,
-  centered,
   onExit,
   ignoreTrans,
-  isAnimate = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(propIsOpen || false);
-  const [autoOpenKeyState, setAutoOpenKey] = useState('');
-  // const history = {} as any;
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isOpen, setIsOpen] = useState(propIsOpen || false);
+  const [autoOpenKeyState, setAutoOpenKey] = useState('');
+
   const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
-  // useEffect(() => {
-  //   if (autoOpenKey !== autoOpenKeyState) {
-  //     if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
-  //       setIsOpen(true);
-  //       setAutoOpenKey(autoOpenKey || "");
-  //     }
-  //   }
-  // }, [autoOpenKey, autoOpenKeyState]);
+  useEffect(() => {
+    if (autoOpenKey !== autoOpenKeyState) {
+      if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
+        setIsOpen(true);
+        setAutoOpenKey(autoOpenKey || '');
+      }
+    }
+  }, [autoOpenKey, autoOpenKeyState]);
 
-  // useEffect(() => {
-  //   const queryParams = queryString.parse(window.location.search);
+  useEffect(() => {
+    const queryParams = queryString.parse(window.location.search);
 
-  //   if (
-  //     addisOpenToQueryParam &&
-  //     urlIsOpen !== undefined &&
-  //     urlIsOpen !== null
-  //   ) {
-  //     if (isOpen && !queryParams.isOpen) {
-  //       router.setParams(navigate, location, {
-  //         isModalOpen: isOpen,
-  //       });
-  //     }
+    if (
+      addisOpenToQueryParam &&
+      urlIsOpen !== undefined &&
+      urlIsOpen !== null
+    ) {
+      if (isOpen && !queryParams.isOpen) {
+        router.setParams(navigate, location, {
+          isModalOpen: isOpen,
+        });
+      }
 
-  //     if (queryParams.isModalOpen) {
-  //       router.removeParams(history, "isModalOpen");
-  //     }
-  //   }
-  // }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
+      if (queryParams.isModalOpen) {
+        router.removeParams(history, 'isModalOpen');
+      }
+    }
+  }, [addisOpenToQueryParam, isOpen, urlIsOpen]);
 
-  const openModal = () => {
+  function openModal() {
     setIsOpen(true);
-  };
+  }
 
-  const closeModal = () => {
+  function closeModal() {
     setIsOpen(false);
-  };
+  }
 
   const renderHeader = () => {
     if (hideHeader) {
@@ -132,21 +131,12 @@ const ModalTrigger: React.FC<Props> = ({
       {triggerComponent}
 
       {isOpen && (
-        // <Transition appear show={true} as={Fragment}>
         <Dialog
           open={true}
-          as="div"
-          className="relative z-10"
+          as={as ? as : 'div'}
           onClose={closeModal}
-          // dialogClassName={dialogClassName}
-          // size={size}
-          // show={isOpen}
-          // onHide={onHideHandler}
-          // backdrop={backDrop}
-          // enforceFocus={enforceFocus}
-          // onExit={onExit}
-          // animation={isAnimate}
-          // centered={centered}
+          className={`${dialogClassName} relative z-10`}
+          initialFocus={(enforceFocus as any) || false}
         >
           <Transition.Child
             as={Fragment}
@@ -161,7 +151,7 @@ const ModalTrigger: React.FC<Props> = ({
           </Transition.Child>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={paddingContent}>
+              <Dialog.Panel className={`${paddingContent} dialog-size-${size}`}>
                 <Dialog.Title as="h3">
                   {ignoreTrans ? title : __(title)}
                 </Dialog.Title>
@@ -174,7 +164,6 @@ const ModalTrigger: React.FC<Props> = ({
             </DialogContent>
           </DialogWrapper>
         </Dialog>
-        // </Transition>
       )}
     </>
   );
