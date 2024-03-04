@@ -19,18 +19,13 @@ const httpAgentOptions = {
 };
 
 const keepaliveAgent = new Agent(httpAgentOptions);
-const secureKeepaliveAgent = new Agent.HttpsAgent(httpAgentOptions);
 
-function getHttpAgent(protocol: string, args: any): Agent | Agent.HttpsAgent {
+function getHttpAgent(args: any): Agent | Agent.HttpsAgent {
   if (args.timeout && Number(args.timeout)) {
     const options = { ...httpAgentOptions, timeout: Number(args.timeout) };
-    if (protocol === 'http:') {
-      return new Agent(options);
-    } else {
-      return new Agent.HttpsAgent(options);
-    }
+    return new Agent(options);
   } else {
-    return protocol === 'http:' ? keepaliveAgent : secureKeepaliveAgent;
+    return keepaliveAgent;
   }
 }
 
@@ -155,12 +150,12 @@ export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
 
-let httpRpcEndpointSetup = {};
+const httpRpcEndpointSetup = {};
 export const consumeRPCQueue = async (
   queueName,
   procedure: RP,
 ): Promise<void> => {
-  const { pluginName, procedureName } = splitPluginProcedureName(queueName);
+  const { procedureName } = splitPluginProcedureName(queueName);
 
   if (procedureName.includes(':')) {
     throw new Error(
@@ -168,7 +163,7 @@ export const consumeRPCQueue = async (
     );
   }
 
-  if(!httpRpcEndpointSetup[pluginName]) {
+  if(!httpRpcEndpointSetup[queueName]) {
     const endpoint = `/rpc/${procedureName}`;
   
     app.post(endpoint, async (req, res: Response<RPResult>) => {
@@ -182,7 +177,7 @@ export const consumeRPCQueue = async (
         });
       }
     });
-    httpRpcEndpointSetup[pluginName] = true;
+    httpRpcEndpointSetup[queueName] = true;
   }
 
   await consumeRPCQueueMq(queueName, procedure);
@@ -203,17 +198,18 @@ export const sendRPCMessage = async (
 
   const getData = async () => {
     try {
+      const agent = getHttpAgent(message);
       const response = await fetch(`${address}/rpc/${procedureName}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(message),
-        agent: (parsedURL) => getHttpAgent(parsedURL.protocol, message),
+        agent,
         compress: false,
       });
 
-      if (!(200 <= response.status && response.status < 300)) {
+      if (!response.ok) {
         let argsJson = '"cannot stringify"';
         try {
           argsJson = JSON.stringify(message);
@@ -472,38 +468,38 @@ export const sendMessage = async (
 export type SetupMessageConsumers = () => any;
 
 export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessageConsumers) => {
-  const firstReconnectInterval = 5000;
-  const maxRetryInterval = 1 * 24 * 60 * 60 * 1000;
-  const connect = async () => {
-    const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
-      noDelay: true,
-    });
-    con.once('close', () => {
-      con.removeAllListeners();
-      console.log('RabbitMQ connection is closing.');
-      connectToMessageBroker(setupMessageConsumers);
-    });
-    con.once('error', (e) => {
-      console.error('RabbitMQ connection error:', e);
-      con.close();
-    });
-  
-    channel = await con.createChannel();
-    setupMessageConsumers && await setupMessageConsumers();
-    console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
+  const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
+    noDelay: true,
+  });
+  con.once('close', () => {
+    con.removeAllListeners();
+    console.log('RabbitMQ connection is closing.');
+    reconnectToMessageBroker(setupMessageConsumers);
+  });
+  con.once('error', (e) => {
+    console.error('RabbitMQ connection error:', e);
+    con.close();
+  });
+
+  channel = await con.createChannel();
+  if(setupMessageConsumers) {
+    await setupMessageConsumers();
+    console.log("Finished setting up message consumers");
   }
+  console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
+};
 
+export const reconnectToMessageBroker = async (setupMessageConsumers?: SetupMessageConsumers) => {
   channel = undefined;
-  let reconnectInterval = firstReconnectInterval;
-
+  let reconnectInterval = 5000;
   while (true) {
     try {
-      await connect();
-      reconnectInterval = firstReconnectInterval;
+      console.log(`RabbitMQ: Trying to reconnect to ${RABBITMQ_HOST}`);
+      await connectToMessageBroker(setupMessageConsumers);
       break;
     } catch (e) {
       console.error(
-        `RabbitMQ: Error occured while connecting to ${RABBITMQ_HOST}. Trying again in ${
+        `RabbitMQ: Error occured while reconnecting to ${RABBITMQ_HOST}. Trying again in ${
           reconnectInterval / 1000
         }s`,
         e,
@@ -511,7 +507,7 @@ export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessag
       await new Promise<void>((resolve) =>
         setTimeout(resolve, reconnectInterval),
       );
-      reconnectInterval =  Math.min(maxRetryInterval,  reconnectInterval * 2);
+      reconnectInterval = reconnectInterval * 2;
     }
   }
 };
