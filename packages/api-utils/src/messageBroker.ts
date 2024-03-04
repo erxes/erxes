@@ -155,7 +155,7 @@ export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
 
-let httpRPCEndpointSetup = {};
+let httpRpcEndpointSetup = {};
 export const consumeRPCQueue = async (
   queueName,
   procedure: RP,
@@ -168,7 +168,7 @@ export const consumeRPCQueue = async (
     );
   }
 
-  if(!httpRPCEndpointSetup[pluginName]) {
+  if(!httpRpcEndpointSetup[pluginName]) {
     const endpoint = `/rpc/${procedureName}`;
   
     app.post(endpoint, async (req, res: Response<RPResult>) => {
@@ -182,7 +182,7 @@ export const consumeRPCQueue = async (
         });
       }
     });
-    httpRPCEndpointSetup[pluginName] = true;
+    httpRpcEndpointSetup[pluginName] = true;
   }
 
   await consumeRPCQueueMq(queueName, procedure);

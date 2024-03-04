@@ -11,6 +11,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { readFileRequest } from './worker/export/utils';
 import app from '@erxes/api-utils/src/app';
 import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+import { initBroker } from './messageBroker';
 
 async function closeHttpServer() {
   try {
@@ -85,6 +86,8 @@ httpServer.listen(PORT, async () => {
     hasSubscriptions: false,
     meta: {},
   });
+
+  await initBroker();
 
   console.log(`GraphQL Server is now running on1 ${PORT}`);
 });
