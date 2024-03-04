@@ -476,9 +476,13 @@ export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessag
     console.log('RabbitMQ connection is closing.');
     reconnectToMessageBroker(setupMessageConsumers);
   });
-  con.once('error', (e) => {
+  con.on('error', (e) => {
     console.error('RabbitMQ connection error:', e);
-    con.close();
+    try {
+      con.close();
+    } catch (e) {
+      console.error('RabbitMQ connection close error:', e);
+    }
   });
 
   channel = await con.createChannel();
