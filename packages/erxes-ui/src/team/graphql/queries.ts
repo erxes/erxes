@@ -269,6 +269,22 @@ export const branchField = `
   ${contactInfoFields}
 `;
 
+const positionField = `
+  _id
+  title
+  parentId
+  code
+  order
+  userIds
+  userCount
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
 const branches = `
   query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
     branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
@@ -284,6 +300,28 @@ const branchesMain = `
       list {
         ${branchField}
         parent {${branchField}}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
+
+const positions = `
+  query positions(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    positions (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
+      ${positionField}
+      parent {${positionField}}
+    }
+  }
+`;
+
+const positionsMain = `
+  query positionsMain(${commonStructureParamsDef}) {
+    positionsMain (${commonStructureParamsValue}){
+      list {
+        ${positionField}
+        parent {${positionField}}
       }
       totalCount
       totalUsersCount
@@ -550,4 +588,6 @@ export default {
   fieldsGroups,
   userMovements,
   userList,
+  positionsMain,
+  positions,
 };

@@ -85,6 +85,9 @@ export const types = `
         parent: Position
         status: String
         children: [Position]
+        users: [User]
+        userIds: [String]
+        userCount: Int
     }
 
     type Coordinate {
@@ -146,7 +149,7 @@ export const queries = `
     branchesMain(${commonParams},withoutUserFilter:Boolean): BranchListQueryResponse
     branchDetail(_id: String!): Branch
     
-    positions(${commonParams},withoutUserFilter:Boolean): [Branch]
+    positions(${commonParams},withoutUserFilter:Boolean): [Position]
     positionsMain(${commonParams}): PositionListQueryResponse
     positionDetail(_id: String): Position
 

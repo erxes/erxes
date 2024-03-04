@@ -32,14 +32,19 @@ export default class SettingsSideBar extends React.Component<Props> {
         {ListItem(
           '/settings/branches',
           'Branches',
-          this.props.branchTotalCount
+          this.props.branchTotalCount,
         )}
         {ListItem(
           '/settings/departments',
           'Departments',
-          this.props.departmentTotalCount
+          this.props.departmentTotalCount,
         )}
         {ListItem('/settings/units', 'Units', this.props.unitTotalCount)}
+        {ListItem(
+          '/settings/positions',
+          'Positions',
+          this.props.unitTotalCount,
+        )}
       </SidebarList>
     );
   }

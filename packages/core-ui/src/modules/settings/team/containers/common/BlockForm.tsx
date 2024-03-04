@@ -3,6 +3,7 @@ import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import BranchForm from '../../components/branch/Form';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import DepartmentForm from '../../components/department/Form';
+import PositionForm from '../../components/position/Form';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -24,10 +25,12 @@ const FormContainer = ({
   item,
   showMainList,
   additionalRefetchQueries,
-  closeModal
+  closeModal,
 }: Props) => {
+  console.log('inside block');
+
   const { data, error, loading } = useQuery(gql(queries[queryType]), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   if (loading) {
@@ -43,7 +46,7 @@ const FormContainer = ({
     values,
     isSubmitted,
     object,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const qType =
       queryType === 'units' && showMainList ? 'unitsMain' : queryType;
@@ -60,10 +63,10 @@ const FormContainer = ({
             query: gql(queries[qType]),
             variables: {
               withoutUserFilter: true,
-              searchValue: undefined
-            }
+              searchValue: undefined,
+            },
           },
-          ...(additionalRefetchQueries || [])
+          ...(additionalRefetchQueries || []),
         ]}
         variables={values}
         isSubmitted={isSubmitted}
@@ -77,7 +80,7 @@ const FormContainer = ({
   };
 
   const items = item
-    ? data[queryType].filter(d => d._id !== item._id)
+    ? data[queryType].filter((d) => d._id !== item._id)
     : data[queryType];
 
   if (queryType === 'units') {
@@ -104,6 +107,17 @@ const FormContainer = ({
   if (queryType === 'branches') {
     return (
       <BranchForm
+        item={item}
+        items={items}
+        closeModal={closeModal}
+        renderButton={renderButton}
+      />
+    );
+  }
+
+  if (queryType === 'positions') {
+    return (
+      <PositionForm
         item={item}
         items={items}
         closeModal={closeModal}
