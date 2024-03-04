@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
 export default {
@@ -27,6 +27,6 @@ export default {
   middlewares: [cookieParser(), cpUserMiddleware],
 
   onServerInit: async () => {
-    initBroker();
   },
+  setupMessageConsumers,
 };

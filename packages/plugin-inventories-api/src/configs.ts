@@ -2,7 +2,7 @@ import { generateModels } from './connectionResolver';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 // import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { exportCensusRunner } from './exporterByUrl';
@@ -28,8 +28,8 @@ export default {
   },
 
   onServerInit: async () => {
-    initBroker();
   },
+  setupMessageConsumers,
 
   meta: {
     permissions,

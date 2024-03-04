@@ -466,7 +466,7 @@ export const sendMessage = async (
 
 export type SetupMessageConsumers = () => any;
 
-export const connectToMessageBroker = async (setupMessageConsumers: SetupMessageConsumers) => {
+export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessageConsumers) => {
   const firstReconnectInterval = 5000;
   const maxRetryInterval = 1 * 24 * 60 * 60 * 1000;
   const connect = async () => {
@@ -484,7 +484,7 @@ export const connectToMessageBroker = async (setupMessageConsumers: SetupMessage
     });
   
     channel = await con.createChannel();
-    await setupMessageConsumers();
+    setupMessageConsumers && await setupMessageConsumers();
     console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
   }
 

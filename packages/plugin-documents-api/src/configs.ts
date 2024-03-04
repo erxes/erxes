@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
-import { initBroker, sendCommonMessage } from './messageBroker';
+import { setupMessageConsumers, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
 export default {
@@ -258,6 +258,6 @@ export default {
   ],
 
   onServerInit: async () => {
-    initBroker();
   },
+  setupMessageConsumers,
 };

@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { initBrokerErkhet } from './messageBrokerErkhet';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -37,8 +37,8 @@ export default {
 
   onServerInit: async () => {
     await initBrokerErkhet();
-    await initBroker();
   },
+  setupMessageConsumers,
   meta: {
     afterMutations,
     afterQueries,
