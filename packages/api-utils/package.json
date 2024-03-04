@@ -25,6 +25,7 @@
     "@types/ioredis-mock": "^8.2.5",
     "@types/mongodb": "^3.1.2",
     "@types/mongoose": "5.7.3",
+    "@types/node" : "18.17.1",
     "@types/request": "^2.47.1",
     "@types/underscore": "^1.8.9",
     "ora": "^3.4.0"
