@@ -32,14 +32,16 @@ export const getCustomFields = async (
   });
 
   const customFieldsData = item?.customFieldsData || [];
-
-  for await (const f of fields) {
-    const existingData = customFieldsData.find((c) => c.field === f._id);
-    item[f.code] = existingData?.value;
+  if (item) {
+    for await (const f of fields) {
+      const existingData = customFieldsData.find((c) => c.field === f._id);
+      item[f.code] = existingData?.value;
+    }
   }
+
   return {
     fields: fields,
-    item: item,
+    item: item || [],
   };
 };
 export const dateNames = ['startDate', 'endDate'];
@@ -47,18 +49,17 @@ export const findDiffrentData = async (mainData, polarisData) => {
   if (polarisData) {
     const { _id, __v, ...data } = mainData;
     for (const [key, value] of Object.entries(data)) {
-      const result = await compareDatas(polarisData, key, value);
+      const result = await isDiffrentFind(polarisData, key, value);
       if (result) return mainData;
     }
   }
 };
 
-export const compareDatas = async (data, key, value) => {
+export const isDiffrentFind = async (data, key, value) => {
   if (data.hasOwnProperty(key) === true && data[key] != value) {
-    const comparedDate = await compareDate(data, key, value);
-    const result = comparedDate ? true : false;
-    return result;
-  } else return false;
+    return await compareDate(data, key, value);
+  }
+  return false;
 };
 
 export const compareDate = async (data, key, value) => {
@@ -69,39 +70,31 @@ export const compareDate = async (data, key, value) => {
     );
     const mainDate = new Date(String(value));
     if (polarisDate.getTime() === mainDate.getTime()) return false;
-  }
-  return true;
+  } else return true;
 };
 
-export const preSyncDatas = async (mainData, polarisData, fields) => {
-  const customFieldsData = mainData?.customFieldsData;
+export const preSyncDatas = async (mainData, polarisData, subdomain) => {
   let updateData: any = {};
-  if (polarisData) {
-    const { _id, __v, ...data } = mainData;
-    for await (const [key, value] of Object.entries(data)) {
-      if (
-        polarisData.hasOwnProperty(key) === true &&
-        polarisData[key] != value
-      ) {
-        const result = await compareDatas(polarisData, key, value);
-        if (result) updateData[key] = polarisData[key];
 
-        if (fields.find((c) => c.code === key)) {
-          const field = fields.find((c) => c.code === key);
-          const index = customFieldsData.findIndex(
-            (c) => c.field === field._id,
-          );
-          index >= 0
-            ? (customFieldsData[index].value = polarisData[key])
-            : customFieldsData.push({
-                field: field._id,
-                value: polarisData[key],
-              });
-          updateData['customFieldsData'] = customFieldsData;
-        }
-      }
+  if (polarisData) {
+    const { _id, __v, customFieldsDate, ...data } = mainData;
+    for await (const [key, value] of Object.entries(data)) {
+      const isDiff = await isDiffrentFind(polarisData, key, value);
+      if (isDiff) updateData[key] = data[key];
     }
+
+    const customFieldsResult = await getCustomFields(
+      subdomain,
+      'contacts:customer',
+    );
+    const customFields = customFieldsResult.fields;
+    const customFieldsData = mainData.customFieldsData || [];
+    for await (const customField of customFields) {
+      await setCustomField(customField, polarisData, customFieldsData);
+    }
+    updateData['customFieldsData'] = customFieldsData;
   }
+
   return updateData;
 };
 
@@ -129,4 +122,31 @@ export const getSavingAcntPolaris = async (subdomain, number) => {
   } catch (error) {
     console.log('error:', error);
   }
+};
+
+export const setCustomField = async (
+  customField,
+  customer,
+  customFieldsData,
+) => {
+  if (customer.hasOwnProperty(customField.code)) {
+    await setCustomFieldValue(customField, customFieldsData, customer);
+  }
+  return customFieldsData;
+};
+export const setCustomFieldValue = async (
+  customField,
+  customFieldsData,
+  customer,
+) => {
+  const index = customFieldsData.findIndex((c) => c.field === customField._id);
+  if (index >= 0) {
+    customFieldsData[index].value = customer[customField.code];
+  } else {
+    customFieldsData.push({
+      field: customField._id,
+      value: customer[customField.code],
+    });
+  }
+  return customFieldsData;
 };

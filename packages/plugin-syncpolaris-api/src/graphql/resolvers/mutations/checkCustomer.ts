@@ -45,21 +45,14 @@ const checkMutations = {
   ) {
     try {
       for await (const customer of customers) {
-        const preData = await getCustomFields(
-          subdomain,
-          'contacts:customer',
-          customer,
-        );
-        const preCustomer = preData?.item || {};
-        const fields = preData?.fields || [];
         let updateData = {};
         const polarisCustomer = await getCustomPolaris(
           subdomain,
-          preCustomer.code,
+          customer.code,
         );
-        updateData = await preSyncDatas(preCustomer, polarisCustomer, fields);
+        updateData = await preSyncDatas(customer, polarisCustomer, subdomain);
         if (Object.keys(updateData).length > 0)
-          await updateCustomer(subdomain, preCustomer.code, updateData);
+          await updateCustomer(subdomain, customer.code, updateData);
       }
       return {
         status: 'success',
