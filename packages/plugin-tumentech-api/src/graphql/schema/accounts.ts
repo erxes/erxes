@@ -51,6 +51,20 @@ type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
     foundDriver: Customer
     foundCar: Car
   }
+  type PurchaseHistory {
+    _id: String
+    cpUserId: String
+    driverId: String
+    carId: String
+    dealId: String
+    amount: Float
+    phone: String
+    adsId: String
+  }
+  type PurchaseHistoryList {
+    list: [PurchaseHistory],
+    totalCount: Int
+  }
 `;
 
 export const queries = `
@@ -60,6 +74,7 @@ export const queries = `
     customerAccountsList(page: Int, perPage: Int): CustomerAccountListResponse
 
     getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
+    tumentechPurchaseHistory(driverId: String, adsId: String, cpUserId: String): PurchaseHistoryList 
 
     searchDriver(type: SearchType!, value: String!): SearchResult
 `;
@@ -68,6 +83,6 @@ export const mutations = `
   topupAccount(invoiceId: String): JSON
   revealPhone(driverId: String, carId: String, dealId: String,adsId: String): String
   customerAccountEditDriverGroups( driverGroups: [DriverGroupInput]): CustomerAccount
-  
+
   manualTopup(customerId: String!, amount: Float!): JSON
 `;
