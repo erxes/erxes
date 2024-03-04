@@ -10,6 +10,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
 import { IFieldLogic } from '../../types';
+import { stringify } from 'querystring';
 
 type Props = {
   fieldType: string;
@@ -52,17 +53,36 @@ const ChartFormField = (props: Props) => {
 
   const [fieldValue, setFieldValue] = useState(initialValue);
 
-  const onSelect = (e) => {
-    if (multi && Array.isArray(e)) {
-      const arr = e.map((sel) => sel.value);
+  // const onSelect = (e) => {
+  //   console.log(e, 'e');
+  //   if (multi && Array.isArray(e)) {
+  //     const arr = e.map((sel) => sel.value);
 
-      onChange(arr);
-      setFieldValue(arr);
-      return;
+  //     onChange(arr);
+  //     setFieldValue(arr);
+  //     return;
+  //   }
+
+  //   setFieldValue(e.value);
+  //   onChange(e);
+  // };
+
+  const onSelect = (selectedOption) => {
+    if (multi && Array.isArray(selectedOption)) {
+      const selectedValues = selectedOption.map((option) => option.value);
+      console.log('Selected Values:', selectedValues);
+      setFieldValue(selectedValues);
+
+      onChange(selectedValues);
+    } else {
+      // Handle single selection case
+
+      const selectedValue = selectedOption.value;
+      console.log('Selected Valuess:', selectedValue);
+
+      setFieldValue(selectedValue);
+      onChange(selectedValue);
     }
-
-    setFieldValue(e.value);
-    onChange(e);
   };
 
   const onSaveDateRange = (dateRange: any) => {
@@ -169,8 +189,40 @@ const ChartFormField = (props: Props) => {
     default:
       break;
   }
-
+  console.log('================================', fieldValue);
+  console.log('================================', fieldOptions);
   switch (fieldType) {
+    case 'groups':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <Select
+            value={fieldValue}
+            multi={multi}
+            onChange={onSelect}
+            options={fieldOptions?.map((group) => ({
+              label: group.label,
+              options: group.value?.map((field) => ({
+                value: field._id,
+                label: field.text,
+              })),
+            }))}
+            placeholder={fieldLabel}
+          />
+        </div>
+      );
+    case 'groupsTags':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <Select
+            value={fieldValue}
+            multi={multi}
+            onChange={onSelect}
+            placeholder={fieldLabel}
+          />
+        </div>
+      );
     case 'select':
       return (
         <div>
@@ -184,7 +236,6 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-
     default:
       return <></>;
   }

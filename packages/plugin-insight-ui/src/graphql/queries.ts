@@ -691,7 +691,17 @@ const sectionList = `
     }
   }
 `;
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
 
+const tagsGetTypes = `
+  query tagsGetTypes {
+    tagsGetTypes
+  }
+`;
 export default {
   //dashboard
   dashboardList,
@@ -737,4 +747,6 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
+  fieldsGetTypes,
+  tagsGetTypes,
 };

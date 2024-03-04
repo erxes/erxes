@@ -114,7 +114,6 @@ const ChartFormFieldList = (props: Props) => {
 
     return true;
   };
-
   const onChange = (input: any) => {
     switch (fieldType) {
       case 'select':
@@ -127,17 +126,24 @@ const ChartFormFieldList = (props: Props) => {
             ? input
             : input.value;
         setFilter(fieldName, value);
+        break;
 
-        return;
+      case 'groups':
+        // Handle 'groups' case here
+        if (Array.isArray(input)) {
+          // Check if input is an array
+          setFilter(fieldName, input); // Handle selected values for 'groups'
+        }
+        break;
+
       default:
-        return;
+        break;
     }
   };
 
   if (!checkLogic()) {
     return <></>;
   }
-
   return (
     <ChartFormField
       fieldType={fieldType}
