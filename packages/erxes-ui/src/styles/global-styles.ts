@@ -362,9 +362,17 @@ a:hover {
 [id^="headlessui-dialog-title-"] {
   margin: 0;
   font-size: 18px;
+  position: relative;
   text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing - 5}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+}
+
+[id^="headlessui-dialog-title-"] > i {
+  cursor: pointer;
 }
 
 [id^="headlessui-description-"].dialog-description {

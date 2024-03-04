@@ -154,6 +154,7 @@ const ModalTrigger: React.FC<Props> = ({
               <Dialog.Panel className={`${paddingContent} dialog-size-${size}`}>
                 <Dialog.Title as="h3">
                   {ignoreTrans ? title : __(title)}
+                  <Icon icon="times" size={24} onClick={closeModal} />
                 </Dialog.Title>
                 <Transition.Child>
                   <div className="dialog-description">
