@@ -2,7 +2,7 @@ import { generateModels, IModels } from '../connectionResolver';
 import { CAMPAIGN_KINDS } from '../constants';
 import { send } from '../engageUtils';
 import { IEngageMessageDocument } from '../models/definitions/engages';
-import { debugEngages, debugError } from '../debuggers';
+import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
 import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
 import { getEnv } from '@erxes/api-utils/src';
 
@@ -58,18 +58,18 @@ const checkPreScheduledJobs = async (subdomain: string) => {
 };
 
 const checkHourMinuteJobs = async (subdomain: string) => {
-  debugEngages('Checking every hour jobs ....');
+  debugInfo('Checking every hour jobs ....');
 
   const models = await generateModels(subdomain);
   const messages = await findMessages(models, { 'scheduleDate.type': 'hour' });
 
-  debugEngages(`Found every hour  messages ${messages.length}`);
+  debugInfo(`Found every hour  messages ${messages.length}`);
 
   await runJobs(models, subdomain, messages);
 };
 
 const checkDayJobs = async (subdomain: string) => {
-  debugEngages('Checking every day jobs ....');
+  debugInfo('Checking every day jobs ....');
 
   const models = await generateModels(subdomain);
   // every day messages ===========
@@ -78,7 +78,7 @@ const checkDayJobs = async (subdomain: string) => {
   });
   await runJobs(models, subdomain, everyDayMessages);
 
-  debugEngages(`Found every day messages ${everyDayMessages.length}`);
+  debugInfo(`Found every day messages ${everyDayMessages.length}`);
 
   const now = new Date();
   const day = now.getDate();
@@ -91,7 +91,7 @@ const checkDayJobs = async (subdomain: string) => {
   });
   await runJobs(models, subdomain, everyNthDayMessages);
 
-  debugEngages(`Found every nth day messages ${everyNthDayMessages.length}`);
+  debugInfo(`Found every nth day messages ${everyNthDayMessages.length}`);
 
   // every month messages ========
   let everyMonthMessages = await findMessages(models, {
@@ -113,7 +113,7 @@ const checkDayJobs = async (subdomain: string) => {
     return scheduleDate && scheduleDate.day === day.toString();
   });
 
-  debugEngages(`Found every month messages ${everyMonthMessages.length}`);
+  debugInfo(`Found every month messages ${everyMonthMessages.length}`);
 
   await runJobs(models, subdomain, everyMonthMessages);
 
@@ -141,7 +141,7 @@ const checkDayJobs = async (subdomain: string) => {
     return scheduleDate && scheduleDate.day === day.toString();
   });
 
-  debugEngages(`Found every year messages ${everyYearMessages.length}`);
+  debugInfo(`Found every year messages ${everyYearMessages.length}`);
 
   await runJobs(models, subdomain, everyYearMessages);
 };

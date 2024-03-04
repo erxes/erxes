@@ -10,8 +10,6 @@ import initialSetup from './initialSetup';
 import segments from './segments';
 import dashboards from './dashboards';
 
-export let debug;
-
 export default {
   name: 'forms',
   permissions,
@@ -36,9 +34,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

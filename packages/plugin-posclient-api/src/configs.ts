@@ -11,8 +11,6 @@ import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
 
-export let debug;
-
 dotenv.config();
 
 export default {
@@ -93,10 +91,8 @@ export default {
     }),
   ],
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   reconnectRMQ: initBroker,

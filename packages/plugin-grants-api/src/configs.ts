@@ -6,8 +6,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 
-export let debug;
-
 export default {
   name: 'grants',
   graphql: async () => {
@@ -30,9 +28,7 @@ export default {
     afterMutations,
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

@@ -7,8 +7,6 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './models';
 import { initBroker, createRoutes } from './server';
 
-export let debug;
-
 export default {
   name: 'zalo',
   graphql: async () => {
@@ -32,11 +30,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    debug = options.debug;
-
-    console.log('options.messageBrokerClient', options.messageBrokerClient);
-
+  onServerInit: async () => {
     initBroker();
     createRoutes();
   },

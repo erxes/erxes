@@ -6,8 +6,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NOTIFICATION_MODULES } from './constants';
 
-export let debug;
-
 export default {
   name: 'chats',
   permissions,
@@ -34,10 +32,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     notificationModules: NOTIFICATION_MODULES,

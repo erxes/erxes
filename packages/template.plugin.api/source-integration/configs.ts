@@ -7,7 +7,6 @@ import init from './controller';
 
 
 
-export let debug;
 
 export default {
   name: '{name}',
@@ -30,11 +29,9 @@ export default {
   onServerInit: async options => {
     
 
-    debug = options.debug;
     
 
     initBroker();
-
     init();
   }
 };

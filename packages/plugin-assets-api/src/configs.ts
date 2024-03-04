@@ -12,8 +12,6 @@ import internalNotes from './internalNotes';
 import logUtils from './logUtils';
 import * as permissions from './permissions';
 
-export let debug;
-
 export default {
   name: 'assets',
   permissions,
@@ -43,9 +41,7 @@ export default {
     forms,
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

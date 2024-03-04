@@ -9,8 +9,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
 
-export let debug;
-
 export default {
   name: 'tags',
   permissions,
@@ -36,10 +34,8 @@ export default {
   },
   middlewares: [(serverTiming as any)()],
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: { logs: { consumers: logs }, permissions, dashboards },

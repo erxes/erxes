@@ -6,7 +6,6 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
-export let debug;
 
 export default {
   name: 'pricing',
@@ -28,10 +27,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     permissions,

@@ -14,8 +14,6 @@ import cronjobs from './cronjobs';
 import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
 
-export let debug;
-
 export default {
   name: 'forum',
   permissions,
@@ -53,9 +51,7 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

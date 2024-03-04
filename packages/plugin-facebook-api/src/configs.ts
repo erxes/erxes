@@ -10,8 +10,6 @@ import automations from './automations';
 import forms from './forms';
 import segments from './segments';
 
-export let debug;
-
 export default {
   name: 'facebook',
   graphql: async () => {
@@ -45,11 +43,9 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     await initBroker();
 
     await initApp();
-
-    debug = options.debug;
   },
 };

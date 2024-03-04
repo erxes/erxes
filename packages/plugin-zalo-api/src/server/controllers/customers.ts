@@ -1,13 +1,13 @@
 import { IModels } from '../../models';
 import { sendInboxMessage } from '../brokers';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { zaloGet } from '../../zalo';
 const querystring = require('querystring');
 
 export const createOrUpdateCustomer = async (
   models: IModels,
   subdomain: any,
-  data: any = {}
+  data: any = {},
 ) => {
   const integrationId = data?.integrationId;
   const oa_id = data?.oa_id;
@@ -20,7 +20,7 @@ export const createOrUpdateCustomer = async (
   let hasData = Object.keys(data).length > 1;
 
   let customer = await models.Customers.findOne({
-    userId: data.userId
+    userId: data.userId,
   });
 
   let firstName = data?.isAnonymous ? 'Ẩn danh' : '';
@@ -35,9 +35,9 @@ export const createOrUpdateCustomer = async (
       `conversation?data=${JSON.stringify({
         user_id: data.userId,
         offset: 0,
-        count: 1
+        count: 1,
       })}`,
-      { models, oa_id }
+      { models, oa_id },
     );
 
     let {
@@ -47,7 +47,7 @@ export const createOrUpdateCustomer = async (
       from_display_name,
       to_display_name,
       from_avatar,
-      to_avatar
+      to_avatar,
     } = zaloUser?.data?.[0];
 
     const userId = src ? from_id : to_id;
@@ -59,13 +59,13 @@ export const createOrUpdateCustomer = async (
       firstName,
       integrationId,
       profilePic: avatar,
-      isFollower: mayBeFollower
+      isFollower: mayBeFollower,
     };
   }
 
   data = {
     ...data,
-    firstName
+    firstName,
   };
 
   if (customer) {
@@ -80,7 +80,7 @@ export const createOrUpdateCustomer = async (
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: customer duplication'
-        : e
+        : e,
     );
   }
 
@@ -94,17 +94,17 @@ export const createOrUpdateCustomer = async (
         payload: JSON.stringify({
           ...data,
           avatar: data?.profilePic,
-          isUser: true
-        })
+          isUser: true,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     customer.erxesApiId = apiCustomerResponse._id;
     await customer.save();
   } catch (e) {
     await models.Customers.deleteOne({ _id: customer._id });
-    debug.error(`apiCustomerResponse error: ${e.message}`);
+    debugError(`apiCustomerResponse error: ${e.message}`);
   }
 
   return customer;
@@ -113,7 +113,7 @@ export const createOrUpdateCustomer = async (
 export const isFollowedUser = async (user_id, config) => {
   const mayBeFollower = await zaloGet(
     `getprofile?data=${JSON.stringify({ user_id })}`,
-    config
+    config,
   );
   return mayBeFollower.error === 0;
 };

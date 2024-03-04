@@ -9,8 +9,6 @@ import cronjobs from './cronjobs/automations';
 import tags from './tags';
 import logs from './logUtils';
 
-export let debug;
-
 export default {
   name: 'automations',
   permissions,
@@ -35,11 +33,9 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     console.log('on server init .....');
 
     initBroker();
-
-    debug = options.debug;
   },
 };

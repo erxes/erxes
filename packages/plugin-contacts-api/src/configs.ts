@@ -26,8 +26,6 @@ import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
 
-export let debug;
-
 export default {
   name: 'contacts',
   permissions,
@@ -69,7 +67,7 @@ export default {
     context.subdomain = subdomain;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
@@ -154,7 +152,5 @@ export default {
     });
 
     initBroker();
-
-    debug = options.debug;
   },
 };

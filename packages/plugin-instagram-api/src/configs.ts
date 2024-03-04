@@ -7,8 +7,6 @@ import { generateModels } from './connectionResolver';
 import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
 
-export let debug;
-
 export default {
   name: 'instagram',
   graphql: async () => {
@@ -35,11 +33,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
     initApp();
-
-    debug = options.debug;
   },
 };

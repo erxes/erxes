@@ -29,8 +29,6 @@ export default {
   },
   onServerInit: async (options: any) => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: {

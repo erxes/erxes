@@ -9,8 +9,6 @@ import { pageReplacer } from './utils';
 const permissions = require('./permissions');
 import app from '@erxes/api-utils/src/app';
 
-export let debug;
-
 export default {
   name: 'webbuilder',
   permissions,
@@ -31,10 +29,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
 
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
