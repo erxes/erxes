@@ -9,9 +9,6 @@ import documents from './documents';
 import logs from './logUtils';
 import { initBroker } from './messageBroker';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'processes',
   permissions,
@@ -29,12 +26,10 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     await generateModels('os');
 
     initBroker();
-
-    debug = options.debug;
 
     // es = options.elasticsearch;
   },

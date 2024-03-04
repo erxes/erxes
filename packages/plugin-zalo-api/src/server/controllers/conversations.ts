@@ -1,6 +1,6 @@
 import { generateModels, IModels } from '../../models';
 import { sendInboxMessage } from '../brokers';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import {
   convertAttachment,
@@ -17,7 +17,7 @@ export const createOrUpdateConversation = async (
   subdomain: any,
   data: any = {},
 ) => {
-  // debug.error(`data before createConversationMessage: ${JSON.stringify(data)}`);
+  // debugError(`data before createConversationMessage: ${JSON.stringify(data)}`);
 
   // get conversation
   let conversation = await models.Conversations.findOne({
@@ -164,7 +164,7 @@ export const createConversationMessage = async (
         },
       );
     } catch (e) {
-      debug.error(
+      debugError(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
           : e,
@@ -189,7 +189,7 @@ export const receiveMessage = async (req) => {
   });
 
   if (!integration) {
-    debug.error(JSON.stringify(integration));
+    debugError(JSON.stringify(integration));
     return;
   }
 

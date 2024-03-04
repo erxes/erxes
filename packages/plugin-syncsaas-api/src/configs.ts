@@ -6,9 +6,6 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { postHandler } from './postHandler';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'syncsaas',
   graphql: async () => {
@@ -31,10 +28,6 @@ export default {
   postHandlers: [{ path: `/handleSync`, method: postHandler }],
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
-
-    debug = options.debug;
   },
 };

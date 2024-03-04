@@ -7,9 +7,6 @@ import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import cpCustomerHandle from './cpCustomerHandle';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'msdynamic',
   graphql: async () => {
@@ -33,11 +30,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

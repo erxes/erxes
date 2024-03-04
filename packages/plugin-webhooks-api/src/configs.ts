@@ -7,9 +7,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import automations from './automations';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'webhooks',
   permissions,
@@ -28,12 +25,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: { permissions, automations },

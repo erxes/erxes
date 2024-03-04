@@ -27,8 +27,6 @@ import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 
 import { NOTIFICATION_MODULES } from './constants';
-export let mainDb;
-export let debug;
 
 export default {
   name: 'cards',
@@ -81,9 +79,7 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
@@ -101,9 +97,6 @@ export default {
     );
 
     initBroker();
-
     console.log('Debug ....');
-
-    debug = options.debug;
   },
 };

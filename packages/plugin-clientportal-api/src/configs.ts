@@ -10,9 +10,6 @@ import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'clientportal',
   permissions,
@@ -58,11 +55,7 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware],
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

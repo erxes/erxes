@@ -10,9 +10,6 @@ import * as permissions from './permissions';
 import afterQueries from './afterQueries';
 import { getOrderInfo } from './routes';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'syncerkhet',
   permissions,
@@ -32,13 +29,9 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     await initBrokerErkhet();
     await initBroker();
-
-    debug = options.debug;
   },
   meta: {
     afterMutations,

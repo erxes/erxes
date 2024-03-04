@@ -6,9 +6,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'khanbank',
   permissions,
@@ -32,11 +29,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

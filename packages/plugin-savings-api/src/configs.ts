@@ -12,9 +12,6 @@ import payment from './payment';
 import { storeInterestCron } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'savings',
   permissions,
@@ -34,12 +31,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     logs: { consumers: logs },

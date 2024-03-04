@@ -16,9 +16,6 @@ import i18n = require('i18n');
 import { PAYMENTS } from './api/constants';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'payment',
   permissions,
@@ -70,12 +67,8 @@ export default {
 
   middlewares: [cookieParser(), bodyParser.json()],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
 
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');

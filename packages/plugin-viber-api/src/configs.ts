@@ -5,9 +5,6 @@ import init from './controller';
 import webhookListen from './viber/webhookListen';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'viber',
   graphql: () => {
@@ -33,13 +30,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     initBroker();
-
     init();
   },
 };

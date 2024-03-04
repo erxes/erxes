@@ -11,9 +11,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'exm',
   permissions,
@@ -37,9 +34,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     // Error handling middleware
     app.use((error, _req, res, _next) => {
       const msg = filterXSS(error.message);
@@ -49,7 +44,5 @@ export default {
     });
 
     initBroker();
-
-    debug = options.debug;
   },
 };

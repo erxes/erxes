@@ -9,9 +9,6 @@ import exporter from './exporter';
 import segments from './segment';
 import forms from './forms';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'xyp',
   graphql: async () => {
@@ -33,12 +30,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     exporter,

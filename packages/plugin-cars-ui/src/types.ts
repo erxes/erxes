@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
+  IActivityLogForMonth,
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IAttachment } from '@erxes/ui/src/types';
@@ -51,6 +51,7 @@ export interface ICarCategory {
   isRoot: boolean;
   image?: IAttachment;
   secondaryImages?: IAttachment[];
+  productCategoryId?: string;
 }
 
 export type CarCategoriesQueryResponse = {

@@ -6,9 +6,6 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'logs',
   permissions,
@@ -28,12 +25,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: { permissions },
 };

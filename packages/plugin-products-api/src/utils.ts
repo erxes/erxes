@@ -1,13 +1,13 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { ICustomField } from '@erxes/api-utils/src/types';
 import * as _ from 'underscore';
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import {
   fetchSegment,
   sendFormsMessage,
   sendSegmentsMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { IProductCategory, productSchema } from './models/definitions/products';
 
@@ -22,7 +22,7 @@ export const getEsTypes = () => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath(name => {
+  schema.eachPath((name) => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -33,7 +33,7 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -44,7 +44,7 @@ export const countBySegment = async (
     action: 'find',
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const s of segments) {
@@ -53,7 +53,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debug.error(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }
@@ -64,7 +64,7 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -73,7 +73,7 @@ export const countByTag = async (
     action: 'find',
     data: { type },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const tag of tags) {
@@ -133,7 +133,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -163,7 +163,7 @@ export class Builder {
         isRPC: true,
         action: 'findOne',
         subdomain: this.subdomain,
-        data: { _id: this.params.segment }
+        data: { _id: this.params.segment },
       });
 
       await this.segmentFilter(segment);
@@ -175,9 +175,9 @@ export class Builder {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList
-        }
-      }
+          must_not: this.negativeList,
+        },
+      },
     };
 
     let totalCount = 0;
@@ -187,7 +187,7 @@ export class Builder {
       action: 'count',
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     totalCount = totalCountResponse.count;
@@ -196,19 +196,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions
+      body: queryOptions,
     });
 
-    const list = response.hits.hits.map(hit => {
+    const list = response.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source
+        ...hit._source,
       };
     });
 
     return {
       list,
-      totalCount
+      totalCount,
     };
   }
 }

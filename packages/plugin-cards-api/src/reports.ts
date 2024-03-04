@@ -1,7 +1,7 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { models } from './connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 import * as dayjs from 'dayjs';
+import { IModels, generateModels } from './connectionResolver';
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -235,7 +235,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
@@ -247,7 +252,7 @@ const chartTemplates = [
           stageFilters['probability'] = stageFilter;
         }
       }
-      const stages = await models?.Stages.find({
+      const stages = await models.Stages.find({
         type: 'deal',
         ...stageFilters,
       }).lean();
@@ -258,7 +263,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Deals.find({
+              return await models.Deals.find({
                 ...matchedFilter,
                 stageId: result._id,
               }).lean();
@@ -268,7 +273,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Deals.find({
+              return await models.Deals.find({
                 ...matchedFilter,
                 $and: [
                   { stageId: result._id },
@@ -482,6 +487,7 @@ const chartTemplates = [
     ],
     // Bar Chart Table
     getChartResult: async (
+      models: IModels,
       filter: any,
       subdomain: string,
       currentUser: IUserDocument,
@@ -490,6 +496,7 @@ const chartTemplates = [
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -497,7 +504,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const totalDeals = await models?.Deals.find(query).sort({
+      const totalDeals = await models.Deals.find(query).sort({
         closedDate: -1,
       });
 
@@ -661,11 +668,17 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -673,7 +686,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const deals = await models?.Deals.find(query);
+      const deals = await models.Deals.find(query);
 
       const dealCounts = calculateAverageDealAmountByRep(
         deals,
@@ -874,11 +887,17 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -889,7 +908,7 @@ const chartTemplates = [
       let deals;
 
       // Use the find() method with your query object
-      deals = await models?.Deals.find({
+      deals = await models.Deals.find({
         ...query,
         isComplete: true,
       });
@@ -1088,10 +1107,16 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -1099,7 +1124,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const totalDeals = await models?.Deals.find(query)
+      const totalDeals = await models.Deals.find(query)
         .sort({
           modifiedAt: -1,
         })
@@ -1267,7 +1292,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
@@ -1279,7 +1309,7 @@ const chartTemplates = [
           stageFilters['probability'] = stageFilter;
         }
       }
-      const stages = await models?.Stages.find({
+      const stages = await models.Stages.find({
         type: 'deal',
         ...stageFilters,
       }).lean();
@@ -1290,7 +1320,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Deals.find({
+              return await models.Deals.find({
                 ...matchedFilter,
                 stageId: result._id,
               }).lean();
@@ -1300,7 +1330,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Deals.find({
+              return await models.Deals.find({
                 ...matchedFilter,
                 $and: [
                   { stageId: result._id },
@@ -1511,7 +1541,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       const matchedFilter = await filterData(filter);
       let stageFilters = {};
@@ -1523,7 +1558,7 @@ const chartTemplates = [
         }
       }
 
-      let stages = await models?.Stages.find({
+      let stages = await models.Stages.find({
         ...stageFilters,
         type: 'deal',
       });
@@ -1531,15 +1566,13 @@ const chartTemplates = [
       if (stages) {
         const openDealsCounts = await Promise.all(
           stages.map(async (stage) => {
-            const openDealsCount = await models?.Deals.countDocuments({
+            const openDealsCount = await models.Deals.countDocuments({
               ...matchedFilter,
               stageId: stage._id,
               status: 'active', // Assuming 'active' is the status for open deals
             });
 
-            const stageDetails = await models?.Stages.findById(
-              stage._id,
-            ).lean();
+            const stageDetails = await models.Stages.findById(stage._id).lean();
 
             return {
               stageId: stage._id,
@@ -1697,7 +1730,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       let stageFilters = {};
       if (stageType) {
@@ -1709,7 +1747,7 @@ const chartTemplates = [
       }
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
-      const stages = await models?.Stages.find({
+      const stages = await models.Stages.find({
         type: 'deal',
         ...stageFilters,
       }).lean();
@@ -1717,7 +1755,7 @@ const chartTemplates = [
       if (stages) {
         dealCounts = await Promise.all(
           stages.map(async (result) => {
-            return await models?.Deals.find({
+            return await models.Deals.find({
               ...matchedFilter,
               stageId: result._id,
             }).lean();
@@ -1924,10 +1962,16 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const filerData = await filterData(filter);
       const data = await pipelineFilterData(
+        models,
         filerData,
         pipelineId,
         boardId,
@@ -2066,11 +2110,17 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -2079,7 +2129,7 @@ const chartTemplates = [
       let tasks;
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      tasks = await models?.Tasks.find({ ...query, isComplete: true });
+      tasks = await models.Tasks.find({ ...query, isComplete: true });
 
       const ticketData = await calculateAverageTimeToCloseUser(
         tasks,
@@ -2268,10 +2318,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -2282,13 +2338,13 @@ const chartTemplates = [
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      tasks = await models?.Tasks.find({ ...query, isComplete: false });
+      tasks = await models.Tasks.find({ ...query, isComplete: false });
 
       const ticketData = await taskAverageTimeToCloseByLabel(tasks);
       // const labelIds = ticketData.map((result) => result.labelIds);
       const labelIdsCount = ticketData.flatMap((result) => result.labelIds);
 
-      const labels = await models?.PipelineLabels.find({
+      const labels = await models.PipelineLabels.find({
         _id: {
           $in: labelIdsCount,
         },
@@ -2488,10 +2544,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -2499,7 +2561,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const tasks = await models?.Tasks.find({
+      const tasks = await models.Tasks.find({
         ...query,
         isComplete: false,
       }).lean();
@@ -2685,10 +2747,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -2699,7 +2767,7 @@ const chartTemplates = [
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      tasks = await models?.Tasks.find({ ...query, isComplete: true });
+      tasks = await models.Tasks.find({ ...query, isComplete: true });
 
       // Calculate task counts
       const taskCounts = calculateTicketCounts(tasks, selectedUserIds);
@@ -2881,10 +2949,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -2893,7 +2967,7 @@ const chartTemplates = [
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const tasks = await models?.Tasks.find({
+      const tasks = await models.Tasks.find({
         ...query,
         isComplete: true,
       }).lean();
@@ -2912,7 +2986,7 @@ const chartTemplates = [
       // Extract unique ownerIds for user lookup
       const ownerIds = countsArray.map((item) => item.ownerId);
 
-      const labels = await models?.PipelineLabels.find({
+      const labels = await models.PipelineLabels.find({
         _id: {
           $in: ownerIds,
         },
@@ -3083,10 +3157,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -3094,7 +3174,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const tasks = await models?.Tasks.find({
+      const tasks = await models.Tasks.find({
         ...query,
         isComplete: true,
       }).lean();
@@ -3270,10 +3350,16 @@ const chartTemplates = [
     name: 'Tasks incomplete totals by reps',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -3285,13 +3371,13 @@ const chartTemplates = [
 
       if (selectedUserIds.length === 0) {
         // No selected users, so get all tasks
-        tasks = await models?.Tasks.find({
+        tasks = await models.Tasks.find({
           isComplete: false,
           ...query,
         }).lean();
       } else {
         // Filter tasks based on selectedUserIds
-        const taskCount = await models?.Tasks.find({
+        const taskCount = await models.Tasks.find({
           ...query,
           assignedUserIds: { $in: selectedUserIds },
           isComplete: false,
@@ -3497,10 +3583,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -3512,13 +3604,13 @@ const chartTemplates = [
 
       if (selectedLabelIds.length === 0) {
         // No selected users, so get all tasks
-        tasks = await models?.Tasks.find({
+        tasks = await models.Tasks.find({
           isComplete: false,
           ...query,
         }).lean();
       } else {
         // Filter tasks based on selectedLabelIds
-        tasks = await models?.Tasks.find({
+        tasks = await models.Tasks.find({
           ...query,
           labelIds: { $in: selectedLabelIds },
           isComplete: false,
@@ -3544,7 +3636,7 @@ const chartTemplates = [
       // Extract unique ownerIds for user lookup
       const ownerIds = countsArray.map((item) => item.ownerId);
 
-      const labels = await models?.PipelineLabels.find({
+      const labels = await models.PipelineLabels.find({
         _id: {
           $in: ownerIds,
         },
@@ -3715,10 +3807,11 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (models: IModels, filter: any, subdomain: string) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -3730,13 +3823,13 @@ const chartTemplates = [
 
       if (selectedTagIds.length === 0) {
         // No selected users, so get all tasks
-        tasksCount = await models?.Tasks.find({
+        tasksCount = await models.Tasks.find({
           ...query,
           isComplete: false,
         }).lean();
       } else {
         // Filter tasks based on selectedLabelIds
-        tasksCount = await models?.Tasks.find({
+        tasksCount = await models.Tasks.find({
           ...query,
           tagIds: { $in: selectedTagIds },
           isComplete: false,
@@ -3936,10 +4029,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -3951,13 +4050,13 @@ const chartTemplates = [
 
       if (selectedUserIds.length === 0) {
         // No selected users, so get all tasks
-        tasks = await models?.Tasks.find({
+        tasks = await models.Tasks.find({
           isComplete: false,
           ...query,
         }).lean();
       } else {
         // Filter tasks based on selectedUserIds
-        const taskCount = await models?.Tasks.find({
+        const taskCount = await models.Tasks.find({
           ...query,
           assignedUserIds: { $in: selectedUserIds },
           isComplete: false,
@@ -4165,10 +4264,15 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const matchedFilter = await filterData(filter);
 
-      const tasksCount = await models?.Tasks.find({
+      const tasksCount = await models.Tasks.find({
         ...matchedFilter,
       }).lean();
 
@@ -4361,10 +4465,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -4374,7 +4484,7 @@ const chartTemplates = [
       const selectedUserIds = filter.assignedUserIds || [];
       let tickets;
 
-      tickets = await models?.Tasks.find({
+      tickets = await models.Tasks.find({
         ...query,
         isComplete: false,
       }).lean();
@@ -4576,11 +4686,17 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         filter.pipelineId,
         filter.boardId,
         stageType,
@@ -4595,7 +4711,7 @@ const chartTemplates = [
           stageFilters['probability'] = stageFilter;
         }
       }
-      const stages = await models?.Stages.find({
+      const stages = await models.Stages.find({
         type: 'ticket',
         ...stageFilters,
       }).lean();
@@ -4606,7 +4722,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Tickets.find({
+              return await models.Tickets.find({
                 ...query,
                 stageId: result._id,
               }).lean();
@@ -4616,7 +4732,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Tickets.find({
+              return await models.Tickets.find({
                 ...query,
                 $and: [
                   { stageId: result._id },
@@ -4829,11 +4945,17 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         filter.pipelineId,
         filter.boardId,
         stageType,
@@ -4847,7 +4969,7 @@ const chartTemplates = [
           stageFilters['probability'] = stageFilter;
         }
       }
-      const stages = await models?.Stages.find({
+      const stages = await models.Stages.find({
         type: 'ticket',
         ...stageFilters,
       }).lean();
@@ -4858,7 +4980,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Tickets.find({
+              return await models.Tickets.find({
                 ...filterPipelineId,
                 stageId: result._id,
               }).lean();
@@ -4868,7 +4990,7 @@ const chartTemplates = [
           dealCounts = await Promise.all(
             // tslint:disable-next-line:no-shadowed-variable
             stages.map(async (result) => {
-              return await models?.Tickets.find({
+              return await models.Tickets.find({
                 ...filterPipelineId,
                 $and: [
                   { stageId: result._id },
@@ -5072,11 +5194,16 @@ const chartTemplates = [
     templateType: 'TicketStageChangedDate',
     name: 'Ticket Stage Changed Date',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       try {
         const matchedFilter = await filterData(filter);
 
-        const ticked = await models?.Tickets.find({
+        const ticked = await models.Tickets.find({
           ...matchedFilter,
           stageChangedDate: { $exists: true },
         }).sort({ stageChangedDate: -1 });
@@ -5240,17 +5367,23 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
         PIPELINE_TYPE_TICKET,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      const ticket = await models?.Tickets.find({
+      const ticket = await models.Tickets.find({
         ...query,
         isComplete: true,
       }).lean();
@@ -5411,10 +5544,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -5423,7 +5562,7 @@ const chartTemplates = [
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
       const selectedUserIds = filter.assignedUserIds || [];
-      const tickets = await models?.Tickets.find({
+      const tickets = await models.Tickets.find({
         ...query,
         isComplete: true,
       }).lean();
@@ -5615,10 +5754,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -5626,7 +5771,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const tickets = await models?.Tickets.find({
+      const tickets = await models.Tickets.find({
         ...query,
       }).lean();
       const ticketTotalsByStatus = calculateTicketTotalsByStatus(tickets);
@@ -5777,10 +5922,11 @@ const chartTemplates = [
       'table',
     ],
 
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (models: IModels, filter: any, subdomain: string) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -5788,7 +5934,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const tickets = await models?.Tickets.find({
+      const tickets = await models.Tickets.find({
         ...query,
       }).lean();
 
@@ -5828,7 +5974,7 @@ const chartTemplates = [
       });
       const tagNames = tagInfo.map((tag) => tag.name);
 
-      const labels = await models?.PipelineLabels.find({
+      const labels = await models.PipelineLabels.find({
         _id: { $in: labelIds },
       });
       if (!labels || labels.length === 0) {
@@ -5978,10 +6124,16 @@ const chartTemplates = [
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
 
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -5989,7 +6141,7 @@ const chartTemplates = [
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
-      const totalTicked = await models?.Tickets.find({
+      const totalTicked = await models.Tickets.find({
         ...query,
       }).sort({
         createdAt: -1,
@@ -6157,10 +6309,16 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType, assignedUserIds } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
@@ -6169,7 +6327,7 @@ const chartTemplates = [
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       let tickets;
 
-      tickets = await models?.Tickets.find({
+      tickets = await models.Tickets.find({
         isComplete: true,
         ...query,
       });
@@ -6352,17 +6510,23 @@ const chartTemplates = [
     name: 'Ticket totals by source',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
         PIPELINE_TYPE_TASK,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      const ticket = await models?.Tickets.find({
+      const ticket = await models.Tickets.find({
         ...query,
         sourceConversationIds: { $exists: true, $ne: [] },
       }).lean();
@@ -6507,17 +6671,23 @@ const chartTemplates = [
       'table',
     ],
     // Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
+        models,
         pipelineId,
         boardId,
         stageType,
         PIPELINE_TYPE_TASK,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
-      const ticket = await models?.Tickets.find({
+      const ticket = await models.Tickets.find({
         isComplete: true,
         ...query,
       }).lean();
@@ -6664,12 +6834,13 @@ const chartTemplates = [
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
+  const models = generateModels(subdomain);
   const { templateType, filter, currentUser } = data;
 
   const template =
     chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(filter, subdomain, currentUser);
+  return template.getChartResult(models, filter, subdomain, currentUser);
 };
 
 export default {
@@ -7171,6 +7342,7 @@ function filterData(filter: any) {
   return matchfilter;
 }
 async function pipelineFilterData(
+  models: IModels,
   filter: any,
   pipelineId: any,
   boardId: any,
@@ -7186,7 +7358,7 @@ async function pipelineFilterData(
     }
   }
   if (checkFilterParam(pipelineId)) {
-    const findPipeline = await models?.Pipelines.find({
+    const findPipeline = await models.Pipelines.find({
       _id: {
         $in: pipelineId,
       },
@@ -7198,7 +7370,7 @@ async function pipelineFilterData(
     }
   }
   if (checkFilterParam(boardId)) {
-    const findBoard = await models?.Boards.find({
+    const findBoard = await models.Boards.find({
       _id: {
         $in: boardId,
       },
@@ -7206,7 +7378,7 @@ async function pipelineFilterData(
     });
     if (findBoard) {
       const boardId = findBoard?.map((item) => item._id);
-      const pipeline = await models?.Pipelines.find({
+      const pipeline = await models.Pipelines.find({
         boardId: {
           $in: boardId,
         },
@@ -7219,7 +7391,7 @@ async function pipelineFilterData(
     }
   }
 
-  const stages = await models?.Stages.find({
+  const stages = await models.Stages.find({
     ...stageFilters,
     pipelineId: {
       $in: pipelineIds,
@@ -7228,7 +7400,7 @@ async function pipelineFilterData(
   });
   const pipeline = stages?.map((item) => item._id);
   let deals;
-  deals = await models?.Deals.find({
+  deals = await models.Deals.find({
     ...filter,
     stageId: {
       $in: pipeline,
@@ -7272,6 +7444,7 @@ async function pipelineFilterData(
 }
 
 async function PipelineAndBoardFilter(
+  models: IModels,
   pipelineId: any,
   boardId: any,
   stageType: any,
@@ -7288,7 +7461,7 @@ async function PipelineAndBoardFilter(
     }
   }
   if (checkFilterParam(pipelineId)) {
-    const findPipeline = await models?.Pipelines.find({
+    const findPipeline = await models.Pipelines.find({
       _id: {
         $in: pipelineId,
       },
@@ -7300,7 +7473,7 @@ async function PipelineAndBoardFilter(
     }
   }
   if (checkFilterParam(boardId)) {
-    const findBoard = await models?.Boards.find({
+    const findBoard = await models.Boards.find({
       _id: {
         $in: boardId,
       },
@@ -7308,7 +7481,7 @@ async function PipelineAndBoardFilter(
     });
     if (findBoard) {
       const boardId = findBoard?.map((item) => item._id);
-      const pipeline = await models?.Pipelines.find({
+      const pipeline = await models.Pipelines.find({
         boardId: {
           $in: boardId,
         },
@@ -7321,7 +7494,7 @@ async function PipelineAndBoardFilter(
     }
   }
 
-  const stages = await models?.Stages.find({
+  const stages = await models.Stages.find({
     ...stageFilters,
     pipelineId: {
       $in: pipelineIds,

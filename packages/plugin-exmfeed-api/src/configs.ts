@@ -14,9 +14,6 @@ import segments from './segments';
 import forms from './forms';
 import app from '@erxes/api-utils/src/app';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'exmfeed',
   permissions,
@@ -36,9 +33,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     app.get('/trigger-cron', async (req, res) => {
       const subdomain = getSubdomain(req);
 
@@ -49,8 +44,6 @@ export default {
     });
 
     initBroker();
-
-    debug = options.debug;
   },
 
   meta: { cronjobs, automations, segments, forms },

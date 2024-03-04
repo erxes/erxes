@@ -11,10 +11,11 @@ const resolvers = {
       data: {
         query: {
           contentType: 'pos',
-          contentId: order._id
-        }
+          contentId: order._id,
+        },
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: [],
     });
   },
 
@@ -29,7 +30,7 @@ const resolvers = {
     }
 
     const pos: IPosDocument | null = await models.Pos.findOne({
-      token: order.posToken
+      token: order.posToken,
     }).lean();
 
     if (!pos || !pos.paymentTypes || !pos.paymentTypes.length) {
@@ -37,15 +38,15 @@ const resolvers = {
     }
 
     const paidAmounts: any[] = order.paidAmounts;
-    return paidAmounts.map(paidAmount => ({
+    return paidAmounts.map((paidAmount) => ({
       _id: paidAmount._id,
       type: paidAmount.type,
       amount: paidAmount.amount,
       title: (
-        (pos.paymentTypes || []).find(p => p.type === paidAmount.type) || {
-          title: paidAmount.type
+        (pos.paymentTypes || []).find((p) => p.type === paidAmount.type) || {
+          title: paidAmount.type,
         }
-      ).title
+      ).title,
     }));
   },
 
@@ -57,9 +58,9 @@ const resolvers = {
       subdomain,
       action: 'users.findOne',
       data: { _id: order.userId },
-      isRPC: true
+      isRPC: true,
     });
-  }
+  },
 };
 
 export default resolvers;

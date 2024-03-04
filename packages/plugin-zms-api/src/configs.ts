@@ -3,9 +3,6 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'zms',
   graphql: async () => {
@@ -19,11 +16,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

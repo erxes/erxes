@@ -8,9 +8,6 @@ import automations from './automations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'loyalties',
   permissions,
@@ -35,11 +32,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };

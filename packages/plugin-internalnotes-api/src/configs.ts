@@ -6,9 +6,6 @@ import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'internalnotes',
   graphql: async () => {
@@ -25,12 +22,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
   meta: {
     logs: { providesActivityLog: true, consumers: logs },

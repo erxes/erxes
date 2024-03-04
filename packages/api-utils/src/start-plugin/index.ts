@@ -1,10 +1,7 @@
 import * as dotenv from 'dotenv';
-
-// load environment variables
 dotenv.config();
 
 import * as cors from 'cors';
-
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import { filterXSS } from 'xss';
@@ -13,11 +10,8 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import * as cookieParser from 'cookie-parser';
-
+import { debugInfo, debugError } from '../debuggers';
 import * as http from 'http';
-
-import { connect } from './connection';
-import { debugInfo, debugError, initDebuggers } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -26,9 +20,7 @@ import * as path from 'path';
 import * as ws from 'ws';
 
 import {
-  getService,
   getServices,
-  isEnabled,
   join,
   leave,
 } from '@erxes/api-utils/src/serviceDiscovery';
@@ -36,20 +28,12 @@ import { applyInspectorEndpoints } from '../inspect';
 import app from '@erxes/api-utils/src/app';
 import { consumeQueue, consumeRPCQueue } from '../messageBroker';
 
-const {
-  MONGO_URL,
-  RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX,
-  PORT,
-  USE_BRAND_RESTRICTIONS,
-} = process.env;
+const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
 export async function startPlugin(configs: any): Promise<express.Express> {
-  initDebuggers(configs);
-
   if (configs.middlewares) {
     for (const middleware of configs.middlewares) {
       app.use(middleware);
@@ -250,11 +234,6 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   console.log(
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
-
-  const mongoUrl = MONGO_URL || '';
-
-  // connect to mongo database
-  const db = await connect(mongoUrl);
 
   await initBroker(configs.reconnectRMQ);
 
@@ -633,19 +612,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   await join({
     name: configs.name,
     port: PORT || '',
-    dbConnectionString: mongoUrl,
     hasSubscriptions: configs.hasSubscriptions,
     importExportTypes: configs.importExportTypes,
     meta: configs.meta,
   });
 
-  configs.onServerInit({
-    db,
-    debug: {
-      info: debugInfo,
-      error: debugError,
-    },
-  });
+  configs.onServerInit();
 
   applyInspectorEndpoints(configs.name);
 

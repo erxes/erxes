@@ -1,8 +1,8 @@
-import { debugInfo } from './debuggers';
+import { debugInfo } from '../debuggers';
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;

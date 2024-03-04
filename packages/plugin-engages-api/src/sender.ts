@@ -5,7 +5,7 @@ import {
   ACTIVITY_LOG_ACTIONS,
   CAMPAIGN_KINDS,
 } from './constants';
-import { debugEngages, debugError } from './debuggers';
+import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
 import { prepareEmailParams } from './emailUtils';
 import {
   getTelnyxInfo,
@@ -295,7 +295,7 @@ export const sendEmail = async (models: IModels, data: any) => {
       prepareEmailParams(customer, data, configs.configSet),
     );
 
-    debugEngages(`Sent email to: ${customer?.primaryEmail}`);
+    debugInfo(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {
     debugError(
       `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`,

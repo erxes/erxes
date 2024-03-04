@@ -7,10 +7,6 @@ import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
-export let debug;
-
-export let mainDb;
-
 export default {
   name: 'productplaces',
   permissions,
@@ -35,12 +31,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     await initBroker();
-
-    debug = options.debug;
   },
   meta: {
     afterMutations,

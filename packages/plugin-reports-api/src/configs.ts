@@ -10,9 +10,6 @@ import app from '@erxes/api-utils/src/app';
 import tags from './tags';
 import { buildFile } from './reportExport';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'reports',
   graphql: async () => {
@@ -33,11 +30,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
 
     app.get(
       '/report-table-export',

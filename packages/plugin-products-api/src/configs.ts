@@ -17,9 +17,6 @@ import search from './search';
 import documents from './documents';
 import dashboards from './dashboards';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'products',
   permissions,
@@ -57,9 +54,7 @@ export default {
     search,
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     initBroker();
-
-    debug = options.debug;
   },
 };
