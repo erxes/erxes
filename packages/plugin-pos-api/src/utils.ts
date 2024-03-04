@@ -16,6 +16,7 @@ import {
 } from './messageBroker';
 import { IPosOrder } from './models/definitions/orders';
 import { IPosDocument } from './models/definitions/pos';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -656,14 +657,16 @@ export const syncOrderFromClient = async ({
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
   const oldBranchId = oldOrder ? oldOrder.branchId : '';
 
-  for (const response of responses || []) {
-    if (response && response._id) {
-      await sendEbarimtMessage({
-        subdomain,
-        action: 'putresponses.createOrUpdate',
-        data: { _id: response._id, doc: { ...response, posToken } },
-        isRPC: true,
-      });
+  if (await isEnabled('ebarimt')) {
+    for (const response of responses || []) {
+      if (response && response._id) {
+        await sendEbarimtMessage({
+          subdomain,
+          action: 'putresponses.createOrUpdate',
+          data: { _id: response._id, doc: { ...response, posToken } },
+          isRPC: true,
+        });
+      }
     }
   }
 
@@ -688,7 +691,7 @@ export const syncOrderFromClient = async ({
     return;
   }
 
-  if (newOrder.customerId) {
+  if (newOrder.customerId && (await isEnabled('automations'))) {
     await sendAutomationsMessage({
       subdomain,
       action: 'trigger',

@@ -16,40 +16,10 @@ import addMergeKeyfieldPolicy from './add-merge-keyfield-policy';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
-async function fetchWithTimeout(
-  input: RequestInfo | URL,
-  init?: RequestInit | undefined,
-) {
-  const timeout = init?.headers?.['x-timeout'] || 30_000;
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort('Request timed out'), timeout);
-
-  try {
-    const response = await fetch(input, {
-      ...init,
-      signal: controller.signal,
-    });
-    return response;
-  } catch (e) {
-    if (controller.signal.aborted) {
-      console.error(
-        `Request timed out. Client side timeout limit ${timeout}ms exceeded.`,
-        init,
-      );
-      throw new Error(controller.signal.reason || 'Request timed out');
-    } else {
-      throw e;
-    }
-  } finally {
-    clearTimeout(id);
-  }
-}
-
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
   credentials: 'include',
-  fetch: fetchWithTimeout,
 });
 
 // Error handler
