@@ -2,7 +2,7 @@ import React from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Button from '@erxes/ui/src/components/Button';
-import { Table, Wrapper, __ } from '@erxes/ui/src';
+import { Table, Wrapper } from '@erxes/ui/src';
 import LoanRow from './LoanCheckRow';
 
 type Props = {
@@ -64,6 +64,7 @@ const LoanCheckForm = (props: Props) => {
           <tbody id="loans">
             {(items || []).map((loan) => (
               <LoanRow
+                key={loan.number}
                 loan={loan}
                 isChecked={bulk.includes(loan)}
                 toggleBulk={toggleBulk}

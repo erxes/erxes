@@ -3,7 +3,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Button from '@erxes/ui/src/components/Button';
 import CustomerRow from './CustomerCheckFormRow';
-import { Table, Wrapper, __ } from '@erxes/ui/src';
+import { Table, Wrapper } from '@erxes/ui/src';
 
 type Props = {
   toSyncCustomers: (action: string, customers: any[]) => void;
@@ -68,6 +68,7 @@ const TypeForm = (props: Props) => {
           <tbody id="customers">
             {(items || []).map((customer) => (
               <CustomerRow
+                key={customer.code}
                 customer={customer}
                 isChecked={bulk.includes(customer)}
                 toggleBulk={toggleBulk}

@@ -4,10 +4,10 @@ import {
   getSavingContracts,
   updateSavingContract,
 } from '../../../utils/utils';
-import { getSavingDetail } from '../../../utils/saving/getSavingDetail';
 import {
   findDiffrentData,
   getCustomFields,
+  getSavingAcntPolaris,
   preSyncDatas,
 } from '../../../utils/toSyncUtils/utils';
 
@@ -22,30 +22,18 @@ const checkSavingAcntMutations = {
     const savingAcounts = await getSavingContracts(subdomain, {});
     let datas: any[] = [];
     for await (const saving of savingAcounts) {
-      if (typeof saving.number !== 'undefined') {
-        try {
-          const preData = await getCustomFields(
-            subdomain,
-            'savings:contract',
-            saving,
-          );
-          const preSavingContract = preData?.item;
-          const responseData = await getSavingDetail(subdomain, {
-            number: preSavingContract.number,
-          });
-          if (responseData && Object.keys(responseData).length > 0) {
-            const result = await findDiffrentData(
-              preSavingContract,
-              responseData,
-            );
-            if (typeof result !== 'undefined') datas.push(result);
-          }
-        } catch (error) {
-          console.log('error:', error);
-        }
-      }
+      const preData = await getCustomFields(
+        subdomain,
+        'savings:contract',
+        saving,
+      );
+      const preSavingContract = preData?.item;
+      const responseData = await getSavingAcntPolaris(subdomain, {
+        number: preSavingContract.number,
+      });
+      const result = await findDiffrentData(preSavingContract, responseData);
+      if (typeof result !== 'undefined') datas.push(result);
     }
-
     return {
       SavingContracts: {
         count: datas.length || 0,
@@ -56,41 +44,37 @@ const checkSavingAcntMutations = {
 
   async toSyncSavings(
     _root,
-    { action, savings }: { action: string; savings: any[] },
+    { savings }: { action: string; savings: any[] },
     { subdomain }: IContext,
   ) {
-    try {
-      for await (const saving of savings) {
-        const preData = await getCustomFields(
+    for await (const saving of savings) {
+      const preData = await getCustomFields(
+        subdomain,
+        'savings:contract',
+        saving,
+      );
+      const preSavingContract = preData?.item || {};
+      const fields = preData?.fields || [];
+      let updateData = {};
+      const polarisSavingContact = await getSavingAcntPolaris(subdomain, {
+        number: preSavingContract.number,
+      });
+
+      updateData = await preSyncDatas(
+        preSavingContract,
+        polarisSavingContact,
+        fields,
+      );
+      if (Object.keys(updateData).length > 0)
+        await updateSavingContract(
           subdomain,
-          'savings:contract',
-          saving,
+          preSavingContract.number,
+          updateData,
         );
-        const preSavingContract = preData?.item || {};
-        const fields = preData?.fields || [];
-        let updateData = {};
-        const polarisSavingContact = await getSavingDetail(subdomain, {
-          number: preSavingContract.number,
-        });
-        if (
-          polarisSavingContact &&
-          Object.keys(polarisSavingContact).length > 0
-        ) {
-          updateData = await preSyncDatas(
-            preSavingContract,
-            polarisSavingContact,
-            fields,
-          );
-          //if(Object.keys(updateData).length > 0)
-          //await updateSavingContract(subdomain,preSavingContract.number,updateData);
-        }
-      }
-      return {
-        status: 'success',
-      };
-    } catch (e) {
-      throw new Error('Error while syncing saving contract. ' + e);
     }
+    return {
+      status: 'success',
+    };
   },
 };
 

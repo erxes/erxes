@@ -1,9 +1,9 @@
 import { IContext } from '../../../connectionResolver';
 import { getConfig, getCustomers, updateCustomer } from '../../../utils/utils';
-import { getCustomerDetail } from '../../../utils/customer/getCustomerDetail';
 import {
   findDiffrentData,
   getCustomFields,
+  getCustomPolaris,
   preSyncDatas,
 } from '../../../utils/toSyncUtils/utils';
 
@@ -16,27 +16,20 @@ const checkMutations = {
     const customers = await getCustomers(subdomain, {});
     let datas: any = [];
     for await (const customer of customers) {
-      if (typeof customer.code !== 'undefined') {
-        try {
-          const preData = await getCustomFields(
-            subdomain,
-            'contacts:customer',
-            customer,
-          );
-          const preCustomer = preData?.item;
-          const responsePolaris = await getCustomerDetail(subdomain, {
-            code: preCustomer.code,
-          });
-          if (responsePolaris && Object.keys(responsePolaris).length > 0) {
-            const result = await findDiffrentData(preCustomer, responsePolaris);
-            if (typeof result !== 'undefined') datas.push(result);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
+      const preData = await getCustomFields(
+        subdomain,
+        'contacts:customer',
+        customer,
+      );
+      const preCustomer = preData?.item;
+      const polarisCustomer = await getCustomPolaris(
+        subdomain,
+        preCustomer.code,
+      );
+      const result = await findDiffrentData(preCustomer, polarisCustomer);
+      if (typeof result !== 'undefined') datas.push(result);
     }
-    // for update
+
     return {
       diffCustomer: {
         count: datas.length,
@@ -60,14 +53,13 @@ const checkMutations = {
         const preCustomer = preData?.item || {};
         const fields = preData?.fields || [];
         let updateData = {};
-        const polarisCustomer = await getCustomerDetail(subdomain, {
-          code: preCustomer.code,
-        });
-        if (polarisCustomer && Object.keys(polarisCustomer).length > 0) {
-          updateData = await preSyncDatas(preCustomer, polarisCustomer, fields);
-          if (Object.keys(updateData).length > 0)
-            await updateCustomer(subdomain, preCustomer.code, updateData);
-        }
+        const polarisCustomer = await getCustomPolaris(
+          subdomain,
+          preCustomer.code,
+        );
+        updateData = await preSyncDatas(preCustomer, polarisCustomer, fields);
+        if (Object.keys(updateData).length > 0)
+          await updateCustomer(subdomain, preCustomer.code, updateData);
       }
       return {
         status: 'success',
