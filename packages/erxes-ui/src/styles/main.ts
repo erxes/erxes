@@ -607,6 +607,13 @@ const DialogWrapper = styled.div`
   z-index: 2000;
 `;
 
+const MenuDivider = styled.div`
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -625,6 +632,7 @@ export {
   CenterContent,
   ActivityContent,
   DropIcon,
+  MenuDivider,
   MiddleContent,
   HomeContainer,
   DateWrapper,
