@@ -11,7 +11,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import app from '@erxes/api-utils/src/app';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -38,8 +37,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     // Error handling middleware
     app.use((error, _req, res, _next) => {
       const msg = filterXSS(error.message);

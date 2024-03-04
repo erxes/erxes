@@ -58,7 +58,7 @@ const sendInvitationEmail = (
     token: string;
   },
 ) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
   utils.sendEmail(
@@ -152,7 +152,7 @@ const userMutations = {
     const { token } = response;
 
     const sameSite = getEnv({ name: 'SAME_SITE' });
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
     const cookieOptions: any = { secure: requestInfo.secure };
     if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {

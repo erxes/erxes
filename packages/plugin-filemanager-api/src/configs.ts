@@ -7,7 +7,6 @@ import { initBroker, sendCoreMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { checkFilePermission } from './utils';
 
-export let mainDb;
 export let debug;
 
 const checkPermission = async ({ subdomain, models, files, userId }) => {
@@ -66,8 +65,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

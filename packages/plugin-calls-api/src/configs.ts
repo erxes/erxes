@@ -6,7 +6,6 @@ import webhookReceiver from './webhook';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -46,8 +45,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

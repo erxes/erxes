@@ -131,7 +131,7 @@ class ConversationDetail extends React.Component<
       getLocalStorageItem("messengerDataJson")
     );
 
-    if (!messengerData.showLauncher) {
+    if (!messengerData.showLauncher && connection.enabledServices.engages) {
       client.query({
         query: gql(graphqlTypes.getEngageMessage),
         variables: {
@@ -139,7 +139,7 @@ class ConversationDetail extends React.Component<
           customerId: connection.data.customerId,
           visitorId: connection.data.visitorId,
           browserInfo: {}
-        }
+        },
       });
     }
 

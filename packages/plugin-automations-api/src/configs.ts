@@ -9,7 +9,6 @@ import cronjobs from './cronjobs/automations';
 import tags from './tags';
 import logs from './logUtils';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -37,8 +36,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     console.log('on server init .....');
 
     initBroker();

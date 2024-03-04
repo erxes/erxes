@@ -6,7 +6,6 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
-export let mainDb;
 export let debug;
 
 export default {
@@ -30,8 +29,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

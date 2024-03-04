@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { ICarCategoryDocument, ICarDocument } from './models/definitions/cars';
 import {

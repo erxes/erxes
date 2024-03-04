@@ -7,6 +7,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
 import { coreModelOrganizations, getCoreConnection } from './saas/saas';
+import { connect } from './mongo-connection';
 
 export const getEnv = ({
   name,
@@ -367,23 +368,25 @@ export const createGenerateModels = <IModels>(
 ) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
+  connect();
+
   if (VERSION && VERSION !== 'saas') {
     let models: IModels | null = null;
-    return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    return async function genereteModels(
+      hostnameOrSubdomain: string,
+    ): Promise<IModels> {
       if (models) {
         return models;
       }
-
-      const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-      await mongoose.connect(MONGO_URL, connectionOptions);
 
       models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
 
       return models;
     };
   } else {
-    return async (hostnameOrSubdomain: string = ''): Promise<IModels> => {
+    return async function genereteModels(
+      hostnameOrSubdomain: string = '',
+    ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
       // means hostname

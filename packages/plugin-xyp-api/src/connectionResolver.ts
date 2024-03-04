@@ -1,6 +1,5 @@
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IXypData, IXypconfigDocument } from './models/definitions/xypdata';
 import { IXypDataModel, loadxypConfigClass } from './models/xypdata';
 import { createGenerateModels } from '@erxes/api-utils/src/core';

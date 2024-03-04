@@ -9,7 +9,6 @@ import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import app from '@erxes/api-utils/src/app';
 // import { getBalance, sendSms, updateBalance } from './utils';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -32,8 +31,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     app.post(
       '/tdb/receive',
       routeErrorHandling(async (req, res) => {

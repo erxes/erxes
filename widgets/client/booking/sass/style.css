@@ -794,6 +794,16 @@ button.removeBtn {
 .form-group .field-groups .field-group {
   border-top: 1px solid #d8d8d8;
 }
+.form-group .field-groups .field-group .field-group-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-group .field-groups .field-group .field-group-row .subField-item {
+  margin-right: 20px;
+}
+.form-group .field-groups .field-group .field-group-row .subField-item:last-child {
+  margin: 0;
+}
 .form-group .field-groups .field-group:first-child {
   border-top: none;
 }

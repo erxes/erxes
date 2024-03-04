@@ -9,7 +9,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
 export let debug;
-export let mainDb;
 
 export default {
   name: 'loyalties',
@@ -36,8 +35,6 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

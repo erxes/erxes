@@ -7,7 +7,6 @@ import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import cpCustomerHandle from './cpCustomerHandle';
 
-export let mainDb;
 export let debug;
 
 export default {
@@ -34,8 +33,6 @@ export default {
   },
 
   onServerInit: async (options) => {
-    mainDb = options.db;
-
     initBroker();
 
     debug = options.debug;

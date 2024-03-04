@@ -1,10 +1,13 @@
-import highlighter from 'fuzzysearch-highlight';
+import React from 'react';
 import strip from 'strip';
 import xss from 'xss';
 
-import { ResponseSuggestionItem, ResponseSuggestions } from '@erxes/ui-inbox/src/inbox/styles';
-import React from 'react';
+import {
+  ResponseSuggestionItem,
+  ResponseSuggestions,
+} from '@erxes/ui-inbox/src/inbox/styles';
 
+import getHighlightedText from './getHighlightedText';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 
 type TemplateListProps = {
@@ -17,11 +20,10 @@ type TemplateListProps = {
 };
 
 // response templates
-export default class TemplateList extends React.Component<
-  TemplateListProps,
-  {}
-> {
-  normalizeIndex(selectedIndex: number, max: number) {
+const TemplateList = (props: TemplateListProps) => {
+  const { suggestionsState, onSelect } = props;
+
+  function normalizeIndex(selectedIndex: number, max: number) {
     let index = selectedIndex % max;
 
     if (index < 0) {
@@ -31,53 +33,43 @@ export default class TemplateList extends React.Component<
     return index;
   }
 
-  render() {
-    const { suggestionsState, onSelect } = this.props;
+  const { selectedIndex, searchText, templates } = suggestionsState;
 
-    const { selectedIndex, searchText, templates } = suggestionsState;
-
-    if (!templates) {
-      return null;
-    }
-
-    const normalizedIndex = this.normalizeIndex(
-      selectedIndex,
-      templates.length
-    );
-
-    return (
-      <ResponseSuggestions>
-        {templates.map((template, index) => {
-          const style: any = {};
-
-          if (normalizedIndex === index) {
-            style.backgroundColor = '#5629B6';
-            style.color = '#ffffff';
-          }
-
-          const onClick = () => onSelect(index);
-
-          return (
-            <ResponseSuggestionItem
-              key={template._id}
-              onClick={onClick}
-              style={style}
-            >
-              <span
-                style={{ fontWeight: 'bold' }}
-                dangerouslySetInnerHTML={{
-                  __html: xss(highlighter(searchText, template.name))
-                }}
-              />{' '}
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: xss(highlighter(searchText, strip(template.content)))
-                }}
-              />
-            </ResponseSuggestionItem>
-          );
-        }, this)}
-      </ResponseSuggestions>
-    );
+  if (!templates) {
+    return null;
   }
-}
+
+  const normalizedIndex = normalizeIndex(selectedIndex, templates.length);
+
+  return (
+    <ResponseSuggestions>
+      {templates.map((template, index) => {
+        const style: any = {};
+
+        if (normalizedIndex === index) {
+          style.backgroundColor = '#5629B6';
+          style.color = '#ffffff';
+        }
+
+        const onClick = () => onSelect(index);
+
+        return (
+          <ResponseSuggestionItem
+            key={template._id}
+            onClick={onClick}
+            style={style}
+          >
+            <span style={{ fontWeight: 'bold' }}>
+              {getHighlightedText(xss(template.name), searchText)}
+            </span>{' '}
+            <span>
+              {getHighlightedText(xss(strip(template.content)), searchText)}
+            </span>
+          </ResponseSuggestionItem>
+        );
+      }, this)}
+    </ResponseSuggestions>
+  );
+};
+
+export default TemplateList;
