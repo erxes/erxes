@@ -40,8 +40,8 @@ class CategoryForm extends React.Component<Props, State> {
 
     this.state = {
       image: image ? image : undefined,
-      secondaryImages: secondaryImages ? secondaryImages : undefined,
-      productCategoryId: productCategoryId ? productCategoryId : '',
+      secondaryImages: secondaryImages || undefined,
+      productCategoryId: productCategoryId || '',
     };
   }
 
