@@ -1091,11 +1091,7 @@ export const loadUserMovemmentClass = (models: IModels) => {
           userId,
         }).sort({ createdAt: -1 });
 
-        console.log(userId, ' userId');
-
         if (!movement || movement?.status === USER_MOVEMENT_STATUSES.REMOVED) {
-          console.log('create user movement');
-
           await models.UserMovements.create({
             contentType,
             contentTypeId,

@@ -27,8 +27,6 @@ const FormContainer = ({
   additionalRefetchQueries,
   closeModal,
 }: Props) => {
-  console.log('inside block');
-
   const { data, error, loading } = useQuery(gql(queries[queryType]), {
     fetchPolicy: 'network-only',
   });

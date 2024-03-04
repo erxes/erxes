@@ -297,7 +297,7 @@ mutation positionsAdd(${commonPositionParamsDef}){
 
 const positionsEdit = `
   mutation positionsEdit($_id: String!, ${commonPositionParamsDef}) {
-    positionsEdit(_id: $_id, ${commonParams}) {
+    positionsEdit(_id: $_id, ${commonPositionParams}) {
       _id
     }
   }

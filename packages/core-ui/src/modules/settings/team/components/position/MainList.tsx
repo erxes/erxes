@@ -44,6 +44,7 @@ const MainList = (props: Props) => {
   const { queryParams, listQuery, deletePositions } = props;
 
   const positions = listQuery?.positionsMain?.list || [];
+
   const { totalCount } = listQuery.positionsMain;
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -116,7 +117,7 @@ const MainList = (props: Props) => {
               content={({ closeModal }) => (
                 <Form
                   item={position}
-                  queryType="positiones"
+                  queryType="positions"
                   closeModal={closeModal}
                   additionalRefetchQueries={refetchQueries()}
                 />
@@ -154,12 +155,12 @@ const MainList = (props: Props) => {
                 checked={positions?.length === selectedItems.length}
                 onClick={handleSelectAll}
               />
-              <th>{__('Code')}</th>
-              <th>{__('Title')}</th>
-              <th>{__('Parent')}</th>
-              <th>{__('Team member count')}</th>
-              <th>{__('Actions')}</th>
             </th>
+            <th>{__('Code')}</th>
+            <th>{__('Title')}</th>
+            <th>{__('Parent')}</th>
+            <th>{__('Team member count')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -170,6 +171,8 @@ const MainList = (props: Props) => {
           {generateTree(positions, '', (position, level) =>
             renderRow(position, level),
           )}
+
+          {/* {positions.map(p => renderRow(p, 1))} */}
         </tbody>
       </Table>
     );
