@@ -473,13 +473,13 @@ export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessag
   });
   con.once('close', () => {
     con.removeAllListeners();
-    console.log('RabbitMQ connection is closing.');
+    console.log('RabbitMQ: connection is closing.');
     reconnectToMessageBroker(setupMessageConsumers);
   });
-  con.on('error', (e) => {
-    console.error('RabbitMQ connection error:', e);
+  con.on('error', async (e) => {
+    console.error('RabbitMQ: connection error:', e);
     try {
-      con.close();
+      await con.close();
     } catch (e) {
       console.error('RabbitMQ connection close error:', e);
     }
@@ -488,7 +488,7 @@ export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessag
   channel = await con.createChannel();
   if(setupMessageConsumers) {
     await setupMessageConsumers();
-    console.log("Finished setting up message consumers");
+    console.log("RabbitMQ: Finished setting up message consumers");
   }
   console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
 };
