@@ -16,7 +16,10 @@ import {
   InCallFooter,
   CallTab,
   CallTabsContainer,
-  CallTabContent
+  CallTabContent,
+  IncomingContainer,
+  IncomingButtonContainer,
+  IncomingActionButton,
 } from '../styles';
 import { caller, inCallTabs } from '../constants';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
@@ -29,7 +32,7 @@ import * as PropTypes from 'prop-types';
 import { callPropType, sipPropType } from '../lib/types';
 import { CALL_STATUS_IDLE } from '../lib/enums';
 import { ICallConversation, ICustomer } from '../types';
-import { Tags } from '@erxes/ui/src/components';
+import { ModalTrigger, Tags, Tip } from '@erxes/ui/src/components';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 
 type Props = {
@@ -64,7 +67,7 @@ const getSpentTime = (seconds: number) => {
 const formatNumber = (n: number) => {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   });
 };
 
@@ -78,13 +81,13 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     taggerRefetchQueries,
     conversation,
     hasMicrophone,
-    addNote
+    addNote,
   } = props;
   const primaryPhone = customer?.primaryPhone;
 
   const [currentTab, setCurrentTab] = useState('');
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false
+    primaryPhone ? true : false,
   );
   const [shrink, setShrink] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -98,7 +101,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   if (conversation) {
     conversationDetail = {
       ...conversation,
-      _id: conversation.erxesApiId
+      _id: conversation.erxesApiId,
     };
   }
 
@@ -106,11 +109,10 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     let timer: NodeJS.Timeout;
     if (status === 'accepted') {
       timer = setInterval(() => {
-        setTimeSpent(prevTimeSpent => prevTimeSpent + 1);
+        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
       }, 1000);
     }
-
-    if (primaryPhone && status !== 'accepted') {
+    if (status !== 'accepted') {
       setHaveIncomingCall(true);
     }
 
@@ -123,7 +125,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   };
 
   const endCall = () => {
-    onDeclineCall();
+    // onDeclineCall();
     setShowHistory(true);
   };
 
@@ -131,7 +133,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     toggleSectionWithPhone(primaryPhone);
   };
 
-  const onChangeText = e =>
+  const onChangeText = (e) =>
     setNoteContent((e.currentTarget as HTMLInputElement).value);
 
   const sendMessage = () => {
@@ -222,12 +224,15 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     }
   };
 
-  const onDeclineCall = () => {
+  const onDeclineCall = (props) => {
     setHaveIncomingCall(false);
     const { stopCall } = context;
 
     if (stopCall) {
       stopCall();
+      props.closeModal();
+    } else {
+      props.closeModal();
     }
   };
 
@@ -251,127 +256,173 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     }
   };
 
-  const popoverNotification = hasMicrophone && (
-    <Popover id="call-popover" className="call-popover">
-      <InCall>
-        <CallInfo shrink={shrink}>
-          <p>
-            {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-          </p>
-          <div>{renderCallerInfo()}</div>
-          <Actions>
-            {!isMuted() && (
-              <CallAction
-                key={'Mute'}
-                shrink={false}
-                onClick={handleAudioToggle}
-              >
-                <Icon icon={'phone-times'} />
-                {__('Mute')}
-              </CallAction>
-            )}
-            {isMuted() && (
-              <CallAction
-                key={'UnMute'}
-                shrink={true}
-                onClick={handleAudioToggle}
-              >
-                <Icon icon={'phone-times'} />
-                {__('UnMute')}
-              </CallAction>
-            )}
-
-            {!isHolded().localHold && (
-              <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
-                <Icon icon={'pause-1'} />
-                {__('Hold')}
-              </CallAction>
-            )}
-            {isHolded().localHold && (
-              <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
-                <Icon icon={'pause-1'} />
-                {__('UnHold')}
-              </CallAction>
-            )}
-            {shrink && (
-              <CallAction shrink={shrink} isDecline={true} onClick={endCall}>
-                <Icon icon="phone-slash" />
-              </CallAction>
-            )}
-          </Actions>
-        </CallInfo>
-        <ContactItem>
-          <CallTabsContainer full={true}>
-            {inCallTabs.map(tab => (
-              <CallTab
-                key={tab}
-                className={currentTab === tab ? 'active' : ''}
-                onClick={() => onTabClick(tab)}
-              >
-                {__(tab)}
-                <ActionNumber>1</ActionNumber>
-              </CallTab>
-            ))}
-          </CallTabsContainer>
-        </ContactItem>
-        {renderFooter()}
-      </InCall>
-    </Popover>
+  const acceptIncomingTrigger = (
+    <CallButton onClick={onAcceptCall}>
+      <Icon icon="phone" size={18} />
+    </CallButton>
   );
 
-  if (showHistory) {
-    return <WidgetPopover autoOpenTab="History" />;
-  }
-  if (haveIncomingCall) {
+  const content = (props) => {
     return (
       <IncomingCallNav>
-        <NameCard
-          user={{ ...customer, username: customer?.primaryPhone }}
-          avatarSize={30}
-          secondLine={
-            isEnabled('tags') && (
-              <Tags tags={customer?.getTags || []} limit={3} />
-            )
-          }
-        />
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom"
-          overlay={popoverNotification}
-        >
-          <CallButton onClick={onAcceptCall}>
-            <Icon icon="check" size={13} />
-          </CallButton>
-        </OverlayTrigger>
-        {/* <CallButton type="decline" onClick={onDeclineCall}>
-          <Icon icon="cancel" size={13} />
-        </CallButton> */}
-        <Button size="small" btnStyle="simple" onClick={ignoreCall}>
-          Ignore
-        </Button>
+        <IncomingContainer>
+          <NameCard
+            user={{ ...customer, username: customer?.primaryPhone }}
+            avatarSize={30}
+            secondLine={
+              isEnabled('tags') && (
+                <Tags tags={customer?.getTags || []} limit={3} />
+              )
+            }
+          />
+          <IncomingButtonContainer>
+            <IncomingActionButton onClick={onAcceptCall} type="accepted">
+              Accept
+            </IncomingActionButton>
+            <IncomingActionButton
+              onClick={() => onDeclineCall(props)}
+              type="decline"
+            >
+              Reject
+            </IncomingActionButton>
+          </IncomingButtonContainer>
+        </IncomingContainer>
       </IncomingCallNav>
+    );
+  };
+
+  //const popoverNotification =
+
+  if (showHistory) {
+    return (
+      <Popover id="call-popover" className="call-popover">
+        <WidgetPopover autoOpenTab="History" {...props} />
+      </Popover>
+    );
+  }
+
+  if (haveIncomingCall) {
+    // <IncomingCallNav>
+    //   {/* <NameCard
+    //     user={{ ...customer, username: customer?.primaryPhone }}
+    //     avatarSize={30}
+    //     secondLine={
+    //       isEnabled('tags') && (
+    //         <Tags tags={customer?.getTags || []} limit={3} />
+    //       )
+    //     }
+    //   /> */}
+
+    //   <CallButton onClick={onAcceptCall}>
+    //     <Icon icon="phone" size={18} />
+    //   </CallButton>
+    //   {/* <CallButton type="decline" onClick={onDeclineCall}>
+    //     <Icon icon="cancel" size={13} />
+    //   </CallButton> */}
+    //   {/* <Button size="small" btnStyle="simple" onClick={ignoreCall}>
+    //     Ignore
+    //   </Button> */}
+    // </IncomingCallNav>
+    return (
+      <ModalTrigger
+        title="Incoming call"
+        trigger={acceptIncomingTrigger}
+        content={content}
+      />
     );
   }
   if (status === 'accepted' && !haveIncomingCall) {
+    // return (
+    //   <IncomingCallNav>
+    //     <NameCard
+    //       user={customer}
+    //       avatarSize={30}
+    //       secondLine="Incoming call..."
+    //     />
+    //     <OverlayTrigger
+    //       trigger="click"
+    //       rootClose={true}
+    //       placement="bottom"
+    //       overlay={popoverNotification}
+    //     >
+    //       <CallButton>
+    //         <Icon icon="phone" size={13} />
+    //       </CallButton>
+    //     </OverlayTrigger>
+    //   </IncomingCallNav>
+    // );
     return (
-      <IncomingCallNav>
-        <NameCard
-          user={customer}
-          avatarSize={30}
-          secondLine="Incoming call..."
-        />
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom"
-          overlay={popoverNotification}
-        >
-          <CallButton>
-            <Icon icon="phone" size={13} />
-          </CallButton>
-        </OverlayTrigger>
-      </IncomingCallNav>
+      hasMicrophone && (
+        <Popover id="call-popover" className="call-popover">
+          <InCall>
+            <CallInfo shrink={shrink}>
+              <p>
+                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+              </p>
+              <div>{renderCallerInfo()}</div>
+              <Actions>
+                {!isMuted() && (
+                  <CallAction
+                    key={'Mute'}
+                    shrink={false}
+                    onClick={handleAudioToggle}
+                  >
+                    <Icon icon={'phone-times'} />
+                    {__('Mute')}
+                  </CallAction>
+                )}
+                {isMuted() && (
+                  <CallAction
+                    key={'UnMute'}
+                    shrink={true}
+                    onClick={handleAudioToggle}
+                  >
+                    <Icon icon={'phone-times'} />
+                    {__('UnMute')}
+                  </CallAction>
+                )}
+
+                {!isHolded().localHold && (
+                  <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
+                    <Icon icon={'pause-1'} />
+                    {__('Hold')}
+                  </CallAction>
+                )}
+                {isHolded().localHold && (
+                  <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
+                    <Icon icon={'pause-1'} />
+                    {__('UnHold')}
+                  </CallAction>
+                )}
+                {shrink && (
+                  <CallAction
+                    shrink={shrink}
+                    isDecline={true}
+                    onClick={endCall}
+                  >
+                    <Icon icon="phone-slash" />
+                  </CallAction>
+                )}
+              </Actions>
+            </CallInfo>
+            <ContactItem>
+              <CallTabsContainer full={true}>
+                {inCallTabs.map((tab) => (
+                  <CallTab
+                    key={tab}
+                    className={currentTab === tab ? 'active' : ''}
+                    onClick={() => onTabClick(tab)}
+                  >
+                    {__(tab)}
+                    <ActionNumber>1</ActionNumber>
+                  </CallTab>
+                ))}
+              </CallTabsContainer>
+            </ContactItem>
+            {renderFooter()}
+          </InCall>
+        </Popover>
+      )
     );
   }
   return null;
@@ -388,6 +439,6 @@ IncomingCall.contextTypes = {
   hold: PropTypes.func,
   unhold: PropTypes.func,
   isMuted: PropTypes.func,
-  isHolded: PropTypes.func
+  isHolded: PropTypes.func,
 };
 export default IncomingCall;

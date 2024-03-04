@@ -16,10 +16,10 @@ type Props = {
 const WidgetPopover = ({
   autoOpenTab,
   callIntegrationsOfUser,
-  setConfig
+  setConfig,
 }: Props) => {
   const [currentTab, setCurrentTab] = useState(autoOpenTab || 'Keyboard');
-  const onTabClick = newTab => {
+  const onTabClick = (newTab) => {
     setCurrentTab(newTab);
   };
 
@@ -35,7 +35,7 @@ const WidgetPopover = ({
     onTabClick('Contact');
   };
   return (
-    <Popover id="call-popover" className="call-popover">
+    <>
       <TabContent show={currentTab === 'History'}>
         <History />
       </TabContent>
@@ -71,7 +71,7 @@ const WidgetPopover = ({
           {__('Contact')}
         </Tab>
       </TabsContainer>
-    </Popover>
+    </>
   );
 };
 

@@ -185,7 +185,6 @@ export default class SipProvider extends React.Component<
     if (callConfig && !callConfig.isAvailable) {
       return this.props.children(this.state);
     }
-
     if (window.document.getElementById('sip-provider-audio')) {
       throw new Error(
         `Creating two SipProviders in one application is forbidden. If that's not the case ` +
@@ -206,7 +205,6 @@ export default class SipProvider extends React.Component<
     const callConfig = JSON.parse(
       localStorage.getItem('config:call_integrations') || '{}',
     );
-
     if (callConfig && !callConfig.isAvailable) {
       return this.props.children(this.state);
     }
@@ -499,7 +497,7 @@ export default class SipProvider extends React.Component<
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_REGISTRATION,
-        sipErrorMessage: data || '',
+        sipErrorMessage: data?.cause || '',
       });
     });
 
@@ -513,6 +511,7 @@ export default class SipProvider extends React.Component<
         }
         // identify call direction
         if (originator === 'local') {
+          console.log('local...');
           const foundUri = rtcRequest.to.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
 
@@ -523,6 +522,7 @@ export default class SipProvider extends React.Component<
               foundUri.substring(0, delimiterPosition) || foundUri,
           });
         } else if (originator === 'remote') {
+          console.log('remote...');
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
           this.setState({
@@ -545,12 +545,15 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
+        rtcSession.on('progress', function (data) {
+          if (data.originator === 'remote') data.response.body = null;
+        });
         rtcSession.on('failed', (e) => {
           this.logger.debug('UA failed event');
           if (this.ua !== ua) {
             return;
           }
-
+          console.log('failed..', e);
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -560,6 +563,10 @@ export default class SipProvider extends React.Component<
           ua?.terminateSessions();
 
           rtcSession = null;
+        });
+
+        rtcSession.on('sdp', (data) => {
+          console.log(data, 'sdp');
         });
         rtcSession.on('peerconnection', (e) => {
           if (this.ua !== ua) {
@@ -571,7 +578,7 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-
+          console.log('ended..');
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -586,6 +593,7 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
+          console.log('bye..');
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -600,6 +608,7 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
+          console.log('rejected.');
 
           this.setState({
             rtcSession: null,
@@ -611,6 +620,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('accepted', () => {
+          console.log('acc..');
           if (this.ua !== ua) {
             return;
           }
@@ -619,7 +629,7 @@ export default class SipProvider extends React.Component<
             rtcSession.connection.getRemoteStreams();
 
           const played = this.remoteAudio.play();
-
+          console.log('this.remoteAudio:', this.remoteAudio);
           if (typeof played !== 'undefined') {
             played
               .catch(() => {
