@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
 import { engageTracker } from './trackers/engageTracker';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
@@ -38,7 +38,6 @@ export default {
   onServerInit: async () => {
     // Insert routes below
     app.use('/telnyx', telnyx);
-
-    initBroker();
   },
+  setupMessageConsumers,
 };

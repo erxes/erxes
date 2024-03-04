@@ -21,7 +21,7 @@ import {
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'viber:createIntegration',
     async (args: InterMessage): Promise<RPResult> => {

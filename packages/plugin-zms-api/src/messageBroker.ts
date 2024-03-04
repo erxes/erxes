@@ -10,7 +10,7 @@ import {
 
 import { Zmss } from './models';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('zms:send', async ({ data }) => {
     Zmss.send(data);
 

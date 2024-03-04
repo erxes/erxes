@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
@@ -30,8 +30,6 @@ export default {
     return context;
   },
   onServerInit: async () => {
-    initBroker();
-
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
 
@@ -203,4 +201,5 @@ export default {
       );
     });
   },
+  setupMessageConsumers,
 };

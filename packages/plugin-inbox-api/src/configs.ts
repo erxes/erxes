@@ -4,7 +4,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
   identifyCustomer,
@@ -135,7 +135,6 @@ export default {
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
-
-    initBroker();
   },
+  setupMessageConsumers,
 };

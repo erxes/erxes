@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 import * as permissions from './permissions';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug: any;
@@ -28,9 +28,8 @@ export default {
     return context;
   },
   onServerInit: async (options: any) => {
-    initBroker();
   },
-
+  setupMessageConsumers,
   meta: {
     permissions,
   },
