@@ -1,27 +1,56 @@
 import React from 'react';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
-
+import {
+  __,
+  Wrapper,
+  DataWithLoader,
+  Pagination,
+  Table,
+  Button,
+  Bulk,
+  ModalTrigger,
+} from '@erxes/ui/src';
 import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-
+import LoanCheckForm from './LoanCheckForm';
 interface IProps extends IRouterProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
+  toSyncLoans: (action: string, toSyncSavings: any[]) => void;
+  toCheckLoans: () => void;
+  items: any;
 }
 
 class Loan extends React.Component<IProps> {
   render() {
-    const { history, syncHistories, totalCount, loading, queryParams } =
-      this.props;
+    const {
+      history,
+      syncHistories,
+      totalCount,
+      loading,
+      queryParams,
+      items,
+      toSyncLoans,
+      toCheckLoans,
+    } = this.props;
 
     const tablehead = ['Date', 'Number', 'Status', 'Content', 'Error'];
 
+    const onClickCheck = (e) => {
+      e.stopPropagation();
+      this.props.toCheckLoans();
+    };
+
+    const checkButton = (
+      <Button btnStyle="warning" icon="check-circle" onMouseDown={onClickCheck}>
+        Check
+      </Button>
+    );
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
@@ -52,6 +81,38 @@ class Loan extends React.Component<IProps> {
         </tbody>
       </Table>
     );
+    const loanCheckForm = () => {
+      const content = (props) => {
+        return (
+          <LoanCheckForm
+            items={items?.loanContracts?.items}
+            toCheckLoans={toCheckLoans}
+            toSyncLoans={toSyncLoans}
+            {...props}
+          />
+        );
+      };
+      return <Bulk content={content} />;
+    };
+    const actionBarRight = (
+      <ModalTrigger
+        title={`${__('Loans Account')}`}
+        trigger={checkButton}
+        autoOpenKey="showLoanModal"
+        size="xl"
+        content={loanCheckForm}
+        backDrop="static"
+      />
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={<Title>{__(`loan accounts (${totalCount})`)}</Title>}
+        right={actionBarRight}
+        background="colorWhite"
+        wideSpacing={true}
+      />
+    );
 
     return (
       <Wrapper
@@ -63,14 +124,7 @@ class Loan extends React.Component<IProps> {
           />
         }
         leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__(`loan accounts (${totalCount})`)}</Title>}
-            // right={actionBarRight}
-            background="colorWhite"
-            wideSpacing={true}
-          />
-        }
+        actionBar={actionBar}
         footer={<Pagination count={totalCount || 0} />}
         content={
           <DataWithLoader

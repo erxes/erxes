@@ -46,3 +46,33 @@ export type SyncHistoriesCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type ToCheckCustomersMutationResponse = {
+  toCheckCustomers: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncCustomersMutationResponse = {
+  toSyncCustomers: (mutation: {
+    variables: { action: string; customers: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckSavingsMutationResponse = {
+  toCheckSavings: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncSavingsMutationResponse = {
+  toSyncSavings: (mutation: {
+    variables: { action: string; savings: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckLoansMutationResponse = {
+  toCheckLoans: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncLoansMutationResponse = {
+  toSyncLoans: (mutation: {
+    variables: { action: string; loans: any[] };
+  }) => Promise<any>;
+};

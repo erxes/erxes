@@ -31,6 +31,18 @@ export const initBroker = async () => {
   );
 
   consumeRPCQueue(
+    'loans:contracts.updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      console.log('selector:', selector, modifier);
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Contracts.updateOne(selector, modifier),
+      };
+    },
+  );
+
+  consumeRPCQueue(
     'loans:contracts.getCloseInfo',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
@@ -56,6 +68,15 @@ export const initBroker = async () => {
     return {
       status: 'success',
       data: await models.ContractTypes.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('loans:contractType.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ContractTypes.find(data).lean(),
     };
   });
 

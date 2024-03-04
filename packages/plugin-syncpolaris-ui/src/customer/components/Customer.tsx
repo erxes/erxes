@@ -1,27 +1,55 @@
 import React from 'react';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
-
+import {
+  __,
+  Wrapper,
+  DataWithLoader,
+  Pagination,
+  Table,
+  Button,
+  ModalTrigger,
+  Bulk,
+} from '@erxes/ui/src';
 import Sidebar from './Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-
+import CustomerCheckForm from './CustomerCheckForm';
 interface IProps extends IRouterProps {
+  toSyncCustomers: (action: string, customers: any[]) => void;
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
+  toCheckCustomers: () => void;
+  items: any;
 }
 
 class Customer extends React.Component<IProps> {
   render() {
-    const { history, syncHistories, totalCount, loading, queryParams } =
-      this.props;
-
+    const {
+      history,
+      syncHistories,
+      totalCount,
+      loading,
+      queryParams,
+      items,
+      toSyncCustomers,
+      toCheckCustomers,
+    } = this.props;
     const tablehead = ['Date', 'Email', 'content', 'error'];
 
+    const onClickCheck = (e) => {
+      toCheckCustomers();
+      this.setState({ items: items });
+    };
+
+    const checkButton = (
+      <Button btnStyle="warning" icon="check-circle" onMouseDown={onClickCheck}>
+        Check
+      </Button>
+    );
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
@@ -51,6 +79,38 @@ class Customer extends React.Component<IProps> {
         </tbody>
       </Table>
     );
+    const customerCheckForm = () => {
+      const content = (props) => {
+        return (
+          <CustomerCheckForm
+            items={items}
+            onClickCheck={onClickCheck}
+            toSyncCustomers={toSyncCustomers}
+            {...props}
+          />
+        );
+      };
+      return <Bulk content={content} />;
+    };
+    const actionBarRight = (
+      <ModalTrigger
+        title={`${__('Customers')}`}
+        trigger={checkButton}
+        autoOpenKey="showCustomerModal"
+        size="xl"
+        content={customerCheckForm}
+        backDrop="static"
+      />
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={<Title>{__(`Customers (${totalCount})`)}</Title>}
+        right={actionBarRight}
+        background="colorWhite"
+        wideSpacing={true}
+      />
+    );
 
     return (
       <Wrapper
@@ -61,15 +121,8 @@ class Customer extends React.Component<IProps> {
             submenu={menuSyncpolaris}
           />
         }
+        actionBar={actionBar}
         leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__(`Customers (${totalCount})`)}</Title>}
-            // right={actionBarRight}
-            background="colorWhite"
-            wideSpacing={true}
-          />
-        }
         footer={<Pagination count={totalCount || 0} />}
         content={
           <DataWithLoader
@@ -85,5 +138,4 @@ class Customer extends React.Component<IProps> {
     );
   }
 }
-
 export default Customer;

@@ -2,6 +2,8 @@ import * as compose from 'lodash.flowright';
 import {
   SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
+  ToCheckLoansMutationResponse,
+  ToSyncLoansMutationResponse,
 } from '../../types';
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -10,23 +12,76 @@ import Loan from '../components/Loan';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-
+import mutations from '../../graphql/mutations';
+import Alert from '@erxes/ui/src/utils/Alert';
 type Props = {
   history: any;
   queryParams: any;
 };
-
+type State = {
+  items: any;
+  loading: boolean;
+};
 type FinalProps = {
   syncHistoriesQuery: SyncHistoriesQueryResponse;
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props &
+  ToCheckLoansMutationResponse &
+  ToSyncLoansMutationResponse &
   IRouterProps;
 
-class LoanContainer extends React.Component<FinalProps> {
+class LoanContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      items: {},
+      loading: false,
+    };
+  }
   render() {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;
+    const { items } = this.state;
 
+    const toCheckLoans = () => {
+      this.setState({ loading: true });
+      this.props
+        .toCheckLoans({ variables: {} })
+        .then((response) => {
+          this.setState({ items: response.data.toCheckLoans });
+          this.setState({ loading: false });
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+          this.setState({ loading: false });
+        });
+    };
+
+    const toSyncLoans = (action: string, loans: any[]) => {
+      console.log('jejdsklfjs', loans);
+      this.setState({ loading: true });
+      this.props
+        .toSyncLoans({
+          variables: {
+            action,
+            loans,
+          },
+        })
+        .then(() => {
+          this.setState({ loading: false });
+          Alert.success('Success. Please check again.');
+        })
+        .finally(() => {
+          const data = this.state.items;
+
+          this.setState({ items: data });
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+          this.setState({ loading: false });
+        });
+    };
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
     const updatedProps = {
@@ -34,6 +89,9 @@ class LoanContainer extends React.Component<FinalProps> {
       queryParams,
       syncHistories,
       totalCount,
+      toCheckLoans,
+      toSyncLoans,
+      items,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
     return <Loan {...updatedProps} />;
@@ -77,6 +135,18 @@ export default withProps<Props>(
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only',
         }),
+      },
+    ),
+    graphql<Props, ToCheckLoansMutationResponse, {}>(
+      gql(mutations.toCheckLoans),
+      {
+        name: 'toCheckLoans',
+      },
+    ),
+    graphql<Props, ToSyncLoansMutationResponse, {}>(
+      gql(mutations.toSyncLoans),
+      {
+        name: 'toSyncLoans',
       },
     ),
   )(LoanContainer),

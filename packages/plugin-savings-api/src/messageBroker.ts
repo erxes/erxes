@@ -60,6 +60,17 @@ export const initBroker = async () => {
     },
   );
 
+  consumeRPCQueue(
+    'savings:contracts.updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Contracts.updateOne(selector, modifier),
+      };
+    },
+  );
+
   consumeRPCQueue('savings:transactions.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

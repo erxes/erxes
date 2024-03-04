@@ -1,26 +1,88 @@
 import React from 'react';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Wrapper, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
-
+import {
+  __,
+  Wrapper,
+  DataWithLoader,
+  Pagination,
+  Table,
+  Button,
+  Bulk,
+  ModalTrigger,
+} from '@erxes/ui/src';
 import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-
+import SavingCheckForm from './SavingCheckForm';
 interface IProps extends IRouterProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
+  toSyncSavings: (action: string, toSyncSavings: any[]) => void;
+  toCheckSavings: () => void;
+  items: any;
 }
 
 class SavingAcnt extends React.Component<IProps> {
   render() {
-    const { history, syncHistories, totalCount, loading, queryParams } =
-      this.props;
+    const {
+      history,
+      syncHistories,
+      totalCount,
+      loading,
+      queryParams,
+      toSyncSavings,
+      items,
+      toCheckSavings,
+    } = this.props;
     const tablehead = ['Date', 'Contant number', 'Status', 'Deposit', 'Error'];
 
+    const onClickCheck = (e) => {
+      e.stopPropagation();
+      this.props.toCheckSavings();
+    };
+    const checkButton = (
+      <Button btnStyle="warning" icon="check-circle" onMouseDown={onClickCheck}>
+        Check
+      </Button>
+    );
+
+    const savinCheckForm = () => {
+      const content = (props) => {
+        return (
+          <SavingCheckForm
+            items={items?.SavingContracts?.items}
+            toSyncSavings={toSyncSavings}
+            toCheckSavings={toCheckSavings}
+            {...props}
+          />
+        );
+      };
+      return <Bulk content={content} />;
+    };
+
+    const actionBarRight = (
+      <ModalTrigger
+        title={`${__('Savings')}`}
+        trigger={checkButton}
+        autoOpenKey="showSavingModal"
+        size="xl"
+        content={savinCheckForm}
+        backDrop="static"
+      />
+    );
+
+    const actionBar = (
+      <Wrapper.ActionBar
+        left={<Title>{__(`Saving accounts (${totalCount})`)}</Title>}
+        right={actionBarRight}
+        background="colorWhite"
+        wideSpacing={true}
+      />
+    );
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
@@ -63,13 +125,7 @@ class SavingAcnt extends React.Component<IProps> {
           />
         }
         leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__(`Saving accounts (${totalCount})`)}</Title>}
-            background="colorWhite"
-            wideSpacing={true}
-          />
-        }
+        actionBar={actionBar}
         footer={<Pagination count={totalCount || 0} />}
         content={
           <DataWithLoader
