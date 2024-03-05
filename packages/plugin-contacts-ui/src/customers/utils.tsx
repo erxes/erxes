@@ -26,9 +26,7 @@ export const displayObjectListItem = (
   const objectList = contact[customFieldName] || [];
   const subFieldKey = subFieldName.replace(`${customFieldName}.`, '');
 
-  let subField = objectList.find
-    ? objectList.find((obj) => obj.field === subFieldKey)
-    : [];
+  let subField = objectList.find((obj) => obj.field === subFieldKey);
 
   if (!subField && group) {
     const subFieldGroup = objectList.find((obj) => obj.field === group);
