@@ -139,16 +139,16 @@ const ButtonLink = styledTS<{ disabled?: boolean }>(
     `};
 `;
 
-const ButtonGroup = styledTS<{ hasGap: boolean }>(styled.div)`
+const ButtonGroup = styledTS<{ $hasGap: boolean }>(styled.div)`
   position: relative;
 
   button + a,
   a + button {
-    margin-left: ${(props) => props.hasGap && '10px'};
+    margin-left: ${(props) => props.$hasGap && '10px'};
   }
 
   ${(props) =>
-    !props.hasGap &&
+    !props.$hasGap &&
     css`
       button,
       a {
@@ -258,5 +258,5 @@ function Group({
   children: React.ReactNode;
   hasGap?: boolean;
 }) {
-  return <ButtonGroup hasGap={hasGap}>{children}</ButtonGroup>;
+  return <ButtonGroup $hasGap={hasGap}>{children}</ButtonGroup>;
 }

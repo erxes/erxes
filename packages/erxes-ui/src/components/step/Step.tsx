@@ -1,22 +1,22 @@
-import Button from '../Button';
-import { __ } from '../../utils/core';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
+  ButtonContainer,
   FullStep,
   ShortStep,
-  StepCount,
+  StepButton,
   StepContent,
+  StepCount,
   StepHeader,
   StepHeaderContainer,
   StepHeaderTitle,
   StepImg,
   StepItem,
-  StepButton,
-  ButtonContainer
 } from './styles';
 
 import { BoxRow } from './style';
+import Button from '../Button';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { __ } from '../../utils/core';
 
 type Props = {
   stepNumber?: number;
@@ -123,7 +123,7 @@ class Step extends React.Component<Props> {
       children,
       noButton,
       direction,
-      progress = 0
+      progress = 0,
     } = this.props;
 
     let show = false;
@@ -135,26 +135,26 @@ class Step extends React.Component<Props> {
         if (active && stepNumber)
           return (
             <StepItem
-              show={show}
+              $show={show}
               direction={direction}
-              active={progress >= stepNumber}
+              $active={progress >= stepNumber}
             >
               <ShortStep
-                show={true}
-                active={active >= stepNumber}
+                $show={true}
+                $active={active >= stepNumber}
                 direction={direction}
                 onClick={() => this.handleOnClick(stepNumber)}
               >
                 <StepCount
                   direction={direction}
-                  active={progress >= stepNumber}
+                  $active={progress >= stepNumber}
                 >
                   {stepNumber}
                 </StepCount>
                 <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
               </ShortStep>
 
-              <FullStep show={show} direction={direction}>
+              <FullStep $show={show} direction={direction}>
                 <StepContent direction={direction}>
                   {children}
                   {!noButton && this.renderButton()}
@@ -162,17 +162,18 @@ class Step extends React.Component<Props> {
               </FullStep>
             </StepItem>
           );
+
         return null;
 
       case 'horizontal':
         if (active && stepNumber)
           return (
             <StepItem
-              show={show}
+              $show={show}
               direction={direction}
-              active={active >= stepNumber}
+              $active={active >= stepNumber}
             >
-              <FullStep show={show} direction={direction}>
+              <FullStep $show={show} direction={direction}>
                 <StepContent direction={direction}>
                   {children}
                   <ButtonContainer>
@@ -186,8 +187,8 @@ class Step extends React.Component<Props> {
 
       default:
         return (
-          <StepItem show={show}>
-            <FullStep show={show}>
+          <StepItem $show={show}>
+            <FullStep $show={show}>
               <StepHeaderContainer>
                 <StepHeader>
                   {this.renderImage()}
@@ -201,7 +202,7 @@ class Step extends React.Component<Props> {
             </FullStep>
 
             <ShortStep
-              show={!show}
+              $show={!show}
               onClick={() => this.handleOnClick(stepNumber)}
             >
               {this.renderImage()}
