@@ -7,7 +7,6 @@ import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import Label from '@erxes/ui/src/components/Label';
-import Modal from 'react-bootstrap/Modal';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Select from 'react-select-plus';
 import Tags from '@erxes/ui/src/components/Tags';
@@ -15,6 +14,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${(props) => props.space * 20}px;
@@ -74,10 +74,6 @@ const Row: React.FC<RowProps> = ({
   };
 
   const renderMergeWindow = () => {
-    if (!showMerge) {
-      return null;
-    }
-
     const options: Array<{ value: string; label: string }> = [];
 
     for (const t of tags) {
@@ -104,34 +100,33 @@ const Row: React.FC<RowProps> = ({
     };
 
     return (
-      <Modal show={true} onHide={toggleMergeWindow}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {__('Merge')} <b>{tag.name}</b>
-          </Modal.Title>
-        </Modal.Header>
+      <ModalTrigger
+        title={`${__('Merge')} ${tag.name}`}
+        trigger={<Button btnStyle="link" icon="merge" />}
+        content={(props) => (
+          <div {...props}>
+            {renderInfo()}
 
-        <Modal.Body>
-          {renderInfo()}
+            <div>
+              <label>{__('Destination')}:</label>
 
-          <div>
-            <label>{__('Destination')}:</label>
+              <Select
+                isRequired={true}
+                value={mergeDestination ? mergeDestination.value : null}
+                onChange={onChangeDestination}
+                options={options}
+              />
+            </div>
 
-            <Select
-              isRequired={true}
-              value={mergeDestination ? mergeDestination.value : null}
-              onChange={onChangeDestination}
-              options={options}
-            />
+            <ModalFooter>
+              <Button type="primary" onClick={onMerge}>
+                {__('Merge')}
+              </Button>
+            </ModalFooter>
           </div>
-
-          <Modal.Footer>
-            <Button type="primary" onClick={onMerge}>
-              {__('Merge')}
-            </Button>
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
+        )}
+        enforceFocus={false}
+      />
     );
   };
 
@@ -175,10 +170,6 @@ const Row: React.FC<RowProps> = ({
           />
 
           {renderMergeWindow()}
-
-          <Tip text={__('Merge')} placement="top">
-            <Button btnStyle="link" onClick={toggleMergeWindow} icon="merge" />
-          </Tip>
 
           <Tip text={__('Delete')} placement="top">
             <Button btnStyle="link" onClick={removeTag} icon="times-circle" />

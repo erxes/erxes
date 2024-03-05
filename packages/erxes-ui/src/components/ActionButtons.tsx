@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../styles/colors';
 
 export const ActionButton = styled.div`
-  display: inline-block;
+  display: inline-flex;
 
   * {
     padding: 0;
