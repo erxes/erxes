@@ -920,7 +920,7 @@ const chartTemplates = [
           .filter(
             (item): item is { name: string; totalAmount: number } => !!item,
           );
-
+        stageNames.sort((a, b) => a.totalAmount - b.totalAmount);
         if (stageNames) {
           const data: number[] = stageNames.map((item) => item.totalAmount); // Data is numbers now
 
