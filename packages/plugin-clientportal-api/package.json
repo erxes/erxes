@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils" : "*",
-    "jsonwebtoken": "^8.5.1",
     "bcryptjs": "^2.4.3",
     "randomatic": "^3.0.0",
     "sha256": "^0.2.0",

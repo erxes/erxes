@@ -14,7 +14,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('msdynamic:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;

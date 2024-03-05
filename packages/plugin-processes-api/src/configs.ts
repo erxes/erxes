@@ -7,9 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import beforeResolvers from './beforeResolvers';
 import documents from './documents';
 import logs from './logUtils';
-import { initBroker } from './messageBroker';
-
-export let debug;
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: 'processes',
@@ -28,16 +26,9 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    await generateModels('os');
-
-    initBroker();
-
-    debug = options.debug;
-
-    // es = options.elasticsearch;
+  onServerInit: async () => {
   },
-
+  setupMessageConsumers,
   meta: {
     logs: { consumers: logs },
     beforeResolvers,

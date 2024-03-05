@@ -9,8 +9,8 @@ import {
   validateConfig,
 } from '../../utils/syncUtils';
 import { IContext } from '../../../connectionResolver';
-import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
-import { initBroker, sendPosMessage } from '../../../messageBroker';
+import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
+import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import fetch from 'node-fetch';
 import { IPutResponseDocument } from '../../../models/definitions/putResponses';
@@ -19,7 +19,7 @@ const configMutations = {
   posConfigsFetch: async (
     _root,
     { token },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) => {
     const address = await getServerAddress(subdomain);
 
@@ -58,17 +58,12 @@ const configMutations = {
       throw new Error(e.message);
     }
 
-    await initBrokerMain(initBroker);
-
-    await initBroker()
-      .then(() => {
-        console.log('Message broker has started.');
-      })
-      .catch((e) => {
-        console.log(
-          `Error occurred when starting message broker: ${e.message}`,
-        );
-      });
+    try {
+      await connectToMessageBroker(setupMessageConsumers);
+      console.log('Message broker has started.');
+    } catch (e) {
+      console.log(`Error occurred when starting message broker: ${e.message}`);
+    }
 
     return config;
   },
@@ -169,10 +164,10 @@ const configMutations = {
         order,
       };
       perData.items = (orderItems || []).filter(
-        (item) => item.orderId === order._id,
+        (item) => item.orderId === order._id
       );
       perData.responses = (putResponses || []).filter(
-        (pr) => pr.contentId === order._id,
+        (pr) => pr.contentId === order._id
       );
 
       data.push(perData);
@@ -211,7 +206,7 @@ const configMutations = {
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models }: IContext,
+    { res, models }: IContext
   ) => {
     const config = await models.Configs.findOne({ token });
 
@@ -222,7 +217,7 @@ const configMutations = {
     res.cookie(
       'pos-config-token',
       token,
-      authCookieOptions({ sameSite: 'none' }),
+      authCookieOptions({ sameSite: 'none' })
     );
 
     return 'chosen';

@@ -1,15 +1,13 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import app from '@erxes/api-utils/src/app';
 // import { getBalance, sendSms, updateBalance } from './utils';
-
-export let debug;
 
 export default {
   name: 'block',
@@ -30,7 +28,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     app.post(
       '/tdb/receive',
       routeErrorHandling(async (req, res) => {
@@ -117,8 +115,7 @@ export default {
       }),
     );
 
-    initBroker();
 
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };
