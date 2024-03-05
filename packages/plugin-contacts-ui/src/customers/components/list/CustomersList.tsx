@@ -281,11 +281,11 @@ const CustomersList: React.FC<IProps> = (props) => {
 
   for (const status of EMAIL_VALIDATION_STATUSES) {
     emailVerificationStatusList.push(
-      <li key={status.value}>
+      <Menu.Item key={status.value}>
         <a id={status.value} href="#changeStatus" onClick={onEmailStatusClick}>
           {status.label}
         </a>
-      </li>,
+      </Menu.Item>,
     );
   }
 
@@ -293,11 +293,11 @@ const CustomersList: React.FC<IProps> = (props) => {
 
   for (const status of PHONE_VALIDATION_STATUSES) {
     phoneVerificationStatusList.push(
-      <li key={status.value}>
+      <Menu.Item key={status.value}>
         <a id={status.value} href="#changeStatus" onClick={onPhoneStatusClick}>
           {status.label}
         </a>
-      </li>,
+      </Menu.Item>,
     );
   }
 
@@ -305,11 +305,11 @@ const CustomersList: React.FC<IProps> = (props) => {
 
   for (const option of CUSTOMER_STATE_OPTIONS) {
     customerStateOptions.push(
-      <li key={option.value}>
+      <Menu.Item key={option.value}>
         <a id={option.value} href="#changeState" onClick={onStateClick}>
           {option.label}
         </a>
-      </li>,
+      </Menu.Item>,
     );
   }
 
@@ -371,48 +371,48 @@ const CustomersList: React.FC<IProps> = (props) => {
         <TemporarySegment contentType={`contacts:${type}`} />
       )}
 
-      <Menu>
-        <Menu.Button id="dropdown-customize">
+      <Menu as="div" className="relative">
+        <Menu.Button>
           <Button btnStyle="simple" size="small">
             {__('Customize ')} <Icon icon="angle-down" />
           </Button>
         </Menu.Button>
-        <Menu.Items>
-          <li>
+        <Menu.Items className="absolute">
+          <Menu.Item>
             <ModalTrigger
               title="Manage Columns"
               trigger={editColumns}
               content={manageColumns}
             />
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <Link to="/settings/properties?type=contacts:customer">
               {__('Manage properties')}
             </Link>
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <a href="#export" onClick={exportData.bind(this, bulk)}>
               {type === 'lead'
                 ? __('Export this leads')
                 : __('Export this contacts')}
             </a>
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <a
               href="#verifyEmail"
               onClick={verifyCustomers.bind(this, 'email')}
             >
               {__('Verify emails')}
             </a>
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <a
               href="#verifyPhone"
               onClick={verifyCustomers.bind(this, 'phone')}
             >
               {__('Verify phone numbers')}
             </a>
-          </li>
+          </Menu.Item>
         </Menu.Items>
       </Menu>
       <Link to={`/settings/importHistories?type=${type}`}>
@@ -484,35 +484,35 @@ const CustomersList: React.FC<IProps> = (props) => {
           />
         )}
 
-        <Menu>
-          <Menu.Button id="dropdown-customize">
+        <Menu as="div" className="relative">
+          <Menu.Button>
             <Button btnStyle="simple" size="small">
               {__('Change email status')} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
-          <Menu.Items>
+          <Menu.Items className="absolute">
             <div>{emailVerificationStatusList}</div>
           </Menu.Items>
         </Menu>
 
-        <Menu>
-          <Menu.Button id="dropdown-customize">
+        <Menu as="div" className="relative">
+          <Menu.Button>
             <Button btnStyle="simple" size="small">
               {__('Change phone status')} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
-          <Menu.Items>
+          <Menu.Items className="absolute">
             <div>{phoneVerificationStatusList}</div>
           </Menu.Items>
         </Menu>
 
-        <Menu>
-          <Menu.Button id="dropdown-customize">
+        <Menu as="div" className="relative">
+          <Menu.Button>
             <Button btnStyle="simple" size="small">
               {__('Change state')} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
-          <Menu.Items>
+          <Menu.Items className="absolute">
             <div>{customerStateOptions}</div>
           </Menu.Items>
         </Menu>

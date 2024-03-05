@@ -280,30 +280,30 @@ const CompaniesList: React.FC<IProps> = (props) => {
         <TemporarySegment contentType={`contacts:company`} />
       )}
 
-      <Menu>
-        <Menu.Button id="dropdown-customize">
+      <Menu as="div" className="relative">
+        <Menu.Button>
           <Button btnStyle="simple" size="small">
             {__('Customize ')} <Icon icon="angle-down" />
           </Button>
         </Menu.Button>
-        <Menu.Items>
-          <li>
+        <Menu.Items className="absolute">
+          <Menu.Item>
             <ModalTrigger
               title="Manage Columns"
               trigger={editColumns}
               content={manageColumns}
             />
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <Link to="/settings/properties?type=contacts:company">
               {__('Manage properties')}
             </Link>
-          </li>
-          <li>
+          </Menu.Item>
+          <Menu.Item>
             <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
               {__('Export this companies')}
             </a>
-          </li>
+          </Menu.Item>
         </Menu.Items>
       </Menu>
       <Link to="/settings/importHistories?type=contacts:company">
