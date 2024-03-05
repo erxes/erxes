@@ -129,10 +129,8 @@ const ChartFormFieldList = (props: Props) => {
         break;
 
       case 'groups':
-        // Handle 'groups' case here
         if (Array.isArray(input)) {
-          // Check if input is an array
-          setFilter(fieldName, input); // Handle selected values for 'groups'
+          setFilter(fieldName, input);
         }
         break;
 

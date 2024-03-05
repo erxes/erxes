@@ -443,6 +443,7 @@ const tags = `
     tags(type: $type, perPage: $perPage) {
       _id
       name
+      parentId
       colorCode
     }
   }
