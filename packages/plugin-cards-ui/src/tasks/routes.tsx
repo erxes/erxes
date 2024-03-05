@@ -1,4 +1,5 @@
-import { Redirect, Route, useLocation } from 'react-router-dom';
+import { Route, useLocation, Routes } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
@@ -30,7 +31,7 @@ const MainActionBar = asyncComponent(
     ),
 );
 
-const tasks = () => {
+const Tasks = () => {
   let view = localStorage.getItem('taskView') || 'board';
   let link = `/task/${view}`;
 
@@ -45,38 +46,38 @@ const tasks = () => {
     link = `/task/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={link} />;
+  return <Link to={link} />;
 };
 
-const charts = () => {
+const Charts = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const boards = () => {
+const Boards = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="board" queryParams={queryParams} />;
 };
 
-const activity = () => {
+const Activity = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const gantt = () => {
+const Gantt = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const calendar = () => {
+const CalendarComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
@@ -91,14 +92,14 @@ const calendar = () => {
   );
 };
 
-const list = () => {
+const List = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="list" queryParams={queryParams} />;
 };
 
-const time = () => {
+const Time = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
@@ -107,23 +108,27 @@ const time = () => {
 
 const routes = () => {
   return (
-    <>
-      <Route key="/task" path="/task" render={tasks} />
+    <Routes>
+      <Route key="/task" path="/task" element={<Tasks />} />
 
-      <Route key="task/gantt" path="/task/gantt" render={gantt} />
+      <Route key="task/gantt" path="/task/gantt" element={<Gantt />} />
 
-      <Route key="/task/board" path="/task/board" render={boards} />
+      <Route key="/task/board" path="/task/board" element={<Boards />} />
 
-      <Route key="task/calendar" path="/task/calendar" render={calendar} />
+      <Route
+        key="task/calendar"
+        path="/task/calendar"
+        element={<CalendarComponent />}
+      />
 
-      <Route key="task/chart" path="/task/chart" render={charts} />
+      <Route key="task/chart" path="/task/chart" element={<Charts />} />
 
-      <Route key="task/activity" path="/task/activity" render={activity} />
+      <Route key="task/activity" path="/task/activity" element={<Activity />} />
 
-      <Route key="task/list" path="/task/list" render={list} />
+      <Route key="task/list" path="/task/list" element={<List />} />
 
-      <Route key="task/time" path="/task/time" render={time} />
-    </>
+      <Route key="task/time" path="/task/time" element={<Time />} />
+    </Routes>
   );
 };
 

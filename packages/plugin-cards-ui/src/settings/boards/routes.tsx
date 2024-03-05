@@ -1,10 +1,13 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { purchaseOptions } from './options';
-const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Board Home"  */ './containers/Home')
+const Home = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Board Home"  */ './containers/Home'
+    ),
 );
 
 const DealHome = () => {
@@ -24,12 +27,12 @@ const TaskHome = () => {
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route path="/settings/boards/deal" component={DealHome} />
-    <Route path="/settings/boards/purchase" component={PurchaseHome} />
-    <Route path="/settings/boards/ticket" component={TicketHome} />
-    <Route path="/settings/boards/task" component={TaskHome} />
-  </React.Fragment>
+  <Routes>
+    <Route path="/settings/boards/deal" element={<DealHome />} />
+    <Route path="/settings/boards/purchase" element={<PurchaseHome />} />
+    <Route path="/settings/boards/ticket" element={<TicketHome />} />
+    <Route path="/settings/boards/task" element={<TaskHome />} />
+  </Routes>
 );
 
 export default routes;

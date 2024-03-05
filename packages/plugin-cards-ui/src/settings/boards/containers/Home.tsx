@@ -8,17 +8,16 @@ import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 
 import Home from '../components/Home';
 import { IOption } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // import { withRouter } from 'react-router-dom';
 
 type HomeContainerProps = {
-  history?: any;
   boardId: string;
 };
 
@@ -28,18 +27,19 @@ type Props = {
   options?: IOption;
 };
 
-class HomeContainer extends React.Component<HomeContainerProps & Props> {
-  componentWillReceiveProps(nextProps) {
-    const { history, boardId } = nextProps;
+function HomeContainer(props: HomeContainerProps & Props) {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    if (!routerUtils.getParam(history, 'boardId') && boardId) {
-      routerUtils.setParams(history, { boardId });
+  const { boardId } = props;
+
+  useEffect(() => {
+    if (!routerUtils.getParam(location, 'boardId') && boardId) {
+      routerUtils.setParams(navigate, location, { boardId });
     }
-  }
+  }, [boardId, location, navigate]);
 
-  render() {
-    return <Home {...this.props} />;
-  }
+  return <Home {...props} />;
 }
 
 type LastBoardProps = {
@@ -64,26 +64,22 @@ const LastBoard = (props: LastBoardProps & Props) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type MainProps = IRouterProps & Props;
-
-const LastBoardContainer = withProps<MainProps>(
+const LastBoardContainer = withProps<Props>(
   compose(
-    graphql<MainProps, BoardsGetLastQueryResponse, {}>(
-      gql(queries.boardGetLast),
-      {
-        name: 'boardGetLastQuery',
-        options: ({ type }) => ({
-          variables: { type },
-        }),
-      },
-    ),
+    graphql<Props, BoardsGetLastQueryResponse, {}>(gql(queries.boardGetLast), {
+      name: 'boardGetLastQuery',
+      options: ({ type }) => ({
+        variables: { type },
+      }),
+    }),
   )(LastBoard),
 );
 
 // Main home component
-const MainContainer = (props: MainProps) => {
-  const { history } = props;
-  const boardId = routerUtils.getParam(history, 'boardId');
+const MainContainer = (props: Props) => {
+  const location = useLocation();
+
+  const boardId = routerUtils.getParam(location, 'boardId');
 
   if (boardId) {
     const extendedProps = { ...props, boardId };

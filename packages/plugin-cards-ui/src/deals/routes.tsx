@@ -1,4 +1,5 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Route, useLocation, Routes } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
@@ -35,7 +36,7 @@ const Conversation = asyncComponent(
     ),
 );
 
-const deals = () => {
+const Deals = () => {
   let view = localStorage.getItem('dealView') || 'board';
   let dealsLink = `/deal/${view}`;
 
@@ -50,22 +51,25 @@ const deals = () => {
     dealsLink = `/deal/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={dealsLink} />;
+  return <Link to={dealsLink} />;
 };
 
-const boards = ({ location }) => {
+const Boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="board" queryParams={queryParams} />;
 };
 
-const activity = ({ location }) => {
+const Activity = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const calendar = ({ location }) => {
+const CalendarComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -79,31 +83,36 @@ const calendar = ({ location }) => {
   );
 };
 
-const list = ({ location }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="list" queryParams={queryParams} />;
 };
 
-const chart = ({ location }) => {
+const Chart = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const gantt = ({ location }) => {
+const Gantt = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const conversion = ({ location }) => {
+const Conversion = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Conversation queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
+const Time = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="time" queryParams={queryParams} />;
@@ -111,55 +120,37 @@ const time = ({ location }) => {
 
 const routes = () => {
   return (
-    <>
-      <Route key="deals" exact={true} path="/deal" render={deals} />
+    <Routes>
+      <Route key="deals" path="/deal" element={<Deals />} />
 
-      <Route
-        key="deals/board"
-        exact={true}
-        path="/deal/board"
-        component={boards}
-      />
+      <Route key="deals/board" path="/deal/board" element={<Boards />} />
 
       <Route
         key="deals/calendar"
-        exact={true}
         path="/deal/calendar"
-        component={calendar}
+        element={<CalendarComponent />}
       />
 
       <Route
         key="deals/conversion"
-        exact={true}
         path="/deal/conversion"
-        component={conversion}
+        element={<Conversion />}
       />
 
       <Route
         key="deals/activity"
-        exact={true}
         path="/deal/activity"
-        component={activity}
+        element={<Activity />}
       />
 
-      <Route key="deals/list" exact={true} path="/deal/list" component={list} />
+      <Route key="deals/list" path="/deal/list" element={<List />} />
 
-      <Route
-        key="deals/chart"
-        exact={true}
-        path="/deal/chart"
-        component={chart}
-      />
+      <Route key="deals/chart" path="/deal/chart" element={<Chart />} />
 
-      <Route
-        key="deals/gantt"
-        exact={true}
-        path="/deal/gantt"
-        component={gantt}
-      />
+      <Route key="deals/gantt" path="/deal/gantt" element={<Gantt />} />
 
-      <Route key="deals/time" exact={true} path="/deal/time" component={time} />
-    </>
+      <Route key="deals/time" path="/deal/time" element={<Time />} />
+    </Routes>
   );
 };
 

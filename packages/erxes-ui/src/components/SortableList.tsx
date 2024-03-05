@@ -26,13 +26,13 @@ const SortableList = (props: Props) => {
     isDragDisabled,
     droppableId = 'droppableId',
     emptyMessage = 'There is no fields',
-    searchValue = ''
+    searchValue = '',
   } = props;
 
   useEffect(() => {
     if (searchValue) {
       const pattern = new RegExp(searchValue, 'i');
-      const index = fields.findIndex(field => pattern.test(field.label));
+      const index = fields.findIndex((field) => pattern.test(field.label));
 
       if (index !== -1) {
         const element = document.getElementById(fields[index]._id);
@@ -41,8 +41,9 @@ const SortableList = (props: Props) => {
           return;
         }
 
-        const parent = ((element.parentNode as HTMLElement)
-          .parentNode as HTMLElement).parentNode as HTMLElement;
+        const parent = (
+          (element.parentNode as HTMLElement).parentNode as HTMLElement
+        ).parentNode as HTMLElement;
 
         if (!parent) {
           return;
@@ -59,7 +60,7 @@ const SortableList = (props: Props) => {
     }
   }, [fields, searchValue]);
 
-  const onDragEnd = result => {
+  const onDragEnd = (result) => {
     const { destination, source } = result; // dropped outside the list
 
     if (!destination) {
@@ -96,7 +97,7 @@ const SortableList = (props: Props) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId={droppableId.toString()} type="ITEMS">
-        {provided => (
+        {(provided) => (
           <SortableWrapper
             {...provided.droppableProps}
             innerRef={provided.innerRef}
@@ -116,7 +117,7 @@ const SortableList = (props: Props) => {
                     innerRef={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}
-                    isDragging={snapshot.isDragging}
+                    $isDragging={snapshot.isDragging}
                     column={field.column}
                   >
                     {renderDragHandler()}

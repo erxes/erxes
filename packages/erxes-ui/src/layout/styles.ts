@@ -478,11 +478,11 @@ const SidebarFlexRow = styled.li`
   }
 `;
 
-const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
+const FlexItem = styledTS<{ count?: number; $hasSpace?: boolean }>(styled.div)`
   flex: ${(props) => (props.count ? props.count : 1)};
   position: relative;
   ${(props) =>
-    props.hasSpace &&
+    props.$hasSpace &&
     css`
       margin-left: ${dimensions.coreSpacing}px;
     `};
