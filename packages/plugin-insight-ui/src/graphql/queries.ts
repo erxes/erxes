@@ -462,8 +462,8 @@ const boards = `
   }
 `;
 const stages = `
-  query stages($pipelineId: String!, $isAll: Boolean) {
-    stages(pipelineId: $pipelineId, isAll: $isAll) {
+  query stages($pipelineId: String!, $isAll: Boolean, $pipelineIds: [String]) {
+    stages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
       _id
       name
       probability
@@ -496,8 +496,8 @@ const pipelines = `
 `;
 
 const pipelineLabels = `
-  query pipelineLabels($pipelineId: String!) {
-    pipelineLabels(pipelineId: $pipelineId) {
+  query pipelineLabels($pipelineId: String!, $pipelineIds: [String]) {
+    pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
     }
   }
@@ -692,6 +692,17 @@ const sectionList = `
   }
 `;
 
+const assets = `
+  query assets($searchValue: String) {
+    assets(searchValue: $searchValue) {
+      _id,
+      name,
+      code,
+      order
+    }
+  }
+`;
+
 export default {
   //dashboard
   dashboardList,
@@ -721,7 +732,7 @@ export default {
   integrations,
 
   tags,
-
+  assets,
   boards,
   stages,
   pipelines,

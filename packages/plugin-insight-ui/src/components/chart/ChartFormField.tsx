@@ -61,6 +61,11 @@ const ChartFormField = (props: Props) => {
       return;
     }
 
+    if (!e) {
+      setFieldValue('');
+      onChange('');
+    }
+
     setFieldValue(e.value);
     onChange(e);
   };
