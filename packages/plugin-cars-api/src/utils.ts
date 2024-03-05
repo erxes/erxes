@@ -7,7 +7,7 @@ import {
   sendSegmentsMessage,
   sendTagsMessage,
 } from './messageBroker';
-import { debug } from './configs';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export interface ICountBy {
   [index: string]: number;
@@ -233,7 +233,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debug.error(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }

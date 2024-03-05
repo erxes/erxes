@@ -1,5 +1,5 @@
 import { RPResult } from '@erxes/api-utils/src/messageBroker';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../../models';
 import { convertAttachment } from '../../utils';
 import { zaloGet } from '../../zalo';
@@ -23,7 +23,7 @@ export const zaloCreateIntegration = async (
       oa_id,
     });
   } catch (e) {
-    // debug.error(
+    // debugError(
     //     `zaloCreateIntegration: Failed to create Integrations: ${e.message}`
     // );
   }
@@ -34,7 +34,7 @@ export const zaloCreateIntegration = async (
   );
   // 1. This request does not return conversation_id per message
 
-  debug.error(`recentMessages: ${querystring.stringify(recentMessages)}`);
+  debugError(`recentMessages: ${querystring.stringify(recentMessages)}`);
 
   if (recentMessages.error === 0) {
     recentMessages?.data?.map(async (recentMessage: any) => {

@@ -11,6 +11,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { readFileRequest } from './worker/export/utils';
 import app from '@erxes/api-utils/src/app';
 import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+import { initBroker } from './messageBroker';
 
 async function closeHttpServer() {
   try {
@@ -86,7 +87,9 @@ httpServer.listen(PORT, async () => {
     meta: {},
   });
 
-  console.log(`GraphQL Server is now running on1 ${PORT}`);
+  await initBroker();
+
+  console.log(`GraphQL Server is now running on ${PORT}`);
 });
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.

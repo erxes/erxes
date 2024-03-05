@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import cronjobs, {
@@ -13,8 +13,6 @@ import automations from './automations';
 import segments from './segments';
 import forms from './forms';
 import app from '@erxes/api-utils/src/app';
-
-export let debug;
 
 export default {
   name: 'exmfeed',
@@ -35,7 +33,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     app.get('/trigger-cron', async (req, res) => {
       const subdomain = getSubdomain(req);
 
@@ -44,11 +42,7 @@ export default {
 
       return res.send('ok');
     });
-
-    initBroker();
-
-    debug = options.debug;
   },
-
+  setupMessageConsumers,
   meta: { cronjobs, automations, segments, forms },
 };
