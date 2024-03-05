@@ -6,6 +6,9 @@ import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES,
 } from '@erxes/ui-contacts/src/customers/constants';
+import React, { useEffect, useState } from 'react';
+// import { withRouter } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -22,9 +25,9 @@ import { ICustomer } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { Menu } from '@headlessui/react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React, { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
@@ -37,10 +40,7 @@ import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-// import { withRouter } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { Menu } from '@headlessui/react';
 
 interface IProps {
   type: string;
@@ -559,7 +559,7 @@ const CustomersList: React.FC<IProps> = (props) => {
           emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
         />
       }
-      $hasBorder={true}
+      hasBorder={true}
     />
   );
 };
