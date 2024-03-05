@@ -24,7 +24,7 @@ type Props = {
   shrink?: boolean;
   mainHead?: React.ReactNode;
   initialOverflow?: boolean;
-  $hasBorder?: boolean;
+  hasBorder?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -45,8 +45,8 @@ class Wrapper extends React.Component<Props> {
 
     if (center) {
       return (
-        <FullContent center={true} align={true}>
-          <MiddleContent shrink={shrink} $transparent={transparent}>
+        <FullContent $center={true} $align={true}>
+          <MiddleContent $shrink={shrink} $transparent={transparent}>
             <PageContent
               actionBar={actionBar}
               footer={footer}
@@ -73,7 +73,7 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar, mainHead, $hasBorder } =
+    const { header, leftSidebar, rightSidebar, mainHead, hasBorder } =
       this.props;
 
     return (
@@ -81,7 +81,7 @@ class Wrapper extends React.Component<Props> {
         {header}
         <MainHead>{mainHead}</MainHead>
         <HeightedWrapper>
-          <Contents $hasBorder={$hasBorder}>
+          <Contents $hasBorder={hasBorder}>
             {leftSidebar}
             {this.renderContent()}
             {rightSidebar}

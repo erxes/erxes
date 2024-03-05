@@ -34,7 +34,9 @@ const Forms = () => {
   const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} history={navigate} />;
+  return (
+    <List queryParams={queryParams} location={location} navigate={navigate} />
+  );
 };
 
 const EditLeadComponent = () => {

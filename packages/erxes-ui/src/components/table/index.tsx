@@ -1,5 +1,6 @@
-import React from 'react';
 import { StyledTable, TableWrapper } from './styles';
+
+import React from 'react';
 
 type Props = {
   children: React.ReactNode;
@@ -8,7 +9,7 @@ type Props = {
   $condensed?: boolean;
   $hover?: boolean;
   $responsive?: boolean;
-  $whiteSpace?: string;
+  whiteSpace?: string;
   $alignTop?: boolean;
   $wideHeader?: boolean;
 };

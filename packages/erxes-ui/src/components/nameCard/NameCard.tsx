@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { colors } from '../../styles';
 import Avatar from './Avatar';
+import React from 'react';
+import { colors } from '../../styles';
+import styled from 'styled-components';
 
 const NameCardStyled = styled.div`
   overflow: hidden;
@@ -13,18 +13,13 @@ const NameCardText = styled.div`
   margin-left: 10px;
 `;
 
-const FirstLine = styled.a`
+const FirstLine = styled.div`
   padding: 0;
-  display: block;
   color: ${colors.colorCoreDarkGray};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   text-decoration: inherit;
-
-  &:hover {
-    color: initial;
-  }
 `;
 
 const SecondLine = styled.div`

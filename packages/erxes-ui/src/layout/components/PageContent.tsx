@@ -20,9 +20,9 @@ function PageContent({
   initialOverflow,
 }: Props) {
   return (
-    <MainContent $transparent={transparent} center={center}>
+    <MainContent $transparent={transparent} $center={center}>
       {actionBar}
-      <ContentBox $transparent={transparent} initialOverflow={initialOverflow}>
+      <ContentBox $transparent={transparent} $initialOverflow={initialOverflow}>
         {children}
       </ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}

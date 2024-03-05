@@ -20,12 +20,11 @@ const EditBooking = asyncComponent(
     import(/* webpackChunkName: "EditBooking" */ './containers/EditBooking'),
 );
 
-const Bookings = (history) => {
-  const { location } = history;
-
+const Bookings = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} history={history} />;
+  return <List queryParams={queryParams} />;
 };
 
 const EditBookingComponent = () => {

@@ -40,7 +40,8 @@ type Props = {
   refetch?: () => void;
   copy: (integrationId: string) => void;
   counts: IntegrationsCount;
-  history: any;
+  location: any;
+  navigate: any;
 };
 
 class List extends React.Component<Props, {}> {
@@ -57,10 +58,10 @@ class List extends React.Component<Props, {}> {
       toggleBulk,
       archive,
       queryParams,
-      copy
+      copy,
     } = this.props;
 
-    return integrations.map(integration => (
+    return integrations.map((integration) => (
       <Row
         key={integration._id}
         isChecked={bulk.includes(integration)}
@@ -74,10 +75,12 @@ class List extends React.Component<Props, {}> {
     ));
   }
 
-  searchHandler = event => {
-    const { history } = this.props;
+  searchHandler = (event) => {
+    const { location, navigate } = this.props;
 
-    routerUtils.setParams(history.history, { searchValue: event.target.value });
+    routerUtils.setParams(navigate, location, {
+      searchValue: event.target.value,
+    });
   };
 
   render() {
@@ -89,7 +92,8 @@ class List extends React.Component<Props, {}> {
       emptyBulk,
       isAllSelected,
       integrations,
-      counts
+      counts,
+      location,
     } = this.props;
 
     queryParams.loadingMainQuery = loading;
@@ -122,10 +126,7 @@ class List extends React.Component<Props, {}> {
           type="text"
           placeholder={__('Type to search')}
           onChange={this.searchHandler}
-          value={routerUtils.getParam(
-            this.props.history.history,
-            'searchValue'
-          )}
+          value={routerUtils.getParam(location, 'searchValue')}
           autoFocus={true}
         />
         &nbsp;&nbsp;
@@ -142,7 +143,7 @@ class List extends React.Component<Props, {}> {
     );
 
     const content = (
-      <Table whiteSpace="nowrap" hover={true}>
+      <Table whiteSpace="nowrap" $hover={true}>
         <thead>
           <tr>
             <th>

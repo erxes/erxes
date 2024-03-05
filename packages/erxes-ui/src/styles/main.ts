@@ -110,15 +110,17 @@ const TipContent = styled.div`
   border-radius: 4px;
 `;
 
-const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+const FullContent = styledTS<{ $center: boolean; $align?: boolean }>(
+  styled.div,
+)`
   flex: 1;
   display: flex;
   min-height: 100%;
-  justify-content: ${(props) => props.center && 'center'};
-  align-items: ${(props) => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${(props) => props.$center && 'center'};
+  align-items: ${(props) => (props.$align ? 'flex-start' : 'center')};
 `;
 
-const MiddleContent = styledTS<{ $transparent?: boolean; shrink?: boolean }>(
+const MiddleContent = styledTS<{ $transparent?: boolean; $shrink?: boolean }>(
   styled.div,
 )`
   width: 900px;
@@ -127,7 +129,7 @@ const MiddleContent = styledTS<{ $transparent?: boolean; shrink?: boolean }>(
   margin: 10px 0;
 
   ${(props) =>
-    !props.shrink &&
+    !props.$shrink &&
     css`
       height: 100%;
       height: calc(100% - 20px);
@@ -607,6 +609,13 @@ const DialogWrapper = styled.div`
   z-index: 2000;
 `;
 
+const MenuDivider = styled.div`
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -625,6 +634,7 @@ export {
   CenterContent,
   ActivityContent,
   DropIcon,
+  MenuDivider,
   MiddleContent,
   HomeContainer,
   DateWrapper,
