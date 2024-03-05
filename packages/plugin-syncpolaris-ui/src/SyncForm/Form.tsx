@@ -2,23 +2,24 @@ import React from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Button from '@erxes/ui/src/components/Button';
-import CustomerRow from './CustomerCheckFormRow';
+import Row from './Row';
 import { Table, Wrapper } from '@erxes/ui/src';
 
 type Props = {
-  toSyncCustomers: (action: string, customers: any[]) => void;
+  toSync: (action: string, items: any[]) => void;
   items;
   toggleAll: (targets: any[], containerId: string) => void;
   bulk: any[];
   toggleBulk: (targets: any[], toAdd: boolean) => void;
   emptyBulk: () => void;
-  onClickCheck: () => void;
+  onCheck: () => void;
   isAllSelected: boolean;
+  tablehead;
+  type;
 };
 
 const TypeForm = (props: Props) => {
-  const { items, bulk, toggleBulk, isAllSelected } = props;
-  const tablehead = ['Code', 'Last name', 'Firs Name', 'Phones'];
+  const { items, bulk, toggleBulk, isAllSelected, tablehead, type } = props;
 
   const renderContent = () => {
     const onChange = () => {
@@ -27,10 +28,10 @@ const TypeForm = (props: Props) => {
     };
 
     const onClickSync = (e) => {
-      const { toSyncCustomers, onClickCheck, emptyBulk } = props;
-      toSyncCustomers('UPDATE', bulk);
+      const { toSync, onCheck, emptyBulk } = props;
+      toSync('UPDATE', bulk);
       emptyBulk();
-      onClickCheck();
+      onCheck();
       e.reset();
 
       e.preventDefault();
@@ -66,12 +67,13 @@ const TypeForm = (props: Props) => {
             </tr>
           </thead>
           <tbody id="customers">
-            {(items || []).map((customer) => (
-              <CustomerRow
-                key={customer.code}
-                customer={customer}
-                isChecked={bulk.includes(customer)}
+            {(items || []).map((item) => (
+              <Row
+                key={item._id}
+                item={item}
+                isChecked={bulk.includes(item)}
                 toggleBulk={toggleBulk}
+                type={type}
               />
             ))}
           </tbody>

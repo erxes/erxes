@@ -14,7 +14,7 @@ import Sidebar from './Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-import CustomerCheckForm from './CustomerCheckForm';
+import CustomerCheckForm from '../../SyncForm/Form';
 interface IProps extends IRouterProps {
   toSyncCustomers: (action: string, customers: any[]) => void;
   syncHistories: any[];
@@ -40,6 +40,7 @@ class Customer extends React.Component<IProps> {
     } = this.props;
     const tablehead = ['Date', 'Email', 'content', 'error'];
 
+    const formHead = ['Code', 'Last name', 'Firs Name', 'Phones'];
     const onClickCheck = (e) => {
       toCheckCustomers();
       this.setState({ items: items });
@@ -84,8 +85,10 @@ class Customer extends React.Component<IProps> {
         return (
           <CustomerCheckForm
             items={items}
-            onClickCheck={onClickCheck}
-            toSyncCustomers={toSyncCustomers}
+            onCheck={toCheckCustomers}
+            toSync={toSyncCustomers}
+            type={'customer'}
+            tablehead={formHead}
             {...props}
           />
         );

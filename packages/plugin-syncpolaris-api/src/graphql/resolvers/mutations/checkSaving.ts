@@ -28,9 +28,15 @@ const checkSavingAcntMutations = {
         saving,
       );
       const preSavingContract = preData?.item;
+      console.log(
+        'preSavingContract:::',
+        preSavingContract.number,
+        preSavingContract,
+      );
       const responseData = await getSavingAcntPolaris(subdomain, {
         number: preSavingContract.number,
       });
+      console.log('responseData:::', preSavingContract.number, responseData);
       const result = await findDiffrentData(preSavingContract, responseData);
       if (typeof result !== 'undefined') datas.push(result);
     }
@@ -47,30 +53,22 @@ const checkSavingAcntMutations = {
     { savings }: { action: string; savings: any[] },
     { subdomain }: IContext,
   ) {
+    const preDataCustomFields = await getCustomFields(
+      subdomain,
+      'savings:contract',
+    );
+    const fields = preDataCustomFields?.fields || [];
     for await (const saving of savings) {
-      const preData = await getCustomFields(
-        subdomain,
-        'savings:contract',
-        saving,
-      );
-      const preSavingContract = preData?.item || {};
-      const fields = preData?.fields || [];
-      let updateData = {};
       const polarisSavingContact = await getSavingAcntPolaris(subdomain, {
-        number: preSavingContract.number,
+        number: saving.number,
       });
-
-      updateData = await preSyncDatas(
-        preSavingContract,
+      const updateData = await preSyncDatas(
+        saving,
         polarisSavingContact,
         fields,
       );
       if (Object.keys(updateData).length > 0)
-        await updateSavingContract(
-          subdomain,
-          preSavingContract.number,
-          updateData,
-        );
+        await updateSavingContract(subdomain, saving.number, updateData);
     }
     return {
       status: 'success',

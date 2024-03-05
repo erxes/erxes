@@ -1,15 +1,16 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 type Props = {
-  customer: any;
+  item: any;
   toggleBulk: (target: any, toAdd: boolean) => void;
   isChecked?: boolean;
+  type;
 };
 
-function CustomerRow({ customer, toggleBulk, isChecked }: Props) {
+function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
   const onChange = (e) => {
     if (toggleBulk) {
-      toggleBulk(customer, e.target.checked);
+      toggleBulk(item, e.target.checked);
     }
   };
 
@@ -18,7 +19,7 @@ function CustomerRow({ customer, toggleBulk, isChecked }: Props) {
   };
 
   return (
-    <tr key={customer._id}>
+    <tr key={item._id}>
       <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -26,10 +27,10 @@ function CustomerRow({ customer, toggleBulk, isChecked }: Props) {
           onChange={onChange}
         />
       </td>
-      <td>{customer.code}</td>
-      <td>{customer.lastName}</td>
-      <td>{customer.firstName}</td>
-      <td>{customer.phones}</td>
+      <td>{type === 'acnt' ? item?.number : item?.code}</td>
+      <td>{type === 'acnt' ? item?.status : item?.lastName}</td>
+      <td>{type === 'acnt' ? item?.startDate : item?.firstName}</td>
+      <td>{type === 'acnt' ? item?.endDate : item?.phones}</td>
     </tr>
   );
 }

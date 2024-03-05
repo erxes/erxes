@@ -51,30 +51,19 @@ const checkLoanAcntMutations = {
     { subdomain }: IContext,
   ) {
     try {
+      const preDataCustomFields = await getCustomFields(
+        subdomain,
+        'loans:contract',
+      );
+      const fields = preDataCustomFields?.fields || [];
       for await (const loan of loans) {
-        const preData = await getCustomFields(
-          subdomain,
-          'loans:contract',
-          loan,
-        );
-        const preLoanContract = preData?.item || {};
-        const fields = preData?.fields || [];
-        let updateData = {};
         const polarisLoanContact = await getLoanAcntPolaris(
           subdomain,
-          preLoanContract.number,
+          loan.number,
         );
-        updateData = await preSyncDatas(
-          preLoanContract,
-          polarisLoanContact,
-          fields,
-        );
+        const updateData = await preSyncDatas(loan, polarisLoanContact, fields);
         if (Object.keys(updateData).length > 0)
-          await updateLoanContract(
-            subdomain,
-            preLoanContract.number,
-            updateData,
-          );
+          await updateLoanContract(subdomain, loan.number, updateData);
       }
       return {
         status: 'success',

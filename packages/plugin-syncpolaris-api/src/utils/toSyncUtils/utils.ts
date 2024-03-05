@@ -73,21 +73,15 @@ export const compareDate = async (data, key, value) => {
   } else return true;
 };
 
-export const preSyncDatas = async (mainData, polarisData, subdomain) => {
+export const preSyncDatas = async (mainData, polarisData, customFields) => {
   let updateData: any = {};
 
   if (polarisData) {
     const { _id, __v, customFieldsDate, ...data } = mainData;
     for await (const [key, value] of Object.entries(data)) {
       const isDiff = await isDiffrentFind(polarisData, key, value);
-      if (isDiff) updateData[key] = data[key];
+      if (isDiff) updateData[key] = polarisData[key];
     }
-
-    const customFieldsResult = await getCustomFields(
-      subdomain,
-      'contacts:customer',
-    );
-    const customFields = customFieldsResult.fields;
     const customFieldsData = mainData.customFieldsData || [];
     for await (const customField of customFields) {
       await setCustomField(customField, polarisData, customFieldsData);
@@ -116,9 +110,7 @@ export const getLoanAcntPolaris = async (subdomain, number) => {
 
 export const getSavingAcntPolaris = async (subdomain, number) => {
   try {
-    return await getSavingDetail(subdomain, {
-      number: number,
-    });
+    return await getSavingDetail(subdomain, { number: number });
   } catch (error) {
     console.log('error:', error);
   }

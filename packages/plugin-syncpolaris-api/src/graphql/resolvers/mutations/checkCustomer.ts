@@ -44,13 +44,21 @@ const checkMutations = {
     { subdomain }: IContext,
   ) {
     try {
+      const precustomFields = await getCustomFields(
+        subdomain,
+        'contacts:customer',
+      );
+      const customFields = precustomFields.fields;
       for await (const customer of customers) {
-        let updateData = {};
         const polarisCustomer = await getCustomPolaris(
           subdomain,
           customer.code,
         );
-        updateData = await preSyncDatas(customer, polarisCustomer, subdomain);
+        const updateData = await preSyncDatas(
+          customer,
+          polarisCustomer,
+          customFields,
+        );
         if (Object.keys(updateData).length > 0)
           await updateCustomer(subdomain, customer.code, updateData);
       }

@@ -14,18 +14,17 @@ import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-import SavingCheckForm from './SavingCheckForm';
+import SavingCheckForm from '../../SyncForm/Form';
 interface IProps extends IRouterProps {
+  toSyncSavings: (action: string, toSyncSavings: any[]) => void;
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
-  toSyncSavings: (action: string, toSyncSavings: any[]) => void;
   toCheckSavings: () => void;
   items: any;
 }
-
 class SavingAcnt extends React.Component<IProps> {
   render() {
     const {
@@ -34,18 +33,22 @@ class SavingAcnt extends React.Component<IProps> {
       totalCount,
       loading,
       queryParams,
-      toSyncSavings,
       items,
       toCheckSavings,
+      toSyncSavings,
     } = this.props;
     const tablehead = ['Date', 'Contant number', 'Status', 'Deposit', 'Error'];
-
-    const onClickCheck = (e) => {
+    const formhead = ['Number', 'Status', 'Start Date', 'End Date'];
+    const onCheckSaving = (e) => {
       e.stopPropagation();
       this.props.toCheckSavings();
     };
     const checkButton = (
-      <Button btnStyle="warning" icon="check-circle" onMouseDown={onClickCheck}>
+      <Button
+        btnStyle="warning"
+        icon="check-circle"
+        onMouseDown={onCheckSaving}
+      >
         Check
       </Button>
     );
@@ -55,8 +58,10 @@ class SavingAcnt extends React.Component<IProps> {
         return (
           <SavingCheckForm
             items={items?.SavingContracts?.items}
-            toSyncSavings={toSyncSavings}
-            toCheckSavings={toCheckSavings}
+            toSync={toSyncSavings}
+            toCheck={toCheckSavings}
+            tablehead={formhead}
+            type={'acnt'}
             {...props}
           />
         );
@@ -114,7 +119,6 @@ class SavingAcnt extends React.Component<IProps> {
         </tbody>
       </Table>
     );
-
     return (
       <Wrapper
         header={

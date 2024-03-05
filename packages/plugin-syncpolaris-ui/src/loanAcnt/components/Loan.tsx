@@ -14,7 +14,7 @@ import Sidebar from '../../search/Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-import LoanCheckForm from './LoanCheckForm';
+import LoanCheckForm from '../../SyncForm/Form';
 interface IProps extends IRouterProps {
   syncHistories: any[];
   loading: boolean;
@@ -40,7 +40,7 @@ class Loan extends React.Component<IProps> {
     } = this.props;
 
     const tablehead = ['Date', 'Number', 'Status', 'Content', 'Error'];
-
+    const formHead = ['Number', 'Status', 'Start Date', 'End Date'];
     const onClickCheck = (e) => {
       e.stopPropagation();
       this.props.toCheckLoans();
@@ -86,8 +86,10 @@ class Loan extends React.Component<IProps> {
         return (
           <LoanCheckForm
             items={items?.loanContracts?.items}
-            toCheckLoans={toCheckLoans}
-            toSyncLoans={toSyncLoans}
+            toCheck={toCheckLoans}
+            toSync={toSyncLoans}
+            tablehead={formHead}
+            type="acnt"
             {...props}
           />
         );
