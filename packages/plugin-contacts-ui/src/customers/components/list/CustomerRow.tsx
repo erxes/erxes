@@ -19,6 +19,7 @@ import React from 'react';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import _ from 'lodash';
+import { displayObjectListItem } from '../../utils';
 import { formatValue } from '@erxes/ui/src/utils';
 import parse from 'ua-parser-js';
 import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
@@ -32,22 +33,7 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function displayObjectListItem(customer, customerFieldName, subFieldName) {
-  const objectList = customer[customerFieldName] || [];
-  const subFieldKey = subFieldName.replace(`${customerFieldName}.`, '');
-
-  const subField = objectList.find
-    ? objectList.find((obj) => obj.field === subFieldKey)
-    : [];
-
-  if (!subField) {
-    return null;
-  }
-
-  return formatValue(subField.value);
-}
-
-function displayValue(customer, name, index) {
+function displayValue(customer, name, group, index) {
   const value = _.get(customer, name);
 
   if (name === 'firstName') {
@@ -60,11 +46,11 @@ function displayValue(customer, name, index) {
   }
 
   if (name.includes('customFieldsData')) {
-    return displayObjectListItem(customer, 'customFieldsData', name);
+    return displayObjectListItem(customer, 'customFieldsData', name, group);
   }
 
   if (name.includes('trackedData')) {
-    return displayObjectListItem(customer, 'trackedData', name);
+    return displayObjectListItem(customer, 'trackedData', name, group);
   }
 
   if (name === 'location.country') {
@@ -174,7 +160,7 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, i) => {
+      {(columnsConfig || []).map(({ name, group }, i) => {
         if (name === 'primaryEmail') {
           return (
             <td key={i}>
@@ -190,7 +176,7 @@ function CustomerRow({
         return (
           <td key={i}>
             <ClickableRow onClick={onTrClick}>
-              {displayValue(customer, name, index)}
+              {displayValue(customer, name, group, index)}
             </ClickableRow>
           </td>
         );

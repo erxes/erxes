@@ -117,6 +117,7 @@ export interface IConfigColumn {
   label: string;
   order: number;
   checked?: boolean;
+  group?: string;
 }
 
 export type InboxFieldsQueryResponse = {
