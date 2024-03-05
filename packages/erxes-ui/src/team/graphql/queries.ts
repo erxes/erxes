@@ -95,7 +95,7 @@ const users = `
       groupIds
       brandIds
       score
-
+      positionIds
       details {
         ${detailFields}
       }

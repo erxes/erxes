@@ -1,6 +1,6 @@
 import {
   ICommonFormProps,
-  ICommonListProps
+  ICommonListProps,
 } from '@erxes/ui-settings/src/common/types';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -28,6 +28,7 @@ type IProps = {
   resendInvitation: (email: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
+  history?: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -43,20 +44,27 @@ class UserList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue }
+      queryParams: { searchValue },
     } = props;
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue: searchValue || '',
     };
   }
 
-  onAvatarClick = object => {
+  onAvatarClick = (object) => {
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  renderForm = props => {
-    return <UserForm {...props} renderButton={this.props.renderButton} />;
+  renderForm = (props) => {
+    return (
+      <UserForm
+        {...props}
+        history={this.props.history}
+        queryParams={this.props.queryParams}
+        renderButton={this.props.renderButton}
+      />
+    );
   };
 
   renderEditAction = (user: IUser) => {
@@ -80,7 +88,7 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderForm({ ...props, object: user });
     };
 
@@ -94,7 +102,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderResetPasswordForm = props => {
+  renderResetPasswordForm = (props) => {
     return <UserResetPasswordForm {...props} />;
   };
 
@@ -107,7 +115,7 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderResetPasswordForm({ ...props, object: user });
     };
 
@@ -139,7 +147,7 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderRows({ objects }: { objects: IUser[] }) {
-    return objects.map(object => {
+    return objects.map((object) => {
       const onClick = () => this.onAvatarClick(object);
       const onChange = () => this.props.changeStatus(object._id);
 
@@ -162,7 +170,7 @@ class UserList extends React.Component<FinalProps, States> {
               defaultChecked={object.isActive}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
               onChange={onChange}
             />
@@ -179,7 +187,7 @@ class UserList extends React.Component<FinalProps, States> {
     });
   }
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
       <>
         <Table wideHeader={true}>

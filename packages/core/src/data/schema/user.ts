@@ -136,6 +136,7 @@ const commonParams = `
   groupIds: [String]
   brandIds: [String]
   branchIds: [String]
+  positionIds: [String]
   departmentIds: [String]
   customFieldsData: JSON
   employeeId: String

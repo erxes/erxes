@@ -59,6 +59,7 @@ export interface IUserDoc {
   score?: number;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   employeeId?: string;
 }
 

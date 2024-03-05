@@ -51,6 +51,8 @@ export default (props: {
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
+  value?: any;
+  showAvatar?: boolean;
 }) => {
   const {
     queryParams,
@@ -61,11 +63,13 @@ export default (props: {
     label,
     filterParams,
     name,
+    showAvatar,
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
+      showAvatar={showAvatar}
       label={label}
       queryName="positions"
       name={name}
