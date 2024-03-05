@@ -106,6 +106,8 @@ export const types = `
     departments: [Department]
     branchIds: [String]
     branches: [Branch]
+    positionIds: [String]
+    positions: [Position]
     score: Float
     leaderBoardPosition: Int
     employeeId: String

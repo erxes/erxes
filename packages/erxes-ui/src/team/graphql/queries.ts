@@ -340,6 +340,7 @@ const userDetail = `
       groupIds
       branchIds
       departmentIds
+      positionIds
 
       details {
         ${detailFields}

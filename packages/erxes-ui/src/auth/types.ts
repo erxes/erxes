@@ -122,6 +122,7 @@ export interface IUser extends IUserDoc {
   onboardingHistory?: IOnboardingHistory;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   customFieldsData?: {
     [key: string]: any;
   };
