@@ -4,6 +4,7 @@ import "react-datetime-picker/dist/DateTimePicker.css"
 import "react-calendar/dist/Calendar.css"
 import "react-clock/dist/Clock.css"
 import { useEffect, useState } from "react"
+import { IAttachment } from "@/modules/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -118,6 +119,7 @@ const EventForm = ({
   const [success, setSuccess] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [recipientIds, setRecipientIds] = useState(feed?.recipientIds || [])
+  const [background, setBackground] = useState({} as IAttachment)
 
   const callBack = (result: string) => {
     if (result === "success") {

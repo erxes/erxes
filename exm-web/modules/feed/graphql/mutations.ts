@@ -14,6 +14,7 @@ const commonVariables = `
   $branchIds: [String]
   $unitId: String
   $category: String
+  $background: JSON
 `
 
 const commonParams = `
@@ -30,6 +31,7 @@ const commonParams = `
   branchIds: $branchIds
   unitId: $unitId
   category: $category
+  background: $background
 `
 
 const addFeed = gql`
