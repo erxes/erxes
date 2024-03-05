@@ -45,5 +45,6 @@ export default {
   },
   meta: {
     notificationModules: NOTIFICATION_MODULES,
+    permissions,
   },
 };

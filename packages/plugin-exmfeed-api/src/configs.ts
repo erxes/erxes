@@ -53,5 +53,5 @@ export default {
     debug = options.debug;
   },
 
-  meta: { cronjobs, automations, segments, forms },
+  meta: { cronjobs, automations, segments, forms, permissions },
 };
