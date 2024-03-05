@@ -28,15 +28,9 @@ const checkSavingAcntMutations = {
         saving,
       );
       const preSavingContract = preData?.item;
-      console.log(
-        'preSavingContract:::',
-        preSavingContract.number,
-        preSavingContract,
-      );
       const responseData = await getSavingAcntPolaris(subdomain, {
         number: preSavingContract.number,
       });
-      console.log('responseData:::', preSavingContract.number, responseData);
       const result = await findDiffrentData(preSavingContract, responseData);
       if (typeof result !== 'undefined') datas.push(result);
     }
