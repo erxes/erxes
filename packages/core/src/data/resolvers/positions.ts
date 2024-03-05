@@ -32,7 +32,7 @@ export default {
     const allChildrenIds = await getAllChildrenIds(models, position._id);
 
     return models.Users.findUsers({
-      branchIds: { $in: [position._id, ...allChildrenIds] },
+      positionIds: { $in: [position._id, ...allChildrenIds] },
       isActive: true,
     });
   },
@@ -52,19 +52,19 @@ export default {
   async userIds(position: IPositionDocument, _args, { models }: IContext) {
     const allChildrenIds = await getAllChildrenIds(models, position._id);
 
-    const branchUsers = await models.Users.findUsers({
-      branchIds: { $in: [position._id, ...allChildrenIds] },
+    const positionedUsers = await models.Users.findUsers({
+      positionIds: { $in: [position._id, ...allChildrenIds] },
       isActive: true,
     });
 
-    const userIds = branchUsers.map((user) => user._id);
+    const userIds = positionedUsers.map((user) => user._id);
     return userIds;
   },
   async userCount(position: IPositionDocument, _args, { models }: IContext) {
     const allChildrenIds = await getAllChildrenIds(models, position._id);
 
     return await models.Users.find({
-      branchIds: { $in: [position._id, ...allChildrenIds] },
+      positionIds: { $in: [position._id, ...allChildrenIds] },
       isActive: true,
     }).count();
   },
