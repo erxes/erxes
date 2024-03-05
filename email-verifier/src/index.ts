@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 const urlencodedMiddleware = express.urlencoded({
-  extended: true
+  extended: true,
 }) as express.RequestHandler;
 const jsonMiddleware = express.json() as express.RequestHandler;
 

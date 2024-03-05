@@ -1,3 +1,10 @@
+## [1.6.2-rc.4](https://github.com/erxes/erxes/compare/1.6.2-rc.3...1.6.2-rc.4) (2024-02-29)
+
+
+### Performance Improvements
+
+* **respond box:** rich text editor performance  ([b5848d6](https://github.com/erxes/erxes/commit/b5848d6a4836c0cc96f843df65092a7b7fc08679))
+
 ## [1.6.2-rc.3](https://github.com/erxes/erxes/compare/1.6.2-rc.2...1.6.2-rc.3) (2024-02-26)
 
 

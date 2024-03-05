@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
@@ -10,8 +10,6 @@ import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
-
-export let debug;
 
 dotenv.config();
 
@@ -93,11 +91,7 @@ export default {
     }),
   ],
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
-
-  reconnectRMQ: initBroker,
+  setupMessageConsumers,
 };

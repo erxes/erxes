@@ -23,7 +23,7 @@ import {
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'integrations:getAccounts',
     async ({ subdomain, data: { kind } }) => {

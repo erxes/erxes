@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import documents from './documents';
 import forms from './forms';
 import imports from './imports';
@@ -11,8 +11,6 @@ import * as permissions from './permissions';
 import payment from './payment';
 import { storeInterestCron } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let debug;
 
 export default {
   name: 'savings',
@@ -33,11 +31,9 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
+  setupMessageConsumers,
   meta: {
     logs: { consumers: logs },
     cronjobs: {

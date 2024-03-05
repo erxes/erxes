@@ -1,14 +1,12 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
-
-export let debug;
 
 export default {
   name: 'knowledgebase',
@@ -31,9 +29,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
+  setupMessageConsumers,
 };

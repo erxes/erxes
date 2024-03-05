@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { IModels } from '../models';
 import { createOrUpdateAccount } from '../server/controllers';
 const querystring = require('querystring');
-import { debug } from '../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { getConfig } from '../server';
 import { extend } from 'lodash';
 
@@ -20,9 +20,9 @@ export const createAPI = (baseURL: string, options: Object = {}) => {
   return axios.create({
     baseURL,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    ...options
+    ...options,
   });
 };
 
@@ -31,8 +31,8 @@ export const getAPI = () => {
     Zalo = createAPI('https://openapi.zalo.me/v2.0/oa/', {
       headers: {
         'Content-Type': 'application/json',
-        access_token: ZaloAccessToken
-      }
+        access_token: ZaloAccessToken,
+      },
     });
   Zalo.defaults.headers.common['access_token'] = ZaloAccessToken;
   return Zalo;
@@ -43,8 +43,8 @@ export const getAuthAPI = () => {
     ZaloAuth = createAPI('https://oauth.zaloapp.com/v4/oa/', {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        secret_key: ZaloSecretKey
-      }
+        secret_key: ZaloSecretKey,
+      },
     });
   ZaloAuth.defaults.headers.common['secret_key'] = ZaloSecretKey;
   return ZaloAuth;
@@ -60,7 +60,7 @@ export const setRefreshToken = (token: string) => {
 
 export const setZaloConfigs = (
   app_id: string = '',
-  secret_key: string = ''
+  secret_key: string = '',
 ) => {
   ZaloAppID = app_id;
   ZaloSecretKey = secret_key;
@@ -70,7 +70,7 @@ export const getAccessTokenByOauthCode = async (
   code: string,
   app_id: string,
   secret_key: string,
-  callback: Function = () => {}
+  callback: Function = () => {},
 ) => {
   return await axios
     .post(
@@ -78,18 +78,18 @@ export const getAccessTokenByOauthCode = async (
       querystring.stringify({
         grant_type: 'authorization_code',
         code,
-        app_id
+        app_id,
       }),
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          secret_key
-        }
-      }
+          secret_key,
+        },
+      },
     )
     .then((res: any) => res.data)
     .then((res: any) => {
-      debug.error(`getAccessTokenByOauthCode ${res}`);
+      debugError(`getAccessTokenByOauthCode ${res}`);
       callback(res);
       return res;
     })
@@ -108,14 +108,14 @@ export const getAccessToken = async (models, refresh_token: string) => {
       querystring.stringify({
         grant_type: 'refresh_token',
         refresh_token,
-        app_id: ZALO_APP_ID
+        app_id: ZALO_APP_ID,
       }),
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          secret_key: ZALO_APP_SECRET_KEY
-        }
-      }
+          secret_key: ZALO_APP_SECRET_KEY,
+        },
+      },
     )
     .then((res: any) => res.data)
     .catch((e: any) => {
@@ -135,15 +135,15 @@ export const zaloGetAccessToken = async (models, oa_id: string = '') => {
   let access_token = '';
 
   const account = await models.Accounts.findOne({
-    oa_id
+    oa_id,
   });
 
-  // debug.error(`zaloGet: ${account}`)
+  // debugError(`zaloGet: ${account}`)
 
-  // debug.error(`condition: ${account?.access_token && account?.access_token_expires_in > new Date().getTime()}`)
-  // debug.error(`account?.access_token: ${account?.access_token}`)
-  // debug.error(`account?.access_token_expires_in: ${account?.access_token_expires_in}`)
-  // debug.error(`new Date().getTime(): ${new Date().getTime()}`)
+  // debugError(`condition: ${account?.access_token && account?.access_token_expires_in > new Date().getTime()}`)
+  // debugError(`account?.access_token: ${account?.access_token}`)
+  // debugError(`account?.access_token_expires_in: ${account?.access_token_expires_in}`)
+  // debugError(`new Date().getTime(): ${new Date().getTime()}`)
 
   if (
     account?.access_token &&
@@ -154,13 +154,13 @@ export const zaloGetAccessToken = async (models, oa_id: string = '') => {
 
   if (account?.refresh_token) {
     const token = await getAccessToken(models, account?.refresh_token);
-    // debug.error(`token: ${JSON.stringify(token)}`)
+    // debugError(`token: ${JSON.stringify(token)}`)
     access_token = token?.access_token;
     if (token?.access_token)
       await createOrUpdateAccount(models.Accounts, {
         oa_id,
         access_token,
-        refresh_token: token?.refresh_token
+        refresh_token: token?.refresh_token,
       });
     return access_token;
   }
@@ -176,8 +176,8 @@ export const getRequestConfigs = (config, access_token) => {
     headers: {
       'Content-Type': 'application/json',
       ...config?.headers,
-      access_token
-    }
+      access_token,
+    },
   };
 
   return output;
@@ -185,7 +185,7 @@ export const getRequestConfigs = (config, access_token) => {
 
 export const zaloGet = async (
   path: string = '',
-  config?: ZaloRequestConfig
+  config?: ZaloRequestConfig,
 ) => {
   const access_token =
     config?.access_token ||
@@ -199,7 +199,7 @@ export const zaloGet = async (
 export const zaloSend = async (
   path: string = '',
   data?: any,
-  config?: ZaloRequestConfig
+  config?: ZaloRequestConfig,
 ) => {
   const access_token =
     config?.access_token ||

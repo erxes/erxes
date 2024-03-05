@@ -5,13 +5,11 @@ import * as bodyParser from 'body-parser';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import { debugBase } from './debuggers';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import app from '@erxes/api-utils/src/app';
-
-export let debug;
 
 export default {
   name: 'exm',
@@ -36,7 +34,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     // Error handling middleware
     app.use((error, _req, res, _next) => {
       const msg = filterXSS(error.message);
@@ -44,9 +42,6 @@ export default {
       debugBase(`Error: ${msg}`);
       res.status(500).send(msg);
     });
-
-    initBroker();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };

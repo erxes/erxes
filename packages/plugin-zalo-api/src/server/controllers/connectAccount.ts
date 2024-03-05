@@ -8,9 +8,9 @@ import {
   setZaloConfigs,
   ZaloAccessToken,
   zaloGet,
-  ZaloRefreshToken
+  ZaloRefreshToken,
 } from '../../zalo';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const connectAccount = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -21,7 +21,7 @@ export const connectAccount = async (req, res) => {
 
   const DOMAIN = getEnv({
     name: 'DOMAIN',
-    defaultValue: 'http://localhost:4000'
+    defaultValue: 'http://localhost:4000',
   });
   console.log(DOMAIN);
 
@@ -31,7 +31,7 @@ export const connectAccount = async (req, res) => {
   const conf = {
     app_id: ZALO_APP_ID,
     secret_key: ZALO_APP_SECRET_KEY,
-    redirect_uri: `${DOMAIN}/gateway/pl-zalo/login`
+    redirect_uri: `${DOMAIN}/gateway/pl-zalo/login`,
   };
 
   const authUrl = `https://oauth.zaloapp.com/v4/oa/permission?app_id=${
@@ -44,20 +44,20 @@ export const connectAccount = async (req, res) => {
 
   const config = {
     oa_id: req.query.oa_id,
-    code: req.query.code
+    code: req.query.code,
   };
 
   setZaloConfigs(conf.app_id, conf.secret_key);
   const token = await getAccessTokenByOauthCode(
     config.code,
     conf.app_id,
-    conf.secret_key
+    conf.secret_key,
   );
-  debug.error(`connect ${token}`);
+  debugError(`connect ${token}`);
   const OAInfo = await zaloGet('getoa', {
     models,
     oa_id: config.oa_id,
-    access_token: token?.access_token
+    access_token: token?.access_token,
   });
 
   await createOrUpdateAccount(models.Accounts, {
@@ -66,7 +66,7 @@ export const connectAccount = async (req, res) => {
     avatar: OAInfo?.data?.avatar,
     isNewRefreshToken: true,
     access_token: token?.access_token,
-    refresh_token: token?.refresh_token
+    refresh_token: token?.refresh_token,
   });
 
   res.send('<script>window.close();</script > ');
@@ -76,7 +76,7 @@ export const connectAccount = async (req, res) => {
 
 export const createOrUpdateAccount = async (
   Accounts: IAccountModel,
-  accountData: any
+  accountData: any,
 ) => {
   const {
     oa_id,
@@ -84,7 +84,7 @@ export const createOrUpdateAccount = async (
     avatar,
     isNewRefreshToken,
     access_token,
-    refresh_token
+    refresh_token,
   } = accountData;
 
   const access_token_expires_in = new Date().getTime() + 86400000;
@@ -95,7 +95,7 @@ export const createOrUpdateAccount = async (
   const data: IAccount = {
     access_token,
     refresh_token,
-    access_token_expires_in
+    access_token_expires_in,
   };
 
   if (name) data.name = name;
@@ -105,24 +105,24 @@ export const createOrUpdateAccount = async (
 
   try {
     const account = await Accounts.findOne({
-      oa_id
+      oa_id,
     });
 
     if (account) {
       return await Accounts.updateOne(
         { _id: account._id },
         {
-          $set: data
-        }
+          $set: data,
+        },
       );
     }
 
     await Accounts.create({
       ...data,
       kind: 'zalo',
-      oa_id
+      oa_id,
     });
   } catch (e) {
-    debug.error(`Failed to create or update accounts: ${e.message}`);
+    debugError(`Failed to create or update accounts: ${e.message}`);
   }
 };

@@ -4,7 +4,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
   identifyCustomer,
@@ -31,8 +31,6 @@ import payment from './payment';
 import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 import exporter from './exporter';
-
-export let debug;
 
 export default {
   name: 'inbox',
@@ -83,7 +81,7 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)()],
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     // events
     app.post(
       '/events-receive',
@@ -137,9 +135,6 @@ export default {
 
     app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
     app.post('/webhooks/:id', webhookMiddleware);
-
-    initBroker();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };

@@ -10,7 +10,7 @@ import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('pricing:checkPricing', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

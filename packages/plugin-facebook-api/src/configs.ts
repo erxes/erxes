@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './initApp';
@@ -9,8 +9,6 @@ import { INTEGRATION_KINDS } from './constants';
 import automations from './automations';
 import forms from './forms';
 import segments from './segments';
-
-export let debug;
 
 export default {
   name: 'facebook',
@@ -45,11 +43,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    await initBroker();
-
+  onServerInit: async () => {
     await initApp();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };

@@ -25,7 +25,7 @@ import {
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'facebook:getAccounts',
     async ({ subdomain, data: { kind } }) => {
@@ -79,11 +79,11 @@ export const initBroker = async () => {
 
       try {
         if (action === 'remove-account') {
-          response.data = await removeAccount(models, data._id);
+          response.data = await removeAccount(subdomain, models, data._id);
         }
 
         if (action === 'repair-integrations') {
-          response.data = await repairIntegrations(models, data._id);
+          response.data = await repairIntegrations(subdomain, models, data._id);
         }
 
         if (type === 'facebook') {
@@ -161,7 +161,7 @@ export const initBroker = async () => {
       const models = await generateModels(subdomain);
 
       if (kind === 'facebook') {
-        return await facebookCreateIntegration(models, doc);
+        return facebookCreateIntegration(subdomain, models, doc);
       }
 
       return {
@@ -177,7 +177,7 @@ export const initBroker = async () => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await removeIntegration(models, integrationId);
+      await removeIntegration(subdomain, models, integrationId);
 
       return { status: 'success' };
     },

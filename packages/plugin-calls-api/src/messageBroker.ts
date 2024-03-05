@@ -14,7 +14,7 @@ import type {
   RPResult,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
     async (args: InterMessage): Promise<any> => {
