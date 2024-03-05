@@ -22,6 +22,7 @@ type Props = {
   branchTotalCount: number;
   unitTotalCount: number;
   departmentTotalCount: number;
+  positionTotalCount: number;
 };
 
 export default class SettingsSideBar extends React.Component<Props> {
@@ -43,7 +44,7 @@ export default class SettingsSideBar extends React.Component<Props> {
         {ListItem(
           '/settings/positions',
           'Positions',
-          this.props.unitTotalCount,
+          this.props.positionTotalCount,
         )}
       </SidebarList>
     );

@@ -1,37 +1,35 @@
-import React, { useState } from 'react';
-import {
-  IPosition,
-  PositionsMainQueryResponse,
-} from '@erxes/ui/src/team/types';
-import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
 import {
   FilterContainer,
   InputBar,
   LeftActionBar,
   Title,
 } from '@erxes/ui-settings/src/styles';
+import {
+  IPosition,
+  PositionsMainQueryResponse,
+} from '@erxes/ui/src/team/types';
 import { __, router } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
 
+import { gql } from '@apollo/client';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { BarItems } from 'modules/layout/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Form from '../../containers/common/BlockForm';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import SettingsSideBar from '../../containers/common/SettingSideBar';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import Table from 'modules/common/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { BarItems } from 'modules/layout/styles';
+import Form from '../../containers/common/BlockForm';
+import SettingsSideBar from '../../containers/common/SettingSideBar';
 import { generateTree } from '../../utils';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { listenerCount } from 'process';
 
 type Props = {
   listQuery: PositionsMainQueryResponse;
