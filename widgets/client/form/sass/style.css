@@ -927,6 +927,82 @@ select.form-control:focus,
 .erxes-icon-folder {
   background-image: url("https://s3.amazonaws.com/erxes/icons/folder.svg");
 }
+
+.erxes-icon-folder-1 {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/folder.svg");
+}
+
+.erxes-icon-sunset {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/sunset.svg");
+}
+
+.erxes-icon-heart-alt {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/heart.svg");
+}
+
+.erxes-icon-music-1 {
+  background-image: url("https://erxes.s3.amazonaws.com/icons/music.svg");
+}
+
+.erxes-icon-pencil {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/pencil.svg");
+}
+
+.erxes-icon-database {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/database.svg");
+}
+
+.erxes-icon-clipboard-1 {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/note.svg");
+}
+
+.erxes-icon-camera {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/camera.svg");
+}
+
+.erxes-icon-shuffle-1 {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/shuffle.svg");
+}
+
+.erxes-icon-hourglass {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/hourglass.svg");
+}
+
+.erxes-icon-envelope-alt {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/envelope-alt.svg");
+}
+
+.erxes-icon-graph-bar {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/graph-bar.svg");
+}
+
+.erxes-icon-comment-alt-message {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/comment.svg");
+}
+
+.erxes-icon-chat {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/chat.svg");
+}
+
+.erxes-icon-smile {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/smile.svg");
+}
+
+.erxes-icon-wallclock {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/wallclock.svg");
+}
+
+.erxes-icon-trees {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/trees.svg");
+}
+
+.erxes-icon-gift {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/gift.svg");
+}
+
+.erxes-icon-moon-1 {
+  background-image: url("https://s3.amazonaws.com/erxes/icons/moon-1.svg");
+}
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1041,6 +1117,16 @@ button.removeBtn {
 }
 .form-group .field-groups .field-group {
   border-top: 1px solid #d8d8d8;
+}
+.form-group .field-groups .field-group .field-group-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-group .field-groups .field-group .field-group-row .subField-item {
+  margin-right: 20px;
+}
+.form-group .field-groups .field-group .field-group-row .subField-item:last-child {
+  margin: 0;
 }
 .form-group .field-groups .field-group:first-child {
   border-top: none;

@@ -11,6 +11,7 @@ import LoadingCard from "@/components/ui/loading-card"
 
 import { useComments } from "../hooks/useComment"
 import { useReactionQuery } from "../hooks/useReactionQuery"
+import FeedBackground from "./FeedBackground"
 import FeedComment from "./FeedComment"
 import FeedDetail from "./FeedDetail"
 import EmojiCount from "./FeedEmojiCount"
@@ -35,17 +36,12 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
     handleLoadMore,
   } = useComments(postId)
 
-  const { emojiReactedUser, loadingReactedUsers } =
-    useReactionQuery({
-      feedId: postId,
-    })
+  const { emojiReactedUser, loadingReactedUsers } = useReactionQuery({
+    feedId: postId,
+  })
 
-  if (loading) {
+  if (loading || loadingReactedUsers) {
     return <LoadingCard />
-  }
-
-  if (loadingReactedUsers) {
-    return <div />
   }
 
   const user = feed.createdUser || ({} as IUser)
@@ -85,9 +81,11 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
           />
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-hidden px-4 py-[12px]">
-            <p className="text-black">{updatedDescription}</p>
-          </div>
+          {(!feed.background || feed.background.color === "") && (
+            <div className="overflow-x-hidden px-4 py-[12px]">
+              <p className="text-black">{updatedDescription}</p>
+            </div>
+          )}
           {links.map((link, index) => {
             return (
               <iframe
@@ -104,6 +102,13 @@ const PostItem = ({ postId }: { postId: string }): JSX.Element => {
               />
             )
           })}
+
+          {feed.background && feed.background.color !== "" && (
+            <FeedBackground
+              bg={feed.background}
+              description={updatedDescription}
+            />
+          )}
 
           <FormAttachments
             type="postItem"

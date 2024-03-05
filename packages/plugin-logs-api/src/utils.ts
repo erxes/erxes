@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { IModels } from './connectionResolver';
 
@@ -243,7 +243,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
 };
 
 export const receivePutLogCommand = async (models: IModels, params) => {
-  debug.info(params);
+  debugInfo(params);
 
   const {
     createdBy,

@@ -3,11 +3,9 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker, sendCoreMessage } from './messageBroker';
+import { setupMessageConsumers, sendCoreMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { checkFilePermission } from './utils';
-
-export let debug;
 
 const checkPermission = async ({ subdomain, models, files, userId }) => {
   if (files.length > 0) {
@@ -64,9 +62,6 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

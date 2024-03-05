@@ -3,7 +3,7 @@ import checkSyncedMutations from './mutations/checkSynced';
 import syncHistories from './queries/syncHistories';
 import SyncHistory from './syncLog';
 
-const resolvers: any = async (_serviceDiscovery) => ({
+const resolvers: any = async () => ({
   ...customScalars,
   SyncHistory,
   Query: {

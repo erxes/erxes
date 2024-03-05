@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ contacts, tags }) => `
@@ -48,6 +48,7 @@ export const types = ({ contacts, tags }) => `
     carCount: Int
     image: Attachment
     secondaryImages: [Attachment]
+    productCategoryId: String
   }
   type Car {
     _id: String!
@@ -143,7 +144,8 @@ const carCategoryParams = `
   description: String,
   parentId: String,
   image: AttachmentInput,
-  secondaryImages: [AttachmentInput]
+  secondaryImages: [AttachmentInput],
+  productCategoryId: String
 `;
 
 export const mutations = `

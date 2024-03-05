@@ -3,13 +3,11 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import dashboards from './dashboards';
-
-export let debug;
 
 export default {
   name: 'tags',
@@ -36,11 +34,8 @@ export default {
   },
   middlewares: [(serverTiming as any)()],
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 
   meta: { logs: { consumers: logs }, permissions, dashboards },
 };

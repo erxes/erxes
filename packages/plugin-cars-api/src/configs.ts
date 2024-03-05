@@ -1,14 +1,12 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import forms from './forms';
 import segments from './segments';
 import tags from './tags';
-
-export let debug;
 
 export default {
   name: 'cars',
@@ -29,10 +27,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: { forms, tags, segments },
 };

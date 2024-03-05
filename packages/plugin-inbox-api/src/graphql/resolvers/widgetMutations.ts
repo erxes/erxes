@@ -12,7 +12,7 @@ import {
   IMessengerDataMessagesItem,
 } from '../../models/definitions/integrations';
 
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 import redis from '@erxes/api-utils/src/redis';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -755,7 +755,7 @@ const widgetMutations = {
             isRPC: true,
           });
         } catch (e) {
-          debug.error(e);
+          debugError(e);
         }
 
         const timeDelay = integrationConfigs.find(
@@ -942,7 +942,7 @@ const widgetMutations = {
           },
         );
       } catch (e) {
-        debug.error(`Failed to connect to BOTPRESS: ${e.message}`);
+        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
       }
     }
 
@@ -1096,7 +1096,7 @@ const widgetMutations = {
       });
     } catch (e) {
       /* istanbul ignore next */
-      debug.error(
+      debugError(
         `Error occurred during widgets save browser info ${e.message}`,
       );
     }

@@ -1,21 +1,23 @@
 import {
-  generateCategoryOptions,
-  MainStyleModalFooter as ModalFooter,
   Button,
   Form as CommonForm,
   ControlLabel,
   FormControl,
   FormGroup,
+  MainStyleModalFooter as ModalFooter,
   Uploader,
   extractAttachment,
+  generateCategoryOptions,
 } from '@erxes/ui/src';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
 } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+
 import { ICarCategory } from '../../types';
+import React from 'react';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   categories: ICarCategory[];
@@ -24,27 +26,35 @@ type Props = {
   closeModal: () => void;
 };
 
-const CategoryForm = (props: Props) => {
-  const {
-    categories,
-    category = {} as ICarCategory,
-    renderButton,
-    closeModal,
-  } = props;
+type State = {
+  image?: IAttachment;
+  secondaryImages?: IAttachment[];
+  productCategoryId?: String;
+};
 
-  const [image, setImage] = useState<IAttachment | undefined>(
-    category.image || undefined,
-  );
-  const [images, setImages] = useState<IAttachment[] | undefined>(
-    category.secondaryImages || undefined,
-  );
+class CategoryForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-  const generateDoc = (values: {
+    const category = props.category || ({} as ICarCategory);
+    const { image, secondaryImages, productCategoryId } = category;
+
+    this.state = {
+      image: image ? image : undefined,
+      secondaryImages: secondaryImages || undefined,
+      productCategoryId: productCategoryId || '',
+    };
+  }
+
+  generateDoc = (values: {
     _id?: string;
     image?: IAttachment;
     secondaryImages?: IAttachment[];
+    productCategoryId?: string;
   }) => {
+    const { category } = this.props;
     const finalValues = values;
+    const { image, secondaryImages, productCategoryId } = this.state;
 
     if (category) {
       finalValues._id = category._id;
@@ -55,19 +65,24 @@ const CategoryForm = (props: Props) => {
     return {
       ...finalValues,
       image,
-      secondaryImages: images,
+      secondaryImages,
+      productCategoryId,
     };
   };
-
-  const onChangeAttachment = (files: IAttachment[]) => {
-    setImage(files.length ? files[0] : undefined);
+  onChangeAttachment = (files: IAttachment[]) => {
+    this.setState({ image: files.length ? files[0] : undefined });
   };
 
-  const onChangeAttachmentMore = (files: IAttachment[]) => {
-    setImages(files ? files : undefined);
+  onChangeAttachmentMore = (files: IAttachment[]) => {
+    this.setState({ secondaryImages: files ? files : undefined });
   };
 
-  const renderContent = (formProps: IFormProps) => {
+  onSelectChange = (value) => {
+    this.setState({ productCategoryId: value });
+  };
+
+  renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal, category, categories } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = category || ({} as ICarCategory);
@@ -135,7 +150,7 @@ const CategoryForm = (props: Props) => {
 
           <Uploader
             defaultFileList={image}
-            onChange={onChangeAttachment}
+            onChange={this.onChangeAttachment}
             multiple={false}
             single={true}
           />
@@ -146,9 +161,25 @@ const CategoryForm = (props: Props) => {
 
           <Uploader
             defaultFileList={secondaryImages}
-            onChange={onChangeAttachmentMore}
+            onChange={this.onChangeAttachmentMore}
             multiple={true}
             single={false}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Product Category</ControlLabel>
+
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={object.productCategoryId || ''}
+            customOption={{
+              value: '',
+              label: '...Clear product category filter',
+            }}
+            onSelect={(categoryId) => this.onSelectChange(categoryId)}
+            multi={false}
           />
         </FormGroup>
 
@@ -164,16 +195,19 @@ const CategoryForm = (props: Props) => {
 
           {renderButton({
             name: 'car category',
-            values: generateDoc(values),
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: props.category,
+            object: category,
           })}
         </ModalFooter>
       </>
     );
   };
-  return <CommonForm renderContent={renderContent} />;
-};
+
+  render() {
+    return <CommonForm renderContent={this.renderContent} />;
+  }
+}
 
 export default CategoryForm;

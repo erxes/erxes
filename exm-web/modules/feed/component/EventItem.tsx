@@ -15,11 +15,16 @@ import LoadingCard from "@/components/ui/loading-card"
 import { useComments } from "../hooks/useComment"
 import { useReactionQuery } from "../hooks/useReactionQuery"
 import EventDropDown from "./EventDropDown"
-import EventUsersAvatar from "./EventUsersAvatar"
 import FeedActions from "./FeedActions"
 import FeedDetail from "./FeedDetail"
 
-const EventItem = ({ postId }: { postId: string }): JSX.Element => {
+const EventItem = ({
+  postId,
+  myEvent,
+}: {
+  postId: string
+  myEvent?: boolean
+}): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [emojiOpen, setEmojiOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(false)
@@ -37,12 +42,8 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     feedId: postId,
   })
 
-  if (loading) {
+  if (loading || loadingReactedUsers) {
     return <LoadingCard />
-  }
-
-  if (loadingReactedUsers) {
-    return <div />
   }
 
   const user = feed.createdUser || ({} as IUser)
@@ -69,12 +70,18 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
   const renderEventInfo = () => {
     const { eventData } = feed
 
+    const endSameDay =
+      dayjs(eventData?.startDate).format("MMM DD, YYYY") ===
+      dayjs(eventData?.endDate).format("MMM DD, YYYY")
+
     return (
       <div className="text-[#5E5B5B] mb-2">
         <div className="flex items-center mb-2">
           <Calendar size={18} className="mr-1" />
-          {dayjs(eventData?.startDate).format("MM/DD/YY H:mm")} ~{" "}
-          {dayjs(eventData?.endDate).format("MM/DD/YY H:mm")}
+          {dayjs(eventData?.startDate).format("MM/DD/YY HH:mm")} ~{" "}
+          {endSameDay
+            ? dayjs(eventData?.endDate).format("HH:mm")
+            : dayjs(eventData?.endDate).format("MM/DD/YY HH:mm")}
         </div>
         <div className="flex items-center mb-2">
           <MapPinIcon size={18} className="mr-1" />
@@ -82,7 +89,6 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
             {eventData?.where || ""}
           </span>
         </div>
-        {eventData && <EventUsersAvatar eventData={eventData} />}
       </div>
     )
   }
@@ -93,15 +99,38 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     }
 
     return (
-      <div className="overflow-hidden rounded-lg h-[150px] w-full shrink-0 rounded-bl-none rounded-br-none ">
-        <Image
-          alt="image"
-          src={feed.images[0].url || ""}
-          width={500}
-          height={150}
-          className={`object-cover w-full h-full`}
-        />
-      </div>
+      <Image
+        alt="image"
+        src={feed.images[0].url || ""}
+        width={500}
+        height={150}
+        className={`object-cover w-full h-full`}
+      />
+    )
+  }
+
+  if (myEvent) {
+    return (
+      <FeedDetail
+        setDetailOpen={setDetailOpen}
+        setCommentOpen={setCommentOpen}
+        setOpen={setOpen}
+        detailOpen={detailOpen}
+        feed={feed}
+        updatedDescription={updatedDescription}
+        currentUser={currentUser}
+        setEmojiOpen={setEmojiOpen}
+        emojiOpen={emojiOpen}
+        commentsCount={commentsCount}
+        commentOpen={commentOpen}
+        emojiReactedUser={emojiReactedUser}
+        commentLoading={commentLoading}
+        comments={comments}
+        handleLoadMore={handleLoadMore}
+        open={open}
+        userDetail={userDetail}
+        myEvent={myEvent}
+      />
     )
   }
 
@@ -109,7 +138,9 @@ const EventItem = ({ postId }: { postId: string }): JSX.Element => {
     <>
       <Card className="lg:w-[calc(100%/3-2rem)] w-[calc(100%/2-2rem)] border border-exm flex-1 rounded-lg shrink-0">
         <CardContent className="p-0 relative">
-          {renderImage()}
+          <div className="overflow-hidden rounded-lg h-[150px] w-full shrink-0 rounded-bl-none rounded-br-none ">
+            {renderImage()}
+          </div>
           <FeedActions
             feed={feed}
             open={open}

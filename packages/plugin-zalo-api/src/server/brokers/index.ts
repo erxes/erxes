@@ -7,7 +7,7 @@ import {
 import { integrationBroker } from './intergration';
 import { conversationMessagesBroker } from './conversationMessages';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   integrationBroker();
   conversationMessagesBroker();
 };

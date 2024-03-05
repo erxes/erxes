@@ -156,11 +156,6 @@ export default withProps<Props>(
             ...generatePaginationParams(queryParams),
           },
           fetchPolicy: 'network-only',
-          context: {
-            headers: {
-              'x-timeout': 25000, // Set custom timeout 2 seconds for this request
-            },
-          },
         }),
       },
     ),
