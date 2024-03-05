@@ -1,66 +1,78 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const GrowthHackBoard = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard'
-  )
+const GrowthHackBoard = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard'
+    ),
 );
 
-const GrowthHackHome = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackHome" */ './containers/home/Home')
+const GrowthHackHome = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "GrowthHackHome" */ './containers/home/Home'),
 );
-const PriorityMatrix = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix'
-  )
-);
-
-const EditableGrowthHackList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EditableGrowthHackList" */ './containers/EditableGrowthHackList'
-  )
+const PriorityMatrix = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix'
+    ),
 );
 
-const WeightedScore = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "WeightedScore" */ './components/weightedScore/WeightedScore'
-  )
+const EditableGrowthHackList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "EditableGrowthHackList" */ './containers/EditableGrowthHackList'
+    ),
 );
 
-const FunnelImpact = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact'
-  )
+const WeightedScore = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "WeightedScore" */ './components/weightedScore/WeightedScore'
+    ),
 );
 
-const growthHack = ({ location }) => {
+const FunnelImpact = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact'
+    ),
+);
+
+const GrowthHack = () => {
+  const location = useLocation();
   const growthHacksLink = `/growthHack/home${location.search}`;
 
-  return <Redirect to={growthHacksLink} />;
+  return <Link to={growthHacksLink} />;
 };
 
-const boards = ({ location }) => {
+const Boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <GrowthHackBoard queryParams={queryParams} />;
 };
 
-const home = ({ location }) => {
+const Home = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <GrowthHackHome queryParams={queryParams} />;
 };
 
-const priorityMatrix = ({ location }) => {
+const PriorityMatrixComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PriorityMatrix queryParams={queryParams} />;
 };
 
-const weightedScore = ({ location }) => {
+const WeightedScoreComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -71,7 +83,8 @@ const weightedScore = ({ location }) => {
   );
 };
 
-const funnelImpact = ({ location }) => {
+const FunnelImpactComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <FunnelImpact queryParams={queryParams} />;
@@ -79,49 +92,39 @@ const funnelImpact = ({ location }) => {
 
 const routes = () => {
   return (
-    <>
-      <Route
-        key="/growthHack"
-        exact={true}
-        path="/growthHack"
-        render={growthHack}
-      />
+    <Routes>
+      <Route key="/growthHack" path="/growthHack" element={<GrowthHack />} />
 
       <Route
         key="/growthHack/board"
-        exact={true}
         path="/growthHack/board"
-        component={boards}
+        element={<Boards />}
       />
 
       <Route
         key="/growthHack/home"
-        exact={true}
         path="/growthHack/home"
-        component={home}
+        element={<Home />}
       />
 
       <Route
         key="/growthHack/priorityMatrix"
-        exact={true}
         path="/growthHack/priorityMatrix"
-        component={priorityMatrix}
+        element={<PriorityMatrixComponent />}
       />
 
       <Route
         key="/growthHack/weightedScore"
-        exact={true}
         path="/growthHack/weightedScore"
-        component={weightedScore}
+        element={<WeightedScoreComponent />}
       />
 
       <Route
         key="/growthHack/funnelImpact"
-        exact={true}
         path="/growthHack/funnelImpact"
-        component={funnelImpact}
+        element={<FunnelImpactComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

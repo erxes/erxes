@@ -8,7 +8,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ITag } from '../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 // import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';

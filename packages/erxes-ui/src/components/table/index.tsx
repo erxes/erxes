@@ -9,7 +9,7 @@ type Props = {
   $condensed?: boolean;
   $hover?: boolean;
   $responsive?: boolean;
-  whiteSpace?: string;
+  $whiteSpace?: string;
   $alignTop?: boolean;
   $wideHeader?: boolean;
 };
