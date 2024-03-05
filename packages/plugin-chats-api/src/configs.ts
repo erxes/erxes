@@ -37,5 +37,6 @@ export default {
   setupMessageConsumers,
   meta: {
     notificationModules: NOTIFICATION_MODULES,
+    permissions,
   },
 };
