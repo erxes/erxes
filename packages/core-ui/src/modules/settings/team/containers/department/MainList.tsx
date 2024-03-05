@@ -28,9 +28,9 @@ class MainList extends React.Component<FinalProps> {
   render() {
     const { listQuery } = this.props;
 
-    if (listQuery.loading) {
-      return <Spinner />;
-    }
+    // if (listQuery.loading) {
+    //   return <Spinner />;
+    // }
 
     if (listQuery.error) {
       return (
@@ -43,15 +43,7 @@ class MainList extends React.Component<FinalProps> {
           .mutate({
             mutation: gql(mutations.departmentsRemove),
             variables: { ids },
-            refetchQueries: [
-              {
-                query: gql(queries.departments),
-                variables: {
-                  withoutUserFilter: true,
-                  searchValue: undefined
-                }
-              }
-            ]
+            refetchQueries: ['departmentsMain']
           })
           .then(() => {
             callback();
@@ -62,12 +54,19 @@ class MainList extends React.Component<FinalProps> {
           });
       });
     };
-    return (
-      <MainListCompoenent
-        {...this.props}
-        deleteDepartments={deleteDepartments}
-      />
-    );
+
+    const departments = listQuery?.departmentsMain?.list || [];
+    const totalCount = listQuery?.departmentsMain?.totalCount || 0;
+
+    const updatedProps = {
+      ...this.props,
+      deleteDepartments,
+      departments,
+      totalCount,
+      loading: listQuery.loading
+    };
+
+    return <MainListCompoenent {...updatedProps} />;
   }
 }
 

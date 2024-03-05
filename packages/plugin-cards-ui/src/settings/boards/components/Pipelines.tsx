@@ -1,25 +1,27 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE,
-  EMPTY_CONTENT_PURCHASE_PIPELINE
+  EMPTY_CONTENT_PURCHASE_PIPELINE,
+  EMPTY_CONTENT_TASK_PIPELINE
 } from '@erxes/ui-settings/src/constants';
+import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
+
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
 import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
 import React from 'react';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 
@@ -35,6 +37,7 @@ type Props = {
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
+  loading: boolean;
 } & IRouterProps;
 
 type State = {
@@ -168,11 +171,11 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { pipelines, options, type } = this.props;
+    const { pipelines, options, type, loading } = this.props;
 
     const pipelineName = options?.pipelineName || 'pipeline';
 
-    if (pipelines.length === 0) {
+    if (!loading && pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
         return (
           <EmptyContent
@@ -256,13 +259,18 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.searchHandler}
-          value={router.getParam(history, 'searchValue')}
-          autoFocus={true}
-        />
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={this.searchHandler}
+              value={router.getParam(history, 'searchValue')}
+              autoFocus={true}
+            />
+          </FlexItem>
+        </InputBar>
 
         {this.renderAdditionalButton()}
         <Button
@@ -282,19 +290,14 @@ class Pipelines extends React.Component<Props, State> {
 
     const leftActionBar = (
       <Title>
-        {currentBoard ? currentBoard.name : ''}
-
-        <PipelineCount>
-          ({pipelines.length} {__(pipelineName)}
-          {pipelines.length > 1 && 's'})
-        </PipelineCount>
+        {currentBoard ? `${currentBoard.name} (${pipelines.length})` : ''}
       </Title>
     );
 
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar
-          wideSpacing
+          wideSpacing={true}
           left={leftActionBar}
           right={this.renderButton()}
         />

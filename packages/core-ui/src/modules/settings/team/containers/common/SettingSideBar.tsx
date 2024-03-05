@@ -5,10 +5,11 @@ import {
   DepartmentsMainQueryResponse,
   UnitsMainQueryResponse
 } from '@erxes/ui/src/team/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
 
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import React from 'react';
 import SettingsSideBar from '../../components/common/SettingsSideBar';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui/src/team/graphql';
@@ -42,15 +43,14 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
       );
     }
 
-    return (
-      <SettingsSideBar
-        branchTotalCount={branchListQuery?.branchesMain?.totalCount || 0}
-        unitTotalCount={unitListQuery?.unitsMain?.totalCount || 0}
-        departmentTotalCount={
-          departmentListQuery?.departmentsMain?.totalCount || 0
-        }
-      />
-    );
+    const updatedProps = {
+      branchTotalCount: branchListQuery?.branchesMain?.totalCount || 0,
+      unitTotalCount: unitListQuery?.unitsMain?.totalCount || 0,
+      departmentTotalCount:
+        departmentListQuery?.departmentsMain?.totalCount || 0
+    };
+
+    return <SettingsSideBar {...updatedProps} />;
   }
 }
 

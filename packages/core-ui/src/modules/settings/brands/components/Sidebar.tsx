@@ -24,7 +24,7 @@ class Sidebar extends React.Component<Props, {}> {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -67,16 +67,14 @@ class Sidebar extends React.Component<Props, {}> {
         </td>
         <td>
           <ActionButtons>
-            <ActionButtons>
-              {this.renderEditAction(brand)}
-              <Tip text={__('Delete')} placement="bottom">
-                <Button
-                  btnStyle="link"
-                  onClick={() => this.remove(brand)}
-                  icon="cancel-1"
-                />
-              </Tip>
-            </ActionButtons>
+            {this.renderEditAction(brand)}
+            <Tip text={__('Delete')} placement="bottom">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(brand)}
+                icon="times-circle"
+              />
+            </Tip>
           </ActionButtons>
         </td>
       </tr>

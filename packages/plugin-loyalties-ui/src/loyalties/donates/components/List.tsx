@@ -177,12 +177,7 @@ class DonatesList extends React.Component<IProps, State> {
 
         return (
           <BarItems>
-            <Button
-              btnStyle="danger"
-              size="small"
-              icon="cancel-1"
-              onClick={onClick}
-            >
+            <Button btnStyle="danger" icon="times-circle" onClick={onClick}>
               Delete
             </Button>
           </BarItems>

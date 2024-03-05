@@ -7,7 +7,7 @@ import styled from 'styled-components';
 const BoxItem = styled.div`
   flex-basis: 300px;
   padding: 25px 30px;
-  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  margin: 0 0 ${dimensions.coreSpacing}px 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

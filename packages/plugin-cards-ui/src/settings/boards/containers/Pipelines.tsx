@@ -55,10 +55,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
       boardDetailQuery
     } = this.props;
 
-    if (pipelinesQuery?.loading) {
-      return <Spinner />;
-    }
-
     const pipelines = pipelinesQuery.pipelines || [];
 
     // archive action

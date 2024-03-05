@@ -28,9 +28,9 @@ class MainList extends React.Component<FinalProps> {
   render() {
     const { listQuery } = this.props;
 
-    if (listQuery.loading) {
-      return <Spinner />;
-    }
+    // if (listQuery.loading) {
+    //   return <Spinner />;
+    // }
 
     if (listQuery.error) {
       return (
@@ -55,9 +55,19 @@ class MainList extends React.Component<FinalProps> {
           });
       });
     };
-    return (
-      <MainListCompoenent {...this.props} deleteBranches={deleteBranches} />
-    );
+
+    const branches = listQuery?.branchesMain?.list || [];
+    const totalCount = listQuery?.branchesMain?.totalCount || 0;
+
+    const updatedProps = {
+      ...this.props,
+      deleteBranches,
+      branches,
+      totalCount,
+      loading: listQuery.loading
+    };
+
+    return <MainListCompoenent {...updatedProps} />;
   }
 }
 

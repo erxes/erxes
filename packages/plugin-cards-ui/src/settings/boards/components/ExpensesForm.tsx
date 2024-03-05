@@ -165,7 +165,11 @@ function ExpensesForm() {
               {__('Cancel')}
             </Button>
 
-            <Button btnStyle="success" onClick={handleSubmit} icon="checked-1">
+            <Button
+              btnStyle="success"
+              onClick={handleSubmit}
+              icon="check-circle"
+            >
               Save
             </Button>
           </Modal.Footer>

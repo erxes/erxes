@@ -117,7 +117,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
               />
             </FlexItem>
           </InputBar>
-          <InputBar type="selectBar">
+          <InputBar type="active">
             <FlexItem>
               <SelectBrands
                 label="Filter by brand"

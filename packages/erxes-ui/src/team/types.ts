@@ -88,6 +88,7 @@ interface IStructureCommon {
 export interface IDepartment extends IStructureCommon {
   description: string;
   parentId?: string | null;
+  parent: IDepartment;
   order: string;
   userIds: string[];
   userCount: number;
