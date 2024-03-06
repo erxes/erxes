@@ -16,8 +16,8 @@ const Cart = () => {
         </div>
         <small className="w-3/12">Тоо ширхэг</small>
         <small className="flex w-4/12">
-          <span className="w-6/12">Бар код</span>
           <span className="w-5/12">Үнэ</span>
+          <span className="w-6/12">Нийт үнэ</span>
         </small>
       </div>
       <ScrollArea>

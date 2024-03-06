@@ -55,7 +55,7 @@ const CartItem = ({
               focus={false}
               type="number"
               value={count}
-              onChange={e => handleUpdate(e.target.value)}
+              onChange={(e) => handleUpdate(e.target.value)}
             />
           </FocusChanger>
           <Button
@@ -68,12 +68,18 @@ const CartItem = ({
         </div>
       </div>
       <div className="flex items-center w-4/12">
-        <span className="block h-4 w-6/12 overflow-hidden">{"-"}</span>
-        <span className="w-5/12">
+        <span className="block h-4 w-5/12 overflow-hidden">
           <ProductPrice
             productId={productId}
             unitPrice={unitPrice}
-            className="ml-2 text-xs font-extrabold"
+            className="text-xs font-extrabold"
+          />
+        </span>
+        <span className="w-6/12">
+          <ProductPrice
+            productId={productId}
+            unitPrice={unitPrice * count}
+            className="text-xs font-extrabold"
           />
         </span>
         <Button
