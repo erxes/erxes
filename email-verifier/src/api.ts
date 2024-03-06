@@ -15,6 +15,7 @@ const { SENDGRID_API_KEY } = process.env;
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
 export const single = async (email: string, hostname: string) => {
+  email = email.toString();
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
