@@ -1,7 +1,8 @@
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
-  SMS_DELIVERY_STATUSES
+  SMS_DELIVERY_STATUSES,
+  NOTIFICATION_DELIVERY_STATUSES,
 } from '@erxes/ui-engage/src/constants';
 import {
   FlexContainer,
@@ -9,16 +10,16 @@ import {
   InfoWrapper,
   PreviewContent,
   RightSection,
-  Title
+  Title,
 } from '@erxes/ui-engage/src/styles';
 import {
   FlexRow,
-  Subject
+  Subject,
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import {
   IEngageMessage,
   IEngageSmsStats,
-  IEngageStats
+  IEngageStats,
 } from '@erxes/ui-engage/src/types';
 
 import Attachment from '@erxes/ui/src/components/Attachment';
@@ -53,6 +54,10 @@ class EmailStatistics extends React.Component<Props> {
     return this.renderBox(METHODS.SMS, count, totalCount, kind);
   }
 
+  renderNotificationBox(count: number, totalCount?: number, kind?: string) {
+    return this.renderBox(METHODS.NOTIFICATION, count, totalCount, kind);
+  }
+
   renderAttachments() {
     const { email } = this.props.message;
 
@@ -75,13 +80,16 @@ class EmailStatistics extends React.Component<Props> {
 
   getSubject() {
     const { message } = this.props;
-
     if (message.method === METHODS.EMAIL) {
       return message.email && message.email.subject;
     }
 
     if (message.method === METHODS.SMS) {
       return message.shortMessage && message.shortMessage.from;
+    }
+
+    if (message.method === METHODS.NOTIFICATION) {
+      return message.notification && message.notification.title;
     }
 
     return null;
@@ -98,7 +106,53 @@ class EmailStatistics extends React.Component<Props> {
       return message.shortMessage && message.shortMessage.content;
     }
 
+    if (message.method === METHODS.NOTIFICATION) {
+      return message.notification && message.notification.content;
+    }
+
     return '';
+  }
+
+  renderNotification() {
+    const { message } = this.props;
+    const { notification } = message;
+    return (
+      <Half>
+        <Subject>
+          <FlexRow>
+            <label>{__('Notification title')}:</label>
+            <strong>{notification && notification.title}</strong>
+          </FlexRow>
+          <FlexRow>
+            <label>{__('Is mobile')}:</label>
+            <strong>
+              {notification && notification.isMobile ? 'true' : 'false'}
+            </strong>
+          </FlexRow>
+          <FlexRow>
+            <label>{__('Notification content')}:</label>
+            <PreviewContent
+              isFullmessage={false}
+              showOverflow={true}
+              dangerouslySetInnerHTML={{
+                __html: this.getContent() || '',
+              }}
+            />
+          </FlexRow>
+          <FlexRow>
+            <label>{__('Recipients')}:</label>
+            <strong>{message.totalCustomersCount}</strong>
+          </FlexRow>
+          <FlexRow>
+            <label>{__('Created at')}:</label>
+            <strong>
+              {' '}
+              {dayjs(message.createdAt).format('DD MMM YYYY, HH:MM')}
+            </strong>
+          </FlexRow>
+        </Subject>
+      </Half>
+    );
   }
 
   renderLeft() {
@@ -113,6 +167,9 @@ class EmailStatistics extends React.Component<Props> {
 
     if (fromIntegration) {
       from = fromIntegration.name;
+    }
+    if (message.method === METHODS.NOTIFICATION) {
+      return this.renderNotification();
     }
 
     return (
@@ -137,10 +194,11 @@ class EmailStatistics extends React.Component<Props> {
             isFullmessage={false}
             showOverflow={true}
             dangerouslySetInnerHTML={{
-              __html: this.getContent() || ''
+              __html: this.getContent() || '',
             }}
           />
         </Subject>
+
         {this.renderAttachments()}
       </Half>
     );
@@ -160,42 +218,42 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderEmailBox(
           emailStats.send,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.SEND
+          AWS_EMAIL_DELIVERY_STATUSES.SEND,
         )}
         {this.renderEmailBox(
           emailStats.delivery,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.DELIVERY
+          AWS_EMAIL_DELIVERY_STATUSES.DELIVERY,
         )}
         {this.renderEmailBox(
           emailStats.open,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.OPEN
+          AWS_EMAIL_DELIVERY_STATUSES.OPEN,
         )}
         {this.renderEmailBox(
           emailStats.click,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.CLICK
+          AWS_EMAIL_DELIVERY_STATUSES.CLICK,
         )}
         {this.renderEmailBox(
           emailStats.complaint,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.COMPLAINT
+          AWS_EMAIL_DELIVERY_STATUSES.COMPLAINT,
         )}
         {this.renderEmailBox(
           emailStats.bounce,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.BOUNCE
+          AWS_EMAIL_DELIVERY_STATUSES.BOUNCE,
         )}
         {this.renderEmailBox(
           emailStats.renderingfailure,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.RENDERING_FAILURE
+          AWS_EMAIL_DELIVERY_STATUSES.RENDERING_FAILURE,
         )}
         {this.renderEmailBox(
           emailStats.reject,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.REJECT
+          AWS_EMAIL_DELIVERY_STATUSES.REJECT,
         )}
       </React.Fragment>
     );
@@ -215,33 +273,63 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderSmsBox(
           stats.queued,
           stats.total,
-          SMS_DELIVERY_STATUSES.QUEUED
+          SMS_DELIVERY_STATUSES.QUEUED,
         )}
         {this.renderSmsBox(
           stats.sending,
           stats.total,
-          SMS_DELIVERY_STATUSES.SENDING
+          SMS_DELIVERY_STATUSES.SENDING,
         )}
         {this.renderSmsBox(stats.sent, stats.total, SMS_DELIVERY_STATUSES.SENT)}
         {this.renderSmsBox(
           stats.delivered,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERED
+          SMS_DELIVERY_STATUSES.DELIVERED,
         )}
         {this.renderSmsBox(
           stats.sending_failed,
           stats.total,
-          SMS_DELIVERY_STATUSES.SENDING_FAILED
+          SMS_DELIVERY_STATUSES.SENDING_FAILED,
         )}
         {this.renderSmsBox(
           stats.delivery_failed,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERY_FAILED
+          SMS_DELIVERY_STATUSES.DELIVERY_FAILED,
         )}
         {this.renderSmsBox(
           stats.delivery_unconfirmed,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED
+          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED,
+        )}
+      </React.Fragment>
+    );
+  }
+
+  renderNotificationsStats() {
+    const { totalCustomersCount, notificationStats } = this.props.message;
+    if (this.props.message.method !== METHODS.NOTIFICATION) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        {this.renderNotificationBox(
+          totalCustomersCount || 0,
+          undefined,
+          NOTIFICATION_DELIVERY_STATUSES.SENT,
+        )}
+
+        {this.renderNotificationBox(
+          notificationStats?.read || 0,
+          totalCustomersCount,
+          NOTIFICATION_DELIVERY_STATUSES.READ,
+        )}
+        {this.renderNotificationBox(
+          totalCustomersCount
+            ? totalCustomersCount - (notificationStats?.read || 0)
+            : 0,
+          totalCustomersCount,
+          NOTIFICATION_DELIVERY_STATUSES.UNREAD,
         )}
       </React.Fragment>
     );
@@ -272,6 +360,7 @@ class EmailStatistics extends React.Component<Props> {
           <RightSection>
             {this.renderEmailStats()}
             {this.renderSmsStats()}
+            {this.renderNotificationsStats()}
             <EngageLogsContainer messageId={message._id} />
           </RightSection>
         </Half>
@@ -284,8 +373,8 @@ class EmailStatistics extends React.Component<Props> {
           <Wrapper.Header
             title={__('Show statistics')}
             breadcrumb={[
-              { title: __('Campaigns'), link: '/campaigns' },
-              { title: __('Show statistics') }
+              { title: __('XM Broadcast'), link: '/campaigns' },
+              { title: __('Show statistics') },
             ]}
           />
         }

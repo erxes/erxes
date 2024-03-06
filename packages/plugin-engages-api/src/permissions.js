@@ -1,7 +1,7 @@
 module.exports = {
   engages: {
     name: 'engages',
-    description: 'Campaigns',
+    description: 'Broadcast',
     actions: [
       {
         name: 'engagesAll',
@@ -18,31 +18,31 @@ module.exports = {
       },
       {
         name: 'engageMessageSetLive',
-        description: 'Set an auto campaign live'
+        description: 'Set an auto broadcast live'
       },
       {
         name: 'engageMessageSetPause',
-        description: 'Pause a campaign'
+        description: 'Pause a broadcast'
       },
       {
         name: 'engageMessageSetLiveManual',
-        description: 'Set a manual campaign live'
+        description: 'Set a manual broadcast live'
       },
       {
         name: 'engageMessageRemove',
-        description: 'Remove a campaign'
+        description: 'Remove a broadcast'
       },
       {
         name: 'engageMessageEdit',
-        description: 'Edit a campaign'
+        description: 'Edit a broadcast'
       },
       {
         name: 'engageMessageAdd',
-        description: 'Add a campaign'
+        description: 'Add a broadcast'
       },
       {
         name: 'showEngagesMessages',
-        description: 'See campaign list'
+        description: 'See broadcast list'
       }
     ]
   },

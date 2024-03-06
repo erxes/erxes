@@ -24,17 +24,17 @@ class PermissionRow extends React.Component<Props> {
     const { permission, actions, removeItem } = this.props;
 
     const permissionAction = filterActions(actions, permission.module).filter(
-      action => action.value === permission.action
+      (action) => action.value === permission.action,
     );
 
     return (
       <tr key={permission._id}>
         <td>
           <Capitalize>
-            {permission.module === 'engages' ? 'Campaigns' : permission.module}
+            {permission.module === 'engages' ? 'Broadcast' : permission.module}
           </Capitalize>
         </td>
-        <td>{permissionAction.map(action => action.label)}</td>
+        <td>{permissionAction.map((action) => action.label)}</td>
         <td>{permission.user ? permission.user.email : ''}</td>
         <td>{permission.group ? permission.group.name : ''}</td>
         <td>

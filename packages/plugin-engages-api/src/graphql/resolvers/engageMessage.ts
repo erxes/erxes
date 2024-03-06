@@ -1,31 +1,35 @@
 import { IContext } from '../../connectionResolver';
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { prepareSmsStats } from '../../telnyxUtils';
-import { sendCoreMessage } from '../../messageBroker'
+import { prepareSmsStats, prepareNotificationStats } from '../../telnyxUtils';
+import { sendCoreMessage } from '../../messageBroker';
 
 export default {
-  __resolveReference({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+  __resolveReference(
+    { _id }: IEngageMessageDocument,
+    _args,
+    { models }: IContext,
+  ) {
     return models.EngageMessages.findOne({ _id });
   },
 
   segments({ segmentIds = [] }: IEngageMessageDocument) {
-    return segmentIds.map(segmentId => ({
+    return segmentIds.map((segmentId) => ({
       __typename: 'Segment',
-      _id: segmentId
+      _id: segmentId,
     }));
   },
 
   brands({ brandIds = [] }: IEngageMessageDocument) {
-    return brandIds.map(brandId => ({
+    return brandIds.map((brandId) => ({
       __typename: 'Brand',
-      _id: brandId
+      _id: brandId,
     }));
   },
 
   customerTags({ customerTagIds = [] }: IEngageMessageDocument) {
-    return customerTagIds.map(customerTagId => ({
+    return customerTagIds.map((customerTagId) => ({
       __typename: 'Tag',
-      _id: customerTagId
+      _id: customerTagId,
     }));
   },
 
@@ -35,9 +39,9 @@ export default {
 
   // common tags
   getTags(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.tagIds || []).map(tagId => ({
+    return (engageMessage.tagIds || []).map((tagId) => ({
       __typename: 'Tag',
-      _id: tagId
+      _id: tagId,
     }));
   },
 
@@ -59,6 +63,14 @@ export default {
     return prepareSmsStats(models, _id);
   },
 
+  notificationStats(
+    { _id }: IEngageMessageDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    return prepareNotificationStats(subdomain, _id);
+  },
+
   fromIntegration(engageMessage: IEngageMessageDocument) {
     if (
       engageMessage.shortMessage &&
@@ -66,21 +78,25 @@ export default {
     ) {
       return {
         __typename: 'Integration',
-        _id: engageMessage.shortMessage.fromIntegrationId
+        _id: engageMessage.shortMessage.fromIntegrationId,
       };
     }
 
     return null;
   },
 
-  async createdUserName({ createdBy = '' }: IEngageMessageDocument, _args, { subdomain }: IContext) {
+  async createdUserName(
+    { createdBy = '' }: IEngageMessageDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
     const user = await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: createdBy
+        _id: createdBy,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!user) {
@@ -92,5 +108,5 @@ export default {
 
   logs(engageMessage: IEngageMessageDocument, _args, { models }: IContext) {
     return models.Logs.find({ engageMessageId: engageMessage._id }).lean();
-  }
+  },
 };

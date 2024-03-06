@@ -181,7 +181,7 @@ export const EMPTY_CONTENT_FORUMS = {
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
-  title: __('Getting Started with Campaigns'),
+  title: __('Getting Started with XM Broadcast'),
   description:
     __(
       'Learn how to use this feature to engage your contacts and drive conversations',
