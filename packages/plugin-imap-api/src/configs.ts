@@ -3,7 +3,7 @@ import { Base64Decode } from 'base64-stream';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import startDistributingJobs, {
@@ -16,9 +16,6 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getOrganizations } from '@erxes/api-utils//src/saas/saas';
 import logs from './logUtils';
 import app from '@erxes/api-utils/src/app';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'imap',
@@ -44,13 +41,7 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    debug = options.debug;
-
-    initBroker();
-
+  onServerInit: async () => {
     app.get(
       '/read-mail-attachment',
       routeErrorHandling(
@@ -172,4 +163,5 @@ export default {
       startDistributingJobs('os');
     }
   },
+  setupMessageConsumers,
 };

@@ -1,6 +1,6 @@
 import {
   ICommonFormProps,
-  ICommonListProps
+  ICommonListProps,
 } from '@erxes/ui-settings/src/common/types';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -21,13 +21,14 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { UserAvatar } from '../styles';
 import UserForm from '@erxes/ui/src/team/containers/UserForm';
 import UserResetPasswordForm from '@erxes/ui/src/team/containers/UserResetPasswordForm';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 
 type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
+  history?: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -43,20 +44,40 @@ class UserList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue }
+      queryParams: { searchValue },
     } = props;
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue: searchValue || '',
     };
   }
 
-  onAvatarClick = object => {
+  onAvatarClick = (object) => {
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  renderForm = props => {
-    return <UserForm {...props} renderButton={this.props.renderButton} />;
+  removeUserQueryParams = () => {
+    const { queryParams, history } = this.props;
+    if (queryParams && history && queryParams.positionIds) {
+      router.removeParams(history, 'positionIds');
+    }
+  };
+
+  renderForm = (props) => {
+    const onCloseModal = () => {
+      this.removeUserQueryParams();
+      props.closeModal();
+    };
+
+    return (
+      <UserForm
+        {...props}
+        closeModal={onCloseModal}
+        history={this.props.history}
+        queryParams={this.props.queryParams}
+        renderButton={this.props.renderButton}
+      />
+    );
   };
 
   renderEditAction = (user: IUser) => {
@@ -80,21 +101,26 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderForm({ ...props, object: user });
+    };
+
+    const onModalExit = () => {
+      this.removeUserQueryParams();
     };
 
     return (
       <ModalTrigger
         size="lg"
         title="Edit"
+        onExit={onModalExit}
         trigger={editTrigger}
         content={content}
       />
     );
   };
 
-  renderResetPasswordForm = props => {
+  renderResetPasswordForm = (props) => {
     return <UserResetPasswordForm {...props} />;
   };
 
@@ -107,7 +133,7 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderResetPasswordForm({ ...props, object: user });
     };
 
@@ -139,7 +165,7 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderRows({ objects }: { objects: IUser[] }) {
-    return objects.map(object => {
+    return objects.map((object) => {
       const onClick = () => this.onAvatarClick(object);
       const onChange = () => this.props.changeStatus(object._id);
 
@@ -162,7 +188,7 @@ class UserList extends React.Component<FinalProps, States> {
               defaultChecked={object.isActive}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
               onChange={onChange}
             />
@@ -179,7 +205,7 @@ class UserList extends React.Component<FinalProps, States> {
     });
   }
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
       <>
         <Table wideHeader={true}>

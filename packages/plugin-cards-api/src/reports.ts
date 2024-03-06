@@ -1,8 +1,10 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { models } from './connectionResolver';
-import { sendCoreMessage, sendTagsMessage } from './messageBroker';
+import { IModels, generateModels } from './connectionResolver';
+import {
+  sendCoreMessage,
+  sendTagsMessage,
+  sendFormsMessage,
+} from './messageBroker';
 import * as dayjs from 'dayjs';
-import { resolve } from 'path';
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -162,6 +164,7 @@ const PRIORITY = [
 const PIPELINE_TYPE_TICKET = 'ticket';
 const PIPELINE_TYPE_DEAL = 'deal';
 const PIPELINE_TYPE_TASK = 'task';
+
 const CUSTOM_PROPERTIES_DEAL = 'cards:deal';
 const CUSTOM_PROPERTIES_TICKET = 'cards:ticket';
 const CUSTOM_PROPERTIES_TASK = 'cards:task';
@@ -175,9 +178,10 @@ const reportTemplates = [
     charts: [
       'DealCountTags',
       'DealCountLabel',
+      'DealCustomProperties',
       'DealAverageTimeSpentInEachStage',
       'DealAmountAverageByRep',
-      'DealLeaderboardAmountClosedByRep',
+      'DealLeaderBoardAmountClosedByRep',
       'DealsByLastModifiedDate',
       'DealsClosedLostAllTimeByRep',
       'DealsOpenByCurrentStage',
@@ -197,6 +201,7 @@ const reportTemplates = [
       'TaskAverageTimeToCloseByReps',
       'TaskAverageTimeToCloseByLabel',
       'TaskAverageTimeToCloseByTags',
+      'TaskCustomProperties',
       'TaskClosedTotalsByReps',
       'TaskClosedTotalsByLabel',
       'TaskClosedTotalsByTags',
@@ -215,6 +220,7 @@ const reportTemplates = [
     serviceName: 'cards',
     description: 'Tickets conversation charts',
     charts: [
+      'TicketCustomProperties',
       'TicketAverageTimeToCloseOverTime',
       'TicketClosedTotalsByRep',
       'TicketTotalsByStatus',
@@ -223,7 +229,6 @@ const reportTemplates = [
       'TicketAverageTimeToCloseByRep',
       'TicketAverageTimeToClose',
       'TicketTotalsBySource',
-      'TicketStageChangedDate',
       'TicketsCardCountAssignedUser',
       'TicketsStageDateRange',
     ],
@@ -245,8 +250,13 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineId, boardId, stageId, stageType } = filter;
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const { pipelineId, boardId, stageId, stageType, tagIds } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
         pipelineId,
@@ -254,22 +264,24 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
+      const title: string = 'Deal count tags';
+
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const deals = await models?.Deals.find({
         ...query,
       }).lean();
       if (deals) {
         const tagsCount = deals.map((result) => result.tagIds);
-
-        const flattenedTagIds = tagsCount.flat();
-
+        let flattenedTagIds = tagsCount.flat();
+        let tagId = tagIds ? tagIds : flattenedTagIds; // Assigns tagIds if it exists, otherwise uses flattenedTagIds
         // Use the flattenedTagIds to query tag information
         const tagInfo = await sendTagsMessage({
           subdomain,
           action: 'find',
           data: {
-            _id: { $in: flattenedTagIds }, // Use flattenedTagIds here
+            _id: { $in: tagId || [] }, // Use flattenedTagIds here
           },
           isRPC: true,
           defaultValue: [],
@@ -277,30 +289,26 @@ const chartTemplates = [
 
         const tagData = {};
 
-        // Iterate over each task and accumulate count based on tagId
-        deals.forEach((deal) => {
-          deal.tagIds.forEach((tagId) => {
-            if (!tagData[tagId]) {
-              tagData[tagId] = {
-                _id: tagId,
-                count: 0, // Initialize count to 0
-                name: '', // Initialize name to empty string
-                type: '', // Initialize type to empty string
-              };
-            }
-            // Increment the count for the current tagId
-            tagData[tagId].count++;
-          });
+        tagId.forEach((tagId) => {
+          if (!tagData[tagId]) {
+            tagData[tagId] = {
+              _id: tagId,
+              count: 0,
+              name: '',
+              type: '',
+            };
+          }
+          tagData[tagId].count++;
         });
 
-        // Update tagData with the name and type from tagInfo
-        tagInfo.forEach((tag) => {
-          const tagId = tag._id;
+        for (let tag of tagInfo) {
+          let tagId = tagIds ? tagIds : tag._id;
+
           if (tagData[tagId]) {
             tagData[tagId].name = tag.name;
             tagData[tagId].type = tag.type;
           }
-        });
+        }
 
         const groupedTagData: { count: number; name: string }[] =
           Object.values(tagData);
@@ -311,19 +319,22 @@ const chartTemplates = [
           label: tag.name,
         }));
 
-        // Sort the array based on the count while maintaining the original order of labels
         dataWithLabels.sort((a, b) => a.count - b.count);
 
-        // Extract sorted data and labels from the sorted array
         const data: number[] = dataWithLabels.map((item) => item.count);
         const labels: string[] = dataWithLabels.map((item) => item.label);
-
-        const title: string = 'Deal count tags';
 
         const datasets = {
           title,
           data,
           labels,
+        };
+        return datasets;
+      } else {
+        const datasets = {
+          title,
+          data: [],
+          labels: [],
         };
         return datasets;
       }
@@ -385,6 +396,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -401,21 +427,6 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -424,16 +435,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
       },
     ],
   },
@@ -451,7 +452,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -460,6 +466,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
@@ -582,6 +589,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -612,6 +634,167 @@ const chartTemplates = [
         ],
         fieldLabel: 'select label',
       },
+    ],
+  },
+
+  {
+    templateType: 'DealCustomProperties',
+    name: 'Deal Custom Properties',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    // Bar Chart Table
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const { pipelineId, boardId, stageId, stageType } = filter;
+      const matchedFilter = await filterData(filter);
+      const filterPipelineId = await PipelineAndBoardFilter(
+        pipelineId,
+        boardId,
+        stageId,
+        stageType,
+        PIPELINE_TYPE_DEAL,
+        models,
+      );
+      const customFieldsDataFilter = filter.fieldsGroups;
+
+      const title: string = 'Deal Custom Properties';
+      let query = await QueryFilter(filterPipelineId, matchedFilter);
+
+      const deals = await models?.Deals.find({
+        ...query,
+      }).lean();
+
+      if (deals) {
+        const idCounts = {};
+        deals.forEach((dealItem) => {
+          dealItem.customFieldsData.forEach((fieldData) => {
+            if (fieldData.value && Array.isArray(fieldData.value)) {
+              fieldData.value.forEach((obj) => {
+                const id = Object.keys(obj)[0];
+                idCounts[id] = (idCounts[id] || 0) + 1;
+              });
+            }
+          });
+        });
+
+        const fields = Object.keys(idCounts).map((id) => ({
+          _id: id,
+          count: idCounts[id],
+        }));
+        const customProperty = fields.map((result) => result._id);
+
+        let customField;
+        if (customFieldsDataFilter) {
+          customField = customFieldsDataFilter;
+        } else {
+          customField = customProperty;
+        }
+
+        const fieldsGroups = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              _id: {
+                $in: customField,
+              },
+            },
+          },
+          isRPC: true,
+        });
+
+        let result = fieldsGroups.map((field) => {
+          let correspondingData = fields.find((item) => item._id === field._id);
+          if (correspondingData) {
+            return {
+              _id: correspondingData._id,
+              label: field.text,
+              count: correspondingData.count,
+            };
+          }
+
+          return null; // Handle if no corresponding data is found
+        });
+
+        result.sort((a, b) => a.count - b.count);
+
+        const data: number[] = result.map((item) => item.count);
+        const labels: string[] = result.map((item) => item.label);
+
+        const datasets = {
+          title,
+          data,
+          labels,
+        };
+        return datasets;
+      } else {
+        const datasets = {
+          title,
+          data: [],
+          labels: [],
+        };
+        return datasets;
+      }
+    },
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'boardId',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
+        fieldLabel: 'Select a board',
+      },
+      {
+        fieldName: 'pipelineId',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_DEAL}"}`,
+        logics: [
+          {
+            logicFieldName: 'boardId',
+            logicFieldVariable: 'boardId',
+          },
+        ],
+        fieldLabel: 'Select pipeline',
+      },
       {
         fieldName: 'stageId',
         fieldType: 'select',
@@ -628,18 +811,47 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'stageType',
         fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
+      },
+      {
+        fieldName: 'priority',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
+      },
+      {
+        fieldName: 'contentType',
+        fieldType: 'select',
+        fieldQuery: 'fieldsGetTypes',
+        fieldValueVariable: 'contentType',
+        fieldLabelVariable: 'description',
+        multi: false,
+        fieldLabel: 'Select properties type ',
+      },
+      {
+        fieldName: 'fieldsGroups',
+        fieldType: 'groups',
         fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
+        fieldValueVariable: 'fields',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
+        logics: [
+          {
+            logicFieldName: 'contentType',
+            logicFieldVariable: 'contentType',
+          },
+        ],
         multi: true,
         fieldLabel: 'Select custom properties',
       },
     ],
   },
-
   {
     templateType: 'DealRevenueByStage',
     name: 'Deal Revenue By Stage',
@@ -653,7 +865,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -662,6 +879,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const deals = await models?.Deals.find({
@@ -692,7 +910,7 @@ const chartTemplates = [
           .filter(
             (item): item is { name: string; totalAmount: number } => !!item,
           );
-
+        stageNames.sort((a, b) => a.totalAmount - b.totalAmount);
         if (stageNames) {
           const data: number[] = stageNames.map((item) => item.totalAmount); // Data is numbers now
 
@@ -746,6 +964,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -760,21 +993,6 @@ const chartTemplates = [
         fieldQuery: 'stages',
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
       },
     ],
   },
@@ -792,10 +1010,10 @@ const chartTemplates = [
     ],
     // Bar Chart Table
     getChartResult: async (
+      models: IModels,
       filter: any,
+      dimension: any,
       subdomain: string,
-      currentUser: IUserDocument,
-      getDefaultPipelineId?: string,
     ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
@@ -805,6 +1023,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -900,37 +1119,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_DEAL,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -946,24 +1134,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -980,7 +1164,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
@@ -990,6 +1179,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const deals = await models?.Deals.find(query);
@@ -1120,6 +1310,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -1135,62 +1340,11 @@ const chartTemplates = [
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
       },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
     ],
   },
 
   {
-    templateType: 'DealLeaderboardAmountClosedByRep',
+    templateType: 'DealLeaderBoardAmountClosedByRep',
     name: 'Deal leader board - amount closed by rep',
     chartTypes: [
       'bar',
@@ -1201,7 +1355,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const selectedUserIds = filter.assignedUserIds || [];
@@ -1211,6 +1370,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -1338,37 +1498,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_DEAL,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -1384,24 +1513,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -1418,7 +1543,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -1427,6 +1557,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -1525,37 +1656,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_DEAL,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -1571,24 +1671,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -1606,7 +1702,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const { pipelineId, boardId, stageId, stageType } = filter;
@@ -1616,6 +1717,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -1750,37 +1852,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_DEAL,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -1796,24 +1867,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -1830,7 +1897,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -1839,6 +1911,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const deals = await models?.Deals.find({
@@ -1959,6 +2032,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -1973,21 +2061,6 @@ const chartTemplates = [
         fieldQuery: 'stages',
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
       },
     ],
   },
@@ -2004,7 +2077,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const {
         pipelineId,
         boardId,
@@ -2020,6 +2098,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       const matchfilter = {};
       const title = 'Deals open by current stage';
@@ -2096,6 +2175,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -2110,21 +2204,6 @@ const chartTemplates = [
         fieldQuery: 'stages',
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
       },
     ],
   },
@@ -2142,7 +2221,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const { pipelineId, boardId, stageId, stageType } = filter;
@@ -2152,6 +2236,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -2286,37 +2371,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_DEAL,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -2332,24 +2386,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_DEAL,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -2365,7 +2415,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const filerData = await filterData(filter);
       const data = await pipelineFilterData(
@@ -2373,6 +2428,7 @@ const chartTemplates = [
         pipelineId,
         boardId,
         stageType,
+        models,
       );
       return data;
     },
@@ -2432,6 +2488,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -2447,20 +2518,167 @@ const chartTemplates = [
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
       },
+    ],
+  },
+
+  //Task Reports
+  {
+    templateType: 'TicketCustomProperties',
+    name: 'Ticket Custom Properties',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    // Bar Chart Table
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const { pipelineId, boardId, stageId, stageType } = filter;
+      const matchedFilter = await filterData(filter);
+      const filterPipelineId = await PipelineAndBoardFilter(
+        pipelineId,
+        boardId,
+        stageId,
+        stageType,
+        PIPELINE_TYPE_DEAL,
+        models,
+      );
+      const customFieldsDataFilter = filter.fieldsGroups;
+
+      const title: string = 'Ticket Custom Properties';
+      let query = await QueryFilter(filterPipelineId, matchedFilter);
+
+      const ticket = await models?.Tickets.find({
+        ...query,
+      }).lean();
+
+      if (ticket) {
+        const idCounts = {};
+        ticket.forEach((ticketItem) => {
+          ticketItem.customFieldsData.forEach((fieldData) => {
+            if (fieldData.value && Array.isArray(fieldData.value)) {
+              fieldData.value.forEach((obj) => {
+                const id = Object.keys(obj)[0];
+                idCounts[id] = (idCounts[id] || 0) + 1;
+              });
+            }
+          });
+        });
+
+        const fields = Object.keys(idCounts).map((id) => ({
+          _id: id,
+          count: idCounts[id],
+        }));
+        const customProperty = fields.map((result) => result._id);
+
+        let customField;
+        if (customFieldsDataFilter) {
+          customField = customFieldsDataFilter;
+        } else {
+          customField = customProperty;
+        }
+
+        const fieldsGroups = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              _id: {
+                $in: customField,
+              },
+            },
+          },
+          isRPC: true,
+        });
+
+        let result = fieldsGroups.map((field) => {
+          let correspondingData = fields.find((item) => item._id === field._id);
+          if (correspondingData) {
+            return {
+              _id: correspondingData._id,
+              label: field.text,
+              count: correspondingData.count,
+            };
+          }
+
+          return null; // Handle if no corresponding data is found
+        });
+
+        result.sort((a, b) => a.count - b.count);
+
+        const data: number[] = result.map((item) => item.count);
+        const labels: string[] = result.map((item) => item.label);
+
+        const datasets = {
+          title,
+          data,
+          labels,
+        };
+        return datasets;
+      } else {
+        const datasets = {
+          title,
+          data: [],
+          labels: [],
+        };
+        return datasets;
+      }
+    },
+    filterTypes: [
       {
-        fieldName: 'pipelineLabels',
+        fieldName: 'dateRange',
         fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'boardId',
+        fieldType: 'select',
+        fieldQuery: 'boards',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
+        fieldLabel: 'Select a board',
+      },
+      {
+        fieldName: 'pipelineId',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
         logics: [
           {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
+            logicFieldName: 'boardId',
+            logicFieldVariable: 'boardId',
           },
         ],
-        fieldLabel: 'select label',
+        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'stageId',
@@ -2478,30 +2696,263 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
+      },
+      {
+        fieldName: 'priority',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
+      },
+      {
+        fieldName: 'contentType',
+        fieldType: 'select',
+        fieldQuery: 'fieldsGetTypes',
+        fieldValueVariable: 'contentType',
+        fieldLabelVariable: 'description',
+        multi: false,
+        fieldLabel: 'Select properties type ',
       },
       {
         fieldName: 'fieldsGroups',
-        fieldType: 'select',
+        fieldType: 'groups',
         fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
+        fieldValueVariable: 'fields',
         fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_DEAL}"}`,
+        logics: [
+          {
+            logicFieldName: 'contentType',
+            logicFieldVariable: 'contentType',
+          },
+        ],
         multi: true,
         fieldLabel: 'Select custom properties',
       },
     ],
   },
 
-  //Task Reports
+  {
+    templateType: 'TaskCustomProperties',
+    name: 'Task Custom Properties',
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
+    // Bar Chart Table
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const { pipelineId, boardId, stageId, stageType } = filter;
+      const matchedFilter = await filterData(filter);
+      const filterPipelineId = await PipelineAndBoardFilter(
+        pipelineId,
+        boardId,
+        stageId,
+        stageType,
+        PIPELINE_TYPE_DEAL,
+        models,
+      );
+      const customFieldsDataFilter = filter.fieldsGroups;
 
+      const title: string = 'Task Custom Properties';
+      let query = await QueryFilter(filterPipelineId, matchedFilter);
+
+      const task = await models?.Tasks.find({
+        ...query,
+      }).lean();
+
+      if (task) {
+        const idCounts = {};
+        task.forEach((ticketItem) => {
+          ticketItem.customFieldsData.forEach((fieldData) => {
+            if (fieldData.value && Array.isArray(fieldData.value)) {
+              fieldData.value.forEach((obj) => {
+                const id = Object.keys(obj)[0];
+                idCounts[id] = (idCounts[id] || 0) + 1;
+              });
+            }
+          });
+        });
+
+        const fields = Object.keys(idCounts).map((id) => ({
+          _id: id,
+          count: idCounts[id],
+        }));
+        const customProperty = fields.map((result) => result._id);
+
+        let customField;
+        if (customFieldsDataFilter) {
+          customField = customFieldsDataFilter;
+        } else {
+          customField = customProperty;
+        }
+
+        const fieldsGroups = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              _id: {
+                $in: customField,
+              },
+            },
+          },
+          isRPC: true,
+        });
+
+        let result = fieldsGroups.map((field) => {
+          let correspondingData = fields.find((item) => item._id === field._id);
+          if (correspondingData) {
+            return {
+              _id: correspondingData._id,
+              label: field.text,
+              count: correspondingData.count,
+            };
+          }
+
+          return null; // Handle if no corresponding data is found
+        });
+
+        result.sort((a, b) => a.count - b.count);
+
+        const data: number[] = result.map((item) => item.count);
+        const labels: string[] = result.map((item) => item.label);
+
+        const datasets = {
+          title,
+          data,
+          labels,
+        };
+        return datasets;
+      } else {
+        const datasets = {
+          title,
+          data: [],
+          labels: [],
+        };
+        return datasets;
+      }
+    },
+    filterTypes: [
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'departmentIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'departments',
+        fieldLabel: 'Select departments',
+      },
+      {
+        fieldName: 'boardId',
+        fieldType: 'select',
+        fieldQuery: 'boards',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TASK}"}`,
+        fieldLabel: 'Select a board',
+      },
+      {
+        fieldName: 'pipelineId',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TASK}"}`,
+        logics: [
+          {
+            logicFieldName: 'boardId',
+            logicFieldVariable: 'boardId',
+          },
+        ],
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
+        fieldName: 'stageType',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
+      },
+      {
+        fieldName: 'priority',
+        fieldType: 'select',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
+      },
+      {
+        fieldName: 'contentType',
+        fieldType: 'select',
+        fieldQuery: 'fieldsGetTypes',
+        fieldValueVariable: 'contentType',
+        fieldLabelVariable: 'description',
+        multi: false,
+        fieldLabel: 'Select properties type ',
+      },
+      {
+        fieldName: 'fieldsGroups',
+        fieldType: 'groups',
+        fieldQuery: 'fieldsGroups',
+        fieldValueVariable: 'fields',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'contentType',
+            logicFieldVariable: 'contentType',
+          },
+        ],
+        multi: true,
+        fieldLabel: 'Select custom properties',
+      },
+    ],
+  },
   {
     templateType: 'TaskAverageTimeToCloseByReps',
     name: 'Task average time to close by reps',
@@ -2515,7 +2966,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
@@ -2525,6 +2981,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -2644,37 +3101,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -2690,24 +3116,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -2725,7 +3147,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -2734,6 +3161,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
@@ -2817,13 +3245,6 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -2871,6 +3292,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -2901,41 +3337,6 @@ const chartTemplates = [
         ],
         fieldLabel: 'select label',
       },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
     ],
   },
 
@@ -2952,8 +3353,13 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      const { pipelineId, boardId, stageId, stageType } = filter;
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const { pipelineId, boardId, stageId, stageType, tagIds } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
         pipelineId,
@@ -2961,6 +3367,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -2969,12 +3376,12 @@ const chartTemplates = [
       }).lean();
       const taskData = await taskAverageTimeToCloseByLabel(tasks);
       const tagsCount = taskData.flatMap((result) => result.tagIds);
-
+      let tagId = tagIds ? tagIds : tagsCount;
       const tagInfo = await sendTagsMessage({
         subdomain,
         action: 'find',
         data: {
-          _id: { $in: tagsCount || [] },
+          _id: { $in: tagId || [] },
         },
         isRPC: true,
         defaultValue: [],
@@ -2984,7 +3391,7 @@ const chartTemplates = [
 
       // Iterate over each task and accumulate timeDifference based on tagId
       taskData.forEach((task) => {
-        task.tagIds.forEach((tagId) => {
+        tagId.forEach((tagId) => {
           if (!tagData[tagId]) {
             tagData[tagId] = {
               _id: tagId,
@@ -3024,13 +3431,6 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
       {
         fieldName: 'dateRange',
         fieldType: 'select',
@@ -3079,6 +3479,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -3095,36 +3510,6 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -3133,16 +3518,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
       },
     ],
   },
@@ -3159,7 +3534,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -3168,6 +3548,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       const selectedUserIds = filter.assignedUserIds || [];
 
@@ -3283,37 +3664,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -3329,24 +3679,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -3363,7 +3709,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -3372,6 +3723,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
@@ -3438,13 +3790,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -3492,6 +3837,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -3522,41 +3882,6 @@ const chartTemplates = [
         ],
         fieldLabel: 'select label',
       },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
     ],
   },
 
@@ -3573,7 +3898,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -3582,6 +3912,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
 
       let query = await QueryFilter(filterPipelineId, matchedFilter);
@@ -3643,13 +3974,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -3697,6 +4021,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -3713,36 +4052,6 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -3752,16 +4061,6 @@ const chartTemplates = [
         multi: true,
         fieldLabel: 'Select tags',
       },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
     ],
   },
   {
@@ -3769,7 +4068,12 @@ const chartTemplates = [
     name: 'Tasks incomplete totals by reps',
     chartTypes: ['bar'],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -3778,6 +4082,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const selectedUserIds = filter.assignedUserIds || [];
@@ -3922,37 +4227,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -3968,24 +4242,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -4003,7 +4273,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -4012,6 +4287,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const selectedLabelIds = filter.labelIds || [];
@@ -4093,13 +4369,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -4147,6 +4416,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -4177,41 +4461,6 @@ const chartTemplates = [
         ],
         fieldLabel: 'select label',
       },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
     ],
   },
 
@@ -4228,7 +4477,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -4237,6 +4491,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const selectedTagIds = filter.tagIds || [];
@@ -4322,13 +4577,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -4376,6 +4624,21 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
+        fieldName: 'stageId',
+        fieldType: 'select',
+        fieldQuery: 'stages',
+        multi: false,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        logics: [
+          {
+            logicFieldName: 'pipelineId',
+            logicFieldVariable: 'pipelineId',
+          },
+        ],
+        fieldLabel: 'Select stage',
+      },
+      {
         fieldName: 'stageType',
         fieldType: 'select',
         multi: false,
@@ -4392,36 +4655,6 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
         fieldQuery: 'tags',
@@ -4430,16 +4663,6 @@ const chartTemplates = [
         fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
         multi: true,
         fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
       },
     ],
   },
@@ -4456,7 +4679,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -4465,6 +4693,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const selectedUserIds = filter.assignedUserIds || [];
@@ -4611,37 +4840,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -4657,24 +4855,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -4692,7 +4886,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -4701,6 +4900,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const tasksCount = await models?.Tasks.find({
@@ -4823,37 +5023,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -4869,24 +5038,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -4904,7 +5069,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -4913,6 +5083,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const selectedUserIds = filter.assignedUserIds || [];
@@ -5047,37 +5218,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TASK,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -5093,24 +5233,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TASK,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TASK}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -5127,7 +5263,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const { pipelineId, boardId, stageId, stageType } = filter;
@@ -5137,6 +5278,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -5218,13 +5360,6 @@ const chartTemplates = [
 
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -5273,37 +5408,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -5319,24 +5423,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -5352,7 +5452,12 @@ const chartTemplates = [
       'polarArea',
       'table',
     ],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
       const { pipelineId, boardId, stageId, stageType } = filter;
@@ -5362,6 +5467,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -5497,37 +5603,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -5541,134 +5616,6 @@ const chartTemplates = [
           },
         ],
         fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
-      },
-    ],
-  },
-  {
-    templateType: 'TicketStageChangedDate',
-    name: 'Ticket Stage Changed Date',
-    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
-      try {
-        const { pipelineId, boardId, stageId, stageType } = filter;
-        const matchedFilter = await filterData(filter);
-        const filterPipelineId = await PipelineAndBoardFilter(
-          pipelineId,
-          boardId,
-          stageType,
-          stageId,
-          PIPELINE_TYPE_DEAL,
-        );
-        let query = await QueryFilter(filterPipelineId, matchedFilter);
-        const ticked = await models?.Tickets.find({
-          ...query,
-          stageChangedDate: { $exists: true },
-        }).sort({ stageChangedDate: -1 });
-
-        if (ticked) {
-          const stageDate = await stageChangedDate(ticked);
-          const title = 'Ticket Stage Changed Date';
-          const data = stageDate.reduce((result, item) => {
-            const date = item.date.split(',')[0]; // Extracting the date part without time
-            result[date] = (result[date] || 0) + 1;
-            return result;
-          }, {});
-
-          // Convert aggregated data into an array of objects with x and y properties
-          const aggregatedData = Object.keys(data).map((date) => ({
-            x: date,
-            y: data[date],
-          }));
-
-          // Sort aggregatedData based on the x values (dates)
-          aggregatedData.sort(
-            (a, b) => new Date(a.x).getTime() - new Date(b.x).getTime(),
-          );
-          const result = { title, data: aggregatedData };
-
-          return result;
-        } else {
-          return { error: 'No data found' };
-        }
-      } catch (error) {
-        return { error: error.message };
-      }
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
-        fieldName: 'dateRange',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'date',
-        fieldOptions: DATE_RANGE_TYPES,
-        fieldLabel: 'Select date range',
-      },
-      {
-        fieldName: 'branchIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'branches',
-        fieldLabel: 'Select branches',
-      },
-      {
-        fieldName: 'departmentIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'departments',
-        fieldLabel: 'Select departments',
-      },
-      {
-        fieldName: 'boardId',
-        fieldType: 'select',
-        fieldQuery: 'boards',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        fieldLabel: 'Select boards',
-      },
-      {
-        fieldName: 'pipelineId',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'pipelines',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${PIPELINE_TYPE_TICKET}"}`,
-        logics: [
-          {
-            logicFieldName: 'boardId',
-            logicFieldVariable: 'boardId',
-          },
-        ],
-        fieldLabel: 'Select pipeline',
       },
       {
         fieldName: 'stageType',
@@ -5685,56 +5632,6 @@ const chartTemplates = [
         fieldQuery: 'stages',
         fieldOptions: PRIORITY,
         fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
-        fieldName: 'stageId',
-        fieldType: 'select',
-        fieldQuery: 'stages',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'Select stage',
-      },
-      {
-        fieldName: 'tagIds',
-        fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
-      },
-      {
-        fieldName: 'fieldsGroups',
-        fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
       },
     ],
   },
@@ -5752,7 +5649,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -5761,6 +5663,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_TICKET,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const ticket = await models?.Tickets.find({
@@ -5850,37 +5753,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -5896,24 +5768,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -5931,7 +5799,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -5940,6 +5813,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_TICKET,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -6063,37 +5937,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -6109,24 +5952,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -6143,7 +5982,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -6152,6 +5996,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_TICKET,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -6179,13 +6024,6 @@ const chartTemplates = [
     },
 
     filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
       {
         fieldName: 'dateRange',
         fieldType: 'select',
@@ -6234,37 +6072,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -6280,24 +6087,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -6308,7 +6111,12 @@ const chartTemplates = [
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
 
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -6317,6 +6125,7 @@ const chartTemplates = [
         stageType,
         stageId,
         PIPELINE_TYPE_TICKET,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -6362,13 +6171,6 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -6416,37 +6218,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -6462,24 +6233,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -6496,7 +6263,12 @@ const chartTemplates = [
       'table',
     ],
 
-    etChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -6505,6 +6277,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
 
@@ -6573,13 +6346,6 @@ const chartTemplates = [
     },
     filterTypes: [
       {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
-      {
         fieldName: 'dateRange',
         fieldType: 'select',
         multi: true,
@@ -6627,37 +6393,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -6673,24 +6408,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -6707,7 +6438,12 @@ const chartTemplates = [
       'table',
     ],
     // Bar Chart Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageType, stageId } = filter;
       const selectedUserIds = filter.assignedUserIds || [];
       const matchedFilter = await filterData(filter);
@@ -6717,6 +6453,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       let tickets;
@@ -6840,37 +6577,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -6886,24 +6592,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -6912,7 +6614,12 @@ const chartTemplates = [
     name: 'Ticket totals by source',
     chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
     // Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -6921,6 +6628,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const ticket = await models?.Tickets.find({
@@ -6940,13 +6648,6 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
-      {
-        fieldName: 'assignedUserIds',
-        fieldType: 'select',
-        multi: true,
-        fieldQuery: 'users',
-        fieldLabel: 'Select assigned users',
-      },
       {
         fieldName: 'dateRange',
         fieldType: 'select',
@@ -6995,37 +6696,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -7041,24 +6711,20 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
@@ -7076,7 +6742,12 @@ const chartTemplates = [
       'table',
     ],
     // Table
-    getChartResult: async (filter: any, dimension: any, subdomain: string) => {
+    getChartResult: async (
+      filter: any,
+      models: IModels,
+      dimension: any,
+      subdomain: string,
+    ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
       const matchedFilter = await filterData(filter);
       const filterPipelineId = await PipelineAndBoardFilter(
@@ -7085,6 +6756,7 @@ const chartTemplates = [
         stageId,
         stageType,
         PIPELINE_TYPE_DEAL,
+        models,
       );
       let query = await QueryFilter(filterPipelineId, matchedFilter);
       const ticket = await models?.Tickets.find({
@@ -7171,37 +6843,6 @@ const chartTemplates = [
         fieldLabel: 'Select pipeline',
       },
       {
-        fieldName: 'stageType',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PROBABILITY_TICKET,
-        fieldLabel: 'Select Probability',
-      },
-      {
-        fieldName: 'priority',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'stages',
-        fieldOptions: PRIORITY,
-        fieldLabel: 'Select Stage priority',
-      },
-      {
-        fieldName: 'pipelineLabels',
-        fieldType: 'select',
-        fieldQuery: 'pipelineLabels',
-        multi: false,
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'pipelineId',
-            logicFieldVariable: 'pipelineId',
-          },
-        ],
-        fieldLabel: 'select label',
-      },
-      {
         fieldName: 'stageId',
         fieldType: 'select',
         fieldQuery: 'stages',
@@ -7217,36 +6858,33 @@ const chartTemplates = [
         fieldLabel: 'Select stage',
       },
       {
-        fieldName: 'tagIds',
+        fieldName: 'stageType',
         fieldType: 'select',
-        fieldQuery: 'tags',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TICKET}", "perPage": 1000}`,
-        multi: true,
-        fieldLabel: 'Select tags',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PROBABILITY_TICKET,
+        fieldLabel: 'Select Probability',
       },
       {
-        fieldName: 'fieldsGroups',
+        fieldName: 'priority',
         fieldType: 'select',
-        fieldQuery: 'fieldsGroups',
-        fieldValueVariable: '_id',
-        fieldLabelVariable: 'name',
-        fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}"}`,
-        multi: true,
-        fieldLabel: 'Select custom properties',
+        multi: false,
+        fieldQuery: 'stages',
+        fieldOptions: PRIORITY,
+        fieldLabel: 'Select Stage priority',
       },
     ],
   },
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
-  const { templateType, filter, currentUser } = data;
+  const models = await generateModels(subdomain);
+  const { templateType, filter, dimension } = data;
 
   const template =
     chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(filter, subdomain, currentUser);
+  return template.getChartResult(models, filter, dimension, subdomain);
 };
 
 export default {
@@ -7739,11 +7377,6 @@ function filterData(filter: any) {
   if (pipelineLabels) {
     matchfilter['labelIds'] = { $in: pipelineLabels };
   }
-  if (fieldsGroups) {
-    matchfilter['customFieldsData'] = {
-      $elemMatch: { field: { $in: fieldsGroups } },
-    };
-  }
   if (priority) {
     matchfilter['priority'] = { $in: priority };
   }
@@ -7752,6 +7385,7 @@ function filterData(filter: any) {
 }
 async function pipelineFilterData(
   filter: any,
+  models: IModels,
   pipelineId: any,
   boardId: any,
   stageType: any,
@@ -7857,6 +7491,7 @@ async function PipelineAndBoardFilter(
   stageType: string,
   stageId: string,
   type: string,
+  models: IModels,
 ) {
   let pipelineIds: string[] = [];
 

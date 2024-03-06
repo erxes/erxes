@@ -92,6 +92,7 @@ const carCategoryParamsDef = `
   $description: String,
   $image: AttachmentInput
   $secondaryImages: [AttachmentInput]
+  $productCategoryId: String
 `;
 
 const carCategoryParams = `
@@ -101,6 +102,7 @@ const carCategoryParams = `
   description: $description,
   image: $image
   secondaryImages: $secondaryImages
+  productCategoryId: $productCategoryId
 `;
 
 const carCategoryAdd = `
@@ -132,5 +134,5 @@ export default {
   carsMerge,
   carCategoryAdd,
   carCategoryEdit,
-  carCategoryRemove
+  carCategoryRemove,
 };

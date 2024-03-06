@@ -3,38 +3,50 @@ import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
-const UserDetail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui/src/team/containers/UserDetailForm'
-  )
+const UserDetail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui/src/team/containers/UserDetailForm'
+    ),
 );
 
-const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Home" */ './containers/Home')
+const Home = asyncComponent(
+  () => import(/* webpackChunkName: "Settings - Home" */ './containers/Home'),
 );
 
-const Structure = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - Structure" */ './components/structure/Settings'
-  )
+const Structure = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Structure" */ './components/structure/Settings'
+    ),
 );
 
-const Branches = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - Branches" */ './containers/branch/MainList'
-  )
+const Branches = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Branches" */ './containers/branch/MainList'
+    ),
 );
 
-const Departments = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - Departments" */ './containers/department/MainList'
-  )
+const Departments = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Departments" */ './containers/department/MainList'
+    ),
 );
 
-const Units = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - Units" */ './containers/unit/MainList'
-  )
+const Units = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Units" */ './containers/unit/MainList'
+    ),
+);
+
+const Positions = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Positions" */ './containers/position/MainList'
+    ),
 );
 
 const team = ({ history, location }) => {
@@ -63,6 +75,12 @@ const units = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Units queryParams={queryParams} history={history} />;
+};
+
+const positions = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Positions queryParams={queryParams} history={history} />;
 };
 const userDetail = ({ match, location }) => {
   const queryParams = queryString.parse(location.search);
@@ -110,6 +128,12 @@ const routes = () => (
       exact={true}
       key="/settings/units/"
       component={units}
+    />
+    <Route
+      path="/settings/positions/"
+      exact={true}
+      key="/settings/positions/"
+      component={positions}
     />
   </React.Fragment>
 );

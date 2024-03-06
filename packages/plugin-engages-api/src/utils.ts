@@ -4,7 +4,7 @@ import * as nodemailer from 'nodemailer';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { SES_DELIVERY_STATUSES } from './constants';
-import { debugBase, debugError } from './debuggers';
+import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
 import { sendContactsMessage } from './messageBroker';
 import { ISESConfig } from './models/Configs';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
@@ -58,7 +58,7 @@ export const getEnv = ({
   }
 
   if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
+    debugInfo(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';
@@ -93,7 +93,7 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .then((response) => {
-        debugBase(response);
+        debugInfo(response);
       })
       .catch((e) => {
         debugError(e.message);

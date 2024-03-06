@@ -2,7 +2,7 @@ import { Document, Model, Schema } from 'mongoose';
 
 import { IModels } from '.';
 import { field } from './definitions/utils';
-import { debug } from '../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export interface IIntegration {
   kind: string;
@@ -27,11 +27,11 @@ export const integrationSchema = new Schema({
   oa_id: field({
     type: [String],
     label: 'zalo oa ids',
-    optional: true
+    optional: true,
   }),
   expiration: String,
   error: String,
-  brandId: String
+  brandId: String,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
@@ -44,8 +44,8 @@ export const loadIntegrationClass = (models: IModels) => {
       const integration = await models.Integrations.findOne(selector);
 
       if (!integration) {
-        debug.error(
-          `Integration not found ${JSON.stringify({ integration, selector })}`
+        debugError(
+          `Integration not found ${JSON.stringify({ integration, selector })}`,
         );
       }
 

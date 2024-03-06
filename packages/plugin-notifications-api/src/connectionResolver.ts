@@ -21,24 +21,22 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string
+  _subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Notifications = db.model<INotificationDocument, INotificationModel>(
     'notifications',
-    loadNotificationClass(models)
+    loadNotificationClass(models),
   );
 
   models.NotificationConfigurations = db.model<IConfigDocument, IConfigModel>(
     'notification_configurations',
-    loadNotificationConfigClass(models)
+    loadNotificationConfigClass(models),
   );
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

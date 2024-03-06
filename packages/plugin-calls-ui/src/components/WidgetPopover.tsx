@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import Popover from 'react-bootstrap/Popover';
 import { Tab, TabsContainer, TabContent } from '../styles';
-import History from './History';
 import { Icon } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import KeyPadContainer from '../containers/KeyPad';
 import ContactsContainer from '../containers/Contacts';
+import HistoryContainer from '../containers/History';
 
 type Props = {
   autoOpenTab: string;
@@ -16,11 +15,18 @@ type Props = {
 const WidgetPopover = ({
   autoOpenTab,
   callIntegrationsOfUser,
-  setConfig
+  setConfig,
 }: Props) => {
   const [currentTab, setCurrentTab] = useState(autoOpenTab || 'Keyboard');
-  const onTabClick = newTab => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const onTabClick = (newTab) => {
     setCurrentTab(newTab);
+  };
+
+  const changeTab = (number, tab) => {
+    setCurrentTab(tab);
+    setPhoneNumber(number);
   };
 
   const historyOnClick = () => {
@@ -35,18 +41,19 @@ const WidgetPopover = ({
     onTabClick('Contact');
   };
   return (
-    <Popover id="call-popover" className="call-popover">
+    <>
       <TabContent show={currentTab === 'History'}>
-        <History />
+        <HistoryContainer changeMainTab={changeTab} />
       </TabContent>
       <TabContent show={currentTab === 'Keyboard'}>
         <KeyPadContainer
           callIntegrationsOfUser={callIntegrationsOfUser}
           setConfig={setConfig}
+          phoneNumber={phoneNumber}
         />
       </TabContent>
       <TabContent show={currentTab === 'Contact'}>
-        <ContactsContainer />
+        <ContactsContainer changeMainTab={changeTab} />
       </TabContent>
       <TabsContainer full={true}>
         <Tab
@@ -71,7 +78,7 @@ const WidgetPopover = ({
           {__('Contact')}
         </Tab>
       </TabsContainer>
-    </Popover>
+    </>
   );
 };
 

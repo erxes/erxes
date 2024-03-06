@@ -7,7 +7,7 @@ import type {
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'knowledgebase:topics.findOne',
     async ({ subdomain, data: { query } }) => {

@@ -6,8 +6,8 @@
   ],
   "scripts": {
     "build": "yarn ts-node commands/build.ts",
-    "all": "yarn ts-node commands/try-building-everything.ts > build-$(date +%s).log 2>&1",
-    "all-in-place": "yarn ts-node commands/build-all-in-place.ts > build-$(date +%s).log 2>&1"
+    "all": "rm all.log 2> /dev/null || true && yarn ts-node commands/try-building-everything.ts > all.log 2>&1",
+    "all-in-place": "rm all-in-place.log 2> /dev/null || true && yarn ts-node commands/build-all-in-place.ts > all-in-place.log 2>&1"
   },
   "devDependencies": {
     "ts-node": "10.9.1",

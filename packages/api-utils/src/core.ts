@@ -7,6 +7,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
 import { coreModelOrganizations, getCoreConnection } from './saas/saas';
+import { connect } from './mongo-connection';
 
 export const getEnv = ({
   name,
@@ -359,25 +360,33 @@ export const connectionOptions: mongoose.ConnectionOptions = {
   family: 4,
 };
 
-export const createGenerateModels = <IModels>(models, loadClasses) => {
+export const createGenerateModels = <IModels>(
+  loadClasses: (
+    db: mongoose.Connection,
+    subdomain: string,
+  ) => IModels | Promise<IModels>,
+): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
+  connect();
+
   if (VERSION && VERSION !== 'saas') {
-    return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    let models: IModels | null = null;
+    return async function genereteModels(
+      hostnameOrSubdomain: string,
+    ): Promise<IModels> {
       if (models) {
         return models;
       }
 
-      const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-      const db = await mongoose.connect(MONGO_URL, connectionOptions);
-
-      models = loadClasses(db, hostnameOrSubdomain);
+      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
 
       return models;
     };
   } else {
-    return async (hostnameOrSubdomain: string = ''): Promise<IModels> => {
+    return async function genereteModels(
+      hostnameOrSubdomain: string = '',
+    ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
       // means hostname
@@ -385,11 +394,19 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
+      if (!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``);
+      }
+
       await getCoreConnection();
 
       const organization = await coreModelOrganizations.findOne({ subdomain });
 
-      if (!organization) return models;
+      if (!organization) {
+        throw new Error(
+          `Organization with subdomain = ${subdomain} is not found`,
+        );
+      }
 
       const DB_NAME = getEnv({ name: 'DB_NAME' });
       const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
@@ -399,14 +416,12 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
       // @ts-ignore
       const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
-        // so that conn.model method can use cache
+        // so that conn.model method can use cached connection
         useCache: true,
         noListener: true,
       });
 
-      models = await loadClasses(tenantCon, subdomain);
-
-      return models;
+      return await loadClasses(tenantCon, subdomain);
     };
   }
 };

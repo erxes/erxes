@@ -5,20 +5,30 @@ import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 const movementItemQueries = {
   async assetMovementItems(_root, params, { models, subdomain }: IContext) {
-    const filter = await generateFilter(params, 'movementItems', subdomain);
+    const filter = await generateFilter(
+      models,
+      params,
+      'movementItems',
+      subdomain,
+    );
 
     return await paginate(
       models.MovementItems.find(filter).sort({ createdAt: -1 }),
-      params
+      params,
     );
   },
 
   async assetMovementItemsTotalCount(
     _root,
     params,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(params, 'movementItems', subdomain);
+    const filter = await generateFilter(
+      models,
+      params,
+      'movementItems',
+      subdomain,
+    );
 
     return models.MovementItems.find(filter).countDocuments();
   },
@@ -50,8 +60,8 @@ const movementItemQueries = {
           departmentId: null,
           customerId: null,
           companyId: null,
-          teamMemberId: null
-        }
+          teamMemberId: null,
+        },
       };
     }
     return item;
@@ -64,7 +74,7 @@ const movementItemQueries = {
       customerId,
       teamMemberId,
       withKnowledgebase,
-      searchValue
+      searchValue,
     } = params;
 
     let pipeline: any[] = [];
@@ -75,7 +85,7 @@ const movementItemQueries = {
       if (withKnowledgebase) {
         filter.$and = [
           { kbArticleIds: { $exists: true } },
-          { 'kbArticleIds.0': { $exists: true } }
+          { 'kbArticleIds.0': { $exists: true } },
         ];
       }
 
@@ -86,16 +96,16 @@ const movementItemQueries = {
             $or: [
               {
                 name: {
-                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-                }
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+                },
               },
               {
                 code: {
-                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-                }
-              }
-            ]
-          }
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+                },
+              },
+            ],
+          },
         ];
       }
 
@@ -110,14 +120,14 @@ const movementItemQueries = {
         $group: {
           _id: '$assetId',
           movements: {
-            $push: '$$ROOT'
-          }
-        }
+            $push: '$$ROOT',
+          },
+        },
       },
       { $unwind: '$movements' },
       { $sort: { 'movements.createdAt': -1 } },
       { $group: { _id: '$_id', movements: { $push: '$movements' } } },
-      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
+      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } },
     ];
 
     const project = { _id: 0 };
@@ -127,7 +137,7 @@ const movementItemQueries = {
       departmentId,
       companyId,
       customerId,
-      teamMemberId
+      teamMemberId,
     }).forEach(([key, value]) => {
       if (value) {
         project[key] = 1;
@@ -138,7 +148,7 @@ const movementItemQueries = {
     const locations = await models.MovementItems.aggregate(pipeline);
 
     return locations;
-  }
+  },
 };
 
 export default movementItemQueries;

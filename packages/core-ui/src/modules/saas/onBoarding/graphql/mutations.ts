@@ -38,6 +38,7 @@ const commonUserParamsDef = `
   $brandIds: [String]
   $departmentIds: [String]
   $branchIds: [String]
+  $positionIds: [String]
   $customFieldsData: JSON
   $employeeId: String
 `;
@@ -51,6 +52,7 @@ const commonUSerParams = `
   groupIds: $groupIds
   branchIds: $branchIds
   departmentIds: $departmentIds
+  positionIds: $positionIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
   employeeId: $employeeId

@@ -23,7 +23,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -328,6 +328,15 @@ export const initBroker = async () => {
     return {
       status: 'success',
       data: await models.Boards.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('cards:boards.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Boards.findOne(data).lean(),
     };
   });
 

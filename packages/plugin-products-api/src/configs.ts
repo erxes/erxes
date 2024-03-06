@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateAllDataLoaders } from './dataloaders';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -16,9 +16,6 @@ import segments from './segments';
 import search from './search';
 import documents from './documents';
 import dashboards from './dashboards';
-
-export let debug;
-export let mainDb;
 
 export default {
   name: 'products',
@@ -57,9 +54,6 @@ export default {
     search,
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

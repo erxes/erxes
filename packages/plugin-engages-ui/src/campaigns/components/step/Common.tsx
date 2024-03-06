@@ -30,7 +30,7 @@ type Props<Target, OnSubmit> = {
   content: ({
     actionSelector,
     selectedComponent,
-    customerCounts
+    customerCounts,
   }: {
     actionSelector: React.ReactNode;
     selectedComponent: React.ReactNode;
@@ -54,7 +54,7 @@ class Common<Target, OnSubmit> extends React.Component<
 
     this.state = {
       targetIds: props.targetIds || [],
-      show: false
+      show: false,
     };
   }
 
@@ -65,7 +65,7 @@ class Common<Target, OnSubmit> extends React.Component<
       formProps.afterSave();
     }
 
-    this.setState(s => ({ show: !s.show }));
+    this.setState((s) => ({ show: !s.show }));
   };
 
   onChangeStep = (name: string, targetIds: string[]) => {
@@ -76,7 +76,6 @@ class Common<Target, OnSubmit> extends React.Component<
 
   renderCounts() {
     const { targetIds } = this.state;
-
     return (
       <CustomerCounts>
         <Icon icon="users" size={50} />
@@ -89,7 +88,7 @@ class Common<Target, OnSubmit> extends React.Component<
 
   renderRadioControl = ({
     title,
-    checked
+    checked,
   }: {
     title: string;
     checked: boolean;
@@ -117,12 +116,12 @@ class Common<Target, OnSubmit> extends React.Component<
       <RadioContainer>
         {this.renderRadioControl({
           checked: show === false,
-          title: __(`Choose a ${messageType}`)
+          title: __(`Choose a ${messageType}`),
         })}
 
         {this.renderRadioControl({
           checked: show === true,
-          title: __(`Create a ${messageType}`)
+          title: __(`Create a ${messageType}`),
         })}
       </RadioContainer>
     );
@@ -140,7 +139,7 @@ class Common<Target, OnSubmit> extends React.Component<
       formProps,
       onSubmit,
       icons,
-      loadingCount
+      loadingCount,
     } = this.props;
 
     if (this.state.show) {
@@ -177,7 +176,7 @@ class Common<Target, OnSubmit> extends React.Component<
     return this.props.content({
       actionSelector,
       selectedComponent,
-      customerCounts
+      customerCounts,
     });
   }
 }

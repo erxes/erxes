@@ -1,11 +1,13 @@
 import {
-  init as initBrokerCore,
+  connectToMessageBroker,
   sendRPCMessage,
 } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
-  await initBrokerCore();
+  await connectToMessageBroker(setupMessageConsumers);
 };
+
+export const setupMessageConsumers = async () => {};
 
 export const fetchSegment = (subdomain, segmentId, options?) =>
   sendRPCMessage('segments:fetchSegment', {

@@ -12,14 +12,14 @@ module.exports = {
   },
   menus: [
     {
-      text: "Campaigns",
+      text: "XM Broadcast",
       url: "/campaigns",
       icon: "icon-megaphone",
       location: "mainNavigation",
       permission: "showEngagesMessages",
     },
     {
-      text: "Campaign settings",
+      text: "XM Broadcast settings",
       to: "/settings/campaign-configs",
       image: "/images/icons/erxes-08.svg",
       location: "settings",

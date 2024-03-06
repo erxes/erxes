@@ -16,9 +16,9 @@ import {
   getEditorAttributeUtil,
 } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
-import { debug } from '../../configs';
 import { sendEmail } from '../../sender';
 import { sendToWebhook } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -201,7 +201,7 @@ const engageMutations = {
           isLive: draftCampaign.isLive,
           isDraft: draftCampaign.isDraft,
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`,
+        description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
       user,
     );
@@ -291,7 +291,7 @@ const engageMutations = {
 
       return JSON.stringify(response);
     } catch (e) {
-      debug.error(e.message);
+      debugError(e.message);
 
       return e;
     }
@@ -386,7 +386,7 @@ const engageMutations = {
         title: doc.subject,
       });
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
 

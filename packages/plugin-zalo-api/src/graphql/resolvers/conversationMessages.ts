@@ -1,5 +1,5 @@
 import { IConversationMessageDocument } from '../../models/ConversationMessages';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IContext } from '../../models';
 
 export default {
@@ -21,5 +21,5 @@ export default {
     return (
       message.customerId && { __typename: 'Customer', _id: message.customerId }
     );
-  }
+  },
 };
