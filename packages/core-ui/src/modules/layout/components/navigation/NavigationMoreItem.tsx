@@ -57,7 +57,10 @@ export default function NavigationMoreItem(props: Props) {
               placement="top"
               text={isPinned ? __('Unpin plugin') : __('Pin plugin')}
             >
-              <RoundBox pinned={isPinned} onClick={() => handleOnClick(plugin)}>
+              <RoundBox
+                $pinned={isPinned}
+                onClick={() => handleOnClick(plugin)}
+              >
                 <img src="/images/pin.svg" alt="pin" />
               </RoundBox>
             </Tip>

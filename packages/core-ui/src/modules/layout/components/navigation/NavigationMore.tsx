@@ -7,7 +7,7 @@ import {
   MoreMenus,
   MoreMenuWrapper,
   MoreTitle,
-  MoreSearch
+  MoreSearch,
 } from '../../styles';
 
 import Icon from 'modules/common/components/Icon';
@@ -41,7 +41,7 @@ export default class NavigationMore extends React.Component<Props, State> {
 
     this.state = {
       searchText: '',
-      searchedPlugins: []
+      searchedPlugins: [],
     };
     this.wrapperRef = React.createRef();
   }
@@ -67,7 +67,7 @@ export default class NavigationMore extends React.Component<Props, State> {
   handleSearch = (event: any): void => {
     const otherPlugins: Plugin[] = filterPlugins(
       pluginNavigations(),
-      this.props.pinnedPlugins
+      this.props.pinnedPlugins,
     );
     const searchedPlugins = otherPlugins.filter((plugin: Plugin) => {
       if (event.target.value !== '')
@@ -79,7 +79,7 @@ export default class NavigationMore extends React.Component<Props, State> {
 
     this.setState({
       searchText: event.target.value,
-      searchedPlugins: searchedPlugins
+      searchedPlugins: searchedPlugins,
     });
   };
 
@@ -91,8 +91,8 @@ export default class NavigationMore extends React.Component<Props, State> {
   handleUnpin = (plugin: Plugin): void => {
     this.props.updatePinnedPlugins(
       this.props.pinnedPlugins.filter(
-        (item: Plugin) => item.text !== plugin.text
-      )
+        (item: Plugin) => item.text !== plugin.text,
+      ),
     );
   };
 
@@ -103,7 +103,7 @@ export default class NavigationMore extends React.Component<Props, State> {
       clickedMenu,
       countOfPinnedPlugins,
       pinnedPlugins,
-      toggleMenu
+      toggleMenu,
     } = this.props;
 
     const { searchText, searchedPlugins } = this.state;
@@ -114,8 +114,8 @@ export default class NavigationMore extends React.Component<Props, State> {
       searchText !== ''
         ? searchedPlugins
         : pinnedPlugins.length === 0
-        ? pluginNavigations().slice(countOfPinnedPlugins)
-        : filterPlugins(pluginNavigations(), pinnedPlugins);
+          ? pluginNavigations().slice(countOfPinnedPlugins)
+          : filterPlugins(pluginNavigations(), pinnedPlugins);
 
     const PinnedPluginsElement = () => (
       <React.Fragment>
@@ -141,15 +141,15 @@ export default class NavigationMore extends React.Component<Props, State> {
     return (
       <div ref={this.wrapperRef}>
         <NavItem className={`more-${navCollapse}`}>
-          <NavMenuItem navCollapse={navCollapse}>
+          <NavMenuItem $navCollapse={navCollapse}>
             <a onClick={() => toggleMenu('more')}>
               <NavIcon className="icon-ellipsis-h" />
               {navCollapse !== 1 && <label>{text}</label>}
             </a>
           </NavMenuItem>
           <MoreMenuWrapper
-            visible={showMenu && clickedMenu === 'more'}
-            navCollapse={this.props.navCollapse}
+            $visible={showMenu && clickedMenu === 'more'}
+            $navCollapse={this.props.navCollapse}
           >
             <MoreSearch>
               <Icon icon="search-1" size={15} />

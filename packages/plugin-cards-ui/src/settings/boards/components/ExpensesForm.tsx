@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   mutations,
-  queries
+  queries,
 } from '@erxes/ui-cards/src/settings/boards/graphql';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LinkButton } from '@erxes/ui/src/styles/main';
-import Modal from 'react-bootstrap/Modal';
 import { __ } from 'coreui/utils';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Table from '@erxes/ui/src/components/table';
+import { Dialog, Transition } from '@headlessui/react';
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalOverlay,
+  ModalFooter,
+} from '@erxes/ui/src/styles/main';
 
 type array = {
   _id: string;
@@ -35,20 +41,20 @@ function ExpensesForm() {
   const [inputValues, setInputValues] = useState({
     _id: '',
     name: '',
-    description: ''
+    description: '',
   });
 
   const addElement = () => {
     const newElement = {
       _id: Math.random().toString(),
       name: inputValues.name,
-      description: inputValues.description
+      description: inputValues.description,
     };
-    setElements(prevElements => [...prevElements, newElement]);
+    setElements((prevElements) => [...prevElements, newElement]);
     setInputValues({
       _id: '',
       name: '',
-      description: ''
+      description: '',
     });
   };
 
@@ -56,18 +62,18 @@ function ExpensesForm() {
     const updatedElements = [...elements];
     updatedElements[index] = {
       ...updatedElements[index],
-      [key]: value
+      [key]: value,
     };
     setElements(updatedElements);
   };
 
-  const deleteElement = index => {
+  const deleteElement = (index) => {
     const updatedElements = [...elements];
     updatedElements.splice(index, 1);
     setElements(updatedElements);
   };
 
-  const handleSubmit = event => {
+  const handleSubmit = (event) => {
     const setData = elements.map((element, index) => {
       if (!element.name) {
         Alert.error('Please fill all fields');
@@ -76,7 +82,7 @@ function ExpensesForm() {
       return {
         name: element.name,
         description: element.description,
-        _id: element._id
+        _id: element._id,
       };
     });
     event.preventDefault();
@@ -86,7 +92,7 @@ function ExpensesForm() {
           Alert.success('Successfully created');
           handleClose();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -97,80 +103,108 @@ function ExpensesForm() {
       <Button btnStyle="primary" icon="list" onClick={handleShow}>
         Expenses
       </Button>
-      <Modal
-        centered
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{__('Manage Expenses')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Table whiteSpace="nowrap" hover={true}>
-            <thead>
-              <tr>
-                <th>{__('Name')}</th>
-                <th>{__('Description')}</th>
-                <th>{__('Action')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(elements || []).map((element, index) => (
-                <tr key={index}>
-                  <td>
-                    <FormControl
-                      type="text"
-                      placeholder="Enter Name"
-                      defaultValue={element.name}
-                      onChange={(e: any) =>
-                        changeElement(index, 'name', e.target.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <FormControl
-                      type="text"
-                      defaultValue={element.description}
-                      placeholder="Enter description"
-                      onChange={(e: any) =>
-                        changeElement(index, 'description', e.target.value)
-                      }
-                    />
-                  </td>
-                  <td>
+      <Transition appear show={show} as={Fragment}>
+        <Dialog
+          open={show}
+          as="div"
+          onClose={handleClose}
+          className={`relative z-10`}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <ModalOverlay />
+          </Transition.Child>
+          <DialogWrapper>
+            <DialogContent>
+              <Dialog.Panel className={`dialog-size-sm`}>
+                <Dialog.Title as="h3">
+                  {__('Manage Expenses')}
+                  <Icon icon="times" size={24} onClick={handleClose} />
+                </Dialog.Title>
+                <Transition.Child>
+                  <Table $whiteSpace="nowrap" $hover={true}>
+                    <thead>
+                      <tr>
+                        <th>{__('Name')}</th>
+                        <th>{__('Description')}</th>
+                        <th>{__('Action')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(elements || []).map((element, index) => (
+                        <tr key={index}>
+                          <td>
+                            <FormControl
+                              type="text"
+                              placeholder="Enter Name"
+                              defaultValue={element.name}
+                              onChange={(e: any) =>
+                                changeElement(index, 'name', e.target.value)
+                              }
+                            />
+                          </td>
+                          <td>
+                            <FormControl
+                              type="text"
+                              defaultValue={element.description}
+                              placeholder="Enter description"
+                              onChange={(e: any) =>
+                                changeElement(
+                                  index,
+                                  'description',
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <Button
+                              block
+                              btnStyle="simple"
+                              type="button"
+                              icon="times"
+                              onClick={() => deleteElement(index)}
+                            ></Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <LinkButton onClick={addElement}>
+                      <Icon icon="plus-1" /> {__('Add another expense')}
+                    </LinkButton>
+                  </Table>
+                  <ModalFooter className="dialog-description">
                     <Button
-                      block
                       btnStyle="simple"
-                      type="button"
-                      icon="times"
-                      onClick={() => deleteElement(index)}
-                    ></Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <LinkButton onClick={addElement}>
-              <Icon icon="plus-1" /> {__('Add another expense')}
-            </LinkButton>
-          </Table>
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              size="small"
-              icon="times-circle"
-              onClick={handleClose}
-            >
-              {__('Cancel')}
-            </Button>
+                      size="small"
+                      icon="times-circle"
+                      onClick={handleClose}
+                    >
+                      {__('Cancel')}
+                    </Button>
 
-            <Button btnStyle="success" onClick={handleSubmit} icon="checked-1">
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
+                    <Button
+                      btnStyle="success"
+                      size="small"
+                      onClick={handleSubmit}
+                      icon="checked-1"
+                    >
+                      Save
+                    </Button>
+                  </ModalFooter>
+                </Transition.Child>
+              </Dialog.Panel>
+            </DialogContent>
+          </DialogWrapper>
+        </Dialog>
+      </Transition>
     </>
   );
 }

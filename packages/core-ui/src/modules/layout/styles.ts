@@ -350,8 +350,8 @@ const NavIcon = styled.i`
   opacity: 0.62;
 `;
 
-const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
-  background: ${(props) => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
+const RoundBox = styledTS<{ $pinned?: boolean }>(styled.div)`
+  background: ${(props) => (props.$pinned ? colors.colorSecondary : '#f5f5f5')};
   border-radius: 50%;
   border: 1px solid ${colors.borderPrimary};
   width: ${dimensions.coreSpacing}px;
@@ -364,7 +364,7 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   top: -5px;
 
   img {
-    filter: ${(props) => !props.pinned && 'brightness(30%)'};
+    filter: ${(props) => !props.$pinned && 'brightness(30%)'};
   }
 
   &:hover {
@@ -559,11 +559,11 @@ const MoreItemRecent = styled.div`
   }
 `;
 
-const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
+const MoreMenuWrapper = styledTS<{ $visible: boolean; $navCollapse: number }>(
   styled.div,
 )`
   position: absolute;
-  visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+  visibility: ${(props) => (props.$visible ? 'visible' : 'hidden')};
   padding:${dimensions.coreSpacing}px ${dimensions.unitSpacing}px ${
     dimensions.coreSpacing
   }px ${dimensions.coreSpacing}px;
@@ -571,9 +571,9 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;
   left: ${(props) =>
-    props.navCollapse === 2
+    props.$navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
-      : props.navCollapse === 1
+      : props.$navCollapse === 1
         ? dimensions.headerSpacing - 5
         : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
   top: -40px;

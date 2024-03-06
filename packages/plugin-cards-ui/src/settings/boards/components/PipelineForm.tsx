@@ -27,7 +27,6 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
 import {
   ModalFooter,
-  CloseModal,
   DialogContent,
   DialogWrapper,
   ModalOverlay,

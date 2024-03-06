@@ -1,8 +1,8 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-
 import { purchaseOptions } from './options';
+
 const Home = asyncComponent(
   () =>
     import(
