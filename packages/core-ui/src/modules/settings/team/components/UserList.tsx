@@ -21,7 +21,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { UserAvatar } from '../styles';
 import UserForm from '@erxes/ui/src/team/containers/UserForm';
 import UserResetPasswordForm from '@erxes/ui/src/team/containers/UserResetPasswordForm';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 
 type IProps = {
   changeStatus: (id: string) => void;
@@ -56,10 +56,23 @@ class UserList extends React.Component<FinalProps, States> {
     return this.props.history.push(`team/details/${object._id}`);
   };
 
+  removeUserQueryParams = () => {
+    const { queryParams, history } = this.props;
+    if (queryParams && history && queryParams.positionIds) {
+      router.removeParams(history, 'positionIds');
+    }
+  };
+
   renderForm = (props) => {
+    const onCloseModal = () => {
+      this.removeUserQueryParams();
+      props.closeModal();
+    };
+
     return (
       <UserForm
         {...props}
+        closeModal={onCloseModal}
         history={this.props.history}
         queryParams={this.props.queryParams}
         renderButton={this.props.renderButton}
@@ -92,10 +105,15 @@ class UserList extends React.Component<FinalProps, States> {
       return this.renderForm({ ...props, object: user });
     };
 
+    const onModalExit = () => {
+      this.removeUserQueryParams();
+    };
+
     return (
       <ModalTrigger
         size="lg"
         title="Edit"
+        onExit={onModalExit}
         trigger={editTrigger}
         content={content}
       />
