@@ -44,6 +44,7 @@ type State = {
   attachments: IAttachment[];
   image: IAttachment | null;
   erxesForms: IErxesForm[];
+  isPrivate: boolean;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -63,6 +64,7 @@ class ArticleForm extends React.Component<Props, State> {
       erxesForms: article.forms || [],
       image,
       attachments,
+      isPrivate: article.isPrivate || false,
     };
   }
 
@@ -99,6 +101,7 @@ class ArticleForm extends React.Component<Props, State> {
       categoryId,
       image,
       erxesForms,
+      isPrivate,
     } = this.state;
 
     const finalValues = values;
@@ -115,6 +118,7 @@ class ArticleForm extends React.Component<Props, State> {
         content,
         reactionChoices,
         status: finalValues.status,
+        isPrivate,
         categoryIds: [currentCategoryId],
         topicId,
         forms: erxesForms.map((f) => ({
@@ -145,6 +149,11 @@ class ArticleForm extends React.Component<Props, State> {
     } else {
       this.setState({ image: null });
     }
+  };
+
+  onChangeIsCheckDate = (e) => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isPrivate: isChecked });
   };
 
   onChangeAttachment = (key: string, value: string | number) => {
@@ -314,7 +323,8 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { attachments, reactionChoices, content, image } = this.state;
+    const { attachments, reactionChoices, content, image, isPrivate } =
+      this.state;
     const attachment = this.getFirstAttachment();
 
     const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
@@ -380,6 +390,14 @@ class ArticleForm extends React.Component<Props, State> {
                   </option>
                 ))}
               </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('isPrivate')}</ControlLabel>
+              <FormControl
+                componentClass="checkbox"
+                checked={isPrivate}
+                onChange={this.onChangeIsCheckDate}
+              />
             </FormGroup>
           </FlexItem>
         </FlexContent>

@@ -331,6 +331,15 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('cards:boards.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Boards.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue(
     'cards:boards.count',
     async ({ subdomain, data: { selector } }) => {

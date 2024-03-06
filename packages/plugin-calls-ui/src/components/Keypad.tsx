@@ -37,6 +37,7 @@ import {
 } from '../utils';
 import Popover from 'react-bootstrap/Popover';
 import { ICallConversation, ICustomer } from '../types';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
@@ -48,6 +49,7 @@ type Props = {
   conversation: ICallConversation;
   addNote: (conversationId: string, content: string) => void;
   disconnectCall: () => void;
+  phoneNumber: string;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
@@ -61,6 +63,7 @@ const KeyPad = (props: Props, context) => {
     taggerRefetchQueries,
     conversation,
     addNote,
+    phoneNumber,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -70,7 +73,7 @@ const KeyPad = (props: Props, context) => {
   const [currentTab, setCurrentTab] = useState('');
   const [shrink, setShrink] = useState(customer ? true : false);
 
-  const [number, setNumber] = useState('');
+  const [number, setNumber] = useState(phoneNumber ? phoneNumber : '');
   const [dialCode, setDialCode] = useState('');
 
   const [showTrigger, setShowTrigger] = useState(false);
@@ -356,7 +359,16 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status === CALL_STATUS_ACTIVE && dialCode) {
       showNumber = dialCode;
     }
-    return <PhoneNumber>{showNumber}</PhoneNumber>;
+
+    if (!shrink) {
+      return (
+        <>
+          {renderFullName(customer || '')}
+          <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>
+        </>
+      );
+    }
+    return <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>;
   };
 
   const onChangeText = (e) =>
@@ -416,6 +428,7 @@ const KeyPad = (props: Props, context) => {
               value={number}
               onKeyDown={handleKeyDown}
               autoFocus={true}
+              defaultValue={number}
             />
           </InputBar>
           {renderKeyPad(handNumPad)}

@@ -10,6 +10,7 @@ import { bustIframe, getEnv } from 'modules/common/utils';
 import dayjs from 'dayjs';
 import { withRouter } from 'react-router-dom';
 import { getVersion } from '@erxes/ui/src/utils/core';
+import { pluginsInnerWidgets } from 'pluginUtils';
 
 const MainBar = asyncComponent(
   () =>
@@ -148,6 +149,7 @@ class MainLayout extends React.Component<IProps, State> {
           const entry = document.getElementsByTagName('script')[0];
           (entry as any).parentNode.insertBefore(script, entry);
         }
+        pluginsInnerWidgets();
       }
 
       (window as any).wootricSettings = {

@@ -170,10 +170,12 @@ const configClientPortalQueries = {
       categoryIds,
       searchValue,
       topicId,
+      isPrivate,
     }: {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
+      isPrivate: Boolean;
     },
     { subdomain }: IContext,
   ) {
@@ -196,11 +198,22 @@ const configClientPortalQueries = {
       selector.categoryId = { $in: categoryIds };
     }
 
+    if (!isPrivate) {
+      selector.isPrivate = { $in: [null, false] };
+    }
+
+    if (isPrivate) {
+      selector.isPrivate = { $in: [null, false, true] };
+    }
+
     return sendKbMessage({
       subdomain,
       action: 'articles.find',
       data: {
-        query: { ...selector, status: { $ne: 'draft' } },
+        query: {
+          ...selector,
+          status: { $ne: 'draft' },
+        },
         sort: {
           createdDate: -1,
         },
