@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
@@ -16,9 +16,6 @@ import imports from './imports';
 import exporter from './exporter';
 import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
-export let debug;
-
-export let mainDb;
 
 export default {
   name: 'pos',
@@ -46,13 +43,9 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
+  setupMessageConsumers,
   meta: {
     afterMutations,
     automations,

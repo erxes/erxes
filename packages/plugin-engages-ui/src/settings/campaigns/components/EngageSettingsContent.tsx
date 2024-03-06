@@ -35,7 +35,7 @@ type State = {
   testContent?: string;
   configSet?: string;
   emailVerificationType?: string;
-  trueMailApiKey?: string;
+
   telnyxApiKey?: string;
   telnyxPhone?: string;
   telnyxProfileId?: string;
@@ -62,14 +62,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
       region: configsMap.region || '',
       configSet: configsMap.configSet || '',
       emailVerificationType: configsMap.emailVerificationType || '',
-      trueMailApiKey: configsMap.trueMailApiKey || '',
       telnyxApiKey: configsMap.telnyxApiKey || '',
       telnyxPhone: configsMap.telnyxPhone || '',
-      telnyxProfileId: configsMap.telnyxProfileId || ''
+      telnyxProfileId: configsMap.telnyxProfileId || '',
     };
   }
 
-  generateDoc = values => {
+  generateDoc = (values) => {
     return { configsMap: values };
   };
 
@@ -131,7 +130,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account',
             ) + '.'}
           </p>
           <a
@@ -229,7 +228,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             name: 'configsMap',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.configsMap
+            object: this.props.configsMap,
           })}
         </ModalFooter>
       </>

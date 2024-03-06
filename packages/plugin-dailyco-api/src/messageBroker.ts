@@ -10,7 +10,7 @@ import { getDailyData, getRecordings } from './utils';
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('dailyco:getDailyRoom', async (args): Promise<any> => {
     const { subdomain, data } = args;
     const { contentType, contentTypeId, messageId } = data;

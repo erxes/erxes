@@ -12,7 +12,7 @@ import {
   sendCoreMessage,
   sendTagsMessage,
 } from '../../messageBroker';
-import { debug } from '../../configs';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IPaged {
   page?: number;
@@ -360,7 +360,7 @@ const engageQueries = {
 
       return stats[0];
     } catch (e) {
-      debug.error(e.message);
+      debugError(e.message);
 
       return e;
     }

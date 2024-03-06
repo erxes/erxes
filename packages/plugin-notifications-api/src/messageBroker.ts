@@ -148,7 +148,7 @@ const sendNotification = async (
   });
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);

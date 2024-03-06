@@ -3,6 +3,7 @@ export interface IAttachment {
   url: string
   size?: number
   type: string
+  color?: string
 }
 
 interface IAppearence {

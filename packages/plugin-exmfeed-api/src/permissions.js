@@ -1,17 +1,17 @@
 module.exports = {
-  engages: {
-    name: "exmfeed",
-    description: "Exm feed",
+  exmfeed: {
+    name: 'exmfeed',
+    description: 'Exm feed',
     actions: [
-      { name: "showExmActivityFeed", description: "Show exm activity feed" },
+      { name: 'showExmActivityFeed', description: 'Show exm activity feed' },
       {
-        name: "manageExmActivityFeed",
-        description: "Manage exm activity feed",
+        name: 'manageExmActivityFeed',
+        description: 'Manage exm activity feed',
       },
       {
-        name: "exmActivityFeedAll",
-        description: "All",
-        use: ["showExmActivityFeed", "manageExmActivityFeed"],
+        name: 'exmActivityFeedAll',
+        description: 'All',
+        use: ['showExmActivityFeed', 'manageExmActivityFeed'],
       },
     ],
   },

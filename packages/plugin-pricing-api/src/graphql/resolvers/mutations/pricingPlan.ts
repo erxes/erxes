@@ -1,12 +1,12 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { IContext, models } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import {
   IPricingPlan,
-  IPricingPlanDocument
+  IPricingPlanDocument,
 } from '../../../models/definitions/pricingPlan';
 import {
   moduleCheckPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -15,7 +15,7 @@ const pricingPlanMutations = {
   pricingPlanAdd: async (
     _root: any,
     { doc }: { doc: IPricingPlan },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) => {
     const create = await models.PricingPlans.createPlan(doc, user._id);
 
@@ -23,7 +23,7 @@ const pricingPlanMutations = {
       models,
       subdomain,
       { type: PRINING_PLAN, newData: create, object: create },
-      user
+      user,
     );
     return create;
   },
@@ -31,7 +31,7 @@ const pricingPlanMutations = {
   pricingPlanEdit: async (
     _root: any,
     { doc }: { doc: IPricingPlanDocument },
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) => {
     const pricingPlan = await models.PricingPlans.findOne({ _id: doc._id });
     const update = await models.PricingPlans.updatePlan(doc._id, doc, user._id);
@@ -43,9 +43,9 @@ const pricingPlanMutations = {
         type: PRINING_PLAN,
         object: pricingPlan,
         newData: doc,
-        updatedDocument: update
+        updatedDocument: update,
       },
-      user
+      user,
     );
 
     return update;
@@ -54,7 +54,7 @@ const pricingPlanMutations = {
   pricingPlanRemove: async (
     _root: any,
     { id }: { id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) => {
     const pricingPlan = await models.PricingPlans.findOne({ _id: id });
     const removed = await models.PricingPlans.removePlan(id);
@@ -63,10 +63,10 @@ const pricingPlanMutations = {
       models,
       subdomain,
       { type: PRINING_PLAN, object: pricingPlan },
-      user
+      user,
     );
     return removed;
-  }
+  },
 };
 
 moduleRequireLogin(pricingPlanMutations);

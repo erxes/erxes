@@ -19,10 +19,10 @@ export const initRedis = (callback?: (client) => void) => {
     connect_timeout: 15000,
     enable_offline_queue: true,
     retry_unfulfilled_commands: true,
-    retry_strategy: options => {
+    retry_strategy: (options) => {
       // reconnect after
       return Math.max(options.attempt * 100, 3000);
-    }
+    },
   });
 
   if (callback) {
@@ -83,6 +83,22 @@ export const setArray = (key: string, value: any[]) => {
 export const redisStatus = () => {
   return new Promise((resolve, reject) => {
     client.ping((error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(result);
+    });
+  });
+};
+
+export const pushToQueue = (key: string, value: any) => {
+  client.rpush(key, value);
+};
+
+export const popFromQueue = (key: string) => {
+  return new Promise((resolve, reject) => {
+    client.lpop(key, (error, result) => {
       if (error) {
         return reject(error);
       }

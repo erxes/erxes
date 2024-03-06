@@ -13,7 +13,7 @@ import {
   consumeQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'clientportal:clientPortals.findOne',
     async ({ subdomain, data }) => {

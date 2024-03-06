@@ -309,7 +309,12 @@ class Row extends React.Component<Props> {
 
         {isEnabled('tags') && (
           <td>
-            <Tags tags={message.customerTags || []} />
+            <Tags
+              tags={[
+                ...(message.customerTags || []),
+                ...(message.getTags || []),
+              ]}
+            />
           </td>
         )}
 

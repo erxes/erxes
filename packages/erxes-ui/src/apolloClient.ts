@@ -45,6 +45,7 @@ async function fetchWithTimeout(
   }
 }
 
+
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,

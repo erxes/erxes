@@ -4,7 +4,7 @@ import {
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {};
+export const setupMessageConsumers = async () => {};
 
 export const sendCoreMessage = async (
   args: MessageArgsOmitService,

@@ -4,34 +4,26 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Widget = asyncComponent(() =>
-  import(/* webpackChunkName: "Widget - Calls" */ './containers/Widget')
+const SipProvider = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Widget - Calls" */ './containers/SipProvider'),
 );
 
-const IncomingCall = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "IncomingCall - Calls" */ './containers/IncomingCall'
-  )
-);
-
-const widget = ({ location, history, currentUser }) => {
+const createConnection = ({ location, history, currentUser }) => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
 
-  return <Widget typeId={type} history={history} currentUser={currentUser} />;
-};
-
-const incomingCall = ({ currentUser }) => {
-  return <IncomingCall currentUser={currentUser} />;
+  return (
+    <SipProvider typeId={type} history={history} currentUser={currentUser} />
+  );
 };
 
 const routes = () => {
   return (
     <>
-      <Route path="/calls/" component={props => widget({ ...props })} />
       <Route
-        path="/incomingcalls/"
-        component={props => incomingCall({ ...props })}
+        path="/calls/"
+        component={(props) => createConnection({ ...props })}
       />
     </>
   );
