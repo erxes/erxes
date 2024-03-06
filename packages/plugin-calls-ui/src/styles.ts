@@ -22,7 +22,7 @@ export const TabsContainer = styled(Tabs)`
 `;
 
 export const TabContent = styledTS<{ show: boolean }>(styled.div)`
-  display:${props => (props.show ? 'block' : 'none')};
+  display:${(props) => (props.show ? 'block' : 'none')};
 `;
 
 export const CallHistory = styled.div`
@@ -57,12 +57,12 @@ export const CallDetail = styledTS<{ isMissedCall: boolean }>(styled.div)`
   align-items: center;
 
   span {
-    border: 1.2px solid ${props => (props.isMissedCall ? '#FF4949' : '#000')};
+    border: 1.2px solid ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
   }
 
   a {
     font-weight: 700;
-    color: ${props => (props.isMissedCall ? '#FF4949' : '#000')};
+    color: ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
   }
 `;
 
@@ -102,7 +102,7 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   padding: 0 5px 0 12px;
   border-radius: 8px;
   height: 41px;
-  margin: ${props =>
+  margin: ${(props) =>
     props.type === 'country' ? '5px 0px 10px 0px' : '20px 20px 10px 20px'};
   border: 1.2px solid rgba(0, 0, 0, 0.12);
 
@@ -241,11 +241,16 @@ export const IncomingCallNav = styled.div`
   }
 `;
 
-export const CallButton = styledTS<{ type?: string }>(styled.div)`
+export const CallButton = styledTS<{
+  type?: string;
+  height?: string;
+  width?: string;
+  display?: string;
+}>(styled.div)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => (props.type === 'decline' ? '#FF4949' : '#13CE66')};
+  background: ${(props) => (props.type === 'decline' ? '#FF4949' : '#13CE66')};
   border-radius: 4px;
   margin-right: 8px;
   height: 30px;
@@ -253,7 +258,7 @@ export const CallButton = styledTS<{ type?: string }>(styled.div)`
   color: #fff;
   margin-top: auto;
   margin-bottom: auto;
-  margin-left: ${props => (props.type === 'decline' ? '0' : '8px')};
+  margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
 `;
 
 export const InCall = styled.div`
@@ -271,7 +276,7 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: ${props => (props.shrink ? '155px' : '375px')};
+  height: ${(props) => (props.shrink ? '155px' : '375px')};
   color: #fff;
   padding: ${dimensions.coreSpacing}px;
   text-align: center;
@@ -279,7 +284,7 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
-  ${props =>
+  ${(props) =>
     props.shrink
       ? `font-weight: 700;
     font-size: 15px;`
@@ -293,7 +298,7 @@ export const Actions = styled.div`
 `;
 
 export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
-  styled.div
+  styled.div,
 )`
   width: 70px;
   height: 70px
@@ -305,9 +310,9 @@ export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   flex-direction: column;
   cursor: pointer;
   color: #fff;
-  background: ${props => props.shrink && '#999999'};
+  background: ${(props) => props.shrink && '#999999'};
 
-  ${props =>
+  ${(props) =>
     props.isDecline &&
     `
     border-color: #FF4949;
@@ -362,18 +367,18 @@ export const CallTabsContainer = styled(Tabs)`
 `;
 
 export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
-  styled.div
+  styled.div,
 )`
   height: 355px;
   width: 100%;
   border: 1.2px solid #4F33AF;
-  display: ${props => (props.show ? 'flex' : 'none')};
-  border-radius: ${props =>
+  display: ${(props) => (props.show ? 'flex' : 'none')};
+  border-radius: ${(props) =>
     props.tab === 'Notes'
       ? '0px 10px 10px 10px'
       : props.tab === 'Assign'
-      ? '10px 0px 10px 10px'
-      : '10px'};
+        ? '10px 0px 10px 10px'
+        : '10px'};
   flex-direction: column;
   
   ul {
@@ -419,4 +424,41 @@ export const DisconnectCall = styled.div`
     margin: 0;
     width: 100%;
   }
+`;
+
+/* IncomingCall.css */
+export const IncomingContainer = styled.div`
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+`;
+
+export const IncomingButtonContainer = styled.div`
+  margin-top: 20px;
+  margin-left: 40%;
+  display: flex;
+`;
+
+export const IncomingActionButton = styledTS<{
+  type?: string;
+}>(styled.div)`
+  
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => (props.type === 'decline' ? '#FF4949' : '#13CE66')};
+  border-radius: 4px;
+  margin-right: 8px;
+  height: 30px;
+  width: 80px;
+
+  padding: 5px 10px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: ${(props) =>
+      props.type === 'accepted' ? '#45a049' : '#d32f2f'};
+  }
+`;
+export const NameCardContainer = styled.div`
+  margin-left: 40%;
 `;

@@ -112,10 +112,54 @@ const activeSession = `
     lastLoginDeviceId
   }
 }`;
+
+const callHistories = `
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip) {
+      _id
+    receiverNumber
+    callerNumber
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    customer {
+      _id
+      avatar
+      email
+      firstName
+      ${
+        isEnabled('tags')
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+                    type
+
+          }
+        `
+          : ``
+      }
+      phone
+      primaryEmail
+      primaryPhone
+      tagIds
+    }
+    }
+}`;
+
 export default {
   callsIntegrationDetail,
   callIntegrationsOfUser,
   callCustomerDetail,
   customers,
   activeSession,
+  callHistories,
 };
