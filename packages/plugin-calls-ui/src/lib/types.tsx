@@ -5,7 +5,7 @@ export interface ExtraHeaders {
   invite?: string[];
 }
 export const extraHeadersPropType = PropTypes.objectOf(
-  PropTypes.arrayOf(PropTypes.string)
+  PropTypes.arrayOf(PropTypes.string),
 );
 
 // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceServer
@@ -48,7 +48,7 @@ export const sipPropType = PropTypes.shape({
   sessionTimersExpires: PropTypes.number,
   extraHeaders: extraHeadersPropType,
   iceServers: iceServersPropType,
-  debug: PropTypes.bool
+  debug: PropTypes.bool,
 });
 
 export interface Call {
@@ -56,10 +56,14 @@ export interface Call {
   status: string;
   direction: string;
   counterpart: string;
+  startTime: Date;
+  endTime: Date;
 }
 export const callPropType = PropTypes.shape({
   id: PropTypes.string,
   status: PropTypes.string,
   direction: PropTypes.string,
-  counterpart: PropTypes.string
+  counterpart: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
 });

@@ -11,9 +11,10 @@ import { ICallConversation } from '../types';
 type IProps = {
   callIntegrationsOfUser: any;
   setConfig: any;
+  phoneNumber: any;
 };
 const KeyPadContainer = (props: IProps) => {
-  const { callIntegrationsOfUser, setConfig } = props;
+  const { callIntegrationsOfUser, setConfig, phoneNumber } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
   const [conversation, setConversation] =
@@ -107,6 +108,7 @@ const KeyPadContainer = (props: IProps) => {
       conversation={conversation}
       addNote={addNote}
       disconnectCall={disconnectCall}
+      phoneNumber={phoneNumber || ''}
     />
   );
 };

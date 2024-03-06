@@ -395,12 +395,15 @@ export const pluginsInnerWidgets = () => {
   const rootDiv = document.getElementById('root');
   const newDiv = document.createElement('div');
   newDiv.style.cssText =
-    'position:absolute;bottom:90px;right:32px;width:30px;z-index:999999;height:30px';
+    'position:absolute;width:30px;z-index:999999;height:30px;';
 
   for (const plugin of plugins) {
     if (!plugin.innerWidget) {
       continue;
     }
+
+    newDiv.style.cssText =
+      newDiv.style.cssText + (plugin.innerWidget.style || '');
 
     render(
       <BrowserRouter>
