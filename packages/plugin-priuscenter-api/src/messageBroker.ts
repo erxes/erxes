@@ -9,7 +9,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('ad:send', async ({ data }) => {
     Ads.send(data);
 

@@ -315,9 +315,9 @@ httpServer.listen(PORT, async () => {
 
   await initBroker();
 
-  if (VERSION && VERSION === 'saas') {
-    await mongoose.connect(MONGO_URL, connectionOptions);
-  }
+  // if (VERSION && VERSION === 'saas') {
+  //   await mongoose.connect(MONGO_URL, connectionOptions);
+  // }
 
   init()
     .then(() => {
@@ -333,7 +333,6 @@ httpServer.listen(PORT, async () => {
   await join({
     name: 'core',
     port: PORT,
-    dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },

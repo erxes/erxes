@@ -1,14 +1,10 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NOTIFICATION_MODULES } from './constants';
-
-export let debug;
-
-export let mainDb;
 
 export default {
   name: 'chats',
@@ -36,13 +32,9 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
+  setupMessageConsumers,
   meta: {
     notificationModules: NOTIFICATION_MODULES,
   },

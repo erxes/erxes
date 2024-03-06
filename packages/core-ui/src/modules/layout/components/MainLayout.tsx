@@ -116,15 +116,15 @@ class MainLayout extends React.Component<IProps, State> {
           },
         };
 
-        // (() => {
-        //   const script = document.createElement('script');
-        //   script.src =
-        //     'https://w.office.erxes.io/build/messengerWidget.bundle.js';
-        //   script.async = true;
+        (() => {
+          const script = document.createElement('script');
+          script.src =
+            'https://w.office.erxes.io/build/messengerWidget.bundle.js';
+          script.async = true;
 
-        //   const entry = document.getElementsByTagName('script')[0] as any;
-        //   entry.parentNode.insertBefore(script, entry);
-        // })();
+          const entry = document.getElementsByTagName('script')[0] as any;
+          entry.parentNode.insertBefore(script, entry);
+        })();
       } else {
         const { REACT_APP_HIDE_MESSENGER } = getEnv();
 

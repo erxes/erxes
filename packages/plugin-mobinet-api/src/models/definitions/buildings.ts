@@ -126,7 +126,7 @@ export const buildingSchema = schemaHooksWrapper(
 
     serviceStatus: field({
       type: String,
-      enum: ['active', 'inactive', 'inprogress'],
+      enum: ['active', 'inactive', 'inprogress', 'unavailable'],
       label: 'serviceStatus',
       required: true,
       default: 'inactive',

@@ -3,10 +3,10 @@ import {
   IValidationResponse,
   IVisitorContact,
 } from './models/definitions/customers';
-import { debug } from './configs';
 import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 import fetch from 'node-fetch';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const validateSingle = async (
   subdomain: string,
@@ -41,7 +41,7 @@ export const validateSingle = async (
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (e) {
-    debug.error(
+    debugError(
       `An error occurred while sending request to the email verifier. Error: ${e.message}`,
     );
   }

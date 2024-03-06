@@ -30,7 +30,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
   return RPC('rpc_queue:integrations_to_api', message);
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'instagram:getAccounts',
     async ({ subdomain, data: { kind } }) => {

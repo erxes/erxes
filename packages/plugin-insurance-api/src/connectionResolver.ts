@@ -1,7 +1,6 @@
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
 
-import { mainDb } from './configs';
 import { IInsuranceProductModel, loadProductClass } from './models/Products';
 import { IRiskModel, loadRiskClass } from './models/Risks';
 import { IInsuranceProductDocument } from './models/definitions/products';
@@ -12,9 +11,10 @@ import { IInsurancePackageModel, loadPackageClass } from './models/Packages';
 import { IInsurancePackageDocument } from './models/definitions/package';
 import {
   IInsuranceCategoryModel,
-  loadCategoryClass
+  loadCategoryClass,
 } from './models/Categories';
 import { IInsuranceCategoryDocument } from './models/definitions/category';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Risks: IRiskModel;
@@ -30,41 +30,27 @@ export interface IContext extends IMainContext {
   cpUser: any;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Risks = db.model<IRiskDocument, IRiskModel>(
     'insurance_risks',
-    loadRiskClass(models)
+    loadRiskClass(models),
   );
 
   models.Products = db.model<IInsuranceProductDocument, IInsuranceProductModel>(
     'insurance_products',
-    loadProductClass(models)
+    loadProductClass(models),
   );
 
   models.Items = db.model<IInsuranceItemDocument, IInsuranceItemModel>(
     'insurance_items',
-    loadItemClass(models)
+    loadItemClass(models),
   );
 
   models.Packages = db.model<IInsurancePackageDocument, IInsurancePackageModel>(
     'insurance_packages',
-    loadPackageClass(models)
+    loadPackageClass(models),
   );
 
   models.Categories = db.model<
@@ -74,3 +60,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels(loadClasses);

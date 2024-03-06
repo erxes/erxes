@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import {
   IReportModel,
   loadReportClass,
-  IReportDocument
+  IReportDocument,
 } from './models/Reports';
 import { IStoryModel, loadStoryClass, IStoryDocument } from './models/Stories';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -17,28 +17,23 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string
+  _subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Reports = db.model<IReportDocument, IReportModel>(
     'apex_reports',
-    loadReportClass(models)
+    loadReportClass(models),
   );
 
   models.Stories = db.model<IStoryDocument, IStoryModel>(
     'apex_stories',
-    loadStoryClass(models)
+    loadStoryClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -1,8 +1,8 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
-import { debug } from './configs';
 import { IModels } from './connectionResolver';
 import { sendSegmentsMessage } from './messageBroker';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export interface ICountBy {
   [index: string]: number;
@@ -42,7 +42,7 @@ export const countBySegment = async (
 
       counts[s._id] = await qb.runQueries();
     } catch (e) {
-      debug.error(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }

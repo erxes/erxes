@@ -9,7 +9,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('bichil:send', async ({ data }) => {
     Bichils.send(data);
 

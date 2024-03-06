@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   sendContactsMessage,
   sendEbarimtMessage,
-  sendCardsMessage
+  sendCardsMessage,
 } from '../../messageBroker';
 import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
@@ -17,7 +17,7 @@ const resolvers = {
       subdomain,
       action: 'users.findOne',
       data: { _id: order.userId },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -37,7 +37,7 @@ const resolvers = {
         action: 'companies.findOne',
         data: { _id: order.customerId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       if (!company) {
@@ -49,7 +49,7 @@ const resolvers = {
         primaryPhone: company.primaryPhone,
         firstName: company.primaryName,
         primaryEmail: company.primaryEmail,
-        lastName: ''
+        lastName: '',
       };
     }
 
@@ -59,7 +59,7 @@ const resolvers = {
         action: 'users.findOne',
         data: { _id: order.customerId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       if (!user) {
@@ -72,7 +72,7 @@ const resolvers = {
         primaryPhone: (user.details && user.details.operatorPhone) || '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
-        lastName: user.username
+        lastName: user.username,
       };
     }
 
@@ -82,7 +82,7 @@ const resolvers = {
         action: 'customers.findOne',
         data: { _id: order.customerId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       if (!customer) {
@@ -95,7 +95,7 @@ const resolvers = {
         primaryPhone: customer.primaryPhone,
         firstName: customer.firstName,
         primaryEmail: customer.primaryEmail,
-        lastName: customer.lastName
+        lastName: customer.lastName,
       };
     }
 
@@ -120,10 +120,11 @@ const resolvers = {
       data: {
         query: {
           contentType: 'pos',
-          contentId: order._id
-        }
+          contentId: order._id,
+        },
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: [],
     });
   },
 
@@ -136,7 +137,7 @@ const resolvers = {
       subdomain,
       action: 'deals.findOne',
       data: { _id: order.convertDealId },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -148,9 +149,9 @@ const resolvers = {
       subdomain,
       action: 'getLink',
       data: { _id: order.convertDealId, type: 'deal' },
-      isRPC: true
+      isRPC: true,
     });
-  }
+  },
 };
 
 export default resolvers;

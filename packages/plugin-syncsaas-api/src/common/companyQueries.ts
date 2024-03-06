@@ -1,6 +1,6 @@
 const companyDetail = `
-    query CompanyDetail($id: String!) {
-      companyDetail(_id: $id) {
+    query CompanyDetail($_id: String!) {
+      companyDetail(_id: $_id) {
         _id
       }
     }

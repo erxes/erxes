@@ -1,16 +1,13 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import cronjobs from './cronjobs/automations';
 import tags from './tags';
 import logs from './logUtils';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'automations',
@@ -36,13 +33,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    console.log('on server init .....');
-
-    initBroker();
-
-    debug = options.debug;
+  onServerInit: async () => {
   },
+  setupMessageConsumers,
 };

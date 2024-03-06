@@ -76,3 +76,48 @@
     }
   }
 }
+
+
+.custom-select {
+  display: inline-block;
+  position: relative;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  width: 200px;
+}
+
+.custom-select select {
+  display: none; /* Hide the default select element */
+}
+
+/* Style for the visible part of the select */
+.custom-select .select-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* Style for the dropdown options */
+.custom-select .select-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.custom-select .select-option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* Show the options when the select is open */
+.custom-select.open .select-options {
+  display: block;
+}

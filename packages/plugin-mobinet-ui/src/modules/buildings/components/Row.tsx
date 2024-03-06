@@ -93,6 +93,10 @@ const Row = (props: Props) => {
     case 'inprogress':
       statusText = 'Нэвтрүүлэлт хийгдэж буй';
       break;
+    case 'unavailable':
+      statusText = 'Боломжгүй';
+      break;
+
     default:
       statusText = 'Сүлжээ нэвтрээгүй';
       break;

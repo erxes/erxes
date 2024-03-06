@@ -7,6 +7,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
 import { coreModelOrganizations, getCoreConnection } from './saas/saas';
+import { connect } from './mongo-connection';
 
 export const getEnv = ({
   name,
@@ -359,25 +360,33 @@ export const connectionOptions: mongoose.ConnectionOptions = {
   family: 4,
 };
 
-export const createGenerateModels = <IModels>(models, loadClasses) => {
+export const createGenerateModels = <IModels>(
+  loadClasses: (
+    db: mongoose.Connection,
+    subdomain: string,
+  ) => IModels | Promise<IModels>,
+) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
+  connect();
+
   if (VERSION && VERSION !== 'saas') {
-    return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    let models: IModels | null = null;
+    return async function genereteModels(
+      hostnameOrSubdomain: string,
+    ): Promise<IModels> {
       if (models) {
         return models;
       }
 
-      const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-      const db = await mongoose.connect(MONGO_URL, connectionOptions);
-
-      models = loadClasses(db, hostnameOrSubdomain);
+      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
 
       return models;
     };
   } else {
-    return async (hostnameOrSubdomain: string = ''): Promise<IModels> => {
+    return async function genereteModels(
+      hostnameOrSubdomain: string = '',
+    ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
       // means hostname
