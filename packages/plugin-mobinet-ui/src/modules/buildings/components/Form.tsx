@@ -9,7 +9,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useEffect, useState } from 'react';
 import OSMBuildings from '../../../common/OSMBuildings';
 import { ICoordinates } from '../../../types';
-import { findCenter, getBuildingColor } from '../../../utils';
+import { findCenter } from '../../../utils';
 import SelectCity from '../../cities/containers/SelectCity';
 import { ICity } from '../../cities/types';
 import SelectDistrict from '../../districts/containers/SelectDistrict';
@@ -25,12 +25,12 @@ type Props = {
   suhTagId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  buildings?: IBuilding[];
+  getBuildingsWithingBounds: (bounds: ICoordinates[]) => void;
+  buildingsByBounds?: IBuilding[];
 };
 
 const BuildingForm = (props: Props) => {
-  const { building, buildings } = props;
-
+  const { building, buildingsByBounds } = props;
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>(
     (building && building.quarterId) || '',
@@ -104,10 +104,11 @@ const BuildingForm = (props: Props) => {
         }
       });
     }
-    console.log('buildingObject', buildingObject);
-    if (buildings && buildings.length > 0 && map) {
+    if (buildingsByBounds && buildingsByBounds.length > 0 && map) {
       map.highlight((feature: { id: string | undefined }) => {
-        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
+        const foundBuilding = buildingsByBounds.find(
+          (b) => b.osmbId === feature.id,
+        );
         const isCurrent = osmBuilding?.id === feature.id;
 
         if (foundBuilding) {
@@ -137,6 +138,8 @@ const BuildingForm = (props: Props) => {
     osmBuilding,
     buildingObject,
     map,
+    center,
+    buildingsByBounds,
   ]);
 
   const generateDoc = () => {
@@ -171,10 +174,6 @@ const BuildingForm = (props: Props) => {
 
     obj[id] = value;
     setBuildingObject(obj);
-  };
-
-  const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
-    setCenter(center);
   };
 
   const onChangeDistrict = (districtId, center?: ICoordinates) => {
@@ -249,8 +248,18 @@ const BuildingForm = (props: Props) => {
     const selectedValues =
       (osmBuilding && [osmBuilding.id]) || (building && [building?.osmbId]);
 
-    const onload = (_bounds, mapRef) => {
+    const onload = (bounds, mapRef) => {
+      bounds.push(bounds[0]);
       setMap(mapRef.current);
+    };
+
+    const onChangeCenter = (
+      newCenter: ICoordinates,
+      bounds: ICoordinates[],
+    ) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+      setCenter(newCenter);
     };
 
     const mapProps = {
@@ -261,7 +270,7 @@ const BuildingForm = (props: Props) => {
       style: { height: '300px', width: '100%' },
       selectedValues,
       onload,
-      buildings: props.buildings,
+      buildings: buildingsByBounds,
     };
 
     return <OSMBuildings {...mapProps} />;
