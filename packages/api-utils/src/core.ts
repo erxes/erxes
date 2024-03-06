@@ -365,7 +365,7 @@ export const createGenerateModels = <IModels>(
     db: mongoose.Connection,
     subdomain: string,
   ) => IModels | Promise<IModels>,
-) => {
+): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   connect();
