@@ -1,5 +1,16 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+export interface IHistoryArgs {
+  limit?: number;
+  callStatus?: string;
+  callType?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
+  skip?: number;
+}
 
 const callsQueries = {
   callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
@@ -19,9 +30,9 @@ const callsQueries = {
       serviceName: 'contacts',
       action: 'customers.findOne',
       data: {
-        primaryPhone: callerNumber
+        primaryPhone: callerNumber,
       },
-      defaultValue: null
+      defaultValue: null,
     });
 
     return customer;
@@ -30,7 +41,12 @@ const callsQueries = {
     const activeSession = models.ActiveSessions.getActiveSession(user._id);
 
     return activeSession;
-  }
+  },
+  async callHistories(_root, params: IHistoryArgs, { models, user }: IContext) {
+    const activeSession = models.CallHistory.getCallHistories(params, user);
+
+    return activeSession;
+  },
 };
 
 export default callsQueries;

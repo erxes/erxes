@@ -6,7 +6,7 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "@erxes/ui" : "*",
-    "jssip": "^3.10.0"
+    "@erxes/ui": "*",
+    "jssip": "^3.10.1"
   }
 }
