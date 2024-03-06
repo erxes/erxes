@@ -147,7 +147,8 @@ export const queries = `
   stages(
     isNotLost: Boolean,
     isAll: Boolean,
-    pipelineId: String!,
+    pipelineId: String,
+    pipelineIds: [String],
     ${stageParams}
   ): [Stage]
   stageDetail(_id: String!, ${stageParams}): Stage

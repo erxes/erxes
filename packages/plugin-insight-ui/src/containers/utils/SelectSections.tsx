@@ -19,7 +19,7 @@ type Props = {
 };
 
 const SelectSectionsContainer = (props: Props) => {
-  const { type } = props;
+  const { type, setSectionId } = props;
 
   const sectionsQuery = useQuery<SectionsListQueryResponse>(
     gql(queries.sectionList),
@@ -30,23 +30,24 @@ const SelectSectionsContainer = (props: Props) => {
 
   const sections = sectionsQuery?.data?.sections || [];
 
-  const [sectionAdd] = useMutation<SectionAddMutationResponse>(
-    gql(mutations.sectionAdd),
-    {
-      refetchQueries: [
-        {
-          query: gql(queries.sectionList),
-          variables: {
-            type,
-          },
+  const [sectionAdd] = useMutation(gql(mutations.sectionAdd), {
+    refetchQueries: [
+      {
+        query: gql(queries.sectionList),
+        variables: {
+          type,
         },
-      ],
-    },
-  );
+      },
+    ],
+  });
 
   const addSection = (values: SectionMutationVariables) => {
     sectionAdd({ variables: { ...values } })
-      .then(() => {
+      .then((res) => {
+        const { _id } = res.data.sectionAdd;
+        if (_id) {
+          setSectionId(_id);
+        }
         Alert.success('Successfully added section');
       })
       .catch((err) => Alert.error(err.message));
