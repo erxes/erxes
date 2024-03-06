@@ -99,6 +99,7 @@ const ChartFormFieldList = (props: Props) => {
         ? queryData[fieldQuery].map((d) => ({
             value: d[fieldValueVariable],
             label: d[fieldLabelVariable],
+            ...(fieldParentVariable && { parent: d[fieldParentVariable] }),
           }))
         : [];
   }
