@@ -165,6 +165,10 @@ const PIPELINE_TYPE_TICKET = 'ticket';
 const PIPELINE_TYPE_DEAL = 'deal';
 const PIPELINE_TYPE_TASK = 'task';
 
+const CUSTOM_PROPERTIES_DEAL = 'cards:deal';
+const CUSTOM_PROPERTIES_TICKET = 'cards:ticket';
+const CUSTOM_PROPERTIES_TASK = 'cards:task';
+
 const reportTemplates = [
   {
     serviceType: 'deal',
@@ -423,27 +427,13 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'type',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'tagsGetTypes',
-        fieldValueVariable: 'contentType',
-        fieldLabelVariable: 'description',
-        fieldLabel: 'Select tag type',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
-        multi: true,
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'type',
-            logicFieldVariable: 'type',
-          },
-        ],
+        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_DEAL}", "perPage": 1000}`,
+        multi: true,
         fieldLabel: 'Select tags',
       },
     ],
@@ -3520,27 +3510,13 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'type',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'tagsGetTypes',
-        fieldValueVariable: 'contentType',
-        fieldLabelVariable: 'description',
-        fieldLabel: 'Select tag type',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
-        multi: true,
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'type',
-            logicFieldVariable: 'type',
-          },
-        ],
+        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
+        multi: true,
         fieldLabel: 'Select tags',
       },
     ],
@@ -4076,27 +4052,13 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'type',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'tagsGetTypes',
-        fieldValueVariable: 'contentType',
-        fieldLabelVariable: 'description',
-        fieldLabel: 'Select tag type',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
-        multi: true,
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'type',
-            logicFieldVariable: 'type',
-          },
-        ],
+        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
+        multi: true,
         fieldLabel: 'Select tags',
       },
     ],
@@ -4693,27 +4655,13 @@ const chartTemplates = [
         fieldLabel: 'Select Stage priority',
       },
       {
-        fieldName: 'type',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'tagsGetTypes',
-        fieldValueVariable: 'contentType',
-        fieldLabelVariable: 'description',
-        fieldLabel: 'Select tag type',
-      },
-      {
         fieldName: 'tagIds',
         fieldType: 'select',
-        multi: true,
         fieldQuery: 'tags',
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
-        logics: [
-          {
-            logicFieldName: 'type',
-            logicFieldVariable: 'type',
-          },
-        ],
+        fieldQueryVariables: `{"type": "${CUSTOM_PROPERTIES_TASK}", "perPage": 1000}`,
+        multi: true,
         fieldLabel: 'Select tags',
       },
     ],
