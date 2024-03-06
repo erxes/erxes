@@ -3,7 +3,12 @@ import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 
-const receiveCall = async (models: IModels, subdomain: string, params) => {
+const receiveCall = async (
+  models: IModels,
+  subdomain: string,
+  params,
+  user,
+) => {
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
   }).lean();
@@ -41,6 +46,34 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
+          : e,
+      );
+    }
+  }
+
+  let history = await models.CallHistory.findOne({ callId: callID });
+  if (!history) {
+    try {
+      const newHistory = new models.CallHistory({
+        sessionId: callID,
+        callerNumber: primaryPhone,
+        receiverNumber: recipientId,
+        callType: direction,
+        createdAt: new Date(),
+        createdBy: user._id,
+        updatedBy: user._id,
+        callDuration: 0,
+      });
+
+      try {
+        await newHistory.save();
+      } catch (error) {
+        console.error('Error saving call history:', error);
+      }
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: call session duplication'
           : e,
       );
     }

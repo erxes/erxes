@@ -11,7 +11,7 @@ type Props = {
     breadcrumbs: IBreadCrumbItem[];
     validateDoc: (
       type: string,
-      doc: IEngageMessageDoc
+      doc: IEngageMessageDoc,
     ) => { status: string; doc?: IEngageMessageDoc };
   }) => any;
 };
@@ -35,7 +35,7 @@ class FormBase extends React.Component<Props> {
         )
       ) {
         return this.sendError(
-          __('At least one brand or tag or segment must be chosen')
+          __('At least one brand or tag or segment must be chosen'),
         );
       }
     }
@@ -95,14 +95,14 @@ class FormBase extends React.Component<Props> {
     if (docType === 'live') {
       return {
         status: 'ok',
-        doc: { isLive: true, isDraft: false, ...doc }
+        doc: { isLive: true, isDraft: false, ...doc },
       };
     }
 
     if (docType === 'draft') {
       return {
         status: 'ok',
-        doc: { isLive: false, isDraft: true, ...doc }
+        doc: { isLive: false, isDraft: true, ...doc },
       };
     }
 
@@ -112,14 +112,14 @@ class FormBase extends React.Component<Props> {
   renderTitle() {
     const { kind } = this.props;
 
-    let title = __('Auto campaign');
+    let title = __('Auto broadcast');
 
     if (kind === MESSAGE_KINDS.MANUAL) {
-      title = __('Manual campaign');
+      title = __('Manual broadcast');
     }
 
     if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      title = __('Visitor auto campaign');
+      title = __('Visitor auto broadcast');
     }
 
     return title;
@@ -127,8 +127,8 @@ class FormBase extends React.Component<Props> {
 
   render() {
     const breadcrumbs = [
-      { title: __('Campaigns'), link: '/campaigns' },
-      { title: this.renderTitle() }
+      { title: __('XM Broadcast'), link: '/campaigns' },
+      { title: this.renderTitle() },
     ];
 
     return (
@@ -136,7 +136,7 @@ class FormBase extends React.Component<Props> {
         {this.props.content({
           renderTitle: () => this.renderTitle(),
           breadcrumbs,
-          validateDoc: this.validateDoc
+          validateDoc: this.validateDoc,
         })}
       </React.Fragment>
     );

@@ -150,8 +150,6 @@ export default {
 
       return res.send('Successfully verified, you can close this tab now');
     });
-
-
   },
   setupMessageConsumers,
 };

@@ -17334,10 +17334,10 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jssip@^3.10.0:
-  version "3.10.0"
-  resolved "https://registry.npmjs.org/jssip/-/jssip-3.10.0.tgz"
-  integrity sha512-iJj+bhnNl0S296sUDc2ZjIbAetnelzZ92aWARyW01oKZ0X8t+5aGrYfJdMFliLFm8hxMcnkep3vmSRGe/yRjsA==
+jssip@^3.10.1:
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/jssip/-/jssip-3.10.1.tgz#eccecf2cfabfed5a5578e3bb4f69b0451ccf6ec0"
+  integrity sha512-V82JW6fZF02VInHMKgTO9oEXbkZwqezGj9SNaQPh+btriC16FfSPsRBnD+i9IhU9C86JA9le6Z8AZirYnbKi2g==
   dependencies:
     "@types/debug" "^4.1.7"
     "@types/events" "^3.0.0"

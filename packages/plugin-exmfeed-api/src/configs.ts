@@ -43,6 +43,6 @@ export default {
       return res.send('ok');
     });
   },
-  setupMessageConsumers,
-  meta: { cronjobs, automations, segments, forms },
+
+  meta: { cronjobs, automations, segments, forms, permissions },
 };

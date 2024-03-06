@@ -257,7 +257,6 @@ export default {
     },
   ],
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

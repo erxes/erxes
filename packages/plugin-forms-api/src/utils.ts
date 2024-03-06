@@ -118,6 +118,7 @@ export const fieldsCombinedByContentType = async (
         selectOptions: generateSelectOptions(customField.options),
         validation: customField.validation,
         type: customField.type,
+        group: group._id,
       });
     }
   }

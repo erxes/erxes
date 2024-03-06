@@ -28,10 +28,12 @@ import {
 import {
   IBranchModel,
   IDepartmentModel,
+  IPositionModel,
   IStructureModel,
   IUnitModel,
   loadBranchClass,
   loadDepartmentClass,
+  loadPositionClass,
   loadStructureClass,
   loadUnitClass,
 } from './db/models/Structure';
@@ -49,6 +51,7 @@ import {
 import {
   IBranchDocument,
   IDepartmentDocument,
+  IPositionDocument,
   IStructureDocument,
   IUnitDocument,
 } from './db/models/definitions/structures';
@@ -75,6 +78,7 @@ export interface IModels {
   Departments: IDepartmentModel;
   Units: IUnitModel;
   Branches: IBranchModel;
+  Positions: IPositionModel;
   Apps: IAppModel;
   InstallationLogs: IInstallationLogModel;
   UserMovements: IUserMovemmentModel;
@@ -146,6 +150,11 @@ export const loadClasses = (
   models.Branches = db.model<IBranchDocument, IBranchModel>(
     'branches',
     loadBranchClass(models),
+  );
+
+  models.Positions = db.model<IPositionDocument, IPositionModel>(
+    'positions',
+    loadPositionClass(models),
   );
 
   models.Apps = db.model<IAppDocument, IAppModel>('apps', loadAppClass(models));

@@ -1,3 +1,18 @@
+### [1.6.2-rc.5](https://github.com/erxes/erxes/compare/1.6.2-rc.4...1.6.2-rc.5) (2024-03-05)
+
+
+### Bug Fixes
+
+* fix exmfeed,exm, chats plugins permssions not showing ([81318b5](https://github.com/erxes/erxes/commit/81318b5d2cf9c84f6a00f1b60434cb8b65c8ef0f))
+* fix facebook get env function ([83dcb7a](https://github.com/erxes/erxes/commit/83dcb7a3dd92246d532d831b3c834853449d4aef))
+* fix getEnv function for get domain ([b0c4f63](https://github.com/erxes/erxes/commit/b0c4f63a12ac75fb2e88cd459c371daf70f7c827))
+* fix saas transaction emails ([e746ce8](https://github.com/erxes/erxes/commit/e746ce8f6c8e5cd2f551ef7a7f31e331b6de5e90))
+
+
+### Performance Improvements
+
+* **cards:** add assigneduserIds field in cards schema ([e7e1770](https://github.com/erxes/erxes/commit/e7e1770860277be73fcc90d7d1b6e97b73c62969))
+
 ## [1.6.2-rc.4](https://github.com/erxes/erxes/compare/1.6.2-rc.3...1.6.2-rc.4) (2024-02-29)
 
 

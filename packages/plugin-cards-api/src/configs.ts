@@ -96,7 +96,6 @@ export default {
       }),
     );
 
-
     console.log('Debug ....');
   },
   setupMessageConsumers,

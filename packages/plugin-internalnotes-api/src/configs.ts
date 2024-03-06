@@ -22,8 +22,7 @@ export default {
 
     return context;
   },
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
   meta: {
     logs: { providesActivityLog: true, consumers: logs },

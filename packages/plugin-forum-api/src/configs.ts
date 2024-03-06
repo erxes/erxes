@@ -51,7 +51,6 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };
