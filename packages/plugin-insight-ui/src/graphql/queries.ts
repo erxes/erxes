@@ -443,6 +443,7 @@ const tags = `
     tags(type: $type, perPage: $perPage) {
       _id
       name
+      parentId
       colorCode
     }
   }
@@ -691,7 +692,17 @@ const sectionList = `
     }
   }
 `;
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
 
+const tagsGetTypes = `
+  query tagsGetTypes {
+    tagsGetTypes
+  }
+`;
 const assets = `
   query assets($searchValue: String) {
     assets(searchValue: $searchValue) {
@@ -748,4 +759,6 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
+  fieldsGetTypes,
+  tagsGetTypes,
 };

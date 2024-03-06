@@ -30,8 +30,7 @@ export default {
 
     return context;
   },
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
   meta: {
     afterMutations,
