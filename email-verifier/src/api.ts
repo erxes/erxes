@@ -15,10 +15,11 @@ const { SENDGRID_API_KEY } = process.env;
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
 export const single = async (email: string, hostname: string) => {
+  email = email.toString();
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
-    debugBase(`This email is already verified`);
+    debugBase(`This email is already verified`, email);
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -56,6 +57,8 @@ export const single = async (email: string, hostname: string) => {
     body: { email },
   };
 
+  console.log('verifying email on sendgrid', email);
+
   try {
     const [body] = await client.request(request);
     const { statusCode } = body;
@@ -71,6 +74,8 @@ export const single = async (email: string, hostname: string) => {
     throw e;
   }
 
+  console.log('email has been verified on sendgrid', email, response);
+
   if (response.status === 'success') {
     const doc = { email, status: response.verdict.toLowerCase() };
 
@@ -81,7 +86,10 @@ export const single = async (email: string, hostname: string) => {
       await Emails.createEmail(doc);
     }
 
-    debugBase(`Sending single email validation status to erxes-api`);
+    debugBase(
+      `Sending single email validation status to `,
+      `${hostname}/verifier/webhook`,
+    );
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -105,6 +113,8 @@ export const single = async (email: string, hostname: string) => {
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
+  emails = emails.map((email) => email.toString());
+
   const emailsOnDb = await Emails.find({ email: { $in: emails } });
 
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(

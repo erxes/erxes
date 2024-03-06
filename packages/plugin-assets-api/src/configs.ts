@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataloaders';
@@ -11,8 +11,6 @@ import forms from './forms';
 import internalNotes from './internalNotes';
 import logUtils from './logUtils';
 import * as permissions from './permissions';
-
-export let debug;
 
 export default {
   name: 'assets',
@@ -43,9 +41,6 @@ export default {
     forms,
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

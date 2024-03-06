@@ -1,11 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-
-import { initBroker } from './messageBroker';
-
-export let debug;
-
-
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: '{name}',
@@ -20,13 +15,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    
-
-    initBroker();
-
-    
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {
+  },
+  setupMessageConsumers,
 };

@@ -14,7 +14,7 @@ import {
 import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-import { debugBase } from '@erxes/api-utils/src/debuggers';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
 import { setActionWait } from './actions/wait';
@@ -33,7 +33,7 @@ export const getEnv = ({
   }
 
   if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
+    debugError(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';

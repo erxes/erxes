@@ -44,7 +44,7 @@ const sendNotification = async (
   let link = doc.link;
 
   // remove duplicated ids
-  const receiverIds = [...Array.from(new Set(receivers))];
+  const receiverIds = Array.from(new Set(receivers));
 
   await sendCoreMessage({
     subdomain,
@@ -100,7 +100,7 @@ const sendNotification = async (
         createdUser._id,
       );
 
-      graphqlPubsub.publish('notificationInserted', {
+      graphqlPubsub.publish(`notificationInserted:${receiverId}`, {
         notificationInserted: {
           _id: notification._id,
           userId: receiverId,
@@ -148,7 +148,7 @@ const sendNotification = async (
   });
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);

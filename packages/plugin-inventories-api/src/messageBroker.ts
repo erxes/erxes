@@ -9,7 +9,7 @@ import type {
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('inventories:remainders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

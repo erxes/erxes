@@ -11,6 +11,7 @@ import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
 import { IFieldLogic } from '../../types';
 import { stringify } from 'querystring';
+import { SelectWithAssets } from '../utils/SelectAssets';
 
 type Props = {
   fieldType: string;
@@ -64,6 +65,14 @@ const ChartFormField = (props: Props) => {
       setFieldValue(selectedValue);
       onChange(selectedValue);
     }
+
+    if (!selectedOption) {
+      setFieldValue('');
+      onChange('');
+    }
+
+    setFieldValue(selectedOption.value);
+    onChange(selectedOption);
   };
 
   const onSaveDateRange = (dateRange: any) => {
@@ -139,6 +148,20 @@ const ChartFormField = (props: Props) => {
             label={'Choose brands'}
             onSelect={OnSaveBrands}
             initialValue={fieldValue}
+          />
+        </div>
+      );
+    case 'assets':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectWithAssets
+            label="Choose Asset"
+            name="assets"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+            customOption={{ value: '', label: 'Choose Asset' }}
           />
         </div>
       );

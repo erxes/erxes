@@ -50,7 +50,9 @@ const DashboardQueries = {
     { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
-      models.Dashboards.find(await generateFilter(params, commonQuerySelector)),
+      models.Dashboards.find(
+        await generateFilter(params, commonQuerySelector),
+      ).sort({ createdAt: -1 }),
       {
         page: params.page,
         perPage: params.perPage,

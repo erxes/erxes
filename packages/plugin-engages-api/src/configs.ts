@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
 import { engageTracker } from './trackers/engageTracker';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
@@ -11,8 +11,6 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
-
-export let debug;
 
 export default {
   name: 'engages',
@@ -37,12 +35,9 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     // Insert routes below
     app.use('/telnyx', telnyx);
-
-    initBroker();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };

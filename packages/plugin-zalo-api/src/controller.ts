@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
 import { getConfig, getMessageOAID, getMessageUserID } from './commonUtils';
 import fetch from 'node-fetch';
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { getOrCreateCustomer } from './helpers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
@@ -182,7 +182,7 @@ const init = async (app) => {
 
       // const { responses: OAInfo } = getOAInfo;
 
-      // debug.error(`responses:`, responses, getOAInfo);
+      // debugError(`responses:`, responses, getOAInfo);
       // const OAInfo = JSON.parse(getOAInfo)
 
       const account = await models.Accounts.findOne({
@@ -214,7 +214,7 @@ const init = async (app) => {
         });
       }
     } catch (e) {
-      debug.error(`Failed to connect to ZALO: ${e.message}`);
+      debugError(`Failed to connect to ZALO: ${e.message}`);
     }
 
     res.send({ ...req.query });
@@ -225,7 +225,7 @@ const init = async (app) => {
     const models = await generateModels(subdomain);
 
     const data = req.body;
-    debug.error(JSON.stringify(req?.body));
+    debugError(JSON.stringify(req?.body));
 
     const oa_id = getMessageOAID(data);
     const userId = getMessageUserID(data);
@@ -307,10 +307,10 @@ const init = async (app) => {
       const conversationMessage = await models.ConversationMessages.findOne({
         mid: data.message.msg_id,
       });
-      debug.error('conversationMessage');
+      debugError('conversationMessage');
       if (!conversationMessage) {
         try {
-          debug.error('start create conversationMessage');
+          debugError('start create conversationMessage');
           const created = await models.ConversationMessages.create({
             conversationId: conversation._id,
             mid: data.message.msg_id,

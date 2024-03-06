@@ -6,7 +6,7 @@ import {
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
   //   Reportss.send(data);
   //   return {

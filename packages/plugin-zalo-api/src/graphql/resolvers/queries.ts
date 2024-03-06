@@ -1,7 +1,7 @@
 import { IContext, IModels } from '../../models';
 import { IConversationMessageDocument } from '../../models/ConversationMessages';
 // import { Accounts, Messages } from '../../models';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 interface IKind {
   kind: string;
@@ -18,7 +18,7 @@ const buildSelector = async (conversationId: string, models: IModels) => {
   const query = { conversationId: '' };
 
   const conversation = await models.Conversations.findOne({
-    erxesApiId: conversationId
+    erxesApiId: conversationId,
   });
 
   if (conversation) {
@@ -44,7 +44,7 @@ const queries = {
   zaloConversationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
   },
@@ -52,7 +52,7 @@ const queries = {
   async zaloConversationMessages(
     _root,
     args: IMessagesParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { conversationId, limit, skip, getFirst } = args;
 
@@ -74,8 +74,8 @@ const queries = {
       .sort({ createdAt: -1 })
       .limit(50);
 
-    // debug.error(`ConversationMessages query: ${JSON.stringify(query)}`)
-    // debug.error(`ConversationMessages: ${JSON.stringify(messages)}`)
+    // debugError(`ConversationMessages query: ${JSON.stringify(query)}`)
+    // debugError(`ConversationMessages: ${JSON.stringify(messages)}`)
 
     return messages.reverse();
   },
@@ -86,12 +86,12 @@ const queries = {
   async zaloConversationMessagesCount(
     _root,
     { conversationId }: { conversationId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const selector = await buildSelector(conversationId, models);
 
     return models.ConversationMessages.countDocuments(selector);
-  }
+  },
 
   // async zaloConversationDetail(
   //   _root,

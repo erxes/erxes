@@ -22,7 +22,7 @@ import {
 import { updateMobileAmount } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   const { SKIP_REDIS } = process.env;
 
   let channelToken = '';
@@ -133,7 +133,7 @@ export const initBroker = async () => {
 
       await models.Orders.updateOne(
         { _id: order._id },
-        { $set: { ...order } },
+        { $set: { ...order, modifiedAt: new Date() } },
         { upsert: true },
       );
 

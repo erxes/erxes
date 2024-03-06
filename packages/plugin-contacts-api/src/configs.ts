@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporterByUrl';
 import segments from './segments';
@@ -25,8 +25,6 @@ import exporter from './exporter';
 import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
-
-export let debug;
 
 export default {
   name: 'contacts',
@@ -69,7 +67,7 @@ export default {
     context.subdomain = subdomain;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
@@ -152,9 +150,6 @@ export default {
 
       return res.send('Successfully verified, you can close this tab now');
     });
-
-    initBroker();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };
