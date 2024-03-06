@@ -80,6 +80,7 @@ export const SelectWithAssets = ({
       customQuery={assetsQuery}
       customOption={customOption}
       multi={multi}
+      showAvatar={false}
     />
   );
 };
