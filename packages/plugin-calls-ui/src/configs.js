@@ -3,6 +3,7 @@ module.exports = {
   name: 'calls',
   port: 3017,
   scope: 'calls',
+  url: "http://localhost:3017/remoteEntry.js",
   exposes: {
     './routes': './src/routes.tsx',
     './call': './src/containers/SipProvider.tsx',
@@ -10,22 +11,18 @@ module.exports = {
     './integrationDetailsForm': './src/components/IntegrationEditForm.tsx',
     './integrationCustomActions': './src/components/TokenButton.tsx'
   },
+
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'calls',
     module: './routes'
   },
-  menus: [
-    {
-      text: 'Calls',
-      url: '/calls',
-      icon: 'icon-outgoing-call',
-      location: 'topNavigation',
-      scope: 'calls',
-      component: './call'
-    }
-  ],
-
+  innerWidget: {
+    url: 'http://localhost:3017/remoteEntry.js',
+    scope: 'calls',
+    module: './call',
+    style: 'bottom: 90px;right: 32px'
+  },
   inboxIntegrationForm: './inboxIntegrationForm',
   invoiceDetailRightSection: './invoiceDetailRightSection',
   integrationDetailsForm: './integrationDetailsForm',

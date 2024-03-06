@@ -22,7 +22,7 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: {},
+  meta: { permissions },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

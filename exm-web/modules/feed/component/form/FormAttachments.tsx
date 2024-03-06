@@ -42,7 +42,7 @@ const FormAttachments = ({
       } gap-[12px] flex flex-col pb-[12px] w-full`}
     >
       {attachments.map((a, index) => {
-        const fileExtension = a.url.split(".").pop()
+        const fileExtension = a.url.toLowerCase().split(".").pop()
         let size
         const bg =
           fileExtension === "docx"
