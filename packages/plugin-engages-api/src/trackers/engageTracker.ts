@@ -30,7 +30,7 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
  */
 const handleMessage = async (models: IModels, subdomain: string, message) => {
   let parsedMessage;
-  console.log('handleMessage', handleMessage);
+
   try {
     parsedMessage = JSON.parse(message);
   } catch (e) {

@@ -261,7 +261,7 @@ export const sendNotification = async (
     eventData,
     mobileConfig,
   } = doc;
-  console.log('doc', doc);
+
   const link = doc.link;
 
   // remove duplicated ids
