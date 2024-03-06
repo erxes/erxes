@@ -4,15 +4,9 @@ import afterMutations from './afterMutations';
 import { setupMessageConsumers } from './messageBroker';
 import { addCustomer } from './utils';
 
-
-
-
-
 export default {
   name: 'bid',
   graphql: async () => {
-    
-
     return {
       typeDefs: await typeDefs(),
       resolvers: await resolvers(),
@@ -34,7 +28,6 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

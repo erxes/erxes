@@ -12,8 +12,6 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 
-
-
 export default {
   name: 'salary',
   permissions,

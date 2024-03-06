@@ -12,7 +12,7 @@ const queries = {
       sortField,
       sortDirection,
       searchValue,
-      categoryId
+      categoryId,
     }: {
       page: number;
       perPage: number;
@@ -21,7 +21,7 @@ const queries = {
       searchValue: string;
       categoryId: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const qry: any = {};
 
@@ -44,10 +44,10 @@ const queries = {
         models.Products.find(qry).sort({ [sortField]: sortOrder }),
         {
           page,
-          perPage
-        }
+          perPage,
+        },
       ),
-      totalCount: models.Products.find(qry).count()
+      totalCount: models.Products.find(qry).count(),
     };
   },
 
@@ -57,14 +57,14 @@ const queries = {
       searchValue,
       page,
       perPage,
-      categoryId
+      categoryId,
     }: {
       searchValue: string;
       page: number;
       perPage: number;
       categoryId: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const qry: any = {};
 
@@ -78,14 +78,14 @@ const queries = {
 
     return paginate(models.Products.find(qry), {
       page,
-      perPage
+      perPage,
     });
   },
 
   insuranceProduct: async (
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return models.Products.findOne({ _id }).lean();
   },
@@ -93,7 +93,7 @@ const queries = {
   insuranceProductsOfVendor: async (
     _root,
     { categoryId },
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -106,8 +106,8 @@ const queries = {
       isRPC: true,
       defaultValue: undefined,
       data: {
-        _id: cpUser.userId
-      }
+        _id: cpUser.userId,
+      },
     });
 
     if (!user) {
@@ -121,8 +121,8 @@ const queries = {
       isRPC: true,
       defaultValue: undefined,
       data: {
-        _id: user.clientPortalId
-      }
+        _id: user.clientPortalId,
+      },
     });
 
     if (!clientportal) {
@@ -143,8 +143,8 @@ const queries = {
       serviceName: 'contacts',
       isRPC: true,
       data: {
-        _id: user.erxesCompanyId
-      }
+        _id: user.erxesCompanyId,
+      },
     });
 
     if (!company) {
@@ -154,28 +154,28 @@ const queries = {
     const match: any = {
       $and: [
         {
-          'companyProductConfigs.companyId': company._id
-        }
-      ]
+          'companyProductConfigs.companyId': company._id,
+        },
+      ],
     };
 
     if (categoryId) {
       match.$and.push({
-        categoryId
+        categoryId,
       });
     }
 
     const products = await models.Products.aggregate([
       {
-        $match: match
+        $match: match,
       },
       {
-        $unwind: '$companyProductConfigs' // Unwind the companyConfigs array
+        $unwind: '$companyProductConfigs', // Unwind the companyConfigs array
       },
       {
         $addFields: {
-          price: '$companyProductConfigs.specificPrice' // Set the price from companyConfigs.specificPrice
-        }
+          price: '$companyProductConfigs.specificPrice', // Set the price from companyConfigs.specificPrice
+        },
       },
       {
         $group: {
@@ -189,13 +189,13 @@ const queries = {
           updatedAt: { $first: '$updatedAt' },
           lastModifiedBy: { $first: '$lastModifiedBy' },
           searchText: { $first: '$searchText' },
-          companyConfigs: { $push: '$companyConfigs' }
-        }
-      }
+          companyConfigs: { $push: '$companyConfigs' },
+        },
+      },
     ]);
 
     return products;
-  }
+  },
 };
 
 export default queries;

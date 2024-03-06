@@ -35,9 +35,9 @@ export const riskSchema = new Schema(
   {
     riskId: field({ type: String, required: true }),
     coverage: field({ type: Number, min: 0, max: 100 }),
-    coverageLimit: field({ type: Number, min: 0, max: 100 })
+    coverageLimit: field({ type: Number, min: 0, max: 100 }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const productSchema = new Schema({
@@ -53,5 +53,5 @@ export const productSchema = new Schema({
   companyProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
   riskConfigs: field({ type: [riskSchema], optional: true }),
   categoryId: field({ type: String, optional: true }),
-  customFieldsData: field({ type: [customFieldSchema] })
+  customFieldsData: field({ type: [customFieldSchema] }),
 });

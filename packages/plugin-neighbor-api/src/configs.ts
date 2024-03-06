@@ -5,17 +5,12 @@ import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-
-
-
-
 export default {
   name: 'neighbor',
   graphql: async () => {
-    
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -26,8 +21,7 @@ export default {
 
     return context;
   },
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
-  meta: {}
+  meta: {},
 };

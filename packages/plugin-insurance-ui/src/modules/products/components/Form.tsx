@@ -13,7 +13,7 @@ import {
   CompanyProductConfig,
   InsuranceProduct,
   Risk,
-  RiskConfig
+  RiskConfig,
 } from '../../../gql/types';
 import SelectRisks from '../../risks/containers/SelectRisks';
 import PriceRow from './PriceRow';
@@ -35,8 +35,8 @@ const ProductForm = (props: Props) => {
       name: '',
       description: '',
       price: 0,
-      categoryId: ''
-    }
+      categoryId: '',
+    },
   );
 
   React.useEffect(() => {
@@ -46,7 +46,7 @@ const ProductForm = (props: Props) => {
   }, [props.product]);
 
   const [riskConfigs, setRiskConfigs] = React.useState<any[]>(
-    product.riskConfigs || []
+    product.riskConfigs || [],
   );
 
   const [companyConfigs, setCompanyConfigs] = React.useState<
@@ -60,30 +60,30 @@ const ProductForm = (props: Props) => {
       finalValues._id = props.product._id;
     }
 
-    Object.keys(product).forEach(key => {
+    Object.keys(product).forEach((key) => {
       if (product[key] !== undefined) {
         finalValues[key] = product[key];
       }
     });
 
     finalValues.price = parseFloat(finalValues.price);
-    finalValues.companyProductConfigs = companyConfigs.map(companyConfig => {
+    finalValues.companyProductConfigs = companyConfigs.map((companyConfig) => {
       return {
         companyId: companyConfig.companyId,
-        specificPrice: Number(companyConfig.specificPrice || 0)
+        specificPrice: Number(companyConfig.specificPrice || 0),
       };
     });
 
-    finalValues.riskConfigs = riskConfigs.map(riskConfig => {
+    finalValues.riskConfigs = riskConfigs.map((riskConfig) => {
       return {
         riskId: riskConfig.riskId,
         coverage: Number(riskConfig.coverage || 0),
-        coverageLimit: Number(riskConfig.coverageLimit || 0)
+        coverageLimit: Number(riskConfig.coverageLimit || 0),
       };
     });
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
@@ -110,12 +110,12 @@ const ProductForm = (props: Props) => {
       value: any,
       label: string,
       required?: boolean,
-      useNumberFormat?: boolean
+      useNumberFormat?: boolean,
     ) => {
       const onChangeInput = (e: any) => {
         setProduct({
           ...product,
-          [name]: e.target.value
+          [name]: e.target.value,
         });
       };
 
@@ -175,7 +175,7 @@ const ProductForm = (props: Props) => {
             style={{
               width: props.product ? '50%' : '100%',
               padding: '20px',
-              height: '100%'
+              height: '100%',
             }}
           >
             {renderInput('code', 'text', product.code, 'Code', true)}
@@ -184,7 +184,7 @@ const ProductForm = (props: Props) => {
               'description',
               'text',
               product.description,
-              'Description'
+              'Description',
             )}
             <FormGroup>
               <ControlLabel>{__('Category')}</ControlLabel>
@@ -193,15 +193,15 @@ const ProductForm = (props: Props) => {
                 onChange={(categoryId, categoryRisks: Risk[]) => {
                   setProduct({
                     ...product,
-                    categoryId
+                    categoryId,
                   });
 
-                  const newConfigs: RiskConfig[] = categoryRisks.map(risk => {
+                  const newConfigs: RiskConfig[] = categoryRisks.map((risk) => {
                     return {
                       riskId: risk._id,
                       name: risk.name,
                       coverage: 0,
-                      coverageLimit: 0
+                      coverageLimit: 0,
                     };
                   });
 
@@ -217,7 +217,7 @@ const ProductForm = (props: Props) => {
               product.price,
               'Fee percent',
               true,
-              true
+              true,
             )}
             or
             <FormGroup>
@@ -232,9 +232,9 @@ const ProductForm = (props: Props) => {
                     newCompanyConfigs[rowIndex] = productConfig;
                     setCompanyConfigs(newCompanyConfigs);
                   }}
-                  remove={rowIndex => {
+                  remove={(rowIndex) => {
                     setCompanyConfigs(
-                      companyConfigs.filter((c, i) => i !== rowIndex)
+                      companyConfigs.filter((c, i) => i !== rowIndex),
                     );
                   }}
                 />
@@ -245,7 +245,7 @@ const ProductForm = (props: Props) => {
                 onClick={() => {
                   setCompanyConfigs([
                     ...companyConfigs,
-                    { companyId: '', specificPrice: 0 }
+                    { companyId: '', specificPrice: 0 },
                   ]);
                 }}
               >
@@ -274,7 +274,7 @@ const ProductForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: product,
           })}
         </ModalFooter>
       </>

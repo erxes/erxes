@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 import {
   moduleCheckPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IPricingPlanDocument } from '../../../models/definitions/pricingPlan';
@@ -11,15 +11,10 @@ const checkPricingQueries = {
   checkPricing: async (
     _root: any,
     params: any,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) => {
-    const {
-      prioritizeRule,
-      totalAmount,
-      departmentId,
-      branchId,
-      products
-    } = params;
+    const { prioritizeRule, totalAmount, departmentId, branchId, products } =
+      params;
 
     return await checkPricing(
       models,
@@ -28,9 +23,9 @@ const checkPricingQueries = {
       totalAmount,
       departmentId,
       branchId,
-      products
+      products,
     );
-  }
+  },
 };
 
 moduleRequireLogin(checkPricingQueries);

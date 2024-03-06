@@ -18,8 +18,6 @@ import { getTransportData, updateTrackingData } from './utils';
 import payment from './payment';
 import app from '@erxes/api-utils/src/app';
 
-
-
 export default {
   name: 'tumentech',
   permissions,
@@ -77,6 +75,7 @@ export default {
   meta: {
     segments,
     forms,
+    permissions,
     afterMutations,
     exporter,
     dashboards,

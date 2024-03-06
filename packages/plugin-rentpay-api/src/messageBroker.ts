@@ -7,7 +7,7 @@ import {
 export const setupMessageConsumers = async () => {};
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',

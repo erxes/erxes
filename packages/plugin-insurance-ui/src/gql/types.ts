@@ -3,13 +3,15 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
 };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
 export type MakeEmpty<
   T extends { [key: string]: unknown },
-  K extends keyof T
+  K extends keyof T,
 > = { [_ in K]?: never };
 export type Incremental<T> =
   | T
@@ -151,7 +153,7 @@ export type Brand = {
 
 export enum BusinessPortalKind {
   Client = 'client',
-  Vendor = 'vendor'
+  Vendor = 'vendor',
 }
 
 export type CpAuthPayload = {
@@ -162,7 +164,7 @@ export type CpAuthPayload = {
 
 export enum CacheControlScope {
   Private = 'PRIVATE',
-  Public = 'PUBLIC'
+  Public = 'PUBLIC',
 }
 
 export type Callout = {
@@ -402,7 +404,7 @@ export type ClientPortalUserUpdate = {
 export enum ClientPortalUserVerificationStatus {
   NotVerified = 'notVerified',
   Pending = 'pending',
-  Verified = 'verified'
+  Verified = 'verified',
 }
 
 export type ColumnConfigItem = {
@@ -2930,7 +2932,7 @@ export type NotificationConfigInput = {
 
 export enum NotificationType {
   Engage = 'engage',
-  System = 'system'
+  System = 'system',
 }
 
 export type OtpConfig = {
@@ -5064,7 +5066,7 @@ export type SchemaField = {
 
 export enum SortDirection {
   Asc = 'ASC',
-  Desc = 'DESC'
+  Desc = 'DESC',
 }
 
 export type Stage = {
@@ -5332,7 +5334,7 @@ export type TimeTrack = {
 
 export enum TokenPassMethod {
   Cookie = 'cookie',
-  Header = 'header'
+  Header = 'header',
 }
 
 export type TotalForType = {

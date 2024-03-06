@@ -63,5 +63,5 @@ const PRODUCTS_REMOVE = gql`
 export default {
   PRODUCTS_ADD,
   PRODUCTS_EDIT,
-  PRODUCTS_REMOVE
+  PRODUCTS_REMOVE,
 };

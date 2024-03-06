@@ -124,7 +124,6 @@ class CarListContainer extends React.Component<FinalProps, State> {
       { name: 'plateNumber', label: 'Plate number', order: 3 },
       { name: 'vinNumber', label: 'Vin number', order: 4 },
       { name: 'vintageYear', label: 'Vintage year', order: 5 },
-      { name: 'importYear', label: 'Import year', order: 6 },
       { name: 'description', label: 'Description', order: 7 }
     ];
 
@@ -231,7 +230,6 @@ const generateParams = ({ queryParams }) => {
     plateNumber: queryParams.plateNumber,
     vinNumber: queryParams.vinNumber,
     vintageYear: queryParams.vintageYear,
-    importYear: queryParams.importYear,
     diagnosisDate: queryParams.diagnosisDate,
     taxDate: queryParams.taxDate,
     drivingClassification: queryParams.drivingClassification,

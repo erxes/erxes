@@ -6,17 +6,13 @@ import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
-
-
-
-
 export default {
   name: 'priuscenter',
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -30,7 +26,6 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

@@ -51,6 +51,11 @@ import {
   loadTransportDataClass,
 } from './models/TransportDatas';
 import { ITransportDataDocument } from './models/definitions/transportDatas';
+import {
+  IAdvertisementModel,
+  loadAdvertisementClass,
+} from './models/Advertisement';
+import { IAdvertisementDocument } from './models/definitions/adviertisement';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
@@ -69,6 +74,8 @@ export interface IModels {
   Topups: ITopupModel;
   PurchaseHistories: IPurchaseHistoryModel;
   TransportDatas: ITransportDataModel;
+  Advertisement: IAdvertisementModel;
+
   Tracking: any;
 }
 
@@ -80,7 +87,13 @@ export interface IContext extends IMainContext {
 
 export let models: IModels;
 
-
+// export const generateModels = async (
+//   _hostnameOrSubdomain: string
+// ): Promise<IModels> => {
+//   if (models) {
+//     return models;
+//   }
+// };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
@@ -161,6 +174,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Tracking = db.model('tumentech_tracking', loadTrackingClass(models));
+
+  models.Advertisement = db.model<IAdvertisementDocument, IAdvertisementModel>(
+    'tumentech_advertisement',
+    loadAdvertisementClass(models),
+  );
 
   return models;
 };

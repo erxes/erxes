@@ -14,8 +14,6 @@ import documents from './documents';
 import payment from './payment';
 import app from '@erxes/api-utils/src/app';
 
-
-
 export default {
   name: 'insurance',
   graphql: async () => {

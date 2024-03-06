@@ -19,7 +19,7 @@ interface IListArgs {
 
 export const countBySegment = async (
   subdomain: string,
-  qb: any
+  qb: any,
 ): Promise<ICountBy> => {
   // Count cocs by segments
   const counts: ICountBy = {};
@@ -29,9 +29,9 @@ export const countBySegment = async (
     subdomain,
     action: 'find',
     data: {
-      contentType: 'tumentech:car'
+      contentType: 'tumentech:car',
     },
-    isRPC: true
+    isRPC: true,
   });
 
   // Count cocs by segment
@@ -53,7 +53,7 @@ export const countBySegment = async (
 export const countByCars = async (
   models: IModels,
   subdomain: string,
-  params: IListArgs
+  params: IListArgs,
 ): Promise<ICountBy> => {
   const qb = new CommonBuilder(models, subdomain, params);
 
@@ -86,10 +86,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
       data: {
         segmentId,
         options: {
-          returnSelector: true
-        }
+          returnSelector: true,
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     this.positiveList = [...this.positiveList, selector];
@@ -119,9 +119,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
       query: {
         bool: {
           must: this.positiveList,
-          filter: this.filterList
-        }
-      }
+          filter: this.filterList,
+        },
+      },
     };
 
     const response = await fetchEs({
@@ -129,7 +129,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       action: 'count',
       index: 'cars',
       body: queryOptions,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     return response.count;

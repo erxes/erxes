@@ -27,7 +27,9 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const loadClasses = async (db: mongoose.Connection): Promise<IModels> => {
+export const loadClasses = async (
+  db: mongoose.Connection,
+): Promise<IModels> => {
   const models = {} as IModels;
 
   models.Neighbor = db.model<INeighborDocument, INeighborModel>(

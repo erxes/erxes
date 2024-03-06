@@ -6,9 +6,10 @@ export interface IPurchaseHistory {
   cpUserId: string;
   driverId: string;
   carId: string;
-  dealId: string;
+  dealId?: string;
   amount: number;
   phone: string;
+  adsId?: string;
 }
 
 export interface IPurchaseHistoryDocument extends IPurchaseHistory, Document {
@@ -23,16 +24,17 @@ export const purchaseHistorySchema = schemaHooksWrapper(
     driverId: field({ type: String, label: 'Driver Id', required: true }),
     carId: field({ type: String, label: 'Car Id', required: true }),
     amount: field({ type: Number, label: 'Amount', required: true }),
-    dealId: field({ type: String, label: 'Deal Id', required: true }),
+    dealId: field({ type: String, label: 'Deal Id', required: false }),
+    adsId: field({ type: String, label: 'Ads Id', required: false }),
     phone: field({ type: String, label: 'Phone', required: true }),
     createdAt: field({
       type: Date,
       label: 'Created At',
       required: true,
-      default: Date.now
-    })
+      default: Date.now,
+    }),
   }),
-  'tumentech_purchase_history'
+  'tumentech_purchase_history',
 );
 
 purchaseHistorySchema.index({ cpUserId: 1 });

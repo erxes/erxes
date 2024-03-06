@@ -11,7 +11,6 @@ import * as permissions from './permissions';
 import * as bodyParser from 'body-parser';
 import app from '@erxes/api-utils/src/app';
 
-
 export default {
   name: 'dac',
   permissions,

@@ -6,16 +6,12 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import forms from './forms';
 
-
-
-
-
 export default {
   name: 'rcfa',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -30,7 +26,6 @@ export default {
 
   meta: { forms },
 
-  onServerInit: async () => {
-  },
-  setupMessageConsumers
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

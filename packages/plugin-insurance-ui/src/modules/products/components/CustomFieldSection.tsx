@@ -22,9 +22,9 @@ const CustomFieldsSection = (props: Props) => {
   const fieldsGroupsQuery = useQuery(gql(fieldQueries.fieldsGroups), {
     variables: {
       contentType: 'insurance:product',
-      isDefinedByErxes: false
+      isDefinedByErxes: false,
     },
-    skip: !isEnabled('forms') ? true : false
+    skip: !isEnabled('forms') ? true : false,
   });
 
   // const productDetailQuery = useQuery(queries.GET_PRODUCT, {
@@ -44,14 +44,14 @@ const CustomFieldsSection = (props: Props) => {
   }
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         // productDetailQuery.refetch();
         props.refetch();
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -64,7 +64,7 @@ const CustomFieldsSection = (props: Props) => {
     customFieldsData,
     fieldsGroups,
     isDetail,
-    object: props.product
+    object: props.product,
   };
 
   return <GenerateCustomFields {...updatedProps} />;

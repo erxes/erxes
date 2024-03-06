@@ -17,25 +17,25 @@ const Container = (props: Props) => {
     {
       fetchPolicy: 'network-only',
       variables: {
-        searchValue: ''
-      }
-    }
+        searchValue: '',
+      },
+    },
   );
 
   const categoriesQuery = useQuery<InsuranceCategoriesQuery>(
     queries.GET_CATEGORIES,
     {
       variables: {
-        searchValue: ''
-      }
-    }
+        searchValue: '',
+      },
+    },
   );
 
   const onSearch = (searchValue: string) => {
     getTags({
       variables: {
-        searchValue
-      }
+        searchValue,
+      },
     });
   };
 

@@ -101,10 +101,7 @@ type Car {
   fuelType: String
   engineChange: String
   listChange: String
-
   vintageYear: Float
-  importYear: Float
-
   taxDate: Date
   barrelWarranty: Date
   diagnosisDate: Date
@@ -175,6 +172,28 @@ type Car {
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
   
+  xyp_archiveFirstNumber: String
+  xyp_archiveNumber: String
+  xyp_axleCount: String
+  xyp_capacity: String
+  xyp_certificateNumber: String
+  xyp_className: String
+  xyp_countryName: String
+  xyp_fueltype: String
+  xyp_height: String
+  xyp_importDate: String
+  xyp_length: String
+  xyp_manCount: String
+  xyp_mass: String
+  xyp_ownerCountry: String
+  xyp_ownerFirstname: String
+  xyp_ownerHandphone: String
+  xyp_ownerLastname: String
+  xyp_ownerRegnum: String
+  xyp_ownerType: String
+  xyp_type: String
+  xyp_wheelPosition: String
+  xyp_width: String
 }
 
 type CarsListResponse {
@@ -260,7 +279,6 @@ const tumentechParams = `
   plateNumber: String
   vinNumber: String
   vintageYear: Int
-  importYear: Int
   diagnosisDate: Date
   taxDate: Date
   drivingClassification: String
@@ -319,7 +337,6 @@ const tumentechCommonFields = `
   listChange: String
 
   vintageYear: Float
-  importYear: Float
   taxDate: Date
   barrelWarranty: Date
   diagnosisDate: Date
@@ -411,6 +428,7 @@ const participantParams = `
 export const mutations = `
   carsAdd(${tumentechCommonFields}): Car
   carsEdit(_id: String!, ${tumentechCommonFields}): Car
+  carLoadXyp(_id: String!): Car
   carsRemove(carIds: [String]): [String]
   carsMerge(carIds: [String], carFields: JSON) : Car
   carCategoriesAdd(${carCategoryParams}): CarCategory
