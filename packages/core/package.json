@@ -33,7 +33,8 @@
     "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts",
     "migrateClientPortalUsers": "node_modules/.bin/ts-node src/commands/migrateClientPortalUsers.ts",
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
-    "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
+    "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts",
+    "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
