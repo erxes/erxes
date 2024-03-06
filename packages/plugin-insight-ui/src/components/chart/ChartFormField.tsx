@@ -10,6 +10,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
 import { IFieldLogic } from '../../types';
+import { SelectWithAssets } from '../utils/SelectAssets';
 
 type Props = {
   fieldType: string;
@@ -59,6 +60,11 @@ const ChartFormField = (props: Props) => {
       onChange(arr);
       setFieldValue(arr);
       return;
+    }
+
+    if (!e) {
+      setFieldValue('');
+      onChange('');
     }
 
     setFieldValue(e.value);
@@ -138,6 +144,20 @@ const ChartFormField = (props: Props) => {
             label={'Choose brands'}
             onSelect={OnSaveBrands}
             initialValue={fieldValue}
+          />
+        </div>
+      );
+    case 'assets':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectWithAssets
+            label="Choose Asset"
+            name="assets"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+            customOption={{ value: '', label: 'Choose Asset' }}
           />
         </div>
       );

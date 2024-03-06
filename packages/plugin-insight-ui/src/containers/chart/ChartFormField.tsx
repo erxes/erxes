@@ -15,6 +15,7 @@ export type IFilterType = {
   fieldOptions: any[];
   fieldValueVariable?: string;
   fieldLabelVariable?: string;
+  fieldParentVariable?: string;
   fieldQueryVariables?: any;
   fieldDefaultValue: any;
   multi?: boolean;
@@ -43,6 +44,7 @@ const ChartFormFieldList = (props: Props) => {
     fieldOptions,
     fieldValueVariable,
     fieldLabelVariable,
+    fieldParentVariable,
     fieldQueryVariables,
     fieldDefaultValue,
     logics,
@@ -51,6 +53,14 @@ const ChartFormFieldList = (props: Props) => {
   const queryExists = queries[`${fieldQuery}`];
   let logicFieldVariableExists = false;
   const logicFieldVariables = {};
+
+  const pipelinesQuery = useQuery(gql(queries.pipelines), {
+    skip: !fieldParentVariable ? true : false,
+  });
+
+  const pipelines =
+    (pipelinesQuery && pipelinesQuery.data && pipelinesQuery.data.pipelines) ||
+    [];
 
   if (logics) {
     for (const logic of logics) {
@@ -65,7 +75,7 @@ const ChartFormFieldList = (props: Props) => {
     }
   }
 
-  let queryFieldOptions = [];
+  let queryFieldOptions: any = [];
 
   if (queryExists) {
     const variables = logicFieldVariableExists
@@ -89,8 +99,24 @@ const ChartFormFieldList = (props: Props) => {
         ? queryData[fieldQuery].map((d) => ({
             value: d[fieldValueVariable],
             label: d[fieldLabelVariable],
+            ...(fieldParentVariable && { parent: d[fieldParentVariable] }),
           }))
         : [];
+  }
+
+  let fieldParentOptions: any = [];
+  if (queryFieldOptions.length && fieldParentVariable) {
+    fieldParentOptions = pipelines.reduce((acc, pipeline) => {
+      const options = queryFieldOptions
+        .filter((option) => option?.parent === pipeline._id)
+        .map(({ value, label }) => ({ value, label }));
+
+      if (options.length > 0) {
+        acc.push({ label: pipeline.name, options });
+      }
+
+      return acc;
+    }, []);
   }
 
   const checkLogic = () => {
@@ -143,7 +169,13 @@ const ChartFormFieldList = (props: Props) => {
       fieldType={fieldType}
       fieldQuery={fieldQuery}
       multi={multi}
-      fieldOptions={fieldOptions ? fieldOptions : queryFieldOptions}
+      fieldOptions={
+        fieldOptions
+          ? fieldOptions
+          : fieldParentVariable
+            ? fieldParentOptions
+            : queryFieldOptions
+      }
       fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldDefaultValue={fieldDefaultValue}

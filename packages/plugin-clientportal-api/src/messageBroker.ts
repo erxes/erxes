@@ -86,6 +86,24 @@ export const setupMessageConsumers = async () => {
     },
   );
 
+  consumeRPCQueue(
+    'clientportal:clientPortalEngageNotifications',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      console.log(
+        'clientportal:clientPortalEngageNotifications.count',
+        selector,
+      );
+      return {
+        data: await models.ClientPortalNotifications.find(
+          selector,
+        ).countDocuments(),
+        status: 'success',
+      };
+    },
+  );
+
   consumeQueue(
     'clientportal:sendSMS',
     async ({ subdomain, data: { to, content, type } }) => {
@@ -103,6 +121,7 @@ export const setupMessageConsumers = async () => {
    * @param {String} data.link // notification link
    * @param {Object} data.createdUser // user who created this notification
    * @param {Boolean} data.isMobile // is mobile notification
+   * @param {String} data.groupId // notification group id, when it's group notification
    */
   consumeQueue('clientportal:sendNotification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

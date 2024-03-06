@@ -243,6 +243,7 @@ interface ISendNotification {
   isMobile?: boolean;
   eventData?: any | null;
   mobileConfig?: IMobileConfig;
+  groupId?: string;
 }
 
 export const sendNotification = async (
@@ -293,6 +294,7 @@ export const sendNotification = async (
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
+          groupId: doc?.groupId || '',
         },
         createdUser && createdUser._id,
       );
@@ -304,6 +306,7 @@ export const sendNotification = async (
         title: notification.title,
         content: notification.content,
         link: notification.link,
+        groupId: notification.groupId,
         eventData,
       },
     });
