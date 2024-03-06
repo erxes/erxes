@@ -20,54 +20,54 @@ export const statsSchema = new Schema({
   engageMessageId: {
     type: String,
     label: 'Engage message id at erxes-api',
-    unique: true
+    unique: true,
   },
   createdAt: { type: Date, default: new Date() },
   open: {
     type: Number,
     default: 0,
     label:
-      'The recipient received the message and opened it in their email client'
+      'The recipient received the message and opened it in their email client',
   },
   click: {
     type: Number,
     default: 0,
-    label: 'The recipient clicked one or more links in the email'
+    label: 'The recipient clicked one or more links in the email',
   },
   complaint: {
     type: Number,
     default: 0,
     label:
-      'The email was successfully delivered to the recipient. The recipient marked the email as spam'
+      'The email was successfully delivered to the recipient. The recipient marked the email as spam',
   },
   delivery: {
     type: Number,
     default: 0,
-    label: `Amazon SES successfully delivered the email to the recipient's mail server`
+    label: `Amazon SES successfully delivered the email to the recipient's mail server`,
   },
   bounce: {
     type: Number,
     default: 0,
-    label: `The recipient's mail server permanently rejected the email`
+    label: `The recipient's mail server permanently rejected the email`,
   },
   reject: {
     type: Number,
     default: 0,
     label:
-      'Amazon SES accepted the email, determined that it contained a virus, and rejected it'
+      'Amazon SES accepted the email, determined that it contained a virus, and rejected it',
   },
   send: {
     type: Number,
     default: 0,
     label:
-      'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email'
+      'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email',
   },
   renderingfailure: {
     type: Number,
     default: 0,
-    label: `The email wasn't sent because of a template rendering issue`
+    label: `The email wasn't sent because of a template rendering issue`,
   },
-  total: { type: Number, default: 0, label: 'Total of all cases above' }
+  total: { type: Number, default: 0, label: 'Total of all cases above' },
 });
 
 export interface IDeliveryReports {
@@ -88,27 +88,27 @@ export const deliveryReportsSchema = new Schema({
     type: String,
     optional: true,
     label: 'AWS SES mail id',
-    index: true
+    index: true,
   },
   status: {
     type: String,
     optional: true,
     label: 'Delivery status',
-    index: true
+    index: true,
   },
   engageMessageId: {
     type: String,
     optional: true,
     label: 'Engage message id at erxes-api',
-    index: true
+    index: true,
   },
   createdAt: {
     type: Date,
     label: 'Created at',
     default: new Date(),
-    index: true
+    index: true,
   },
-  email: { type: String, label: 'Customer email', index: true }
+  email: { type: String, label: 'Customer email', index: true },
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {
@@ -123,7 +123,7 @@ export const loadStatsClass = (models: IModels) => {
     public static async updateStats(engageMessageId: string, stat: string) {
       return models.Stats.updateOne(
         { engageMessageId },
-        { $inc: { [stat]: 1 } }
+        { $inc: { [stat]: 1 } },
       );
     }
   }

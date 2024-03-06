@@ -1,8 +1,11 @@
-import { connectToMessageBroker, sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import {
+  connectToMessageBroker,
+  sendRPCMessage,
+} from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async () => {
   await connectToMessageBroker(setupMessageConsumers);
-}
+};
 
 export const setupMessageConsumers = async () => {};
 

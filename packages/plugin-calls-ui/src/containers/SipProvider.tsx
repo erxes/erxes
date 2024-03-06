@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SipProvider from '../components/SipProvider';
 
 import IncomingCallContainer from './IncomingCall';
@@ -13,6 +13,8 @@ import CallIntegrationForm from '../components/Form';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import TerminateSessionForm from '../components/TerminateCallForm';
 import { setLocalStorage } from '../utils';
+
+import * as moment from 'moment';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
@@ -39,6 +41,7 @@ const SipProviderContainer = (props) => {
   const [removeActiveSession] = useMutation(
     gql(mutations.callTerminateSession),
   );
+  const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -100,6 +103,35 @@ const SipProviderContainer = (props) => {
           setLocalStorage(true, true);
         }
       })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
+  const updateHistory = (
+    sessionId: string,
+    callStartTime: Date,
+    callEndTime: Date,
+    callStatus: string,
+  ) => {
+    let duration = 0;
+    if (callStartTime && callEndTime) {
+      const startedMoment = moment(callStartTime);
+      const endedMoment = moment(callEndTime);
+      duration = endedMoment.diff(startedMoment, 'seconds');
+    }
+
+    updateHistoryMutation({
+      variables: {
+        sessionId,
+        callStartTime,
+        callEndTime,
+        callDuration: duration,
+        callStatus,
+      },
+      refetchQueries: ['callHistories'],
+    })
+      .then()
       .catch((e) => {
         Alert.error(e.message);
       });
@@ -199,6 +231,7 @@ const SipProviderContainer = (props) => {
       {...sipConfig}
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
+      updateHistory={updateHistory}
     >
       {(state) =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (
