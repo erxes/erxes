@@ -231,7 +231,7 @@ export default class SipProvider extends React.Component<
   }
 
   public componentWillUnmount() {
-    // this.remoteAudio?.parentNode?.removeChild(this.remoteAudio);
+    this.remoteAudio?.parentNode?.removeChild(this.remoteAudio);
     this.remoteAudio = null;
     if (this.ua) {
       this.ua.stop();
@@ -374,7 +374,6 @@ export default class SipProvider extends React.Component<
   }
 
   public reinitializeJsSIP() {
-    console.log('reinitializeJsSIP');
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
@@ -549,6 +548,9 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
+        rtcSession.on('progress', function (data) {
+          if (data.originator === 'remote') data.response.body = null;
+        });
         rtcSession.on('failed', (e) => {
           this.logger.debug('UA failed event');
           if (this.ua !== ua) {
@@ -612,7 +614,6 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-          console.log('bye..');
           this.setState({
             rtcSession: null,
             callStatus: CALL_STATUS_IDLE,
@@ -648,7 +649,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('accepted', () => {
-          console.log('acc..');
           if (this.ua !== ua) {
             return;
           }

@@ -211,12 +211,11 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
     }
-    console.log('onAcceptCall');
+
     setStatus('accepted');
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
-      console.log('accepted');
       answerCall();
     }
   };
