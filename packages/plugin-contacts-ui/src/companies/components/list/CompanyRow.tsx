@@ -7,6 +7,7 @@ import React from 'react';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import _ from 'lodash';
+import { displayObjectListItem } from '../../../customers/utils';
 import { formatValue } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -18,22 +19,7 @@ type Props = {
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
 
-function displayObjectListItem(company, customFieldName, subFieldName) {
-  const objectList = company[customFieldName] || [];
-  const subFieldKey = subFieldName.replace(`${customFieldName}.`, '');
-
-  const subField = objectList.find
-    ? objectList.find((obj) => obj.field === subFieldKey)
-    : [];
-
-  if (!subField) {
-    return null;
-  }
-
-  return formatValue(subField.value);
-}
-
-function displayValue(company, name, index) {
+function displayValue(company, name, group, index) {
   const value = _.get(company, name);
 
   if (name === 'primaryName') {
@@ -49,12 +35,12 @@ function displayValue(company, name, index) {
     return <TextInfo>{value}</TextInfo>;
   }
 
-  if (name.includes('customFieldsData')) {
-    return displayObjectListItem(company, 'customFieldsData', name);
-  }
-
   if (name === '#') {
     return <TextInfo>{index.toString()}</TextInfo>;
+  }
+
+  if (name.includes('customFieldsData')) {
+    return displayObjectListItem(company, 'customFieldsData', name, group);
   }
 
   return formatValue(value);
@@ -93,9 +79,11 @@ function CompanyRow({
           onChange={onChange}
         />
       </td>
-      {columnsConfig.map(({ name }) => (
+      {columnsConfig.map(({ name, group }) => (
         <td key={name}>
-          <ClickableRow>{displayValue(company, name, index)}</ClickableRow>
+          <ClickableRow>
+            {displayValue(company, name, group, index)}
+          </ClickableRow>
         </td>
       ))}
       <td>

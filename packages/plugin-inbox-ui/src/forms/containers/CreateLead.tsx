@@ -5,27 +5,24 @@ import {
   AddIntegrationMutationVariables,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 
 import { AddFieldsMutationResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Lead from '../components/Lead';
-import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-
-// import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
   configsQuery: ConfigsQueryResponse;
-} & IRouterProps &
-  AddIntegrationMutationResponse &
+} & AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
 
 type State = {
@@ -44,23 +41,21 @@ type State = {
   };
 };
 
-class CreateLeadContainer extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const CreateLeadContainer: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
 
-    this.state = {
-      isLoading: false,
-      isReadyToSaveForm: false,
-      isIntegrationSubmitted: false,
-      mustWait: { optionsStep: false },
-    };
-  }
+  const [state, setState] = useState<State>({
+    isLoading: false,
+    isReadyToSaveForm: false,
+    isIntegrationSubmitted: false,
+    mustWait: { optionsStep: false },
+  });
 
-  redirect = () => {
+  const redirect = () => {
     let canClose = true;
 
-    for (const key in this.state.mustWait) {
-      if (this.state.mustWait[key]) {
+    for (const key in state.mustWait) {
+      if (state.mustWait[key]) {
         canClose = false;
       } else {
         canClose = true;
@@ -68,28 +63,21 @@ class CreateLeadContainer extends React.Component<Props, State> {
     }
 
     if (canClose) {
-      this.props.history.push({
+      navigate({
         pathname: '/forms',
-        search: `?popUpRefetchList=true&showInstallCode=${this.state.integrationId}`,
+        search: `?popUpRefetchList=true&showInstallCode=${state.integrationId}`,
       });
     }
   };
 
-  render() {
-    const {
-      addIntegrationMutation,
-      history,
-      emailTemplatesQuery,
-      configsQuery,
-    } = this.props;
-    const afterFormDbSave = (id) => {
-      this.setState({ isReadyToSaveForm: false });
+  const afterFormDbSave = (id) => {
+    setState({ ...state, isReadyToSaveForm: false });
 
-      if (this.state.doc) {
-        const { leadData, brandId, name, languageCode, channelIds } =
-          this.state.doc;
-
-        addIntegrationMutation({
+    if (state.doc) {
+      const { leadData, brandId, name, languageCode, channelIds } = state.doc;
+      console.log('heree');
+      props
+        .addIntegrationMutation({
           variables: {
             formId: id,
             leadData,
@@ -99,67 +87,66 @@ class CreateLeadContainer extends React.Component<Props, State> {
             channelIds,
           },
         })
-          .then(
-            ({
-              data: {
-                integrationsCreateLeadIntegration: { _id },
-              },
-            }) => {
-              this.setState({
-                integrationId: _id,
-                isIntegrationSubmitted: true,
-              });
-              Alert.success('You successfully added a form');
-
-              this.redirect();
+        .then(
+          ({
+            data: {
+              integrationsCreateLeadIntegration: { _id },
             },
-          )
+          }) => {
+            setState({
+              ...state,
+              integrationId: _id,
+              isIntegrationSubmitted: true,
+            });
+            Alert.success('You successfully added a form');
 
-          .catch((error) => {
-            Alert.error(error.message);
+            redirect();
+          },
+        )
+        .catch((error) => {
+          Alert.error(error.message);
 
-            this.setState({ isLoading: false });
-          });
+          setState({ ...state, isLoading: false });
+        });
+    }
+  };
+
+  const waitUntilFinish = (obj: any) => {
+    const mustWait = { ...state.mustWait, ...obj };
+    setState({ ...state, mustWait });
+  };
+
+  const save = (doc) => {
+    setState({ ...state, isLoading: true, isReadyToSaveForm: true, doc });
+  };
+
+  const updatedProps = {
+    ...props,
+    fields: [],
+    save,
+    afterFormDbSave,
+    waitUntilFinish,
+    onChildProcessFinished: (component) => {
+      if (state.mustWait.hasOwnProperty(component)) {
+        const mustWait = { ...state.mustWait };
+        mustWait[component] = false;
+        setState({ ...state, mustWait });
       }
-    };
 
-    const waitUntilFinish = (obj: any) => {
-      const mustWait = { ...this.state.mustWait, ...obj };
-      this.setState({ mustWait });
-    };
+      redirect();
+    },
+    isActionLoading: state.isLoading,
+    isReadyToSaveForm: state.isReadyToSaveForm,
+    isIntegrationSubmitted: state.isIntegrationSubmitted,
+    emailTemplates: props.emailTemplatesQuery
+      ? props.emailTemplatesQuery.emailTemplates || []
+      : [],
+    configs: props.configsQuery.configs || [],
+    integrationId: state.integrationId,
+  };
 
-    const save = (doc) => {
-      this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
-    };
-
-    const updatedProps = {
-      ...this.props,
-      fields: [],
-      save,
-      afterFormDbSave,
-      waitUntilFinish,
-      onChildProcessFinished: (component) => {
-        if (this.state.mustWait.hasOwnProperty(component)) {
-          const mustWait = { ...this.state.mustWait };
-          mustWait[component] = false;
-          this.setState({ mustWait });
-        }
-
-        this.redirect();
-      },
-      isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm,
-      isIntegrationSubmitted: this.state.isIntegrationSubmitted,
-      emailTemplates: emailTemplatesQuery
-        ? emailTemplatesQuery.emailTemplates || []
-        : [],
-      configs: configsQuery.configs || [],
-      integrationId: this.state.integrationId,
-    };
-
-    return <Lead {...updatedProps} currentMode="create" />;
-  }
-}
+  return <Lead {...updatedProps} currentMode="create" />;
+};
 
 const withTemplatesQuery = withProps<Props>(
   compose(

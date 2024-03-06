@@ -141,7 +141,7 @@ const Select = styled(styled.select(Input as any))`
 
 const TextArea = styledTS<{
   maxHeight?: number;
-}>(styled(styled.textarea(Input as any)))`
+}>(styled(Input).attrs({ as: 'textarea' } as any))`
   transition: none;
   max-height: ${(props) => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;

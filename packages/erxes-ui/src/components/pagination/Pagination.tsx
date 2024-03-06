@@ -1,15 +1,12 @@
 import { PaginationList, PaginationWrapper } from './styles';
+import React, { useEffect, useState } from 'react';
 import { difference, intersection, range, union } from '../../utils/core';
-
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../types';
-import Icon from '../Icon';
-import PerPageChooser from './PerPageChooser';
-import React from 'react';
-import { router } from '../../utils/core';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// pages calculation
+import Icon from '../Icon';
+import PerPageChooser from './PerPageChooser';
+import { router } from '../../utils/core';
+
 const generatePages = (pageCount: number, currentPage: number): number[] => {
   const w = 4;
 
@@ -70,94 +67,75 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
   return pages;
 };
 
-// page chooser component
-class Page extends React.Component<{
-  page: number;
-  currentPage: number;
-}> {
-  goto(page) {
-    const navigate = useNavigate();
-    const location = useLocation();
+const Page = ({ page, currentPage }: { page: number; currentPage: number }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goto = (page) => {
     router.setParams(navigate, location, { page });
-  }
-
-  onClick = (e) => {
-    e.preventDefault();
-
-    this.goto(this.props.page);
   };
 
-  render() {
-    const { currentPage, page } = this.props;
+  const onClick = (e) => {
+    e.preventDefault();
+    goto(page);
+  };
 
-    if (page !== -1) {
-      let className = '';
+  if (page !== -1) {
+    let className = '';
 
-      if (page === currentPage) {
-        className += ' active disabled';
-      }
-
-      return (
-        <li className={className} onClick={this.onClick}>
-          <a href="#page">{page}</a>
-        </li>
-      );
+    if (page === currentPage) {
+      className += ' active disabled';
     }
 
     return (
-      <li className="disabled">
-        <span>...</span>
+      <li className={className} onClick={onClick}>
+        <a href="#page">{page}</a>
       </li>
     );
   }
-}
 
-interface IPaginationProps {
-  totalPagesCount: number;
-  pages?: number[];
-  count?: number;
-  currentPage?: number;
-  isPaginated?: boolean;
-}
+  return (
+    <li className="disabled">
+      <span>...</span>
+    </li>
+  );
+};
 
-// main pagination component
-class Pagination extends React.Component<IPaginationProps> {
-  goto(page) {
-    const navigate = useNavigate();
-    const location = useLocation();
+const Pagination = ({
+  totalPagesCount,
+  pages = [],
+  count,
+  currentPage = 1,
+  isPaginated,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goto = (page) => {
     router.setParams(navigate, location, { page });
-  }
+  };
 
-  onPrev = (e) => {
+  const onPrev = (e) => {
     e.preventDefault();
 
-    const page = (this.props.currentPage || 1) - 1;
+    const page = (currentPage || 1) - 1;
 
     if (page > 0) {
-      this.goto(page);
+      goto(page);
     }
   };
 
-  onNext = (e) => {
+  const onNext = (e) => {
     e.preventDefault();
-
-    const { totalPagesCount, currentPage } = this.props;
 
     const page = (currentPage || 1) + 1;
 
     if (page <= totalPagesCount) {
-      this.goto(page);
+      goto(page);
     }
   };
 
-  renderBar() {
-    const {
-      totalPagesCount,
-      pages = [],
-      currentPage = 1,
-      isPaginated,
-    } = this.props;
-
+  const renderBar = () => {
     if (!isPaginated) {
       return null;
     }
@@ -176,7 +154,7 @@ class Pagination extends React.Component<IPaginationProps> {
     return (
       <PaginationList>
         <li className={prevClass}>
-          <a href="#prev" onClick={this.onPrev}>
+          <a href="#prev" onClick={onPrev}>
             <Icon icon="arrow-left" />
           </a>
         </li>
@@ -186,31 +164,24 @@ class Pagination extends React.Component<IPaginationProps> {
         ))}
 
         <li className={nextClass}>
-          <a href="#next" onClick={this.onNext}>
+          <a href="#next" onClick={onNext}>
             <Icon icon="arrow-right" />
           </a>
         </li>
 
-        {this.renderPerPageChooser()}
+        {renderPerPageChooser()}
       </PaginationList>
     );
-  }
+  };
 
-  renderPerPageChooser() {
-    return <PerPageChooser count={this.props.count || 0} />;
-  }
+  const renderPerPageChooser = () => {
+    return <PerPageChooser count={count || 0} />;
+  };
 
-  render() {
-    return <PaginationWrapper>{this.renderBar()}</PaginationWrapper>;
-  }
-}
+  return <PaginationWrapper>{renderBar()}</PaginationWrapper>;
+};
 
-interface IPaginationContainerProps {
-  count?: number;
-}
-
-const PaginationContainer = (props: IPaginationContainerProps) => {
-  const { count = 100 } = props;
+const PaginationContainer = ({ count = 100 }: { count?: number }) => {
   const location = useLocation();
 
   const currentPage = Number(router.getParam(location, 'page')) || 1;
@@ -223,10 +194,10 @@ const PaginationContainer = (props: IPaginationContainerProps) => {
   }
 
   // calculate page numbers
-  const pages = generatePages(totalPagesCount, currentPage);
+  const pages = generatePages(totalPagesCount, currentPage) as any;
 
   const childProps = {
-    ...props,
+    count,
     currentPage,
     isPaginated: totalPagesCount > 1,
     totalPagesCount,
