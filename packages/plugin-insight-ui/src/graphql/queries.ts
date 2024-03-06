@@ -462,7 +462,7 @@ const boards = `
   }
 `;
 const stages = `
-  query stages($pipelineId: String!, $isAll: Boolean, $pipelineIds: [String]) {
+  query stages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
     stages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
       _id
       name
@@ -496,7 +496,7 @@ const pipelines = `
 `;
 
 const pipelineLabels = `
-  query pipelineLabels($pipelineId: String!, $pipelineIds: [String]) {
+  query pipelineLabels($pipelineId: String, $pipelineIds: [String]) {
     pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
     }
