@@ -98,6 +98,10 @@ const generateFilters = async ({
         .join('|');
       filter.order = { $regex: new RegExp(branchOrders, 'i') };
     }
+
+    if (type === 'position' && params.searchValue) {
+      return { $and: [filter, structureFilter] };
+    }
   }
 
   return filter;
