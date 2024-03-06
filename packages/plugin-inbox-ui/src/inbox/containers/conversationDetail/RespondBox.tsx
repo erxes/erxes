@@ -128,13 +128,16 @@ const RespondBoxContainer = (props: FinalProps) => {
       callback,
     });
   };
-
+  const refetchResponseTemplates = (content) => [
+    responseTemplatesQuery.refetch({ searchValue: content }),
+  ];
   const updatedProps = {
     ...props,
     onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
     mentionSuggestion: { getVariables, fetchMentions, extractFunction },
+    refetchResponseTemplates,
   };
 
   return <RespondBox {...updatedProps} />;

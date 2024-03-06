@@ -4,7 +4,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from '@erxes/ui/src/components';
 
 import { ContentBox } from '../styles';
@@ -33,7 +33,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.ERKHET || {}
+      currentMap: props.configsMap.ERKHET || {},
     };
   }
 
@@ -43,7 +43,7 @@ class GeneralSettings extends React.Component<Props, State> {
     }
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { currentMap } = this.state;
@@ -56,9 +56,7 @@ class GeneralSettings extends React.Component<Props, State> {
   onChangeConfig = (code: string, value) => {
     const { currentMap } = this.state;
 
-    currentMap[code] = value;
-
-    this.setState({ currentMap });
+    this.setState({ currentMap: { ...currentMap, [code]: value } });
   };
 
   onChangeInput = (code: string, e) => {
@@ -93,7 +91,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('apiToken')}
           {this.renderItem(
             'getRemainderApiUrl',
-            'Get remainder from erkhet api url'
+            'Get remainder from erkhet api url',
           )}
         </CollapseContent>
         <CollapseContent
@@ -105,11 +103,11 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
           {this.renderItem(
             'productCategoryCode',
-            'Default Category Code on erkhet inventory'
+            'Default Category Code on erkhet inventory',
           )}
           {this.renderItem(
             'consumeDescription',
-            'Set description when incoming erkhet inventory'
+            'Set description when incoming erkhet inventory',
           )}
         </CollapseContent>
         <CollapseContent
@@ -120,15 +118,15 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('checkCompanyUrl')}
           {this.renderItem(
             'customerDefaultName',
-            'Customer default name on erkhet'
+            'Customer default name on erkhet',
           )}
           {this.renderItem(
             'customerCategoryCode',
-            'Customer default category code on erkhet'
+            'Customer default category code on erkhet',
           )}
           {this.renderItem(
             'companyCategoryCode',
-            'Company default category code on erkhet'
+            'Company default category code on erkhet',
           )}
           {this.renderItem('debtAccounts', 'Split "," account fullcode')}
         </CollapseContent>
@@ -141,7 +139,7 @@ class GeneralSettings extends React.Component<Props, State> {
             {this.renderItem('userEmail', 'user email')}
             {this.renderItem(
               'defaultCustomer',
-              'Customer default code on erkhet'
+              'Customer default code on erkhet',
             )}
           </CollapseContent>
         )}
@@ -155,7 +153,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Sync erkhet config') }
+      { title: __('Sync erkhet config') },
     ];
 
     const actionButtons = (

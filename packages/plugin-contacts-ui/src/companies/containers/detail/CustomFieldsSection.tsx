@@ -40,12 +40,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     companiesEdit({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -54,16 +54,17 @@ const CustomFieldsSection = (props: FinalProps) => {
     save,
     loading,
     isDetail: false,
+    object: company,
     customFieldsData: company.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
-    doc: company
+    doc: company,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
 const options = () => ({
-  refetchQueries: ['companDetail']
+  refetchQueries: ['companDetail'],
 });
 
 export default withProps<Props>(
@@ -75,18 +76,18 @@ export default withProps<Props>(
         options: () => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY,
-            isDefinedByErxes: false
-          }
+            isDefinedByErxes: false,
+          },
         }),
-        skip: !isEnabled('forms') ? true : false
-      }
+        skip: !isEnabled('forms') ? true : false,
+      },
     ),
     graphql<Props, EditMutationResponse, ICompany>(
       gql(mutations.companiesEdit),
       {
         name: 'companiesEdit',
-        options
-      }
-    )
-  )(CustomFieldsSection)
+        options,
+      },
+    ),
+  )(CustomFieldsSection),
 );

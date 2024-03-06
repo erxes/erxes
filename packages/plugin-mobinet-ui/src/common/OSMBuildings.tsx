@@ -63,7 +63,7 @@ const Map = (props: Props) => {
       container: props.id,
       position: (center && { latitude: center.lat, longitude: center.lng }) || {
         latitude: 47.918812,
-        longitude: 106.9154893
+        longitude: 106.9154893,
       },
       // state: true,
       tilt: 60,
@@ -73,33 +73,31 @@ const Map = (props: Props) => {
       // maxZoom: 30,
       style: 'object',
       attribution:
-        '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
+        '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>',
     });
 
     map.addMapTiles('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
-        '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a>'
+        '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a>',
     });
 
     map.addGeoJSONTiles(
-      'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
+      'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json',
     );
 
-    map.on('doubleclick', e => {
+    map.on('doubleclick', (e) => {
       console.log('double click', e);
     });
 
-    map.on('pointerup', e => {
+    map.on('pointerup', (e) => {
       if (!e.features || e.features.length === 0) {
         return;
       }
 
-      console.log('selected feature ', e.features[0]);
-
       props.onChange(e.features[0]);
     });
 
-    map.on('change', _e => {
+    map.on('change', (_e) => {
       if (timer) {
         clearTimeout(timer);
       }
@@ -119,10 +117,10 @@ const Map = (props: Props) => {
         props.onChangeCenter &&
           props.onChangeCenter(
             { lat: pos.latitude, lng: pos.longitude },
-            bounds.map(bound => ({
+            bounds.map((bound) => ({
               lat: bound.latitude,
-              lng: bound.longitude
-            }))
+              lng: bound.longitude,
+            })),
           );
         return;
       }, 1000);
@@ -151,13 +149,13 @@ const Map = (props: Props) => {
 
     props.onload &&
       props.onload(
-        map.getBounds().map(bound => {
+        map.getBounds().map((bound) => {
           return {
             lat: bound.latitude,
-            lng: bound.longitude
+            lng: bound.longitude,
           };
         }),
-        mapRef
+        mapRef,
       );
   };
 

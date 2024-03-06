@@ -9,9 +9,12 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
-import type { InterMessage } from '@erxes/api-utils/src/messageBroker';
+import type {
+  InterMessage,
+  RPResult,
+} from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
     async (args: InterMessage): Promise<any> => {
@@ -38,7 +41,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'calls:api_to_integrations',
-    async (args: InterMessage): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const { integrationId, action } = data;
 
@@ -50,8 +53,8 @@ export const initBroker = async () => {
 
       if (!integration) {
         return {
-          status: 'failed',
-          data: 'integration not found.',
+          status: 'error',
+          errorMessage: 'integration not found.',
         };
       }
 

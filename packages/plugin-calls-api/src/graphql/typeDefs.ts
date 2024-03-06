@@ -39,6 +39,7 @@ const types = `
   type CallActiveSession {
     _id: String
     userId: String
+    lastLoginDeviceId: String
   }
 `;
 

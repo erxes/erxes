@@ -1,1 +1,1 @@
-export const initBroker = async () => {};
+export const setupMessageConsumers = async () => {};

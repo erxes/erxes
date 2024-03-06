@@ -8,14 +8,14 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { __ } from 'coreui/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SelectContractType, {
-  ContractTypeById
+  ContractTypeById,
 } from '../../../contractTypes/containers/SelectContractType';
 import { IContract, IContractDoc } from '../../types';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
@@ -23,11 +23,15 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import SelectContracts from '../common/SelectContract';
+import { TabTitle, Tabs as MainTabs } from '@erxes/ui/src/components/tabs';
+import ContractsCustomFields from './ContractsCustomFields';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   currentUser: IUser;
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled: boolean },
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
@@ -70,6 +74,39 @@ function isGreaterNumber(value: any, compareValue: any) {
   return value > compareValue;
 }
 
+interface ITabItem {
+  component: any;
+  label: string;
+}
+
+interface ITabs {
+  tabs: ITabItem[];
+}
+
+export function Tabs({ tabs }: ITabs) {
+  const [tabIndex, setTabIndex] = React.useState(0);
+
+  return (
+    <>
+      <MainTabs>
+        {tabs.map((tab, index) => (
+          <TabTitle
+            className={tabIndex === index ? 'active' : ''}
+            key={`tab${tab.label}`}
+            onClick={() => setTabIndex(index)}
+          >
+            {tab.label}
+          </TabTitle>
+        ))}
+      </MainTabs>
+
+      <div style={{ width: '100%', marginTop: 20 }}>
+        {tabs?.[tabIndex]?.component}
+      </div>
+    </>
+  );
+}
+
 class ContractForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -91,11 +128,11 @@ class ContractForm extends React.Component<Props, State> {
       customerId: contract.customerId,
       customerType: contract.customerType || 'customer',
       currency:
-        contract.currency || this.props.currentUser.configs?.dealCurrency[0],
+        contract.currency || this.props.currentUser.configs?.dealCurrency?.[0],
       interestGiveType: contract.interestGiveType,
       closeOrExtendConfig: contract.closeOrExtendConfig,
       depositAccount: contract.depositAccount,
-      interestCalcType: contract.interestCalcType
+      interestCalcType: contract.interestCalcType,
     };
   }
 
@@ -125,7 +162,7 @@ class ContractForm extends React.Component<Props, State> {
       storeInterestInterval: this.state.storeInterestInterval,
       interestCalcType: this.state.interestCalcType,
       customerId: this.state.customerId,
-      customerType: this.state.customerType
+      customerType: this.state.customerType,
     };
 
     return result;
@@ -142,13 +179,13 @@ class ContractForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = e => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
     this.setState({ [name]: value } as any);
   };
 
-  onSelectContractType = value => {
+  onSelectContractType = (value) => {
     const contractTypeObj: IContractType = ContractTypeById[value];
 
     var changingStateValue: any = { contractTypeId: value };
@@ -156,7 +193,7 @@ class ContractForm extends React.Component<Props, State> {
     //get default value from contract type
     changingStateValue['interestRate'] = Number(contractTypeObj?.interestRate);
     changingStateValue['closeInterestRate'] = Number(
-      contractTypeObj?.closeInterestRate
+      contractTypeObj?.closeInterestRate,
     );
     changingStateValue['storeInterestInterval'] =
       contractTypeObj?.storeInterestInterval;
@@ -172,26 +209,22 @@ class ContractForm extends React.Component<Props, State> {
     this.setState({ ...changingStateValue });
   };
 
-  onSelectCustomer = value => {
+  onSelectCustomer = (value) => {
     this.setState({
-      customerId: value
+      customerId: value,
     });
   };
 
   onSelect = (value, key: string) => {
     this.setState({
-      [key]: value
+      [key]: value,
     } as any);
   };
 
-  onCheckCustomerType = e => {
+  onCheckCustomerType = (e) => {
     this.setState({
-      customerType: e.target.checked ? 'company' : 'customer'
+      customerType: e.target.checked ? 'company' : 'customer',
     });
-  };
-
-  onFieldClick = e => {
-    e.target.select();
   };
 
   checkValidation = (): any => {
@@ -206,7 +239,7 @@ class ContractForm extends React.Component<Props, State> {
       isGreaterNumber(this.state.interestRate, this.state.config.maxInterest)
     )
       errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`
+        `${__('Interest must less than')} ${this.state.config.maxInterest}`,
       );
 
     return errors;
@@ -216,8 +249,12 @@ class ContractForm extends React.Component<Props, State> {
     const { closeModal, renderButton, change } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeStartDate = value => {
+    const onChangeStartDate = (value) => {
       this.setState({ startDate: value });
+    };
+
+    const onChangeBranchId = (value) => {
+      this.setState({ branchId: value });
     };
 
     return (
@@ -234,7 +271,7 @@ class ContractForm extends React.Component<Props, State> {
                     componentClass: 'checkbox',
                     name: 'customerType',
                     checked: this.state.customerType === 'company',
-                    onChange: this.onCheckCustomerType
+                    onChange: this.onCheckCustomerType,
                   })}
                 </div>
                 {this.state.customerType === 'customer' && (
@@ -302,7 +339,7 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   name: 'duration',
                   value: this.state.duration,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
                 {this.renderFormGroup('Saving Amount', {
                   ...formProps,
@@ -311,11 +348,21 @@ class ContractForm extends React.Component<Props, State> {
                   useNumberFormat: true,
                   name: 'savingAmount',
                   value: this.state.savingAmount,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
               </FormColumn>
             )}
             <FormColumn>
+              <FormGroup>
+                <ControlLabel>{__('Branches')}</ControlLabel>
+                <SelectBranches
+                  name="branchId"
+                  label={__('Choose branch')}
+                  initialValue={this.state?.branchId}
+                  onSelect={onChangeBranchId}
+                  multi={false}
+                />
+              </FormGroup>
               {this.renderFormGroup('Interest Rate', {
                 ...formProps,
                 className: 'flex-item',
@@ -323,7 +370,7 @@ class ContractForm extends React.Component<Props, State> {
                 useNumberFormat: true,
                 name: 'interestRate',
                 value: this.state.interestRate,
-                onChange: this.onChangeField
+                onChange: this.onChangeField,
               })}
 
               <FormGroup>
@@ -343,7 +390,7 @@ class ContractForm extends React.Component<Props, State> {
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
@@ -364,7 +411,7 @@ class ContractForm extends React.Component<Props, State> {
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
@@ -376,10 +423,10 @@ class ContractForm extends React.Component<Props, State> {
                     name="depositAccount"
                     initialValue={this.state.depositAccount}
                     filterParams={{ isDeposit: true }}
-                    onSelect={v => {
+                    onSelect={(v) => {
                       if (typeof v === 'string') {
                         this.setState({
-                          depositAccount: v
+                          depositAccount: v,
                         });
                       }
                     }}
@@ -418,15 +465,42 @@ class ContractForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             disabled: !!Object.keys(this.checkValidation()).length,
             isSubmitted,
-            object: this.props.contract
+            object: this.props.contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
+  renderCustom = () => {
+    return (
+      <ContractsCustomFields
+        isDetail={true}
+        contract={{ ...this.props.contract, ...this.state } as any}
+        collapseCallback={console.log}
+      />
+    );
+  };
+
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return (
+      <Tabs
+        tabs={[
+          {
+            label: 'Гэрээ',
+            component: <Form renderContent={this.renderContent} />,
+          },
+          ...(isEnabled('forms')
+            ? [
+                {
+                  label: 'Бусад',
+                  component: <Form renderContent={this.renderCustom} />,
+                },
+              ]
+            : []),
+        ]}
+      />
+    );
   }
 }
 

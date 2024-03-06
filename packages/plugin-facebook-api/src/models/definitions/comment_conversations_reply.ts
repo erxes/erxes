@@ -6,7 +6,7 @@ import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
 export interface ICommentConversationReply {
   mid: string;
   commentConversationId: string;
-  parent_id: String;
+  parentId: String;
   recipientId: string;
   senderId: string;
   isResolved: boolean;
@@ -28,7 +28,7 @@ export const commentConversationReplySchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, label: 'comment message id' },
   comment_id: { type: String },
-  parent_id: { type: String },
+  parentId: String,
   recipientId: { type: String },
   senderId: { type: String },
   content: String,

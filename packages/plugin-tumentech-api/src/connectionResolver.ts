@@ -5,8 +5,6 @@ import {
 import { ITopupDocument } from './models/definitions/topup';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
-
-import { mainDb } from './configs';
 import {
   ICustomerAccountModel,
   loadCustomerAccountClass,
@@ -58,6 +56,7 @@ import {
   loadAdvertisementClass,
 } from './models/Advertisement';
 import { IAdvertisementDocument } from './models/definitions/adviertisement';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Cars: ICarModel;
@@ -88,20 +87,16 @@ export interface IContext extends IMainContext {
 
 export let models: IModels;
 
-export const generateModels = async (
-  _hostnameOrSubdomain: string,
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
+// export const generateModels = async (
+//   _hostnameOrSubdomain: string
+// ): Promise<IModels> => {
+//   if (models) {
+//     return models;
+//   }
+// };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Cars = db.model<ICarDocument, ICarModel>(
     'cars',
@@ -187,3 +182,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels(loadClasses);

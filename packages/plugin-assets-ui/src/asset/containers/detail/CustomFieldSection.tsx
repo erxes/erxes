@@ -2,18 +2,17 @@ import * as compose from 'lodash.flowright';
 
 import { AssetEditMutationResponse, IAsset } from '../../../common/types';
 
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { withProps } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   asset: IAsset;
@@ -36,16 +35,14 @@ const CustomFieldsSection = (props: FinalProps) => {
     );
   }
 
-  const { _id } = asset;
-
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { ...asset, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -55,14 +52,22 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: asset.customFieldsData,
     fieldsGroups: (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [],
-    isDetail: true
+    isDetail: true,
+    object: asset,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
-const options = () => ({
-  refetchQueries: ['assetDetailQuery']
+const options = (asset) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.assetDetail),
+      variables: {
+        _id: asset._id,
+      },
+    },
+  ],
 });
 
 export default withProps<Props>(
@@ -73,19 +78,19 @@ export default withProps<Props>(
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-            isDefinedByErxes: false
-          }
+            contentType: 'assets:asset',
+            isDefinedByErxes: false,
+          },
         }),
-        skip: !isEnabled('forms')
-      }
+        skip: !isEnabled('forms'),
+      },
     ),
     graphql<Props, AssetEditMutationResponse, IAsset>(
       gql(mutations.assetEdit),
       {
         name: 'editMutation',
-        options
-      }
-    )
-  )(CustomFieldsSection)
+        options: ({ asset }) => options(asset),
+      },
+    ),
+  )(CustomFieldsSection),
 );

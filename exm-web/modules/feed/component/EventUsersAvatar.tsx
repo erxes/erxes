@@ -22,7 +22,13 @@ const EventUsersAvatar = ({ eventData }: { eventData: any }): JSX.Element => {
     eventData.goingUserIds.includes(user._id)
   )
 
-  if (goingUsers.length === 0) {
+  const interestedUsers = users.filter((user) =>
+    eventData.interestedUserIds.includes(user._id)
+  )
+
+  const allReactedUsers = goingUsers.concat(interestedUsers)
+
+  if (allReactedUsers.length === 0) {
     return <></>
   }
 
@@ -31,7 +37,7 @@ const EventUsersAvatar = ({ eventData }: { eventData: any }): JSX.Element => {
       <DialogTrigger asChild={true}>
         <div className="flex items-center gap-2 mt-3">
           <div id="going users" className="flex -space-x-1">
-            {goingUsers.slice(0, 5).map((user) => (
+            {allReactedUsers.slice(0, 5).map((user) => (
               <Image
                 src={
                   user.details && user.details.avatar
@@ -46,14 +52,13 @@ const EventUsersAvatar = ({ eventData }: { eventData: any }): JSX.Element => {
               />
             ))}
           </div>
-          {goingUsers.length > 5 && <div>+ {goingUsers.length - 5} going</div>}
         </div>
       </DialogTrigger>
       <DialogContent className="p-0 gap-0 max-w-md">
         <DialogHeader className="border-b p-4">
           <DialogTitle className="flex justify-around">People</DialogTitle>
         </DialogHeader>
-        <UsersList users={goingUsers} />
+        <UsersList users={allReactedUsers} />
       </DialogContent>
     </Dialog>
   )

@@ -1,13 +1,10 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'internalnotes',
@@ -25,13 +22,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     logs: { providesActivityLog: true, consumers: logs },
   },

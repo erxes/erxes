@@ -116,7 +116,7 @@ export class SocialPayAPI extends BaseAPI {
 
       const qrData = await QRCode.toDataURL(body.response.desc);
 
-      return { qrData, deeplink: body.response.deeplink };
+      return { qrData, deeplink: body.response.desc };
     } catch (e) {
       return { error: e.message };
     }

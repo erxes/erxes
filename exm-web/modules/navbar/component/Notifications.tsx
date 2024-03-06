@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import { Ban, BellRing } from "lucide-react"
+import { Ban, Bell } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 
 import Image from "@/components/ui/image"
@@ -90,11 +90,15 @@ const Notifications = () => {
       notification.action === "birthday notification" ||
       notification.action === "Work Anniversary notification"
     ) {
-      return (window.location.href = `/company/team-members/detail?id=${notification.link.slice(23)}`)
+      window.location.replace(
+        `/company/team-members/detail?id=${notification.link.slice(23)}`
+      )
     } else {
-      return (window.location.href = `detail?contentType=${
-        notification.action.split(" ")[0]
-      }&id=${notification.link.slice(28)}`)
+      window.location.replace(
+        `detail?contentType=${
+          notification.action.split(" ")[0]
+        }&id=${notification.link.slice(28)}`
+      )
     }
   }
 
@@ -196,10 +200,10 @@ const Notifications = () => {
   return (
     <Popover>
       <PopoverTrigger asChild={true}>
-        <div className="p-2.5 bg-[#F0F0F0] rounded-full mr-4 relative cursor-pointer">
-          <BellRing size={16} />
+        <div className="p-2 bg-[#F9FAFB] border-[1.5px] border-exm rounded-[8px] mr-[10px] relative cursor-pointer">
+          <Bell size={14} />
           {unreadCount > 0 && (
-            <div className="absolute top-[-6px] right-[-9px] bg-destructive text-white text-[9px] flex w-[20px] h-[20px] justify-center items-center rounded-full">
+            <div className="absolute top-[2px] right-[2px] bg-primary text-white text-[9px] flex w-[14px] h-[14px] justify-center items-center rounded-full">
               {unreadCount}
             </div>
           )}

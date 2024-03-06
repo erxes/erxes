@@ -89,17 +89,17 @@ export const types = `
   }
 
   type BotPersistentMenuType {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   input BotPersistentMenuInput {
-    _id:Float
+    _id:String
     type:String
-    title: String
-    url: String
+    text: String
+    link: String
   }
 
   type FacebookMessengerBot {
@@ -111,6 +111,7 @@ export const types = `
     page: JSON
     createdAt: Date
     persistentMenus:[BotPersistentMenuType]
+    profileUrl:String
   }
 `;
 
@@ -132,6 +133,9 @@ export const queries = `
   facebookPostMessagesCount(conversationId: String!): Int
   facebootMessengerBots:[FacebookMessengerBot]
   facebootMessengerBotsTotalCount:Int
+  facebootMessengerBot(_id:String):FacebookMessengerBot
+  facebookGetBotPosts(botId:String):JSON
+  facebookGetBotPost(botId:String,postId:String):JSON
 `;
 
 export const mutations = `
@@ -139,6 +143,7 @@ export const mutations = `
   facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput]):JSON
   facebookMessengerRemoveBot(_id:String):JSON
+  facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON
   facebookChangeCommentStatus(commentId: String): FacebookComment
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment

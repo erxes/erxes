@@ -184,15 +184,18 @@ const orderQueries = {
     { _id, customerId }: { _id: string; customerId?: string },
     { posUser, models, config }: IContext,
   ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
     if (posUser) {
-      return models.Orders.findOne({ _id, posToken: config.token });
+      return models.Orders.findOne({ _id, ...tokenFilter });
     }
 
     if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, posToken: config.token, customerId });
+    return models.Orders.findOne({ _id, ...tokenFilter });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {

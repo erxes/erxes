@@ -3,21 +3,19 @@ import type {
   MessageArgsOmitService,
   MessageArgs,
 } from '@erxes/api-utils/src/core';
-import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { setTimeout } from 'timers';
 import { playWait } from './actions';
 import {
   checkWaitingResponseAction,
   doWaitingResponseAction,
-  setActionWait,
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
-    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
@@ -32,9 +30,7 @@ export const initBroker = async () => {
       return;
     }
 
-    setTimeout(async () => {
-      await receiveTrigger({ models, subdomain, type, targets });
-    }, 10000);
+    await receiveTrigger({ models, subdomain, type, targets });
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {

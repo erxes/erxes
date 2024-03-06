@@ -109,6 +109,7 @@ const activeSession = `
   callsActiveSession{
     _id
     userId
+    lastLoginDeviceId
   }
 }`;
 export default {
@@ -116,5 +117,5 @@ export default {
   callIntegrationsOfUser,
   callCustomerDetail,
   customers,
-  activeSession
+  activeSession,
 };

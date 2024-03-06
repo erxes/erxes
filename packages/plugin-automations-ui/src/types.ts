@@ -14,6 +14,7 @@ export type ITrigger = {
   config?: any;
   position?: any;
   isAvailableOptionalConnect?: boolean;
+  isCustom?: boolean;
 
   count?: number;
 };

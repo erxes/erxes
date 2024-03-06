@@ -64,4 +64,18 @@ const customerDetail = `
   }
 `;
 
-export { customersAdd, customersEdit, customerDetail };
+const customersQuery = `
+  query Customers($searchValue: String) {
+    customers(searchValue: $searchValue) {
+        _id
+        avatar
+        createdAt
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+    }
+  }
+`;
+
+export { customersAdd, customersEdit, customerDetail, customersQuery };

@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
@@ -16,9 +16,6 @@ import * as permissions from './permissions';
 import { removeAndUpdateTimeclocks } from './updateTimeclocks';
 import { findAndUpdateTimeclockScheduleShifts } from './updateTimeclockScheduleShifts';
 import app from '@erxes/api-utils/src/app';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'bichil',
@@ -57,9 +54,7 @@ export default {
 
   middlewares: [cookieParser(), userMiddleware],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     const { DOMAIN } = process.env;
 
     const corsOptions = {
@@ -121,10 +116,6 @@ export default {
       }),
     );
 
-    initBroker();
-
-    debug = options.debug;
-
     const upload = multer({ dest: __dirname + '../uploads/' });
 
     app.post(
@@ -162,4 +153,5 @@ export default {
       },
     );
   },
+  setupMessageConsumers,
 };

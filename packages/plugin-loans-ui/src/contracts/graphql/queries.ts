@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
 const contractFields = `
@@ -276,6 +276,8 @@ export const contractDetailFields = `
   }
   hasTransaction
   nextPayment
+  customFieldsData
+  savingContractId
 `;
 
 export const contractDetail = `
@@ -371,6 +373,11 @@ const contractsAlert = `
   }
 `;
 
+const getPolarisData = `
+  query Query($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
 export default {
   contracts,
   contractsMain,
@@ -380,5 +387,6 @@ export default {
   closeInfo,
   documents,
   contractsAlert,
-  savingContracts
+  savingContracts,
+  getPolarisData,
 };

@@ -1,5 +1,5 @@
-export const CUSTOMER_STATUSES = {
+export const CONTACT_STATUSES = {
   WAITING: 'waiting',
   APPROVED: 'approved',
-  ALL: ['waiting', 'approved']
+  ALL: ['waiting', 'approved'],
 };

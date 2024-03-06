@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import * as cookieParser from 'cookie-parser';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
@@ -14,9 +14,6 @@ import documents from './documents';
 import payment from './payment';
 import app from '@erxes/api-utils/src/app';
 import tags from './tags';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'insurance',
@@ -48,13 +45,7 @@ export default {
   },
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     const publicDir = path.join('./uploads');
 
     fs.access(publicDir, fs.constants.F_OK, (err) => {
@@ -110,4 +101,5 @@ export default {
       return res.send(result.response);
     });
   },
+  setupMessageConsumers,
 };

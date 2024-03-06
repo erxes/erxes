@@ -5,13 +5,11 @@ import { generateModels } from './connectionResolver';
 import dacRouter from './dacRouter';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import * as bodyParser from 'body-parser';
 import app from '@erxes/api-utils/src/app';
-export let mainDb;
-export let debug;
 
 export default {
   name: 'dac',
@@ -57,13 +55,8 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware, bodyParser.json()],
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     app.use(dacRouter);
   },
+  setupMessageConsumers,
 };

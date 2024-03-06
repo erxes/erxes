@@ -19,8 +19,12 @@ const facebookMutations = {
 
     return { status: 'ok' };
   },
-  async facebookRepair(_root, { _id }: { _id: string }, { models }: IContext) {
-    await repairIntegrations(models, _id);
+  async facebookRepair(
+    _root,
+    { _id }: { _id: string },
+    { subdomain, models }: IContext,
+  ) {
+    await repairIntegrations(subdomain, models, _id);
 
     return 'success';
   },
@@ -39,6 +43,9 @@ const facebookMutations = {
 
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.Bots.removeBot(_id);
+  },
+  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
   },
   async facebookChangeCommentStatus(
     _root,

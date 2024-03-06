@@ -46,7 +46,7 @@ const createConversationAndMessage = async (
   });
 };
 
-export const initBroker = () => {
+export const setupMessageConsumers = () => {
   consumeRPCQueue(
     'inbox:createConversationAndMessage',
     async ({ subdomain, data }) => {

@@ -1,7 +1,7 @@
 "use client"
 
 import { IAttachment } from "@/modules/feed/types"
-import { XCircle } from "lucide-react"
+import { X } from "lucide-react"
 
 import Image from "@/components/ui/image"
 
@@ -25,39 +25,11 @@ const FormImages = ({
   }
 
   return (
-    <div className="w-full h-[462px] flex flex-wrap overflow-hidden relative">
+    <div className="w-full relative grid-cols-3 grid gap-3 mb-3">
       {images.map((image, index) => {
-        const length = images.length
-        let width
-        if (length === 1 || length === 2) {
-          width = "w-full"
-        }
-        if (length === 3) {
-          if (index === 2) {
-            width = "w-full"
-          } else {
-            width = "w-[307px]"
-          }
-        }
-        if (length === 4 || length > 4) {
-          width = "w-[307px]"
-        }
-
-        if (index > 3) {
-          return null
-        }
         return (
           <div
-            className={`relative ${width} ${
-              length !== 1 ? "h-[227px]" : "h-full"
-            } ${
-              (length !== 1 &&
-                length !== 2 &&
-                length !== 3 &&
-                index % 2 === 0 &&
-                "mr-2") ||
-              (length === 3 && index === 0 && "mr-2")
-            } mb-2`}
+            className="relative"
             key={index}
           >
             <Image
@@ -65,23 +37,16 @@ const FormImages = ({
               src={image.url || ""}
               width={500}
               height={500}
-              className={`overflow-hidden rounded-lg object-cover ${width} ${
-                length !== 1 ? "h-[227px]" : "h-full"
-              }`}
+              className={`overflow-hidden rounded-[4px] h-[170px] object-cover border border-exm`}
             />
-            <XCircle
+            <X
               size={18}
               onClick={() => deleteImage(index)}
-              className="absolute top-0 bg-white right-0 rounded-full cursor-pointer"
+              className="absolute top-[10px] bg-[#c1c1c1] bg-opacity-40 p-[3px] right-[10px] rounded-full cursor-pointer"
             />
           </div>
         )
       })}
-      {images.length > 4 && (
-        <div className="text-white bg-black/50 w-[307px] h-[227px] absolute bottom-0 right-0 rounded-lg flex items-center justify-center text-[30px]">
-          + {images.length - 4}
-        </div>
-      )}
     </div>
   )
 }

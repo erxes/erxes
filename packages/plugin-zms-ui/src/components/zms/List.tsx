@@ -8,7 +8,6 @@ import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import FormControl from '@erxes/ui/src/components/form/Control';
-
 type Props = {
   logs: ILog[];
   id: string;
@@ -19,7 +18,7 @@ function List({ logs, id, loading }: Props) {
   const actionBarRight = (
     <FormControl type="text" placeholder={__('Type to search')} />
   );
-  const title = <Title capitalize={true}>{__('Parent')}</Title>;
+  const title = <Title capitalize={true}>{__('ZMS')}</Title>;
   const actionBar = (
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
@@ -35,17 +34,18 @@ function List({ logs, id, loading }: Props) {
         </tr>
       </thead>
       <tbody id={'ZmssShowing'}>
-        {logs.map(log => {
+        {logs.map((log) => {
           return <Row space={0} key={log._id} log={log} />;
         })}
       </tbody>
     </Table>
   );
 
-  const SideBarList = asyncComponent(() =>
-    import(
-      /* webpackChunkName: "List - Zmss" */ '../../containers/zms/SideBarList'
-    )
+  const SideBarList = asyncComponent(
+    () =>
+      import(
+        /* webpackChunkName: "List - Zmss" */ '../../containers/zms/SideBarList'
+      ),
   );
   return (
     <Wrapper
@@ -54,7 +54,7 @@ function List({ logs, id, loading }: Props) {
           title={__('Zms')}
           submenu={[
             { title: 'Zms', link: '/plugin-zms/zms' },
-            { title: 'Dictionary', link: '/plugin-zms/dictionary' }
+            { title: 'Dictionary', link: '/plugin-zms/dictionary' },
           ]}
         />
       }

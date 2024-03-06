@@ -6,13 +6,10 @@ import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs';
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import tags from './tags';
 import forms from './forms';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'riskassessment',
@@ -34,13 +31,8 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     afterMutations,
     tags,

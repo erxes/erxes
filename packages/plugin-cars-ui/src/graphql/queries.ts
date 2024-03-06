@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -12,6 +12,7 @@ const carCategoryFields = `
   parentId
   description
   isRoot
+  productCategoryId
   image {
       url
       name
@@ -186,5 +187,5 @@ export default {
   carCategories,
   carCategoriesCount,
   carCategoryDetail,
-  carCountByTags
+  carCountByTags,
 };

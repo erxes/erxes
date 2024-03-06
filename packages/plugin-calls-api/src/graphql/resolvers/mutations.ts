@@ -1,8 +1,13 @@
 import { generateToken } from '../../utils';
-import { IContext } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 import receiveCall from '../../receiveCall';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+
+export interface ISession {
+  sessionCode: string;
+}
 
 const callsMutations = {
   async callsIntegrationUpdate(_root, { configs }, { models }: IContext) {
@@ -34,7 +39,14 @@ const callsMutations = {
     };
   },
 
-  async callUpdateActiveSession(_root, {}, { models, user }: IContext) {
+  async callUpdateActiveSession(
+    _root,
+    {},
+    {
+      models,
+      user,
+    }: { models: IModels; user: IUserDocument & ISession; subdomain: string },
+  ) {
     const activeSession = await models.ActiveSessions.findOne({
       userId: user._id,
     });
@@ -45,6 +57,7 @@ const callsMutations = {
 
     await models.ActiveSessions.create({
       userId: user._id,
+      lastLoginDeviceId: user.sessionCode,
     });
 
     return await models.ActiveSessions.findOne({

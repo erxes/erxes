@@ -4,10 +4,10 @@ import {
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {};
+export const setupMessageConsumers = async () => {};
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ) => {
   return sendMessage({
     ...args,
@@ -15,7 +15,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendCardsMessage = (
-  args: MessageArgsOmitService
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',

@@ -58,7 +58,7 @@ const configQueries = {
   configsGetEnv(_root) {
     return {
       USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
-      VERSION: process.env.VERSION,
+      RELEASE: process.env.RELEASE,
     };
   },
 

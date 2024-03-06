@@ -1,10 +1,16 @@
-import { MessageArgs, MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import { Polarissyncs } from './models';
 import { afterMutationHandlers } from './afterMutations';
-import { consumeQueue, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
-
+export const setupMessageConsumers = async () => {
   consumeQueue('bid:send', async ({ data }) => {
     Polarissyncs.send(data);
 
@@ -26,9 +32,7 @@ export const initBroker = async () => {
   });
 };
 
-export const sendCommonMessage = async (
-  args: MessageArgs
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
     ...args,
   });

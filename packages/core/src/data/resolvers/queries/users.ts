@@ -389,10 +389,12 @@ const userQueries = {
   /**
    * Current user
    */
-  currentUser(_root, _args, { user, models }: IContext) {
-    return user
+  async currentUser(_root, _args, { user, models, subdomain }: IContext) {
+    const result = user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+
+    return result;
   },
 
   /**

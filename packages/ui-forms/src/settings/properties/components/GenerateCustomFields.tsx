@@ -32,7 +32,7 @@ type Props = {
     callback: (error: Error) => void,
     extraValues?: any,
   ) => void;
-  collapseCallback: () => void;
+  collapseCallback?: () => void;
   onValuesChange?: (customFieldsData: any) => void;
 };
 
@@ -577,7 +577,7 @@ type GroupsProps = {
   loading?: boolean;
   object?: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
-  collapseCallback: () => void;
+  collapseCallback?: () => void;
   onValuesChange?: (customFieldsData: any) => void;
 };
 

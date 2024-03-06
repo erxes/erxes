@@ -1,27 +1,32 @@
-import { IBotDocument } from '../../models/definitions/bots';
 import { IContext } from '../../connectionResolver';
-import { getPageList } from '../../utils';
+import { IBotDocument } from '../../models/definitions/bots';
+import { graphRequest } from '../../utils';
 
 export default {
   account(bot: IBotDocument, _args, { models }: IContext) {
     return models.Accounts.findOne({ _id: bot.accountId }).select({
       name: 1,
-      kind: 1
     });
   },
 
-  async page({ accountId, pageId }: IBotDocument, _args, { models }: IContext) {
-    const account = await models.Accounts.getAccount({ _id: accountId });
-    const accessToken = account.token;
+  async page({ token, pageId }: IBotDocument, _args, { models }: IContext) {
+    const response: any = await graphRequest.get(
+      `/${pageId}?fields=name`,
+      token,
+    );
+    return response ? response : null;
+  },
 
-    const pages = await getPageList(models, accessToken, 'facebook-messenger');
+  async profileUrl({ pageId, token }: IBotDocument) {
+    const response: any = await graphRequest.get(
+      `/${pageId}/picture?height=600`,
+      token,
+    );
 
-    if (!pages?.length) {
+    if (!response) {
       return null;
     }
 
-    const page = pages.find(page => page.id === pageId);
-
-    return page ? page : null;
-  }
+    return response?.location || null;
+  },
 };

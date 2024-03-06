@@ -11,7 +11,7 @@ export const RichTextEditorPlaceholderControl = ({
   const { editor, isSourceEnabled } = useRichTextEditorContext();
 
   const handlePlaceholder = (placeholderValue: string) => {
-    editor?.chain().focus().insertContent(`{{${placeholderValue}}}`).run();
+    editor?.chain().focus().insertContent(`{{ ${placeholderValue} }}`).run();
   };
 
   return (

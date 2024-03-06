@@ -13,6 +13,7 @@ export interface IEmailSignatureDocument extends IEmailSignature, Document {}
 
 export interface IDetail {
   avatar?: string;
+  coverPhoto?: string;
   fullName?: string;
   shortName?: string;
   position?: string;
@@ -57,6 +58,12 @@ export interface IUser {
   departmentIds?: string[];
   branchIds?: string[];
   employeeId?: string;
+  chatStatus?: IUserChatStatus;
+}
+
+enum IUserChatStatus {
+  online = 'online',
+  offline = 'offline',
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -72,15 +79,16 @@ export interface IUserDocument extends IUser, Document {
 const emailSignatureSchema = new Schema(
   {
     brandId: field({ type: String, label: 'Email signature nrand' }),
-    signature: field({ type: String, label: 'Email signature' })
+    signature: field({ type: String, label: 'Email signature' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Detail schema
 const detailSchema = new Schema(
   {
     avatar: field({ type: String, label: 'Avatar' }),
+    coverPhoto: field({ type: String, label: 'Cover photo' }),
     shortName: field({ type: String, optional: true, label: 'Short name' }),
     fullName: field({ type: String, label: 'Full name' }),
     birthDate: field({ type: Date, label: 'Birth date' }),
@@ -91,13 +99,13 @@ const detailSchema = new Schema(
     operatorPhone: field({
       type: String,
       optional: true,
-      label: 'Operator phone'
+      label: 'Operator phone',
     }),
     firstName: field({ type: String, label: 'First name' }),
     middleName: field({ type: String, label: 'Middle name' }),
-    lastName: field({ type: String, label: 'Last name' })
+    lastName: field({ type: String, label: 'Last name' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // User schema
@@ -107,7 +115,7 @@ export const userSchema = schemaWrapper(
     createdAt: field({
       type: Date,
       default: Date.now,
-      label: 'Created at'
+      label: 'Created at',
     }),
     username: field({ type: String, label: 'Username' }),
     password: field({ type: String }),
@@ -126,21 +134,21 @@ export const userSchema = schemaWrapper(
          * RFC 5322 compliant regex. Taken from http://emailregex.com/
          */
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-        'Please fill a valid email address'
+        'Please fill a valid email address',
       ],
-      label: 'Email'
+      label: 'Email',
     }),
     getNotificationByEmail: field({
       type: Boolean,
-      label: 'Get notification by email'
+      label: 'Get notification by email',
     }),
     emailSignatures: field({
       type: [emailSignatureSchema],
-      label: 'Email signatures'
+      label: 'Email signatures',
     }),
     starredConversationIds: field({
       type: [String],
-      label: 'Starred conversations'
+      label: 'Starred conversations',
     }),
     details: field({ type: detailSchema, default: {}, label: 'Details' }),
     links: field({ type: Object, default: {}, label: 'Links' }),
@@ -150,56 +158,61 @@ export const userSchema = schemaWrapper(
     deviceTokens: field({
       type: [String],
       default: [],
-      label: 'Device tokens'
+      label: 'Device tokens',
     }),
     code: field({ type: String }),
     doNotDisturb: field({
       type: String,
       optional: true,
       default: 'No',
-      label: 'Do not disturb'
+      label: 'Do not disturb',
     }),
     isSubscribed: field({
       type: String,
       optional: true,
       default: 'Yes',
-      label: 'Subscribed'
+      label: 'Subscribed',
     }),
     isShowNotification: field({
       type: Boolean,
       optional: true,
       default: false,
-      label: 'Check if user shows'
+      label: 'Check if user shows',
     }),
     score: field({
       type: Number,
       optional: true,
       label: 'Score',
       esType: 'number',
-      default: 0
+      default: 0,
     }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
-      label: 'Custom fields data'
+      label: 'Custom fields data',
     }),
     role: field({
       type: String,
       label: 'User role',
       optional: true,
       default: USER_ROLES.USER,
-      enum: USER_ROLES.ALL
+      enum: USER_ROLES.ALL,
     }),
     appId: field({
       type: String,
       label: 'Linked app id',
-      optional: true
+      optional: true,
     }),
     employeeId: field({
       type: String,
       unique: true,
       optional: true,
-      sparse: true
-    })
-  })
+      sparse: true,
+    }),
+    chatStatus: field({
+      type: IUserChatStatus,
+      optional: true,
+      label: 'User chat status /used for exm/',
+    }),
+  }),
 );

@@ -1,22 +1,15 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateExpiredToken } from './api';
-
-export let mainDb;
-
-
-
-export let debug;
 
 export default {
   name: 'golomtces',
-  graphql: sd => {
-    
+  graphql: (sd) => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
 
@@ -31,7 +24,7 @@ export default {
           console.error(e.message);
           return res.json({ error: e.message });
         }
-      }
+      },
     },
     {
       path: `/hook-message`,
@@ -43,19 +36,13 @@ export default {
           console.error(e.message);
           return res.json({ error: e.message });
         }
-      }
-    }
+      },
+    },
   ],
-  apolloServerContext: async context => {
+  apolloServerContext: async (context) => {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    debug = options.debug;
-    
-
-    initBroker();
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

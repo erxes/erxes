@@ -6,19 +6,19 @@ import { Model } from 'mongoose';
 import {
   ICategoryDocument,
   ISyncDocument,
-  ISyncedCustomersDocument,
-  syncedCustomersSaas
+  ISyncedContactsDocument,
+  syncedContactsSaas,
 } from './models/definitions/sync';
 import {
   syncedDealSchema,
-  SyncedDealDocuments
+  SyncedDealDocuments,
 } from './models/definitions/deals';
 import { loadSyncCategoriesClass, ICategoriesModel } from './models/categories';
 import { ISyncDealModel, loadSyncDealClass } from './models/deals';
 
 export interface IModels {
   Sync: ISyncModel;
-  SyncedCustomers: Model<ISyncedCustomersDocument>;
+  SyncedContacts: Model<ISyncedContactsDocument>;
   SyncedDeals: ISyncDealModel;
   Categories: ICategoriesModel;
 }
@@ -28,38 +28,33 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Sync = db.model<ISyncDocument, ISyncModel>(
     'synced_saas',
-    loadSyncClass(models, subdomain)
+    loadSyncClass(models, subdomain),
   );
 
-  models.SyncedCustomers = db.model<
-    ISyncedCustomersDocument,
-    Model<ISyncedCustomersDocument>
-  >('synced_saas_customers', syncedCustomersSaas);
+  models.SyncedContacts = db.model<
+    ISyncedContactsDocument,
+    Model<ISyncedContactsDocument>
+  >('synced_saas_contacts', syncedContactsSaas);
 
   models.SyncedDeals = db.model<SyncedDealDocuments, ISyncDealModel>(
     'synced_saas_deals',
-    loadSyncDealClass(models, subdomain)
+    loadSyncDealClass(models, subdomain),
   );
 
   models.Categories = db.model<ICategoryDocument, ICategoriesModel>(
     'synced_saas_categories',
-    loadSyncCategoriesClass(models, subdomain)
+    loadSyncCategoriesClass(models, subdomain),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

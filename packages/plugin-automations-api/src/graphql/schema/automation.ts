@@ -23,6 +23,7 @@ export const types = ({ tags }) => `
     label: String
     description: String
     position:JSON
+    isCustom: Boolean
 
     count: Int
   }
@@ -104,6 +105,7 @@ export const types = ({ tags }) => `
     label: String
     description: String
     position:JSON
+    isCustom: Boolean
   }
 
   input ActionInput {

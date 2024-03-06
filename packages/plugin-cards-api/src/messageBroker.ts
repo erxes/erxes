@@ -23,7 +23,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -788,7 +788,7 @@ export const sendInternalNotesMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'internalNotes',
+    serviceName: 'internalnotes',
     ...args,
   });
 };
