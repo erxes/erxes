@@ -10,10 +10,10 @@ type Props = {
   allCategories: InsuranceCategory[];
   value: string | string[];
   onSearch: (value: string) => void;
-  onChange: (category: InsuranceCategory, risks: Risk[]) => void;
+  onChange: (categoryId: string, risks: Risk[]) => void;
 };
 
-const SelectCategory: React.FC<Props> = props => {
+const SelectCategory: React.FC<Props> = (props) => {
   const { filtered = [] } = props;
 
   const [searchValue, setSearchValue] = useState<string>('');
@@ -33,16 +33,16 @@ const SelectCategory: React.FC<Props> = props => {
     }
   }, [searchValue]);
 
-  const onInputChange = value => {
+  const onInputChange = (value) => {
     setSearchValue(value);
   };
 
-  const onChangeCategory = value => {
-    const selected = categories.find(cat => cat._id === value.value);
+  const onChangeCategory = (value) => {
+    const selected = categories.find((cat) => cat._id === value.value);
 
     if (selected) {
       const risks = (selected.risks || []) as Risk[];
-      props.onChange(selected, risks);
+      props.onChange(value.value, risks);
     }
   };
 
@@ -55,9 +55,9 @@ const SelectCategory: React.FC<Props> = props => {
         onChange={onChangeCategory}
         isLoading={props.loading}
         onInputChange={onInputChange}
-        options={categories.map(cat => ({
+        options={categories.map((cat) => ({
           value: cat._id,
-          label: cat.name
+          label: cat.name,
         }))}
         multi={false}
       />

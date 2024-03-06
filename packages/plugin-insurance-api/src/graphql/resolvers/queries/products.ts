@@ -13,7 +13,6 @@ const queries = {
       sortDirection,
       searchValue,
       categoryId,
-      tagIds,
     }: {
       page: number;
       perPage: number;
@@ -21,7 +20,6 @@ const queries = {
       sortDirection: 'ASC' | 'DESC';
       searchValue: string;
       categoryId: string;
-      tagIds: string[];
     },
     { models }: IContext,
   ) => {
@@ -39,10 +37,6 @@ const queries = {
 
     if (categoryId) {
       qry.categoryId = categoryId;
-    }
-
-    if (tagIds) {
-      qry.tagIds = { $in: tagIds };
     }
 
     return {
@@ -64,13 +58,11 @@ const queries = {
       page,
       perPage,
       categoryId,
-      tagIds,
     }: {
       searchValue: string;
       page: number;
       perPage: number;
       categoryId: string;
-      tagIds: string[];
     },
     { models }: IContext,
   ) => {
@@ -82,10 +74,6 @@ const queries = {
 
     if (categoryId) {
       qry.categoryId = categoryId;
-    }
-
-    if (tagIds) {
-      qry.tagIds = { $in: tagIds };
     }
 
     return paginate(models.Products.find(qry), {
@@ -104,7 +92,7 @@ const queries = {
 
   insuranceProductsOfVendor: async (
     _root,
-    { categoryId, tagIds },
+    { categoryId },
     { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
@@ -174,12 +162,6 @@ const queries = {
     if (categoryId) {
       match.$and.push({
         categoryId,
-      });
-    }
-
-    if (tagIds) {
-      match.$and.push({
-        tagIds: { $in: tagIds },
       });
     }
 

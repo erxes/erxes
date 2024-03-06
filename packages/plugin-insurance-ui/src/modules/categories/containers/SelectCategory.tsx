@@ -7,7 +7,7 @@ import { InsuranceCategory, Risk } from '../../../gql/types';
 
 type Props = {
   value: string | string[];
-  onChange: (category: InsuranceCategory, risks: Risk[]) => void;
+  onChange: (categoryId: string, risks: Risk[]) => void;
 };
 
 const Container = (props: Props) => {
@@ -17,25 +17,25 @@ const Container = (props: Props) => {
     {
       fetchPolicy: 'network-only',
       variables: {
-        searchValue: ''
-      }
-    }
+        searchValue: '',
+      },
+    },
   );
 
   const categoriesQuery = useQuery<InsuranceCategoriesQuery>(
     queries.GET_CATEGORIES,
     {
       variables: {
-        searchValue: ''
-      }
-    }
+        searchValue: '',
+      },
+    },
   );
 
   const onSearch = (searchValue: string) => {
     getTags({
       variables: {
-        searchValue
-      }
+        searchValue,
+      },
     });
   };
 

@@ -14,8 +14,6 @@ import {
   loadCategoryClass,
 } from './models/Categories';
 import { IInsuranceCategoryDocument } from './models/definitions/category';
-import { IDestinationDocument } from './models/definitions/destination';
-import { IDestinationModel, loadDestinationClass } from './models/Destination';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
@@ -24,7 +22,6 @@ export interface IModels {
   Items: IInsuranceItemModel;
   Packages: IInsurancePackageModel;
   Categories: IInsuranceCategoryModel;
-  Destinations: IDestinationModel;
 }
 
 export interface IContext extends IMainContext {
@@ -60,11 +57,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IInsuranceCategoryDocument,
     IInsuranceCategoryModel
   >('insurance_categories', loadCategoryClass(models));
-
-  models.Destinations = db.model<IDestinationDocument, IDestinationModel>(
-    'insurance_destinations',
-    loadDestinationClass(models),
-  );
 
   return models;
 };

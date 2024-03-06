@@ -7,7 +7,6 @@ export interface IInsuranceCategory {
   code: string;
   description: string;
   riskIds: string[];
-  parentCategoryId?: string;
 }
 
 export interface IInsuranceCategoryDocument
@@ -28,5 +27,4 @@ export const categorySchema = new Schema({
   lastModifiedBy: field({ type: String }),
   createdAt: field({ type: Date, default: Date.now }),
   lastModifiedAt: field({ type: Date, default: Date.now }),
-  parentCategoryId: field({ type: String, optional: true })
 });

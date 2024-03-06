@@ -13,7 +13,6 @@ import { buildFile } from './graphql/resolvers/utils';
 import documents from './documents';
 import payment from './payment';
 import app from '@erxes/api-utils/src/app';
-import tags from './tags';
 
 export default {
   name: 'insurance',
@@ -28,7 +27,6 @@ export default {
     forms,
     documents,
     payment,
-    tags,
   },
 
   apolloServerContext: async (context, req) => {

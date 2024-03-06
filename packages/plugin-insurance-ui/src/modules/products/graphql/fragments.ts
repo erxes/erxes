@@ -31,25 +31,11 @@ export const PRODUCT_CORE_FIELDS = gql`
     categoryId
     category {
       _id
-      code
       name
       risks {
         _id
         name
       }
-    }
-
-    tags {
-      _id
-      name
-    }
-
-    tagIds
-
-    travelProductConfigs {
-      duration
-      price
-      numberOfPeople
     }
   }
 `;
