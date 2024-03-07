@@ -6,13 +6,13 @@ import Row from './Row';
 import { Table, Wrapper } from '@erxes/ui/src';
 
 type Props = {
-  toSync: (action: string, items: any[]) => void;
+  toSync: (type: string, items: any[]) => void;
   items;
   toggleAll: (targets: any[], containerId: string) => void;
   bulk: any[];
   toggleBulk: (targets: any[], toAdd: boolean) => void;
   emptyBulk: () => void;
-  onCheck: () => void;
+  toCheck: (type: string) => void;
   isAllSelected: boolean;
   tablehead;
   type;
@@ -28,10 +28,10 @@ const TypeForm = (props: Props) => {
     };
 
     const onClickSync = (e) => {
-      const { toSync, onCheck, emptyBulk } = props;
-      toSync('UPDATE', bulk);
+      const { toSync, toCheck, emptyBulk, type } = props;
+      toSync(type, bulk);
       emptyBulk();
-      onCheck();
+      toCheck(type);
       e.reset();
 
       e.preventDefault();

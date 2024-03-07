@@ -2,8 +2,8 @@ import * as compose from 'lodash.flowright';
 import {
   SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
-  ToCheckLoansMutationResponse,
-  ToSyncLoansMutationResponse,
+  ToCheckMutationResponse,
+  ToSyncMutationResponse,
 } from '../../types';
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -26,8 +26,8 @@ type FinalProps = {
   syncHistoriesQuery: SyncHistoriesQueryResponse;
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props &
-  ToCheckLoansMutationResponse &
-  ToSyncLoansMutationResponse &
+  ToCheckMutationResponse &
+  ToSyncMutationResponse &
   IRouterProps;
 
 class LoanContainer extends React.Component<FinalProps, State> {
@@ -44,12 +44,12 @@ class LoanContainer extends React.Component<FinalProps, State> {
       this.props;
     const { items } = this.state;
 
-    const toCheckLoans = () => {
+    const toCheck = (type: string) => {
       this.setState({ loading: true });
       this.props
-        .toCheckLoans({ variables: {} })
+        .toCheck({ variables: { type } })
         .then((response) => {
-          this.setState({ items: response.data.toCheckLoans });
+          this.setState({ items: response.data.toCheck.results.items });
           this.setState({ loading: false });
         })
         .catch((e) => {
@@ -58,14 +58,13 @@ class LoanContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSyncLoans = (action: string, loans: any[]) => {
-      console.log('jejdsklfjs', loans);
+    const toSync = (type: string, items: any[]) => {
       this.setState({ loading: true });
       this.props
-        .toSyncLoans({
+        .toSync({
           variables: {
-            action,
-            loans,
+            type,
+            items,
           },
         })
         .then(() => {
@@ -84,8 +83,8 @@ class LoanContainer extends React.Component<FinalProps, State> {
       queryParams,
       syncHistories,
       totalCount,
-      toCheckLoans,
-      toSyncLoans,
+      toCheck,
+      toSync,
       items,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
@@ -132,17 +131,11 @@ export default withProps<Props>(
         }),
       },
     ),
-    graphql<Props, ToCheckLoansMutationResponse, {}>(
-      gql(mutations.toCheckLoans),
-      {
-        name: 'toCheckLoans',
-      },
-    ),
-    graphql<Props, ToSyncLoansMutationResponse, {}>(
-      gql(mutations.toSyncLoans),
-      {
-        name: 'toSyncLoans',
-      },
-    ),
+    graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheck), {
+      name: 'toCheck',
+    }),
+    graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSync), {
+      name: 'toSync',
+    }),
   )(LoanContainer),
 );

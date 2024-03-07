@@ -16,13 +16,13 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
 import SavingCheckForm from '../../SyncForm/Form';
 interface IProps extends IRouterProps {
-  toSyncSavings: (action: string, toSyncSavings: any[]) => void;
+  toSync: (type: string, toSync: any[]) => void;
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
-  toCheckSavings: () => void;
+  toCheck: (type: string) => void;
   items: any;
 }
 class SavingAcnt extends React.Component<IProps> {
@@ -34,14 +34,14 @@ class SavingAcnt extends React.Component<IProps> {
       loading,
       queryParams,
       items,
-      toCheckSavings,
-      toSyncSavings,
+      toCheck,
+      toSync,
     } = this.props;
     const tablehead = ['Date', 'Contant number', 'Status', 'Deposit', 'Error'];
     const formhead = ['Number', 'Status', 'Start Date', 'End Date'];
     const onCheckSaving = (e) => {
       e.stopPropagation();
-      this.props.toCheckSavings();
+      this.props.toCheck('savingAcnt');
     };
     const checkButton = (
       <Button
@@ -57,11 +57,11 @@ class SavingAcnt extends React.Component<IProps> {
       const content = (props) => {
         return (
           <SavingCheckForm
-            items={items?.SavingContracts?.items}
-            toSync={toSyncSavings}
-            toCheck={toCheckSavings}
+            items={items}
+            toSync={toSync}
+            toCheck={toCheck}
             tablehead={formhead}
-            type={'acnt'}
+            type={'savingAcnt'}
             {...props}
           />
         );

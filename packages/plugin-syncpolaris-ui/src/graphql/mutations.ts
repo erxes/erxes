@@ -1,46 +1,18 @@
 // Settings
 
-const toCheckCustomers = `
-  mutation toCheckCustomers($codes: [String]) {
-    toCheckCustomers(codes: $codes)
+const toCheck = `
+  mutation toCheck($type: [String]) {
+    toCheck(type: $type)
   }
 `;
 
-const toSyncCustomers = `
-  mutation toSyncCustomers($action: String, $customers: [JSON]) {
-    toSyncCustomers(action: $action, customers: $customers)
-  }
-`;
-
-const toCheckSavings = `
-  mutation toCheckSavings($codes: [String]) {
-    toCheckSavings(codes: $codes)
-  }
-`;
-
-const toSyncSavings = `
-  mutation toSyncSavings($action: String, $savings: [JSON]) {
-    toSyncSavings(action: $action, savings: $savings)
-  }
-`;
-
-const toCheckLoans = `
-  mutation toCheckLoans($codes: [String]) {
-    toCheckLoans(codes: $codes)
-  }
-`;
-
-const toSyncLoans = `
-  mutation toSyncLoans($action: String, $loans: [JSON]) {
-    toSyncLoans(action: $action, loans: $loans)
+const toSync = `
+  mutation toSync($type: String, $items: [JSON]) {
+    toSync(type: $type, items: $items)
   }
 `;
 
 export default {
-  toCheckCustomers,
-  toSyncCustomers,
-  toCheckSavings,
-  toSyncSavings,
-  toCheckLoans,
-  toSyncLoans,
+  toCheck,
+  toSync,
 };

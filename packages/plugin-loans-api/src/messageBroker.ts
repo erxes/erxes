@@ -15,32 +15,16 @@ export const initBroker = async () => {
     };
   });
 
-  consumeRPCQueue(
-    'loans:contracts.updateContractNumber',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { selector, modifier } = data;
 
-      return {
-        status: 'success',
-        data: await models.Contracts.updateOne(
-          { _id: data._id },
-          { number: data.number },
-        ),
-      };
-    },
-  );
-
-  consumeRPCQueue(
-    'loans:contracts.updateOne',
-    async ({ subdomain, data: { selector, modifier } }) => {
-      console.log('selector:', selector, modifier);
-      const models = await generateModels(subdomain);
-      return {
-        status: 'success',
-        data: await models.Contracts.updateOne(selector, modifier),
-      };
-    },
-  );
+    const result = await models.Contracts.updateOne(selector, modifier);
+    return {
+      status: 'success',
+      data: result,
+    };
+  });
 
   consumeRPCQueue(
     'loans:contracts.getCloseInfo',

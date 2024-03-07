@@ -16,13 +16,13 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
 import CustomerCheckForm from '../../SyncForm/Form';
 interface IProps extends IRouterProps {
-  toSyncCustomers: (action: string, customers: any[]) => void;
+  toSync: (type: string, items: any[]) => void;
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
-  toCheckCustomers: () => void;
+  toCheck: (type: string) => void;
   items: any;
 }
 
@@ -35,14 +35,14 @@ class Customer extends React.Component<IProps> {
       loading,
       queryParams,
       items,
-      toSyncCustomers,
-      toCheckCustomers,
+      toSync,
+      toCheck,
     } = this.props;
     const tablehead = ['Date', 'Email', 'content', 'error'];
 
     const formHead = ['Code', 'Last name', 'Firs Name', 'Phones'];
     const onClickCheck = (e) => {
-      toCheckCustomers();
+      toCheck('customer');
       this.setState({ items: items });
     };
 
@@ -85,8 +85,8 @@ class Customer extends React.Component<IProps> {
         return (
           <CustomerCheckForm
             items={items}
-            onCheck={toCheckCustomers}
-            toSync={toSyncCustomers}
+            toCheck={toCheck}
+            toSync={toSync}
             type={'customer'}
             tablehead={formHead}
             {...props}

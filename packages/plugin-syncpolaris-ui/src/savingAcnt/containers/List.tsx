@@ -2,8 +2,8 @@ import * as compose from 'lodash.flowright';
 import {
   SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
-  ToCheckSavingsMutationResponse,
-  ToSyncSavingsMutationResponse,
+  ToCheckMutationResponse,
+  ToSyncMutationResponse,
 } from '../../types';
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -27,8 +27,8 @@ type FinalProps = {
   syncHistoriesQuery: SyncHistoriesQueryResponse;
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props &
-  ToCheckSavingsMutationResponse &
-  ToSyncSavingsMutationResponse &
+  ToCheckMutationResponse &
+  ToSyncMutationResponse &
   IRouterProps;
 
 class SavingContainer extends React.Component<FinalProps, State> {
@@ -46,12 +46,12 @@ class SavingContainer extends React.Component<FinalProps, State> {
 
     const { items } = this.state;
 
-    const toCheckSavings = () => {
+    const toCheck = (type: string) => {
       this.setState({ loading: true });
       this.props
-        .toCheckSavings({ variables: {} })
+        .toCheck({ variables: { type } })
         .then((response) => {
-          this.setState({ items: response.data.toCheckSavings });
+          this.setState({ items: response.data.toCheck.results.items });
           this.setState({ loading: false });
         })
         .catch((e) => {
@@ -60,13 +60,13 @@ class SavingContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSyncSavings = (action: string, savings: any[]) => {
+    const toSync = (type: string, items: any[]) => {
       this.setState({ loading: true });
       this.props
-        .toSyncSavings({
+        .toSync({
           variables: {
-            action,
-            savings,
+            type,
+            items,
           },
         })
         .then(() => {
@@ -82,8 +82,8 @@ class SavingContainer extends React.Component<FinalProps, State> {
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
     const updatedProps = {
       ...this.props,
-      toCheckSavings,
-      toSyncSavings,
+      toCheck,
+      toSync,
       items,
       queryParams,
       syncHistories,
@@ -133,17 +133,11 @@ export default withProps<Props>(
         }),
       },
     ),
-    graphql<Props, ToCheckSavingsMutationResponse, {}>(
-      gql(mutations.toCheckSavings),
-      {
-        name: 'toCheckSavings',
-      },
-    ),
-    graphql<Props, ToSyncSavingsMutationResponse, {}>(
-      gql(mutations.toSyncSavings),
-      {
-        name: 'toSyncSavings',
-      },
-    ),
+    graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheck), {
+      name: 'toCheck',
+    }),
+    graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSync), {
+      name: 'toSync',
+    }),
   )(SavingContainer),
 );

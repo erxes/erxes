@@ -2,8 +2,8 @@ import * as compose from 'lodash.flowright';
 import {
   SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
-  ToCheckCustomersMutationResponse,
-  ToSyncCustomersMutationResponse,
+  ToCheckMutationResponse,
+  ToSyncMutationResponse,
 } from '../../types';
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -27,8 +27,8 @@ type FinalProps = {
   syncHistoriesQuery: SyncHistoriesQueryResponse;
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props &
-  ToCheckCustomersMutationResponse &
-  ToSyncCustomersMutationResponse &
+  ToCheckMutationResponse &
+  ToSyncMutationResponse &
   IRouterProps;
 
 class CustomerContainer extends React.Component<FinalProps, State> {
@@ -45,13 +45,13 @@ class CustomerContainer extends React.Component<FinalProps, State> {
       this.props;
     const { items } = this.state;
 
-    const toCheckCustomers = () => {
+    const toCheck = (type: string) => {
       this.setState({ loading: true });
       this.props
-        .toCheckCustomers({ variables: {} })
+        .toCheck({ variables: { type } })
         .then((response) => {
           this.setState({
-            items: response.data.toCheckCustomers.diffCustomer.items || [],
+            items: response.data.toCheck.results.items || [],
           });
           this.setState({ loading: false });
         })
@@ -61,13 +61,13 @@ class CustomerContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSyncCustomers = (action: string, customers: any[]) => {
+    const toSync = (type: string, items: any[]) => {
       this.setState({ loading: true });
       this.props
-        .toSyncCustomers({
+        .toSync({
           variables: {
-            action,
-            customers,
+            type,
+            items,
           },
         })
         .then(() => {
@@ -84,8 +84,8 @@ class CustomerContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       queryParams,
-      toCheckCustomers,
-      toSyncCustomers,
+      toCheck,
+      toSync,
       syncHistories,
       totalCount,
       items,
@@ -134,17 +134,11 @@ export default withProps<Props>(
         }),
       },
     ),
-    graphql<Props, ToCheckCustomersMutationResponse, {}>(
-      gql(mutations.toCheckCustomers),
-      {
-        name: 'toCheckCustomers',
-      },
-    ),
-    graphql<Props, ToSyncCustomersMutationResponse, {}>(
-      gql(mutations.toSyncCustomers),
-      {
-        name: 'toSyncCustomers',
-      },
-    ),
+    graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheck), {
+      name: 'toCheck',
+    }),
+    graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSync), {
+      name: 'toSync',
+    }),
   )(CustomerContainer),
 );

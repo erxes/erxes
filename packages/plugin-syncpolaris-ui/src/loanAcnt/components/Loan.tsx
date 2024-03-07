@@ -21,8 +21,8 @@ interface IProps extends IRouterProps {
   totalCount: number;
   history: any;
   queryParams: any;
-  toSyncLoans: (action: string, toSyncSavings: any[]) => void;
-  toCheckLoans: () => void;
+  toSync: (type: string, items: any[]) => void;
+  toCheck: (type: string) => void;
   items: any;
 }
 
@@ -35,15 +35,15 @@ class Loan extends React.Component<IProps> {
       loading,
       queryParams,
       items,
-      toSyncLoans,
-      toCheckLoans,
+      toSync,
+      toCheck,
     } = this.props;
 
     const tablehead = ['Date', 'Number', 'Status', 'Content', 'Error'];
     const formHead = ['Number', 'Status', 'Start Date', 'End Date'];
     const onClickCheck = (e) => {
       e.stopPropagation();
-      this.props.toCheckLoans();
+      this.props.toCheck('loanAcnt');
     };
 
     const checkButton = (
@@ -85,11 +85,11 @@ class Loan extends React.Component<IProps> {
       const content = (props) => {
         return (
           <LoanCheckForm
-            items={items?.loanContracts?.items}
-            toCheck={toCheckLoans}
-            toSync={toSyncLoans}
+            items={items}
+            toCheck={toCheck}
+            toSync={toSync}
             tablehead={formHead}
-            type="acnt"
+            type="loanAcnt"
             {...props}
           />
         );

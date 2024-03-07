@@ -27,10 +27,10 @@ function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
           onChange={onChange}
         />
       </td>
-      <td>{type === 'acnt' ? item?.number : item?.code}</td>
-      <td>{type === 'acnt' ? item?.status : item?.lastName}</td>
-      <td>{type === 'acnt' ? item?.startDate : item?.firstName}</td>
-      <td>{type === 'acnt' ? item?.endDate : item?.phones}</td>
+      <td>{type === 'customer' ? item?.code : item?.number}</td>
+      <td>{type === 'customer' ? item?.lastName : item?.status}</td>
+      <td>{type === 'customer' ? item?.firstName : item?.startDate}</td>
+      <td>{type === 'customer' ? item?.phones : item?.endDate}</td>
     </tr>
   );
 }

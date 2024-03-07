@@ -2,16 +2,16 @@ import { sendCommonMessage } from '../../messageBroker';
 import { getCustomerDetail } from '../customer/getCustomerDetail';
 import { getLoanDetail } from '../loan/getLoanDetail';
 import { getSavingDetail } from '../saving/getSavingDetail';
-type CustomFieldType =
-  | 'contacts:customer'
-  | 'loans:contract'
-  | 'savings:contract';
+import {
+  getCustomers,
+  getLoanContracts,
+  getSavingContracts,
+  updateCustomer,
+  updateLoanContract,
+  updateSavingContract,
+} from '../utils';
 
-export const getCustomFields = async (
-  subdomain,
-  customFieldType: CustomFieldType,
-  item?,
-) => {
+export const getCustomFields = async (subdomain, customFieldType, item?) => {
   const fields = await sendCommonMessage({
     subdomain,
     serviceName: 'forms',
@@ -141,4 +141,70 @@ export const setCustomFieldValue = async (
     });
   }
   return customFieldsData;
+};
+
+export const getPolarisData = async (type, subdomain, item) => {
+  let result: any = {};
+  switch (type) {
+    case 'customer': {
+      return await getCustomPolaris(subdomain, item.code);
+    }
+    case 'loanAcnt': {
+      return await getLoanAcntPolaris(subdomain, item.number);
+    }
+    case 'savingAcnt': {
+      return await getSavingAcntPolaris(subdomain, {
+        number: item.number,
+      });
+    }
+    default: {
+      break;
+    }
+  }
+};
+
+export const syncDataToErxes = async (type, subdomain, item, updateData) => {
+  switch (type) {
+    case 'customer': {
+      return await updateCustomer(subdomain, item.code, updateData);
+    }
+    case 'loanAcnt': {
+      return updateLoanContract(subdomain, item.number, updateData);
+    }
+    case 'savingAcnt': {
+      return await updateSavingContract(subdomain, item.number, updateData);
+    }
+    default: {
+      break;
+    }
+  }
+};
+
+export const findCustomFieldType = async (type) => {
+  switch (type) {
+    case 'customer':
+      return 'contacts:customer';
+    case 'loanAcnt':
+      return 'loans:contract';
+    case 'savingAcnt':
+      return 'savings:contract';
+    default:
+      break;
+  }
+};
+export const getMainDatas = async (subdomain, type) => {
+  switch (type) {
+    case 'customer': {
+      return await getCustomers(subdomain, {});
+    }
+    case 'loanAcnt': {
+      return await getLoanContracts(subdomain, {});
+    }
+    case 'savingAcnt': {
+      return await getSavingContracts(subdomain, {});
+    }
+    default: {
+      break;
+    }
+  }
 };

@@ -108,7 +108,7 @@ export const updateCustomer = async (subdomain, code, data) => {
 export const updateLoanContract = async (subdomain, acntcode, data) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.updateOne',
+    action: 'contracts.update',
     serviceName: 'loans',
     data: {
       selector: { number: acntcode },
@@ -121,7 +121,7 @@ export const updateLoanContract = async (subdomain, acntcode, data) => {
 export const updateSavingContract = async (subdomain, acntcode, data) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.updateOne',
+    action: 'contracts.update',
     serviceName: 'savings',
     data: {
       selector: { number: acntcode },
@@ -151,11 +151,12 @@ export const getLoanProduct = async (subdomain, _id) => {
   });
 };
 
-export const getLoanProducts = async (subdomain) => {
+export const getLoanProducts = async (subdomain, data) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contractType.find',
     serviceName: 'loans',
+    data: data,
     isRPC: true,
   });
 };
@@ -163,9 +164,12 @@ export const getLoanProducts = async (subdomain) => {
 export const updateLoanNumber = async (subdomain, _id, number) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.updateContractNumber',
+    action: 'contracts.update',
     serviceName: 'loans',
-    data: { _id, number },
+    data: {
+      selector: { _id: _id },
+      modifier: { $set: { number: number } },
+    },
     isRPC: true,
   });
 };
@@ -173,9 +177,12 @@ export const updateLoanNumber = async (subdomain, _id, number) => {
 export const updateSavingNumber = async (subdomain, _id, number) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contracts.updateContractNumber',
+    action: 'contracts.update',
     serviceName: 'savings',
-    data: { _id, number },
+    data: {
+      selector: { _id: _id },
+      modifier: { $set: { number: number } },
+    },
     isRPC: true,
   });
 };
