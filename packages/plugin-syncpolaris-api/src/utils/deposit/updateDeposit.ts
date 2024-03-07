@@ -1,8 +1,8 @@
 import {
   customFieldToObject,
   fetchPolaris,
-  getSavingProduct,
-  updateSavingNumber,
+  getProduct,
+  updateContract,
 } from '../utils';
 import { IPolarisDeposit } from './types';
 import { validateDepositObject } from './validator';
@@ -40,11 +40,11 @@ export const updateDeposit = async (subdomain: string, params) => {
     'savings:contract',
     deposit,
   );
-  const savingProduct = await getSavingProduct(
+  const savingProduct = await getProduct(
     subdomain,
     deposit.contractTypeId,
+    'savings',
   );
-
   let sendData: IPolarisDeposit = {
     acntType: objectCus.acntType,
     prodCode: savingProduct.code,
@@ -77,6 +77,11 @@ export const updateDeposit = async (subdomain: string, params) => {
   });
 
   if (typeof depositCode === 'string') {
-    await updateSavingNumber(subdomain, deposit._id, depositCode);
+    await updateContract(
+      subdomain,
+      { _id: deposit._id },
+      { $set: { number: depositCode } },
+      'savings',
+    );
   }
 };

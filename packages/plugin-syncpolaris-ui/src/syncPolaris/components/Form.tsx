@@ -14,26 +14,22 @@ type Props = {
   emptyBulk: () => void;
   toCheck: (type: string) => void;
   isAllSelected: boolean;
-  tablehead;
   type;
+  tablehead;
 };
-
 const TypeForm = (props: Props) => {
-  const { items, bulk, toggleBulk, isAllSelected, tablehead, type } = props;
+  const { items, bulk, toggleBulk, isAllSelected, type, tablehead } = props;
 
   const renderContent = () => {
     const onChange = () => {
       const { toggleAll, items } = props;
       toggleAll(items, 'customers');
     };
-
     const onClickSync = (e) => {
       const { toSync, toCheck, emptyBulk, type } = props;
       toSync(type, bulk);
       emptyBulk();
       toCheck(type);
-      e.reset();
-
       e.preventDefault();
     };
 

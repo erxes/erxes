@@ -8,7 +8,7 @@ import {
 import { queries } from '../../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Customer from '../components/Customer';
+import List from '../components/List';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -18,6 +18,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 type Props = {
   history: any;
   queryParams: any;
+  contentType: string;
 };
 type State = {
   items: any;
@@ -41,8 +42,12 @@ class CustomerContainer extends React.Component<FinalProps, State> {
     };
   }
   render() {
-    const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
-      this.props;
+    const {
+      queryParams,
+      syncHistoriesQuery,
+      syncHistoriesCountQuery,
+      contentType,
+    } = this.props;
     const { items } = this.state;
 
     const toCheck = (type: string) => {
@@ -79,6 +84,7 @@ class CustomerContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
         });
     };
+
     const syncHistories = syncHistoriesQuery.syncHistories || [];
     const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
     const updatedProps = {
@@ -89,15 +95,15 @@ class CustomerContainer extends React.Component<FinalProps, State> {
       syncHistories,
       totalCount,
       items,
+      contentType,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
-    return <Customer {...updatedProps} />;
+    return <List {...updatedProps} />;
   }
 }
 
-const generateParams = ({ queryParams }) => {
+const generateParams = ({ queryParams }, { contentType }) => {
   const pageInfo = router.generatePaginationParams(queryParams || {});
-
   return {
     page: pageInfo.page || 1,
     perPage: pageInfo.perPage || 20,
@@ -106,7 +112,7 @@ const generateParams = ({ queryParams }) => {
     userId: queryParams.userId,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
-    contentType: 'contacts:customer',
+    contentType: contentType,
     contentId: queryParams.contentId,
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
@@ -119,8 +125,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistories), {
       name: 'syncHistoriesQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
+      options: ({ queryParams, contentType }) => ({
+        variables: generateParams({ queryParams }, { contentType }),
         fetchPolicy: 'network-only',
       }),
     }),
@@ -128,8 +134,8 @@ export default withProps<Props>(
       gql(queries.syncHistoriesCount),
       {
         name: 'syncHistoriesCountQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
+        options: ({ queryParams, contentType }) => ({
+          variables: generateParams({ queryParams }, { contentType }),
           fetchPolicy: 'network-only',
         }),
       },

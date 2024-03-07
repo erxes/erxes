@@ -59,16 +59,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-export const getCustomer = async (subdomain, _id) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'customers.findOne',
-    serviceName: 'contacts',
-    data: { _id },
-    isRPC: true,
-  });
-};
-export const getCustomers = async (subdomain, data) => {
+export const getCustomer = async (subdomain, data) => {
   return await sendCommonMessage({
     subdomain,
     action: 'customers.find',
@@ -77,52 +68,14 @@ export const getCustomers = async (subdomain, data) => {
     isRPC: true,
   });
 };
-export const setCustomerCode = async (subdomain, _id, code) => {
+
+export const updateCustomer = async (subdomain, query, data) => {
   return await sendCommonMessage({
     subdomain,
     action: 'customers.updateOne',
     serviceName: 'contacts',
     data: {
-      selector: { _id },
-      modifier: { $set: { code } },
-    },
-    isRPC: true,
-  });
-};
-
-export const updateCustomer = async (subdomain, code, data) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'customers.updateOne',
-    serviceName: 'contacts',
-    data: {
-      selector: { code: code },
-      modifier: { $set: data },
-    },
-    isRPC: true,
-  });
-};
-
-export const updateLoanContract = async (subdomain, acntcode, data) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contracts.update',
-    serviceName: 'loans',
-    data: {
-      selector: { number: acntcode },
-      modifier: { $set: data },
-    },
-    isRPC: true,
-  });
-};
-
-export const updateSavingContract = async (subdomain, acntcode, data) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contracts.update',
-    serviceName: 'savings',
-    data: {
-      selector: { number: acntcode },
+      selector: query,
       modifier: { $set: data },
     },
     isRPC: true,
@@ -139,47 +92,19 @@ export const getBranch = async (subdomain, _id) => {
   });
 };
 
-export const getLoanProduct = async (subdomain, _id) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contractType.findOne',
-    serviceName: 'loans',
-    data: { _id },
-    isRPC: true,
-  });
-};
-
-export const getLoanProducts = async (subdomain, data) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contractType.find',
-    serviceName: 'loans',
-    data: data,
-    isRPC: true,
-  });
-};
-
-export const updateLoanNumber = async (subdomain, _id, number) => {
+export const updateContract = async (
+  subdomain,
+  selector,
+  updateData,
+  serviceName,
+) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contracts.update',
-    serviceName: 'loans',
+    serviceName: serviceName,
     data: {
-      selector: { _id: _id },
-      modifier: { $set: { number: number } },
-    },
-    isRPC: true,
-  });
-};
-
-export const updateSavingNumber = async (subdomain, _id, number) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contracts.update',
-    serviceName: 'savings',
-    data: {
-      selector: { _id: _id },
-      modifier: { $set: { number: number } },
+      selector: selector,
+      modifier: updateData,
     },
     isRPC: true,
   });
@@ -195,24 +120,6 @@ export const getUser = async (subdomain, id) => {
   });
 };
 
-export const getLoanContract = async (subdomain, id) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contracts.findOne',
-    serviceName: 'loans',
-    data: { _id: id },
-    isRPC: true,
-  });
-};
-export const getLoanContracts = async (subdomain, data) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contracts.find',
-    serviceName: 'loans',
-    data: data,
-    isRPC: true,
-  });
-};
 export const getCloseInfo = async (
   subdomain: string,
   contractId: string,
@@ -297,31 +204,21 @@ export const getCustomFields = async (
   return fields;
 };
 
-export const getSavingProduct = async (subdomain, _id) => {
+export const getProduct = async (subdomain, data, serverName) => {
   return await sendCommonMessage({
     subdomain,
-    action: 'contractType.findOne',
-    serviceName: 'savings',
-    data: { _id },
+    action: 'contractType.find',
+    serviceName: serverName,
+    data: { data },
     isRPC: true,
   });
 };
 
-export const getSavingContract = async (subdomain, _id) => {
-  return await sendCommonMessage({
-    subdomain,
-    action: 'contract.findOne',
-    serviceName: 'savings',
-    data: { _id },
-    isRPC: true,
-  });
-};
-
-export const getSavingContracts = async (subdomain, data) => {
+export const getContract = async (subdomain, data, serviceName) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contracts.find',
-    serviceName: 'savings',
+    serviceName: serviceName,
     data: data,
     isRPC: true,
   });

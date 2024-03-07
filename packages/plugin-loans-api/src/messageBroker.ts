@@ -48,7 +48,6 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
     return {
       status: 'success',
       data: await models.ContractTypes.findOne(data).lean(),

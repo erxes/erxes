@@ -1,7 +1,7 @@
 // Settings
 
 const toCheck = `
-  mutation toCheck($type: [String]) {
+  mutation toCheck($type: String) {
     toCheck(type: $type)
   }
 `;

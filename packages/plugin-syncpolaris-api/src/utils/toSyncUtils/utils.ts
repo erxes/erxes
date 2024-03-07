@@ -3,12 +3,10 @@ import { getCustomerDetail } from '../customer/getCustomerDetail';
 import { getLoanDetail } from '../loan/getLoanDetail';
 import { getSavingDetail } from '../saving/getSavingDetail';
 import {
-  getCustomers,
-  getLoanContracts,
-  getSavingContracts,
+  getContract,
+  getCustomer,
+  updateContract,
   updateCustomer,
-  updateLoanContract,
-  updateSavingContract,
 } from '../utils';
 
 export const getCustomFields = async (subdomain, customFieldType, item?) => {
@@ -88,13 +86,12 @@ export const preSyncDatas = async (mainData, polarisData, customFields) => {
     }
     updateData['customFieldsData'] = customFieldsData;
   }
-
   return updateData;
 };
 
 export const getCustomPolaris = async (subdomain, code) => {
   try {
-    return await getCustomerDetail(subdomain, { code: code });
+    return;
   } catch (error) {
     console.log('error:', error);
   }
@@ -110,7 +107,7 @@ export const getLoanAcntPolaris = async (subdomain, number) => {
 
 export const getSavingAcntPolaris = async (subdomain, number) => {
   try {
-    return await getSavingDetail(subdomain, { number: number });
+    return;
   } catch (error) {
     console.log('error:', error);
   }
@@ -144,64 +141,61 @@ export const setCustomFieldValue = async (
 };
 
 export const getPolarisData = async (type, subdomain, item) => {
-  let result: any = {};
-  switch (type) {
-    case 'customer': {
-      return await getCustomPolaris(subdomain, item.code);
+  try {
+    switch (type) {
+      case 'contacts:customer':
+        return await getCustomerDetail(subdomain, { code: item.code });
+      case 'loans:contract':
+        return await getLoanDetail(subdomain, { number: item.number });
+      case 'savings:contract':
+        return await getSavingDetail(subdomain, { number: item.number });
+      default:
+        break;
     }
-    case 'loanAcnt': {
-      return await getLoanAcntPolaris(subdomain, item.number);
-    }
-    case 'savingAcnt': {
-      return await getSavingAcntPolaris(subdomain, {
-        number: item.number,
-      });
-    }
-    default: {
-      break;
-    }
+  } catch (error) {
+    console.log('error:', error);
   }
 };
 
-export const syncDataToErxes = async (type, subdomain, item, updateData) => {
+export const syncDataToErxes = async (
+  type,
+  subdomain,
+  item,
+  updateData,
+  serviceName,
+) => {
   switch (type) {
-    case 'customer': {
-      return await updateCustomer(subdomain, item.code, updateData);
-    }
-    case 'loanAcnt': {
-      return updateLoanContract(subdomain, item.number, updateData);
-    }
-    case 'savingAcnt': {
-      return await updateSavingContract(subdomain, item.number, updateData);
-    }
-    default: {
-      break;
-    }
-  }
-};
-
-export const findCustomFieldType = async (type) => {
-  switch (type) {
-    case 'customer':
-      return 'contacts:customer';
-    case 'loanAcnt':
-      return 'loans:contract';
-    case 'savingAcnt':
-      return 'savings:contract';
+    case 'contacts:customer':
+      return await updateCustomer(subdomain, { code: item.code }, updateData);
+    case 'loans:contract':
+      return updateContract(
+        subdomain,
+        { number: item.number },
+        { $set: updateData },
+        'loans',
+      );
+    case 'savings:contract':
+      return await updateContract(
+        subdomain,
+        { number: item.number },
+        { $set: updateData },
+        'savings',
+      );
     default:
       break;
   }
 };
+
 export const getMainDatas = async (subdomain, type) => {
   switch (type) {
-    case 'customer': {
-      return await getCustomers(subdomain, {});
+    case 'contacts:customer': {
+      return await getCustomer(subdomain, {});
     }
-    case 'loanAcnt': {
-      return await getLoanContracts(subdomain, {});
+    case 'loans:contract': {
+      return await getContract(subdomain, {}, 'loans');
     }
-    case 'savingAcnt': {
-      return await getSavingContracts(subdomain, {});
+    case 'savings:contract': {
+      return await getContract(subdomain, {}, 'savings');
     }
     default: {
       break;

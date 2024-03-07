@@ -14,7 +14,7 @@ import Sidebar from './Sidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
-import CustomerCheckForm from '../../SyncForm/Form';
+import Form from './Form';
 interface IProps extends IRouterProps {
   toSync: (type: string, items: any[]) => void;
   syncHistories: any[];
@@ -24,9 +24,13 @@ interface IProps extends IRouterProps {
   queryParams: any;
   toCheck: (type: string) => void;
   items: any;
+  contentType;
 }
 
-class Customer extends React.Component<IProps> {
+class List extends React.Component<IProps> {
+  constructor(props) {
+    super(props);
+  }
   render() {
     const {
       history,
@@ -37,20 +41,33 @@ class Customer extends React.Component<IProps> {
       items,
       toSync,
       toCheck,
+      contentType,
     } = this.props;
-    const tablehead = ['Date', 'Email', 'content', 'error'];
-
-    const formHead = ['Code', 'Last name', 'Firs Name', 'Phones'];
-    const onClickCheck = (e) => {
-      toCheck('customer');
-      this.setState({ items: items });
+    const formHead: any[] = [];
+    const tablehead = ['Date', 'code', 'Action', 'content', 'error'];
+    contentType === 'contacts:customer'
+      ? formHead.push('Code', 'Last name', 'Firs Name', 'Phones')
+      : formHead.push('Number', 'Status', 'Start Date', 'End Date');
+    const onClickCheck = () => {
+      toCheck(contentType);
     };
+    let checkButton: React.ReactNode;
+    if (
+      contentType === 'contacts:customer' ||
+      contentType === 'savings:contract' ||
+      contentType === 'loans:contract'
+    ) {
+      checkButton = (
+        <Button
+          btnStyle="warning"
+          icon="check-circle"
+          onMouseDown={onClickCheck}
+        >
+          Check
+        </Button>
+      );
+    }
 
-    const checkButton = (
-      <Button btnStyle="warning" icon="check-circle" onMouseDown={onClickCheck}>
-        Check
-      </Button>
-    );
     const mainContent = (
       <Table whiteSpace="nowrap" bordered={true} hover={true}>
         <thead>
@@ -60,19 +77,23 @@ class Customer extends React.Component<IProps> {
             ))}
           </tr>
         </thead>
-        <tbody id="customers">
-          {(syncHistories || []).map((customer) => (
-            <tr key={customer._id}>
-              <td>{dayjs(customer.createdAt).format('lll')}</td>
-              <td>{customer.createdUser?.email}</td>
-              <td>{customer.content}</td>
+        <tbody id="syncPolaris">
+          {(syncHistories || []).map((syncHistory) => (
+            <tr key={syncHistory._id}>
+              <td>{dayjs(syncHistory.createdAt).format('lll')}</td>
               <td>
-                {(customer.responseStr || '').includes('timedout')
-                  ? customer.responseStr
+                {syncHistory.consumeData?.object?.code ||
+                  syncHistory.consumeData?.object?.number}
+              </td>
+              <td>{syncHistory.consumeData?.action}</td>
+              <td>{syncHistory.content}</td>
+              <td>
+                {(syncHistory.responseStr || '').includes('timedout')
+                  ? syncHistory.responseStr
                   : `
-                        ${customer.responseData?.extra_info?.warnings || ''}
-                        ${customer.responseData?.message || ''}
-                        ${customer.error || ''}
+                        ${syncHistory.responseData?.extra_info?.warnings || ''}
+                        ${syncHistory.responseData?.message || ''}
+                        ${syncHistory.error || ''}
                         `}
               </td>
             </tr>
@@ -80,14 +101,14 @@ class Customer extends React.Component<IProps> {
         </tbody>
       </Table>
     );
-    const customerCheckForm = () => {
+    const checkForm = () => {
       const content = (props) => {
         return (
-          <CustomerCheckForm
+          <Form
             items={items}
             toCheck={toCheck}
             toSync={toSync}
-            type={'customer'}
+            type={contentType}
             tablehead={formHead}
             {...props}
           />
@@ -97,18 +118,18 @@ class Customer extends React.Component<IProps> {
     };
     const actionBarRight = (
       <ModalTrigger
-        title={`${__('Customers')}`}
+        title={`${__(contentType)}`}
         trigger={checkButton}
         autoOpenKey="showCustomerModal"
         size="xl"
-        content={customerCheckForm}
+        content={checkForm}
         backDrop="static"
       />
     );
 
     const actionBar = (
       <Wrapper.ActionBar
-        left={<Title>{__(`Customers (${totalCount})`)}</Title>}
+        left={<Title>{__(`${contentType} (${totalCount})`)}</Title>}
         right={actionBarRight}
         background="colorWhite"
         wideSpacing={true}
@@ -141,4 +162,4 @@ class Customer extends React.Component<IProps> {
     );
   }
 }
-export default Customer;
+export default List;

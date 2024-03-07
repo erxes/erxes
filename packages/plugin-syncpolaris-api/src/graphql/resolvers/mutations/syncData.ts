@@ -1,6 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 import {
-  findCustomFieldType,
   getCustomFields,
   getPolarisData,
   preSyncDatas,
@@ -14,25 +13,19 @@ const syncmutations = {
     { subdomain }: IContext,
   ) {
     try {
-      const customFieldType = await findCustomFieldType(type);
-      const preCustomFields = await getCustomFields(
-        subdomain,
-        customFieldType,
-        type,
-      );
+      const preCustomFields = await getCustomFields(subdomain, type);
       const customFields = preCustomFields.fields;
-
       for await (const item of items) {
         const polarisData = await getPolarisData(type, subdomain, item);
         const updateData = await preSyncDatas(item, polarisData, customFields);
         if (Object.keys(updateData).length > 0)
-          await syncDataToErxes(type, subdomain, item, updateData);
+          await syncDataToErxes(type, subdomain, item, updateData, '');
       }
       return {
         status: 'success',
       };
     } catch (e) {
-      throw new Error('Error while syncing customer. ' + e);
+      throw new Error('Error while syncing . ' + e);
     }
   },
 };

@@ -13,7 +13,7 @@ import { SidebarList as List, Wrapper } from '@erxes/ui/src/layout';
 import { IQueryParams } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { CustomRangeContainer, FilterContainer } from '../styles';
+import { CustomRangeContainer, FilterContainer } from '../../styles';
 import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
 
 interface Props {
