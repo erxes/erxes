@@ -8,7 +8,7 @@ const generateFilters = async ({
   models,
   user,
   type,
-  params
+  params,
 }: {
   models: IModels;
   user: IUserDocument;
@@ -29,22 +29,22 @@ const generateFilters = async ({
     const userDetail = await models.Users.findOne({ _id: user });
     if (type === 'branch') {
       const branches = await models.Branches.find({
-        _id: { $in: userDetail?.branchIds }
+        _id: { $in: userDetail?.branchIds },
       });
 
       const branchOrders = branches.map(
-        branch => new RegExp(branch.order, 'i')
+        (branch) => new RegExp(branch.order, 'i'),
       );
 
       filter.order = { $in: branchOrders };
     }
     if (type === 'department') {
       const departments = await models.Departments.find({
-        _id: { $in: userDetail?.departmentIds }
+        _id: { $in: userDetail?.departmentIds },
       });
 
       const departmentOrders = departments.map(
-        department => new RegExp(department.order, 'i')
+        (department) => new RegExp(department.order, 'i'),
       );
 
       filter.order = { $in: departmentOrders };
@@ -59,10 +59,9 @@ const generateFilters = async ({
   if (type === 'branch') {
     fieldName = 'BRANCHES';
   }
-
   const mastersStructure = await models.Configs.findOne({
     code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
-    value: { $in: [user._id] }
+    value: { $in: [user._id] },
   });
 
   if (filter.order && (user.isOwner || mastersStructure)) {
@@ -71,15 +70,15 @@ const generateFilters = async ({
   if (params.searchValue) {
     const regexOption = {
       $regex: `.*${params.searchValue.trim()}.*`,
-      $options: 'i'
+      $options: 'i',
     };
 
     let structureFilter: any = {
       $or: [
         { title: regexOption },
         { description: regexOption },
-        { code: regexOption }
-      ]
+        { code: regexOption },
+      ],
     };
 
     if (filter.order) {
@@ -88,16 +87,20 @@ const generateFilters = async ({
 
     if (type === 'department') {
       const departmentOrders = (await models.Departments.find(structureFilter))
-        .map(department => department.code)
+        .map((department) => department.code)
         .join('|');
       filter.order = { $regex: new RegExp(departmentOrders) };
     }
 
     if (type === 'branch') {
       const branchOrders = (await models.Branches.find(structureFilter))
-        .map(department => department.code)
+        .map((department) => department.code)
         .join('|');
       filter.order = { $regex: new RegExp(branchOrders, 'i') };
+    }
+
+    if (type === 'position' && params.searchValue) {
+      return { $and: [filter, structureFilter] };
     }
   }
 
@@ -110,15 +113,15 @@ const structureQueries = {
       models,
       user,
       type: 'department',
-      params
+      params,
     });
     const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
 
     if (!!params?.ids?.length) {
       pipeline.push({
         $addFields: {
-          __order: { $indexOfArray: [params.ids, '$_id'] }
-        }
+          __order: { $indexOfArray: [params.ids, '$_id'] },
+        },
       });
       pipeline.push({ $sort: { __order: 1 } });
     }
@@ -128,24 +131,24 @@ const structureQueries = {
   async departmentsMain(
     _root,
     params: { searchValue?: string; perPage: number; page: number },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const filter = await generateFilters({
       models,
       user,
       type: 'department',
-      params: { ...params, withoutUserFilter: true }
+      params: { ...params, withoutUserFilter: true },
     });
     const list = paginate(
       models.Departments.find(filter).sort({ order: 1 }),
-      params
+      params,
     );
     const totalCount = models.Departments.find(filter).countDocuments();
 
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'departmentIds.0': { $exists: true },
-      isActive: true
+      isActive: true,
     });
 
     return { list, totalCount, totalUsersCount };
@@ -158,23 +161,23 @@ const structureQueries = {
   units(
     _root,
     { searchValue }: { searchValue?: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: { $or?: any[] } = {};
 
     if (searchValue) {
       const regexOption = {
         $regex: `.*${searchValue.trim()}.*`,
-        $options: 'i'
+        $options: 'i',
       };
 
       filter.$or = [
         {
-          title: regexOption
+          title: regexOption,
         },
         {
-          description: regexOption
-        }
+          description: regexOption,
+        },
       ];
     }
 
@@ -184,33 +187,33 @@ const structureQueries = {
   async unitsMain(
     _root,
     params: { searchValue?: string; perPage: number; page: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: { $or?: any[] } = {};
 
     if (params.searchValue) {
       const regexOption = {
         $regex: `.*${params.searchValue.trim()}.*`,
-        $options: 'i'
+        $options: 'i',
       };
 
       filter.$or = [
         {
-          title: regexOption
+          title: regexOption,
         },
         {
-          description: regexOption
-        }
+          description: regexOption,
+        },
       ];
     }
     const list = paginate(
       models.Units.find(filter).sort({ createdAt: -1 }),
-      params
+      params,
     );
     const totalCount = models.Units.find(filter).countDocuments();
 
     const unitUserIds = (await models.Units.find(filter))
-      .map(user => user.userIds)
+      .map((user) => user.userIds)
       .flat();
 
     const totalUsersCount = [...new Set(unitUserIds)].length;
@@ -225,21 +228,21 @@ const structureQueries = {
   async branches(
     _root,
     params: any & { searchValue?: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const filter = await generateFilters({
       models,
       user,
       type: 'branch',
-      params
+      params,
     });
     const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
 
     if (!!params?.ids?.length) {
       pipeline.push({
         $addFields: {
-          __order: { $indexOfArray: [params.ids, '$_id'] }
-        }
+          __order: { $indexOfArray: [params.ids, '$_id'] },
+        },
       });
       pipeline.push({ $sort: { __order: 1 } });
     }
@@ -250,23 +253,23 @@ const structureQueries = {
   async branchesMain(
     _root,
     params: { searchValue?: string; perPage: number; page: number },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const filter = await generateFilters({
       models,
       user,
       type: 'branch',
-      params: { ...params, withoutUserFilter: true }
+      params: { ...params, withoutUserFilter: true },
     });
     const list = paginate(
       models.Branches.find(filter).sort({ order: 1 }),
-      params
+      params,
     );
     const totalCount = models.Branches.find(filter).countDocuments();
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'branchIds.0': { $exists: true },
-      isActive: true
+      isActive: true,
     });
 
     return { list, totalCount, totalUsersCount };
@@ -287,7 +290,7 @@ const structureQueries = {
 
     const departments = await models.Departments.find(filter);
 
-    departments.forEach(d => {
+    departments.forEach((d) => {
       if (d.supervisorId) {
         userIds.push(d.supervisorId);
       }
@@ -302,7 +305,63 @@ const structureQueries = {
 
   structureDetail(_root, _args, { models }: IContext) {
     return models.Structures.findOne();
-  }
+  },
+
+  async positions(
+    _root,
+    params: any & { searchValue?: string },
+    { models, user }: IContext,
+  ) {
+    const filter = await generateFilters({
+      models,
+      user,
+      type: 'position',
+      params,
+    });
+    const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
+
+    if (!!params?.ids?.length) {
+      pipeline.push({
+        $addFields: {
+          __order: { $indexOfArray: [params.ids, '$_id'] },
+        },
+      });
+      pipeline.push({ $sort: { __order: 1 } });
+    }
+
+    return models.Positions.aggregate(pipeline);
+  },
+
+  async positionsMain(
+    _root,
+    params: { searchValue?: string; perPage: number; page: number },
+    { models, user }: IContext,
+  ) {
+    const filter = await generateFilters({
+      models,
+      user,
+      type: 'position',
+      params: { ...params, withoutUserFilter: true },
+    });
+
+    const list = paginate(
+      models.Positions.find(filter).sort({ order: 1 }),
+      params,
+    );
+
+    const totalCount = models.Positions.find(filter).countDocuments();
+    const totalUsersCount = await models.Users.countDocuments({
+      ...filter,
+      'positionIds.0': { $exists: true },
+      isActive: true,
+    });
+
+    return { list, totalCount, totalUsersCount };
+  },
+
+  positionDetail(_root, { _id }, { models }: IContext) {
+    return models.Positions.getPosition({ _id });
+  },
 };
 
 checkPermission(structureQueries, 'structureDetail', 'showStructure');

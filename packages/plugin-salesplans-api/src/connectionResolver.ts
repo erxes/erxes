@@ -13,7 +13,7 @@ import { IDayPlanDocument } from './models/definitions/dayPlans';
 import { IDayLabelDocument } from './models/definitions/dayLabels';
 import {
   ITimeProportionModel,
-  loadTimeProportionClass
+  loadTimeProportionClass,
 } from './models/TimeProportions';
 import { ITimeProportionDocument } from './models/definitions/timeProportions';
 
@@ -35,19 +35,17 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Labels = db.model<ILabelDocument, ILabelModel>(
     'salesplans_labels',
-    loadLabelClass(models)
+    loadLabelClass(models),
   );
 
   models.Timeframes = db.model<ITimeframeDocument, ITimeframeModel>(
     'timeframes',
-    loadTimeframeClass(models)
+    loadTimeframeClass(models),
   );
 
   models.TimeProportions = db.model<
@@ -57,23 +55,20 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.YearPlans = db.model<IYearPlanDocument, IYearPlanModel>(
     'salesplans_yearplans',
-    loadYearPlanClass(models)
+    loadYearPlanClass(models),
   );
 
   models.DayLabels = db.model<IDayLabelDocument, IDayLabelModel>(
     'salesplans_daylabels',
-    loadDayLabelClass(models)
+    loadDayLabelClass(models),
   );
 
   models.DayPlans = db.model<IDayPlanDocument, IDayPlanModel>(
     'salesplans_dayplans',
-    loadDayPlanClass(models)
+    loadDayPlanClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

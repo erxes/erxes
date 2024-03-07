@@ -26,7 +26,8 @@ const MessageItem = ({
   setReply: (message: any) => void
   type: string
 }) => {
-  const { relatedMessage, content, attachments, createdUser } = message
+  const { relatedMessage, content, attachments, createdUser, createdAt } =
+    message
 
   const callBack = (result: string) => {
     return null
@@ -97,11 +98,11 @@ const MessageItem = ({
 
   const messageSection = (messageSectionContent: string) => {
     const style = isMe
-      ? ` ${"bg-primary-light text-[#fff] rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"}  font-medium`
-      : ` ${"bg-[#F2F3F5] text-[#000] rounded-tl-none rounded-tr-lg rounded-br-lg rounded-bl-lg"} font-medium`
+      ? "bg-white text-[#000] border border-exm"
+      : "bg-[#2970FF] text-[#fff]"
     return (
       <div
-        className={`${style} py-2.5 px-5 max-w-md drop-shadow-md truncate whitespace-wrap`}
+        className={`${style} rounded-lg p-2 max-w-lg w-full truncate whitespace-wrap font-medium`}
         dangerouslySetInnerHTML={{ __html: messageSectionContent || "" }}
       />
     )
@@ -140,15 +141,19 @@ const MessageItem = ({
     }
 
     return (
-      <div className={`flex gap-3 ${isMe ? "flex-row" : "flex-row-reverse"}`}>
-        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+      <div className={`flex gap-2 ${isMe ? "flex-row" : "flex-row-reverse"}`}>
+        <div className="text-[#98A2B3] rounded-full cursor-pointer">
           <ReplyIcon size={16} onClick={() => setReply(message)} />
         </div>{" "}
-        <div className="p-2.5 bg-[#F2F2F2] rounded-full cursor-pointer">
+        <div className="text-[#98A2B3] rounded-full cursor-pointer">
           {message.isPinned ? (
             <PinOff size={16} onClick={() => pinMessage(message._id)} />
           ) : (
-            <Pin size={16} onClick={() => pinMessage(message._id)} />
+            <Pin
+              size={16}
+              fill="#98A2B3"
+              onClick={() => pinMessage(message._id)}
+            />
           )}
         </div>
         <ForwardMessage content={content} attachments={attachments} />
@@ -190,10 +195,20 @@ const MessageItem = ({
     return <MessageAttachmentSection attachments={attachments} isMe={isMe} />
   }
 
+  const createdDate = () => {
+    const created = dayjs(createdAt).format("YY/M/D")
+    const now = dayjs(new Date()).format("YY/M/D")
+    if (created === now) {
+      return dayjs(createdAt).format("HH:mm")
+    }
+
+    return dayjs(createdAt).format("YY/M/D HH:mm")
+  }
+
   return (
-    <div>
+    <div className="mt-4">
       <div
-        className={`w-full my-1 flex items-start gap-[10px]  ${
+        className={`w-full my-1 flex items-center gap-[10px]  ${
           isMe ? "flex-row-reverse" : "flex-row"
         }`}
         onMouseEnter={() => setShowAction(true)}
@@ -205,7 +220,7 @@ const MessageItem = ({
             alt="avatar"
             width={60}
             height={60}
-            className="w-11 h-11 rounded-full object-cover border border-primary"
+            className="w-11 h-11 rounded-full object-cover"
           />
         </div>
 
@@ -225,11 +240,18 @@ const MessageItem = ({
         </div>
       </div>
       <div className={`flex justify-end mt-1`}>
+        <span
+          className={`text-[#667085] ${
+            isMe ? "mr-[54px]" : "float-left mr-auto ml-[54px]"
+          }`}
+        >
+          {createdDate()}
+        </span>
         {message.seenList.map((item) => {
-          if(item.lastSeenMessageId === 'temp-d'){
-            return null
-          }
-          if (currentUser._id === item.user._id) {
+          if (
+            currentUser._id === item.user._id ||
+            item.lastSeenMessageId === "temp-d"
+          ) {
             return null
           }
           return (

@@ -51,7 +51,7 @@ type FinalProps = {
 const AutoAndManualFormContainer = (props: FinalProps) => {
   const [businessPortalKind, setBusinessPortalKind] = useState<
     string | 'client' | 'vendor'
-  >('client');
+  >();
 
   const {
     emailTemplatesQuery,

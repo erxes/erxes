@@ -2,7 +2,7 @@ import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('documents:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

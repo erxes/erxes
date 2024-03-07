@@ -5,9 +5,9 @@ export const PAYMENTS = {
     apiUrl: 'https://merchant.qpay.mn/v2',
     actions: {
       getToken: 'auth/token',
-      invoice: 'invoice'
+      invoice: 'invoice',
     },
-    handlerMethod: 'GET'
+    handlerMethod: 'GET',
   },
 
   qpayQuickqr: {
@@ -22,8 +22,8 @@ export const PAYMENTS = {
       getMerchant: 'merchant',
       merchantList: 'merchant/list',
       checkInvoice: 'payment/check',
-      invoice: 'invoice'
-    }
+      invoice: 'invoice',
+    },
   },
   socialpay: {
     title: 'Social Pay',
@@ -31,11 +31,11 @@ export const PAYMENTS = {
     apiUrl: 'https://instore.golomtbank.com',
     actions: {
       invoicePhone: 'pos/invoice/phone',
-      invoiceQr: 'pos/invoice/qr',
+      invoiceQr: 'pos/invoice/qr/deeplink',
       invoiceCheck: 'pos/invoice/check',
-      invoiceCancel: 'pos/invoice/cancel'
+      invoiceCancel: 'pos/invoice/cancel',
     },
-    handlerMethod: 'POST'
+    handlerMethod: 'POST',
   },
   monpay: {
     title: 'MonPay',
@@ -45,18 +45,18 @@ export const PAYMENTS = {
       invoiceQr: 'rest/branch/qrpurchase/generate',
       invoiceCheck: 'rest/branch/qrpurchase/check',
       couponScan: 'rest/branch/coupon/scan',
-      branchLogin: 'rest/branch/login'
+      branchLogin: 'rest/branch/login',
     },
-    handlerMethod: 'GET'
+    handlerMethod: 'GET',
   },
   storepay: {
     title: 'storepay',
     kind: 'storepay',
     apiUrl: 'http://service-merchant.storepay.mn:7005',
     actions: {
-      invoice: 'invoice'
+      invoice: 'invoice',
     },
-    handlerMethod: 'GET'
+    handlerMethod: 'GET',
   },
   pocket: {
     title: 'pocket',
@@ -66,9 +66,9 @@ export const PAYMENTS = {
       invoice: 'invoice',
       checkInvoice: 'invoice/check',
       webhook: 'pg/config',
-      cancel: 'payment-gateway/transaction/cancel'
+      cancel: 'payment-gateway/transaction/cancel',
     },
-    handlerMethod: 'GET'
+    handlerMethod: 'GET',
   },
   wechatpay: {
     title: 'WeChat Pay',
@@ -77,18 +77,18 @@ export const PAYMENTS = {
     actions: {
       getToken: 'auth/token',
       invoice: 'invoice',
-      getPayment: 'payment'
+      getPayment: 'payment',
     },
-    handlerMethod: 'POST'
+    handlerMethod: 'POST',
   },
   paypal: {
     kind: 'paypal',
     apiUrl: 'https://api-m.sandbox.paypal.com',
     actions: {
       getToken: 'v1/oauth2/token',
-      draftInvoice: 'v2/invoicing/invoices'
+      draftInvoice: 'v2/invoicing/invoices',
     },
-    handlerMethod: 'POST'
+    handlerMethod: 'POST',
   },
 
   ALL: [
@@ -99,8 +99,8 @@ export const PAYMENTS = {
     'pocket',
     'wechatpay',
     'paypal',
-    'qpayQuickqr'
-  ]
+    'qpayQuickqr',
+  ],
 };
 
 export const PAYMENT_STATUS = {
@@ -111,13 +111,13 @@ export const PAYMENT_STATUS = {
   CANCELLED: 'cancelled',
   REJECTED: 'rejected',
 
-  ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected']
+  ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected'],
 };
 
 export const PLUGIN_RESOLVERS_META = {
   'inbox:conversations': {
     action: 'getConversation',
-    queryKey: 'conversationId'
+    queryKey: 'conversationId',
   },
-  'cards:deals': { action: 'deals.findOne', queryKey: '_id' }
+  'cards:deals': { action: 'deals.findOne', queryKey: '_id' },
 };

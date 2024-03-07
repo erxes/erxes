@@ -9,9 +9,13 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
-import type { InterMessage } from '@erxes/api-utils/src/messageBroker';
+import type {
+  InterMessage,
+  RPResult,
+} from '@erxes/api-utils/src/messageBroker';
+import { removeCustomers } from './helpers';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
     async (args: InterMessage): Promise<any> => {
@@ -38,7 +42,7 @@ export const initBroker = async () => {
 
   consumeRPCQueue(
     'calls:api_to_integrations',
-    async (args: InterMessage): Promise<any> => {
+    async (args: InterMessage): Promise<RPResult> => {
       const { subdomain, data } = args;
       const { integrationId, action } = data;
 
@@ -50,8 +54,8 @@ export const initBroker = async () => {
 
       if (!integration) {
         return {
-          status: 'failed',
-          data: 'integration not found.',
+          status: 'error',
+          errorMessage: 'integration not found.',
         };
       }
 
@@ -121,7 +125,7 @@ export const initBroker = async () => {
   );
 
   consumeRPCQueue(
-    'viber:integrationDetail',
+    'calls:integrationDetail',
     async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const { inboxId } = data;
@@ -139,6 +143,20 @@ export const initBroker = async () => {
       };
     },
   );
+  consumeQueue('calls:notification', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { type } = data;
+
+    switch (type) {
+      case 'removeCustomers':
+        await removeCustomers(models, data);
+        break;
+
+      default:
+        break;
+    }
+  });
 };
 
 export const sendCommonMessage = async (args: MessageArgs) => {
@@ -150,6 +168,15 @@ export const sendCommonMessage = async (args: MessageArgs) => {
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
+    ...args,
+  });
+};
+
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'contacts',
     ...args,
   });
 };

@@ -7,7 +7,7 @@ import NavigationItem from './NavigationItem';
 import NavigationList from './NavigationList';
 import NavigationToggler from './NavigationToggler';
 import React from 'react';
-import { getThemeItem } from '@erxes/ui/src/utils/core';
+import { getThemeItem, getVersion } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;
@@ -17,6 +17,7 @@ type Props = {
 export default class Navigation extends React.Component<Props> {
   render() {
     const { navCollapse, onClickHandleIcon } = this.props;
+    const { VERSION } = getVersion();
 
     const generateLogoSource = (): string => {
       const logo =
@@ -48,19 +49,22 @@ export default class Navigation extends React.Component<Props> {
         <NavigationList navCollapse={navCollapse} />
 
         <BottomMenu>
-          <NavigationItem
-            plugin={{
-              text: 'Marketplace',
-              url: '/marketplace',
-              icon: 'icon-store'
-            }}
-            navCollapse={navCollapse}
-          />
+          {!VERSION || VERSION !== 'saas' ? (
+            <NavigationItem
+              plugin={{
+                text: 'Marketplace',
+                url: '/marketplace',
+                icon: 'icon-store',
+              }}
+              navCollapse={navCollapse}
+            />
+          ) : null}
+
           <NavigationItem
             plugin={{
               text: 'Settings',
               url: '/settings',
-              icon: 'icon-settings'
+              icon: 'icon-settings',
             }}
             navCollapse={navCollapse}
           />

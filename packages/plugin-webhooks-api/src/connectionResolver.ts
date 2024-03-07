@@ -5,7 +5,7 @@ import { IWebhookModel, loadWebhookClass } from './models/Webhooks';
 import { IWebhookDocument } from './models/definitions/webhooks';
 
 export interface IModels {
-  Webhooks: IWebhookModel
+  Webhooks: IWebhookModel;
 }
 
 export interface IContext extends IMainContext {
@@ -13,14 +13,15 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
-  
-  models.Webhooks = db.model<IWebhookDocument, IWebhookModel>('webhooks', loadWebhookClass(models))
+  const models = {} as IModels;
+
+  models.Webhooks = db.model<IWebhookDocument, IWebhookModel>(
+    'webhooks',
+    loadWebhookClass(models),
+  );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses)
+export const generateModels = createGenerateModels<IModels>(loadClasses);

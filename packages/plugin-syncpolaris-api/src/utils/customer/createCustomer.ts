@@ -22,27 +22,27 @@ export const createCustomer = async (subdomain: string, params) => {
     custSegCode: '81',
     isVatPayer: data.isVatPayer,
     sexCode: data.sexCode,
-    taxExemption: data.taxExemption,
+    taxExemption: data.taxExemption ?? '0',
     status: '1',
     noCompany: data.noCompany ?? 0,
     isCompanyCustomer: 1,
     industryId: data.industryId,
     birthPlaceId: data.birthPlaceId,
-    shortName: data.shortName,
+    shortName: data.middleName,
     registerMaskCode: '3',
     registerCode: data.registerCode,
     countryCode: '496',
-    industryName: data.industryName,
-    catId: data.catId,
-    ethnicGroupId: data.ethnicGroupId,
+    industryName: data.industryName ?? '',
+    catId: data.catId ?? '',
+    ethnicGroupId: data.ethnicGroupId ?? '',
     langCode: data.langCode ?? '1',
     maritalStatus: data.maritalStatus ?? '1',
-    birthPlaceName: data.birthPlaceName,
-    birthPlaceDetail: data.birthPlaceDetail,
+    birthPlaceName: data.birthPlaceName ?? '',
+    birthPlaceDetail: data.birthPlaceDetail ?? '',
     phone: data.phones.join(','),
-    fax: data.fax,
-    isBl: data.isBl,
-    isPolitical: data.isPolitical,
+    fax: data.fax ?? '',
+    isBl: data.isBl ?? '0',
+    isPolitical: data.isPolitical ?? '0',
   };
 
   await validateObject(sendData);
@@ -51,10 +51,10 @@ export const createCustomer = async (subdomain: string, params) => {
     subdomain,
     op: '13610313',
     data: [sendData],
-  });
+  }).then((res) => JSON.parse(res));
 
   if (customerCode) {
-    await setCustomerCode(subdomain, params.object._id, customerCode);
+    await setCustomerCode(subdomain, customer._id, customerCode);
   }
 
   return customerCode;

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
-import { Smile } from "lucide-react"
 
 type Props = {
   emojiHandler: (emojiData: any) => void
@@ -26,7 +25,7 @@ const EmojiPicker = ({ emojiHandler }: Props) => {
   }, [showEmoji])
 
   return (
-    <div ref={emojiRef}>
+    <div ref={emojiRef} className='flex justify-center'>
       {showEmoji && (
         <div className="absolute bottom-16 right-0 z-10">
           <Picker
@@ -38,8 +37,8 @@ const EmojiPicker = ({ emojiHandler }: Props) => {
           />
         </div>
       )}
-      <button onClick={() => setShowEmoji(!showEmoji)}>
-        <Smile size={16} />
+      <button onClick={() => setShowEmoji(!showEmoji)} className="text-[20px]">
+        🙂
       </button>
     </div>
   )

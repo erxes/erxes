@@ -277,6 +277,7 @@ export const contractDetailFields = `
   hasTransaction
   nextPayment
   customFieldsData
+  savingContractId
 `;
 
 export const contractDetail = `
@@ -372,6 +373,11 @@ const contractsAlert = `
   }
 `;
 
+const getPolarisData = `
+  query Query($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
 export default {
   contracts,
   contractsMain,
@@ -382,4 +388,5 @@ export default {
   documents,
   contractsAlert,
   savingContracts,
+  getPolarisData,
 };

@@ -209,6 +209,12 @@ const savingsContractsAlert = `
   }
 `;
 
+const getPolarisData = `
+  query Query($method: String, $data: JSON) {
+    getPolarisData(method: $method, data: $data)
+  }
+`;
+
 export default {
   contracts,
   contractsMain,
@@ -218,4 +224,5 @@ export default {
   closeInfo,
   documents,
   savingsContractsAlert,
+  getPolarisData,
 };

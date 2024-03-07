@@ -95,5 +95,4 @@ jobs:
         run: |
           tar -cf build.tar --directory=packages/plugin-exm-ui/dist .
           cp build.tar packages/plugin-exm-ui/dist
-          rm -rf packages/plugin-exm-ui/dist/*.js
           aws s3 sync packages/plugin-exm-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-exm-ui --delete

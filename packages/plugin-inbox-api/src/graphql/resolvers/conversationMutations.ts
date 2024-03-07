@@ -11,7 +11,7 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   sendContactsMessage,
   sendCardsMessage,
@@ -273,7 +273,7 @@ export const sendNotifications = async (
           },
         });
       } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
+        debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }

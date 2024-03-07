@@ -2,15 +2,12 @@ import typeDefs from './graphql/typeDefs';
 import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
 const permissions = require('./permissions');
 import app from '@erxes/api-utils/src/app';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'webbuilder',
@@ -32,13 +29,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
 
@@ -210,4 +201,5 @@ export default {
       );
     });
   },
+  setupMessageConsumers,
 };

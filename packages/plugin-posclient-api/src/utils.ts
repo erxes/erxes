@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
@@ -21,7 +21,6 @@ import {
   ISettlePaymentParams,
   getStatus,
 } from './graphql/resolvers/mutations/orders';
-import { debugError } from '@erxes/api-utils/src/debuggers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
@@ -66,7 +65,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debug.error(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }

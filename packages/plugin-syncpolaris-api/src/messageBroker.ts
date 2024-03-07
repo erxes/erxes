@@ -7,8 +7,9 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 import { createLoanSchedule } from './utils/loan/createSchedule';
 import { getDepositBalance } from './utils/deposit/getDepositBalance';
+import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
   });
@@ -42,6 +43,13 @@ export const initBroker = async () => {
     return {
       status: 'success',
       data: await createLoanSchedule(subdomain, data),
+    };
+  });
+
+  consumeRPCQueue('syncpolaris:storeInterest', async ({ data, subdomain }) => {
+    return {
+      status: 'success',
+      data: await createLoanStoreInterest(subdomain, data),
     };
   });
 };

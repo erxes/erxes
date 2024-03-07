@@ -1,56 +1,58 @@
-import { fetchPolaris } from '../utils';
+import {
+  customFieldToObject,
+  fetchPolaris,
+  getCustomer,
+  getSavingContract,
+} from '../utils';
 
 export const outcomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
-  let sendData = {};
 
-  sendData = [
-    {
-      operCode: '13610010',
-      txnAcntCode: transaction.contractId,
-      txnAmount: transaction.total,
-      rate: transaction.rate,
+  const savingContract = await getSavingContract(
+    subdomain,
+    transaction.contractId,
+  );
 
-      contAmount: transaction.contAmount,
-      contCurCode: transaction.contCurCode,
-      contRate: transaction.contRate,
-      txnDesc: transaction.txnDesc,
-      banknotes: [
+  const customer = await getCustomer(subdomain, savingContract.customerId);
+
+  const customerData = await customFieldToObject(
+    subdomain,
+    'contacts:customer',
+    customer,
+  );
+
+  const sendData = {
+    operCode: '13610010',
+    txnAcntCode: savingContract.number,
+    txnAmount: transaction.total,
+    rate: 1,
+    contAmount: transaction.total,
+    contCurCode: transaction.currency,
+    contRate: 1,
+    txnDesc: transaction.description,
+    tcustName: customerData.firstName,
+    tcustAddr: customerData.firstName,
+    tcustRegister: customerData.registerCode,
+    tcustRegisterMask: '3',
+    tcustContact: customerData.phones[0],
+    tranAmt: transaction.total,
+    tranCurCode: transaction.currency,
+    sourceType: 'OI',
+    isPreview: 0,
+    isTmw: 1,
+    aspParam: [
+      [
         {
-          banknoteId: transaction.banknoteId,
-          qty: transaction.qty,
-          totalAmount: transaction.totalAmount,
+          acntCode: savingContract.number,
+          acntType: 'EXPENSE',
         },
       ],
-      tcustRegisterMask: transaction.tcustRegisterMask,
-      sourceType: transaction.sourceType,
-      isPreview: transaction.isPreview,
-      isPreviewFee: transaction.isPreviewFee,
-      isTmw: transaction.isTmw,
-      isAdvice: transaction.isAdvice,
-      txnClearAmount: transaction.txnClearAmount,
-      aspParam: [
-        [
-          {
-            acntCode: transaction.acntCode,
-            acntType: transaction.acntType,
-          },
-        ],
-      ],
-      // tcustName: transaction.tcustName, //outcome
-      // tcustAddr: transaction.tcustName, //outcome
-      // tcustRegister: transaction.tcustRegister, //outcome
-      // tcustContact: transaction.tcustContact, //outcome
-      // tranAmt: transaction.tranAmt, //outcome
-      // tranCurCode: transaction.tranCurCode, //outcome
-      // changeBanknotes: debitParams.changeBanknotes, //income
-      // rateTypeId :  transaction.rateTypeId //income
-    },
-  ];
+    ],
+  };
 
-  fetchPolaris({
+  return await fetchPolaris({
     op: '13610010',
-    data: sendData,
+    data: [sendData],
     subdomain,
   });
 };

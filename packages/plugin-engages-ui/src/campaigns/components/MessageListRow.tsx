@@ -87,9 +87,16 @@ class Row extends React.Component<Props> {
     const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
     const editLink = this.renderLink('Edit', 'edit-3', this.onEdit, msg.isLive);
 
-    const links: React.ReactNode[] = [copy, editLink];
+    const links: React.ReactNode[] = [];
 
-    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method) && !msg.isDraft) {
+    if ([METHODS.EMAIL, METHODS.SMS, METHODS.MESSENGER].includes(msg.method)) {
+      links.push(editLink, copy);
+    }
+
+    if (
+      [METHODS.EMAIL, METHODS.SMS, METHODS.NOTIFICATION].includes(msg.method) &&
+      !msg.isDraft
+    ) {
       links.push(show);
     }
 
@@ -302,7 +309,12 @@ class Row extends React.Component<Props> {
 
         {isEnabled('tags') && (
           <td>
-            <Tags tags={message.customerTags || []} />
+            <Tags
+              tags={[
+                ...(message.customerTags || []),
+                ...(message.getTags || []),
+              ]}
+            />
           </td>
         )}
 

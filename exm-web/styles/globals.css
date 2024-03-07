@@ -9,6 +9,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important; /* 4 */
   }
   :root {
     --background: 0 0% 100%;
@@ -150,7 +151,7 @@
 }
 
 .chat-list-max-height {
-  max-height: calc(100vh - 230px);
+  max-height: calc(100vh - 218px);
 }
 .chat-list-search-max-height {
   max-height: calc(100vh - 195px);
@@ -160,7 +161,7 @@
   max-height: calc(100vh - 510px);
 }
 .group-shared-files-max-height {
-  max-height: calc(100vh - 460px);
+  max-height: calc(100vh - 200px);
 }
 
 .w-300 {

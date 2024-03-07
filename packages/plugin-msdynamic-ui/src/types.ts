@@ -66,13 +66,18 @@ export type ToSyncPricesMutationResponse = {
 
 export type ToCheckCategoriesMutationResponse = {
   toCheckMsdProductCategories: (mutation: {
-    variables: { brandId: string };
+    variables: { brandId: string; categoryId: string };
   }) => Promise<any>;
 };
 
 export type ToSyncCategoriesMutationResponse = {
   toSyncMsdProductCategories: (mutation: {
-    variables: { brandId: string; action: string; categories: any[] };
+    variables: {
+      brandId: string;
+      action: string;
+      categoryId: string;
+      categories: any[];
+    };
   }) => Promise<any>;
 };
 

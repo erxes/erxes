@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SipProvider from '../components/SipProvider';
 
 import IncomingCallContainer from './IncomingCall';
@@ -14,11 +14,12 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import TerminateSessionForm from '../components/TerminateCallForm';
 import { setLocalStorage } from '../utils';
 
+import * as moment from 'moment';
+
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
     JSON.parse(localStorage.getItem('config:call_integrations')),
   );
-
   const callInfo = JSON.parse(localStorage.getItem('callInfo'));
   const sessionCode = sessionStorage.getItem('sessioncode');
 
@@ -40,6 +41,7 @@ const SipProviderContainer = (props) => {
   const [removeActiveSession] = useMutation(
     gql(mutations.callTerminateSession),
   );
+  const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -106,6 +108,35 @@ const SipProviderContainer = (props) => {
       });
   };
 
+  const updateHistory = (
+    sessionId: string,
+    callStartTime: Date,
+    callEndTime: Date,
+    callStatus: string,
+  ) => {
+    let duration = 0;
+    if (callStartTime && callEndTime) {
+      const startedMoment = moment(callStartTime);
+      const endedMoment = moment(callEndTime);
+      duration = endedMoment.diff(startedMoment, 'seconds');
+    }
+
+    updateHistoryMutation({
+      variables: {
+        sessionId,
+        callStartTime,
+        callEndTime,
+        callDuration: duration,
+        callStatus,
+      },
+      refetchQueries: ['callHistories'],
+    })
+      .then()
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
   if (loading || activeSessionLoading) {
     return null;
   }
@@ -152,7 +183,7 @@ const SipProviderContainer = (props) => {
       (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
         isConnectCallRequested ||
         isConnectCallRequested === 'true') &&
-      !callInfo.isUnRegistered
+      !callInfo?.isUnRegistered
     ) {
       return (
         <ModalTrigger
@@ -200,6 +231,7 @@ const SipProviderContainer = (props) => {
       {...sipConfig}
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
+      updateHistory={updateHistory}
     >
       {(state) =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (

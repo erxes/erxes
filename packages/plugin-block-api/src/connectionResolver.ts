@@ -21,35 +21,30 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Packages = db.model<IPackageDocument, IPackageModel>(
     'package',
-    loadPackageClass(models)
+    loadPackageClass(models),
   );
 
   models.Investments = db.model<IInvestmentDocument, IInvestmentModel>(
     'investments',
-    loadInvestmentClass(models)
+    loadInvestmentClass(models),
   );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'transactions',
-    loadTransactionClass(models)
+    loadTransactionClass(models),
   );
 
   models.Blocks = db.model<IBlockDocument, IBlockModel>(
     'blocks',
-    loadBlockClass(models)
+    loadBlockClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

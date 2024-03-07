@@ -1,5 +1,5 @@
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { debug } from './configs';
 
 export const getNumberOfVisits = async (params: {
   subdomain: string;
@@ -30,23 +30,23 @@ export const getNumberOfVisits = async (params: {
                       must: [
                         {
                           term: {
-                            'attributes.field': 'url'
-                          }
+                            'attributes.field': 'url',
+                          },
                         },
                         {
                           match: {
-                            'attributes.value': params.url
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
+                            'attributes.value': params.url,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
     });
 
     const hits = response.hits.hits;
@@ -59,7 +59,7 @@ export const getNumberOfVisits = async (params: {
 
     return firstHit._source.count;
   } catch (e) {
-    debug.error(`Error occured during getNumberOfVisits ${e.message}`);
+    debugError(`Error occured during getNumberOfVisits ${e.message}`);
     return 0;
   }
 };

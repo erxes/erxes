@@ -10,12 +10,12 @@ const commonSchemaFields = {
   updatedBy: field({ type: String }),
   updatedAt: field({ type: Date }),
   createdBy: field({ type: String }),
-  createdAt: field({ type: Date, default: Date.now })
+  createdAt: field({ type: Date, default: Date.now }),
 };
 
 const CoordinateSchame = new Schema({
   longitude: field({ type: String, optional: true }),
-  latitude: field({ type: String, optional: true })
+  latitude: field({ type: String, optional: true }),
 });
 
 const contactInfoSchema = {
@@ -27,9 +27,9 @@ const contactInfoSchema = {
   coordinate: field({
     type: CoordinateSchame,
     optional: true,
-    label: 'Longitude and latitude'
+    label: 'Longitude and latitude',
   }),
-  image: field({ type: attachmentSchema, optional: true })
+  image: field({ type: attachmentSchema, optional: true }),
 };
 
 interface ICommonTypes {
@@ -52,8 +52,8 @@ export const structureSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     ...contactInfoSchema,
-    ...commonSchemaFields
-  })
+    ...commonSchemaFields,
+  }),
 );
 
 export interface IDepartment extends ICommonTypes {
@@ -75,10 +75,10 @@ export const departmentSchema = schemaWrapper(
     status: field({
       type: String,
       label: 'Status',
-      default: STRUCTURE_STATUSES.ACTIVE
+      default: STRUCTURE_STATUSES.ACTIVE,
     }),
-    ...commonSchemaFields
-  })
+    ...commonSchemaFields,
+  }),
 );
 
 export interface IUnit extends ICommonTypes {
@@ -97,8 +97,8 @@ export const unitSchema = schemaWrapper(
     departmentId: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
-    ...commonSchemaFields
-  })
+    ...commonSchemaFields,
+  }),
 );
 
 export interface IBranch extends ICommonTypes {
@@ -112,6 +112,16 @@ export interface IBranchDocument extends IBranch, Document {
   _id: string;
 }
 
+export interface IPosition extends ICommonTypes {
+  userIds?: string[];
+  order: string;
+  status: string;
+}
+
+export interface IPositionDocument extends IPosition, Document {
+  _id: string;
+}
+
 export const branchSchema = schemaWrapper(
   new Schema({
     parentId: field({ type: String, optional: true }),
@@ -121,9 +131,23 @@ export const branchSchema = schemaWrapper(
     status: field({
       type: String,
       label: 'Status',
-      default: STRUCTURE_STATUSES.ACTIVE
+      default: STRUCTURE_STATUSES.ACTIVE,
     }),
     supervisorId: field({ type: String, optional: true }),
-    radius: field({ type: Number, label: 'Coordinate radius /M/' })
-  })
+    radius: field({ type: Number, label: 'Coordinate radius /M/' }),
+  }),
+);
+
+export const positionSchema = schemaWrapper(
+  new Schema({
+    ...commonSchemaFields,
+    parentId: field({ type: String, optional: true }),
+    order: field({ type: String, unique: true }),
+    userIds: field({ type: [String], label: 'Related users' }),
+    status: field({
+      type: String,
+      label: 'Status',
+      default: STRUCTURE_STATUSES.ACTIVE,
+    }),
+  }),
 );
