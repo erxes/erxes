@@ -91,7 +91,7 @@ export const pConversationClientMessageInserted = async (
   }
 
   graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
-    conversationClientMessageInserted: message,
+    conversationMessageInserted: message,
     subdomain,
     conversation,
     integration,
