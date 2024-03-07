@@ -392,14 +392,32 @@ const productQueries = {
         (cf) => cf.field,
       );
 
-      const matchedMasks = codeMasks.filter(
-        (cm) =>
-          product.code.match(getRegex(cm)) &&
+      const matchedMasks = codeMasks.filter((cm) => {
+        const mask = similarityGroups[cm];
+        const filterFieldDef = mask.filterField || 'code';
+        const regexer = getRegex(cm);
+
+        if (filterFieldDef.includes('customFieldsData.')) {
+          if (
+            !(product.customFieldsData || []).find(
+              (cfd) =>
+                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
+                cfd.stringValue?.match(regexer),
+            )
+          ) {
+            return false;
+          }
+        } else {
+          if (!product[filterFieldDef].match(regexer)) return false;
+        }
+
+        return (
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)
             .filter((sgf) => customFieldIds.includes(sgf)).length ===
-            (similarityGroups[cm].rules || []).length,
-      );
+          (similarityGroups[cm].rules || []).length
+        );
+      });
 
       if (!matchedMasks.length) {
         return {
@@ -411,7 +429,30 @@ const productQueries = {
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
       for (const matchedMask of matchedMasks) {
-        codeRegexs.push({ code: { $in: [getRegex(matchedMask)] } });
+        const matched = similarityGroups[matchedMask];
+        const filterFieldDef = matched.filterField || 'code';
+
+        if (filterFieldDef.includes('customFieldsData.')) {
+          codeRegexs.push({
+            $and: [
+              {
+                'customFieldsData.field': filterFieldDef.replace(
+                  'customFieldsData.',
+                  '',
+                ),
+              },
+              {
+                'customFieldsData.stringValue': {
+                  $in: [getRegex(matchedMask)],
+                },
+              },
+            ],
+          });
+        } else {
+          codeRegexs.push({
+            [filterFieldDef]: { $in: [getRegex(matchedMask)] },
+          });
+        }
 
         for (const rule of similarityGroups[matchedMask].rules || []) {
           const { fieldId, title } = rule;
@@ -426,13 +467,21 @@ const productQueries = {
         $and: [
           {
             $or: codeRegexs,
+          },
+          {
             'customFieldsData.field': { $in: fieldIds },
           },
         ],
       };
 
+      let products = await models.Products.find(filters)
+        .sort({ code: 1 })
+        .lean();
+      if (!products.length) {
+        products = [product];
+      }
       return {
-        products: await models.Products.find(filters).sort({ code: 1 }),
+        products,
         groups,
       };
     }

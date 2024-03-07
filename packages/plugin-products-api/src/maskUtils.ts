@@ -6,7 +6,7 @@ import { IProduct, IProductCategory } from './models/definitions/products';
 
 export const checkCodeMask = async (
   category?: IProductCategory,
-  code?: string
+  code?: string,
 ) => {
   if (!category || !code) {
     return false;
@@ -54,7 +54,7 @@ export const initCustomField = async (
   category: IProductCategory,
   code: string,
   productCustomFieldsData?: ICustomField[],
-  docCustomFieldsData?: ICustomField[]
+  docCustomFieldsData?: ICustomField[],
 ) => {
   if (
     !category ||
@@ -63,11 +63,11 @@ export const initCustomField = async (
     !category.mask.values
   ) {
     if (docCustomFieldsData && docCustomFieldsData.length) {
-      const docFieldsIds = docCustomFieldsData.map(d => d.field);
+      const docFieldsIds = docCustomFieldsData.map((d) => d.field);
       const allCustomFieldsData = docCustomFieldsData.concat(
         (productCustomFieldsData || []).filter(
-          d => !docFieldsIds.includes(d.field)
-        )
+          (d) => !docFieldsIds.includes(d.field),
+        ),
       );
 
       return await sendFormsMessage({
@@ -75,7 +75,7 @@ export const initCustomField = async (
         action: 'fields.prepareCustomFieldsData',
         data: allCustomFieldsData,
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
     }
 
@@ -99,22 +99,22 @@ export const initCustomField = async (
 
       customFieldsData.push({
         field: value.fieldId,
-        value: Object.keys(value.matches)[subCodeInd]
+        value: Object.keys(value.matches)[subCodeInd],
       });
       strInd += len;
     }
   }
 
-  const codeFieldIds = customFieldsData.map(d => d.field);
+  const codeFieldIds = customFieldsData.map((d) => d.field);
   customFieldsData = customFieldsData.concat(
-    (docCustomFieldsData || []).filter(d => !codeFieldIds.includes(d.field))
+    (docCustomFieldsData || []).filter((d) => !codeFieldIds.includes(d.field)),
   );
 
-  const withDocFieldIds = customFieldsData.map(d => d.field);
+  const withDocFieldIds = customFieldsData.map((d) => d.field);
   customFieldsData = customFieldsData.concat(
     (productCustomFieldsData || []).filter(
-      d => !withDocFieldIds.includes(d.field)
-    )
+      (d) => !withDocFieldIds.includes(d.field),
+    ),
   );
 
   return await sendFormsMessage({
@@ -122,14 +122,17 @@ export const initCustomField = async (
     action: 'fields.prepareCustomFieldsData',
     data: customFieldsData,
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 };
 
-export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
-  const similarityGroups = await models.ProductsConfigs.getConfig(
-    'similarityGroup'
-  );
+export const checkSameMaskConfig = async (
+  models: IModels,
+  subdomain: string,
+  doc: IProduct,
+) => {
+  const similarityGroups =
+    await models.ProductsConfigs.getConfig('similarityGroup');
 
   if (!similarityGroups) {
     return undefined;
@@ -140,25 +143,36 @@ export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
   }
 
   const masks = Object.keys(similarityGroups);
-  const customFieldIds = (doc.customFieldsData || []).map(cf => cf.field);
+  const customFieldIds = (doc.customFieldsData || []).map((cf) => cf.field);
 
   const result: string[] = [];
 
   for (const mask of masks) {
+    const maskValue = similarityGroups[mask];
+    const filterFieldDef = maskValue.filterField || 'code';
+
     const codeRegex = new RegExp(
-      `^${mask
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.')
-        .replace(/_/g, '.')}.*`,
-      'igu'
+      `^${mask.replace(/\./g, '\\.').replace(/\*/g, '.').replace(/_/g, '.')}${
+        (filterFieldDef.type === 'code' && '$') || '.*'
+      }`,
+      'igu',
     );
 
+    const filterFieldVal = filterFieldDef.includes('customFieldsData.')
+      ? (
+          doc.customFieldsData.find(
+            (cfd) =>
+              filterFieldDef.replace('customFieldsData.', '') === cfd.field,
+          ) || {}
+        ).stringValue
+      : doc[filterFieldDef];
+
     if (
-      doc.code.match(codeRegex) &&
-      (similarityGroups[mask].rules || [])
-        .map(sg => sg.fieldId)
-        .filter(sgf => (customFieldIds || []).includes(sgf)).length ===
-        (similarityGroups[mask].rules || []).length
+      (filterFieldVal || '').match(codeRegex) &&
+      (maskValue.rules || [])
+        .map((sg) => sg.fieldId)
+        .filter((sgf) => (customFieldIds || []).includes(sgf)).length ===
+        (maskValue.rules || []).length
     ) {
       result.push(mask);
     }
@@ -179,10 +193,10 @@ export const groupBySameMasksAggregator = (isCount = false) => {
           $cond: {
             if: { $isArray: '$sameMasks' },
             then: { $size: '$sameMasks' },
-            else: 0
-          }
-        }
-      }
+            else: 0,
+          },
+        },
+      },
     },
     {
       $addFields: {
@@ -190,14 +204,14 @@ export const groupBySameMasksAggregator = (isCount = false) => {
           $cond: {
             if: { $gt: ['$sameMasksLen', 0] },
             then: '$sameMasks',
-            else: ['$_id']
-          }
-        }
-      }
+            else: ['$_id'],
+          },
+        },
+      },
     },
     {
-      $unwind: '$sameMasks'
-    }
+      $unwind: '$sameMasks',
+    },
   ];
 
   if (isCount) {
@@ -206,14 +220,14 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       {
         $group: {
           _id: { sameMasks: '$sameMasks' },
-          product: { $first: '$code' }
-        }
+          product: { $first: '$code' },
+        },
       },
       {
         $group: {
-          _id: { code: '$product' }
-        }
-      }
+          _id: { code: '$product' },
+        },
+      },
     ];
   }
 
@@ -224,17 +238,17 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       $group: {
         _id: { sameMasks: '$sameMasks' },
         count: { $sum: 1 },
-        product: { $first: '$$ROOT' }
-      }
+        product: { $first: '$$ROOT' },
+      },
     },
     { $sort: { 'product.code': 1 } },
     {
       $group: {
         _id: { code: '$product.code' },
         count: { $max: '$count' },
-        product: { $first: '$product' }
-      }
-    }
+        product: { $first: '$product' },
+      },
+    },
   ];
 };
 
@@ -245,8 +259,8 @@ export const groupByCategoryAggregator = (isCount = false) => {
         from: 'product_categories',
         localField: 'categoryId',
         foreignField: '_id',
-        as: 'category'
-      }
+        as: 'category',
+      },
     },
     { $unwind: '$category' },
     {
@@ -259,17 +273,17 @@ export const groupByCategoryAggregator = (isCount = false) => {
                 {
                   $setIsSubset: [
                     '$category.similarities.fieldId',
-                    '$customFieldsData.field'
-                  ]
-                }
-              ]
+                    '$customFieldsData.field',
+                  ],
+                },
+              ],
             },
             then: '$categoryId',
-            else: '$_id'
-          }
-        }
-      }
-    }
+            else: '$_id',
+          },
+        },
+      },
+    },
   ];
 
   if (isCount) {
@@ -277,9 +291,9 @@ export const groupByCategoryAggregator = (isCount = false) => {
       ...sameArr,
       {
         $group: {
-          _id: { same: '$same' }
-        }
-      }
+          _id: { same: '$same' },
+        },
+      },
     ];
   }
 
@@ -289,14 +303,14 @@ export const groupByCategoryAggregator = (isCount = false) => {
       $group: {
         _id: { same: '$same' },
         count: { $sum: 1 },
-        product: { $first: '$$ROOT' }
-      }
+        product: { $first: '$$ROOT' },
+      },
     },
-    { $sort: { 'product.code': 1 } }
+    { $sort: { 'product.code': 1 } },
   ];
 };
 
-export const aggregatePaginator = params => {
+export const aggregatePaginator = (params) => {
   const { perPage = 20, page = 1 } = params;
   return [{ $skip: perPage * (page - 1) }, { $limit: perPage }];
 };
@@ -309,12 +323,12 @@ export const getSimilaritiesProducts = async (models, filter, params) => {
   const groupedData = await models.Products.aggregate([
     { $match: filter },
     ...aggregates,
-    ...aggregatePaginator(params)
+    ...aggregatePaginator(params),
   ]);
 
-  return groupedData.map(gd => ({
+  return groupedData.map((gd) => ({
     ...gd.product,
-    hasSimilarity: gd.count > 1
+    hasSimilarity: gd.count > 1,
   }));
 };
 
@@ -326,7 +340,7 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
   const groupedData = await models.Products.aggregate([
     { $match: filter },
     ...aggregates,
-    { $group: { _id: {}, count: { $sum: 1 } } }
+    { $group: { _id: {}, count: { $sum: 1 } } },
   ]);
 
   return ((groupedData || [])[0] || {}).count || 0;
