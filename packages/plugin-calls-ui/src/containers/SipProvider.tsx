@@ -223,6 +223,11 @@ const SipProviderContainer = (props) => {
       {
         urls: 'stun:stun.l.google.com:19302',
       },
+      {
+        url: 'turn:relay1.expressturn.com:3478',
+        username: 'ef9XU6ND3AYQBGG0VB',
+        credential: '7niiKgbs4Kk92V0d',
+      },
     ],
   };
 
