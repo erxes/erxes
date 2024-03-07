@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -380,6 +380,48 @@ query ClientPortalUserPurchases($userId: String) {
 }
 `;
 
+const clientPortalParticipantDetail = `
+query clientPortalParticipantDetail($contentType: String!, $cpUserId: String!, $contentTypeId: String!) {
+  clientPortalParticipantDetail(contentType: $contentType, cpUserId: $cpUserId, contentTypeId: $contentTypeId) {
+    _id
+    contentType
+    contentTypeId
+    cpUserId
+    createdAt
+    hasVat
+    modifiedAt
+    offeredAmount
+    paymentAmount
+    paymentStatus
+    status
+  }
+}`;
+
+const clientPortalParticipants = `
+query clientPortalParticipants($contentType: String!, $userKind: BusinessPortalKind!, $contentTypeId: String!) {
+  clientPortalParticipants(contentType: $contentType, userKind: $userKind, contentTypeId: $contentTypeId) {
+    _id
+    contentType
+    contentTypeId
+    cpUserId
+    cpUser {
+      _id
+      phone
+      email
+      firstName
+      lastName
+    }
+    createdAt
+    hasVat
+    modifiedAt
+    offeredAmount
+    paymentAmount
+    paymentStatus
+    status
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -395,5 +437,7 @@ export default {
   tasksOfUser,
   dealsOfUser,
   ticketsOfUser,
-  purchasesOfUser
+  purchasesOfUser,
+  clientPortalParticipantDetail,
+  clientPortalParticipants,
 };
