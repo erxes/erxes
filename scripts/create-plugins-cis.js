@@ -118,6 +118,10 @@ var main = async () => {
         uiConfigs.layout.url = url;
       }
 
+      if (uiConfigs.innerWidget) {
+        uiConfigs.innerWidget.url = url;
+      }
+
       pluginsMap[plugin.name] = {
         ui: uiConfigs,
       };
