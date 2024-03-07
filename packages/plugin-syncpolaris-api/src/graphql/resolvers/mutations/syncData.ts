@@ -19,7 +19,7 @@ const syncmutations = {
         const polarisData = await getPolarisData(type, subdomain, item);
         const updateData = await preSyncDatas(item, polarisData, customFields);
         if (Object.keys(updateData).length > 0)
-          await syncDataToErxes(type, subdomain, item, updateData, '');
+          await syncDataToErxes(type, subdomain, item, updateData);
       }
       return {
         status: 'success',

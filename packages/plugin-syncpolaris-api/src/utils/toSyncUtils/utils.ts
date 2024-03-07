@@ -88,31 +88,6 @@ export const preSyncDatas = async (mainData, polarisData, customFields) => {
   }
   return updateData;
 };
-
-export const getCustomPolaris = async (subdomain, code) => {
-  try {
-    return;
-  } catch (error) {
-    console.log('error:', error);
-  }
-};
-
-export const getLoanAcntPolaris = async (subdomain, number) => {
-  try {
-    return await getLoanDetail(subdomain, { number: number });
-  } catch (error) {
-    console.log('error:', error);
-  }
-};
-
-export const getSavingAcntPolaris = async (subdomain, number) => {
-  try {
-    return;
-  } catch (error) {
-    console.log('error:', error);
-  }
-};
-
 export const setCustomField = async (
   customField,
   customer,
@@ -157,13 +132,7 @@ export const getPolarisData = async (type, subdomain, item) => {
   }
 };
 
-export const syncDataToErxes = async (
-  type,
-  subdomain,
-  item,
-  updateData,
-  serviceName,
-) => {
+export const syncDataToErxes = async (type, subdomain, item, updateData) => {
   switch (type) {
     case 'contacts:customer':
       return await updateCustomer(subdomain, { code: item.code }, updateData);

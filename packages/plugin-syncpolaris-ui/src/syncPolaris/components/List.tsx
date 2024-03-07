@@ -10,7 +10,7 @@ import {
   ModalTrigger,
   Bulk,
 } from '@erxes/ui/src';
-import Sidebar from './Sidebar';
+import Sidebar from '../../syncPolarisHistories/components/syncHistorySidebar';
 import { menuSyncpolaris } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
@@ -28,9 +28,6 @@ interface IProps extends IRouterProps {
 }
 
 class List extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const {
       history,
