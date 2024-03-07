@@ -3,7 +3,6 @@ module.exports = {
   name: 'calls',
   port: 3017,
   scope: 'calls',
-  url: "http://localhost:3017/remoteEntry.js",
   exposes: {
     './routes': './src/routes.tsx',
     './call': './src/containers/SipProvider.tsx',

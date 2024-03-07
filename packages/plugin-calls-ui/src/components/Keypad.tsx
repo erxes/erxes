@@ -154,9 +154,6 @@ const KeyPad = (props: Props, context) => {
       return;
     }
 
-    if (formatedPhone.length !== 8) {
-      return Alert.warning('Check phone number');
-    }
     const { startCall } = context;
 
     if (startCall && hasMicrophone) {
