@@ -1,3 +1,10 @@
+### [1.6.3-rc.1](https://github.com/erxes/erxes/compare/1.6.3-rc.0...1.6.3-rc.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* clean apolloClient timeout ([458ff06](https://github.com/erxes/erxes/commit/458ff06ce0470f581d4027e671a979c165f00d6c))
+
 ### [1.6.3-rc.0](https://github.com/erxes/erxes/compare/1.6.2...1.6.3-rc.0) (2024-03-06)
 
 
