@@ -100,7 +100,7 @@ const sendNotification = async (
         createdUser._id,
       );
 
-      graphqlPubsub.publish(`notificationInserted:${receiverId}`, {
+      graphqlPubsub.publish(`notificationInserted:${subdomain}:${receiverId}`, {
         notificationInserted: {
           _id: notification._id,
           userId: receiverId,
