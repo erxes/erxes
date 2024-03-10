@@ -299,7 +299,7 @@ export const sendNotification = async (
         createdUser && createdUser._id,
       );
 
-    graphqlPubsub.publish('clientPortalNotificationInserted', {
+    graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
         userId: recipient._id,

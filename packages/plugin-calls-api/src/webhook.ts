@@ -67,9 +67,12 @@ const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
         integration,
       };
 
-      await graphqlPubsub.publish('phoneCallReceived', {
-        phoneCallReceived: payload,
+      const publishPs = integration.operators.map((operator) => {
+        return graphqlPubsub.publish(`phoneCallReceived:${operator.userId}`, {
+          phoneCallReceived: payload,
+        });
       });
+      await Promise.all(publishPs);
     }
 
     res.json({ status: 'success' });

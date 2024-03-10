@@ -98,12 +98,15 @@ export const pConversationClientMessageInserted = async (
   });
 
   for (const userId of channelMemberIds) {
-    graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
-      conversationClientMessageInserted: message,
-      subdomain,
-      conversation,
-      integration,
-    });
+    graphqlPubsub.publish(
+      `conversationClientMessageInserted:${subdomain}:${userId}`,
+      {
+        conversationClientMessageInserted: message,
+        subdomain,
+        conversation,
+        integration,
+      },
+    );
   }
 
   if (message.content) {
@@ -970,7 +973,7 @@ const widgetMutations = {
       }
 
       // notify as connected
-      graphqlPubsub.publish('customerConnectionChanged', {
+      graphqlPubsub.publish(`customerConnectionChanged:${customerId}`, {
         customerConnectionChanged: {
           _id: customerId,
           status: 'connected',

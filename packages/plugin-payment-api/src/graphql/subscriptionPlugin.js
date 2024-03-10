@@ -8,12 +8,8 @@ module.exports = {
   generateResolvers: (graphqlPubsub) => {
     return {
       invoiceUpdated: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('invoiceUpdated'),
-          (payload, variables) => {
-            return payload._id === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`invoiceUpdated:${_id}`),
       },
     };
   },

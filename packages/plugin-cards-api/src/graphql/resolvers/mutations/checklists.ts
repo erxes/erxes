@@ -16,17 +16,20 @@ interface IChecklistItemsEdit extends IChecklistItem {
 }
 
 const checklistsChanged = (checklist: IChecklistsEdit) => {
-  graphqlPubsub.publish('checklistsChanged', {
-    checklistsChanged: {
-      _id: checklist._id,
-      contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
+  graphqlPubsub.publish(
+    `checklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
+    {
+      checklistsChanged: {
+        _id: checklist._id,
+        contentType: checklist.contentType,
+        contentTypeId: checklist.contentTypeId,
+      },
     },
-  });
+  );
 };
 
 const checklistDetailChanged = (_id: string) => {
-  graphqlPubsub.publish('checklistDetailChanged', {
+  graphqlPubsub.publish(`checklistDetailChanged:${_id}`, {
     checklistDetailChanged: {
       _id,
     },

@@ -172,7 +172,7 @@ export const itemsAdd = async (
     );
   }
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: doc.proccessId,
@@ -207,7 +207,7 @@ export const changeItemStatus = async (
   },
 ) => {
   if (status === 'archived') {
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -249,7 +249,7 @@ export const changeItemStatus = async (
     },
   );
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
@@ -408,7 +408,7 @@ export const itemsEdit = async (
   const oldStage = await models.Stages.getStage(oldItem.stageId);
 
   if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
       },
@@ -416,7 +416,7 @@ export const itemsEdit = async (
   }
 
   if (oldStage.pipelineId !== stage.pipelineId) {
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: oldStage.pipelineId,
         proccessId,
@@ -427,7 +427,7 @@ export const itemsEdit = async (
         },
       },
     });
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -443,7 +443,7 @@ export const itemsEdit = async (
       },
     });
   } else {
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -659,7 +659,7 @@ export const itemsChange = async (
     },
   });
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
@@ -768,7 +768,7 @@ export const itemsCopy = async (
   // order notification
   const stage = await models.Stages.getStage(clone.stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
@@ -828,7 +828,7 @@ export const itemsArchive = async (
       },
     });
 
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -853,7 +853,7 @@ export const publishHelperItemsConformities = async (
     | IGrowthHackDocument,
   stage: IStageDocument,
 ) => {
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: Math.random().toString(),
