@@ -973,7 +973,7 @@ const widgetMutations = {
       }
 
       // notify as connected
-      graphqlPubsub.publish('customerConnectionChanged', {
+      graphqlPubsub.publish(`customerConnectionChanged:${customerId}`, {
         customerConnectionChanged: {
           _id: customerId,
           status: 'connected',
