@@ -18,12 +18,7 @@
   ],
   "license": "GNU General Public License v3.0 with Commons Clause",
   "lint-staged": {
-    "linters": {
-      "*.@(js|jsx|ts|tsx|json|css)": [
-        "prettier --write",
-        "git add"
-      ]
-    }
+    "*.@(js|jsx|ts|tsx|json|css)": "prettier --single-quote --write"
   },
   "scripts": {
     "create-plugins-cis": "node scripts/create-plugins-cis",
@@ -31,8 +26,7 @@
     "format": "prettier --single-quote --write '@(email-verifier)/src/**/*.ts' && prettier --single-quote --write '@(widgets)/src/**/*.@(ts|tsx|json|css)'",
     "formatp": "func () { if [ -z \"$1\" ]; then prettier --single-quote --write '@(packages)/gateway/src/**/*.@(ts|tsx|json|css)'; else echo \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\" && \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\"; fi ;}; func",
     "release": "release-it",
-    "create-release-ci": "node scripts/create-release-ci",
-    "precommit": "lint-staged"
+    "create-release-ci": "node scripts/create-release-ci"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "1.1.0",
