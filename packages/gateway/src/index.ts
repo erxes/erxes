@@ -85,7 +85,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
+(["SIGINT", 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     console.log(`Exiting on signal ${sig}`);
     await stopSubscriptionServer();
