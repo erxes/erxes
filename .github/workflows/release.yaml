@@ -559,6 +559,14 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-insight-api:master --tag  erxes/plugin-insight-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-salary-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+
+          docker buildx imagetools create erxes/plugin-salary-api:master --tag  erxes/plugin-salary-api:${GITHUB_REF#refs/tags/}
+      
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -743,3 +751,7 @@ jobs:
       - name: insight ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-insight-ui
           s3://erxes-release-plugins/uis/plugin-insight-ui/${GITHUB_REF#refs/tags/}/
+      
+      - name: salary ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-salary-ui
+          s3://erxes-release-plugins/uis/plugin-salary-ui/${GITHUB_REF#refs/tags/}/
