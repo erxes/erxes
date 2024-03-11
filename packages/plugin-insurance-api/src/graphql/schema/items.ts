@@ -23,6 +23,7 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     productId: ID
 
     product: InsuranceProduct
+    categoryCode: String
 
     feePercent: Float
     totalFee: Float
