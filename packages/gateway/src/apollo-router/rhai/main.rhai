@@ -30,7 +30,7 @@ fn subgraph_service(service, subgraph) {
       if response.context["server_timing_headers"] == () {
         response.context.server_timing_headers = []
       }
-      response.context.server_timing_headers = response.headers.values("server-timing");
+      response.context.server_timing_headers += response.headers.values("server-timing");
     }
   };
 
