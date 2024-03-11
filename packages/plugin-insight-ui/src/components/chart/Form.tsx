@@ -223,14 +223,6 @@ const Form = (props: Props) => {
             placeholder={__(`Choose type`)}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>Dimension</ControlLabel>
-          <Select
-            options={dimensions}
-            value={dimension?.x}
-            onChange={(sel) => setDimension({ x: sel.value })}
-          />
-        </FormGroup>
         <FormGroup>{renderDimensions()}</FormGroup>
         <FormGroup>{renderFilterTypeFields()}</FormGroup>
       </>
