@@ -62,6 +62,15 @@ class List extends React.Component<IProps, State> {
     };
   }
 
+  componentDidUpdate(): void {
+    const { history, bulk } = this.props;
+
+    if (this.state.checked && !(bulk || []).length) {
+      this.setState({ checked: false });
+      router.removeParams(history, 'page', 'ids');
+    }
+  }
+
   renderRow = () => {
     const { products, history, toggleBulk, bulk } = this.props;
 
@@ -218,7 +227,7 @@ class List extends React.Component<IProps, State> {
     };
 
     const actionBarRight = () => {
-      if (bulk.length > 0) {
+      if ((bulk || []).length > 0) {
         const onClick = () =>
           confirm()
             .then(() => {
@@ -242,7 +251,12 @@ class List extends React.Component<IProps, State> {
 
         return (
           <BarItems>
-            {bulk.length === 2 && (
+            <FormControl
+              componentClass="checkbox"
+              onChange={this.onChangeChecked}
+              checked={this.state.checked}
+            />
+            {(bulk || []).length === 2 && (
               <ModalTrigger
                 title="Merge Product"
                 size="lg"
