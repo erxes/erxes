@@ -14,6 +14,7 @@ const queries = {
       searchValue,
       categoryId,
       tagIds,
+      customProperties,
     }: {
       page: number;
       perPage: number;
@@ -22,6 +23,7 @@ const queries = {
       searchValue: string;
       categoryId: string;
       tagIds: string[];
+      customProperties: any;
     },
     { models }: IContext,
   ) => {
@@ -45,6 +47,17 @@ const queries = {
       qry.tagIds = { $in: tagIds };
     }
 
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      qry.$and = customFields;
+    }
+
     return {
       list: paginate(
         models.Products.find(qry).sort({ [sortField]: sortOrder }),
@@ -65,12 +78,14 @@ const queries = {
       perPage,
       categoryId,
       tagIds,
+      customProperties,
     }: {
       searchValue: string;
       page: number;
       perPage: number;
       categoryId: string;
       tagIds: string[];
+      customProperties: any;
     },
     { models }: IContext,
   ) => {
@@ -86,6 +101,17 @@ const queries = {
 
     if (tagIds) {
       qry.tagIds = { $in: tagIds };
+    }
+
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      qry.$and = customFields;
     }
 
     return paginate(models.Products.find(qry), {
@@ -104,7 +130,7 @@ const queries = {
 
   insuranceProductsOfVendor: async (
     _root,
-    { categoryId, tagIds },
+    { categoryId, tagIds, customProperties },
     { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
@@ -181,6 +207,17 @@ const queries = {
       match.$and.push({
         tagIds: { $in: tagIds },
       });
+    }
+
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      match.$and.push({ $and: customFields });
     }
 
     const products = await models.Products.aggregate([

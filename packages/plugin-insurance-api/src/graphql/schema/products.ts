@@ -84,6 +84,11 @@ type CompanyProductConfig {
 
     tags: [Tag]
   }
+
+  input CustomProperty {
+    field: String
+    value: String
+  }
   
   type InsuranceProductList {
     list: [InsuranceProduct]
@@ -97,7 +102,7 @@ type CompanyProductConfig {
 `;
 
 export const queries = `
-    insuranceProducts(searchValue: String, page: Int, perPage: Int, categoryId: ID): [InsuranceProduct]
+    insuranceProducts(searchValue: String, page: Int, perPage: Int, categoryId: ID,tagIds: [String], customProperties:[CustomProperty]): [InsuranceProduct]
     insuranceProductList(
     page: Int
     perPage: Int
@@ -106,10 +111,11 @@ export const queries = `
     searchValue: String
     categoryId: ID
     tagIds: [String]
+    customProperties:[CustomProperty]
     ): InsuranceProductList
     insuranceProduct(_id: ID!): InsuranceProduct
-    insuranceProductsOfVendor(categoryId:ID, tagIds:[String]): [InsuranceProductOfVendor]
-
+    insuranceProductsOfVendor(categoryId:ID, tagIds:[String], customProperties:[CustomProperty]): [InsuranceProductOfVendor]
+    
     
 `;
 
