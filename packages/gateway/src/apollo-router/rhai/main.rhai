@@ -17,7 +17,7 @@ fn supergraph_service(service) {
 
 fn subgraph_service(service, subgraph) {
   let store_cookies_from_subgraphs = |response| {
-    if "set-cookie" in response.headers {
+    if response.is_primary() && "set-cookie" in response.headers {
       if response.context["set_cookie_headers"] == () {
         response.context.set_cookie_headers = []
       }
@@ -26,7 +26,7 @@ fn subgraph_service(service, subgraph) {
   };
 
   let store_server_timing_from_subgraphs = |response| {
-    if "server-timing" in response.headers {
+    if response.is_primary() && "server-timing" in response.headers {
       if response.context["server_timing_headers"] == () {
         response.context.server_timing_headers = []
       }
