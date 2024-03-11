@@ -6,12 +6,14 @@ const CATEGORY_ADD = gql`
     $code: String!
     $description: String!
     $riskIds: [String]
+    $companyIds: [String]
   ) {
     insuranceCategoryAdd(
       name: $name
       code: $code
       description: $description
       riskIds: $riskIds
+      companyIds: $companyIds
     ) {
       _id
       name
@@ -26,6 +28,7 @@ const CATEGORY_EDIT = gql`
     $code: String
     $description: String
     $riskIds: [String]
+    $companyIds: [String]
   ) {
     insuranceCategoryEdit(
       _id: $_id
@@ -33,6 +36,7 @@ const CATEGORY_EDIT = gql`
       code: $code
       description: $description
       riskIds: $riskIds
+      companyIds: $companyIds
     ) {
       _id
       name
@@ -49,5 +53,5 @@ const CATEGORY_REMOVE = gql`
 export default {
   CATEGORY_ADD,
   CATEGORY_EDIT,
-  CATEGORY_REMOVE
+  CATEGORY_REMOVE,
 };

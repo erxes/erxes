@@ -5,8 +5,11 @@ type InsuranceCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     code: String
     description: String
     riskIds: [String]
+    companyIds: [String]
 
     risks: [Risk]
+
+    companies: [Company]
 
     lastModifiedBy: User
     lastModifiedAt: Date
@@ -28,11 +31,12 @@ export const queries = `
     sortDirection: SortDirection
     searchValue: String
     ): InsuranceCategoryList
+    insuranceCategoriesOfVendor: [InsuranceCategory]
     insuranceCategory(_id: ID!): InsuranceCategory
 `;
 
 export const mutations = `
-insuranceCategoryAdd(name: String!, code: String!, description: String!, riskIds: [String]): InsuranceCategory
-insuranceCategoryEdit(_id: ID!, name: String, code: String, description: String, riskIds: [String]): InsuranceCategory
+insuranceCategoryAdd(name: String!, code: String!, description: String!, riskIds: [String], companyIds: [String]): InsuranceCategory
+insuranceCategoryEdit(_id: ID!, name: String, code: String, description: String, riskIds: [String], companyIds: [String]): InsuranceCategory
 insuranceCategoryRemove(_id: ID!): String
 `;

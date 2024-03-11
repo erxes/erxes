@@ -11,9 +11,11 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   isDetail: boolean;
-  _id: string;
+  _id?: string;
   product?: any;
   refetch: () => void;
+  categoryCode?: string;
+  onChange?: (data: any) => void;
 };
 
 const CustomFieldsSection = (props: Props) => {
@@ -56,8 +58,29 @@ const CustomFieldsSection = (props: Props) => {
       });
   };
 
-  const { customFieldsData = [] } = props.product || {};
-  const fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
+  // const { customFieldsData = [] } = props.product || {};
+  let customFieldsData = props.product?.customFieldsData || [];
+
+  let fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
+
+  const codeMap = {
+    1: 'vehicle',
+    2: 'travel',
+  };
+
+  const categoryCode = props.categoryCode;
+
+  if (categoryCode) {
+    fieldsGroups = fieldsGroups.filter(
+      (group) => group.code === codeMap[categoryCode] || group.parentId,
+    );
+  }
+
+  const onValuesChange = (data) => {
+    if (props.onChange) {
+      props.onChange(data);
+    }
+  };
 
   const updatedProps = {
     save,
@@ -65,6 +88,7 @@ const CustomFieldsSection = (props: Props) => {
     fieldsGroups,
     isDetail,
     object: props.product,
+    onValuesChange,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
