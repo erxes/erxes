@@ -5,11 +5,10 @@ module.exports = {
   typeDefs: `
     chatMessageInserted(chatId: String!): ChatMessage
     chatInserted(userId: String!): Chat
-    chatReceivedNotification(userId: String!): ChatMessage
     chatUnreadCountChanged(userId: String!): Int
     chatTypingStatusChanged(chatId: String!) : ChatTypingStatusChangedResponse
   `,
-  generateResolvers: graphqlPubsub => {
+  generateResolvers: (graphqlPubsub) => {
     return {
       chatMessageInserted: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
@@ -17,63 +16,36 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.chatMessageInserted._id },
-            buildQueryUsingSelections: selections => `
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChatMessage($_id: String!) {
                 chatMessageDetail(_id: $_id) {
                   ${selections}
                 }
               }
-          `
+          `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatMessageInserted'),
-          (payload, variables) => {
-            return payload.chatMessageInserted.chatId === variables.chatId;
-          }
-        )
+        subscribe: (_, { chatId }) =>
+          graphqlPubsub.asyncIterator(`chatMessageInserted:${chatId}`),
       },
 
       chatInserted: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatInserted'),
-          (payload, variables) => {
-            return payload.userId === variables.userId;
-          }
-        )
-      },
-
-      chatReceivedNotification: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatReceivedNotification'),
-          (payload, variables) => {
-            return (
-              payload?.chatReceivedNotification?.createdBy !== variables.userId
-            );
-          }
-        )
+        subscribe: (_, { userId }) =>
+          graphqlPubsub.asyncIterator(`chatInserted:${userId}`),
       },
 
       chatUnreadCountChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatUnreadCountChanged'),
-          (payload, variables) => {
-            return payload.userId === variables.userId;
-          }
-        )
+        subscribe: (_, { userId }) =>
+          graphqlPubsub.asyncIterator(`chatUnreadCountChanged:${userId}`),
       },
 
       /*
        * Subscription to show typing notification
        */
       chatTypingStatusChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatTypingStatusChanged'),
-          async (payload, variables) => {
-            return payload.chatTypingStatusChanged.chatId === variables.chatId;
-          }
-        )
-      }
+        subscribe: (_, { chatId }) =>
+          graphqlPubsub.asyncIterator(`chatTypingStatusChanged:${chatId}`),
+      },
     };
-  }
+  },
 };

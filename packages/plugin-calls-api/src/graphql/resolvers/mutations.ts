@@ -74,7 +74,7 @@ const callsMutations = {
       userId: user._id,
     });
 
-    graphqlPubsub.publish('sessionTerminateRequested', {
+    graphqlPubsub.publish(`sessionTerminateRequested:${user._id}`, {
       userId: user._id,
     });
     return user._id;
@@ -85,7 +85,7 @@ const callsMutations = {
       userId: user._id,
     });
 
-    graphqlPubsub.publish('sessionTerminateRequested', {
+    graphqlPubsub.publish(`sessionTerminateRequested:${user._id}`, {
       userId: user._id,
     });
 

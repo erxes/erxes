@@ -214,7 +214,7 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -238,7 +238,7 @@ const dealMutations = {
       .filter((pd) => !oldDataIds.includes(pd._id))
       .map((pd) => pd._id);
 
-    graphqlPubsub.publish('productsDataChanged', {
+    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
       productsDataChanged: {
         _id: dealId,
         proccessId,
@@ -291,7 +291,7 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -311,7 +311,7 @@ const dealMutations = {
       },
     });
 
-    graphqlPubsub.publish('productsDataChanged', {
+    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
       productsDataChanged: {
         _id: dealId,
         proccessId,
@@ -363,7 +363,7 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
@@ -383,7 +383,7 @@ const dealMutations = {
       },
     });
 
-    graphqlPubsub.publish('productsDataChanged', {
+    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
       productsDataChanged: {
         _id: dealId,
         proccessId,

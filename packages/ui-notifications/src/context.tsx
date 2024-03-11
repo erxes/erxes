@@ -1,11 +1,15 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, sendDesktopNotification } from '@erxes/ui/src/utils';
+import {
+  Alert,
+  getSubdomain,
+  sendDesktopNotification,
+} from '@erxes/ui/src/utils';
 import {
   INotification,
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse
+  NotificationsQueryResponse,
 } from './types';
 import { mutations, queries, subscriptions } from './graphql';
 
@@ -43,15 +47,15 @@ class Provider extends React.Component<FinalProps> {
   private notificationRead;
 
   componentDidMount() {
-    const {
-      notificationsQuery,
-      notificationCountQuery,
-      currentUser
-    } = this.props;
+    const { notificationsQuery, notificationCountQuery, currentUser } =
+      this.props;
 
     this.unsubscribe = notificationsQuery.subscribeToMore({
       document: gql(subscriptions.notificationSubscription),
-      variables: { userId: currentUser ? currentUser._id : null },
+      variables: {
+        subdomain: getSubdomain(),
+        userId: currentUser ? currentUser._id : null,
+      },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { notificationInserted } = data;
         const { title, content } = notificationInserted;
@@ -60,7 +64,7 @@ class Provider extends React.Component<FinalProps> {
 
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
-      }
+      },
     });
 
     this.notificationRead = notificationsQuery.subscribeToMore({
@@ -69,7 +73,7 @@ class Provider extends React.Component<FinalProps> {
       updateQuery: () => {
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
-      }
+      },
     });
   }
 
@@ -82,12 +86,12 @@ class Provider extends React.Component<FinalProps> {
     const { notificationsMarkAsReadMutation } = this.props;
 
     notificationsMarkAsReadMutation({
-      variables: { _ids: notificationIds }
+      variables: { _ids: notificationIds },
     })
       .then(() => {
         Alert.success('Notifications have been seen');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -99,11 +103,8 @@ class Provider extends React.Component<FinalProps> {
   };
 
   public render() {
-    const {
-      notificationsQuery,
-      notificationCountQuery,
-      currentUser
-    } = this.props;
+    const { notificationsQuery, notificationCountQuery, currentUser } =
+      this.props;
 
     const notifications = notificationsQuery.notifications || [];
     const isLoading = notificationsQuery.loading;
@@ -116,7 +117,7 @@ class Provider extends React.Component<FinalProps> {
           showNotifications: this.showNotifications,
           markAsRead: this.markAsRead,
           isLoading,
-          currentUser
+          currentUser,
         }}
       >
         {this.props.children}
@@ -135,9 +136,9 @@ export const NotifProvider = compose(
     options: () => ({
       variables: {
         limit: 10,
-        requireRead: false
-      }
-    })
+        requireRead: false,
+      },
+    }),
   }),
   graphql<{}, NotificationsCountQueryResponse>(
     gql(queries.notificationCounts),
@@ -145,18 +146,18 @@ export const NotifProvider = compose(
       name: 'notificationCountQuery',
       options: () => ({
         variables: {
-          requireRead: true
-        }
-      })
-    }
+          requireRead: true,
+        },
+      }),
+    },
   ),
   graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
     gql(mutations.markAsRead),
     {
       name: 'notificationsMarkAsReadMutation',
       options: {
-        refetchQueries: () => ['notificationCounts']
-      }
-    }
-  )
+        refetchQueries: () => ['notificationCounts'],
+      },
+    },
+  ),
 )(Provider);
