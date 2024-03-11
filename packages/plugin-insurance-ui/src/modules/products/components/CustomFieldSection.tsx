@@ -65,7 +65,7 @@ const CustomFieldsSection = (props: Props) => {
 
   const codeMap = {
     1: 'vehicle',
-    2: 'travel',
+    2: 'citizen',
   };
 
   const categoryCode = props.categoryCode;
