@@ -1,47 +1,73 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { CallHistory, CallDetail, AdditionalDetail } from '../styles';
-import { all } from '../constants';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { EmptyState } from '@erxes/ui/src/components';
+import { AdditionalDetail, CallDetail, CallHistory } from "../styles";
+import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
-const History: React.FC<{}> = () => {
-  const [currentTab, setCurrentTab] = useState('All');
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { EmptyState } from "@erxes/ui/src/components";
+import { IHistory } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import { __ } from "@erxes/ui/src/utils";
+
+type Props = {
+  histories: IHistory[];
+  changeMainTab: (phoneNumber: string, shiftTab: string) => void;
+  refetch: ({ callStatus }: { callStatus: string }) => void;
+  remove: (_id: string) => void;
+};
+
+const History: React.FC<Props> = (props) => {
+  const [currentTab, setCurrentTab] = useState("All");
 
   const onTabClick = (currentTab: string) => {
     setCurrentTab(currentTab);
+
+    if (currentTab === "Missed Call") {
+      props.refetch({ callStatus: "missed" });
+    } else {
+      props.refetch({ callStatus: "all" });
+    }
   };
 
-  const renderCalls = (currentTab: string) => {
-    if (!all || all.length === 0) {
+  const onCall = (phoneNumber) => {
+    props.changeMainTab(phoneNumber, "Keyboard");
+  };
+
+  const onRemove = (_id) => {
+    props.remove(_id);
+  };
+
+  const renderCalls = () => {
+    if (!props.histories || props.histories.length === 0) {
       return <EmptyState icon="ban" text="There is no history" size="small" />;
     }
 
-    return all.map((item, i) => {
+    return props.histories.map((item, i) => {
+      const secondLine =
+        item.customer !== null ? item.customer.primaryPhone : "unknown user";
       const content = (
-        <CallDetail isMissedCall={item.isMissedCall} key={i}>
+        <CallDetail isMissedCall={false} key={i}>
           <NameCard
-            user={item}
+            user={item.customer}
             key={i}
             avatarSize={40}
-            secondLine="To call integration"
+            secondLine={secondLine}
           />
           <AdditionalDetail>
-            {item.time}
             <Dropdown>
               <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
                 <Icon icon="ellipsis-v" size={18} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <li key="call">
-                  <Icon icon="outgoing-call" /> {__('Call')}
+                <li
+                  key="call"
+                  onClick={() => onCall(item.customer?.primaryPhone)}
+                >
+                  <Icon icon="outgoing-call" /> {__("Call")}
                 </li>
-                <li key="delete">
-                  <Icon icon="trash-alt" size={14} /> {__('Delete')}
+                <li key="delete" onClick={() => onRemove(item._id)}>
+                  <Icon icon="trash-alt" size={14} /> {__("Delete")}
                 </li>
               </Dropdown.Menu>
             </Dropdown>
@@ -49,36 +75,29 @@ const History: React.FC<{}> = () => {
         </CallDetail>
       );
 
-      if (currentTab === 'Missed Call') {
-        if (item.isMissedCall === true) {
-          return content;
-        }
-        return null;
-      }
-
       return content;
     });
   };
 
   return (
     <>
-      <Tabs full={true}>
+      <Tabs $full={true}>
         <TabTitle
-          className={currentTab === 'All' ? 'active' : ''}
-          onClick={() => onTabClick('All')}
+          className={currentTab === "All" ? "active" : ""}
+          onClick={() => onTabClick("All")}
         >
-          {__('All')}
+          {__("All")}
         </TabTitle>
         <TabTitle
-          className={currentTab === 'Missed Call' ? 'active' : ''}
-          onClick={() => onTabClick('Missed Call')}
+          className={currentTab === "Missed Call" ? "active" : ""}
+          onClick={() => onTabClick("Missed Call")}
         >
-          {__('Missed Call')}
+          {__("Missed Call")}
         </TabTitle>
       </Tabs>
       <CallHistory>
-        <h4>{__('Recents')}</h4>
-        {renderCalls(currentTab)}
+        <h4>{__("Recents")}</h4>
+        {renderCalls()}
       </CallHistory>
     </>
   );

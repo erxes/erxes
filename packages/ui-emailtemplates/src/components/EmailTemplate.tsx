@@ -6,11 +6,11 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo,
-} from '../styles';
-import { Icon, ModalTrigger } from '@erxes/ui/src';
+} from "../styles";
+import { Icon, ModalTrigger } from "@erxes/ui/src";
 
-import React from 'react';
-import dayjs from 'dayjs';
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   handleSelect?: (_id: string) => void;
@@ -33,13 +33,13 @@ const EmailTemplate = (props: Props) => {
   const renderDate = (createdAt, modifiedAt) => {
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
-        return '-';
+        return "-";
       }
 
-      return dayjs(createdAt).format('DD MMM YYYY');
+      return dayjs(createdAt).format("DD MMM YYYY");
     }
 
-    return dayjs(modifiedAt).format('DD MMM YYYY');
+    return dayjs(modifiedAt).format("DD MMM YYYY");
   };
 
   const renderView = (content) => {
@@ -81,7 +81,7 @@ const EmailTemplate = (props: Props) => {
   };
 
   return (
-    <Template key={_id} className={selectedTemplateId === _id ? 'active' : ''}>
+    <Template key={_id} className={selectedTemplateId === _id ? "active" : ""}>
       <TemplateBox>
         {renderActions()}
         <IframePreview>

@@ -106,6 +106,8 @@ export const types = `
     departments: [Department]
     branchIds: [String]
     branches: [Branch]
+    positionIds: [String]
+    positions: [Position]
     score: Float
     leaderBoardPosition: Int
     employeeId: String
@@ -134,6 +136,7 @@ const commonParams = `
   groupIds: [String]
   brandIds: [String]
   branchIds: [String]
+  positionIds: [String]
   departmentIds: [String]
   customFieldsData: JSON
   employeeId: String

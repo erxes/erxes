@@ -6,7 +6,7 @@ export const generateListQueryVariables = ({ queryParams }) => ({
   kind: queryParams.kind,
   status: queryParams.status,
   tag: queryParams.tag,
-  ids: queryParams.ids
+  ids: queryParams.ids,
 });
 
 export const crudMutationsOptions = () => {
@@ -15,15 +15,15 @@ export const crudMutationsOptions = () => {
       'engageMessages',
       'engageMessagesTotalCount',
       'kindCounts',
-      'statusCounts'
-    ]
+      'statusCounts',
+    ],
   };
 };
 
-export const generateEmailTemplateParams = emailTemplates => {
-  return (emailTemplates || []).map(template => ({
+export const generateEmailTemplateParams = (emailTemplates) => {
+  return (emailTemplates || []).map((template) => ({
     value: template._id,
-    label: template.name
+    label: template.name,
   }));
 };
 

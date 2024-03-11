@@ -1,18 +1,20 @@
-import React, { useEffect } from 'react';
-
-import strip from 'strip';
-import { gql, useQuery, useMutation } from '@apollo/client';
-
-import { Alert, sendDesktopNotification } from '@erxes/ui/src/utils';
-import { IUser } from '@erxes/ui/src/auth/types';
-
-import { mutations, queries, subscriptions } from './graphql';
+import {
+  Alert,
+  getSubdomain,
+  sendDesktopNotification,
+} from "@erxes/ui/src/utils";
 import {
   INotification,
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
-} from './types';
+} from "./types";
+import React, { useEffect } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries, subscriptions } from "./graphql";
+
+import { IUser } from "@erxes/ui/src/auth/types";
+import strip from "strip";
 
 interface IStore {
   notifications: INotification[];
@@ -42,18 +44,19 @@ const Provider = (props: Props) => {
     },
   });
 
-  const notificationCountQuery = useQuery(gql(queries.notificationCounts), {
-    variables: {
-      requireRead: true,
-    },
-  });
-
-  const [notificationsMarkAsReadMutation] = useMutation(
-    gql(mutations.markAsRead),
+  const notificationCountQuery = useQuery<NotificationsCountQueryResponse>(
+    gql(queries.notificationCounts),
     {
-      refetchQueries: () => ['notificationCounts'],
-    },
+      variables: {
+        requireRead: true,
+      },
+    }
   );
+
+  const [notificationsMarkAsReadMutation] =
+    useMutation<MarkAsReadMutationResponse>(gql(mutations.markAsRead), {
+      refetchQueries: () => ["notificationCounts"],
+    });
 
   const notifications = notificationsQuery?.data?.notifications || [];
   const isLoading = notificationsQuery?.loading;
@@ -62,12 +65,15 @@ const Provider = (props: Props) => {
   useEffect(() => {
     const unsubscribe = notificationsQuery?.subscribeToMore({
       document: gql(subscriptions.notificationSubscription),
-      variables: { userId: currentUser ? currentUser._id : null },
+      variables: {
+        subdomain: getSubdomain(),
+        userId: currentUser ? currentUser._id : null,
+      },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { notificationInserted } = data;
         const { title, content } = notificationInserted;
 
-        sendDesktopNotification({ title, content: strip(content || '') });
+        sendDesktopNotification({ title, content: strip(content || "") });
 
         notificationsQuery?.refetch();
         notificationCountQuery?.refetch();
@@ -94,7 +100,7 @@ const Provider = (props: Props) => {
       variables: { _ids: notificationIds },
     })
       .then(() => {
-        Alert.success('Notifications have been seen');
+        Alert.success("Notifications have been seen");
       })
       .catch((error) => {
         Alert.error(error.message);

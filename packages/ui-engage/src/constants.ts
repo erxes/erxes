@@ -228,6 +228,32 @@ export const AWS_EMAIL_DELIVERY_STATUSES = {
   ],
 };
 
+export const NOTIFICATION_DELIVERY_STATUSES = {
+  SENT: 'sent',
+  READ: 'read',
+  UNREAD: 'unread',
+  OPTIONS: [
+    {
+      value: 'sent',
+      label: 'Sent',
+      description: 'The notification was successfully sent to the recipient',
+      icon: 'telegram-alt',
+    },
+    {
+      value: 'read',
+      label: 'Read',
+      description: 'The recipient received the notification and opened it',
+      icon: 'envelope-open',
+    },
+    {
+      value: 'unread',
+      label: 'Unread',
+      description: 'The recipient has not yet opened the notification',
+      icon: 'envelope',
+    },
+  ],
+};
+
 export const CAMPAIGN_TARGET_TYPES = {
   SEGMENT: 'segments:segment',
   TAG: 'tags:tag',

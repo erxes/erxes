@@ -287,6 +287,15 @@ const FormContent = styled.div`
       border-radius: 5px;
       overflow: hidden;
     }
+
+    .Select-option-group-label {
+      position: unset;
+      font-weight: 500;
+    }
+
+    .Select-option-group > .Select-option {
+      padding-left: 30px;
+    }
   }
 `;
 

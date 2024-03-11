@@ -59,6 +59,7 @@ export interface IUserDoc {
   score?: number;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   employeeId?: string;
 }
 
@@ -124,6 +125,7 @@ export interface IUser extends IUserDoc {
   onboardingHistory?: IOnboardingHistory;
   branchIds: string[];
   departmentIds: string[];
+  positionIds: string[];
   customFieldsData?: {
     [key: string]: any;
   };

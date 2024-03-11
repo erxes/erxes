@@ -1,24 +1,26 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery } from '@apollo/client';
 
-import ArticleList from "../components/ArticleList";
-import { Config } from "../../types";
-import React from "react";
-import Spinner from "../../common/Spinner";
-import { articlesQuery } from "../graphql/queries";
+import ArticleList from '../components/ArticleList';
+import { Config, IUser } from '../../types';
+import React from 'react';
+import Spinner from '../../common/Spinner';
+import { articlesQuery } from '../graphql/queries';
 
 type Props = {
   config: Config;
   searchValue?: any;
   categoryId?: string;
   topicId?: string;
+  currentUser: IUser;
 };
 
 function ArticleListContainer(props: Props) {
   const { loading, data = {} as any } = useQuery(gql(articlesQuery), {
     variables: {
-      searchValue: props.searchValue || "",
+      searchValue: props.searchValue || '',
       categoryIds: props.categoryId && [props.categoryId],
-      topicId: props.topicId || "",
+      topicId: props.topicId || '',
+      isPrivate: props.currentUser ? true : false,
     },
   });
 
