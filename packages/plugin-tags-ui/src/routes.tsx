@@ -1,18 +1,18 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
+
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const List = asyncComponent(
-  () => import(/* webpackChunkName: "List - Tags" */ './containers/List'),
+  () => import(/* webpackChunkName: "List - Tags" */ "./containers/List")
 );
 
 const Tags = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <List history={navigate} queryParams={queryParams} />;
+  return <List queryParams={queryParams} />;
 };
 
 const routes = () => {

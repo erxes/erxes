@@ -142,6 +142,7 @@ export type AllUsersQueryResponse = {
 export type CurrentUserQueryResponse = {
   currentUser: IUser;
   loading: boolean;
+  error: any;
   subscribeToMore: any;
   refetch: () => void;
 };

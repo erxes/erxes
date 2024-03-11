@@ -85,11 +85,11 @@ const MailEditorWrapper = styled.div`
   }
 `;
 
-const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
+const Resipients = styledTS<{ $isActive?: boolean }>(styled.a)`
   padding-left: ${dimensions.unitSpacing}px;
   font-size: 12px;
   color: ${colors.colorCoreLightGray};
-  display: ${props => props.isActive && 'none'};
+  display: ${props => props.$isActive && 'none'};
   font-weight: 500;
 
   &:hover {
@@ -118,14 +118,14 @@ const Attachments = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
-const FlexRow = styledTS<{ isEmail?: boolean }>(styled.div)`
+const FlexRow = styledTS<{ $isEmail?: boolean }>(styled.div)`
   display: flex;
   align-items: center;
-  height: ${props => props.isEmail && '28px'};
+  height: ${props => props.$isEmail && '28px'};
 
   > label {
     margin: ${props =>
-      props.isEmail
+      props.$isEmail
         ? `auto ${dimensions.unitSpacing}px auto 0`
         : `2px ${dimensions.unitSpacing}px 2px 0`};
     color: ${colors.colorCoreGray};
@@ -289,9 +289,9 @@ const NewEmailHeader = styled.h5`
 `;
 
 const WidgetWrapper = styledTS<{
-  show: boolean;
-  shrink: boolean;
-  fullScreen?: boolean;
+  $show: boolean;
+  $shrink: boolean;
+  $fullScreen?: boolean;
 }>(styled.div)`
   position: fixed;
   flex-direction: column;
@@ -301,10 +301,10 @@ const WidgetWrapper = styledTS<{
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  width: ${({ fullScreen, shrink }) =>
-    fullScreen ? '75vw' : shrink ? '260px' : '600px'};
-  ${({ fullScreen }) =>
-    fullScreen
+  width: ${({ $fullScreen, $shrink }) =>
+    $fullScreen ? '75vw' : $shrink ? '260px' : '600px'};
+  ${({ $fullScreen }) =>
+    $fullScreen
       ? `
     left: 50%;
     top: 6%;
@@ -316,7 +316,7 @@ const WidgetWrapper = styledTS<{
     right: ${dimensions.coreSpacing}px; 
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
   `}
-  ${({ show }) => (show ? 'display: flex;' : 'display:none;')} 
+  ${({ $show }) => ($show ? 'display: flex;' : 'display:none;')} 
 
   .Select-arrow-zone {
     padding: 0;

@@ -1,11 +1,12 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const MessageForm = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
+    /* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm"
   );
 
   return comp;
@@ -13,80 +14,78 @@ const MessageForm = asyncComponent(() => {
 
 const MessageList = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
+    /* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList"
   );
 
   return comp;
 });
 
-const EngageStats = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats'
-  )
+const EngageStats = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "EngageStats - Engage" */ "./containers/EngageStats"
+    )
 );
 
-const EngageConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Engage configs" */ '../settings/campaigns/components/EngageConfigs'
-  )
+const EngageConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Engage configs" */ "../settings/campaigns/components/EngageConfigs"
+    )
 );
 
-const engageList = history => {
-  return <MessageList history={history} />;
+const EngageList = () => {
+  return <MessageList />;
 };
 
-const createForm = ({ location }) => {
+const CreateForm = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <MessageForm kind={queryParams.kind} />;
 };
 
-const editForm = ({ match }) => {
-  return <MessageForm messageId={match.params._id} />;
+const EditForm = () => {
+  const { _id } = useParams();
+
+  return <MessageForm messageId={_id} />;
 };
 
-const statistic = ({ match }) => {
-  return <EngageStats messageId={match.params._id} />;
+const Statistic = () => {
+  const { _id } = useParams();
+
+  return <EngageStats messageId={_id} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route
-        key="/campaigns"
-        exact={true}
-        path="/campaigns"
-        component={engageList}
-      />
+    <Routes>
+      <Route key="/campaigns" path="/campaigns" element={<EngageList />} />
 
       <Route
         key="/campaigns/create"
-        exact={true}
         path="/campaigns/create"
-        component={createForm}
+        element={<CreateForm />}
       />
 
       <Route
         key="/campaigns/edit"
-        exact={true}
         path="/campaigns/edit/:_id"
-        component={editForm}
+        element={<EditForm />}
       />
 
       <Route
         key="/campaigns/show"
-        exact={true}
         path="/campaigns/show/:_id"
-        component={statistic}
+        element={<Statistic />}
       />
 
       <Route
         key="/settings/campaign-configs/"
-        exact={true}
         path="/settings/campaign-configs/"
-        component={EngageConfigs}
+        element={<EngageConfigs />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 
