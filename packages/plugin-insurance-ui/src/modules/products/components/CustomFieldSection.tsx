@@ -88,7 +88,7 @@ const CustomFieldsSection = (props: Props) => {
     fieldsGroups,
     isDetail,
     object: props.product,
-    onValuesChange,
+    // onValuesChange,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
