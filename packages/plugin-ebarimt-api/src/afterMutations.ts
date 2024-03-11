@@ -50,7 +50,7 @@ export const afterMutationHandlers = async (
 
         if (returnResponses.length) {
           try {
-            await graphqlPubsub.publish('automationResponded', {
+            await graphqlPubsub.publish(`automationResponded:${user._id}`, {
               automationResponded: {
                 userId: user._id,
                 responseId: returnResponses.map((er) => er._id).join('-'),
@@ -109,7 +109,7 @@ export const afterMutationHandlers = async (
 
       try {
         if (ebarimtResponses.length) {
-          await graphqlPubsub.publish('automationResponded', {
+          await graphqlPubsub.publish(`automationResponded:${user._id}`, {
             automationResponded: {
               userId: user._id,
               responseId: ebarimtResponses.map((er) => er._id).join('-'),

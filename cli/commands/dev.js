@@ -241,6 +241,13 @@ module.exports.devCmd = async program => {
             plugin.name
           );
         }
+
+        if (uiConfigs.innerWidget) {
+          uiConfigs.innerWidget.url = (configs.ui_remote_url || '').replace(
+            '<name>',
+            plugin.name
+          );
+        }
       }
 
       uiPlugins.push(uiConfigs);
