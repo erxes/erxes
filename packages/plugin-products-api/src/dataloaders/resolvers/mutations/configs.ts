@@ -8,7 +8,7 @@ const configMutations = {
   async productsConfigsUpdate(
     _root,
     { configsMap },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
     const codes = Object.keys(configsMap);
 

@@ -99,7 +99,7 @@ export const initCustomField = async (
 
       customFieldsData.push({
         field: value.fieldId,
-        value: Object.keys(value.matches)[subCodeInd],
+        value: (Object.keys(value.matches) || [])[subCodeInd],
       });
       strInd += len;
     }
@@ -152,19 +152,18 @@ export const checkSameMaskConfig = async (
     const filterFieldDef = maskValue.filterField || 'code';
 
     const codeRegex = new RegExp(
-      `^${mask.replace(/\./g, '\\.').replace(/\*/g, '.').replace(/_/g, '.')}${
-        (filterFieldDef.type === 'code' && '$') || '.*'
+      `^${mask.replace(/\./g, '\\.').replace(/\*/g, '.').replace(/_/g, '.')}${(filterFieldDef.type === 'code' && '$') || '.*'
       }`,
       'igu',
     );
 
     const filterFieldVal = filterFieldDef.includes('customFieldsData.')
       ? (
-          doc.customFieldsData.find(
-            (cfd) =>
-              filterFieldDef.replace('customFieldsData.', '') === cfd.field,
-          ) || {}
-        ).stringValue
+        doc.customFieldsData.find(
+          (cfd) =>
+            filterFieldDef.replace('customFieldsData.', '') === cfd.field,
+        ) || {}
+      ).stringValue
       : doc[filterFieldDef];
 
     if (
@@ -172,7 +171,7 @@ export const checkSameMaskConfig = async (
       (maskValue.rules || [])
         .map((sg) => sg.fieldId)
         .filter((sgf) => (customFieldIds || []).includes(sgf)).length ===
-        (maskValue.rules || []).length
+      (maskValue.rules || []).length
     ) {
       result.push(mask);
     }
