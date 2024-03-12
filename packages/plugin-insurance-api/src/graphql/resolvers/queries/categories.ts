@@ -2,6 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { verifyVendor } from '../utils';
 
 const queries = {
   insuranceCategoryList: async (
@@ -11,7 +12,7 @@ const queries = {
       perPage,
       sortField,
       sortDirection,
-      searchValue
+      searchValue,
     }: {
       page: number;
       perPage: number;
@@ -19,7 +20,7 @@ const queries = {
       sortDirection: 'ASC' | 'DESC';
       searchValue: string;
     },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const qry: any = {};
 
@@ -38,10 +39,10 @@ const queries = {
         models.Categories.find(qry).sort({ [sortField]: sortOrder }),
         {
           page,
-          perPage
-        }
+          perPage,
+        },
       ),
-      totalCount: models.Categories.find(qry).count()
+      totalCount: models.Categories.find(qry).count(),
     };
   },
 
@@ -50,9 +51,9 @@ const queries = {
     {
       searchValue,
       page,
-      perPage
+      perPage,
     }: { searchValue: string; page: number; perPage: number },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const qry: any = {};
 
@@ -62,17 +63,34 @@ const queries = {
 
     return paginate(models.Categories.find(qry), {
       page,
-      perPage
+      perPage,
     });
   },
 
   insuranceCategory: async (
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return models.Categories.findOne({ _id }).lean();
-  }
+  },
+
+  insuranceCategoriesOfVendor: async (
+    _root,
+    _args,
+    { subdomain, models, cpUser }: IContext,
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { user } = await verifyVendor({
+      subdomain,
+      cpUser,
+    });
+
+    return models.Categories.find({ companyIds: user.erxesCompanyId }).lean();
+  },
 };
 
 export default queries;

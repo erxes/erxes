@@ -18,6 +18,17 @@ const InsuranceProduct = {
   ) {
     return models.Categories.findOne({ _id: product.categoryId }).lean();
   },
+
+  async tags(
+    product: IInsuranceProductDocument,
+    _params,
+    { models }: IContext,
+  ) {
+    return (
+      product.tagIds &&
+      product.tagIds.map((_id) => ({ __typename: 'Tag', _id }))
+    );
+  },
 };
 
 const InsuranceProductOfVendor = {

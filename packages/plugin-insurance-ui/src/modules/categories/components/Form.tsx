@@ -10,6 +10,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import { InsuranceCategory } from '../../../gql/types';
 import SelectRisks from '../../risks/containers/SelectRisks';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
   category?: InsuranceCategory;
@@ -19,7 +20,13 @@ type Props = {
 
 const ProductForm = (props: Props) => {
   const [category, setCategory] = React.useState<any>(
-    props.category || { code: '', name: '', description: '', riskIds: [] }
+    props.category || {
+      code: '',
+      name: '',
+      description: '',
+      riskIds: [],
+      companyIds: [],
+    },
   );
 
   const generateDoc = () => {
@@ -29,14 +36,14 @@ const ProductForm = (props: Props) => {
       finalValues._id = props.category._id;
     }
 
-    Object.keys(category).forEach(key => {
+    Object.keys(category).forEach((key) => {
       if (category[key] !== undefined) {
         finalValues[key] = category[key];
       }
     });
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
@@ -44,18 +51,25 @@ const ProductForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
+    const onSelectCompanies = (value: any) => {
+      setCategory({
+        ...category,
+        companyIds: value,
+      });
+    };
+
     const renderInput = (
       name: string,
       type: string,
       value: any,
       label: string,
       required?: boolean,
-      useNumberFormat?: boolean
+      useNumberFormat?: boolean,
     ) => {
       const onChangeInput = (e: any) => {
         setCategory({
           ...category,
-          [name]: e.target.value
+          [name]: e.target.value,
         });
       };
 
@@ -85,7 +99,7 @@ const ProductForm = (props: Props) => {
           'description',
           'text',
           category.description,
-          'Description'
+          'Description',
         )}
         <FormGroup>
           <ControlLabel>{__('Risks')}</ControlLabel>
@@ -95,10 +109,22 @@ const ProductForm = (props: Props) => {
             onSelect={(values: string[] | string) => {
               setCategory({
                 ...category,
-                riskIds: values
+                riskIds: values,
               });
             }}
             initialValue={category.riskIds}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Vendors</ControlLabel>
+          <p>{__('Please select vendors that access to this category')}</p>
+          <SelectCompanies
+            label="Select vendors"
+            name="vendorIds"
+            // customOption={{ value: '', label: 'No vendor chosen' }}
+            initialValue={category.companyIds || []}
+            onSelect={onSelectCompanies}
+            multi={true}
           />
         </FormGroup>
 
@@ -112,7 +138,7 @@ const ProductForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

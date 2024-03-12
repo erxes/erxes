@@ -13,6 +13,8 @@ const queries = {
       sortDirection,
       searchValue,
       categoryId,
+      tagIds,
+      customProperties,
     }: {
       page: number;
       perPage: number;
@@ -20,6 +22,8 @@ const queries = {
       sortDirection: 'ASC' | 'DESC';
       searchValue: string;
       categoryId: string;
+      tagIds: string[];
+      customProperties: any;
     },
     { models }: IContext,
   ) => {
@@ -37,6 +41,21 @@ const queries = {
 
     if (categoryId) {
       qry.categoryId = categoryId;
+    }
+
+    if (tagIds) {
+      qry.tagIds = { $in: tagIds };
+    }
+
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      qry.$and = customFields;
     }
 
     return {
@@ -58,11 +77,15 @@ const queries = {
       page,
       perPage,
       categoryId,
+      tagIds,
+      customProperties,
     }: {
       searchValue: string;
       page: number;
       perPage: number;
       categoryId: string;
+      tagIds: string[];
+      customProperties: any;
     },
     { models }: IContext,
   ) => {
@@ -74,6 +97,21 @@ const queries = {
 
     if (categoryId) {
       qry.categoryId = categoryId;
+    }
+
+    if (tagIds) {
+      qry.tagIds = { $in: tagIds };
+    }
+
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      qry.$and = customFields;
     }
 
     return paginate(models.Products.find(qry), {
@@ -92,7 +130,7 @@ const queries = {
 
   insuranceProductsOfVendor: async (
     _root,
-    { categoryId },
+    { categoryId, tagIds, customProperties },
     { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
@@ -163,6 +201,23 @@ const queries = {
       match.$and.push({
         categoryId,
       });
+    }
+
+    if (tagIds) {
+      match.$and.push({
+        tagIds: { $in: tagIds },
+      });
+    }
+
+    if (customProperties) {
+      const customFields = customProperties.map((property: any) => {
+        return {
+          ['customFieldsData.field']: property.field,
+          ['customFieldsData.value']: property.value,
+        };
+      });
+
+      match.$and.push({ $and: customFields });
     }
 
     const products = await models.Products.aggregate([

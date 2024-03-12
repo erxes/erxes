@@ -88,7 +88,6 @@ const ITEM_QUERY = gql`
       totalFee
       userId
       vendorUserId
-      categoryCode
     }
   }
 `;
