@@ -60,5 +60,5 @@ jobs:
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker buildx build -t registry.erxes.io/erxes/plugin-tumentech-api:enterprise -f Dockerfile .
-          docker push registry.erxes.io/erxes/plugin-tumentech-api:enterprise
+          docker buildx build -t registry.erxes.io/erxes/plugin-tumentech-api:staging -f Dockerfile .
+          docker push registry.erxes.io/erxes/plugin-tumentech-api:staging
