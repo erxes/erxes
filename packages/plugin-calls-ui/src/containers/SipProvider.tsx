@@ -15,6 +15,7 @@ import TerminateSessionForm from '../components/TerminateCallForm';
 import { setLocalStorage } from '../utils';
 
 import * as moment from 'moment';
+import { getSubdomain } from '@erxes/ui/src/utils/core';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
@@ -44,7 +45,7 @@ const SipProviderContainer = (props) => {
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
-    variables: { userId: props.currentUser._id },
+    variables: { subdomain: getSubdomain(), userId: props.currentUser._id },
     onSubscriptionData: () => {
       if (
         !callInfo?.isRegistered ||
