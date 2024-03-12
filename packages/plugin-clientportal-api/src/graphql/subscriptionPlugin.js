@@ -31,21 +31,11 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('clientPortalNotificationInserted'),
-          (payload, variables) => {
-            return payload.clientPortalNotificationInserted.userId === variables.userId;
-          }
-        )
+        subscribe: (_, { userId }) => graphqlPubsub.asyncIterator(`clientPortalNotificationInserted:${userId}`),
       },
     
       clientPortalNotificationRead: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('clientPortalNotificationRead'),
-          (payload, variables) => {
-            return payload.clientPortalNotificationRead.userId === variables.userId;
-          }
-        )
+        subscribe: (_, { userId }) => graphqlPubsub.asyncIterator(`clientPortalNotificationRead:${userId}`),
       }
     };
   },

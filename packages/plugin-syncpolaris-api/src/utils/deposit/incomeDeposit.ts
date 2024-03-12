@@ -1,11 +1,12 @@
-import { fetchPolaris, getSavingContract } from '../utils';
+import { fetchPolaris, getContract } from '../utils';
 
 export const incomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    transaction.contractId,
+    { _id: transaction.contractId },
+    'savings',
   );
 
   let sendData = {

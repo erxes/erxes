@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface ITimeClock {
   userId: string;
@@ -613,4 +614,8 @@ export interface IReport {
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsScheduled?: number;
+}
+
+export interface ITeamMembersObj {
+  [userId: string]: IUserDocument;
 }
