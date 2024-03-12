@@ -1,35 +1,35 @@
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import React from 'react';
-import { IProduct } from '../../types';
-
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-
 import {
+  ActionButtons,
   Button,
   FormControl,
   Icon,
   ModalTrigger,
   Tip,
   __,
-  ActionButtons,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
+
+import { IProduct } from "../../types";
+import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
+import React from "react";
+import Tags from "@erxes/ui/src/components/Tags";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   product: IProduct;
-  history: any;
   isChecked: boolean;
   toggleBulk: (product: IProduct, isChecked?: boolean) => void;
 };
 
 const Row: React.FC<Props> = (props) => {
-  const { product, history, toggleBulk, isChecked } = props;
+  const { product, toggleBulk, isChecked } = props;
+  const navigate = useNavigate();
 
   const tags = product.getTags || [];
 
   const trigger = (
     <Button btnStyle="link">
-      <Tip text={__('Edit')} placement="bottom">
+      <Tip text={__("Edit")} placement="bottom">
         <Icon icon="edit-3" />
       </Tip>
     </Button>
@@ -46,7 +46,7 @@ const Row: React.FC<Props> = (props) => {
   };
 
   const onTrClick = () => {
-    history.push(`/settings/product-service/details/${product._id}`);
+    navigate(`/settings/product-service/details/${product._id}`);
   };
 
   const content = (props) => <ProductForm {...props} product={product} />;
@@ -67,7 +67,7 @@ const Row: React.FC<Props> = (props) => {
       <td>
         <TextInfo>{type}</TextInfo>
       </td>
-      <td>{category ? category.name : ''}</td>
+      <td>{category ? category.name : ""}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td>
         <Tags tags={tags} limit={2} />

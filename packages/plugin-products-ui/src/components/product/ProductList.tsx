@@ -1,34 +1,33 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
-import { Title } from '@erxes/ui/src/styles/main';
-import { IProduct, IProductCategory } from '../../types';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { FlexItem, InputBar } from "@erxes/ui-settings/src/styles";
+import { IProduct, IProductCategory } from "../../types";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CategoryList from '../../containers/productCategory/CategoryList';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '@erxes/ui-products/src/containers/ProductForm';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import ProductsMerge from './detail/ProductsMerge';
-import ProductsPrintAction from './ProductPrintAction';
-import React, { useState } from 'react';
-import Row from './ProductRow';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
-import { Icon } from '@erxes/ui/src';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryList from "../../containers/productCategory/CategoryList";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "@erxes/ui-products/src/containers/ProductForm";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { Icon } from "@erxes/ui/src";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import ProductsMerge from "./detail/ProductsMerge";
+import ProductsPrintAction from "./ProductPrintAction";
+import Row from "./ProductRow";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Table from "@erxes/ui/src/components/table";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
+import { Title } from "@erxes/ui/src/styles/main";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
-interface IProps extends IRouterProps {
-  history: any;
+interface IProps {
   queryParams: any;
   products: IProduct[];
   productsCount: number;
@@ -45,17 +44,11 @@ interface IProps extends IRouterProps {
   mergeProductLoading;
 }
 
-type State = {
-  searchValue?: string;
-  checked?: boolean;
-};
-
 const List: React.FC<IProps> = (props) => {
   let timer;
 
   const {
     products,
-    history,
     toggleBulk,
     bulk,
     toggleAll,
@@ -70,13 +63,21 @@ const List: React.FC<IProps> = (props) => {
     queryParams,
   } = props;
 
-  const [searchValue, setSearchValue] = useState(props.searchValue);
-  const [checked, setChecked] = useState(false);
+  const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const [checked, setChecked] = useState<boolean>(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (checked && !(bulk || []).length) {
+      setChecked(false);
+      router.removeParams(history, "page", "ids");
+    }
+  }, [checked, bulk, history]);
 
   const renderRow = () => {
     return products.map((product) => (
       <Row
-        history={history}
         key={product._id}
         product={product}
         toggleBulk={toggleBulk}
@@ -86,11 +87,11 @@ const List: React.FC<IProps> = (props) => {
   };
 
   const onChange = () => {
-    toggleAll(products, 'products');
+    toggleAll(products, "products");
 
     if (bulk.length === products.length) {
-      router.removeParams(history, 'ids');
-      router.setParams(history, { page: 1 });
+      router.removeParams(navigate, location, "ids");
+      router.setParams(navigate, location, { page: 1 });
     }
   };
 
@@ -114,15 +115,15 @@ const List: React.FC<IProps> = (props) => {
     setSearchValue(searchValue);
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -143,7 +144,7 @@ const List: React.FC<IProps> = (props) => {
 
     return (
       <>
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th style={{ width: 60 }}>
@@ -153,13 +154,13 @@ const List: React.FC<IProps> = (props) => {
                   onChange={onChange}
                 />
               </th>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('Tags')}</th>
-              <th>{__('Actions')}</th>
+              <th>{__("Code")}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Type")}</th>
+              <th>{__("Category")}</th>
+              <th>{__("Unit Price")}</th>
+              <th>{__("Tags")}</th>
+              <th>{__("Actions")}</th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
@@ -169,9 +170,31 @@ const List: React.FC<IProps> = (props) => {
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Product & Service') },
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Product & Service") },
   ];
+
+  const onChangeChecked = (e) => {
+    const checked = e.target.checked;
+
+    if (checked && (bulk || []).length) {
+      setChecked(true);
+      setSearchValue("");
+      router.removeParams(
+        navigate,
+        location,
+        "page",
+        "searchValue",
+        "categoryId"
+      );
+      router.setParams(navigate, location, {
+        ids: (bulk || []).map((b) => b._id).join(","),
+      });
+    } else {
+      setChecked(false);
+      router.removeParams(navigate, location, "page", "ids");
+    }
+  };
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
@@ -217,6 +240,11 @@ const List: React.FC<IProps> = (props) => {
 
       return (
         <BarItems>
+          <FormControl
+            componentClass="checkbox"
+            onChange={onChangeChecked}
+            checked={checked}
+          />
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"
@@ -227,14 +255,14 @@ const List: React.FC<IProps> = (props) => {
             />
           )}
           <ProductsPrintAction bulk={bulk} />
-          {isEnabled('tags') && (
+          {isEnabled("tags") && (
             <TaggerPopover
               type={TAG_TYPES.PRODUCT}
               successCallback={emptyBulk}
               targets={bulk}
               trigger={tagButton}
               perPage={1000}
-              refetchQueries={['productCountByTags']}
+              refetchQueries={["productCountByTags"]}
             />
           )}
 
@@ -252,7 +280,7 @@ const List: React.FC<IProps> = (props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={search}
               value={searchValue}
               autoFocus={true}
@@ -260,12 +288,12 @@ const List: React.FC<IProps> = (props) => {
             />
           </FlexItem>
         </InputBar>
-        {isEnabled('segments') && (
+        {isEnabled("segments") && (
           <TemporarySegment btnSize="medium" contentType={`products:product`} />
         )}
         <Link to="/settings/importHistories?type=product">
           <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
+            {__("Import items")}
           </Button>
         </Link>
         <ModalTrigger
@@ -281,7 +309,7 @@ const List: React.FC<IProps> = (props) => {
 
   const actionBarLeft = (
     <Title>{`${
-      currentCategory.name || 'All products'
+      currentCategory.name || "All products"
     } (${productsCount})`}</Title>
   );
 
@@ -289,7 +317,7 @@ const List: React.FC<IProps> = (props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Product & Service')}
+          title={__("Product & Service")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
         />
@@ -297,11 +325,11 @@ const List: React.FC<IProps> = (props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/30.svg"
-          title={'Product & Service'}
+          title={"Product & Service"}
           description={`${__(
-            'All information and know-how related to your business products and services are found here',
+            "All information and know-how related to your business products and services are found here"
           )}.${__(
-            'Create and add in unlimited products and servicess so that you and your team members can edit and share',
+            "Create and add in unlimited products and servicess so that you and your team members can edit and share"
           )}`}
         />
       }

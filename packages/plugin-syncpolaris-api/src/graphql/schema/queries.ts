@@ -1,9 +1,3 @@
-const productsQueryParams = `
-  productIds: [String]
-  stageId: String
-  pipelineId: String
-`;
-
 const commonHistoryParams = `
   page: Int,
   perPage: Int,

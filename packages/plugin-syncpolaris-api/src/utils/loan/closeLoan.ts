@@ -1,8 +1,8 @@
 import {
   fetchPolaris,
   getDepositAccount,
-  getLoanContract,
-  getLoanProduct,
+  getContract,
+  getProduct,
 } from '../utils';
 
 export const createLoanClose = async (subdomain, transaction) => {
@@ -11,11 +11,16 @@ export const createLoanClose = async (subdomain, transaction) => {
     transaction.customerId,
   );
 
-  const loanContract = await getLoanContract(subdomain, transaction.contractId);
+  const loanContract = await getContract(
+    subdomain,
+    { _id: transaction.contractId },
+    'loans',
+  );
 
-  const loanContractType = await getLoanProduct(
+  const loanContractType = await getProduct(
     subdomain,
     loanContract.contractTypeId,
+    'loans',
   );
 
   const loanClose = {
