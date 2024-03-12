@@ -5,7 +5,7 @@ import { TIMECLOCK_EXPORT_COLUMNS } from './constants';
 import { timeclockReportByUsers } from './graphql/resolvers/utils';
 import { ITeamMembersObj, IUserReport } from './models/definitions/timeclock';
 import {
-  createTeamMembersObject,
+  createTeamMembersObjectWithFullName,
   findTeamMember,
   findTeamMembers,
   generateCommonUserIds,
@@ -470,10 +470,8 @@ export const buildFile = async (
     }
   }
 
-  const teamMembersObject: ITeamMembersObj = await createTeamMembersObject(
-    subdomain,
-    totalTeamMemberIds
-  );
+  const teamMembersObject: ITeamMembersObj =
+    await createTeamMembersObjectWithFullName(subdomain, totalTeamMemberIds);
 
   const report = await timeclockReportByUsers(
     paginateArray(totalTeamMemberIds, perPage, page),

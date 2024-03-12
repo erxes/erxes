@@ -1074,11 +1074,37 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
   for (const teamMember of teamMembers) {
     teamMembersObject[teamMember._id] = {
       employeeId: teamMember.employeeId,
+      lastName: teamMember.details.lastName,
+      firstName: teamMember.details.firstName,
+      position: teamMember.details.position
+    };
+  }
+
+  return teamMembersObject;
+};
+
+const createTeamMembersObjectWithFullName = async (
+  subdomain: any,
+  userIds: string[]
+) => {
+  const teamMembersObject = {};
+
+  const teamMembers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds }, isActive: true }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const teamMember of teamMembers) {
+    teamMembersObject[teamMember._id] = {
+      employeeId: teamMember.employeeId,
       fullName: `${teamMember.details.lastName?.charAt(0)}.${
         teamMember.details.firstName
       }`,
-      lastName: teamMember.details.lastName,
-      firstName: teamMember.details.firstName,
       position: teamMember.details.position
     };
   }
@@ -1576,5 +1602,6 @@ export {
   findTeamMember,
   returnDepartmentsBranchesDict,
   findUnfinishedShiftsAndUpdate,
-  getNextNthColumnChar
+  getNextNthColumnChar,
+  createTeamMembersObjectWithFullName
 };
