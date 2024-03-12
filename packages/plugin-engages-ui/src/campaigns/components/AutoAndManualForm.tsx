@@ -49,7 +49,7 @@ type Props = {
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
-    doc: IEngageMessageDoc,
+    doc: IEngageMessageDoc
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
@@ -238,7 +238,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const response = this.props.validateDoc(type, doc);
     if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
       return Alert.warning(
-        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.',
+        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
       );
     }
 
@@ -432,7 +432,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-06.svg"
-            title="Who is this campaign for?"
+            title="Who is this broadcast for?"
           >
             <MessageTypeStep
               method={this.state.method}

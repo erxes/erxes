@@ -244,8 +244,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('XM Broadcast')}
-            breadcrumb={[{ title: __('XM Broadcast') }]}
+            title={__('Broadcast')}
+            breadcrumb={[{ title: __('Broadcast') }]}
             queryParams={queryParams}
           />
         }

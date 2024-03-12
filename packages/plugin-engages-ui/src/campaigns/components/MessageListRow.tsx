@@ -66,7 +66,7 @@ class Row extends React.Component<Props> {
 
     if (msg.isLive && msg.kind === MESSAGE_KINDS.MANUAL) {
       return Alert.warning(
-        'Unfortunately once a campaign has been sent, it cannot be stopped or edited.',
+        'Unfortunately once a campaign has been sent, it cannot be stopped or edited.'
       );
     }
 
@@ -81,10 +81,10 @@ class Row extends React.Component<Props> {
     const liveM = this.renderLink(
       'Set live',
       'play-circle',
-      this.props.setLiveManual,
+      this.props.setLiveManual
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
-    const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
+    const copy = this.renderLink('Duplicate', 'copy-1', this.props.copy);
     const editLink = this.renderLink('Edit', 'edit-3', this.onEdit, msg.isLive);
 
     const links: React.ReactNode[] = [];
@@ -106,10 +106,6 @@ class Row extends React.Component<Props> {
       }
 
       return links;
-    }
-
-    if (msg.isLive) {
-      return [...links, pause];
     }
 
     return [...links, live];

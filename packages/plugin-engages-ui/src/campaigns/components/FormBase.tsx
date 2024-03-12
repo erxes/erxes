@@ -11,7 +11,7 @@ type Props = {
     breadcrumbs: IBreadCrumbItem[];
     validateDoc: (
       type: string,
-      doc: IEngageMessageDoc,
+      doc: IEngageMessageDoc
     ) => { status: string; doc?: IEngageMessageDoc };
   }) => any;
 };
@@ -35,7 +35,7 @@ class FormBase extends React.Component<Props> {
         )
       ) {
         return this.sendError(
-          __('At least one brand or tag or segment must be chosen'),
+          __('At least one brand or tag or segment must be chosen')
         );
       }
     }
@@ -127,7 +127,7 @@ class FormBase extends React.Component<Props> {
 
   render() {
     const breadcrumbs = [
-      { title: __('XM Broadcast'), link: '/campaigns' },
+      { title: __('Broadcast'), link: '/campaigns' },
       { title: this.renderTitle() },
     ];
 
