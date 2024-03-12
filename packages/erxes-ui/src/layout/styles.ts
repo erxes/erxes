@@ -445,7 +445,7 @@ const BarItems = styled.div`
   align-items: center;
   flex-wrap: wrap;
   justify-content: space-evenly;
-  .dropdown-menu {
+  [id^='headlessui-listbox-options-'] {
     min-width: 200px;
   }
   > * + * {

@@ -108,11 +108,13 @@ export const HeaderLink = styled(HeaderButton)`
 `;
 
 export const BarItems = styled(BarItemsCommon)`
-  .dropdown-menu {
+  [id^='headlessui-listbox-options-'] {
     max-height: 360px;
     max-height: calc(100vh - 120px);
     overflow: auto;
     background: ${colors.colorWhite};
+    padding: 0.5rem 0;
+
     li {
       display: flex;
       align-items: center;
@@ -123,6 +125,8 @@ export const BarItems = styled(BarItemsCommon)`
       }
       > a {
         flex: 1;
+        padding: 3px 15px;
+        color: inherit;
         &:hover,
         &:focus {
           background: transparent;
