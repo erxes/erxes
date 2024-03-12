@@ -1,27 +1,36 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { AdditionalDetail, InputBar, ContactItem, Contacts } from '../styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { EmptyState } from '@erxes/ui/src/components';
+import { AdditionalDetail, ContactItem, Contacts, InputBar } from "../styles";
+import React, { useState } from "react";
+
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { EmptyState } from "@erxes/ui/src/components";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   customers?: any;
   history: any;
   searchCustomer: (searchValue: string) => void;
+  changeMainTab: (phoneNumber: string, shiftTab: string) => void;
 };
 
 const Contact: React.FC<Props> = ({
   customers,
   history,
   searchCustomer,
+  changeMainTab,
 }: Props) => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
   const renderContact = () => {
+    const [searchValue, setSearchValue] = useState("");
+
+    const onCall = (phoneNumber) => {
+      changeMainTab(phoneNumber, "Keyboard");
+    };
+
     if (!customers || customers.length === 0) {
       return <EmptyState icon="ban" text="There is no contact" size="small" />;
     }
@@ -41,11 +50,8 @@ const Contact: React.FC<Props> = ({
                 <Icon icon="ellipsis-v" size={18} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <li key="call">
-                  <Icon icon="outgoing-call" /> {__('Call')}
-                </li>
-                <li key="delete">
-                  <Icon icon="trash-alt" size={14} /> {__('Delete')}
+                <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
+                  <Icon icon="outgoing-call" /> {__("Call")}
                 </li>
               </Dropdown.Menu>
             </Dropdown>
@@ -75,7 +81,7 @@ const Contact: React.FC<Props> = ({
     <>
       <InputBar type="searchBar">
         <FormControl
-          placeholder={__('Search')}
+          placeholder={__("Search")}
           name="searchValue"
           onChange={onChange}
           value={searchValue}

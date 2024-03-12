@@ -19,6 +19,8 @@ type Props = {
   groupsQuery: any; // check - UsersGroupsQueryResponse
   getEnvQuery: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  history?: any;
+  queryParams?: any;
 };
 
 const UserFormContainer = (props: Props & ICommonFormProps) => {
@@ -38,11 +40,11 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   let selectedGroups: any[] = []; // check - IUserGroup
 
   if (object._id) {
-    selectedChannels = channels.filter(c =>
-      (c.memberIds || []).includes(object._id)
+    selectedChannels = channels.filter((c) =>
+      (c.memberIds || []).includes(object._id),
     );
-    selectedGroups = groups.filter(g =>
-      (object.groupIds || []).includes(g._id)
+    selectedGroups = groups.filter((g) =>
+      (object.groupIds || []).includes(g._id),
     );
   }
 
@@ -54,7 +56,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     selectedBrandIds: object.brandIds,
     channels,
     groups,
-    renderButton
+    renderButton,
   };
 
   return <UserForm {...updatedProps} />;
@@ -65,19 +67,19 @@ export default withProps<ICommonFormProps>(
     graphql(gql(generalQueries.configsGetEnv), {
       name: 'getEnvQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<{}, any>(gql(queries.channels), {
       // check - ChannelsQueryResponse
       name: 'channelsQuery',
       options: () => ({ fetchPolicy: 'network-only' }),
-      skip: !isEnabled('inbox')
+      skip: !isEnabled('inbox'),
     }),
     graphql<{}, any>(gql(usersGroupsQueries.usersGroups), {
       // check - UsersGroupsQueryResponse
       name: 'groupsQuery',
-      options: () => ({ fetchPolicy: 'network-only' })
-    })
-  )(UserFormContainer)
+      options: () => ({ fetchPolicy: 'network-only' }),
+    }),
+  )(UserFormContainer),
 );

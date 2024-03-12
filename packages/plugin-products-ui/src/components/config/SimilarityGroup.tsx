@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { gql } from '@apollo/client';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import client from '@erxes/ui/src/apolloClient';
 import {
   Button,
   EmptyState,
   HeaderDescription,
   Spinner,
-} from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { ContentBox } from '../../styles';
-import PerSettings from './PerSimilarityGroup';
-import Sidebar from './Sidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui/src/components";
+import React, { useEffect, useState } from "react";
+
+import { ContentBox } from "../../styles";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { IConfigsMap } from "../../types";
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
+import PerSettings from "./PerSimilarityGroup";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
-  const [configsMap, setConfigsMap] = useState(initialConfigsMap);
-  const [fieldGroups, setFieldGroups] = useState([]);
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(initialConfigsMap);
+  const [fieldGroups, setFieldGroups] = useState<IFieldGroup[]>([]);
 
   useEffect(() => {
-    if (isEnabled('forms')) {
+    if (isEnabled("forms")) {
       client
         .query({
           query: gql(fieldQueries.fieldsGroups),
@@ -47,8 +50,8 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
       similarityGroup: {
         ...prevConfigsMap.similarityGroup,
         newSimilarityGroup: {
-          title: 'New similiraty group',
-          codeMask: '',
+          title: "New similiraty group",
+          codeMask: "",
           rules: [],
         },
       },
@@ -58,7 +61,7 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
   const deleteConfig = (currentConfigKey) => {
     const similarityGroup = { ...configsMap.similarityGroup };
     delete similarityGroup[currentConfigKey];
-    delete similarityGroup['newSimilarityGroup'];
+    delete similarityGroup["newSimilarityGroup"];
 
     const newMap = { ...configsMap, similarityGroup };
     setConfigsMap(newMap);
@@ -97,15 +100,15 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
     }
 
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         {renderConfigs(configs)}
       </ContentBox>
     );
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Products similarity group config') },
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Products similarity group config") },
   ];
 
   const actionButtons = (
@@ -123,7 +126,7 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Products similarity group config')}
+          title={__("Products similarity group config")}
           breadcrumb={breadcrumb}
         />
       }
@@ -136,7 +139,7 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Products similarity configs')}</Title>}
+          left={<Title>{__("Products similarity configs")}</Title>}
           right={actionButtons}
         />
       }

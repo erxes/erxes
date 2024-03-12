@@ -1,4 +1,4 @@
-import { customFieldToObject, setCustomerCode, fetchPolaris } from '../utils';
+import { customFieldToObject, updateCustomer, fetchPolaris } from '../utils';
 import { IPolarisCustomer } from './types';
 import { validateObject } from './validator';
 
@@ -54,7 +54,11 @@ export const createCustomer = async (subdomain: string, params) => {
   }).then((res) => JSON.parse(res));
 
   if (customerCode) {
-    await setCustomerCode(subdomain, customer._id, customerCode);
+    await updateCustomer(
+      subdomain,
+      { _id: customer._id },
+      { code: customerCode },
+    );
   }
 
   return customerCode;

@@ -2,18 +2,18 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
 
-import { GENDER_TYPES } from '@erxes/ui-contacts/src/customers/constants';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldsVisibility } from '../../types';
-import PrimaryEmail from './PrimaryEmail';
-import PrimaryPhone from './PrimaryPhone';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
+import { GENDER_TYPES } from "@erxes/ui-contacts/src/customers/constants";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IField } from "@erxes/ui/src/types";
+import { IFieldsVisibility } from "../../types";
+import PrimaryEmail from "./PrimaryEmail";
+import PrimaryPhone from "./PrimaryPhone";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
 type Props = {
   customer: ICustomer;
@@ -27,7 +27,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderRow(field, value, type?) {
     const { fieldsVisibility, isDetail } = this.props;
 
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
     const visibility = fieldsVisibility(isVisibleKey);
 
@@ -37,10 +37,10 @@ class DetailInfo extends React.PureComponent<Props> {
 
     const label = visibility[field];
 
-    if (type === 'description') {
+    if (type === "description") {
       return (
         <SidebarFlexRow>
-          {__(`Description`)}:<span>{value || '-'}</span>
+          {__(`Description`)}:<span>{value || "-"}</span>
         </SidebarFlexRow>
       );
     }
@@ -48,8 +48,8 @@ class DetailInfo extends React.PureComponent<Props> {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}:</FieldStyle>
-        <SidebarCounter fullLength={label === 'Description'}>
-          {value || '-'}
+        <SidebarCounter $fullLength={label === "Description"}>
+          {value || "-"}
         </SidebarCounter>
       </li>
     );
@@ -58,7 +58,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderEmail(status?: string, email?: string) {
     return (
       <li>
-        <FieldStyle>{__('Primary Email')}:</FieldStyle>
+        <FieldStyle>{__("Primary Email")}:</FieldStyle>
         <SidebarCounter>
           <PrimaryEmail
             email={email}
@@ -73,7 +73,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderPhone(status?: string, phone?: string) {
     return (
       <li>
-        <FieldStyle>{__('Primary phone')}:</FieldStyle>
+        <FieldStyle>{__("Primary phone")}:</FieldStyle>
         <SidebarCounter>
           <PrimaryPhone phone={phone} status={status} />
         </SidebarCounter>
@@ -86,7 +86,7 @@ class DetailInfo extends React.PureComponent<Props> {
       return null;
     }
 
-    return this.renderRow('position', customer.position);
+    return this.renderRow("position", customer.position);
   }
 
   render() {
@@ -98,7 +98,7 @@ class DetailInfo extends React.PureComponent<Props> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderRow('code', customer.code)}
+        {this.renderRow("code", customer.code)}
         {this.renderEmail(
           customer.emailValidationStatus,
           customer.primaryEmail
@@ -109,20 +109,20 @@ class DetailInfo extends React.PureComponent<Props> {
         )}
         {this.renderPosition(customer)}
         {this.renderRow(
-          'owner',
+          "owner",
           customer.owner && customer.owner.details
             ? customer.owner.details.fullName
-            : ''
+            : ""
         )}
-        {this.renderRow('department', customer.department)}
-        {this.renderRow('pronoun', GENDER_TYPES()[customer.sex || 0])}
+        {this.renderRow("department", customer.department)}
+        {this.renderRow("pronoun", GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
-          'birthDate',
-          customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
+          "birthDate",
+          customer.birthDate && dayjs(customer.birthDate).format("MMM,DD YYYY")
         )}
-        {this.renderRow('isSubscribed', customer.isSubscribed)}
-        {this.renderRow('score', customer.score)}
-        {this.renderRow('description', customer.description, 'description')}
+        {this.renderRow("isSubscribed", customer.isSubscribed)}
+        {this.renderRow("score", customer.score)}
+        {this.renderRow("description", customer.description, "description")}
       </SidebarList>
     );
   }

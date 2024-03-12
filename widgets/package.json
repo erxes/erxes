@@ -88,8 +88,8 @@
   },
   "devDependencies": {
     "git-repo-info": "^2.1.0",
-    "nodemon": "^1.11.0",
-    "ts-node": "^8.3.0",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.1",
     "typescript": "^3.5.2"
   },
   "engines": {

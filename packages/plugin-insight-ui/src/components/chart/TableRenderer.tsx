@@ -1,5 +1,16 @@
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
+import styled from 'styled-components';
+
+const ScrollWrapper = styled.div`
+  height: 50vh;
+  height: calc(100vh - 100px);
+  overflow: auto;
+  padding: 0px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
+  margin-top: -5px;
+`;
 
 type IDataSet = {
   title: string;
@@ -16,37 +27,28 @@ const TableList = (props: Props) => {
   const { dataset } = props;
   const { title, data, labels } = dataset;
 
-  const sliceArrayBy12 = (arr) => {
-    const slicedArray: any = [];
-    for (var i = 0; i < arr.length; i += 12) {
-      slicedArray.push(arr.slice(i, i + 12));
-    }
-    return slicedArray;
-  };
-
-  const getSlicedData = sliceArrayBy12(data);
-  const getSlicedLabels = sliceArrayBy12(labels);
-
   return (
-    <Table>
-      <thead>
-        <tr>
-          <th>Team member</th>
-          <th>{title}</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {labels.map((label, index) => (
-          <tr key={index}>
-            <td>
-              <b>{label}</b>
-            </td>
-            <td>{data[index]}</td>
+    <ScrollWrapper>
+      <Table>
+        <thead>
+          <tr>
+            <th>Team member</th>
+            <th>{title}</th>
           </tr>
-        ))}
-      </tbody>
-    </Table>
+        </thead>
+
+        <tbody>
+          {labels.map((label, index) => (
+            <tr key={index}>
+              <td>
+                <b>{label}</b>
+              </td>
+              <td>{data[index]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </ScrollWrapper>
   );
 };
 

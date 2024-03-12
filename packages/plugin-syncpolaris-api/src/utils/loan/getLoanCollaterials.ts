@@ -1,4 +1,4 @@
-import { fetchPolaris, getLoanContract } from '../utils';
+import { fetchPolaris } from '../utils';
 
 export const getLoanCollaterials = async (subdomain, params) => {
   const sendData = [params.number];

@@ -1,7 +1,7 @@
-var { withFilter } = require("graphql-subscriptions");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "cards",
+  name: 'cards',
   typeDefs: `
       pipelinesChanged(_id: String!): PipelineChangeResponse
 
@@ -12,13 +12,8 @@ module.exports = {
   generateResolvers: (graphqlPubsub) => {
     return {
       pipelinesChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("pipelinesChanged"),
-          // filter by _id
-          (payload, variables) => {
-            return payload.pipelinesChanged._id === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`),
       },
       checklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
@@ -35,17 +30,10 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("checklistsChanged"),
-          (payload, variables) => {
-            const { contentType, contentTypeId } = payload.checklistsChanged;
-
-            return (
-              contentType === variables.contentType &&
-              contentTypeId === variables.contentTypeId
-            );
-          }
-        ),
+        subscribe: (_, { contentType, contentTypeId }) =>
+          graphqlPubsub.asyncIterator(
+            `checklistsChanged:${contentType}:${contentTypeId}`
+          ),
       },
 
       checklistDetailChanged: {
@@ -63,23 +51,14 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("checklistDetailChanged"),
-          (payload, variables) => {
-            return payload.checklistDetailChanged._id === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`),
       },
 
       productsDataChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("productsDataChanged"),
-          // filter by _id
-          (payload, variables) => {
-            return payload.productsDataChanged._id === variables._id;
-          }
-        ),
-      }
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`),
+      },
     };
   },
 };

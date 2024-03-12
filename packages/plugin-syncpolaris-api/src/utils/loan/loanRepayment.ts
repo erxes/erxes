@@ -3,12 +3,16 @@ import {
   fetchPolaris,
   getCustomer,
   getDepositAccount,
-  getLoanContract,
+  getContract,
 } from '../utils';
 import { IPolarisRepayment } from './types';
 
 export const createLoanRepayment = async (subdomain, transaction) => {
-  const loanContract = await getLoanContract(subdomain, transaction.contractId);
+  const loanContract = await getContract(
+    subdomain,
+    transaction.contractId,
+    'loans',
+  );
 
   const customer = await getCustomer(subdomain, loanContract.customerId);
 

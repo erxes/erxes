@@ -1,7 +1,8 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlWrapper,
   EditorFooter,
+  EditorFooterGroup,
   MailEditorWrapper,
   Resipients,
   ShowReplies,
@@ -9,47 +10,46 @@ import {
   SpaceBetweenRow,
   ToolBar,
   UploaderWrapper,
-  EditorFooterGroup,
-} from './styles';
-import { FlexRow, Subject } from './styles';
-import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import React, { ReactNode } from 'react';
+} from "./styles";
+import { FlexRow, Subject } from "./styles";
+import { IEmail, IMail, IMessage } from "@erxes/ui-inbox/src/inbox/types";
+import React, { ReactNode } from "react";
 import {
   formatObj,
   formatStr,
   generateForwardMailContent,
   generatePreviousContents,
-} from '../../containers/utils';
-import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
+} from "../../containers/utils";
+import { isEnabled, readFile } from "@erxes/ui/src/utils/core";
 
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import { Column } from '@erxes/ui/src/styles/main';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import EmailTemplate from '../../containers/mail/EmailTemplate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IEmailSignature } from '@erxes/ui/src/auth/types';
-import { IEmailTemplate } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import MailChooser from './MailChooser';
-import { Meta } from './styles';
-import SignatureChooser from './SignatureChooser';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import Tip from '@erxes/ui/src/components/Tip';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import dayjs from 'dayjs';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import { Column } from "@erxes/ui/src/styles/main";
+import EmailTemplate from "../../containers/mail/EmailTemplate";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IEmailSignature } from "@erxes/ui/src/auth/types";
+import { IEmailTemplate } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Label } from "@erxes/ui/src/components/form/styles";
+import { MAIL_TOOLBARS_CONFIG } from "@erxes/ui/src/constants/integrations";
+import MailChooser from "./MailChooser";
+import { Meta } from "./styles";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import SignatureChooser from "./SignatureChooser";
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import dayjs from "dayjs";
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
 
 const Signature = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-    ),
+      /* webpackChunkName:"Signature" */ "@erxes/ui-settings/src/email/containers/Signature"
+    )
 );
 
 type Props = {
@@ -82,7 +82,6 @@ type Props = {
   }) => void;
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  history: any;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
@@ -122,20 +121,20 @@ class MailForm extends React.Component<Props, State> {
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(
-      localStorage.getItem('emailWidgetData') || '{}',
+      localStorage.getItem("emailWidgetData") || "{}"
     );
 
     const cc = replyAll
       ? formatObj(mailData.cc || [])
       : mailWidget
         ? mailWidget.cc
-        : '' || '';
+        : "" || "";
 
     const bcc = replyAll
       ? formatObj(mailData.bcc || [])
       : mailWidget
         ? mailWidget.bcc
-        : '' || '';
+        : "" || "";
 
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender =
@@ -146,11 +145,11 @@ class MailForm extends React.Component<Props, State> {
       : mailWidget
         ? mailWidget.to
         : isForward
-          ? ''
-          : sender || '';
+          ? ""
+          : sender || "";
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
-      (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
+      (localStorage.getItem(`reply_${mailKey}`) || "").length > 0;
 
     const attachments =
       isForward && mailData.attachments
@@ -164,7 +163,7 @@ class MailForm extends React.Component<Props, State> {
       bcc,
       to,
 
-      templateId: '',
+      templateId: "",
 
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
@@ -176,16 +175,16 @@ class MailForm extends React.Component<Props, State> {
 
       fromEmail: sender,
       from: mailWidget ? mailWidget.from : mailData.from || ([{}] as IEmail[]),
-      subject: mailData.subject || mailWidget ? mailWidget.subject : '',
-      emailSignature: '',
+      subject: mailData.subject || mailWidget ? mailWidget.subject : "",
+      emailSignature: "",
       content: mailData
-        ? this.getContent(mailData, '')
+        ? this.getContent(mailData, "")
         : mailWidget
           ? mailWidget.content
-          : '',
+          : "",
 
-      status: 'draft',
-      kind: '',
+      status: "draft",
+      kind: "",
 
       attachments,
       fileIds: [],
@@ -220,10 +219,10 @@ class MailForm extends React.Component<Props, State> {
     const content = localStorage.getItem(name);
 
     if (content && content !== this.state.content) {
-      this.setState({ content: '' });
+      this.setState({ content: "" });
     }
 
-    if ((content || '').length === 0 && showPrevEmails) {
+    if ((content || "").length === 0 && showPrevEmails) {
       this.setState({ showPrevEmails: false });
     }
   }
@@ -246,7 +245,7 @@ class MailForm extends React.Component<Props, State> {
       attachments,
     };
 
-    localStorage.setItem('emailWidgetData', JSON.stringify(variables));
+    localStorage.setItem("emailWidgetData", JSON.stringify(variables));
   }
 
   getContent(mailData: IMail, emailSignature: string) {
@@ -261,15 +260,15 @@ class MailForm extends React.Component<Props, State> {
       to = [],
       cc = [],
       bcc = [],
-      subject = '',
-      body = '',
+      subject = "",
+      body = "",
     } = mailData;
 
     const [{ email: fromEmail }] = from;
 
     return generateForwardMailContent({
       fromEmail,
-      date: dayjs(createdAt).format('lll'),
+      date: dayjs(createdAt).format("lll"),
       to,
       cc,
       bcc,
@@ -286,7 +285,7 @@ class MailForm extends React.Component<Props, State> {
     this.setState({ isRepliesRetrieved: !isRepliesRetrieved });
 
     if (!messageId) {
-      return '';
+      return "";
     }
 
     const selectedMails = mails.filter((mail) => {
@@ -309,7 +308,7 @@ class MailForm extends React.Component<Props, State> {
         return {
           fromEmail: email,
           body: mail.mailData.body,
-          date: dayjs(mail.createdAt).format('lll'),
+          date: dayjs(mail.createdAt).format("lll"),
         };
       })
       .filter((mail) => mail);
@@ -318,7 +317,7 @@ class MailForm extends React.Component<Props, State> {
 
     const updatedContent = `
       ${this.state.content}
-      ${replyContent || ''}
+      ${replyContent || ""}
     `;
 
     return updatedContent;
@@ -326,11 +325,11 @@ class MailForm extends React.Component<Props, State> {
 
   clearContent = () => {
     this.setState({
-      to: this.props.emailTo ? this.props.emailTo : '',
-      cc: '',
-      bcc: '',
-      subject: '',
-      content: '',
+      to: this.props.emailTo ? this.props.emailTo : "",
+      cc: "",
+      bcc: "",
+      subject: "",
+      content: "",
       attachments: [],
     });
 
@@ -346,8 +345,8 @@ class MailForm extends React.Component<Props, State> {
         content: this.getReplies(messageId),
       },
       () => {
-        localStorage.setItem(this.state.showReply, 'true');
-      },
+        localStorage.setItem(this.state.showReply, "true");
+      }
     );
   };
 
@@ -377,12 +376,12 @@ class MailForm extends React.Component<Props, State> {
     } = this.state;
 
     if (!to) {
-      return Alert.warning('This message must have at least one recipient.');
+      return Alert.warning("This message must have at least one recipient.");
     }
 
     if (!isReply && (!subject || !content)) {
       return Alert.warning(
-        'Send this message with a subject or text in the body.',
+        "Send this message with a subject or text in the body."
       );
     }
 
@@ -392,7 +391,7 @@ class MailForm extends React.Component<Props, State> {
       ? this.setState({ isSubmitResolveLoading: true })
       : this.setState({ isSubmitLoading: true });
 
-    const subjectValue = subject || mailData.subject || '';
+    const subjectValue = subject || mailData.subject || "";
 
     const updatedContent =
       isForward || !isReply
@@ -412,16 +411,16 @@ class MailForm extends React.Component<Props, State> {
       body: updatedContent,
       erxesApiId: from,
       shouldResolve:
-        shouldResolve && conversationStatus === 'new' ? true : false,
+        shouldResolve && conversationStatus === "new" ? true : false,
       shouldOpen:
-        shouldResolve && conversationStatus === 'closed' ? true : false,
+        shouldResolve && conversationStatus === "closed" ? true : false,
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from,
       subject:
-        isForward && !subjectValue.includes('Fw:')
+        isForward && !subjectValue.includes("Fw:")
           ? `Fw: ${subjectValue}`
           : subjectValue,
     };
@@ -473,7 +472,7 @@ class MailForm extends React.Component<Props, State> {
 
     this.setState({
       attachments: attachments.filter(
-        (item) => item.filename !== attachment.filename,
+        (item) => item.filename !== attachment.filename
       ),
     });
   };
@@ -482,7 +481,7 @@ class MailForm extends React.Component<Props, State> {
     const mailData = this.props.mailData || ({} as IMail);
     const { integrationEmail } = mailData;
 
-    const to = formatObj(mailData.to) || '';
+    const to = formatObj(mailData.to) || "";
 
     // new email
     if ((!to || to.length === 0) && !integrationEmail) {
@@ -491,7 +490,7 @@ class MailForm extends React.Component<Props, State> {
 
     // reply
     if (!integrationEmail && !fromEmail) {
-      return '';
+      return "";
     }
 
     if (!integrationEmail && to !== fromEmail) {
@@ -508,12 +507,12 @@ class MailForm extends React.Component<Props, State> {
 
       // Exclude integration email from [to]
       if (to.includes(integrationEmail)) {
-        toEmails = to.split(' ').filter((email) => email !== integrationEmail);
+        toEmails = to.split(" ").filter((email) => email !== integrationEmail);
       } else {
         toEmails = to;
       }
 
-      receiver = toEmails + ' ' + fromEmail;
+      receiver = toEmails + " " + fromEmail;
     }
 
     return receiver;
@@ -526,7 +525,7 @@ class MailForm extends React.Component<Props, State> {
       return template.content;
     }
 
-    return '';
+    return "";
   };
 
   templateChange = (value) => {
@@ -563,7 +562,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderFrom() {
     return (
-      <FlexRow isEmail={true}>
+      <FlexRow $isEmail={true}>
         <label className="from">From:</label>
         {this.renderFromValue()}
       </FlexRow>
@@ -572,12 +571,12 @@ class MailForm extends React.Component<Props, State> {
 
   renderTo() {
     return (
-      <FlexRow isEmail={true}>
+      <FlexRow $isEmail={true}>
         <label>To:</label>
         <FormControl
           autoFocus={this.props.isForward}
           value={this.state.to}
-          onChange={this.onSelectChange.bind(this, 'to')}
+          onChange={this.onSelectChange.bind(this, "to")}
           name="to"
           required={true}
         />
@@ -599,7 +598,7 @@ class MailForm extends React.Component<Props, State> {
         <FormControl
           autoFocus={true}
           componentClass="textarea"
-          onChange={this.onSelectChange.bind(this, 'cc')}
+          onChange={this.onSelectChange.bind(this, "cc")}
           name="cc"
           value={cc}
         />
@@ -619,7 +618,7 @@ class MailForm extends React.Component<Props, State> {
         <label>Bcc:</label>
         <FormControl
           autoFocus={true}
-          onChange={this.onSelectChange.bind(this, 'bcc')}
+          onChange={this.onSelectChange.bind(this, "bcc")}
           componentClass="textarea"
           name="bcc"
           value={bcc}
@@ -680,11 +679,11 @@ class MailForm extends React.Component<Props, State> {
     label: string,
     onClick,
     type: string,
-    icon = 'message',
-    kind?: string,
+    icon = "message",
+    kind?: string
   ) {
     const { isSubmitLoading, isSubmitResolveLoading } = this.state;
-    const isResolve = kind && kind === 'resolveOrOpen';
+    const isResolve = kind && kind === "resolveOrOpen";
     const isLoading = isResolve ? isSubmitResolveLoading : isSubmitLoading;
 
     return (
@@ -712,7 +711,6 @@ class MailForm extends React.Component<Props, State> {
       toggleReply,
       totalCount,
       fetchMoreEmailTemplates,
-      history,
       conversationStatus,
       emailSignatures,
       brands,
@@ -754,16 +752,16 @@ class MailForm extends React.Component<Props, State> {
         <EditorFooter>
           <EditorFooterGroup>
             <div>
-              {this.renderSubmit('Send', this.onSubmit, 'primary')}
+              {this.renderSubmit("Send", this.onSubmit, "primary")}
               {isReply &&
                 this.renderSubmit(
-                  conversationStatus === 'closed'
-                    ? 'Send and Open'
-                    : 'Send and Resolve',
+                  conversationStatus === "closed"
+                    ? "Send and Open"
+                    : "Send and Resolve",
                   onSubmitResolve,
-                  conversationStatus === 'closed' ? 'warning' : 'success',
-                  conversationStatus === 'closed' ? 'redo' : 'check-circle',
-                  'resolveOrOpen',
+                  conversationStatus === "closed" ? "warning" : "success",
+                  conversationStatus === "closed" ? "redo" : "check-circle",
+                  "resolveOrOpen"
                 )}
             </div>
             <ToolBar>
@@ -775,7 +773,7 @@ class MailForm extends React.Component<Props, State> {
                 noPreview={true}
               />
 
-              {isEnabled('emailtemplates') && (
+              {isEnabled("emailtemplates") && (
                 <EmailTemplate
                   onSelect={this.templateChange}
                   totalCount={totalCount}
@@ -798,8 +796,8 @@ class MailForm extends React.Component<Props, State> {
           </EditorFooterGroup>
           <ToolBar>
             {this.renderIcon({
-              text: 'Delete',
-              icon: 'trash-alt',
+              text: "Delete",
+              icon: "trash-alt",
               onClick: toggleReply,
             })}
           </ToolBar>
@@ -838,32 +836,32 @@ class MailForm extends React.Component<Props, State> {
           onChange={this.onEditorChange}
           autoGrow={true}
           toolbar={[
-            'bold',
-            'italic',
-            'underline',
-            'strikethrough',
-            '|',
-            'color',
-            'highlight',
-            '|',
-            'fontSize',
-            '|',
-            { items: ['h1', 'h2', 'h3'] },
-            '|',
+            "bold",
+            "italic",
+            "underline",
+            "strikethrough",
+            "|",
+            "color",
+            "highlight",
+            "|",
+            "fontSize",
+            "|",
+            { items: ["h1", "h2", "h3"] },
+            "|",
             {
-              items: ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify'],
+              items: ["alignLeft", "alignRight", "alignCenter", "alignJustify"],
             },
-            '|',
-            { items: ['orderedList', 'bulletList'] },
-            '|',
+            "|",
+            { items: ["orderedList", "bulletList"] },
+            "|",
             {
               items: [
-                'blockquote',
-                'horizontalRule',
-                'link',
-                'unlink',
-                'image',
-                'table',
+                "blockquote",
+                "horizontalRule",
+                "link",
+                "unlink",
+                "image",
+                "table",
               ],
               isMoreControl: true,
             },
@@ -889,19 +887,19 @@ class MailForm extends React.Component<Props, State> {
   renderRightSide() {
     const { hasCc, hasBcc, hasSubject } = this.state;
 
-    const onClickHasCc = () => this.onClick('hasCc');
-    const onClickHasBCC = () => this.onClick('hasBcc');
-    const onClickSubject = () => this.onClick('hasSubject');
+    const onClickHasCc = () => this.onClick("hasCc");
+    const onClickHasBCC = () => this.onClick("hasBcc");
+    const onClickSubject = () => this.onClick("hasSubject");
 
     return (
       <>
-        <Resipients onClick={onClickHasCc} isActive={hasCc}>
+        <Resipients onClick={onClickHasCc} $isActive={hasCc}>
           Cc
         </Resipients>
-        <Resipients onClick={onClickHasBCC} isActive={hasBcc}>
+        <Resipients onClick={onClickHasBCC} $isActive={hasBcc}>
           Bcc
         </Resipients>
-        <Resipients onClick={onClickSubject} isActive={hasSubject}>
+        <Resipients onClick={onClickSubject} $isActive={hasSubject}>
           Subject
         </Resipients>
       </>

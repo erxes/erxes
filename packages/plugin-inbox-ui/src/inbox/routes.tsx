@@ -4,15 +4,14 @@ import {
   Routes,
   useLocation,
   useNavigate,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const InboxComponent = asyncComponent(
-  () => import(/* webpackChunkName: "InboxCore"   */ './containers/InboxCore'),
+  () => import(/* webpackChunkName: "InboxCore"   */ "./containers/InboxCore")
 );
 
 const Index = () => {

@@ -85,6 +85,7 @@ const knowledgeBaseCategoryDetail = `
         summary
         content
         status
+        isPrivate
       }
       firstTopic {
         _id
@@ -120,6 +121,7 @@ const knowledgeBaseArticles = `
       summary
       content
       status
+      isPrivate
       reactionChoices
       reactionCounts
       createdBy
