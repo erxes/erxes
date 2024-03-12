@@ -17,8 +17,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '@erxes/ui/src/types';
 import { IOptions } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import RTG from 'react-transition-group';
-import React from 'react';
+import React, { Fragment } from 'react';
 import SegmentFilter from '../containers/SegmentFilter';
 // import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -28,6 +27,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { Transition } from '@headlessui/react';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -432,30 +432,27 @@ export default class RightMenu extends React.Component<Props, State> {
           {showMenu ? __('Hide Menu') : __('Show Menu')}
         </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>
-            <Tabs full={true}>
-              <TabTitle
-                className={currentTab === 'Filter' ? 'active' : ''}
-                onClick={tabOnClick.bind(this, 'Filter')}
-              >
-                {__('Filter')}
-              </TabTitle>
-              <TabTitle
-                className={currentTab === 'Archived items' ? 'active' : ''}
-                onClick={tabOnClick.bind(this, 'Archived items')}
-              >
-                {__('Archived items')}
-              </TabTitle>
-            </Tabs>
-            {this.renderTabContent()}
-          </RightMenuContainer>
-        </RTG.CSSTransition>
+        <Transition show={this.state.showMenu} unmount={true} as={Fragment}>
+          <Transition.Child as={Fragment}>
+            <RightMenuContainer>
+              <Tabs full={true}>
+                <TabTitle
+                  className={currentTab === 'Filter' ? 'active' : ''}
+                  onClick={tabOnClick.bind(this, 'Filter')}
+                >
+                  {__('Filter')}
+                </TabTitle>
+                <TabTitle
+                  className={currentTab === 'Archived items' ? 'active' : ''}
+                  onClick={tabOnClick.bind(this, 'Archived items')}
+                >
+                  {__('Archived items')}
+                </TabTitle>
+              </Tabs>
+              {this.renderTabContent()}
+            </RightMenuContainer>
+          </Transition.Child>
+        </Transition>
       </div>
     );
   }

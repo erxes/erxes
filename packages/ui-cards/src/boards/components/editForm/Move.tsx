@@ -6,15 +6,14 @@ import {
   PipelineName,
   PipelinePopoverContent,
   StageItem,
-  Stages
+  Stages,
 } from '../../styles/item';
 import { IStage } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import { IItem, IOptions } from '../../types';
+import Popover from '@erxes/ui/src/components/Popover';
 
 type Props = {
   item?: IItem;
@@ -40,14 +39,14 @@ class Move extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     const {
-      item: { pipeline, boardId }
+      item: { pipeline, boardId },
     } = props;
 
     this.state = {
       show: false,
       stages: props.stages || [],
       pipelineId: pipeline && pipeline._id,
-      boardId
+      boardId,
     };
   }
 
@@ -77,11 +76,11 @@ class Move extends React.Component<Props, State> {
 
     return (
       <Stages>
-        {stages.map(s => {
+        {stages.map((s) => {
           const onClick = () => onChangeStage && onChangeStage(s._id);
 
           const item = (
-            <StageItem key={s._id} isPass={isPass}>
+            <StageItem key={s._id} $isPass={isPass}>
               <Tip text={s.name} placement="top">
                 <span onClick={onClick}>
                   <Icon icon={isPass ? 'check-circle' : 'circle'} />
@@ -105,21 +104,19 @@ class Move extends React.Component<Props, State> {
     const { boardId, pipelineId } = this.state;
 
     return (
-      <Popover id="pipeline-popover">
-        <PipelinePopoverContent>
-          <BoardSelect
-            type={options.type}
-            stageId={stageId}
-            boardId={boardId}
-            pipelineId={pipelineId}
-            callback={this.toggleForm}
-            onChangeStage={onChangeStage}
-            onChangePipeline={this.onChangePipeline}
-            onChangeBoard={this.onChangeBoard}
-            autoSelectStage={false}
-          />
-        </PipelinePopoverContent>
-      </Popover>
+      <PipelinePopoverContent>
+        <BoardSelect
+          type={options.type}
+          stageId={stageId}
+          boardId={boardId}
+          pipelineId={pipelineId}
+          callback={this.toggleForm}
+          onChangeStage={onChangeStage}
+          onChangePipeline={this.onChangePipeline}
+          onChangeBoard={this.onChangeBoard}
+          autoSelectStage={false}
+        />
+      </PipelinePopoverContent>
     );
   }
 
@@ -133,17 +130,16 @@ class Move extends React.Component<Props, State> {
 
     return (
       <MoveFormContainer innerRef={this.ref}>
-        <OverlayTrigger
-          trigger="click"
+        <Popover
           placement="bottom-start"
-          overlay={this.renderBoardSelect()}
-          rootClose={true}
-          container={this.ref.current}
+          trigger={
+            <PipelineName onClick={this.toggleForm}>
+              {pipeline && pipeline.name} <Icon icon="angle-down" />
+            </PipelineName>
+          }
         >
-          <PipelineName onClick={this.toggleForm}>
-            {pipeline && pipeline.name} <Icon icon="angle-down" />
-          </PipelineName>
-        </OverlayTrigger>
+          {this.renderBoardSelect()}
+        </Popover>
       </MoveFormContainer>
     );
   }

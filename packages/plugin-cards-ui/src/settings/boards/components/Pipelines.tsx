@@ -40,13 +40,6 @@ type Props = {
   currentBoard?: IBoard;
 };
 
-type State = {
-  showModal: boolean;
-  pipelines: IPipeline[];
-  isDragDisabled: boolean;
-  searchValue: string;
-};
-
 const sortItems = (arr, direction, field) => {
   if (!field || !direction) {
     return;

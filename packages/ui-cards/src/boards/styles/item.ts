@@ -197,9 +197,9 @@ export const TitleRow = styled.div`
   }
 `;
 
-export const ContentWrapper = styledTS<{ isEditing: boolean }>(styled.div)`
-  ${props =>
-    props.isEditing &&
+export const ContentWrapper = styledTS<{ $isEditing: boolean }>(styled.div)`
+  ${(props) =>
+    props.$isEditing &&
     css`
       margin-bottom: ${dimensions.coreSpacing}px;
       background-color: ${colors.colorWhite};
@@ -251,6 +251,7 @@ export const HeaderContentSmall = styled.div`
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
+  width: max-content;
 `;
 
 export const SpaceContent = styled(Flex)`
@@ -370,7 +371,7 @@ export const Stages = styled.ul`
   padding: 0;
 `;
 
-export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
+export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
   text-align: right;
   position: relative;
   margin-left: 10px;
@@ -395,8 +396,8 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   &:before {
     content: '';
     height: 2px;
-    background: ${props =>
-      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+    background: ${(props) =>
+      props.$isPass ? colors.colorSecondary : colors.colorShadowGray};
     width: 100%;
     top: 50%;
     margin-top: 0;
@@ -416,8 +417,8 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   i {
     font-size: 30px;
     margin: 0 -3px;
-    color: ${props =>
-      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+    color: ${(props) =>
+      props.$isPass ? colors.colorSecondary : colors.colorShadowGray};
   }
 `;
 

@@ -1,12 +1,13 @@
 import { __ } from '../utils/core';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { colors, dimensions } from '../styles';
 import { rgba } from '../styles/ecolor';
 import Button from './Button';
 import { ControlLabel, FormControl } from './form';
 import Icon from './Icon';
+import { Dialog, Transition } from '@headlessui/react';
+import { DialogContent, DialogWrapper, ModalOverlay } from '../styles/main';
 
 const ModalBody = styled.div`
   text-align: center;
@@ -76,7 +77,7 @@ class ConfirmDialog extends React.Component<Props, State> {
     this.state = {
       show: true,
       confirm: '',
-      errors: {}
+      errors: {},
     };
   }
 
@@ -109,8 +110,8 @@ class ConfirmDialog extends React.Component<Props, State> {
             <Error>
               Enter <strong>delete</strong> to confirm
             </Error>
-          )
-        }
+          ),
+        },
       });
     }
 
@@ -125,8 +126,8 @@ class ConfirmDialog extends React.Component<Props, State> {
             <Error>
               Enter <strong>update</strong> to confirm
             </Error>
-          )
-        }
+          ),
+        },
       });
     }
 
@@ -141,15 +142,15 @@ class ConfirmDialog extends React.Component<Props, State> {
             <Error>
               Enter <strong>password</strong> to confirm
             </Error>
-          )
-        }
+          ),
+        },
       });
     }
 
     return this.invokeProceed();
   };
 
-  handleKeydown = e => {
+  handleKeydown = (e) => {
     if (e.key === 'Enter') {
       this.proceed();
     }
@@ -163,7 +164,7 @@ class ConfirmDialog extends React.Component<Props, State> {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  handleChange = e => {
+  handleChange = (e) => {
     this.setState({ confirm: e.target.value });
   };
 
@@ -172,7 +173,7 @@ class ConfirmDialog extends React.Component<Props, State> {
     const {
       hasDeleteConfirm = false,
       hasUpdateConfirm = false,
-      hasPasswordConfirm = false
+      hasPasswordConfirm = false,
     } = this.props.options || {};
 
     if (!hasDeleteConfirm && !hasUpdateConfirm && !hasPasswordConfirm) {
@@ -228,49 +229,64 @@ class ConfirmDialog extends React.Component<Props, State> {
     const {
       okLabel = 'Yes, I am',
       cancelLabel = 'No, Cancel',
-      enableEscape = true
+      enableEscape = true,
     } = options;
 
     return (
-      <Modal
-        show={this.state.show}
-        onHide={this.dismiss}
-        backdrop={enableEscape ? true : 'static'}
-        keyboard={enableEscape}
-        size="sm"
-        centered={true}
-        animation={
-          hasDeleteConfirm || hasUpdateConfirm || hasPasswordConfirm
-            ? false
-            : true
-        }
-      >
-        <ModalBody>
-          <IconWrapper>
-            <Icon icon="exclamation-triangle" />
-          </IconWrapper>
-          {__(confirmation)}
-          {this.renderConfirmDelete()}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.dismiss}
-            icon="times-circle"
-            uppercase={false}
+      <Transition appear show={this.state.show} as={Fragment}>
+        <Dialog
+          open={true}
+          as="div"
+          onClose={this.dismiss}
+          className={` relative z-10`}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            {cancelLabel}
-          </Button>
-          <Button
-            btnStyle="success"
-            onClick={this.proceed}
-            icon="check-circle"
-            uppercase={false}
-          >
-            {okLabel}
-          </Button>
-        </ModalFooter>
-      </Modal>
+            <ModalOverlay />
+          </Transition.Child>
+          <DialogWrapper>
+            <DialogContent>
+              <Dialog.Panel className={`dialog-size-sm`}>
+                <Transition.Child>
+                  <ModalBody>
+                    <IconWrapper>
+                      <Icon icon="exclamation-triangle" />
+                    </IconWrapper>
+                    {__(confirmation)}
+                    <br />
+                    {this.renderConfirmDelete()}
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      btnStyle="simple"
+                      onClick={this.dismiss}
+                      icon="times-circle"
+                      uppercase={false}
+                    >
+                      {cancelLabel}
+                    </Button>
+                    <Button
+                      btnStyle="success"
+                      onClick={this.proceed}
+                      icon="check-circle"
+                      uppercase={false}
+                    >
+                      {okLabel}
+                    </Button>
+                  </ModalFooter>
+                </Transition.Child>
+              </Dialog.Panel>
+            </DialogContent>
+          </DialogWrapper>
+        </Dialog>
+      </Transition>
     );
   }
 }

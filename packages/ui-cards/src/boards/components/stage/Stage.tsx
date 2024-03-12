@@ -10,9 +10,9 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot,
-  StageTitle
+  StageTitle,
+  Divider,
 } from '../../styles/stage';
-import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions, IStage } from '../../types';
 
 import { AddForm } from '../../containers/portable';
@@ -25,6 +25,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import StageModal from './StageModal';
+import Popover from '@erxes/ui/src/components/Popover';
 
 type Props = {
   loadingItems: () => boolean;
@@ -59,7 +60,7 @@ export default class Stage extends React.Component<Props, State> {
     this.state = {
       showSortOptions: false,
       renderModal: false,
-      items: []
+      items: [],
     };
   }
 
@@ -131,8 +132,8 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   toggleModal = () => {
-    this.setState(prevState => ({
-      renderModal: !prevState.renderModal
+    this.setState((prevState) => ({
+      renderModal: !prevState.renderModal,
     }));
     this.onClosePopover();
   };
@@ -156,51 +157,45 @@ export default class Stage extends React.Component<Props, State> {
     };
 
     return (
-      <Popover id="stage-popover">
-        <ActionList>
-          {showSortOptions ? (
-            this.renderSortOptions()
-          ) : (
-            <>
-              <li onClick={archiveItems} key="archive-items">
-                {__('Archive All Cards in This List')}
+      <ActionList>
+        {showSortOptions ? (
+          this.renderSortOptions()
+        ) : (
+          <>
+            <li onClick={archiveItems} key="archive-items">
+              {__('Archive All Cards in This List')}
+            </li>
+            <li onClick={archiveList} key="archive-list">
+              {__('Archive This List')}
+            </li>
+            <li onClick={removeStage} key="remove-stage">
+              {__('Remove stage')}
+            </li>
+            <Divider />
+            <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
+            {isEnabled('documents') && options.type === 'deal' && (
+              <li>
+                <a onClick={this.toggleModal}>{__('Print document')}</a>
               </li>
-              <li onClick={archiveList} key="archive-list">
-                {__('Archive This List')}
-              </li>
-              <li onClick={removeStage} key="remove-stage">
-                {__('Remove stage')}
-              </li>
-              <Dropdown.Divider />
-              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
-              {isEnabled('documents') && options.type === 'deal' && (
-                <li>
-                  <a onClick={this.toggleModal}>{__('Print document')}</a>
-                </li>
-              )}
-            </>
-          )}
-        </ActionList>
-      </Popover>
+            )}
+          </>
+        )}
+      </ActionList>
     );
   }
 
   renderCtrl() {
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom-start"
-        rootClose={true}
-        container={this}
-        overlay={this.renderPopover()}
+      <Popover
+        placement="bottom"
+        trigger={
+          <ActionButton>
+            <Icon icon="ellipsis-h" />
+          </ActionButton>
+        }
       >
-        <ActionButton>
-          <Icon icon="ellipsis-h" />
-        </ActionButton>
-      </OverlayTrigger>
+        {this.renderPopover()}
+      </Popover>
     );
   }
 
@@ -220,13 +215,13 @@ export default class Stage extends React.Component<Props, State> {
       <>
         <li onClick={this.toggleSortOptions}>Back</li>
 
-        <Dropdown.Divider />
+        <Divider />
 
         <li
           onClick={sortItems.bind(
             this,
             'created-desc',
-            'date created (newest first)'
+            'date created (newest first)',
           )}
         >
           Date created (Newest first)
@@ -235,7 +230,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={sortItems.bind(
             this,
             'created-asc',
-            'date created (oldest first)'
+            'date created (oldest first)',
           )}
         >
           Date created (Oldest first)
@@ -244,7 +239,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={sortItems.bind(
             this,
             'modified-desc',
-            'date modified (newest first)'
+            'date modified (newest first)',
           )}
         >
           Date modified (Newest first)
@@ -253,7 +248,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={sortItems.bind(
             this,
             'modified-asc',
-            'date modified (oldest first)'
+            'date modified (oldest first)',
           )}
         >
           Date modified (Oldest first)
@@ -262,7 +257,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={sortItems.bind(
             this,
             'close-asc',
-            'date assigned (Earliest first)'
+            'date assigned (Earliest first)',
           )}
         >
           Date assigned (Earliest first)
@@ -271,7 +266,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={sortItems.bind(
             this,
             'close-desc',
-            'date assigned (Latest first)'
+            'date assigned (Latest first)',
           )}
         >
           Date assigned (Latest first)
@@ -314,10 +309,10 @@ export default class Stage extends React.Component<Props, State> {
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
       pipelineId: stage.pipelineId,
-      aboveItemId: ''
+      aboveItemId: '',
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -329,7 +324,7 @@ export default class Stage extends React.Component<Props, State> {
     const data: any = [];
 
     for (let i = 0; i < length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />);
+      data.push(<IndicatorItem $isPass={index >= i} key={i} />);
     }
 
     return data;
@@ -408,7 +403,7 @@ export default class Stage extends React.Component<Props, State> {
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
-                {this.renderTriggerModal()},
+                {this.renderTriggerModal()}
               </Body>
               {this.renderAddItemTrigger()}
             </StageRoot>

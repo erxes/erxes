@@ -1,5 +1,5 @@
 import { Route, useLocation, Routes } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
@@ -46,7 +46,7 @@ const Tasks = () => {
     link = `/task/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Link to={link} />;
+  return <Navigate replace to={link} />;
 };
 
 const Charts = () => {

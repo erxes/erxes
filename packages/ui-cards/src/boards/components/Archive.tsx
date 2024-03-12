@@ -255,7 +255,7 @@ function Archive(props: Props) {
             setSearchInputValue((e.target as HTMLInputElement).value)
           }
         />
-        <HeaderButton hasBackground={true} onClick={toggleType}>
+        <HeaderButton $hasBackground={true} onClick={toggleType}>
           {__('Switch To')} {switchType()}
           {'s'}
         </HeaderButton>

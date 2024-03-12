@@ -1,20 +1,28 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const LogList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Logs" */ './containers/LogList')
+const LogList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Settings - Logs" */ './containers/LogList'),
 );
 
-const logList = ({ location, history }) => {
+const LogListComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <LogList queryParams={queryParams} history={history} />;
+  return <LogList queryParams={queryParams} history={navigate} />;
 };
 
 const routes = () => {
-  return <Route exact={true} path="/settings/logs/" component={logList} />;
+  return (
+    <Routes>
+      <Route path="/settings/logs/" element={<LogListComponent />} />
+    </Routes>
+  );
 };
 
 export default routes;
