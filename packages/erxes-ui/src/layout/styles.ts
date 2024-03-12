@@ -264,7 +264,7 @@ const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   }
 `;
 
-const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
+const HelperButtons = styledTS<{ $isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${(props) =>

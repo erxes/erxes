@@ -3,7 +3,7 @@ import { darken, lighten } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const buttonColor = name => {
+const buttonColor = (name) => {
   if (name === 'red') {
     return lighten(colors.colorCoreRed, 10);
   }
@@ -28,11 +28,11 @@ const buttonColor = name => {
 };
 
 export const Button = styledTS<{
-  colorName?: string;
+  colorname?: string;
   extra?: boolean;
 }>(styled.div)`
   padding: 5px 15px;
-  background: ${props => buttonColor(props.colorName)};
+  background: ${(props) => buttonColor(props.colorname)};
   color: #fff;
   border-radius: 16px;
   font-weight: 500;
@@ -41,11 +41,11 @@ export const Button = styledTS<{
   text-align: center;
 
   &:hover {
-    background: ${props => darken(buttonColor(props.colorName), 10)};
+    background: ${(props) => darken(buttonColor(props.colorname), 10)};
     cursor: pointer;
   }
   
-  ${props => props.extra && 'padding-left: 40px;'}
+  ${(props) => props.extra && 'padding-left: 40px;'}
 `;
 
 export const CloseDateLabel = styled(Button)`
@@ -65,6 +65,7 @@ export const StartDateLabel = styled(Button)`
 
 export const CheckBoxWrapper = styled.span`
   margin-left: 10px;
+  margin-top: 3px;
 `;
 
 export const CalenderWrapper = styled.div`
@@ -78,6 +79,7 @@ export const CloseDateWrapper = styled.div`
   text-align: right;
   margin-left: 20px;
   flex-shrink: 0;
+  display: flex;
 `;
 
 export const CloseDateContent = styled.div`

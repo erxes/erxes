@@ -5,20 +5,19 @@ import {
   CalenderWrapper,
   CloseDateContent,
   CloseDateWrapper,
-  DateGrid
+  DateGrid,
 } from '../../styles/popup';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import { generateButtonStart } from '../../utils';
+import Popover from '@erxes/ui/src/components/Popover';
 
 type Props = {
   startDate: Date;
   reminderMinute: number;
   onChangeField: (
     name: 'startDate' | 'reminderMinute' | 'isComplete',
-    value: any
+    value: any,
   ) => void;
 };
 
@@ -36,15 +35,15 @@ class StartDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      startDate: props.startDate || dayjs()
+      startDate: props.startDate || dayjs(),
     };
   }
 
-  setOverlay = overlay => {
+  setOverlay = (overlay) => {
     this.overlay = overlay;
   };
 
-  dateOnChange = date => {
+  dateOnChange = (date) => {
     this.setState({ startDate: date });
   };
 
@@ -70,7 +69,7 @@ class StartDate extends React.Component<Props, State> {
     const day = dayjs(startDate).format('YYYY-MM-DD');
     const time = dayjs(startDate).format('HH:mm');
 
-    const onChangeDateTime = e => {
+    const onChangeDateTime = (e) => {
       const type = e.target.type;
       const value = e.target.value;
 
@@ -90,47 +89,45 @@ class StartDate extends React.Component<Props, State> {
     };
 
     return (
-      <Popover id="pipeline-popover">
-        <CloseDateContent>
-          {startDate && (
-            <DateGrid>
-              <div>
-                <ControlLabel>Date</ControlLabel>
-                <input type="date" value={day} onChange={onChangeDateTime} />
-              </div>
-              <div>
-                <ControlLabel>Time</ControlLabel>
-                <input type="time" value={time} onChange={onChangeDateTime} />
-              </div>
-            </DateGrid>
-          )}
-
-          <CalenderWrapper>
-            <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat="HH:mm"
-              value={startDate}
-              closeOnSelect={true}
-              utc={true}
-              input={false}
-              onChange={this.dateOnChange}
-              defaultValue={dayjs()
-                .startOf('day')
-                .add(12, 'hour')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            />
-          </CalenderWrapper>
+      <CloseDateContent>
+        {startDate && (
           <DateGrid>
-            <Button colorName="red" onClick={this.remove}>
-              Remove
-            </Button>
-            <Button colorName="green" onClick={this.onSave}>
-              Save
-            </Button>
+            <div>
+              <ControlLabel>Date</ControlLabel>
+              <input type="date" value={day} onChange={onChangeDateTime} />
+            </div>
+            <div>
+              <ControlLabel>Time</ControlLabel>
+              <input type="time" value={time} onChange={onChangeDateTime} />
+            </div>
           </DateGrid>
-        </CloseDateContent>
-      </Popover>
+        )}
+
+        <CalenderWrapper>
+          <Datetime
+            inputProps={{ placeholder: 'Click to select a date' }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            value={startDate}
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            onChange={this.dateOnChange}
+            defaultValue={dayjs()
+              .startOf('day')
+              .add(12, 'hour')
+              .format('YYYY-MM-DD HH:mm:ss')}
+          />
+        </CalenderWrapper>
+        <DateGrid>
+          <Button colorname="red" onClick={this.remove}>
+            Remove
+          </Button>
+          <Button colorname="green" onClick={this.onSave}>
+            Save
+          </Button>
+        </DateGrid>
+      </CloseDateContent>
     );
   }
 
@@ -139,7 +136,7 @@ class StartDate extends React.Component<Props, State> {
     const time = dayjs(startDate).format('HH:mm');
 
     const trigger = (
-      <Button colorName={generateButtonStart(startDate)}>
+      <Button colorname={generateButtonStart(startDate)}>
         {startDate
           ? `${dayjs(startDate).format('MMM DD')} at ${time}`
           : 'Start date'}
@@ -148,16 +145,9 @@ class StartDate extends React.Component<Props, State> {
 
     return (
       <CloseDateWrapper innerRef={this.ref}>
-        <OverlayTrigger
-          ref={this.setOverlay}
-          trigger="click"
-          placement="bottom-end"
-          overlay={this.renderContent()}
-          rootClose={true}
-          container={this.ref.current}
-        >
-          <div>{trigger}</div>
-        </OverlayTrigger>
+        <Popover placement="bottom-end" trigger={trigger}>
+          {this.renderContent()}
+        </Popover>
       </CloseDateWrapper>
     );
   }

@@ -270,9 +270,9 @@ const CenterContent = styled.div`
   margin-top: 10px;
 `;
 
-const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
+const ActivityContent = styledTS<{ $isEmpty: boolean }>(styled.div)`
   position: relative;
-  height: ${(props) => props.isEmpty && '360px'};
+  height: ${(props) => props.$isEmpty && '360px'};
 `;
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`

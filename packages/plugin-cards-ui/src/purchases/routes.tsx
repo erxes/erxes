@@ -3,7 +3,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 const Calendar = asyncComponent(
   () =>
@@ -55,7 +55,7 @@ const Purchases = () => {
     purchasesLink = `/purchase/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Link to={purchasesLink} />;
+  return <Navigate replace to={purchasesLink} />;
 };
 
 const Boards = () => {

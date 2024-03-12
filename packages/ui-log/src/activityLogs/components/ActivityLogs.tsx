@@ -18,7 +18,7 @@ type Props = {
   onTabClick: (currentTab: string) => void;
   activityRenderItem?: (
     activity: IActivityLog,
-    currentUser?: IUser
+    currentUser?: IUser,
   ) => React.ReactNode;
 };
 
@@ -31,7 +31,7 @@ class ActivityLogs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'activity'
+      currentTab: 'activity',
     };
   }
 
@@ -50,13 +50,13 @@ class ActivityLogs extends React.PureComponent<Props, State> {
       activityLogs,
       loadingLogs,
       target,
-      activityRenderItem
+      activityRenderItem,
     } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogs);
 
     return (
-      <ActivityContent isEmpty={!hasActivity}>
+      <ActivityContent $isEmpty={!hasActivity}>
         <DataWithLoader
           loading={loadingLogs}
           count={!loadingLogs && hasActivity ? 1 : 0}

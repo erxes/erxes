@@ -31,7 +31,7 @@ function QuickButtons({
   isSidebarOpen?: boolean;
 }) {
   return (
-    <HelperButtons isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
+    <HelperButtons $isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
   );
 }
 

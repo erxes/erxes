@@ -20,7 +20,7 @@ function ListItem(value, type) {
 
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
-    <LeftSidebar header={<SidebarHeader />} $hasBorder={true}>
+    <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
       <SidebarList $noTextColor={true} $noBackground={true} id={'TagsSidebar'}>
         {types.map((value) => {
           return ListItem(value, type);

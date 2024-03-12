@@ -6,15 +6,14 @@ import {
   CloseDateWrapper,
   DateGrid,
 } from '../../styles/popup';
-import React, { useState } from 'react';
+import React from 'react';
 // import Select from 'react-select-plus';
 import { generateButtonClass, selectOptions } from '../../utils';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import Popover from '@erxes/ui/src/components/Popover';
 import { REMINDER_MINUTES } from '../../constants';
 import dayjs from 'dayjs';
 
@@ -115,41 +114,40 @@ class CloseDate extends React.Component<Props, State> {
     };
 
     return (
-      <Popover id="pipeline-popover">
-        <CloseDateContent>
-          {dueDate && (
-            <DateGrid>
-              <div>
-                <ControlLabel>Date</ControlLabel>
-                <input type="date" value={day} onChange={onChangeDateTime} />
-              </div>
-              <div>
-                <ControlLabel>Time</ControlLabel>
-                <input type="time" value={time} onChange={onChangeDateTime} />
-              </div>
-            </DateGrid>
-          )}
+      <CloseDateContent>
+        {dueDate && (
+          <DateGrid>
+            <div>
+              <ControlLabel>Date</ControlLabel>
+              <input type="date" value={day} onChange={onChangeDateTime} />
+            </div>
+            <div>
+              <ControlLabel>Time</ControlLabel>
+              <input type="time" value={time} onChange={onChangeDateTime} />
+            </div>
+          </DateGrid>
+        )}
 
-          <CalenderWrapper>
-            <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat="HH:mm"
-              value={dueDate}
-              closeOnSelect={true}
-              utc={true}
-              input={false}
-              isValidDate={renderValidDate}
-              onChange={this.dateOnChange}
-              defaultValue={dayjs()
-                .startOf('day')
-                .add(12, 'hour')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            />
-          </CalenderWrapper>
+        <CalenderWrapper>
+          <Datetime
+            inputProps={{ placeholder: 'Click to select a date' }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            value={dueDate}
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            isValidDate={renderValidDate}
+            onChange={this.dateOnChange}
+            defaultValue={dayjs()
+              .startOf('day')
+              .add(12, 'hour')
+              .format('YYYY-MM-DD HH:mm:ss')}
+          />
+        </CalenderWrapper>
 
-          <ControlLabel>Set reminder</ControlLabel>
-          {/* 
+        <ControlLabel>Set reminder</ControlLabel>
+        {/* 
           <Select
             isRequired={true}
             value={reminderMinute}
@@ -158,16 +156,15 @@ class CloseDate extends React.Component<Props, State> {
             clearable={false}
           /> */}
 
-          <DateGrid>
-            <Button colorName="red" onClick={this.remove}>
-              Remove
-            </Button>
-            <Button colorName="green" onClick={this.onSave}>
-              Save
-            </Button>
-          </DateGrid>
-        </CloseDateContent>
-      </Popover>
+        <DateGrid>
+          <Button colorname="red" onClick={this.remove}>
+            Remove
+          </Button>
+          <Button colorname="green" onClick={this.onSave}>
+            Save
+          </Button>
+        </DateGrid>
+      </CloseDateContent>
     );
   }
 
@@ -178,7 +175,7 @@ class CloseDate extends React.Component<Props, State> {
     const onChange = (e) => onChangeField('isComplete', e.target.checked);
 
     const trigger = (
-      <Button colorName={generateButtonClass(closeDate, isComplete)}>
+      <Button colorname={generateButtonClass(closeDate, isComplete)}>
         {closeDate
           ? `${dayjs(closeDate).format('MMM DD')} at ${time}`
           : 'Close date'}
@@ -187,27 +184,18 @@ class CloseDate extends React.Component<Props, State> {
 
     return (
       <CloseDateWrapper innerRef={this.ref}>
-        <OverlayTrigger
-          ref={this.setOverlay}
-          trigger="click"
-          placement="bottom-end"
-          overlay={this.renderContent()}
-          rootClose={true}
-          container={this.ref.current}
-        >
-          <div>
-            {trigger}
-            {closeDate && (
-              <CheckBoxWrapper>
-                <FormControl
-                  checked={isComplete}
-                  componentClass="checkbox"
-                  onChange={onChange}
-                />
-              </CheckBoxWrapper>
-            )}
-          </div>
-        </OverlayTrigger>
+        <Popover placement="bottom-end" trigger={trigger}>
+          {this.renderContent()}
+        </Popover>
+        {closeDate && (
+          <CheckBoxWrapper>
+            <FormControl
+              checked={isComplete}
+              componentClass="checkbox"
+              onChange={onChange}
+            />
+          </CheckBoxWrapper>
+        )}
       </CloseDateWrapper>
     );
   }

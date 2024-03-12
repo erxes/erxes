@@ -47,26 +47,26 @@ export const ButtonGroup = styled.div`
 `;
 
 export const HeaderButton = styledTS<{
-  hasBackground?: boolean;
-  rightIconed?: boolean;
-  isActive?: boolean;
+  $hasBackground?: boolean;
+  $rightIconed?: boolean;
+  $isActive?: boolean;
 }>(styled.div)`
   padding: 0 ${dimensions.unitSpacing}px;
   line-height: ${dimensions.coreSpacing + 10}px;
   height: ${dimensions.coreSpacing + 12}px; 
   border-radius: ${dimensions.unitSpacing - 6}px;
   transition: background 0.3s ease;
-  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
+  background: ${(props) => props.$hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-weight: ${typography.fontWeightMedium};
   display: inline-block;
   vertical-align: middle;
   font-size: ${typography.fontSizeHeading8}px;
   > i {
-    color: ${props =>
-      props.isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
+    color: ${(props) =>
+      props.$isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
     margin-right: ${dimensions.unitSpacing - 5}px;
-    ${props =>
-      props.rightIconed &&
+    ${(props) =>
+      props.$rightIconed &&
       css`
         margin-right: -3px;
         margin-left: ${dimensions.unitSpacing - 5}px;

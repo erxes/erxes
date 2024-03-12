@@ -1,13 +1,10 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
-
-import { IItem, IOptions } from '../../types';
-
-import { IDeal } from '../../../deals/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { ITicket } from '../../../tickets/types';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import queryString from 'query-string';
-// import { withRouter } from 'react-router-dom';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { IItem, IOptions } from '../../types';
+import { IDeal } from '../../../deals/types';
+import { ITicket } from '../../../tickets/types';
 
 type Props = {
   stageId?: string;
@@ -18,80 +15,58 @@ type Props = {
   itemRowComponent?: any;
   groupType?: string;
   groupObj?: any;
-} & IRouterProps;
+};
 
-class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
-  unlisten?: () => void;
+const Item: React.FC<Props> = (props) => {
+  const { item, groupObj, options, itemRowComponent, beforePopupClose } = props;
+  const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    const itemIdQueryParam = routerUtils.getParam(location, 'itemId');
+    setIsFormVisible(
+      itemIdQueryParam === `${item._id}${groupObj ? groupObj._id : ''}`,
+    );
 
-    const { item, history, groupObj } = props;
-
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
-
-    let isFormVisible = false;
-
-    if (itemIdQueryParam === `${item._id}${groupObj ? groupObj._id : ''}`) {
-      isFormVisible = true;
-    }
-
-    this.state = {
-      isFormVisible,
-    };
-  }
-
-  componentDidMount() {
-    this.unlisten = this.props.history.listen((location) => {
+    const unlisten = () => {
       const queryParams = queryString.parse(location.search);
-
-      const { item, groupObj } = this.props;
-
       if (queryParams.itemId === `${item._id}${groupObj ? groupObj._id : ''}`) {
-        return this.setState({ isFormVisible: true });
+        setIsFormVisible(true);
       }
-    });
-  }
+    };
 
-  componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
+    return () => {
+      unlisten();
+    };
+  }, [item._id, groupObj, navigate, location]);
+
+  const handleBeforePopupClose = (afterPopupClose?: () => void) => {
+    setIsFormVisible(false);
+
+    const itemIdQueryParam = routerUtils.getParam(location, 'itemId');
+    if (itemIdQueryParam) {
+      routerUtils.removeParams(navigate, location, 'itemId');
     }
-  }
 
-  beforePopupClose = (afterPopupClose?: () => void) => {
-    const { beforePopupClose, history } = this.props;
+    if (beforePopupClose) {
+      beforePopupClose();
+    }
 
-    this.setState({ isFormVisible: false }, () => {
-      const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
-
-      if (itemIdQueryParam) {
-        routerUtils.removeParams(history, 'itemId');
-      }
-
-      if (beforePopupClose) {
-        beforePopupClose();
-      }
-
-      if (afterPopupClose) {
-        afterPopupClose();
-      }
-    });
+    if (afterPopupClose) {
+      afterPopupClose();
+    }
   };
 
-  render() {
-    const { options, itemRowComponent } = this.props;
+  const ItemComponent = itemRowComponent || options.Item;
 
-    const ItemComponent = itemRowComponent || options.Item;
-
-    return (
-      <ItemComponent
-        {...this.props}
-        beforePopupClose={this.beforePopupClose}
-        isFormVisible={this.state.isFormVisible}
-      />
-    );
-  }
-}
+  return (
+    <ItemComponent
+      {...props}
+      beforePopupClose={handleBeforePopupClose}
+      isFormVisible={isFormVisible}
+    />
+  );
+};
 
 export default Item;
