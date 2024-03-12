@@ -14,6 +14,18 @@ import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 const router = Router();
 
+router.get('/invoice', async (_req, res) => {
+  return res.render('index', { title: 'Payment gateway', domain:"http://localhost:4000" });
+
+});
+
+router.post('/invoice', async (req, res) => {
+
+  const data = req.body;
+
+  return res.render('index', { title: 'Payment gateway', domain:"http://localhost:4000", data });
+});
+
 router.post('/checkInvoice', async (req, res) => {
   const { invoiceId } = req.body;
 

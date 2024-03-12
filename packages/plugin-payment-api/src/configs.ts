@@ -1,7 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
-import * as cookieParser from 'cookie-parser';
+import cookieParser = require('cookie-parser');
 import * as bodyParser from 'body-parser';
 
 import { generateModels } from './connectionResolver';
