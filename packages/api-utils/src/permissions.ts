@@ -129,8 +129,7 @@ export const can = async (
     return false;
   }
 
-  if (user.
-    ) {
+  if (user.isOwner) {
     return true;
   }
 
