@@ -1,11 +1,13 @@
 const path = require('path');
 
 module.exports = {
+  mode: 'development',
   entry: ['babel-polyfill', './src/paymentGateway/src/index.tsx'],
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
+    
     rules: [
       {
         test: /\.(ts|tsx)$/,
@@ -18,6 +20,10 @@ module.exports = {
             plugins: [['@babel/plugin-proposal-class-properties']],
           },
         },
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },

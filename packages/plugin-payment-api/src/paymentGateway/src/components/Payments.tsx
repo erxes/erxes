@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import './YourCustomStyle.css'; // Import your custom styles if any
-import '../../../public/css/style.css';
+import Modal from '../common/PaymentModal';
+
+import '../common/styles.css';
 
 type Props = {
+  invoiceDetail: any;
   payments: any;
+  createInvoice: (paymentId: string) => void;
 };
 
-const PaymentGateway = (prop: Props) => {
+const PaymentGateway = (props: Props) => {
   const [amount, setAmount] = useState(500);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const onPaymentClick = (paymentMethod, paymentDetails, gateway) => {
-    // Implement your logic here
-    console.log(
-      'Payment method clicked:',
-      paymentMethod,
-      paymentDetails,
-      gateway
-    );
+  const openModal = (payment) => {
+    setSelectedPayment(payment);
+    setModalIsOpen(true);
+
+    props.createInvoice(payment._id);
   };
 
-  const { payments } = prop;
+  const closeModal = () => {
+    setSelectedPayment(null);
+    setModalIsOpen(false);
+  };
+
+  const { payments } = props;
 
   return (
     <div id="root">
@@ -32,19 +38,18 @@ const PaymentGateway = (prop: Props) => {
           </h1>
         </div>
         <div className="paymentContainer">
-          {/* Replace with your actual buttons and onClick handlers */}
-          {payments.map((payment, index) => (
+          {payments.map((payment) => (
             <button
-              key={index}
+              key={payment._id}
               className="button"
               type="button"
               onClick={() => {
-                console.log('payment', payment);
+                openModal(payment);
               }}
             >
               <img
                 src={`/pl:payment/static/images/payments/${payment.kind}.png`}
-                alt="Qpay Logo"
+                alt={payment.kind}
               />
               <div className="payment-name">
                 <p>{`${payment.kind} - ${payment.name}`}</p>
@@ -59,8 +64,11 @@ const PaymentGateway = (prop: Props) => {
           </h2>
         </div>
       </div>
-      {/* Add your modal component here */}
-      {/* Example: <PaymentModal /> */}
+      <Modal
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        payment={selectedPayment}
+      />
     </div>
   );
 };

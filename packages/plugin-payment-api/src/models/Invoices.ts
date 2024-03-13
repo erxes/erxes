@@ -39,16 +39,16 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Amount is required');
       }
 
-      if (!doc.selectedPaymentId) {
-        throw new Error('Payment config id is required');
-      }
-
       const payment = await models.Payments.getPayment(doc.selectedPaymentId);
 
       const invoice = await models.Invoices.create({
         ...doc,
         identifier: doc.identifier || randomAlphanumeric(32)
       });
+
+      if (!doc.selectedPaymentId) {
+        return invoice;
+      }
 
       const api = new ErxesPayment(payment, doc.domain);
 

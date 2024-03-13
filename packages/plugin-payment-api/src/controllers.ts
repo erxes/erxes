@@ -14,16 +14,43 @@ import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 const router = Router();
 
-router.get('/invoice', async (_req, res) => {
-  return res.render('index', { title: 'Payment gateway', domain:"http://localhost:4000" });
+router.get('/invoice/:invoiceId', async (req, res) => {
+  const { invoiceId } = req.params;
 
+  const appToken = (req.headers['erxes-app-token'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOnsiY3JlYXRlZEF0IjoiMjAyNC0wMy0xM1QwMDoyNTozNy45MzBaIiwibmFtZSI6InBheW1lbnQiLCJ1c2VyR3JvdXBJZCI6ImNNbDBhUGNRNUFQTkQ5UTdjdkVpNiIsImV4cGlyZURhdGUiOiIyMDI0LTA0LTEyVDA1OjUzOjMyLjQxN1oiLCJhbGxvd0FsbFBlcm1pc3Npb24iOmZhbHNlLCJub0V4cGlyZSI6dHJ1ZSwiX2lkIjoiUkpVNGtJc3FoOFNnVWw0SjN4TTZhIiwiX192IjowfSwiaWF0IjoxNzEwMzA5MjIzfQ.cq8PXxhVZL3H0eHcL5H1hqbrcr1oSvN9t7RmLcS_aSQ').toString();
+
+
+  // if (!appToken) {
+  //   return res.status(401).render('unauthorized');
+  // }
+
+  if (!invoiceId) {
+    return res.status(404).render('notFound');
+  }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+  const invoice = await models.Invoices.findOne({ _id: invoiceId });
+
+  if (!invoice) {
+    return res.status(404).render('notFound');
+  }
+
+  return res.render('index', {
+    title: 'Payment gateway',
+    domain: 'http://localhost:4000',
+    appToken,
+  });
 });
 
 router.post('/invoice', async (req, res) => {
-
   const data = req.body;
 
-  return res.render('index', { title: 'Payment gateway', domain:"http://localhost:4000", data });
+  return res.render('index', {
+    title: 'Payment gateway',
+    domain: 'http://localhost:4000',
+    data,
+  });
 });
 
 router.post('/checkInvoice', async (req, res) => {
@@ -57,7 +84,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
   if (status === 'paid') {
     const invoiceDoc = await models.Invoices.getInvoice(
       { _id: invoiceId },
-      true,
+      true
     );
 
     graphqlPubsub.publish(`invoiceUpdated:${invoiceDoc._id}`, {
@@ -125,7 +152,7 @@ router.post('/gateway/storepay', async (req, res) => {
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { apiResponse: apiRes } },
+      { $set: { apiResponse: apiRes } }
     );
     return res.json({ invoice: invoice.apiResponse });
   } catch (e) {
@@ -203,7 +230,7 @@ router.get('/gateway', async (req, res) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8'),
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -262,7 +289,7 @@ router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8'),
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -415,7 +442,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
       headers: {
         'Content-Type': 'application/json',
       },
-    },
+    }
   ).then((res) => res.json());
 
   if (loginResponse.code !== 0) {
@@ -437,7 +464,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     ).then((res) => res.json());
 
     if (couponResponse.code !== 0) {
@@ -472,7 +499,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
       { _id: invoice._id },
       {
         $set: { couponCode, couponAmount: couponResponse.result.couponAmount },
-      },
+      }
     );
 
     return res.json({

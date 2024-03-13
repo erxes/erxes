@@ -53,19 +53,12 @@ const mutationParams = `
 `;
 
 const invoiceCreateMutationParams = `
+  ${mutationParams}
   selectedPaymentId: String
-  amount: Float!
-  phone: String
-  email: String
-  description: String
-  customerId: String
-  customerType: String
-  contentType: String
-  contentTypeId: String
-
+  
   couponCode: String
   couponAmount: Int
-  data: JSON
+
 `;
 
 export const mutations = `
