@@ -6,30 +6,18 @@ import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { ACCOUNT_STATUSES } from '../../../models/definitions/accounts';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
-import {
-  getSimilaritiesAccounts,
-  getSimilaritiesAccountsCount,
-} from '../../../maskUtils';
 
 interface IQueryParams {
   ids?: string[];
   excludeIds?: boolean;
-  type?: string;
   status?: string;
   categoryId?: string;
   searchValue?: string;
-  vendorId?: string;
   brand?: string;
-  tag: string;
   page?: number;
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
-  pipelineId?: string;
-  boardId?: string;
-  segment?: string;
-  segmentData?: string;
-  groupedSimilarity?: string;
 }
 
 const generateFilter = async (
@@ -44,7 +32,6 @@ const generateFilter = async (
     searchValue,
     vendorId,
     brand,
-    tag,
     ids,
     excludeIds,
   } = params;
@@ -80,10 +67,6 @@ const generateFilter = async (
 
   if (ids && ids.length > 0) {
     filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-  }
-
-  if (tag) {
-    filter.tagIds = { $in: [tag] };
   }
 
   // search =========
@@ -122,7 +105,6 @@ const generateFilterCat = async ({
   parentId,
   withChild,
   searchValue,
-  meta,
   brand,
   status,
 }) => {
@@ -156,14 +138,6 @@ const generateFilterCat = async ({
 
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
-  }
-
-  if (meta) {
-    if (!isNaN(meta)) {
-      filter.meta = { $lte: Number(meta) };
-    } else {
-      filter.meta = meta;
-    }
   }
 
   if (searchValue) {
@@ -207,10 +181,6 @@ const accountQueries = {
       sort = { [sortField]: sortDirection || 1 };
     }
 
-    if (params.groupedSimilarity) {
-      return await getSimilaritiesAccounts(models, filter, params);
-    }
-
     return afterQueryWrapper(
       subdomain,
       'accounts',
@@ -235,137 +205,7 @@ const accountQueries = {
       params,
     );
 
-    if (params.groupedSimilarity) {
-      return await getSimilaritiesAccountsCount(models, filter, params);
-    }
-
     return models.Accounts.find(filter).count();
-  },
-
-  /**
-   * Group account counts by segment or tag
-   */
-  async accountsGroupCounts(
-    _root,
-    params,
-    {
-      commonQuerySelector,
-      commonQuerySelectorElk,
-      models,
-      subdomain,
-    }: IContext,
-  ) {
-    const counts = {
-      bySegment: {},
-      byTag: {},
-    };
-
-    return counts;
-  },
-
-  async accountSimilarities(
-    _root,
-    { _id, groupedSimilarity },
-    { models }: IContext,
-  ) {
-    const account = await models.Accounts.getAccount({ _id });
-
-    if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return new RegExp(
-          `^${str
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.')
-            .replace(/_/g, '.')}.*`,
-          'igu',
-        );
-      };
-
-      const similarityGroups =
-        await models.AccountingsConfigs.getConfig('similarityGroup');
-
-      const codeMasks = Object.keys(similarityGroups);
-      const customFieldIds = (account.customFieldsData || []).map(
-        (cf) => cf.field,
-      );
-
-      const matchedMasks = codeMasks.filter(
-        (cm) =>
-          account.code.match(getRegex(cm)) &&
-          (similarityGroups[cm].rules || [])
-            .map((sg) => sg.fieldId)
-            .filter((sgf) => customFieldIds.includes(sgf)).length ===
-            (similarityGroups[cm].rules || []).length,
-      );
-
-      if (!matchedMasks.length) {
-        return {
-          accounts: await models.Accounts.find({ _id }),
-        };
-      }
-
-      const codeRegexs: any[] = [];
-      const fieldIds: string[] = [];
-      const groups: { title: string; fieldId: string }[] = [];
-      for (const matchedMask of matchedMasks) {
-        codeRegexs.push({ code: { $in: [getRegex(matchedMask)] } });
-
-        for (const rule of similarityGroups[matchedMask].rules || []) {
-          const { fieldId, title } = rule;
-          if (!fieldIds.includes(fieldId)) {
-            fieldIds.push(fieldId);
-            groups.push({ title, fieldId });
-          }
-        }
-      }
-
-      const filters: any = {
-        $and: [
-          {
-            $or: codeRegexs,
-            'customFieldsData.field': { $in: fieldIds },
-          },
-        ],
-      };
-
-      return {
-        accounts: await models.Accounts.find(filters).sort({ code: 1 }),
-        groups,
-      };
-    }
-
-    const category = await models.AccountCategories.getAccountCategory({
-      _id: account.categoryId,
-    });
-    if (
-      !category.isSimilarity ||
-      !category.similarities ||
-      !category.similarities.length
-    ) {
-      return {
-        accounts: await models.Accounts.find({ _id }),
-      };
-    }
-
-    const fieldIds = category.similarities.map((r) => r.fieldId);
-    const filters: any = {
-      $and: [
-        {
-          categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds },
-        },
-      ],
-    };
-
-    const groups: {
-      title: string;
-      fieldId: string;
-    }[] = category.similarities.map((r) => ({ ...r }));
-
-    return {
-      accounts: await models.Accounts.find(filters).sort({ code: 1 }),
-      groups,
-    };
   },
 
   async accountCategories(
@@ -380,7 +220,6 @@ const accountQueries = {
       withChild,
       searchValue,
       brand,
-      meta,
     });
 
     const sortParams: any = { order: 1 };
@@ -400,7 +239,6 @@ const accountQueries = {
       searchValue,
       status,
       brand,
-      meta,
     });
     return models.AccountCategories.find(filter).countDocuments();
   },

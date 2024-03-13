@@ -35,24 +35,3 @@ export const ACCOUNT_INFO = {
     { field: 'taxCode', label: 'Tax code' },
   ],
 };
-
-export const EXTEND_FIELDS = [
-  {
-    _id: Math.random(),
-    name: 'categoryName',
-    label: 'Category Name',
-    type: 'string',
-  },
-  {
-    _id: Math.random(),
-    name: 'tag',
-    label: 'Tag',
-    type: 'string',
-  },
-  {
-    _id: Math.random(),
-    name: 'barcodes',
-    label: 'Barcodes',
-    type: 'string',
-  },
-];

@@ -4,7 +4,6 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import Settings from './containers/config/Settings';
 import GeneralSettings from './components/config/GeneralSettings';
-import SimilarityGroup from './components/config/SimilarityGroup';
 
 const ProductList = asyncComponent(
   () =>
@@ -39,38 +38,27 @@ const generalSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
 
-const similarityGroup = () => {
-  return <Settings component={SimilarityGroup} />;
-};
-
 const routes = () => (
   <React.Fragment>
     <Route
-      path="/settings/product-service/details/:id"
+      path="/settings/accounts/details/:id"
       exact={true}
-      key="/settings/product-service/details/:id"
+      key="/settings/accounts/details/:id"
       component={details}
     />
 
     <Route
-      path="/settings/product-service/"
+      path="/settings/accounts/"
       exact={true}
-      key="/settings/product-service/"
+      key="/settings/accounts/"
       component={productService}
     />
 
     <Route
-      path="/settings/products-config/"
+      path="/settings/account-config/"
       exact={true}
-      key="/settings/products-config/"
+      key="/settings/account-config/"
       component={generalSetting}
-    />
-
-    <Route
-      path="/settings/similarity-group/"
-      exact={true}
-      key="/settings/similarity-group"
-      component={similarityGroup}
     />
   </React.Fragment>
 );

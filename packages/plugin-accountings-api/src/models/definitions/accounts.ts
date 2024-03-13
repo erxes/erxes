@@ -1,18 +1,22 @@
-import {
-  attachmentSchema,
-  customFieldSchema,
-  IAttachment,
-  ICustomField,
-} from '@erxes/api-utils/src/types';
 import { Schema, Document } from 'mongoose';
 
 import { field, schemaWrapper } from './utils';
 
-export const ACCOUNT_TYPES = {
-  ACCOUNT: 'accounting',
-  SERVICE: 'service',
-  UNIQUE: 'unique',
-  ALL: ['accounting', 'service', 'unique'],
+export const ACCOUNT_KINDS = {
+  ACTIVE: 'active',
+  PASSIVE: 'passive',
+  ALL: ['active', 'passive'],
+};
+
+export const ACCOUNT_JOURNALS = {
+  MAIN: 'main',
+  FUND_CASH: 'cash',
+  FUND_BANK: 'bank',
+  DEBT: 'debt',
+  INVENTORY: 'inventory',
+  FIXED_ASSET: 'fixedAsset',
+  VAT: 'vat',
+  ALL: ['main', 'cash', 'bank', 'debt', 'inventory', 'fixedAsset', 'vat'],
 };
 
 export const ACCOUNT_STATUSES = {
@@ -23,9 +27,8 @@ export const ACCOUNT_STATUSES = {
 
 export const ACCOUNT_CATEGORY_STATUSES = {
   ACTIVE: 'active',
-  DISABLED: 'disabled',
   ARCHIVED: 'archived',
-  ALL: ['active', 'disabled', 'archived'],
+  ALL: ['active', 'archived'],
 };
 
 export const ACCOUNT_CATEGORY_MASK_TYPES = {
@@ -35,40 +38,18 @@ export const ACCOUNT_CATEGORY_MASK_TYPES = {
   ALL: ['', 'soft', 'hard'],
 };
 
-export interface ISubUom {
-  uom: string;
-  ratio: number;
-}
-
 export interface IAccount {
-  name: string;
-  shortName?: string;
-  categoryId?: string;
-  categoryCode?: string;
-  type?: string;
-  scopeBrandIds?: string[];
-  description?: string;
-  barcodes?: string[];
-  variants: { [code: string]: { image?: IAttachment; name?: string } };
-  barcodeDescription?: string;
-  unitPrice?: number;
   code: string;
-  customFieldsData?: ICustomField[];
-  accountingId?: string;
-  tagIds?: string[];
-  attachment?: IAttachment;
-  attachmentMore?: IAttachment[];
+  name: string;
+  categoryId?: string;
+  parentId?: string;
+  currency: string;
+  kind: string;
+  journal: string;
+  description?: string;
+  scopeBrandIds?: string[];
   status?: string;
-  vendorId?: string;
-  vendorCode?: string;
-
   mergedIds?: string[];
-
-  uom?: string;
-  subUoms?: ISubUom[];
-  taxType?: string;
-  taxCode?: string;
-  sameMasks?: string[];
 }
 
 export interface IAccountDocument extends IAccount, Document {
@@ -82,19 +63,11 @@ export interface IAccountCategory {
   order: string;
   scopeBrandIds?: string[];
   description?: string;
-  meta?: string;
   parentId?: string;
-  attachment?: any;
   status?: string;
+  mergeIds?: string[];
   maskType?: string;
   mask?: any;
-  isSimilarity?: boolean;
-  similarities?: {
-    id: string;
-    groupId: string;
-    fieldId: string;
-    title: string;
-  }[];
 }
 
 export interface IAccountCategoryDocument extends IAccountCategory, Document {
@@ -105,48 +78,29 @@ export interface IAccountCategoryDocument extends IAccountCategory, Document {
 export const accountSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    shortName: field({ type: String, optional: true, label: 'Short name' }),
     code: field({ type: String, unique: true, label: 'Code' }),
+    name: field({ type: String, label: 'Name' }),
     categoryId: field({ type: String, label: 'Category' }),
-    type: field({
+    parentId: field({ type: String, label: 'Parent account' }),
+    currency: field({ type: String, label: 'Currency' }),
+    kind: field({
       type: String,
-      enum: ACCOUNT_TYPES.ALL,
-      default: ACCOUNT_TYPES.ACCOUNT,
-      label: 'Type',
+      enum: ACCOUNT_KINDS.ALL,
+      default: ACCOUNT_KINDS.ACTIVE,
+      label: 'KIND',
     }),
-    tagIds: field({
-      type: [String],
-      optional: true,
-      label: 'Tags',
-      index: true,
-    }),
-    barcodes: field({
-      type: [String],
-      optional: true,
-      label: 'Barcodes',
-      index: true,
-    }),
-    variants: field({ type: Object, optional: true }),
-    barcodeDescription: field({
+    journal: field({
       type: String,
-      optional: true,
-      label: 'Barcode Description',
+      enum: ACCOUNT_KINDS.ALL,
+      default: ACCOUNT_KINDS.ACTIVE,
+      label: 'KIND',
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
-    unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
-    customFieldsData: field({
-      type: [customFieldSchema],
-      optional: true,
-      label: 'Custom fields data',
-    }),
     createdAt: field({
       type: Date,
       default: new Date(),
       label: 'Created at',
     }),
-    attachment: field({ type: attachmentSchema }),
-    attachmentMore: field({ type: [attachmentSchema] }),
     status: field({
       type: String,
       enum: ACCOUNT_STATUSES.ALL,
@@ -156,11 +110,7 @@ export const accountSchema = schemaWrapper(
       esType: 'keyword',
       index: true,
     }),
-    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
-    taxType: field({ type: String, optional: true, label: 'TAX type' }),
-    taxCode: field({ type: String, optional: true, label: 'tax type code' }),
-    sameMasks: field({ type: [String] }),
   }),
 );
 
@@ -172,8 +122,6 @@ export const accountCategorySchema = schemaWrapper(
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     description: field({ type: String, optional: true, label: 'Description' }),
-    meta: field({ type: String, optional: true, label: 'Meta' }),
-    attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,
       enum: ACCOUNT_CATEGORY_STATUSES.ALL,
@@ -195,14 +143,5 @@ export const accountCategorySchema = schemaWrapper(
       enum: ACCOUNT_CATEGORY_MASK_TYPES.ALL,
     }),
     mask: field({ type: Object, label: 'Mask', optional: true }),
-    isSimilarity: field({
-      type: Boolean,
-      label: 'is Similiraties',
-      optional: true,
-    }),
-    similarities: field({
-      type: [{ id: String, groupId: String, fieldId: String, title: String }],
-      optional: true,
-    }),
   }),
 );

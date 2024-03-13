@@ -14,25 +14,6 @@ export default {
       null
     );
   },
-
-  async getTags(account: IAccountDocument, _, { dataLoaders }: IContext) {
-    const tags = await dataLoaders.tag.loadMany(account.tagIds || []);
-    return tags.filter((tag) => tag);
-  },
-
-  vendor(account: IAccountDocument, _, { dataLoaders }: IContext) {
-    return (
-      (account.vendorId && dataLoaders.company.load(account.vendorId)) || null
-    );
-  },
-
-  customFieldsDataByFieldCode(
-    account: IAccountDocument,
-    _,
-    { subdomain }: IContext,
-  ) {
-    return customFieldsDataByFieldCode(account, subdomain);
-  },
 };
 
 0.75642 % 454;

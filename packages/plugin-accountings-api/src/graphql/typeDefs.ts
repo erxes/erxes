@@ -29,7 +29,7 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${types(tagsAvailable, contactsAvailable)}
+    ${types()}
     ${accountingsConfigTypes}
 
     extend type Query {

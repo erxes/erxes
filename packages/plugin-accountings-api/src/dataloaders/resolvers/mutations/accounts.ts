@@ -41,7 +41,6 @@ const accountsMutations = {
         newData: {
           ...doc,
           categoryId: account.categoryId,
-          customFieldsData: account.customFieldsData,
         },
         object: account,
       },
@@ -76,7 +75,6 @@ const accountsMutations = {
         newData: {
           ...doc,
           status: 'active',
-          customFieldsData: updated.customFieldsData,
         },
         updatedDocument: updated,
       },

@@ -5,18 +5,12 @@ module.exports = {
   scope: 'accountings',
   exposes: {
     "./routes": "./src/routes.tsx",
-    './extendFormField': './src/containers/accountCategory/SelectAccountCategory.tsx',
-    './extendFormFieldChoice': './src/components/account/FormFieldChoice.tsx',
-    './propertyGroupForm': './src/propertyGroupForm.tsx',
   },
   routes: {
     url: "http://localhost:3032/remoteEntry.js",
     scope: "accountings",
     module: "./routes",
   },
-  extendFormField: './extendFormField',
-  extendFormFieldChoice: './extendFormFieldChoice',
-  propertyGroupForm: './propertyGroupForm',
   menus: [
     {
       text: "Accountings",
@@ -25,7 +19,7 @@ module.exports = {
       location: "settings",
       scope: "accountings",
       action: "accountingsAll",
-      permissions: ["showAccountings", "manageAccountings"],
+      permissions: ["showAccounts", "manageAccounts"],
     },
     {
       text: "Configs of Accountings",
@@ -34,7 +28,7 @@ module.exports = {
       location: "settings",
       scope: "accountings",
       action: "accountingsAll",
-      permissions: ["showAccountings", "manageAccountings"],
+      permissions: ["showAccounts", "manageAccounts"],
     },
   ],
 };
