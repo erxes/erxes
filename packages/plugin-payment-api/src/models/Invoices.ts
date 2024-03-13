@@ -131,7 +131,8 @@ export const loadInvoiceClass = (models: IModels) => {
                 apiResponse,
                 paymentKind: payment.kind,
                 selectedPaymentId: payment._id,
-                createdAt: new Date()
+                createdAt: new Date(),
+                identifier: invoice.identifier
               }
             }
           );
@@ -190,6 +191,7 @@ export const loadInvoiceClass = (models: IModels) => {
           { _id },
           {
             $set: {
+              identifier: invoice.identifier,
               apiResponse,
               paymentKind: newPayment.kind,
               selectedPaymentId: newPayment._id,
@@ -197,6 +199,8 @@ export const loadInvoiceClass = (models: IModels) => {
             }
           }
         );
+
+        return models.Invoices.getInvoice({ _id });
       } catch (e) {
         await models.Invoices.deleteOne({ _id: invoice._id });
         throw new Error(e.message);

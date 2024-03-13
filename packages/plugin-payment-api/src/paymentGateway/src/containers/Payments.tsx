@@ -13,46 +13,6 @@ const PAYMENTS_QRY = gql`
   }
 `;
 
-const INVOICE_ADD = gql`
-  mutation InvoiceCreate(
-    $amount: Float!
-    $selectedPaymentId: String
-    $phone: String
-    $email: String
-    $description: String
-    $customerId: String
-    $customerType: String
-    $contentType: String
-    $contentTypeId: String
-    $couponCode: String
-    $couponAmount: Int
-    $data: JSON
-  ) {
-    invoiceCreate(
-      amount: $amount
-      selectedPaymentId: $selectedPaymentId
-      phone: $phone
-      email: $email
-      description: $description
-      customerId: $customerId
-      customerType: $customerType
-      contentType: $contentType
-      contentTypeId: $contentTypeId
-      couponCode: $couponCode
-      couponAmount: $couponAmount
-      data: $data
-    ) {
-      _id
-      apiResponse
-      idOfProvider
-      errorDescription
-      paymentKind
-      status
-      amount
-    }
-  }
-`;
-
 const INVOICE = gql`
   query InvoiceDetail($id: String!) {
     invoiceDetail(_id: $id) {
@@ -94,9 +54,7 @@ const Payments = (props: Props) => {
     context,
   });
 
-  const [createInvoiceMutation, mutationStates] = useMutation(INVOICE_ADD);
-
-  if (loading || mutationStates.loading || invoiceDetailQuery.loading) {
+  if (loading || invoiceDetailQuery.loading) {
     return <Loader />;
   }
 
@@ -106,29 +64,14 @@ const Payments = (props: Props) => {
     return <div>{invoiceDetailQuery.error.message}</div>;
   }
 
-
-
-
-
-  const createInvoice = (paymentId: string) => {
-    createInvoiceMutation({
-      variables: { selectedPaymentId: paymentId },
-    })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  const invoiceDetail = invoiceDetailQuery.data ? invoiceDetailQuery.data.invoiceDetail : null;
+  const invoiceDetail = invoiceDetailQuery.data
+    ? invoiceDetailQuery.data.invoiceDetail
+    : null;
 
   const updatedProps = {
     ...props,
     invoiceDetail,
     payments: data.payments,
-    createInvoice,
   };
 
   return <Component {...updatedProps} />;

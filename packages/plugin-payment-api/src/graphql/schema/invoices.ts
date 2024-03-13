@@ -66,6 +66,8 @@ export const mutations = `
   invoiceCreate(${invoiceCreateMutationParams}): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
+
+  invoiceSelectPayment(_id: String!, paymentId: String!): Invoice
 `;
 
 export const queries = `

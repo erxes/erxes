@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import Modal from '../common/PaymentModal';
+import Modal from '../containers/PaymentModal';
 
 import '../common/styles.css';
 
 type Props = {
   invoiceDetail: any;
   payments: any;
-  createInvoice: (paymentId: string) => void;
+  // onClickPayment: (paymentId: string) => void;
 };
 
 const PaymentGateway = (props: Props) => {
   const [invoice, setInvoice] = useState(props.invoiceDetail);
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const openModal = (payment) => {
     setSelectedPayment(payment);
     setModalIsOpen(true);
 
-    props.createInvoice(payment._id);
+    // props.onClickPayment(payment._id);
   };
 
   const closeModal = () => {
@@ -28,10 +28,7 @@ const PaymentGateway = (props: Props) => {
 
   const { payments } = props;
 
-  React.useEffect(() => {
-    
-  }
-  , [props.invoiceDetail.apiResponse]);
+  React.useEffect(() => {}, [props.invoiceDetail.apiResponse]);
 
   return (
     <div id="root">
@@ -72,7 +69,8 @@ const PaymentGateway = (props: Props) => {
       <Modal
         isOpen={modalIsOpen}
         onClose={closeModal}
-        payment={selectedPayment}
+        invoiceId={invoice._id}
+        paymentId={selectedPayment && selectedPayment._id}
       />
     </div>
   );

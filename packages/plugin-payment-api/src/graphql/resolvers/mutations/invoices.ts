@@ -32,7 +32,7 @@ const mutations = {
 
     const { data } = params;
 
-    const paymentCookies = Object.keys(cookies).filter(key =>
+    const paymentCookies = Object.keys(cookies).filter((key) =>
       key.includes('paymentData')
     );
 
@@ -60,7 +60,7 @@ const mutations = {
     const invoice = await models.Invoices.create({
       ...params,
       data,
-      identifier: randomAlphanumeric(32)
+      identifier: randomAlphanumeric(32),
     });
 
     const base64 = Buffer.from(
@@ -77,7 +77,7 @@ const mutations = {
       maxAge,
       expires: new Date(Date.now() + maxAge),
       sameSite: 'none',
-      secure: requestInfo.secure
+      secure: requestInfo.secure,
     };
 
     if (!secure && cookieOptions.sameSite) {
@@ -101,7 +101,7 @@ const mutations = {
 
     const invoice = await models.Invoices.createInvoice({
       ...params,
-      domain
+      domain,
     });
     return invoice;
   },
@@ -116,7 +116,20 @@ const mutations = {
     { models }: IContext
   ) {
     return models.Invoices.removeInvoices(_ids);
-  }
+  },
+
+  async invoiceSelectPayment(
+    _root,
+    { _id, paymentId }: { _id: string; paymentId: string },
+    { models, subdomain }: IContext
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:4000';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+    return models.Invoices.updateInvoice(_id, { selectedPaymentId: paymentId, domain });
+  },
 };
 
 requireLogin(mutations, 'invoiceCreate');
