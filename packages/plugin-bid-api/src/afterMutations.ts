@@ -62,14 +62,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
         updatedData: params.updatedDocument,
       };
 
-      await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      try {
+        await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+      } catch (e) {
+        console.error('============== ERROR =============', e);
+      }
     }
-    return;
   }
 };

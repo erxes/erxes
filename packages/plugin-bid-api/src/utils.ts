@@ -242,7 +242,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       data: res.data || null,
     });
   } catch (e) {
-    console.error('error ', e);
+    console.error('********** ERROR *********** ', e);
     throw new Error(e);
   }
 };
@@ -369,7 +369,7 @@ export const addCustomer = async (req, res, subdomain) => {
 
     return res.status(200).json({ data: customer });
   } catch (e) {
-    console.error('error ', e);
+    console.error('############ ERROR ############ ', e);
     return res.status(200).json({ error: e.message });
   }
 };
