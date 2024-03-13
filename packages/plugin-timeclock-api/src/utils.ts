@@ -1090,6 +1090,35 @@ const createTeamMembersObject = async (subdomain: any, userIds: string[]) => {
   return teamMembersObject;
 };
 
+const createTeamMembersObjectWithFullName = async (
+  subdomain: any,
+  userIds: string[],
+) => {
+  const teamMembersObject = {};
+
+  const teamMembers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { _id: { $in: userIds }, isActive: true },
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  for (const teamMember of teamMembers) {
+    teamMembersObject[teamMember._id] = {
+      employeeId: teamMember.employeeId,
+      fullName: `${teamMember.details.lastName?.charAt(0)}.${
+        teamMember.details.firstName
+      }`,
+      position: teamMember.details.position,
+    };
+  }
+
+  return teamMembersObject;
+};
+
 const returnDepartmentsBranchesDict = async (
   subdomain: any,
   branchIds: string[],
@@ -1531,6 +1560,42 @@ const findUnfinishedShiftsAndUpdate = async (subdomain: any) => {
   return result;
 };
 
+const getNextNthColumnChar = (currentChar, n: number) => {
+  // Convert currentChar to uppercase for consistency
+  currentChar = currentChar.toUpperCase();
+
+  // Function to convert a number to a base-26 string representation
+  function toBase26String(num) {
+    let result = '';
+    while (num > 0) {
+      let remainder = (num - 1) % 26; // Adjusting the remainder to 0-25 range
+      result = String.fromCharCode(remainder + 'A'.charCodeAt(0)) + result;
+      num = Math.floor((num - 1) / 26); // Update num for the next iteration
+    }
+    return result;
+  }
+
+  // Function to convert a base-26 string to a number
+  function fromBase26String(str) {
+    let result = 0;
+    for (let i = 0; i < str.length; i++) {
+      result = result * 26 + (str.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
+    }
+    return result;
+  }
+
+  // Convert the currentChar to its numeric equivalent in the base-26 system
+  const currentColumnNumber = fromBase26String(currentChar);
+
+  // Calculate the next column number by adding n to the current column number
+  const nextColumnNumber = currentColumnNumber + n;
+
+  // Convert the nextColumnNumber back to its corresponding character representation
+  const nextColumnChar = toBase26String(nextColumnNumber);
+
+  return nextColumnChar;
+};
+
 export {
   connectAndQueryFromMsSql,
   connectAndQueryTimeLogsFromMsSql,
@@ -1544,4 +1609,6 @@ export {
   findTeamMember,
   returnDepartmentsBranchesDict,
   findUnfinishedShiftsAndUpdate,
+  getNextNthColumnChar,
+  createTeamMembersObjectWithFullName,
 };
