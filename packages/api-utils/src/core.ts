@@ -349,8 +349,9 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 
 export const getSubdomain = (req): string => {
   const hostname =
-    req.headers['nginx-hostname'] || req.headers.host || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
+  const subdomain = hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+  return subdomain;
 };
 
 export const connectionOptions: mongoose.ConnectionOptions = {
