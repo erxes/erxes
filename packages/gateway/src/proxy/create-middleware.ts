@@ -46,11 +46,21 @@ export async function applyProxies(app: Express, targets: ErxesProxyTarget[]) {
   router['/'] = core.address;
 
   app.use(
-    createProxyMiddleware({
-      router,
-      pathRewrite,
-      onProxyReq,
-      logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
-    }),
+    createProxyMiddleware(
+      function filter(pathname, req): boolean {
+        const isHttp = req.protocol === 'http' || req.protocol === 'https';
+        const isGraphql = pathname.startsWith('/graphql');
+        const isSubscription = !isHttp && isGraphql;
+        // Graphql subscriptions are handled by gateway itself. Do not proxy them.
+        return !isSubscription;
+      },
+      {
+        router,
+        pathRewrite,
+        ws: true,
+        onProxyReq,
+        logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
+      },
+    ),
   );
 }
