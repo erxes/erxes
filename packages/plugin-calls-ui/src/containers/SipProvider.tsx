@@ -27,9 +27,7 @@ const SipProviderContainer = (props) => {
     localStorage.getItem('isConnectCallRequested'),
   );
 
-  const { data, loading, error } = useQuery(
-    gql(queries.callIntegrationsOfUser),
-  );
+  const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const {
     data: activeSession,
     loading: activeSessionLoading,
@@ -147,8 +145,8 @@ const SipProviderContainer = (props) => {
     return Alert.error(activeSessionError.message);
   }
 
-  const { callIntegrationsOfUser } = data;
-  if (!callIntegrationsOfUser || callIntegrationsOfUser.length === 0) {
+  const { callUserIntegrations } = data;
+  if (!callUserIntegrations || callUserIntegrations.length === 0) {
     return null;
   }
 
@@ -161,7 +159,7 @@ const SipProviderContainer = (props) => {
   const content = (args) => (
     <CallIntegrationForm
       {...args}
-      data={callIntegrationsOfUser}
+      data={callUserIntegrations}
       setConfig={handleSetConfig}
     />
   );
@@ -198,13 +196,16 @@ const SipProviderContainer = (props) => {
     return (
       <WidgetContainer
         {...props}
-        callIntegrationsOfUser={callIntegrationsOfUser}
+        callUserIntegrations={callUserIntegrations}
         setConfig={handleSetConfig}
       />
     );
   }
 
-  const defaultIntegration = config || callIntegrationsOfUser?.[0];
+  const filteredIntegration = callUserIntegrations.find(
+    (integrationConfig) => integrationConfig.phone === config.phone,
+  );
+  const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
   const [host, port] = wsServer?.split(':');
@@ -224,7 +225,7 @@ const SipProviderContainer = (props) => {
         urls: 'stun:stun.l.google.com:19302',
       },
       {
-        url: 'turn:relay1.expressturn.com:3478',
+        urls: 'turn:relay1.expressturn.com:3478',
         username: 'ef9XU6ND3AYQBGG0VB',
         credential: '7niiKgbs4Kk92V0d',
       },
@@ -237,17 +238,18 @@ const SipProviderContainer = (props) => {
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
       updateHistory={updateHistory}
+      callUserIntegration={filteredIntegration}
     >
       {(state) =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (
           <IncomingCallContainer
             {...props}
-            callIntegrationsOfUser={callIntegrationsOfUser}
+            callUserIntegrations={callUserIntegrations}
           />
         ) : (
           <WidgetContainer
             {...props}
-            callIntegrationsOfUser={callIntegrationsOfUser}
+            callUserIntegrations={callUserIntegrations}
             setConfig={handleSetConfig}
           />
         )
