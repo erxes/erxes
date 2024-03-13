@@ -27,8 +27,7 @@ export default {
     return context;
   },
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
-  meta: { forms, tags, segments },
+  meta: { forms, tags, segments, permissions },
 };

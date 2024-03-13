@@ -10,8 +10,16 @@ export class VendorBaseAPI {
   private accessToken: string;
 
   constructor(config) {
-    this.username = process.env.QUICK_QR_USERNAME || '';
-    this.password = process.env.QUICK_QR_PASSWORD || '';
+    let username = process.env.QUICK_QR_USERNAME || '';
+    let password = process.env.QUICK_QR_PASSWORD || '';
+
+    if (config.mccCode !== '0000') {
+      username = process.env.FLAT_QUICK_QR_USERNAME || '';
+      password = process.env.FLAT_QUICK_QR_PASSWORD || '';
+    }
+
+    this.username = username;
+    this.password = password;
     this.apiUrl = meta.apiUrl + '/' + meta.apiVersion;
     this.accessToken = '';
   }

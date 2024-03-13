@@ -9,6 +9,7 @@ export interface IArticle {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   reactionChoices: string[];
   reactionCounts: any;
   createdBy: string;
@@ -66,6 +67,7 @@ export type ArticleVariables = {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   categoryIds: string[];
 };
 

@@ -12,7 +12,7 @@ type Props = {
 
 const DIRECTIONS = {
   INBOUND: 'inbound',
-  OUTBOUND: 'outbound'
+  OUTBOUND: 'outbound',
 };
 
 export default class Row extends React.PureComponent<Props> {
@@ -37,7 +37,7 @@ export default class Row extends React.PureComponent<Props> {
     return (
       <td>
         <Link to={`/campaigns/show/${campaignId}`} target="_blank">
-          Go to campaign
+          Go to broadcast
         </Link>
       </td>
     );

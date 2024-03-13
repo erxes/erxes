@@ -16,49 +16,41 @@ const forbid = (_req, res) => {
   res.status(403).send();
 };
 
-export async function applyProxiesCoreless(
-  app: Express,
-  targets: ErxesProxyTarget[]
-) {
-  app.use(
-    '^/graphql',
-    createProxyMiddleware({
-      pathRewrite: { '^/graphql': '/' },
-      target: `http://127.0.0.1:${apolloRouterPort}`,
-      onProxyReq
-    })
-  );
+export async function applyProxies(app: Express, targets: ErxesProxyTarget[]) {
+  app.use('/rpc', forbid);
+
+  const router = {
+    '/graphql': `http://127.0.0.1:${apolloRouterPort}`,
+  };
+  const pathRewrite = {
+    '/graphql': '',
+  };
 
   for (const target of targets) {
-    const path = `^/pl(-|:)${target.name}`;
+    const path1 = `/pl-${target.name}`;
+    const path2 = `/pl:${target.name}`;
 
-    app.use(`${path}/rpc`, forbid);
+    app.use(`${path1}/rpc`, forbid);
+    app.use(`${path2}/rpc`, forbid);
 
-    app.use(
-      path,
-      createProxyMiddleware({
-        pathRewrite: { [path]: '/' },
-        target: target.address,
-        onProxyReq
-      })
-    );
+    router[path1] = target.address;
+    router[path2] = target.address;
+    pathRewrite[path1] = '';
+    pathRewrite[path2] = '';
   }
-}
 
-// this has to be applied last, just like 404 route handlers are applied last
-export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
-  const core = targets.find(t => t.name === 'core');
-
+  const core = targets.find((t) => t.name === 'core');
   if (!core) {
     throw new Error('core service not found');
   }
-  app.use('/rpc', forbid);
+  router['/'] = core.address;
+
   app.use(
-    '/',
     createProxyMiddleware({
-      target:
-        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
-      onProxyReq
-    })
+      router,
+      pathRewrite,
+      onProxyReq,
+      logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
+    }),
   );
 }

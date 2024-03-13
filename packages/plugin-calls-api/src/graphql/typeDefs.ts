@@ -59,7 +59,7 @@ const types = `
   }
 `;
 
-export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
+export const subscriptions = `sessionTerminateRequested(subdomain: String!, userId: String): JSON`;
 
 const commonHistoryFields = `
   receiverNumber: String

@@ -54,7 +54,6 @@ export default {
     search,
   },
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 const commonContactInfoTypes = `
 
@@ -76,6 +76,20 @@ export const types = `
         ${commonContactInfoTypes}
     }
 
+    type Position @key(fields: "_id") @cacheControl(maxAge: 3){
+        _id: String!
+        title: String
+        code: String
+        order: String
+        parentId: String
+        parent: Position
+        status: String
+        children: [Position]
+        users: [User]
+        userIds: [String]
+        userCount: Int
+    }
+
     type Coordinate {
         longitude: String
         latitude: String
@@ -91,18 +105,24 @@ export const types = `
         totalCount: Int
         totalUsersCount:Int
     }
-
+    
     type DepartmentListQueryResponse {
         list:[Department]
         totalCount: Int
         totalUsersCount:Int
     }
-        type UnitListQueryResponse {
+    
+    type UnitListQueryResponse {
         list:[Unit]
         totalCount: Int
         totalUsersCount:Int
     }
-
+    
+    type PositionListQueryResponse {
+        list:[Position]
+        totalCount: Int
+        totalUsersCount:Int
+    }
 `;
 
 const commonParams = `
@@ -128,6 +148,10 @@ export const queries = `
     branches(${commonParams},withoutUserFilter:Boolean): [Branch]
     branchesMain(${commonParams},withoutUserFilter:Boolean): BranchListQueryResponse
     branchDetail(_id: String!): Branch
+    
+    positions(${commonParams},withoutUserFilter:Boolean): [Position]
+    positionsMain(${commonParams}): PositionListQueryResponse
+    positionDetail(_id: String): Position
 
     structureDetail: Structure
 `;
@@ -180,6 +204,14 @@ const commonBranchParams = `
     ${commonContactInfoParams}
 `;
 
+const commonPositionParams = `
+    title: String
+    code: String
+    parentId: String
+    userIds: [String]
+    status: String
+`;
+
 export const mutations = `
     structuresAdd(${commonStructureParams}): Structure
     structuresEdit(_id: String!, ${commonStructureParams}): Structure
@@ -196,4 +228,8 @@ export const mutations = `
     branchesAdd(${commonBranchParams}): Branch
     branchesEdit(_id: String!, ${commonBranchParams}): Branch
     branchesRemove(ids:[String!]): JSON
+
+    positionsAdd(${commonPositionParams}):Position
+    positionsEdit(_id: String!, ${commonPositionParams}):Position
+    positionsRemove(ids:[String!]): JSON
 `;

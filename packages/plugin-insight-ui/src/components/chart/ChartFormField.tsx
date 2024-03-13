@@ -10,6 +10,8 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
 import { IFieldLogic } from '../../types';
+import { stringify } from 'querystring';
+import { SelectWithAssets } from '../utils/SelectAssets';
 
 type Props = {
   fieldType: string;
@@ -42,7 +44,6 @@ const ChartFormField = (props: Props) => {
     fieldValues,
     fieldDefaultValue,
   } = props;
-
   useEffect(() => {
     if (fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
@@ -52,17 +53,24 @@ const ChartFormField = (props: Props) => {
 
   const [fieldValue, setFieldValue] = useState(initialValue);
 
-  const onSelect = (e) => {
-    if (multi && Array.isArray(e)) {
-      const arr = e.map((sel) => sel.value);
+  const onSelect = (selectedOption) => {
 
-      onChange(arr);
-      setFieldValue(arr);
-      return;
+    if (!selectedOption) {
+      setFieldValue('');
+      onChange('');
     }
 
-    setFieldValue(e.value);
-    onChange(e);
+    if (multi && Array.isArray(selectedOption)) {
+      const selectedValues = selectedOption.map((option) => option.value);
+      setFieldValue(selectedValues);
+
+      onChange(selectedValues);
+    } else {
+      const selectedValue = selectedOption.value;
+
+      setFieldValue(selectedValue);
+      onChange(selectedValue);
+    }
   };
 
   const onSaveDateRange = (dateRange: any) => {
@@ -141,6 +149,20 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
+    case 'assets':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectWithAssets
+            label="Choose Asset"
+            name="assets"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+            customOption={{ value: '', label: 'Choose Asset' }}
+          />
+        </div>
+      );
     case 'date':
       return (
         <>
@@ -171,6 +193,25 @@ const ChartFormField = (props: Props) => {
   }
 
   switch (fieldType) {
+    case 'groups':
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <Select
+            value={fieldValue}
+            multi={multi}
+            onChange={onSelect}
+            options={fieldOptions?.map((group) => ({
+              label: group.label,
+              options: group.value?.map((field) => ({
+                value: field._id,
+                label: field.text,
+              })),
+            }))}
+            placeholder={fieldLabel}
+          />
+        </div>
+      );
     case 'select':
       return (
         <div>
@@ -184,7 +225,6 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-
     default:
       return <></>;
   }

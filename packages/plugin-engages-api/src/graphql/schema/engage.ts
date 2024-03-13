@@ -93,6 +93,7 @@ export const types = async () => {
 
       stats: JSON
       smsStats: JSON
+      notificationStats: JSON
       logs: [EngageLog]
     }
 

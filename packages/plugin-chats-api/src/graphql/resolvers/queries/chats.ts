@@ -129,7 +129,7 @@ const chatQueries = {
           { $set: { seenInfos } },
         );
 
-        graphqlPubsub.publish('chatUnreadCountChanged', {
+        graphqlPubsub.publish(`chatUnreadCountChanged:${user._id}`, {
           userId: user._id,
         });
       }
@@ -182,7 +182,7 @@ const chatQueries = {
       }
 
       if (updated) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
+        graphqlPubsub.publish(`chatUnreadCountChanged:${user._id}`, {
           userId: user._id,
         });
 
@@ -295,7 +295,7 @@ const chatQueries = {
         user._id,
       );
 
-      graphqlPubsub.publish('chatInserted', {
+      graphqlPubsub.publish(`chatInserted:${user._id}`, {
         userId: user._id,
       });
     } else {

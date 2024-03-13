@@ -18,7 +18,6 @@ export default {
     context.models = await generateModels(subdomain);
     return context;
   },
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

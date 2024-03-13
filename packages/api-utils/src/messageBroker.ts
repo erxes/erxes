@@ -149,7 +149,6 @@ export interface RPError {
 export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
-
 const httpRpcEndpointSetup = {};
 export const consumeRPCQueue = async (
   queueName,
@@ -163,9 +162,9 @@ export const consumeRPCQueue = async (
     );
   }
 
-  if(!httpRpcEndpointSetup[queueName]) {
+  if (!httpRpcEndpointSetup[queueName]) {
     const endpoint = `/rpc/${procedureName}`;
-  
+
     app.post(endpoint, async (req, res: Response<RPResult>) => {
       try {
         const response = await procedure(req.body);
@@ -467,7 +466,9 @@ export const sendMessage = async (
 
 export type SetupMessageConsumers = () => any;
 
-export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessageConsumers) => {
+export const connectToMessageBroker = async (
+  setupMessageConsumers?: SetupMessageConsumers,
+) => {
   const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
     noDelay: true,
   });
@@ -486,14 +487,16 @@ export const connectToMessageBroker = async (setupMessageConsumers?: SetupMessag
   });
 
   channel = await con.createChannel();
-  if(setupMessageConsumers) {
+  if (setupMessageConsumers) {
     await setupMessageConsumers();
-    console.log("RabbitMQ: Finished setting up message consumers");
+    console.log('RabbitMQ: Finished setting up message consumers');
   }
   console.log(`RabbitMQ connected to ${RABBITMQ_HOST}`);
 };
 
-export const reconnectToMessageBroker = async (setupMessageConsumers?: SetupMessageConsumers) => {
+export const reconnectToMessageBroker = async (
+  setupMessageConsumers?: SetupMessageConsumers,
+) => {
   channel = undefined;
   let reconnectInterval = 5000;
   while (true) {
