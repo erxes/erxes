@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateAllDataLoaders } from './dataloaders';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -17,19 +17,13 @@ import search from './search';
 import documents from './documents';
 import dashboards from './dashboards';
 
-export let debug;
-export let mainDb;
-export let serviceDiscovery;
-
 export default {
   name: 'products',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   apolloServerContext: async (context, req) => {
@@ -57,12 +51,9 @@ export default {
     segments,
     documents,
     dashboards,
-    search
+    search,
   },
 
-  onServerInit: async options => {
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

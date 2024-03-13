@@ -436,6 +436,15 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   }
   `;
 
+const LeftActionBar = styled.div`
+  display: flex;
+  align-items: center;
+
+  > div {
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
+
 const CreatedDate = styled.div`
   float: left;
   font-size: 10px;
@@ -516,5 +525,6 @@ export {
   CommentWrapper,
   TicketComment,
   CommentContent,
-  CreatedUser
+  CreatedUser,
+  LeftActionBar
 };

@@ -1,24 +1,17 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 
-export let mainDb;
-export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
 export default {
   name: 'grants',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,16 +25,9 @@ export default {
   },
 
   meta: {
-    afterMutations
+    afterMutations,
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

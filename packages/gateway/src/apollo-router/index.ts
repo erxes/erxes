@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { spawn, spawnSync, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
@@ -10,7 +10,7 @@ import {
   dirTempPath,
   routerConfigPath,
   routerPath,
-  supergraphPath
+  supergraphPath,
 } from './paths';
 import supergraphCompose from './supergraph-compose';
 
@@ -21,7 +21,9 @@ const {
   ALLOWED_ORIGINS,
   NODE_ENV,
   APOLLO_ROUTER_PORT,
-  INTROSPECTION
+  INTROSPECTION,
+  OTEL_EXPORTER_OTLP_ENDPOINT,
+  OTEL_EXPORTER_OTLP_PROTOCOL,
 } = process.env;
 
 let routerProcess: ChildProcess | undefined = undefined;
@@ -47,11 +49,17 @@ const downloadRouter = async () => {
   if (fs.existsSync(routerPath)) {
     return routerPath;
   }
-  const args = [
-    '-c',
-    `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.26.0 | sh`
-  ];
-  spawnSync('sh', args, { stdio: 'inherit' });
+
+  const version = 'v1.35.0';
+  const downloadCommand = `(export VERSION=${version}; curl -sSL https://router.apollo.dev/download/nix/${version} | sh)`;
+  try {
+    execSync(`cd ${dirTempPath} && ${downloadCommand}`);
+  } catch (e) {
+    console.error(
+      `Could not download apollo router. Run \`${downloadCommand}\` inside ${dirTempPath} manually`,
+    );
+    throw e;
+  }
 };
 
 const createRouterConfig = async () => {
@@ -65,23 +73,31 @@ const createRouterConfig = async () => {
     (INTROSPECTION || '').trim().toLowerCase() === 'true'
   ) {
     console.warn(
-      '----------------------------------------------------------------------------------------------'
+      '----------------------------------------------------------------------------------------------',
     );
     console.warn(
-      "Graphql introspection is enabled in production environment. Disable it, if it isn't required for front-end development. Hint: Check gateway config in configs.json"
+      "Graphql introspection is enabled in production environment. Disable it, if it isn't required for front-end development. Hint: Check gateway config in configs.json",
     );
     console.warn(
-      '----------------------------------------------------------------------------------------------'
+      '----------------------------------------------------------------------------------------------',
     );
   }
 
-  const config = {
+  const config: any = {
+    traffic_shaping: {
+      all: {
+        timeout: '300s',
+      },
+      router: {
+        timeout: '300s',
+      },
+    },
     include_subgraph_errors: {
-      all: true
+      all: true,
     },
     rhai: {
       scripts: path.resolve(__dirname, 'rhai'),
-      main: 'main.rhai'
+      main: 'main.rhai',
     },
     cors: {
       allow_credentials: true,
@@ -89,28 +105,52 @@ const createRouterConfig = async () => {
         DOMAIN ? DOMAIN : 'http://localhost:3000',
         WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        'https://studio.apollographql.com'
-      ].filter(x => typeof x === 'string'),
-      match_origins: (ALLOWED_ORIGINS || '').split(',').filter(Boolean)
+        'https://studio.apollographql.com',
+      ].filter((x) => typeof x === 'string'),
+      match_origins: (ALLOWED_ORIGINS || '').split(',').filter(Boolean),
     },
     headers: {
       all: {
         request: [
           {
             propagate: {
-              matching: '.*'
-            }
-          }
-        ]
-      }
+              matching: '.*',
+            },
+          },
+        ],
+      },
     },
     supergraph: {
       listen: `127.0.0.1:${apolloRouterPort}`,
       introspection:
         NODE_ENV === 'development' ||
-        (INTROSPECTION || '').trim().toLowerCase() === 'true'
-    }
+        (INTROSPECTION || '').trim().toLowerCase() === 'true',
+    },
   };
+
+  if (OTEL_EXPORTER_OTLP_ENDPOINT) {
+    config.telemetry = {
+      instrumentation: {
+        spans: {
+          default_attribute_requirement_level: 'required',
+          mode: 'spec_compliant',
+        },
+      },
+      exporters: {
+        tracing: {
+          common: {
+            service_name: 'router',
+            service_namespace: 'apollo',
+          },
+          otlp: {
+            enabled: true,
+            endpoint: OTEL_EXPORTER_OTLP_ENDPOINT,
+            protocol: OTEL_EXPORTER_OTLP_PROTOCOL,
+          },
+        },
+      },
+    };
+  }
 
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
@@ -131,8 +171,8 @@ export const startRouter = async (proxyTargets: ErxesProxyTarget[]) => {
       `--supergraph`,
       supergraphPath,
       `--config`,
-      routerConfigPath
+      routerConfigPath,
     ],
-    { stdio: 'pipe' }
+    { stdio: 'inherit' },
   );
 };

@@ -1,16 +1,15 @@
-import Box from '@erxes/ui/src/components/Box';
-import Icon from '@erxes/ui/src/components/Icon';
-import Alert from '@erxes/ui/src/utils/Alert';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-
 import { __ } from 'coreui/utils';
 import React from 'react';
 
 import SchedulesList from '../../containers/Schedules';
 import { ScrollTableColls } from '../../styles';
 import withConsumer from '../../../withConsumer';
-import { can } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
+import Box from '@erxes/ui/src/components/Box';
+import Icon from '@erxes/ui/src/components/Icon';
+import Alert from '@erxes/ui/src/utils/Alert';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import { can } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contractId: string;
@@ -29,25 +28,29 @@ function ScheduleSection({
   regenSchedules,
   fixSchedules,
   hasTransaction,
-  currentUser
+  currentUser,
 }: Props) {
   const onRegenSchedules = () =>
     confirm(__('Are you sure Regenerate Schedule?'))
       .then(() => regenSchedules(contractId))
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
 
   const onFixSchedules = () =>
     confirm(__('Are you sure Fix Schedule?'))
       .then(() => fixSchedules && fixSchedules(contractId))
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
 
   const renderExtraButton = () => {
-    if (isFirst || leaseType !== 'finance') {
-      return <></>;
+    if (isFirst) {
+      return (
+        <button onClick={onRegenSchedules} title="create schedule">
+          <Icon icon="refresh-1" />
+        </button>
+      );
     }
 
     if (hasTransaction)
@@ -63,7 +66,6 @@ function ScheduleSection({
       </button>
     );
   };
-
   return (
     <Box
       title={__(`${(isFirst && 'First ') || ''}Schedules`)}

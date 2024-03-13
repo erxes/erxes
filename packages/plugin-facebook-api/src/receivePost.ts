@@ -7,13 +7,13 @@ const receivePost = async (
   models: IModels,
   subdomain: string,
   params: IPostParams,
-  pageId: string
+  pageId: string,
 ) => {
   const integration = await models.Integrations.findOne({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST }
-    ]
+      { kind: INTEGRATION_KINDS.POST },
+    ],
   });
 
   if (!integration) {
@@ -22,22 +22,15 @@ const receivePost = async (
 
   const userId = params.from.id;
 
-  const customer = await getOrCreateCustomer(
+  await getOrCreateCustomer(
     models,
     subdomain,
     pageId,
     userId,
-    INTEGRATION_KINDS.POST
+    INTEGRATION_KINDS.POST,
   );
 
-  await getOrCreatePost(
-    models,
-    subdomain,
-    params,
-    pageId,
-    userId,
-    customer.erxesApiId || ''
-  );
+  await getOrCreatePost(models, subdomain, params, pageId, userId);
 };
 
 export default receivePost;

@@ -24,8 +24,7 @@ const XypConfigs = (props: Props) => {
     token: '',
     servicelist: []
   };
-  console.log(' props.configsMap.XYP_CONFIGS');
-  console.log(props.configsMap?.XYP_CONFIGS);
+
   React.useEffect(() => {
     props.onChangeConfig('XYP_CONFIGS', props.configsMap.XYP_CONFIGS);
   }, [props.configsMap]);

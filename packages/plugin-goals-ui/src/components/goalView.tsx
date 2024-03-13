@@ -37,7 +37,8 @@ class GoalView extends React.Component<IProps> {
     return (
       <div>
         <ControlLabel>
-          {__(' Monthly: ' + data.entity + ', ' + email)}
+          <span style={{ fontWeight: 'bold', color: 'black' }}>Monthly:</span>{' '}
+          {__(' ' + data.entity + ', ' + email)}
         </ControlLabel>
 
         <FlexContent>
@@ -45,22 +46,38 @@ class GoalView extends React.Component<IProps> {
             <BoardHeader>
               <FormGroup>
                 <ControlLabel>
-                  {__('Contributor: ') + data.contribution}
+                  <span style={{ fontWeight: 'bold', color: 'black' }}>
+                    Contributor:
+                  </span>{' '}
+                  {__(' ' + data.contribution)}
                 </ControlLabel>
+
                 <ControlLabel>
-                  {__('Goal Type: ') + data.goalTypeChoose}
+                  <span style={{ fontWeight: 'bold', color: 'black' }}>
+                    Goal Type:
+                  </span>{' '}
+                  {__(' ' + data.goalTypeChoose)}
                 </ControlLabel>
+
                 <FormGroup>
                   <ControlLabel>
-                    {__('Board:  ')}
+                    <span style={{ fontWeight: 'bold', color: 'black' }}>
+                      Board:
+                    </span>{' '}
                     {boardName}
                   </ControlLabel>
+
                   <ControlLabel>
-                    {__('Pipeline:  ')}
+                    <span style={{ fontWeight: 'bold', color: 'black' }}>
+                      Pipeline:
+                    </span>{' '}
                     {pipelineName}
                   </ControlLabel>
+
                   <ControlLabel>
-                    {__('Stage:  ')}
+                    <span style={{ fontWeight: 'bold', color: 'black' }}>
+                      Stage:
+                    </span>{' '}
                     {stageName}
                   </ControlLabel>
                 </FormGroup>
@@ -70,18 +87,42 @@ class GoalView extends React.Component<IProps> {
           <FlexItem>
             <FormGroup>
               <ControlLabel>
-                {__('Duration: ')} {dayjs(data.startDate).format('YYYY-MM-DD ')}
-                - {dayjs(data.endDate).format('YYYY-MM-DD ')}
+                <span style={{ fontWeight: 'bold', color: 'black' }}>
+                  Duration:
+                </span>{' '}
+                {dayjs(data.startDate).format('YYYY-MM-DD ')}-{' '}
+                {dayjs(data.endDate).format('YYYY-MM-DD ')}
               </ControlLabel>
-              <ControlLabel>{__('Current: ') + current}</ControlLabel>
-              <ControlLabel>{__('Target: ') + data.target}</ControlLabel>
+
               <ControlLabel>
-                {__('Progress: ') + nestedProgressValue + '%'}
+                <span style={{ fontWeight: 'bold', color: 'black' }}>
+                  {__('Current:')}
+                </span>{' '}
+                {current}
+              </ControlLabel>
+              <ControlLabel>
+                <span style={{ fontWeight: 'bold', color: 'black' }}>
+                  {__('Target:')}
+                </span>{' '}
+                {data.target}
+              </ControlLabel>
+              <ControlLabel>
+                <span style={{ fontWeight: 'bold', color: 'black' }}>
+                  {__('Progress:')}
+                </span>{' '}
+                {nestedProgressValue}%
               </ControlLabel>
             </FormGroup>
           </FlexItem>
         </FlexContent>
-        <ControlLabel>{__('Month ' + data.entity)}</ControlLabel>
+
+        <ControlLabel>
+          <span style={{ fontWeight: 'bold', color: 'black' }}>
+            {__('Month')}
+          </span>{' '}
+          {data.entity}
+        </ControlLabel>
+
         <FlexContent>
           <FlexItem>
             <BoardHeader>
@@ -105,7 +146,10 @@ class GoalView extends React.Component<IProps> {
             <BoardHeader>
               <FormGroup>
                 <ControlLabel>
-                  {__('Segment: ') + data.segmentCount}
+                  <span style={{ fontWeight: 'bold', color: 'black' }}>
+                    {__('Segment:')}
+                  </span>{' '}
+                  {data.segmentCount}
                 </ControlLabel>
               </FormGroup>
             </BoardHeader>
@@ -118,10 +162,26 @@ class GoalView extends React.Component<IProps> {
               <Table>
                 <thead>
                   <tr>
-                    <th>{__('Target')}</th>
-                    <th>{__('Current')}</th>
-                    <th> {__('progress(%)')}</th>
-                    <th>{__('Month')}</th>
+                    <th>
+                      <span style={{ fontWeight: 'bold', color: 'black' }}>
+                        {__('Target')}
+                      </span>
+                    </th>
+                    <th>
+                      <span style={{ fontWeight: 'bold', color: 'black' }}>
+                        {__('Current')}
+                      </span>
+                    </th>
+                    <th>
+                      <span style={{ fontWeight: 'bold', color: 'black' }}>
+                        {__('progress(%)')}
+                      </span>
+                    </th>
+                    <th>
+                      <span style={{ fontWeight: 'bold', color: 'black' }}>
+                        {__('Month')}
+                      </span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

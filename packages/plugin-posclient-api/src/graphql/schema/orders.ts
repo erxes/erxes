@@ -13,6 +13,7 @@ export const PaidAmountDefs = `
 const paymentInputDefs = `
   cashAmount: Float
   mobileAmount: Float
+  directDiscount: Float
   billType: String
   registerNumber: String
 `;
@@ -53,6 +54,7 @@ export const orderTypeFields = `
 const addEditParams = `
   items: [OrderItemInput],
   totalAmount: Float,
+  directDiscount: Float,
   type: String,
   branchId: String,
   customerId: String,

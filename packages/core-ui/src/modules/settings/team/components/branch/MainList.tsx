@@ -1,5 +1,10 @@
 import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import {
+  FilterContainer,
+  InputBar,
+  LeftActionBar,
+  Title,
+} from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -9,10 +14,12 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Form from '../../containers/common/BlockForm';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import SettingsSideBar from '../../containers/common/SettingSideBar';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import Table from 'modules/common/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -40,7 +47,7 @@ class MainList extends React.Component<Props, State> {
 
     this.state = {
       selectedItems: [],
-      searchValue: props.queryParams.searchValue || ''
+      searchValue: props.queryParams.searchValue || '',
     };
   }
 
@@ -50,19 +57,19 @@ class MainList extends React.Component<Props, State> {
       variables: {
         withoutUserFilter: true,
         searchValue: undefined,
-        ...generatePaginationParams(this.props.queryParams || {})
-      }
-    }
+        ...generatePaginationParams(this.props.queryParams || {}),
+      },
+    },
   ];
 
   remove = (_id?: string) => {
     if (_id) {
       this.props.deleteBranches([_id], () =>
-        this.setState({ selectedItems: [] })
+        this.setState({ selectedItems: [] }),
       );
     } else {
       this.props.deleteBranches(this.state.selectedItems, () =>
-        this.setState({ selectedItems: [] })
+        this.setState({ selectedItems: [] }),
       );
     }
   };
@@ -88,7 +95,7 @@ class MainList extends React.Component<Props, State> {
   }
 
   renderSearch() {
-    const search = e => {
+    const search = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -104,7 +111,7 @@ class MainList extends React.Component<Props, State> {
       }, 500);
     };
 
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
       e.target.value = '';
@@ -134,14 +141,14 @@ class MainList extends React.Component<Props, State> {
     const handleSelect = () => {
       if (selectedItems.includes(branch._id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== branch._id
+          (selectItem) => selectItem !== branch._id,
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
       this.setState({ selectedItems: [...selectedItems, branch._id] });
     };
 
-    const onclick = e => {
+    const onclick = (e) => {
       e.stopPropagation();
     };
 
@@ -203,7 +210,7 @@ class MainList extends React.Component<Props, State> {
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = branches.map(branch => branch._id);
+        const branchIds = branches.map((branch) => branch._id);
         return this.setState({ selectedItems: branchIds });
       }
 
@@ -224,17 +231,16 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Code')}</th>
             <th>{__('Title')}</th>
             <th>{__('Parent')}</th>
-            <th>{__('Address')}</th>
             <th>{__('Team member count')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
           {generateTree(branches, null, (branch, level) =>
-            this.renderRow(branch, level)
+            this.renderRow(branch, level),
           )}
           {generateTree(branches, '', (branch, level) =>
-            this.renderRow(branch, level)
+            this.renderRow(branch, level),
           )}
         </tbody>
       </Table>
@@ -273,12 +279,23 @@ class MainList extends React.Component<Props, State> {
             title="Branches"
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: __('Branches') }
+              { title: __('Branches') },
             ]}
           />
         }
         actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+          <Wrapper.ActionBar
+            left={
+              <LeftActionBar>
+                <Title capitalize={true}>
+                  {__('Branches')}&nbsp;
+                  {`(${totalCount || 0})`}
+                </Title>
+                {leftActionBar}
+              </LeftActionBar>
+            }
+            right={rightActionBar}
+          />
         }
         content={
           <DataWithLoader
@@ -289,7 +306,11 @@ class MainList extends React.Component<Props, State> {
             emptyText="No Branches"
           />
         }
-        leftSidebar={<SettingsSideBar />}
+        leftSidebar={
+          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+            <SettingsSideBar />
+          </LeftSidebar>
+        }
         footer={<Pagination count={totalCount || 0} />}
         hasBorder={true}
       />

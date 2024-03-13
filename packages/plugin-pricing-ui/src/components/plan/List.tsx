@@ -28,6 +28,8 @@ export default function List(props: Props) {
         <tr>
           <th>{__('Name')}</th>
           <th>{__('Status')}</th>
+          <th>{__('isPriority')}</th>
+          <th>{__('Apply type')}</th>
           <th>{__('Created by')}</th>
           <th>{__('Created at')}</th>
           <th>{__('Last updated at')}</th>

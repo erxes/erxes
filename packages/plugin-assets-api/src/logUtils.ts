@@ -5,33 +5,32 @@ import {
   LogDesc,
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
-  putUpdateLog as commonPutUpdateLog
+  putUpdateLog as commonPutUpdateLog,
 } from '@erxes/api-utils/src/logUtils';
 import { IAssetDocument } from './common/types/asset';
 import { IModels } from './connectionResolver';
-import messageBroker from './messageBroker';
 import {
   assetCategoriesSchema,
-  assetSchema
+  assetSchema,
 } from './models/definitions/assets';
 
 export const MODULE_NAMES = {
   ASSET: 'asset',
   ASSET_CATEGORIES: 'assetCategories',
-  MOVEMENT: 'movement'
+  MOVEMENT: 'movement',
 };
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 const gatherAssetFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IAssetDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -45,8 +44,8 @@ const gatherAssetFieldNames = async (
       prevList: options,
       nameFields: ['name'],
       items: await models.AssetCategories.find({
-        _id: { $in: [doc.categoryId] }
-      }).lean()
+        _id: { $in: [doc.categoryId] },
+      }).lean(),
     });
   }
 
@@ -56,7 +55,7 @@ const gatherAssetFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -72,7 +71,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -93,8 +92,8 @@ const gatherDescriptions = async (
           foreignKey: 'parentId',
           nameFields: ['name'],
           items: await models.AssetCategories.find({
-            _id: { $in: parentIds }
-          }).lean()
+            _id: { $in: parentIds },
+          }).lean(),
         });
       }
 
@@ -110,22 +109,21 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE
-    }
+      action: LOG_ACTIONS.CREATE,
+    },
   );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `assets:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -133,22 +131,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE
-    }
+      action: LOG_ACTIONS.UPDATE,
+    },
   );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `assets:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -156,22 +153,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE
-    }
+      action: LOG_ACTIONS.DELETE,
+    },
   );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `assets:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -180,7 +176,7 @@ export default {
     status: 'success',
     data: getSchemaLabels(type, [
       { name: 'asset', schemas: [assetSchema] },
-      { name: 'assetCategories', schemas: [assetCategoriesSchema] }
-    ])
-  })
+      { name: 'assetCategories', schemas: [assetCategoriesSchema] },
+    ]),
+  }),
 };

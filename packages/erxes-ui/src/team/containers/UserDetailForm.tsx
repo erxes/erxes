@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   UserConverationsQueryResponse,
-  UserDetailQueryResponse
+  UserDetailQueryResponse,
 } from '../types';
 import { useLazyQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -25,7 +25,7 @@ type Props = {
   queryParams: any;
   renderEditForm?: ({
     closeModal,
-    user
+    user,
   }: {
     closeModal: () => void;
     user: IUser;
@@ -51,13 +51,13 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     skillsQuery = {} as any, // check - SkillsQueryResponse
     skillTypesQuery = {} as any, //check - SkillTypesQueryResponse
     userExcludeSkill,
-    renderEditForm
+    renderEditForm,
   } = props;
   const [
     getSkills,
-    { loading, data = {} as any } //check - SkillsQueryResponse
+    { loading, data = {} as any }, //check - SkillsQueryResponse
   ] = useLazyQuery(gql(queries.userSkills), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   } as any);
 
   const handleSkillTypeSelect = (typeId: string, userId: string) =>
@@ -71,7 +71,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
 
           skillsQuery.refetch();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -89,7 +89,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     const afterMutate = () => {
       userDetailQuery.refetch();
@@ -114,7 +114,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     );
   };
 
-  const editForm = localProps => {
+  const editForm = (localProps) => {
     return (
       <UserForm
         {...localProps}
@@ -125,10 +125,10 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     );
   };
 
-  const renderSkillForm = formProps => {
+  const renderSkillForm = (formProps) => {
     const refetchSkills = (id: string) => {
       return [
-        { query: gql(queries.userSkills), variables: { memberIds: [id] } }
+        { query: gql(queries.userSkills), variables: { memberIds: [id] } },
       ];
     };
 
@@ -154,14 +154,14 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     channels: channelsQuery.channels || [],
     skills: skillsQuery.skills || [],
     excludeUserSkill,
-    renderButton
+    renderButton,
   };
 
   return <UserDetailForm {...updatedProps} />;
 };
 
 const commonOptions = ({ _id }: { _id: string }) => ({
-  variables: { _id }
+  variables: { memberIds: _id },
 });
 
 export default withProps<Props>(
@@ -171,9 +171,9 @@ export default withProps<Props>(
       {
         name: 'userDetailQuery',
         options: ({ _id }) => ({
-          variables: { _id }
-        })
-      }
+          variables: { _id },
+        }),
+      },
     ),
     graphql<
       Props,
@@ -184,32 +184,32 @@ export default withProps<Props>(
       options: ({ _id, queryParams }) => ({
         variables: {
           _id,
-          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-        }
+          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+        },
       }),
-      skip: !isEnabled('inbox')
+      skip: !isEnabled('inbox'),
     }),
     graphql(gql(queries.channels), {
       name: 'channelsQuery',
       options: commonOptions,
-      skip: !isEnabled('inbox')
+      skip: !isEnabled('inbox'),
     }),
     graphql<Props, any>(gql(queries.userSkills), {
       //check - SkillsQueryResponse
       name: 'skillsQuery',
       options: ({ _id }: { _id: string }) => ({
-        variables: { memberIds: [_id] }
+        variables: { memberIds: [_id] },
       }),
-      skip: !isEnabled('inbox')
+      skip: !isEnabled('inbox'),
     }),
     graphql<Props, any>(gql(queries.skillTypes), {
       //check - SkillTypesQueryResponse
       name: 'skillTypesQuery',
-      skip: !isEnabled('inbox')
+      skip: !isEnabled('inbox'),
     }),
     graphql<Props, any>(gql(mutations.userExcludeSkill), {
       //check - SkillsExcludeUserMutationResponse
-      name: 'userExcludeSkill'
-    })
-  )(UserDetailFormContainer)
+      name: 'userExcludeSkill',
+    }),
+  )(UserDetailFormContainer),
 );

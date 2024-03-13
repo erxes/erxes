@@ -15,10 +15,11 @@ import {
   queries as posCoverQueries,
   mutations as posCoverMutations
 } from './schema/covers';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const productsEnabled = await serviceDiscovery.isEnabled('products');
+const typeDefs = async () => {
+  const contactsEnabled = await isEnabled('contacts');
+  const productsEnabled = await isEnabled('products');
 
   return gql`
     scalar JSON

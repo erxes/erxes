@@ -136,20 +136,24 @@ function ScheduleForm(props: Props) {
 
   const [scheduleConfigsOrderData, setScheduleConfigsOrderData] = useState({
     userId: currentUser._id,
-    orderedList: scheduleConfigOrder
-      ? scheduleConfigOrder.orderedList
-      : scheduleConfigs.map((s, index) => ({
-          scheduleConfigId: s._id,
-          order: index,
-          pinned: false,
-          label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`
-        }))
+    orderedList:
+      scheduleConfigOrder &&
+      scheduleConfigOrder.orderedList.length === scheduleConfigs.length
+        ? scheduleConfigOrder.orderedList
+        : scheduleConfigs.map((s, index) => {
+            return {
+              scheduleConfigId: s._id,
+              order: index,
+              pinned: false,
+              label: `${s.shiftStart} ~ ${s.shiftEnd}\xa0\xa0\xa0(${s.scheduleName})`
+            };
+          })
   });
 
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
-    scheduleConfigsOrderData.orderedList[0].scheduleConfigId
+    scheduleConfigsOrderData.orderedList[0]?.scheduleConfigId
   );
 
   const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
@@ -157,10 +161,10 @@ function ScheduleForm(props: Props) {
   const [scheduleId, setScheduleId] = useState(scheduleOfMember?._id);
 
   const [defaultStartTime, setDefaultStartTime] = useState(
-    scheduleConfigsObject[selectedScheduleConfigId].shiftStart
+    scheduleConfigsObject[selectedScheduleConfigId]?.shiftStart
   );
   const [defaultEndTime, setDefaultEndTime] = useState(
-    scheduleConfigsObject[selectedScheduleConfigId].shiftEnd
+    scheduleConfigsObject[selectedScheduleConfigId]?.shiftEnd
   );
 
   const [dateRangeStart, setDateStart] = useState(new Date());
@@ -781,7 +785,7 @@ function ScheduleForm(props: Props) {
       {scheduleConfigsOrderData.orderedList
         .sort((a, b) => a.order - b.order)
         .map((s: any) => (
-          <SortItem key={s.order}>
+          <SortItem key={s.scheduleConfigId}>
             <div>{s.label}</div>
             {s.pinned ? (
               <icons.PinFill

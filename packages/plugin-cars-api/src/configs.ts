@@ -1,27 +1,20 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import forms from './forms';
 import segments from './segments';
 import tags from './tags';
 
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
-
 export default {
   name: 'cars',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
@@ -34,13 +27,7 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
-  meta: { forms, tags, segments }
+  onServerInit: async () => {},
+  setupMessageConsumers,
+  meta: { forms, tags, segments },
 };

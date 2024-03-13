@@ -81,7 +81,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     };
   }
 
-  if (!!params.closeDateType) {
+  if (params.closeDateType) {
     let currentDate = new Date();
     switch (params.closeDateType) {
       case 'today':

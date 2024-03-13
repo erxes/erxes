@@ -14,9 +14,9 @@ export const wechatCallbackHandler = async (models: IModels, data: any) => {
 
   const invoice = await models.Invoices.getInvoice(
     {
-      identifier
+      identifier,
     },
-    true
+    true,
   );
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
@@ -38,9 +38,9 @@ export const wechatCallbackHandler = async (models: IModels, data: any) => {
       {
         $set: {
           status,
-          resolvedAt: new Date()
-        }
-      }
+          resolvedAt: new Date(),
+        },
+      },
     );
 
     invoice.status = status;
@@ -79,7 +79,7 @@ export class WechatPayAPI extends BaseAPI {
     if (token) {
       return {
         Authorization: 'Bearer ' + token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     }
 
@@ -91,21 +91,21 @@ export class WechatPayAPI extends BaseAPI {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
-            ).toString('base64')
-        }
-      });
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
+            ).toString('base64'),
+        },
+      }).then((r) => r.json());
 
       await redis.set(
         `wechatpay_token_${this.qpayMerchantUser}`,
         access_token,
         'EX',
-        3600
+        3600,
       );
 
       return {
         Authorization: 'Bearer ' + access_token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
     } catch (e) {
       throw new Error(e.message);
@@ -123,19 +123,19 @@ export class WechatPayAPI extends BaseAPI {
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?identifier=${invoice.identifier}`
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?identifier=${invoice.identifier}`,
       };
 
       const res = await this.request({
         method: 'POST',
         path: PAYMENTS.wechatpay.actions.invoice,
         headers: await this.getHeaders(),
-        data
-      });
+        data,
+      }).then((r) => r.json());
 
       return {
         ...res,
-        qrData: `data:image/jpg;base64,${res.qr_image}`
+        qrData: `data:image/jpg;base64,${res.qr_image}`,
       };
     } catch (e) {
       return { error: e.message };
@@ -147,8 +147,8 @@ export class WechatPayAPI extends BaseAPI {
       const res = await this.request({
         method: 'GET',
         path: `${PAYMENTS.wechatpay.actions.getPayment}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders()
-      });
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
 
       if (res.invoice_status === 'CLOSED') {
         return PAYMENT_STATUS.PAID;
@@ -165,7 +165,7 @@ export class WechatPayAPI extends BaseAPI {
       await this.request({
         method: 'DELETE',
         path: `${PAYMENTS.wechatpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
-        headers: await this.getHeaders()
+        headers: await this.getHeaders(),
       });
     } catch (e) {
       return { error: e.message };

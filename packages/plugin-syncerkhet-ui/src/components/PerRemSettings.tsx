@@ -3,7 +3,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
@@ -41,6 +42,10 @@ class PerSettings extends React.Component<Props, State> {
 
   onChangePipeline = (pipelineId: string) => {
     this.setState({ config: { ...this.state.config, pipelineId } });
+  };
+
+  onChangeStage = (stageId: string) => {
+    this.setState({ config: { ...this.state.config, stageId } });
   };
 
   onSave = e => {
@@ -91,6 +96,8 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
         open={
           this.props.currentConfigKey === 'newremainderConfig' ? true : false
         }
@@ -98,7 +105,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
-            defaultValue={config['title']}
+            defaultValue={config.title}
             onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
@@ -112,8 +119,10 @@ class PerSettings extends React.Component<Props, State> {
                 autoSelectStage={false}
                 boardId={config.boardId}
                 pipelineId={config.pipelineId}
+                stageId={config.stageId}
                 onChangeBoard={this.onChangeBoard}
                 onChangePipeline={this.onChangePipeline}
+                onChangeStage={this.onChangeStage}
               />
             </FormGroup>
           </FormColumn>
@@ -124,7 +133,7 @@ class PerSettings extends React.Component<Props, State> {
         </FormWrapper>
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -133,7 +142,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}

@@ -168,5 +168,9 @@
   "depositAccount": "Депозит данс руу",
   "Stored interest": "Хуримтлагдсан хүү",
   "Saving officer": "Итгэлцэлийн мэргэжилтэн",
-  "Income": "Орлого"
+  "Income": "Орлого",
+  "Loan Contracts": "Зээлийн гэрээ",
+  "Saving Primary Customers": "Үндсэн эзэмшигч",
+  "Saving Primary Companies": "Үндсэн эзэмшигч",
+  "Saving Collectively Customers": "Хамтран эзэмшигч"
 }

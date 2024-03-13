@@ -8,6 +8,7 @@ const logs = `
     $perPage: Int,
     $type: String,
     $objectId: String,
+    $searchValue: String,
   ) {
     logs(
       start: $start,
@@ -18,6 +19,7 @@ const logs = `
       perPage: $perPage,
       type: $type,
       objectId: $objectId
+      searchValue: $searchValue
     ) {
       totalCount
       logs {

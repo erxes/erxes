@@ -34,6 +34,7 @@ type Props = {
   invoice?: IInvoice;
   type: string;
   closeModal: () => void;
+  contractId?: string;
 };
 
 type State = {
@@ -57,11 +58,14 @@ class TransactionForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { transaction = {}, invoice } = props;
+    const { transaction = {}, invoice, contractId } = props;
 
     this.state = {
       contractId:
-        transaction.contractId || (invoice && invoice.contractId) || '',
+        contractId ||
+        transaction.contractId ||
+        (invoice && invoice.contractId) ||
+        '',
       payDate:
         transaction.payDate || (invoice && invoice.payDate) || new Date(),
       invoiceId: transaction.invoiceId || (invoice && invoice._id) || '',

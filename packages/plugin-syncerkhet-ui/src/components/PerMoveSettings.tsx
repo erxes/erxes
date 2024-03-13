@@ -9,7 +9,8 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from '@erxes/ui/src/components';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -87,14 +88,6 @@ class PerSettings extends React.Component<Props, State> {
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value);
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
@@ -121,22 +114,6 @@ class PerSettings extends React.Component<Props, State> {
           defaultValue={config[key]}
           onChange={this.onChangeInput.bind(this, key)}
           required={true}
-        />
-      </FormGroup>
-    );
-  };
-
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
         />
       </FormGroup>
     );
@@ -306,12 +283,14 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
         open={this.props.currentConfigKey === 'newMoveConfig' ? true : false}
       >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
-            defaultValue={config['title']}
+            defaultValue={config.title}
             onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
@@ -354,7 +333,7 @@ class PerSettings extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -363,7 +342,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}

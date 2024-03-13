@@ -1,5 +1,13 @@
-import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { activeOrderIdAtom, unPaidAmountAtom } from "@/store/order.store"
+import {
+  currentAmountAtom,
+  currentPaymentTypeAtom,
+  paymentAmountTypeAtom,
+} from "@/store"
+import {
+  activeOrderIdAtom,
+  orderTotalAmountAtom,
+  unPaidAmountAtom,
+} from "@/store/order.store"
 import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -14,12 +22,20 @@ const useHandlePayment = () => {
   const type = useAtomValue(currentPaymentTypeAtom)
   const setOpenSheet = useSetAtom(paymentSheetAtom)
   const _id = useAtomValue(activeOrderIdAtom)
+  const paymentAmountType = useAtomValue(paymentAmountTypeAtom)
+  const totalAmount = useAtomValue(orderTotalAmountAtom)
 
   const { addPayment, loading } = useAddPayment()
 
   const handleValueChange = (val: string) => {
+    let value = val
+
+    if (paymentAmountType === "percent") {
+      value = ((Number(val) / 100) * totalAmount).toFixed(1)
+    }
+
     const numericValue = parseFloat(
-      val.replace(
+      value.replace(
         HARD_PAYMENT_TYPES.includes(type) ? /[^0-9.]/g : /[^0-9.-]/g,
         ""
       )

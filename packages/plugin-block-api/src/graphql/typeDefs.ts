@@ -18,7 +18,7 @@ import {
   mutations as transactionMutations
 } from './schema/transaction';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

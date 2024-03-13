@@ -10,6 +10,7 @@ import { queries } from '../../common/graphql';
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
+  contentType: string;
   contentTypes: IImportHistoryContentType[];
   type: string;
 };
@@ -33,6 +34,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     return (
       <TypeForm
         onChangeContentType={this.props.onChangeContentType}
+        contentType={this.props.contentType}
         contentTypes={this.props.contentTypes}
         type={this.props.type}
         typeOptions={typeOptions}
@@ -47,9 +49,9 @@ export default withProps<Props>(
       name: 'historyGetTypes',
       options: () => ({
         variables: {
-          type: 'import'
-        }
-      })
-    })
-  )(FormContainer)
+          type: 'import',
+        },
+      }),
+    }),
+  )(FormContainer),
 );

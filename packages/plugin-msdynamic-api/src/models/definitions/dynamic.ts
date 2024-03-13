@@ -1,38 +1,42 @@
 import { Schema, Document } from 'mongoose';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
-export interface IDynamic {
-  _id: string;
-  endPoint: string;
-  username: string;
-  password: string;
+export interface ISyncLog {
+  contentType: string;
+  contentId: string;
   createdAt: Date;
+  createdBy?: string;
+  consumeData: any;
+  consumeStr: string;
+  sendData?: any;
+  sendStr?: string;
+  responseData?: any;
+  responseStr?: string;
+  error?: string;
 }
 
-export interface IDynamicDocument extends IDynamic, Document {
+export interface ISyncLogDocument extends ISyncLog, Document {
   _id: string;
 }
 
-export const msdynamicSchema = new Schema({
-  _id: field({ pkey: true }),
-  endPoint: field({
-    type: String,
-    label: 'EndPoint URL',
-    optional: true
-  }),
-  username: field({
-    type: String,
-    label: 'Auth User Name',
-    optional: true
-  }),
-  password: field({
-    type: String,
-    label: 'Auth Password',
-    optional: true
-  }),
-  createdAt: field({
-    type: Date,
-    default: Date.now,
-    label: 'Created at'
+export const syncLogSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    contentType: field({ type: String, label: 'type', index: true }),
+    contentId: field({ type: String, label: 'content', index: true }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at',
+      index: true
+    }),
+    createdBy: field({ type: String, optional: true, label: 'Created by' }),
+    consumeData: field({ type: Object }),
+    consumeStr: field({ type: String }),
+    sendData: field({ type: Object, optional: true }),
+    sendStr: field({ type: String, optional: true }),
+    responseData: field({ type: Object, optional: true }),
+    responseStr: field({ type: String, optional: true }),
+    error: field({ type: String, optional: true })
   })
-});
+);

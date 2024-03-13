@@ -44,6 +44,8 @@ const commonFields = [
   { value: 'productsInfo', name: 'Products information' },
   { value: 'servicesInfo', name: 'Services information' },
   { value: 'assignedUsers', name: 'Assigned users' },
+  { value: 'stageName', name: 'Stage name' },
+  { value: 'brandName', name: 'Brand name' },
   { value: 'customers', name: 'Customers' },
   { value: 'companies', name: 'Companies' },
   { value: 'now', name: 'Now' },
@@ -77,7 +79,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype, itemIds }
+    data: { stageId, itemId, content, contentype, itemIds, brandId }
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -158,6 +160,25 @@ export default {
       /{{ now }}/g,
       new Date().toLocaleDateString()
     );
+
+    replacedContent = replacedContent.replace(/{{ stageName }}/g, stage.name);
+
+    if (replacedContent.includes('{{ brandName }}')) {
+      if (brandId) {
+        const brand = await sendCoreMessage({
+          subdomain,
+          action: 'brands.findOne',
+          data: { _id: brandId },
+          isRPC: true
+        });
+
+        replacedContent = replacedContent.replace(
+          /{{ brandName }}/g,
+          brand.name
+        );
+      }
+      replacedContent = replacedContent.replace(/{{ brandName }}/g, '');
+    }
 
     // ============ replace users
     const users = await sendCoreMessage({
@@ -287,6 +308,15 @@ export default {
         });
 
         if (!product || product.type !== type) {
+          continue;
+        }
+
+        if (
+          (brandId &&
+            brandId !== 'noBrand' &&
+            !product.scopeBrandIds.includes(brandId)) ||
+          (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
+        ) {
           continue;
         }
 

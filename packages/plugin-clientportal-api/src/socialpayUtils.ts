@@ -1,5 +1,6 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import * as crypto from 'crypto';
+import { IClientPortal } from './models/definitions/clientPortal';
 
 export const encrypt = (data, publicKey) => {
   try {
@@ -8,9 +9,9 @@ export const encrypt = (data, publicKey) => {
     const encrypted = crypto.publicEncrypt(
       {
         key: pubKey,
-        padding: crypto.constants.RSA_PKCS1_PADDING
+        padding: crypto.constants.RSA_PKCS1_PADDING,
       },
-      bufferData
+      bufferData,
     );
     return encrypted.toString('base64');
   } catch (ex) {
@@ -26,9 +27,9 @@ export const decrypt = (cipherText, privateKey) => {
     const decrypted = crypto.privateDecrypt(
       {
         key: privKey,
-        padding: crypto.constants.RSA_PKCS1_PADDING
+        padding: crypto.constants.RSA_PKCS1_PADDING,
       },
-      bufferCipherText
+      bufferCipherText,
     );
     return decrypted.toString('utf-8');
   } catch (ex) {
@@ -37,37 +38,43 @@ export const decrypt = (cipherText, privateKey) => {
   }
 };
 
-export const getHex = data => {
-  return crypto
-    .createHash('sha256')
-    .update(data)
-    .digest('hex');
+export const getHex = (data) => {
+  return crypto.createHash('sha256').update(data).digest('hex');
 };
 
-export const fetchUserFromSocialpay = async (token: string) => {
-  const pubKey = process.env.SOCIALPAY_PUBLIC_KEY;
-  const certId = process.env.SOCIALPAY_CERT_ID;
+export const fetchUserFromSocialpay = async (
+  token: string,
+  clientPortal: IClientPortal,
+) => {
+  const socialpayConfig = clientPortal.socialpayConfig || {
+    certId: undefined,
+    publicKey: undefined,
+  };
+  const pubKey = socialpayConfig.publicKey;
+  const certId = socialpayConfig.certId;
+
   if (!pubKey || !certId) {
-    throw new Error('Socialpay public key or cert id is not set');
+    throw new Error('Socialpay configs are not set');
   }
 
   // generate x-golomt-signature using token and public key
   const hex = getHex(JSON.stringify({ token }));
   const signature = encrypt(hex, pubKey);
   try {
-    const response = await sendRequest({
-      url:
-        'https://sp-api.golomtbank.com/api/utility/miniapp/token/check?language=mn',
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'X-Golomt-Cert-Id': certId,
-        'X-Golomt-Signature': signature
+    const response = await fetch(
+      'https://sp-api.golomtbank.com/api/utility/miniapp/token/check?language=mn',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-Golomt-Cert-Id': certId,
+          'X-Golomt-Signature': signature,
+        },
+        body: JSON.stringify({
+          token,
+        }),
       },
-      body: {
-        token
-      }
-    });
+    ).then((r) => r.json());
 
     return response;
   } catch (e) {

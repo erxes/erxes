@@ -3,19 +3,29 @@ import * as strip from 'strip';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import * as messageBroker from './messageBroker';
+import type { InterMessage } from './messageBroker';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
+import { connect } from './mongo-connection';
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
+  subdomain,
 }: {
   name: string;
-  subdomain?: string;
   defaultValue?: string;
+  subdomain?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name] || '';
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   return value || '';
@@ -39,7 +49,7 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  }
+  },
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
@@ -67,8 +77,8 @@ const stringToRegex = (value: string) => {
   const specialChars = '{}[]\\^$.|?*+()'.split('');
   const val = value.split('');
 
-  const result = val.map(char =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char
+  const result = val.map((char) =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char,
   );
 
   return '.*' + result.join('').substring(2) + '.*';
@@ -76,7 +86,7 @@ const stringToRegex = (value: string) => {
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText'
+  searchKey = 'searchText',
 ) => {
   const result: any[] = [];
 
@@ -86,7 +96,7 @@ export const regexSearchText = (
 
   for (const word of words) {
     result.push({
-      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' },
     });
   }
 
@@ -124,8 +134,8 @@ export const getToday = (date: Date): Date => {
       date.getUTCDate(),
       0,
       0,
-      0
-    )
+      0,
+    ),
   );
 };
 
@@ -160,11 +170,11 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  */
 export const checkUserIds = (
   oldUserIds: string[] = [],
-  newUserIds: string[] = []
+  newUserIds: string[] = [],
 ) => {
-  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -219,7 +229,7 @@ const generateRandomEmail = () => {
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const getRandomValue = (type: string) =>
     type === 'email' ? generateRandomEmail() : randomAlphanumeric();
@@ -241,26 +251,18 @@ export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-export interface ISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  isMQ?: boolean;
-  timeout?: number;
-  defaultValue?;
+export interface MessageArgs extends MessageArgsOmitService {
+  serviceName: string;
 }
 
-export const sendMessage = async (
-  args: {
-    client: any;
-    serviceDiscovery: any;
-    serviceName: string;
-  } & ISendMessageArgs
-): Promise<any> => {
+export interface MessageArgsOmitService extends InterMessage {
+  action: string;
+  isRPC?: boolean;
+  isMQ?: boolean;
+}
+
+export const sendMessage = async (args: MessageArgs): Promise<any> => {
   const {
-    client,
-    serviceDiscovery,
     serviceName,
     subdomain,
     action,
@@ -268,37 +270,27 @@ export const sendMessage = async (
     defaultValue,
     isRPC,
     isMQ,
-    timeout
+    timeout,
   } = args;
 
-  if (serviceName) {
-    if (!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await isEnabled(serviceName))) {
+    if (isRPC && defaultValue === undefined) {
+      throw new Error(`${serviceName} service is not enabled`);
+    } else {
       return defaultValue;
-    }
-
-    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === 'development') {
-        throw new Error(`${serviceName} service is not available`);
-      } else {
-        return defaultValue;
-      }
     }
   }
 
   const queueName = serviceName + (serviceName ? ':' : '') + action;
 
-  if (!client) {
-    throw new Error(`client not found during ${queueName}`);
-  }
-
-  return client[
+  return messageBroker[
     isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
   ](queueName, {
     subdomain,
     data,
     defaultValue,
     timeout,
-    thirdService: data && data.thirdService
+    thirdService: data && data.thirdService,
   });
 };
 
@@ -309,12 +301,12 @@ interface IActionMap {
 export const userActionsMap = async (
   userPermissions: IPermissionDocument[],
   groupPermissions: IPermissionDocument[],
-  user: any
+  user: any,
 ): Promise<IActionMap> => {
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
-    ...(user.customPermissions || [])
+    ...(user.customPermissions || []),
   ];
   const allowedActions: IActionMap = {};
 
@@ -356,31 +348,82 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 };
 
 export const getSubdomain = (req): string => {
-  const hostname = req.headers.hostname || req.hostname;
+  const hostname =
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
-const connectionOptions: mongoose.ConnectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4
+  family: 4,
 };
 
-export const createGenerateModels = <IModels>(models, loadClasses) => {
-  return async (hostnameOrSubdomain: string): Promise<IModels> => {
-    if (models) {
+export const createGenerateModels = <IModels>(
+  loadClasses: (
+    db: mongoose.Connection,
+    subdomain: string,
+  ) => IModels | Promise<IModels>,
+): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  connect();
+
+  if (VERSION && VERSION !== 'saas') {
+    let models: IModels | null = null;
+    return async function genereteModels(
+      hostnameOrSubdomain: string,
+    ): Promise<IModels> {
+      if (models) {
+        return models;
+      }
+
+      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
+
       return models;
-    }
+    };
+  } else {
+    return async function genereteModels(
+      hostnameOrSubdomain: string = '',
+    ): Promise<IModels> {
+      let subdomain: string = hostnameOrSubdomain;
 
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+      // means hostname
+      if (subdomain && subdomain.includes('.')) {
+        subdomain = getSubdomain(hostnameOrSubdomain);
+      }
 
-    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+      if (!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``);
+      }
 
-    models = loadClasses(db, hostnameOrSubdomain);
+      await getCoreConnection();
 
-    return models;
-  };
+      const organization = await coreModelOrganizations.findOne({ subdomain });
+
+      if (!organization) {
+        throw new Error(
+          `Organization with subdomain = ${subdomain} is not found`,
+        );
+      }
+
+      const DB_NAME = getEnv({ name: 'DB_NAME' });
+      const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
+        '<organizationId>',
+        organization._id,
+      );
+
+      // @ts-ignore
+      const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
+        // so that conn.model method can use cached connection
+        useCache: true,
+        noListener: true,
+      });
+
+      return await loadClasses(tenantCon, subdomain);
+    };
+  }
 };
 
 export const authCookieOptions = (options: any = {}) => {
@@ -398,7 +441,7 @@ export const authCookieOptions = (options: any = {}) => {
     expires: new Date(Date.now() + maxAge),
     maxAge,
     secure,
-    ...options
+    ...options,
   };
 
   return cookieOptions;
@@ -421,7 +464,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1
+  ms: 1,
 };
 
 const CHARACTERS =
@@ -432,7 +475,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
 ) => {
   date = new Date(date || new Date());
 
@@ -464,7 +507,7 @@ export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n'
+  resultType?: 'd' | 'n',
 ) => {
   if (!shortStr) return;
 

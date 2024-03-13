@@ -11,15 +11,20 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import InvoiceSection from '../invoices/InvoiceSection';
 import { LEASE_TYPES } from '../../../contractTypes/constants';
+import { Tabs } from '../list/ContractForm';
+import InvoiceList from '../invoices/InvoiceList';
+import StoreInterestSection from '../storeInterest/StoreInterestSection';
+import TransactionSection from '../transaction/TransactionSection';
+import { ITransaction } from '../../../transactions/types';
+import PolarisData from '../polaris';
 
 const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 const ActivityLogs = asyncComponent(
@@ -27,11 +32,14 @@ const ActivityLogs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    )
+    ),
 );
 
 type Props = {
-  contract: IContractDoc & { invoices: IInvoice[] };
+  contract: IContractDoc & {
+    invoices: IInvoice[];
+    loanTransactionHistory: ITransaction[];
+  };
   currentUser: IUser;
   saveItem: (doc: IContractDoc, callback?: (item) => void) => void;
   regenSchedules: (contractId: string) => void;
@@ -54,12 +62,12 @@ class ContractDetails extends React.Component<Props, State> {
     this.state = {
       amount: contract.amount || {},
       collateralsData: contract.collaterals
-        ? contract.collaterals.map(p => ({ ...p }))
+        ? contract.collaterals.map((p) => ({ ...p }))
         : [],
       // collecting data for ItemCounter component
       collaterals: contract.collaterals
-        ? contract.collaterals.map(p => p.collateral)
-        : []
+        ? contract.collaterals.map((p) => p.collateral)
+        : [],
     };
   }
 
@@ -70,7 +78,7 @@ class ContractDetails extends React.Component<Props, State> {
     const amount: any = {};
     const filteredCollateralsData: any = [];
 
-    collateralsData.forEach(data => {
+    collateralsData.forEach((data) => {
       // collaterals
       if (data.collateral) {
         if (data.currency) {
@@ -92,7 +100,7 @@ class ContractDetails extends React.Component<Props, State> {
       { collateralsData: filteredCollateralsData, collaterals, amount },
       () => {
         saveItem({ ...contract, collateralsData });
-      }
+      },
     );
   };
 
@@ -107,62 +115,88 @@ class ContractDetails extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
-      { title }
+      { title },
     ];
 
-    const pDataChange = pData => this.onChangeField('collateralsData', pData);
-    const prsChange = prs => this.onChangeField('collaterals', prs);
+    const pDataChange = (pData) => this.onChangeField('collateralsData', pData);
+    const prsChange = (prs) => this.onChangeField('collaterals', prs);
 
     const content = (
       <>
-        <CollateralsSection
-          {...this.props}
-          onChangeCollateralsData={pDataChange}
-          onChangeCollaterals={prsChange}
-          saveCollateralsData={this.saveCollateralsData}
-          collateralsData={this.state.collateralsData}
-          collaterals={this.state.collaterals}
-          contractId={contract._id}
-        ></CollateralsSection>
+        <Tabs
+          tabs={[
+            {
+              label: __(`First Schedules`),
+              component: (contract.leaseType === LEASE_TYPES.FINANCE ||
+                contract.leaseType === LEASE_TYPES.SAVING) && (
+                <ScheduleSection
+                  contractId={contract._id}
+                  isFirst={true}
+                  regenSchedules={regenSchedules}
+                  fixSchedules={fixSchedules}
+                />
+              ),
+            },
+            {
+              label: __(`Schedules`),
+              component: (
+                <ScheduleSection contractId={contract._id} isFirst={false} />
+              ),
+            },
+            {
+              label: __(`Invoice`),
+              component: <InvoiceList invoices={contract.invoices} />,
+            },
+            {
+              label: __(`Transaction`),
+              component: (
+                <TransactionSection
+                  contractId={contract._id}
+                  transactions={contract.loanTransactionHistory}
+                />
+              ),
+            },
+            {
+              label: __('Interest store'),
+              component: (
+                <StoreInterestSection invoices={contract.storeInterest} />
+              ),
+            },
 
-        <ScheduleSection
-          contractId={contract._id}
-          hasTransaction={contract.hasTransaction}
-          leaseType={contract.leaseType}
-          isFirst={false}
-          regenSchedules={regenSchedules}
-          fixSchedules={fixSchedules}
-        ></ScheduleSection>
-        {(contract.leaseType === LEASE_TYPES.FINANCE ||
-          contract.leaseType === LEASE_TYPES.SAVING) && (
-          <ScheduleSection
-            contractId={contract._id}
-            isFirst={true}
-            regenSchedules={regenSchedules}
-          ></ScheduleSection>
-        )}
-        {contract.leaseType === LEASE_TYPES.CREDIT && (
-          <InvoiceSection invoices={contract.invoices} />
-        )}
+            {
+              label: __('Collaterals'),
+              component: (
+                <CollateralsSection
+                  {...this.props}
+                  onChangeCollateralsData={pDataChange}
+                  onChangeCollaterals={prsChange}
+                  saveCollateralsData={this.saveCollateralsData}
+                  collateralsData={this.state.collateralsData}
+                  collaterals={this.state.collaterals}
+                  contractId={contract._id}
+                ></CollateralsSection>
+              ),
+            },
+          ]}
+        />
 
         {isEnabled('logs') && (
           <>
             <ActivityInputs
               contentTypeId={contract._id}
-              contentType="contract"
+              contentType="loans:contract"
               showEmail={false}
             />
             <ActivityLogs
               target={contract.number || ''}
               contentId={contract._id}
-              contentType="contract"
-              extraTabs={[
-                { name: 'plugin_invoices', label: 'Invoices / Transaction' }
-              ]}
+              contentType="loans:contract"
+              extraTabs={[]}
               activityRenderItem={ActivityItem}
             />
           </>
         )}
+        {isEnabled('syncpolaris') && <PolarisData contract={contract} />}
       </>
     );
 

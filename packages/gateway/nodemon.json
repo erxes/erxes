@@ -1,3 +1,5 @@
 {
-    "ignore" : ["src/subscription/plugins/downloads/*"]
+    "watch": ["./src", "../api-utils/src"],
+    "ignore" : ["src/subscription/plugins/downloads/*"],
+    "delay": 1000
 }

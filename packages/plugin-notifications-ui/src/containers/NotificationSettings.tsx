@@ -13,7 +13,7 @@ import {
 import NotificationSettings from '../components/NotificationSettings';
 import { IUser } from '@erxes/ui/src/auth/types';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { currentUser } from '@erxes/ui/src/auth/graphql';
+import { currentUser as currentUserQuery } from '@erxes/ui/src/auth/graphql';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
 
@@ -127,7 +127,7 @@ export default withProps<{}>(
         options: () => ({
           refetchQueries: [
             {
-              query: gql(currentUser)
+              query: gql(currentUserQuery)
             }
           ]
         })

@@ -2,12 +2,17 @@ import {
   configAtom,
   coverConfigAtom,
   ebarimtConfigAtom,
-  paymentConfigAtom,
+  setPermissionConfigAtom,
 } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
-import { IConfig, IPaymentConfig, IPaymentType } from "@/types/config.types"
+import {
+  IConfig,
+  ICoverConfig,
+  IPaymentType,
+  IPermissionConfig,
+} from "@/types/config.types"
 import { strToObj } from "@/lib/utils"
 
 import { queries } from "../graphql"
@@ -23,7 +28,9 @@ const queryObject = {
 const useConfig = (
   type: "payment" | "settings" | "main" | "ebarimt" | "cover",
   options?: {
-    onCompleted?: (data: IConfig & IPaymentConfig) => void
+    onCompleted?: (
+      data: IConfig & ICoverConfig & { permissionConfig: IPermissionConfig }
+    ) => void
     skip?: boolean
   }
   // todo: ts stick
@@ -34,7 +41,8 @@ const useConfig = (
   const { onCompleted, skip } = options || {}
   const setEbarimtConfig = useSetAtom(ebarimtConfigAtom)
   const setCoverConfig = useSetAtom(coverConfigAtom)
-  const setPaymentConfig = useSetAtom(paymentConfigAtom)
+  const setPermissionConfig = useSetAtom(setPermissionConfigAtom)
+
   const setConfig = useSetAtom(configAtom)
 
   const { data, loading } = useQuery(queryObject[type], {
@@ -43,7 +51,7 @@ const useConfig = (
         setEbarimtConfig(currentConfig)
       }
       if (["cover", "payment"].includes(type)) {
-        const { paymentTypes, ...rest } = currentConfig
+        const { paymentTypes, permissionConfig, ...rest } = currentConfig
 
         const paymentTypeWithConfig = paymentTypes.map((pt: IPaymentType) => ({
           ...pt,
@@ -52,11 +60,10 @@ const useConfig = (
 
         const config = { ...rest, paymentTypes: paymentTypeWithConfig }
 
-        if (type === "cover") {
-          setCoverConfig(config)
-        }
+        setCoverConfig(config)
+
         if (type === "payment") {
-          setPaymentConfig(config)
+          setPermissionConfig(permissionConfig)
         }
       }
 

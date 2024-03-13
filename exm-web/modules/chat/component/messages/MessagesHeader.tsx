@@ -2,7 +2,7 @@ import React from "react"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
-import { ChevronLeft } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 
 import Image from "@/components/ui/image"
 
@@ -73,10 +73,10 @@ const MessagesHeader = ({ chatDetail, setShowSidebar }: Props) => {
         </div>
       </div>
       <button
-        className="bg-gray-200 rounded-full p-1 cursor-pointer"
+        className="p-1 cursor-pointer"
         onClick={() => setShowSidebar()}
       >
-        <ChevronLeft size={16} />
+        <MoreHorizontal size={20} />
       </button>
     </>
   )

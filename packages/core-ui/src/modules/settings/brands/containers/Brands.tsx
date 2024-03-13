@@ -12,7 +12,6 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import DumbBrands from '../components/Brands';
 import React from 'react';
-import Spinner from 'modules/common/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import queryString from 'query-string';

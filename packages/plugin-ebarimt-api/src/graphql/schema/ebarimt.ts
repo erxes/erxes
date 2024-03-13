@@ -39,8 +39,6 @@ export const types = `
   }
 `;
 
-export const subscriptions = `automationResponded(userId: String, sessionCode: String): AutomationResponse`;
-
 const queryParams = `
   page: Int
   perPage: Int

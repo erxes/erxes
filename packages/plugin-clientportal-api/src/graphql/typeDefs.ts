@@ -26,13 +26,14 @@ import {
   types as fieldConfigTypes,
   mutations as fieldConfigMutations
 } from './schema/fieldConfigs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const kbAvailable = await serviceDiscovery.isEnabled('knowledgebase');
-  const cardAvailable = await serviceDiscovery.isEnabled('cards');
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const formsAvailable = await serviceDiscovery.isEnabled('forms');
-  const productsAvailable = await serviceDiscovery.isEnabled('products');
+const typeDefs = async () => {
+  const kbAvailable = isEnabled('knowledgebase');
+  const cardAvailable = isEnabled('cards');
+  const isContactsEnabled = isEnabled('contacts');
+  const formsAvailable = isEnabled('forms');
+  const productsAvailable = isEnabled('products');
 
   return gql`
     scalar JSON

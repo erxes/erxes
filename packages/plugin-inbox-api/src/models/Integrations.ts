@@ -238,7 +238,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Integrations.create({
         ...doc,
         isActive: true,
-        createdUserId: userId
+        createdUserId: userId,
+        createdAt: new Date()
       });
     }
 

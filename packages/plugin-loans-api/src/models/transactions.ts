@@ -448,8 +448,6 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ payDate: -1 })
         .lean();
 
-      console.log('transactions', transactions);
-
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
@@ -484,7 +482,6 @@ export const loadTransactionClass = (models: IModels) => {
 
     public static async getPaymentInfo(id, payDate, subdomain) {
       const today = getPureDate(new Date(payDate));
-
       const paymentInfo = await getCalcedAmounts(models, subdomain, {
         contractId: id,
         payDate: today
@@ -499,8 +496,7 @@ export const loadTransactionClass = (models: IModels) => {
         debt = 0,
         balance = 0,
         commitmentInterest = 0,
-        storedInterest = 0,
-        calcInterest = 0
+        storedInterest = 0
       } = paymentInfo;
 
       if (interestEve + interestNonce > storedInterest)

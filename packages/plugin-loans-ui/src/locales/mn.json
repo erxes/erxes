@@ -176,5 +176,7 @@
   "customMethod": "Дурын",
   "Schedule day": "Хуваарьт өдөр",
   "Day": "Өдөр",
-  "Loan Purpose": "Зээлийн зориулалт"
+  "Loan Primary Customers": "Үндсэн зээлдэгч",
+  "Loan Primary Companies": "Үндсэн зээлдэгч",
+  "Loan Collectively Customers": "Хамтран зээлдэгч"
 }

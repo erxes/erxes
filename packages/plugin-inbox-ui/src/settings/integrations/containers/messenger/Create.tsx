@@ -79,13 +79,13 @@ const CreateMessenger = (props: FinalProps) => {
       messengerApps
     } = doc;
 
-    setIsLoading(true);
-
     let id = '';
     saveMessengerMutation({
       variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data }) => {
+        setIsLoading(true);
+
         const integrationId = data.integrationsCreateMessengerIntegration._id;
         id = integrationId;
         return saveConfigsMutation({

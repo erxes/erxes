@@ -1,6 +1,6 @@
 import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
 
@@ -36,16 +36,16 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     dueStartDate,
     dueEndDate,
     isPreExclude,
-    slotCode
+    slotCode,
   } = params;
   const filter: any = {
-    $or: [{ posToken: config.token }, { subToken: config.token }]
+    $or: [{ posToken: config.token }, { subToken: config.token }],
   };
 
   if (searchValue) {
     filter.$or = [
       { number: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } },
-      { origin: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } }
+      { origin: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } },
     ];
   }
 
@@ -83,7 +83,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     const dateTypes = {
       paid: 'paidDate',
       created: 'createdAt',
-      default: 'modifiedAt'
+      default: 'modifiedAt',
     };
     filter[dateTypes[dateType || 'default']] = dateQry;
   }
@@ -115,11 +115,11 @@ const filterOrders = (params: ISearchParams, models, config) => {
 
   return paginate(
     models.Orders.find({
-      ...filter
+      ...filter,
     })
       .sort(sort)
       .lean(),
-    { page, perPage }
+    { page, perPage },
   );
 };
 
@@ -135,11 +135,11 @@ const orderQueries = {
   async ordersTotalCount(
     _root,
     params: ISearchParams,
-    { models, config }: IContext
+    { models, config }: IContext,
   ) {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
-      ...filter
+      ...filter,
     }).count();
   },
 
@@ -151,9 +151,9 @@ const orderQueries = {
       page,
       perPage,
       sortField,
-      sortDirection
+      sortDirection,
     }: ISearchParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {};
 
@@ -171,28 +171,31 @@ const orderQueries = {
     return paginate(
       models.OrderItems.find({
         ...filter,
-        status: { $in: statuses }
+        status: { $in: statuses },
       })
         .sort(sort)
         .lean(),
-      { page, perPage }
+      { page, perPage },
     );
   },
 
   async orderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext
+    { posUser, models, config }: IContext,
   ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
     if (posUser) {
-      return models.Orders.findOne({ _id, posToken: config.token });
+      return models.Orders.findOne({ _id, ...tokenFilter });
     }
 
     if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, posToken: config.token, customerId });
+    return models.Orders.findOne({ _id, ...tokenFilter });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
@@ -203,18 +206,15 @@ const orderQueries = {
       config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
 
     if (url) {
-      const response = await sendRequest({
-        url,
-        method: 'GET',
-        params: { regno: registerNumber }
-      });
-
+      const response = await fetch(
+        url + '?' + new URLSearchParams({ regno: registerNumber }),
+      ).then((res) => res.json());
       return response;
     }
 
     return {
       error: 'ebarimt config error',
-      message: 'Check company url is not configured'
+      message: 'Check company url is not configured',
     };
   },
 
@@ -223,9 +223,9 @@ const orderQueries = {
       subdomain,
       action: 'ordersDeliveryInfo',
       data: {
-        orderId: orderId
+        orderId: orderId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (info.error) {
@@ -233,7 +233,7 @@ const orderQueries = {
     }
 
     return info;
-  }
+  },
 };
 
 export default orderQueries;

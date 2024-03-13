@@ -5,6 +5,7 @@ export interface IPos {
   name: string;
   description?: string;
   orderPassword?: string;
+  scopeBrandIds?: string[];
   pdomain?: string;
   userId: string;
   createdAt: Date;
@@ -80,7 +81,7 @@ export const posSchema = schemaHooksWrapper(
     orderPassword: field({
       type: String,
       label: 'OrderPassword',
-      optional: true
+      optional: true,
     }),
     pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
@@ -94,20 +95,20 @@ export const posSchema = schemaHooksWrapper(
     onServer: field({
       type: Boolean,
       optional: true,
-      label: 'On cloud server'
+      label: 'On cloud server',
     }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
     allowBranchIds: field({
       type: [String],
       optional: true,
-      label: 'Allow branches'
+      label: 'Allow branches',
     }),
     beginNumber: field({ type: String, optional: true, label: 'Begin number' }),
     maxSkipNumber: field({
       type: Number,
       optional: true,
-      label: 'Skip number'
+      label: 'Skip number',
     }),
     waitingScreen: field({ type: Object, label: 'Waiting screen config' }),
     kioskMachine: field({ type: Object, label: 'Kiosk config' }),
@@ -115,25 +116,29 @@ export const posSchema = schemaHooksWrapper(
     uiOptions: field({ type: Object, label: 'UI Options' }),
     token: field({ type: String, label: 'Pos token' }),
     erxesAppToken: field({ type: String, label: 'Erxes App token' }),
-    ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
+    ebarimtConfig: field({
+      type: Object,
+      optional: true,
+      label: 'Ebarimt Config',
+    }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),
     catProdMappings: field({
       type: [Object],
       label: 'Category product mappings',
-      optional: true
+      optional: true,
     }),
     initialCategoryIds: field({
       type: [String],
-      label: 'Pos initial categories'
+      label: 'Pos initial categories',
     }),
     kioskExcludeCategoryIds: field({
       type: [String],
-      label: 'Kiosk exclude categories'
+      label: 'Kiosk exclude categories',
     }),
     kioskExcludeProductIds: field({
       type: [String],
-      label: 'Kiosk exclude products'
+      label: 'Kiosk exclude products',
     }),
     deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
     cardsConfig: field({ type: Object, label: 'Cards Config' }),
@@ -141,18 +146,18 @@ export const posSchema = schemaHooksWrapper(
     permissionConfig: field({
       type: Object,
       optional: true,
-      label: 'Permission'
+      label: 'Permission',
     }),
     allowTypes: field({ type: [String], label: 'Allow Types' }),
     isCheckRemainder: field({ type: Boolean, label: 'is Check Remainder' }),
     checkExcludeCategoryIds: field({
       type: [String],
-      label: 'Check Exclude Categories'
+      label: 'Check Exclude Categories',
     }),
     banFractions: field({ type: Boolean, label: 'has Float count' }),
-    status: field({ type: String, label: 'Status', optional: true })
+    status: field({ type: String, label: 'Status', optional: true }),
   }),
-  'erxes_pos'
+  'erxes_pos',
 );
 
 export const productGroupSchema = schemaHooksWrapper(
@@ -164,22 +169,22 @@ export const productGroupSchema = schemaHooksWrapper(
     categoryIds: field({
       type: [String],
       optional: true,
-      label: 'Category ids'
+      label: 'Category ids',
     }),
 
     excludedCategoryIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Category ids'
+      label: 'Exclude Category ids',
     }),
 
     excludedProductIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Product ids'
-    })
+      label: 'Exclude Product ids',
+    }),
   }),
-  'erxes_productGroup'
+  'erxes_productGroup',
 );
 
 export const posSlotSchema = schemaHooksWrapper(
@@ -188,15 +193,15 @@ export const posSlotSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
     posId: field({ type: String, label: 'Pos' }),
-    option: field({ type: Object, label: 'Option' })
+    option: field({ type: Object, label: 'Option' }),
   }),
-  'erxes_pos_slot'
+  'erxes_pos_slot',
 );
 
 export const posCoverKindValueSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    code: field({ type: String, label: 'Code' })
+    code: field({ type: String, label: 'Code' }),
   }),
-  'erxes_pos_slot'
+  'erxes_pos_slot',
 );

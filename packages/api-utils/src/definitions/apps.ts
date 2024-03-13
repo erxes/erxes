@@ -6,6 +6,8 @@ export interface IApp {
   name: string;
   userGroupId: string;
   expireDate?: Date;
+  noExpire?: boolean;
+  allowAllPermission?: boolean;
 }
 
 export interface IAppDocument extends IApp, Document {
@@ -25,6 +27,8 @@ export const appSchema = new Schema({
     label: 'Refresh token used to gain access token'
   }),
   isEnabled: field({ type: Boolean, label: 'Status of the app' }),
-  userGroupId: field({ type: String, label: 'User group id' }),
-  expireDate: field({ type: Date, label: 'Token expire date' })
+  userGroupId: field({ type: String, label: 'User group id', optional: true }),
+  expireDate: field({ type: Date, label: 'Token expire date' }),
+  noExpire: field({ type: Boolean, label: 'noExpire' }),
+  allowAllPermission: field({ type: Boolean, label: 'allowAllPermission' })
 });

@@ -69,7 +69,7 @@ import {
   types as assignmentCampaignTypes
 } from './schema/assignmentCampaign';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

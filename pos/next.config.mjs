@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
+import pwa from "next-pwa"
+
 const nextConfig = {
   reactStrictMode: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV !== "development",
+  },
   images: {
     remotePatterns: [
       {
@@ -11,4 +16,11 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+const withPWA = pwa({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+})
+
+export default withPWA(nextConfig)

@@ -16,16 +16,6 @@ class ProductTypeFilter extends React.Component<IProps> {
   render() {
     const { history } = this.props;
 
-    const onClear = () => {
-      router.setParams(history, { type: null });
-    };
-
-    const extraButtons = router.getParam(history, 'type') && (
-      <a href="#cancel" tabIndex={0} onClick={onClear}>
-        <Icon icon="cancel-1" />
-      </a>
-    );
-
     const paramKey = 'type';
 
     const onClick = (key, value) => {
@@ -34,9 +24,9 @@ class ProductTypeFilter extends React.Component<IProps> {
 
     return (
       <Box
-        extraButtons={extraButtons}
         title={__('Filter by type')}
         name="showFilterByType"
+        isOpen={router.getParam(history, [paramKey])}
       >
         <SidebarList>
           {productTypeChoises(__).map(

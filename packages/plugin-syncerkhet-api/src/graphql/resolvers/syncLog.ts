@@ -31,6 +31,14 @@ export default {
       return info.number || info.name || contentId;
     }
 
+    if (contentType === 'cards:purchase') {
+      const info =
+        syncLog.consumeData.updatedDocument ||
+        syncLog.consumeData.object ||
+        syncLog.consumeData;
+      return info.number || info.name || contentId;
+    }
+
     if (contentType === 'pos:order') {
       return syncLog.consumeData.number || contentId;
     }
@@ -59,6 +67,11 @@ export default {
     if (contentType === 'loans:transaction') {
       const info = syncLog.consumeData;
       return info.number || contentId;
+    }
+
+    if (contentType === 'core:user') {
+      const info = syncLog.consumeData.object;
+      return info.email || contentId;
     }
 
     return contentId;

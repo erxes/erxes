@@ -13,7 +13,7 @@ export const loadClassificationClass = (models: IModels) => {
     ) {
       for await (const mur of classifications) {
         await models.Contracts.updateMany(
-          { _id: mur.dtl.map(a => a.contractId) },
+          { _id: mur.contractId },
           { $set: { classification: mur.newClassification } }
         );
       }

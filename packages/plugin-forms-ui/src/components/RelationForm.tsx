@@ -1,10 +1,10 @@
-import Info from '@erxes/ui/src/components/Info';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IField } from '@erxes/ui/src/types';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
-import React from 'react';
 
 type Props = {
   contentType: string;
@@ -18,19 +18,17 @@ const RelationForm = (props: Props) => {
   return (
     <>
       {fields.map(field => (
-        <>
-          <FormGroup>
-            <ControlLabel>{`Select ${field.text}`}</ControlLabel>
-            {loadDynamicComponent(
-              'selectRelation',
-              {
-                ...props,
-                field
-              },
-              true
-            )}
-          </FormGroup>
-        </>
+        <FormGroup key={field._id}>
+          <ControlLabel>{`Select ${field.text}`}</ControlLabel>
+          {loadDynamicComponent(
+            'selectRelation',
+            {
+              ...props,
+              field
+            },
+            true
+          )}
+        </FormGroup>
       ))}
 
       <Info>

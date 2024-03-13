@@ -6,7 +6,7 @@ async function main() {
 
     const packagesPath = path.resolve(__dirname, '..', '..', 'packages');
     const folderNames = fs.readdirSync(packagesPath, { withFileTypes: true }).filter(dirent => {
-        return dirent.name !== 'plugin-integrations-api' && dirent.isDirectory() && (['core', 'gateway', 'workers', 'crons'].includes(dirent.name) || /^plugin-.+?-api$/.test(dirent.name));
+        return dirent.isDirectory() && (['core', 'gateway', 'workers', 'crons'].includes(dirent.name) || /^plugin-.+?-api$/.test(dirent.name));
     }).map(dirent => dirent.name);
 
 

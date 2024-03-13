@@ -1,9 +1,3 @@
-// import {
-//   putCreateLog,
-//   putDeleteLog,
-//   putUpdateLog,
-//   sendNotification
-// } from 'erxes-api-utils';
 // import { sendMobileNotification } from "../../../utils";
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendNotification } from '../../../messageBroker';

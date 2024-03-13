@@ -4,6 +4,7 @@ const commonFields = `
   $name: String
   $description: String
   $orderPassword: String
+  $scopeBrandIds: [String]
   $pdomain: String
   $erxesAppToken: String
   $productDetails: [String]
@@ -42,6 +43,7 @@ const commonVariables = `
   name: $name,
   description: $description,
   orderPassword: $orderPassword,
+  scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
   erxesAppToken: $erxesAppToken
   productDetails: $productDetails
@@ -135,5 +137,5 @@ export default {
   updateConfigs,
   brandAdd,
   saveProductGroups,
-  saveSlots
+  saveSlots,
 };

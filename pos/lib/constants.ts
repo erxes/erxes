@@ -52,6 +52,7 @@ const BANK_CARD_TYPES = {
   GOLOMT: "golomtCard",
   KHANBANK: "khaanCard",
   TDB: "TDBCard",
+  CAPITRON: "capitron",
 }
 
 const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)
@@ -59,3 +60,8 @@ const ALL_BANK_CARD_TYPES = Object.values(BANK_CARD_TYPES)
 const HARD_PAYMENT_TYPES = ["mobile", ...ALL_BANK_CARD_TYPES]
 
 export { BANK_CARD_TYPES, ALL_BANK_CARD_TYPES, HARD_PAYMENT_TYPES }
+
+export const INSTRUCTIONS = {
+  PAYMENT_APP_TOKEN:
+    "https://www.loom.com/embed/fd24cad046f841d68e7e083b58cd69fc?sid=e35792ec-d40b-41f6-8548-6ace14fe4d43",
+}

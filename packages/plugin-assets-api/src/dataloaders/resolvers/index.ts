@@ -17,7 +17,7 @@ import {
   MovementItem as movementItemQueries
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   Asset,
   AssetCategory,

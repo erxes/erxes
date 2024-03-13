@@ -1,9 +1,9 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCoreMessage } from './messageBroker';
 
 export default {
-  products: ['products']
+  products: ['products'],
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
@@ -23,14 +23,14 @@ export const afterQueryHandlers = async (subdomain, data) => {
       subdomain,
       action: 'getConfig',
       data: { code: 'ERKHET', defaultValue: {} },
-      isRPC: true
+      isRPC: true,
     });
 
     const remConfigs = await sendCoreMessage({
       subdomain,
       action: 'getConfig',
       data: { code: 'remainderConfig', defaultValue: {} },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
@@ -39,24 +39,26 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     const remConfig = remConfigs[pipelineId];
 
-    const codes = (results || []).map(item => item.code);
+    const codes = (results || []).map((item) => item.code);
 
-    const response = await sendRequest({
-      url: configs.getRemainderApiUrl,
-      method: 'GET',
-      params: {
-        kind: 'remainder',
-        api_key: configs.apiKey,
-        api_secret: configs.apiSecret,
-        check_relate: codes.length < 4 ? '1' : '',
-        accounts: remConfig.account,
-        locations: remConfig.location,
-        inventories: codes.join(',')
+    const response = await fetch(
+      configs.getRemainderApiUrl +
+        '?' +
+        new URLSearchParams({
+          kind: 'remainder',
+          api_key: configs.apiKey,
+          api_secret: configs.apiSecret,
+          check_relate: codes.length < 4 ? '1' : '',
+          accounts: remConfig.account,
+          locations: remConfig.location,
+          inventories: codes.join(','),
+        }),
+      {
+        timeout: 8000,
       },
-      timeout: 8000
-    });
+    );
 
-    const jsonRes = JSON.parse(response);
+    const jsonRes = await response.json();
     let responseByCode = {};
 
     if (remConfig.account && remConfig.location) {

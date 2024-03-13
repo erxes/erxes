@@ -37,6 +37,7 @@ const commonFields = `
   brandIds
   segmentIds
   messenger
+  notification
   email
 
   createdUserName
@@ -104,6 +105,14 @@ const engageMessages = `
             `
           : ''
       }
+
+      ${
+        isEnabled('clientportal')
+          ? `
+              cpId
+            `
+          : ''
+      }
     }
   }
 `;
@@ -117,6 +126,7 @@ export const engageDetailFields = `
   lastRunAt
   smsStats
   stats
+  notificationStats
 
   scheduleDate {
     type
@@ -127,6 +137,8 @@ export const engageDetailFields = `
   brand {
     name
   }
+
+  ${isEnabled('clientportal') ? 'cpId' : ''}
 
   ${
     isEnabled('tags')
@@ -374,5 +386,5 @@ export default {
   engagesConfigDetail,
   emailTemplates,
   totalCount,
-  engageLogs
+  engageLogs,
 };

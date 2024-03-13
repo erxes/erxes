@@ -3,6 +3,7 @@ export const posCommonFields = `
   name
   description
   orderPassword
+  scopeBrandIds
   pdomain
   createdAt
   token
@@ -132,11 +133,18 @@ const posEnv = `
   }
 `;
 
+const posOrdersSummary = `
+query PosOrdersSummary($customerId: String) {
+  posOrdersSummary(customerId: $customerId)
+}
+`;
+
 export default {
   posList,
   productGroups,
   posDetail,
   posEnv,
   getDbSchemaLabels,
-  posSlots
+  posSlots,
+  posOrdersSummary,
 };

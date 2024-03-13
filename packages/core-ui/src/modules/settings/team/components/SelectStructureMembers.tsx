@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from 'modules/common/utils';
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
-import Select from 'react-select-plus';
 
+import { IUser } from '@erxes/ui/src/auth/types';
+import Select from 'react-select-plus';
+import { __ } from 'modules/common/utils';
+import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui/src/team/graphql';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   onSelect: (value: string[] | string) => void;
@@ -57,7 +57,9 @@ export default function SelectStructureMembers({
       onChange={onSelect}
       options={users.map(user => ({
         value: user._id,
-        label: user.details ? user.details.fullName || user.email : user.email,
+        label: user.details
+          ? user.details.fullName || user.details.firstName || user.email
+          : user.username || user.email,
         avatar: user.details ? user.details.avatar : ''
       }))}
     />

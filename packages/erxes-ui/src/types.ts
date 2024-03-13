@@ -162,12 +162,14 @@ export type IButtonMutateProps = {
 
 export type IMentionUser = {
   id: string;
-  avatar: string;
+  avatar?: string;
   username: string;
   fullName?: string;
+  title?: string;
 };
 
 export type IEditorProps = {
+  placeholder?: string;
   onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
@@ -177,13 +179,13 @@ export type IEditorProps = {
   removeButtons?: string;
   removePlugins?: string;
   toolbarCanCollapse?: boolean;
-  mentionUsers?: IMentionUser[];
+  showMentions?: boolean;
   toolbar?: any[];
   autoFocus?: boolean;
   toolbarLocation?: 'top' | 'bottom';
   autoGrow?: boolean;
-  autoGrowMinHeight?: number;
-  autoGrowMaxHeight?: number;
+  autoGrowMinHeight?: number | string;
+  autoGrowMaxHeight?: number | string;
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;

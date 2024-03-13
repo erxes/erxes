@@ -1,10 +1,9 @@
-import dayjs from 'dayjs';
-import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Label from '@erxes/ui/src/components/Label';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
+import React from 'react';
+import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
 import { renderDynamicComponent } from '../../utils';
 import SendEmail from './components/SendEmail';
 

@@ -1,5 +1,5 @@
-const commonParamDefs = `$name: String, $userGroupId: String, $expireDate: Date`;
-const commonParams = `name: $name, userGroupId: $userGroupId, expireDate: $expireDate`;
+const commonParamDefs = `$name: String, $userGroupId: String, $expireDate: Date, $allowAllPermission: Boolean, $noExpire: Boolean`;
+const commonParams = `name: $name, userGroupId: $userGroupId, expireDate: $expireDate, allowAllPermission: $allowAllPermission, noExpire: $noExpire`;
 
 const appsAdd = `
   mutation appsAdd(${commonParamDefs}) {

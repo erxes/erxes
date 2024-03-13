@@ -1,10 +1,10 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { models } from '../../../connectionResolver';
 const productreviewQueries = {
   productreview: async (
     _root,
     params,
-    { models: { ProductReview } }: IContext
+    { models: { ProductReview } }: IContext,
   ) => {
     const { productId } = params;
     const reviews = await ProductReview.find({ productId }).lean();
@@ -12,23 +12,35 @@ const productreviewQueries = {
       return {
         productId,
         average: 0,
-        length: 0
+        length: 0,
       };
 
     return {
       productId,
       average:
         reviews.reduce((sum, cur) => sum + cur.review, 0) / reviews.length,
-      length: reviews.length
+      length: reviews.length,
+      reviews,
     };
   },
   productreviews: async (
     _root,
     params,
-    { models: { ProductReview } }: IContext
+    { models: { ProductReview } }: IContext,
   ) => {
-    const { customerId, productIds } = params;
-    return ProductReview.find({ customerId, productId: { $in: productIds } });
-  }
+    const { customerId, productIds, ...pagintationArgs } = params;
+
+    const filter: any = {};
+
+    if (customerId) {
+      filter.customerId = customerId;
+    }
+
+    if (productIds) {
+      filter.productId = { $in: productIds };
+    }
+
+    return paginate(ProductReview.find(filter), pagintationArgs);
+  },
 };
 export default productreviewQueries;

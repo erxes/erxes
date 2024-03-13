@@ -6,15 +6,15 @@ import {
   IStageModel,
   loadBoardClass,
   loadPipelineClass,
-  loadStageClass
+  loadStageClass,
 } from './models/Boards';
 import {
   IChecklistItemModel,
   loadClass as loadChecklistClass,
-  loadItemClass
+  loadItemClass,
 } from './models/Checklists';
 
-import { loadCostClass } from './models/Costs';
+import { loadExpenseClass } from './models/Expenses';
 import { IDealModel, loadDealClass } from './models/Deals';
 import { IPurchaseModel, loadPurchaseClass } from './models/Purchases';
 import { ITaskModel, loadTaskClass } from './models/Tasks';
@@ -24,7 +24,7 @@ import { IChecklistModel } from './models/Checklists';
 import {
   IBoardDocument,
   IPipelineDocument,
-  IStageDocument
+  IStageDocument,
 } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
 import { IPurchaseDocument } from './models/definitions/purchases';
@@ -33,27 +33,27 @@ import { ITicketDocument } from './models/definitions/tickets';
 import { IGrowthHackDocument } from './models/definitions/growthHacks';
 import {
   IChecklistDocument,
-  IChecklistItemDocument
+  IChecklistItemDocument,
 } from './models/definitions/checklists';
 import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 import {
   IPipelineLabelModel,
-  loadPipelineLabelClass
+  loadPipelineLabelClass,
 } from './models/PipelineLabels';
 import {
   IPipelineTemplateModel,
-  loadPipelineTemplateClass
+  loadPipelineTemplateClass,
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { ICostModel } from './models/Costs';
-import { ICostDocument } from './models/definitions/costs';
+import { IExpenseModel } from './models/Expenses';
+import { IExpenseDocument } from './models/definitions/expenses';
 
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
   Stages: IStageModel;
-  Costs: ICostModel;
+  Expenses: IExpenseModel;
   Deals: IDealModel;
   Purchases: IPurchaseModel;
   Tasks: ITaskModel;
@@ -71,63 +71,61 @@ export interface IContext extends IMainContext {
   serverTiming: any;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
     'boards',
-    loadBoardClass(models, subdomain)
+    loadBoardClass(models, subdomain),
   );
 
-  models.Costs = db.model<ICostDocument, ICostModel>(
+  models.Expenses = db.model<IExpenseDocument, IExpenseModel>(
     'expenses',
-    loadCostClass(models, subdomain)
+    loadExpenseClass(models, subdomain),
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
     'pipelines',
-    loadPipelineClass(models, subdomain)
+    loadPipelineClass(models, subdomain),
   );
   models.Stages = db.model<IStageDocument, IStageModel>(
     'stages',
-    loadStageClass(models, subdomain)
+    loadStageClass(models, subdomain),
   );
   models.Deals = db.model<IDealDocument, IDealModel>(
     'deals',
-    loadDealClass(models, subdomain)
+    loadDealClass(models, subdomain),
   );
   models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
     'purchases',
-    loadPurchaseClass(models, subdomain)
+    loadPurchaseClass(models, subdomain),
   );
   models.Tasks = db.model<ITaskDocument, ITaskModel>(
     'tasks',
-    loadTaskClass(models, subdomain)
+    loadTaskClass(models, subdomain),
   );
   models.Tickets = db.model<ITicketDocument, ITicketModel>(
     'tickets',
-    loadTicketClass(models, subdomain)
+    loadTicketClass(models, subdomain),
   );
   models.GrowthHacks = db.model<IGrowthHackDocument, IGrowthHackModel>(
     'growth_hacks',
-    loadGrowthHackClass(models, subdomain)
+    loadGrowthHackClass(models, subdomain),
   );
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
     'checklists',
-    loadChecklistClass(models, subdomain)
+    loadChecklistClass(models, subdomain),
   );
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
     'checklist_items',
-    loadItemClass(models, subdomain)
+    loadItemClass(models, subdomain),
   );
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
     'pipeline_labels',
-    loadPipelineLabelClass(models)
+    loadPipelineLabelClass(models),
   );
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
@@ -137,7 +135,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

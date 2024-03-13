@@ -57,6 +57,7 @@ class Sidebar extends React.Component<Props> {
             initialValue={assignedUserIds}
             onSelect={userOnChange}
             filterParams={{
+              isAssignee: true,
               departmentIds,
               branchIds
             }}

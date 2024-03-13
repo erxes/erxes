@@ -7,7 +7,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 
 import { IProductCategory } from '@erxes/ui-products/src/types';
@@ -44,6 +44,7 @@ type State = {
   savingPlusLoanInterest: number;
   savingUpperPercent: number;
   usePrePayment: boolean;
+  invoiceDay: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -65,10 +66,11 @@ class ContractTypeForm extends React.Component<Props, State> {
       collateralType: contractType.collateralType,
       currency:
         contractType.currency ||
-        this.props.currentUser.configs?.dealCurrency[0],
+        this.props.currentUser.configs?.dealCurrency?.[0],
       usePrePayment: contractType.usePrePayment || false,
       savingPlusLoanInterest: contractType.savingPlusLoanInterest,
-      savingUpperPercent: contractType.savingUpperPercent
+      savingUpperPercent: contractType.savingUpperPercent,
+      invoiceDay: contractType.invoiceDay,
     };
   }
 
@@ -101,7 +103,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       commitmentInterest: Number(finalValues.commitmentInterest),
       savingPlusLoanInterest: Number(finalValues.savingPlusLoanInterest),
       savingUpperPercent: Number(finalValues.savingUpperPercent),
-      usePrePayment: this.state.usePrePayment
+      usePrePayment: this.state.usePrePayment,
+      invoiceDay: this.state.invoiceDay,
     };
   };
 
@@ -121,7 +124,7 @@ class ContractTypeForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = e => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value =
       e.target.type === 'checkbox'
@@ -136,8 +139,8 @@ class ContractTypeForm extends React.Component<Props, State> {
     const { closeModal, renderButton, currentUser } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const onSelectProductCategory = values => {
-      this.setState({ productCategoryIds: values.map(item => item.value) });
+    const onSelectProductCategory = (values) => {
+      this.setState({ productCategoryIds: values.map((item) => item.value) });
     };
 
     return (
@@ -149,19 +152,19 @@ class ContractTypeForm extends React.Component<Props, State> {
                 ...formProps,
                 name: 'code',
                 required: true,
-                defaultValue: contractType.code || ''
+                defaultValue: contractType.code || '',
               })}
               {this.renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
                 required: true,
-                defaultValue: contractType.name || ''
+                defaultValue: contractType.name || '',
               })}
               {this.renderFormGroup('Start Number', {
                 ...formProps,
                 name: 'number',
                 required: true,
-                defaultValue: contractType.number || ''
+                defaultValue: contractType.number || '',
               })}
               {this.renderFormGroup('After vacancy count', {
                 ...formProps,
@@ -169,7 +172,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                 required: true,
                 type: 'number',
                 defaultValue: contractType.vacancy || 1,
-                max: 20
+                max: 20,
               })}
 
               {this.state.leaseType !== LEASE_TYPES.SAVING && (
@@ -181,11 +184,11 @@ class ContractTypeForm extends React.Component<Props, State> {
                     value={this.state.productCategoryIds}
                     onChange={onSelectProductCategory}
                     multi={true}
-                    options={this.props.productCategories.map(category => ({
+                    options={this.props.productCategories.map((category) => ({
                       value: category._id,
                       label: `${'\u00A0  '.repeat(
-                        (category.order.match(/[/]/gi) || []).length
-                      )}${category.code} - ${category.name}`
+                        (category.order.match(/[/]/gi) || []).length,
+                      )}${category.code} - ${category.name}`,
                     }))}
                   />
                 </FormGroup>
@@ -215,7 +218,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                 ...formProps,
                 name: 'unduePercent',
                 defaultValue: contractType.unduePercent || '',
-                type: 'number'
+                type: 'number',
               })}
 
               <FormGroup>
@@ -233,7 +236,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                       <option key={index} value={typeName}>
                         {typeName}
                       </option>
-                    )
+                    ),
                   )}
                 </FormControl>
               </FormGroup>
@@ -256,26 +259,26 @@ class ContractTypeForm extends React.Component<Props, State> {
                   ))}
                 </FormControl>
               </FormGroup>
-              {this.state.leaseType !== LEASE_TYPES.SAVING && (
-                <FormGroup>
-                  <ControlLabel>{__('Collateral Type')}:</ControlLabel>
-
-                  <FormControl
-                    {...this.props}
-                    name="collateralType"
-                    componentClass="select"
-                    value={this.state.collateralType}
-                    required={true}
-                    onChange={this.onChangeField}
-                  >
-                    {COLLATERAL_TYPE.ALL.map((typeName, index) => (
-                      <option key={index} value={typeName}>
-                        {typeName}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+              {this.state.leaseType !== LEASE_TYPES.SAVING &&
+                this.state.leaseType !== LEASE_TYPES.CREDIT && (
+                  <FormGroup>
+                    <ControlLabel>{__('Collateral type')}:</ControlLabel>
+                    <FormControl
+                      {...this.props}
+                      name="collateralType"
+                      componentClass="select"
+                      value={this.state.collateralType}
+                      required={true}
+                      onChange={this.onChangeField}
+                    >
+                      {COLLATERAL_TYPE.ALL.map((typeName, index) => (
+                        <option key={index} value={typeName}>
+                          {typeName}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
               {this.state.leaseType === LEASE_TYPES.LINEAR &&
                 this.renderFormGroup('Commitment interest', {
                   ...formProps,
@@ -283,16 +286,23 @@ class ContractTypeForm extends React.Component<Props, State> {
                   required: true,
                   type: 'number',
                   useNumberFormat: true,
-                  value: contractType.commitmentInterest
+                  value: contractType.commitmentInterest,
                 })}
-              {this.state.leaseType === LEASE_TYPES.LINEAR &&
-                this.renderFormGroup('Bill day', {
+              {this.state.leaseType === LEASE_TYPES.CREDIT &&
+                this.renderFormGroup('Invoice day', {
                   ...formProps,
-                  name: 'billDay',
+                  name: 'invoiceDay',
                   required: true,
                   type: '',
                   useNumberFormat: true,
-                  value: contractType.commitmentInterest
+                  value: this.state.invoiceDay,
+                  componentClass: 'select',
+                  onChange: this.onChangeField,
+                  children: new Array(31).fill(1).map((_, index) => (
+                    <option key={index} value={index + 1}>
+                      {index + 1}
+                    </option>
+                  )),
                 })}
               {currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.ENTITY && (
@@ -312,7 +322,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                       'fromInterest',
                       'fromAmount',
                       'fromTotalPayment',
-                      'fromEndAmount'
+                      'fromEndAmount',
                     ].map((typeName, index) => (
                       <option key={`undeType${index}`} value={typeName}>
                         {typeName}
@@ -326,7 +336,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'savingPlusLoanInterest',
                   required: true,
-                  defaultValue: contractType.savingPlusLoanInterest || 0
+                  defaultValue: contractType.savingPlusLoanInterest || 0,
                 })}
               {this.state.leaseType === LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Saving upper percent', {
@@ -334,7 +344,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   name: 'savingUpperPercent',
                   required: true,
                   max: 100,
-                  defaultValue: contractType.savingUpperPercent || 0
+                  defaultValue: contractType.savingUpperPercent || 0,
                 })}
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Is use debt', {
@@ -344,7 +354,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useDebt',
                   checked: this.state.useDebt,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Is use margin amount', {
@@ -354,7 +364,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useMargin',
                   checked: this.state.useMargin,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Is use skip interest', {
@@ -364,7 +374,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useSkipInterest',
                   checked: this.state.useSkipInterest,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Is use manual numbering', {
@@ -374,7 +384,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useManualNumbering',
                   checked: this.state.useManualNumbering,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
               {this.state.leaseType !== LEASE_TYPES.SAVING &&
                 this.renderFormGroup('Is use fee', {
@@ -384,17 +394,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                   componentClass: 'checkbox',
                   name: 'useFee',
                   checked: this.state.useFee,
-                  onChange: this.onChangeField
-                })}
-              {this.state.leaseType !== LEASE_TYPES.SAVING &&
-                this.renderFormGroup('Is use pre payment', {
-                  ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'usePrePayment',
-                  checked: this.state.usePrePayment,
-                  onChange: this.onChangeField
+                  onChange: this.onChangeField,
                 })}
             </FormColumn>
           </FormWrapper>
@@ -405,7 +405,7 @@ class ContractTypeForm extends React.Component<Props, State> {
                 name: 'description',
                 max: 140,
                 componentClass: 'textarea',
-                defaultValue: contractType.description || ''
+                defaultValue: contractType.description || '',
               })}
             </FormColumn>
           </FormWrapper>
@@ -420,7 +420,7 @@ class ContractTypeForm extends React.Component<Props, State> {
             name: 'contractType',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.contractType
+            object: this.props.contractType,
           })}
         </ModalFooter>
       </>

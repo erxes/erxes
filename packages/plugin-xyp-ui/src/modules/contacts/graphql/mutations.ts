@@ -99,9 +99,15 @@ mutation customersEdit($_id: String!, $avatar: String, $firstName: String, $last
     __typename
   }
 }`;
+const xypConvertToCustomeFields = `
+mutation XypConvertToCustomeFields($id: String!) {
+  xypConvertToCustomeFields(_id: $id) 
+}
+`;
 export default {
   add,
   remove,
   edit,
-  customerEdit
+  customerEdit,
+  xypConvertToCustomeFields
 };

@@ -127,9 +127,10 @@ function List(props: FinalProps) {
     </Table>
   );
 
-  // const SideBarList = asyncComponent(() =>
-  //   import(/* webpackChunkName: "List - Reports" */ '../containers/SideBarList')
-  // );
+  const afterTag = () => {
+    setChosenReportIds([]);
+  };
+
   const LeftSidebar = <SideBar {...props} />;
 
   const breadcrumb = [
@@ -162,10 +163,10 @@ function List(props: FinalProps) {
         {isEnabled('tags') && (
           <TaggerPopover
             type={TAG_TYPES.REPORT}
-            // successCallback={this.afterTag}
+            successCallback={afterTag}
             targets={reports.filter(r => chosenReportIds.includes(r._id))}
             trigger={tagButton}
-            // refetchQueries={['dashboardCountByTags']}
+            refetchQueries={['reportsCountByTags']}
           />
         )}
       </BarItems>
@@ -182,7 +183,13 @@ function List(props: FinalProps) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('Reports')} breadcrumb={breadcrumb} />}
+      header={
+        <Wrapper.Header
+          title={__('Reports')}
+          breadcrumb={breadcrumb}
+          queryParams={queryParams}
+        />
+      }
       actionBar={actionBar}
       content={
         <DataWithLoader
@@ -200,4 +207,4 @@ function List(props: FinalProps) {
   );
 }
 
-export default withTableWrapper('Dashboard', withRouter<IRouterProps>(List));
+export default withTableWrapper('Reports', withRouter<IRouterProps>(List));

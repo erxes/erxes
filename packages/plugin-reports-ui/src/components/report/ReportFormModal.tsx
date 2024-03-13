@@ -5,7 +5,7 @@ import {
   ControlLabel,
   FormControl,
   TabTitle,
-  Tabs
+  Tabs,
 } from '@erxes/ui/src/components';
 import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
@@ -33,7 +33,7 @@ const ReportFormModal = (props: Props) => {
     reportTemplateType,
     reportName,
     chartTemplates,
-    chartsOfReportTemplate
+    chartsOfReportTemplate,
   } = props;
 
   const [totalFilters, setTotalFilters] = useState<any[]>([{}]);
@@ -47,6 +47,9 @@ const ReportFormModal = (props: Props) => {
 
   const [name, setName] = useState(reportName || '');
 
+  const emptyChartsOfReportTemplate =
+    !chartsOfReportTemplate || !chartsOfReportTemplate.length;
+
   useEffect(() => {
     const getFilters: any[] = [];
 
@@ -55,32 +58,52 @@ const ReportFormModal = (props: Props) => {
     }
     setTotalFilters(getFilters);
 
+    // handle form from other plugin
+    if (emptyChartsOfReportTemplate) {
+      for (const chartTemplate of chartTemplates) {
+        templateCharts[chartTemplate.templateType] = true;
+      }
+    }
+
     for (const chart of chartsOfReportTemplate) {
       templateCharts[chart] = true;
       setTemplateCharts(templateCharts);
     }
   }, [chartTemplates]);
 
-  const handleUserChange = _userIds => {
+  const handleUserChange = (_userIds) => {
     setUserIds(_userIds);
   };
 
-  const handleDepartmentChange = _departmentIds => {
+  const handleDepartmentChange = (_departmentIds) => {
     setDepartmentIds(_departmentIds);
   };
 
-  const handleNameChange = e => {
+  const handleNameChange = (e) => {
     e.preventDefault();
     setName(e.target.value);
   };
 
   const handleSubmit = () => {
-    const filterCharts = chartsOfReportTemplate.filter(chartName => {
+    let filterCharts;
+
+    filterCharts = chartsOfReportTemplate.filter((chartName) => {
       const chartChecked = templateCharts[chartName];
       if (chartChecked) {
         return chartChecked;
       }
     });
+
+    if (emptyChartsOfReportTemplate) {
+      filterCharts = chartTemplates
+        .filter((c) => {
+          const chartChecked = templateCharts[c.templateType];
+          if (chartChecked) {
+            return c;
+          }
+        })
+        .map((c) => c.templateType);
+    }
 
     createReport({
       name,
@@ -88,7 +111,7 @@ const ReportFormModal = (props: Props) => {
       assignedUserIds: userIds,
       assignedDepartmentIds: departmentIds,
       reportTemplateType,
-      charts: filterCharts
+      charts: filterCharts,
     });
   };
 
@@ -96,7 +119,7 @@ const ReportFormModal = (props: Props) => {
     const { values } = formProps;
 
     return (
-      <FlexColumn style={{ gap: '20px' }}>
+      <FlexColumn style={{ gap: '30px' }}>
         <div>
           <ControlLabel>Report Name</ControlLabel>
           <FormControl
@@ -133,29 +156,31 @@ const ReportFormModal = (props: Props) => {
           />
         )}
 
-        {chartTemplates
-          .filter(c => c.templateType in templateCharts)
-          .map(chartTemplate => {
-            return (
-              <FlexRow
-                key={chartTemplate.templateType}
-                justifyContent="space-between"
-              >
-                <ControlLabel>{chartTemplate.name}</ControlLabel>
-                <FormControl
-                  componentClass="checkbox"
-                  name={chartTemplate.templateType}
-                  checked={templateCharts[chartTemplate.templateType]}
-                  key={chartTemplate.name}
-                  onChange={(v: any) => {
-                    templateCharts[chartTemplate.templateType] =
-                      v.target.checked;
-                    setTemplateCharts({ ...templateCharts });
-                  }}
-                />
-              </FlexRow>
-            );
-          })}
+        <FlexColumn style={{ gap: '20px' }}>
+          {chartTemplates
+            .filter((c) => c.templateType in templateCharts)
+            .map((chartTemplate) => {
+              return (
+                <FlexRow
+                  key={chartTemplate.templateType}
+                  justifyContent="space-between"
+                >
+                  <ControlLabel>{chartTemplate.name}</ControlLabel>
+                  <FormControl
+                    componentClass="checkbox"
+                    name={chartTemplate.templateType}
+                    checked={templateCharts[chartTemplate.templateType]}
+                    key={chartTemplate.name}
+                    onChange={(v: any) => {
+                      templateCharts[chartTemplate.templateType] =
+                        v.target.checked;
+                      setTemplateCharts({ ...templateCharts });
+                    }}
+                  />
+                </FlexRow>
+              );
+            })}
+        </FlexColumn>
 
         <FlexCenter>
           <Button btnStyle="primary" onClick={() => setShowModal(false)}>

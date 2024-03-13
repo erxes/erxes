@@ -3,15 +3,9 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker, sendCoreMessage } from './messageBroker';
+import { setupMessageConsumers, sendCoreMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { checkFilePermission } from './utils';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
 
 const checkPermission = async ({ subdomain, models, files, userId }) => {
   if (files.length > 0) {
@@ -23,7 +17,7 @@ const checkPermission = async ({ subdomain, models, files, userId }) => {
       subdomain,
       action: 'users.findOne',
       data: { _id: userId },
-      isRPC: true
+      isRPC: true,
     });
 
     for (const file of files) {
@@ -35,11 +29,10 @@ const checkPermission = async ({ subdomain, models, files, userId }) => {
 export default {
   name: 'filemanager',
   permissions,
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   segment: {},
@@ -50,7 +43,7 @@ export default {
 
         const files = await models.Files.find({ url: key });
         await checkPermission({ subdomain, models, files, userId });
-      }
+      },
     },
     documentPrintHook: {
       action: async ({ subdomain, data: { document, userId } }) => {
@@ -59,8 +52,8 @@ export default {
         const files = await models.Files.find({ documentId: document._id });
 
         await checkPermission({ subdomain, models, files, userId });
-      }
-    }
+      },
+    },
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -69,12 +62,6 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

@@ -11,7 +11,7 @@ export default {
   async customers(
     company: ICompanyDocument,
     _,
-    { models: { Customers }, subdomain }: IContext
+    { models: { Customers }, subdomain }: IContext,
   ) {
     const customerIds = await sendCoreMessage({
       subdomain,
@@ -19,17 +19,17 @@ export default {
       data: {
         mainType: 'company',
         mainTypeId: company._id,
-        relTypes: ['customer']
+        relTypes: ['customer'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   async getTags(company: ICompanyDocument) {
-    return (company.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (company.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   owner(company: ICompanyDocument) {
@@ -43,7 +43,7 @@ export default {
   parentCompany(
     { parentCompanyId }: ICompanyDocument,
     _,
-    { models: { Companies } }: IContext
+    { models: { Companies } }: IContext,
   ) {
     return Companies.findOne({ _id: parentCompanyId });
   },
@@ -51,8 +51,8 @@ export default {
   customFieldsDataByFieldCode(
     company: ICompanyDocument,
     _,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
-    return customFieldsDataByFieldCode(company, subdomain, sendCommonMessage);
-  }
+    return customFieldsDataByFieldCode(company, subdomain);
+  },
 };

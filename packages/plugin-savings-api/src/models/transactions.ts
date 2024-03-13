@@ -13,11 +13,8 @@ import { TRANSACTION_TYPE } from './definitions/constants';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
-  createTransaction(
-    subdomain: string,
-    doc: ITransaction
-  ): Promise<ITransactionDocument>;
-  updateTransaction(subdomain: any, _id: string, doc: ITransaction);
+  createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
+  updateTransaction(_id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction);
   removeTransactions(_ids: string[]);
 }
@@ -43,10 +40,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Create a transaction
      */
-    public static async createTransaction(
-      subdomain: string,
-      doc: ITransaction
-    ) {
+    public static async createTransaction(doc: ITransaction) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({
@@ -101,11 +95,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Update Transaction
      */
-    public static async updateTransaction(
-      subdomain,
-      _id: string,
-      doc: ITransaction
-    ) {
+    public static async updateTransaction(_id: string, doc: ITransaction) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({

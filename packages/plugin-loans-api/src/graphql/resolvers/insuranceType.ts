@@ -5,7 +5,7 @@ import { IInsuranceTypeDocument } from '../../models/definitions/insuranceTypes'
 const InsuranceTypes = {
   async company(
     insuranceType: IInsuranceTypeDocument,
-    {},
+    _,
     { subdomain }: IContext
   ) {
     if (!insuranceType.companyId) return null;

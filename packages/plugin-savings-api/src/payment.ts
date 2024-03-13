@@ -14,7 +14,7 @@ export default {
 
         //if contract found create transaction
         if (contract) {
-          await models.Transactions.createTransaction(subdomain, {
+          await models.Transactions.createTransaction({
             transactionType: TRANSACTION_TYPE.INCOME,
             currency: contract.currency,
             payDate: data.resolvedAt || new Date(),

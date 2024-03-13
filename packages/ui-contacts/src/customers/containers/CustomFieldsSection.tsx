@@ -19,7 +19,7 @@ type Props = {
   customer: ICustomer;
   loading?: boolean;
   isDetail: boolean;
-  collapseCallback: () => void;
+  collapseCallback?: () => void;
 };
 
 type FinalProps = {
@@ -34,7 +34,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroupsQuery,
     loading,
     isDetail,
-    collapseCallback
+    collapseCallback,
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -49,12 +49,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id, ...variables }
+      variables: { _id, ...variables },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -66,7 +66,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
     object: customer,
-    collapseCallback
+    collapseCallback,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -81,11 +81,11 @@ export default withProps<Props>(
         options: () => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-            isDefinedByErxes: false
-          }
+            isDefinedByErxes: false,
+          },
         }),
-        skip: !isEnabled('forms') ? true : false
-      }
+        skip: !isEnabled('forms') ? true : false,
+      },
     ),
 
     // mutations
@@ -94,9 +94,9 @@ export default withProps<Props>(
       {
         name: 'customersEdit',
         options: () => ({
-          refetchQueries: ['customerDetail']
-        })
-      }
-    )
-  )(CustomFieldsSection)
+          refetchQueries: ['customerDetail'],
+        }),
+      },
+    ),
+  )(CustomFieldsSection),
 );

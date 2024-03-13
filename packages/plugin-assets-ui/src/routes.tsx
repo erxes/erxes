@@ -19,7 +19,7 @@ const AssetMovementItems = asyncComponent(() =>
 
 const AssetDetail = asyncComponent(() =>
   import(
-    /* webpackChunkName: "List - Assets" */ './asset/detail/containers/Detail'
+    /* webpackChunkName: "List - Assets" */ './asset/containers/detail/Detail'
   )
 );
 
@@ -65,7 +65,7 @@ const movementItems = props => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/settings/assets/" exact component={assets} />
+      <Route path="/settings/assets/" exact={true} component={assets} />
       <Route
         path="/settings/assets/detail/:id"
         exact={true}

@@ -1,16 +1,12 @@
-import useUser from "@/modules/auth/hooks/useUser"
-import { paymentConfigAtom } from "@/store/config.store"
+import { coverConfigAtom, permissionConfigAtom } from "@/store/config.store"
 import { paidAmountsAtom } from "@/store/order.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 
 const useRenderEbarimt = () => {
-  const [paymentConfig] = useAtom(paymentConfigAtom)
-  const { isAdmin } = useUser()
-  const { permissionConfig, paymentTypes } = paymentConfig || {}
-  const { admins, cashiers } = permissionConfig || {}
+  const coverConfig = useAtomValue(coverConfigAtom)
+  const { isTempBill } = useAtomValue(permissionConfigAtom) || {}
+  const { paymentTypes } = coverConfig || {}
   const paidAmounts = useAtomValue(paidAmountsAtom)
-
-  const allowInnerBill = isAdmin ? admins?.isTempBill : cashiers?.isTempBill
 
   const skipEbarimtPts = paymentTypes
     ?.filter((pt) => pt?.config?.skipEbarimt)
@@ -23,7 +19,7 @@ const useRenderEbarimt = () => {
       0
     ) > 0
 
-  return { allowInnerBill, skipEbarimt }
+  return { allowInnerBill: isTempBill, skipEbarimt }
 }
 
 export default useRenderEbarimt

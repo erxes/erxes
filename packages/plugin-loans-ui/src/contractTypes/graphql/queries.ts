@@ -23,6 +23,7 @@ export const contractTypeFields = `
   savingPlusLoanInterest
   savingUpperPercent
   usePrePayment
+  invoiceDay
 `;
 
 const listParamsDef = `

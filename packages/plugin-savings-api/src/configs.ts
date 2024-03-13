@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import documents from './documents';
 import forms from './forms';
 import imports from './imports';
@@ -12,20 +12,13 @@ import payment from './payment';
 import { storeInterestCron } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
-
 export default {
   name: 'savings',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -38,24 +31,18 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleHourlyJob: storeInterestCron
+      handleMinutelyJob: storeInterestCron,
     },
     documents,
     permissions,
     forms,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };

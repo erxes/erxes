@@ -1,10 +1,14 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { router, withProps } from '@erxes/ui/src/utils';
 import SyncHistoryList from '../components/SyncHistoryList';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
-import { mutations, queries } from '../graphql';
+import {
+  SyncHistoriesCountQueryResponse,
+  SyncHistoriesQueryResponse,
+} from '../types';
+import { queries } from '../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 
 type Props = {
@@ -13,32 +17,71 @@ type Props = {
 };
 
 type FinalProps = {
-  configsQuery: ConfigsQueryResponse;
-  updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
+  syncMsdHistoriesQuery: SyncHistoriesQueryResponse;
+  syncMsdHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props;
 
 const SyncHistoryListContainer = (props: FinalProps) => {
-  const { updateConfigs, configsQuery } = props;
+  const { syncMsdHistoriesQuery, syncMsdHistoriesCountQuery } = props;
+
+  if (syncMsdHistoriesQuery.loading) {
+    return <Spinner />;
+  }
+
+  const syncHistories = syncMsdHistoriesQuery.syncMsdHistories || [];
+  const totalCount = syncMsdHistoriesCountQuery.syncMsdHistoriesCount || 0;
 
   const updatedProps = {
-    ...props
+    ...props,
+    syncHistories,
+    totalCount,
+    loading:
+      syncMsdHistoriesQuery.loading || syncMsdHistoriesCountQuery.loading,
   };
   return <SyncHistoryList {...updatedProps} />;
 };
 
+const generateParams = ({ queryParams }) => {
+  const pageInfo = router.generatePaginationParams(queryParams || {});
+
+  return {
+    page: pageInfo.page || 1,
+    perPage: pageInfo.perPage || 20,
+    sortField: queryParams.sortField,
+    sortDirection: Number(queryParams.sortDirection) || undefined,
+    userId: queryParams.userId,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    contentType: queryParams.contentType,
+    contentId: queryParams.contentId,
+    searchConsume: queryParams.searchConsume,
+    searchSend: queryParams.searchSend,
+    searchResponse: queryParams.searchResponse,
+    searchError: queryParams.searchError,
+  };
+};
+
 export default withProps<Props>(
   compose(
-    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery',
-      options: props => ({
-        variables: {
-          code: 'DYNAMIC'
-        },
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<{}>(gql(mutations.updateConfigs), {
-      name: 'updateConfigs'
-    })
-  )(SyncHistoryListContainer)
+    graphql<Props, SyncHistoriesQueryResponse, {}>(
+      gql(queries.syncMsdHistories),
+      {
+        name: 'syncMsdHistoriesQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+    graphql<Props, SyncHistoriesCountQueryResponse, {}>(
+      gql(queries.syncMsdHistoriesCount),
+      {
+        name: 'syncMsdHistoriesCountQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(SyncHistoryListContainer),
 );

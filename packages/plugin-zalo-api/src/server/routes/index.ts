@@ -1,7 +1,8 @@
 import { connectAccount, receiveMessage } from '../controllers';
 import userMiddleware from '../middlewares/userMiddleware';
+import app from '@erxes/api-utils/src/app';
 
-export const createRoutes = async app => {
+export const createRoutes = async () => {
   // app.use(userMiddleware);
 
   app.get('/login', async (req, res) => {

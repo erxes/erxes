@@ -176,7 +176,9 @@ const extractForm = (props: Props) => {
 
       <MarginY margin={10}>
         <FlexCenter>
-          <Button onClick={extractAllData}>Extract all data</Button>
+          <Button btnStyle="primary" onClick={extractAllData}>
+            Extract all data
+          </Button>
         </FlexCenter>
       </MarginY>
     </FlexColumnCustom>

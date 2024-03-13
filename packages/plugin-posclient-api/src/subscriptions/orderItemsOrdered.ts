@@ -1,5 +1,5 @@
 import { withFilter } from 'graphql-subscriptions';
-import { graphqlPubsub } from '../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export default {
   /*
@@ -13,7 +13,7 @@ export default {
         return (
           variables.posToken === posToken && variables.statuses.includes(status)
         );
-      }
-    )
-  }
+      },
+    ),
+  },
 };

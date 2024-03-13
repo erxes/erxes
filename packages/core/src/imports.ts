@@ -1,3 +1,4 @@
+import { InterMessage } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 import { sendFormsMessage } from './messageBroker';
 
@@ -5,13 +6,13 @@ const IMPORT_EXPORT_TYPES = [
   {
     text: 'Team member',
     contentType: 'user',
-    icon: 'user-square'
-  }
+    icon: 'user-square',
+  },
 ];
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
-  insertImportItems: async ({ subdomain, data }) => {
+  insertImportItems: async ({ subdomain, data }: InterMessage) => {
     const models = await generateModels(subdomain);
 
     const { docs } = data;
@@ -24,7 +25,7 @@ export default {
     }
   },
 
-  prepareImportDocs: async ({ subdomain, data }) => {
+  prepareImportDocs: async ({ subdomain, data }: InterMessage) => {
     const { result, properties } = data;
     const models = await generateModels(subdomain);
 
@@ -49,12 +50,12 @@ export default {
                 data: doc.customFieldsData,
                 isRPC: true,
                 defaultValue: doc.customFieldsData,
-                timeout: 60 * 1000 // 1 minute,
+                timeout: 60 * 1000, // 1 minute,
               });
 
               doc.customFieldsData.push({
                 field: property.id,
-                value: fieldValue[colIndex]
+                value: fieldValue[colIndex],
               });
             }
             break;
@@ -70,7 +71,7 @@ export default {
               const departmentTitles = value.split(',');
 
               const departmentIds = await models.Departments.find({
-                title: { $in: departmentTitles }
+                title: { $in: departmentTitles },
               }).distinct('_id');
 
               doc.departmentIds = departmentIds;
@@ -82,7 +83,7 @@ export default {
               const branchTitles = value.split(',');
 
               const branchIds = await models.Branches.find({
-                title: { $in: branchTitles }
+                title: { $in: branchTitles },
               }).distinct('_id');
 
               doc.branchIds = branchIds;
@@ -125,5 +126,5 @@ export default {
     }
 
     return bulkDoc;
-  }
+  },
 };

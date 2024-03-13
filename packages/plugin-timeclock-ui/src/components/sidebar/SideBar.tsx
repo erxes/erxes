@@ -6,7 +6,8 @@ import {
   FlexColumnCustom,
   FlexRow,
   SidebarActions,
-  SidebarHeader
+  SidebarHeader,
+  Trigger
 } from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -49,6 +50,23 @@ const LeftSideBar = (props: Props) => {
   const [selectedDepartments, setDepartments] = useState(
     queryParams.departmentIds
   );
+
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentDateOption, setCurrentDateOption] = useState('thisMonth');
+
+  const onMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const onMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const dateOptions = [
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'thisWeek' },
+    { label: 'This Month', value: 'thisMonth' }
+  ];
 
   const returnTotalUserOptions = () => {
     const totalUserOptions: string[] = [];
@@ -205,6 +223,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onDateButtonClick = (type: string) => {
+    setCurrentDateOption(type);
     if (type === 'today') {
       const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
       const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
@@ -214,7 +233,7 @@ const LeftSideBar = (props: Props) => {
       setParams('endDate', endOfToday);
     }
 
-    if (type === 'this month') {
+    if (type === 'thisMonth') {
       const endOfThisMonth = new Date(startOfNextMonth.getTime() - 1);
 
       setStartDate(startOfThisMonth);
@@ -224,7 +243,7 @@ const LeftSideBar = (props: Props) => {
       setParams('endDate', endOfThisMonth);
     }
 
-    if (type === 'this week') {
+    if (type === 'thisWeek') {
       const startOfThisWeek = new Date(NOW.setHours(0, 0, 0, 0));
       const endOfThisWeek = new Date(NOW.setHours(23, 59, 59, 999));
 
@@ -242,35 +261,61 @@ const LeftSideBar = (props: Props) => {
     }
   };
 
+  const renderDateFilterMenu = () => {
+    console.log(dateOptions);
+
+    return (
+      <Trigger
+        type="trigger"
+        isHoverActionBar={isHovered}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        {dateOptions.map(d => {
+          return (
+            <div
+              key={d.value}
+              className={d.value === currentDateOption ? 'active' : 'passive'}
+              onClick={() => onDateButtonClick(d.value)}
+            >
+              {d.label}
+            </div>
+          );
+        })}
+      </Trigger>
+    );
+  };
+
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
       <FlexColumnCustom marginNum={20}>
-        <FlexRow>
+        {/* <FlexRow>
           <Button
             style={{ width: '30%' }}
-            size="small"
-            btnStyle="primary"
+            size='small'
+            btnStyle='primary'
             onClick={() => onDateButtonClick('today')}
           >
             Today
           </Button>
           <Button
             style={{ width: '30%' }}
-            size="small"
-            btnStyle="primary"
+            size='small'
+            btnStyle='primary'
             onClick={() => onDateButtonClick('this week')}
           >
             This week
           </Button>
           <Button
             style={{ width: '30%' }}
-            size="small"
-            btnStyle="primary"
+            size='small'
+            btnStyle='primary'
             onClick={() => onDateButtonClick('this month')}
           >
             This month
           </Button>
-        </FlexRow>
+        </FlexRow> */}
+        {renderDateFilterMenu()}
         <div>
           <ControlLabel>Departments</ControlLabel>
           <Select

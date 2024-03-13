@@ -29,12 +29,13 @@ interface IPaymentsData {
   [key: string]: {
     currency?: string;
     amount?: number;
+    info?: any;
   };
 }
 
 export interface IDeal extends IItemCommonFields {
   productsData?: IProductData[];
-  paymentsData?: IPaymentsData[];
+  paymentsData?: IPaymentsData;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -63,14 +64,14 @@ export const productDataSchema = new Schema(
     isVatApplied: field({ type: Boolean, label: 'Is vat applied' }), // isVatApplied
     assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
     branchId: field({ type: String, optional: true, esType: 'keyword' }),
-    departmentId: field({ type: String, optional: true, esType: 'keyword' })
+    departmentId: field({ type: String, optional: true, esType: 'keyword' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const dealSchema = new Schema({
   ...commonItemFieldsSchema,
 
   productsData: field({ type: [productDataSchema], label: 'Products' }),
-  paymentsData: field({ type: Object, optional: true, label: 'Payments' })
+  paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
 });

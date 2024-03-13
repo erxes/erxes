@@ -36,12 +36,12 @@ type Props = {
 
 const commonOptions = queryParams => {
   const variables = {
-    start: queryParams.start,
-    end: queryParams.end,
+    start: queryParams.startDate,
+    end: queryParams.endDate,
     userId: queryParams.userId,
     action: queryParams.action,
     type: queryParams.type,
-    objectId: queryParams.objectId,
+    searchValue: queryParams.searchValue,
     ...generatePaginationParams(queryParams)
   };
 
@@ -54,12 +54,12 @@ export default compose(
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
       variables: {
-        start: queryParams.start,
-        end: queryParams.end,
+        start: queryParams.startDate,
+        end: queryParams.endDate,
         userId: queryParams.userId,
         action: queryParams.action,
         type: queryParams.type,
-        objectId: queryParams.objectId,
+        searchValue: queryParams.searchValue,
         ...generatePaginationParams(queryParams)
       }
     })

@@ -1,17 +1,12 @@
-import {
-  redis,
-  isAvailable,
-  getService,
-  getServices,
-  isEnabled
-} from '@erxes/api-utils/src/serviceDiscovery';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import redis from '@erxes/api-utils/src/redis';
 
 const setAfterMutations = async () => {
   const services = await getServices();
   const result = {};
 
   for (const service of services) {
-    const info = await getService(service, true);
+    const info = await getService(service);
     const meta = Object.keys(info.config).includes('meta')
       ? (info.config as any).meta
       : {};
@@ -38,12 +33,12 @@ const setAfterMutations = async () => {
   await redis.set('afterMutations', JSON.stringify(result));
 };
 
-const setCommonResolvers = async name => {
+const setCommonResolvers = async (name) => {
   const services = await getServices();
   const result = {};
 
   for (const service of services) {
-    const info = await getService(service, true);
+    const info = await getService(service);
     const meta = Object.keys(info.config).includes('meta')
       ? (info.config as any).meta
       : {};
@@ -74,20 +69,4 @@ const setBeforeResolvers = async () => {
   setCommonResolvers('beforeResolvers');
 };
 
-export const serviceDiscovery = {
-  isAvailable,
-  getServices,
-  getService,
-  redis,
-  isEnabled
-};
-
-export {
-  isAvailable,
-  getServices,
-  getService,
-  redis,
-  setAfterMutations,
-  setAfterQueries,
-  setBeforeResolvers
-};
+export { setAfterMutations, setAfterQueries, setBeforeResolvers };

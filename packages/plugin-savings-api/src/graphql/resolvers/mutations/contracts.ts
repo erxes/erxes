@@ -61,7 +61,7 @@ const contractMutations = {
       _id: { $ne: _id }
     });
 
-    if (!!checkOtherDeals) {
+    if (checkOtherDeals) {
       await models.Contracts.updateMany(
         { dealId: doc.dealId, _id: { $ne: _id } },
         { $set: { dealId: undefined } }

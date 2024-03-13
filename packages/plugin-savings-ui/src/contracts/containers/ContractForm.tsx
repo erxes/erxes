@@ -18,6 +18,7 @@ type Props = {
 type FinalProps = {
   usersQuery: UsersQueryResponse;
   currentUser: IUser;
+  change?: boolean;
 } & Props;
 
 class ContractFromContainer extends React.Component<FinalProps> {

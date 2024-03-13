@@ -14,6 +14,7 @@ const addEditParamDefs = `
     $buttonType: String
     $dueDate: Date
     $isPre: Boolean
+    $directDiscount: Float
 `
 
 const addEditParams = `
@@ -30,6 +31,7 @@ const addEditParams = `
     buttonType: $buttonType
     dueDate: $dueDate
     isPre: $isPre
+    directDiscount: $directDiscount
 `
 
 const ordersAdd = gql`

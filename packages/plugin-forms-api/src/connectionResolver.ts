@@ -1,24 +1,24 @@
 import * as mongoose from 'mongoose';
 import {
   IFieldDocument,
-  IFieldGroupDocument
+  IFieldGroupDocument,
 } from './models/definitions/fields';
 import {
   IFormDocument,
-  IFormSubmissionDocument
+  IFormSubmissionDocument,
 } from './models/definitions/forms';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IFieldModel,
   IFieldGroupModel,
   loadFieldClass,
-  loadGroupClass
+  loadGroupClass,
 } from './models/Fields';
 import {
   IFormModel,
   IFormSubmissionModel,
   loadFormClass,
-  loadFormSubmissionClass
+  loadFormSubmissionClass,
 } from './models/Forms';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -34,25 +34,23 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
     'form_fields',
-    loadFieldClass(models, subdomain)
+    loadFieldClass(models, subdomain),
   );
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
     'fields_groups',
-    loadGroupClass(models)
+    loadGroupClass(models),
   );
   models.Forms = db.model<IFormDocument, IFormModel>(
     'forms',
-    loadFormClass(models)
+    loadFormClass(models),
   );
   models.FormSubmissions = db.model<
     IFormSubmissionDocument,
@@ -62,7 +60,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

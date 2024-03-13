@@ -21,6 +21,21 @@ const InventoryProducts = asyncComponent(() =>
   )
 );
 
+const InventoryPrices = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
+  )
+);
+
+const InventoryCategory = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
+  )
+);
+const Customers = asyncComponent(() =>
+  import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
+);
+
 const msdynamics = ({ history }) => {
   return <GeneralSettings history={history} />;
 };
@@ -43,23 +58,66 @@ const InventoryProductList = ({ location, history }) => {
   );
 };
 
+const InventoryCategoryList = ({ location, history }) => {
+  return (
+    <InventoryCategory
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const CustomersList = ({ location, history }) => {
+  return (
+    <Customers
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const InventoryPriceList = ({ location, history }) => {
+  return (
+    <InventoryPrices
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <React.Fragment>
       <Route path="/msdynamics/" component={msdynamics} />
-
       <Route
         key="/sync-msdynamic-history"
         exact={true}
         path="/sync-msdynamic-history"
         component={syncHistoryList}
       />
-
       <Route
-        key="/msdynamics-products"
+        key="/msdynamic-products"
         exact={true}
-        path="/msdynamics-products"
+        path="/msdynamic-products"
         component={InventoryProductList}
+      />
+      <Route
+        key="/msdynamic-category"
+        exact={true}
+        path="/msdynamic-category"
+        component={InventoryCategoryList}
+      />
+      <Route
+        key="/msdynamic-customers"
+        exact={true}
+        path="/msdynamic-customers"
+        component={CustomersList}
+      />
+      <Route
+        key="/msdynamic-price"
+        exact={true}
+        path="/msdynamic-price"
+        component={InventoryPriceList}
       />
     </React.Fragment>
   );

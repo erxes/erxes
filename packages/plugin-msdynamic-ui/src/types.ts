@@ -40,12 +40,67 @@ export type EditMutationResponse = {
   editMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type ToSyncProductsMutationResponse = {
-  toSyncProducts: (mutation: {
-    variables: { action: string; products: any[] };
+export type ToCheckProductsMutationResponse = {
+  toCheckMsdProducts: (mutation: {
+    variables: { brandId: string };
   }) => Promise<any>;
 };
 
-export type ToCheckProductsMutationResponse = {
-  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+export type ToSyncProductsMutationResponse = {
+  toSyncMsdProducts: (mutation: {
+    variables: { brandId: string; action: string; products: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckPricesMutationResponse = {
+  toCheckMsdPrices: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
+};
+
+export type ToSyncPricesMutationResponse = {
+  toSyncMsdPrices: (mutation: {
+    variables: { brandId: string; action: string; prices: any[] };
+  }) => Promise<any>;
+};
+
+export type ToCheckCategoriesMutationResponse = {
+  toCheckMsdProductCategories: (mutation: {
+    variables: { brandId: string; categoryId: string };
+  }) => Promise<any>;
+};
+
+export type ToSyncCategoriesMutationResponse = {
+  toSyncMsdProductCategories: (mutation: {
+    variables: {
+      brandId: string;
+      action: string;
+      categoryId: string;
+      categories: any[];
+    };
+  }) => Promise<any>;
+};
+
+export type ToCheckCustomersMutationResponse = {
+  toCheckMsdCustomers: (mutation: {
+    variables: { brandId: string };
+  }) => Promise<any>;
+};
+
+export type ToSyncCustomersMutationResponse = {
+  toSyncMsdCustomers: (mutation: {
+    variables: { brandId: string; action: string; customers: any[] };
+  }) => Promise<any>;
+};
+
+export type SyncHistoriesQueryResponse = {
+  syncMsdHistories: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type SyncHistoriesCountQueryResponse = {
+  syncMsdHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
 };

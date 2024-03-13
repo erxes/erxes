@@ -54,10 +54,6 @@ class List extends React.Component<IProps> {
     );
   }
 
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
-  };
-
   isActive = (id: string) => {
     const { queryParams } = this.props;
     const currentGroup = queryParams.categoryId || '';
@@ -89,6 +85,13 @@ class List extends React.Component<IProps> {
     );
   };
 
+  onClick = (id: string) => {
+    const { history } = this.props;
+
+    router.removeParams(history, 'page');
+    router.setParams(history, { categoryId: id });
+  };
+
   renderContent() {
     const { productCategories, loading, queryParams } = this.props;
 
@@ -99,10 +102,10 @@ class List extends React.Component<IProps> {
         removeAction={this.renderRemoveAction}
         additionalActions={pluginsOfProductCategoryActions}
         loading={loading}
-        linkToText={'?categoryId='}
+        onClick={this.onClick}
         queryParams={queryParams}
-        isProductCategory={true}
         treeView={true}
+        keyCount="productCount"
       />
     );
   }
@@ -114,30 +117,14 @@ class List extends React.Component<IProps> {
       </Button>
     );
 
-    return (
-      <>
-        <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title>
-          {__('Categories')}
-
-          <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
-    );
+    return <Header>{this.renderFormTrigger(trigger)}</Header>;
   }
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true}>
+      <Sidebar hasBorder={true}>
         {this.renderCategoryHeader()}
+
         <SidebarList>{this.renderContent()}</SidebarList>
 
         {isEnabled('segments') && (

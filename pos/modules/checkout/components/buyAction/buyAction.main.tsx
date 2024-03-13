@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import DeliveryInputs from "@/modules/orders/components/DeliveryInputs"
+import SettingsTrigger from "@/modules/orders/components/DeliveryInputs/trigger"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import { configAtom } from "@/store/config.store"
 import {
@@ -59,7 +59,7 @@ const BuyAction = () => {
         Захиалах
       </Button>
       <div className="flex items-center col-span-2 gap-2">
-        <DeliveryInputs />
+        <SettingsTrigger />
         {ORDER_TYPES.SALES.includes(type) ? (
           <Button
             size="lg"

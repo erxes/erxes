@@ -17,7 +17,7 @@ export const getSyncLogDoc = (params: {
     contentType: type,
     contentId: params.object._id,
     createdAt: new Date(),
-    createdBy: user._id,
+    createdBy: user?._id,
     consumeData: params,
     consumeStr: JSON.stringify(params)
   };

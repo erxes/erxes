@@ -4,7 +4,6 @@ import {
   Icon,
   ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
-  __,
   SectionBodyItem,
   Alert
 } from '@erxes/ui/src';
@@ -24,6 +23,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   name: string;
@@ -41,7 +41,7 @@ function Component(
   this: any,
   {
     name,
-    contractsQuery = { contractsMain: { list: [] } } as any,
+    contractsQuery = { savingsContractsMain: { list: [] } } as any,
     mainType = '',
     mainTypeId = '',
     collapseCallback,
@@ -56,7 +56,7 @@ function Component(
         {...props}
         data={{
           name,
-          contracts: contractsQuery?.contractsMain?.list,
+          contracts: contractsQuery?.savingsContractsMain?.list,
           mainType,
           mainTypeId
         }}
@@ -81,7 +81,7 @@ function Component(
         {...props}
         data={{
           name,
-          contracts: contractsQuery?.contractsMain?.list,
+          contracts: contractsQuery?.savingsContractsMain?.list,
           mainTypeId,
           mainType,
           isRelated: true
@@ -133,15 +133,15 @@ function Component(
 
   const content = (
     <>
-      {contractsQuery?.contractsMain?.list.map((contract, index) => (
+      {contractsQuery?.savingsContractsMain?.list.map((contract, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/erxes-plugin-saving/contract-details/${contract._id}`}>
-            <Icon icon="arrow-to-right" />
+            <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
+            <span>{contract.number || 'Unknown'}</span>
           </Link>
-          <span>{contract.number || 'Unknown'}</span>
         </SectionBodyItem>
       ))}
-      {contractsQuery?.contractsMain?.list.length === 0 && (
+      {contractsQuery?.savingsContractsMain?.list.length === 0 && (
         <EmptyState icon="building" text="No contract" />
       )}
       {mainTypeId && mainType && relQuickButtons}
@@ -150,7 +150,7 @@ function Component(
 
   return (
     <Box
-      title={__(`${title || 'Contracts'}`)}
+      title={__('Saving contracts')}
       name="showContracts"
       extraButtons={quickButtons}
       isOpen={true}

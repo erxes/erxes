@@ -60,7 +60,7 @@ function Header({
   const [showResetPassword, setResetPassword] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const onClick = url => {
+  const onClick = (url) => {
     if (!currentUser && url.includes('tickets')) {
       Alert.error('Log in first to create or manage ticket cards');
 
@@ -170,8 +170,6 @@ function Header({
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-
-        {renderNavigationMenu()}
       </>
     );
   };
@@ -247,6 +245,8 @@ function Header({
               {currentUser && Object.keys(currentUser).length !== 0
                 ? renderCurrentUser()
                 : renderAuth()}
+
+              {renderNavigationMenu()}
             </SupportMenus>
           </HeaderRight>
         </HeaderTop>

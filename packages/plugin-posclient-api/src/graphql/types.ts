@@ -50,6 +50,7 @@ export interface IOrderItemInput {
 export interface IOrderInput {
   items: IOrderItemInput[];
   totalAmount: number;
+  directDiscount?: number;
   type: string;
   customerId?: string;
   customerType?: string;

@@ -1,11 +1,16 @@
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 
-const receiveCall = async (models: IModels, subdomain: string, params) => {
+const receiveCall = async (
+  models: IModels,
+  subdomain: string,
+  params,
+  user,
+) => {
   const integration = await models.Integrations.findOne({
-    inboxId: params.inboxIntegrationId
+    inboxId: params.inboxIntegrationId,
   }).lean();
 
   const inboxIntegration = await sendInboxMessage({
@@ -13,7 +18,7 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
     action: 'integrations.findOne',
     data: { _id: integration?.inboxId },
     isRPC: true,
-    defaultValue: null
+    defaultValue: null,
   });
 
   if (!integration) {
@@ -21,13 +26,8 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
   }
 
   params.recipientId = integration.phone;
-  const {
-    inboxIntegrationId,
-    primaryPhone,
-    recipientId,
-    direction,
-    callID
-  } = params;
+  const { inboxIntegrationId, primaryPhone, recipientId, direction, callID } =
+    params;
 
   const customer = await getOrCreateCustomer(models, subdomain, params);
 
@@ -40,13 +40,41 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
         callId: callID,
         senderPhoneNumber: primaryPhone,
         recipientPhoneNumber: recipientId,
-        integrationId: inboxIntegrationId
+        integrationId: inboxIntegrationId,
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
+      );
+    }
+  }
+
+  let history = await models.CallHistory.findOne({ callId: callID });
+  if (!history) {
+    try {
+      const newHistory = new models.CallHistory({
+        sessionId: callID,
+        callerNumber: primaryPhone,
+        receiverNumber: recipientId,
+        callType: direction,
+        createdAt: new Date(),
+        createdBy: user._id,
+        updatedBy: user._id,
+        callDuration: 0,
+      });
+
+      try {
+        await newHistory.save();
+      } catch (error) {
+        console.error('Error saving call history:', error);
+      }
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: call session duplication'
+          : e,
       );
     }
   }
@@ -64,10 +92,10 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: recipientId
-        })
+          owner: recipientId,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -78,33 +106,33 @@ const receiveCall = async (models: IModels, subdomain: string, params) => {
     throw new Error(e);
   }
 
-  let channelMemberIds: string[] = [];
-
   const channels = await sendInboxMessage({
     subdomain,
     action: 'channels.find',
     data: {
-      integrationIds: { $in: [inboxIntegration._id] }
+      integrationIds: { $in: [inboxIntegration._id] },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   for (const channel of channels) {
-    channelMemberIds = [...channelMemberIds, ...(channel.memberIds || [])];
+    for (const userId of channel.memberIds || []) {
+      graphqlPubsub.publish(
+        `conversationClientMessageInserted:${subdomain}:${userId}`,
+        {
+          conversationClientMessageInserted: {
+            _id: Math.random().toString(),
+            content: 'new grandstream message',
+            createdAt: new Date(),
+            customerId: customer.erxesApiId,
+            conversationId: conversation.erxesApiId,
+          },
+          conversation,
+          integration: inboxIntegration,
+        },
+      );
+    }
   }
-
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: {
-      _id: Math.random().toString(),
-      content: 'new grandstream message',
-      createdAt: new Date(),
-      customerId: customer.erxesApiId,
-      conversationId: conversation.erxesApiId
-    },
-    conversation,
-    integration: inboxIntegration,
-    channelMemberIds
-  });
 
   return customer;
 };

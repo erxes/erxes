@@ -1,7 +1,7 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import {
+  sendClientPortalMessagge,
   sendCommonMessage,
-  sendContactsMessage,
   sendCoreMessage,
   sendSegmentsMessage
 } from './messageBroker';
@@ -233,34 +233,26 @@ const handleCustomerAppNotifications = async ({
   target,
   customConfig
 }) => {
-  let tokens: string[] = [];
-
-  const customers = await sendContactsMessage({
+  const cpUsers = await sendClientPortalMessagge({
     subdomain,
-    action: 'customers.find',
-    data: {
-      _id: { $in: customerIds },
-      role: { $ne: 'system' }
-    },
+    action: 'clientPortalUsers.find',
+    data: { erxesCustomerId: { $in: customerIds } },
     isRPC: true,
     defaultValue: []
   });
 
-  for (const customer of customers) {
-    if (customer?.deviceTokens) {
-      tokens.push(...customer.deviceTokens);
-    }
-  }
-
   try {
-    return await sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+    sendClientPortalMessagge({
+      subdomain,
+      action: 'sendNotification',
       data: {
         title: subject,
-        body: body,
-        deviceTokens: tokens,
-        data: { targetId: target._id },
+        content: body,
+        receivers: cpUsers.map(cpUser => cpUser._id),
+        eventData: { targetId: target._id },
+        notifType: 'system',
+        isMobile: true,
+        link: '',
         customConfig
       }
     });

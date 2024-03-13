@@ -1,6 +1,7 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 import { EXTEND_FIELDS, PRODUCT_INFO } from './constants';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export default {
   types: [{ description: 'Products & services', type: 'product' }],
@@ -32,7 +33,7 @@ export default {
         if (path.schema) {
           fields = [
             ...fields,
-            ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+            ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
           ];
         }
       }
@@ -46,8 +47,8 @@ export default {
         {
           _id: Math.random(),
           name: 'subUoms.subratio',
-          label: 'Sub Uoam Ratio'
-        }
+          label: 'Sub Uoam Ratio',
+        },
       ];
     }
 
@@ -55,13 +56,13 @@ export default {
   },
 
   systemFields: ({ data: { groupId } }) =>
-    PRODUCT_INFO.ALL.map(e => ({
+    PRODUCT_INFO.ALL.map((e) => ({
       text: e.label,
       type: e.field,
       groupId,
       contentType: `products:product`,
       canHide: false,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     })),
 
   groupsFilter: async ({ subdomain, data: { config } }) => {
@@ -72,11 +73,11 @@ export default {
 
     const models = await generateModels(subdomain);
     const category = await models.ProductCategories.findOne({
-      _id: categoryId
+      _id: categoryId,
     }).lean();
 
     const categories = await models.ProductCategories.find({
-      order: { $regex: new RegExp(category.order) }
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
     }).lean();
 
     // TODO: get recurcive parent
@@ -91,20 +92,20 @@ export default {
                 { 'config.categories': { $exists: true } },
                 {
                   'config.categories': {
-                    $in: categories.map(c => c._id)
-                  }
-                }
-              ]
+                    $in: categories.map((c) => c._id),
+                  },
+                },
+              ],
             },
             { 'config.categories': { $exists: false } },
             {
               'config.categories': {
-                $size: 0
-              }
-            }
-          ]
-        }
-      ]
+                $size: 0,
+              },
+            },
+          ],
+        },
+      ],
     };
-  }
+  },
 };

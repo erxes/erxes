@@ -2,27 +2,20 @@ import { generateModels } from './connectionResolver';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 // import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
 
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
-
 export default {
   name: 'inventories',
   permissions,
   getHandlers: [{ path: `/file-export-census`, method: exportCensusRunner }],
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -34,16 +27,10 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 
   meta: {
-    permissions
-  }
+    permissions,
+  },
 };

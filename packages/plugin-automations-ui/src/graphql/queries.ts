@@ -29,6 +29,8 @@ export const automationFields = `
     icon
     label
     description
+    position
+    isCustom
     count
   }
   actions {
@@ -40,6 +42,7 @@ export const automationFields = `
     icon
     label
     description
+    position
   }
   createdAt
   updatedAt
@@ -218,5 +221,5 @@ export default {
   automationHistories,
   automationsTotalCount,
   automationConfigPrievewCount,
-  automationConstants
+  automationConstants,
 };

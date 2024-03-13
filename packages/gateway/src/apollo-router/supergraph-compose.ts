@@ -22,7 +22,7 @@ type SupergraphConfig = {
   };
 };
 
-const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
+const writeSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
   const superGraphConfigNext = supergraphConfigPath + '.next';
   const config: SupergraphConfig = {
     federation_version: '=2.3.1',
@@ -55,9 +55,7 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
       !fs.existsSync(supergraphConfigPath) ||
       !isSameFile(supergraphConfigPath, superGraphConfigNext)
     ) {
-      execSync(`cp -f ${superGraphConfigNext}  ${supergraphConfigPath}`, {
-        stdio: 'inherit'
-      });
+      fs.cpSync(superGraphConfigNext, supergraphConfigPath, { force: true });
     }
   }
 };
@@ -78,9 +76,7 @@ const supergraphComposeOnce = async () => {
       !fs.existsSync(supergraphPath) ||
       !isSameFile(supergraphPath, superGraphqlNext)
     ) {
-      execSync(`cp -f ${superGraphqlNext} ${supergraphPath}`, {
-        stdio: 'inherit'
-      });
+      fs.cpSync(superGraphqlNext, supergraphPath, { force: true });
       console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
     }
   }
@@ -89,7 +85,7 @@ const supergraphComposeOnce = async () => {
 export default async function supergraphCompose(
   proxyTargets: ErxesProxyTarget[]
 ) {
-  await createSupergraphConfig(proxyTargets);
+  await writeSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
   if (NODE_ENV === 'development') {
     setInterval(async () => {

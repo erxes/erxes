@@ -1,7 +1,7 @@
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import {
   sendCommonMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
 } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
@@ -17,7 +17,7 @@ export default {
     return (
       integration.brandId && {
         __typename: 'Brand',
-        _id: integration.brandId
+        _id: integration.brandId,
       }
     );
   },
@@ -32,26 +32,26 @@ export default {
 
   channels(integration: IIntegrationDocument, _args, { models }: IContext) {
     return models.Channels.find({
-      integrationIds: { $in: [integration._id] }
+      integrationIds: { $in: [integration._id] },
     });
   },
 
   async tags(integration: IIntegrationDocument) {
-    return (integration.tagIds || []).map(_id => ({
+    return (integration.tagIds || []).map((_id) => ({
       __typename: 'Tag',
-      _id
+      _id,
     }));
   },
 
   websiteMessengerApps(
     integration: IIntegrationDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'website',
-        'credentials.integrationId': integration._id
+        'credentials.integrationId': integration._id,
       });
     }
     return [];
@@ -60,12 +60,12 @@ export default {
   knowledgeBaseMessengerApps(
     integration: IIntegrationDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'knowledgebase',
-        'credentials.integrationId': integration._id
+        'credentials.integrationId': integration._id,
       });
     }
     return [];
@@ -74,12 +74,12 @@ export default {
   leadMessengerApps(
     integration: IIntegrationDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'lead',
-        'credentials.integrationId': integration._id
+        'credentials.integrationId': integration._id,
       });
     }
     return [];
@@ -88,9 +88,16 @@ export default {
   async healthStatus(
     integration: IIntegrationDocument,
     _args,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
-    const kind = integration.kind.split('-')[0];
+    const kind = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind.split('-')[0];
+
+    if (kind === 'messenger') {
+      return { status: 'healthy' };
+    }
+
     const serviceRunning = await isServiceRunning(kind);
 
     if (serviceRunning) {
@@ -100,9 +107,9 @@ export default {
           subdomain,
           action: 'getStatus',
           data: {
-            integrationId: integration._id
+            integrationId: integration._id,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         return status;
@@ -114,44 +121,52 @@ export default {
     return { status: 'healthy' };
   },
 
-  async data(
-    integration: IIntegrationDocument,
-    _args,
-    { subdomain }: IContext
-  ) {
-    const inboxId: string = integration._id;
-
-    return await sendCommonMessage({
-      serviceName: integration.kind,
-      subdomain,
-      action: 'api_to_integrations',
-      data: { inboxId, action: 'getConfigs', integrationId: inboxId },
-      isRPC: true
-    });
-  },
-
   async details(
     integration: IIntegrationDocument,
     _args,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const inboxId: string = integration._id;
 
-    if (integration.kind === 'callpro') {
+    const serviceName = integration.kind.includes('facebook')
+      ? 'facebook'
+      : integration.kind;
+
+    if (integration.kind === 'messenger') {
+      return null;
+    }
+
+    if (
+      integration.kind === 'callpro' &&
+      (await isServiceRunning('integrations'))
+    ) {
       return await sendIntegrationsMessage({
         subdomain,
         action: 'api_to_integrations',
         data: { inboxId, action: 'getDetails', integrationId: inboxId },
-        isRPC: true
+        isRPC: true,
       });
     }
 
-    return await sendCommonMessage({
-      serviceName: integration.kind,
-      subdomain,
-      action: 'api_to_integrations',
-      data: { inboxId, integrationId: inboxId, action: 'getDetails' },
-      isRPC: true
-    });
-  }
+    const serviceRunning = await isServiceRunning(serviceName);
+
+    if (serviceRunning) {
+      try {
+        const a = await sendCommonMessage({
+          serviceName,
+          subdomain,
+          action: 'api_to_integrations',
+          data: { inboxId, integrationId: inboxId, action: 'getDetails' },
+          isRPC: true,
+          defaultValue: null,
+        });
+
+        return a;
+      } catch (e) {
+        console.error('error', e);
+
+        return null;
+      }
+    }
+  },
 };

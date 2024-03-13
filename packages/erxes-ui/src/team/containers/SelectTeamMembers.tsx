@@ -10,6 +10,7 @@ export default (props: {
     ids?: string[];
     status?: string;
     excludeIds?: boolean;
+    isAssignee?: boolean;
     branchIds?: string[];
     departmentIds?: string[];
   };

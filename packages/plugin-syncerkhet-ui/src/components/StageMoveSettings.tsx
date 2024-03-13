@@ -1,6 +1,6 @@
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import { Button } from '@erxes/ui/src/components';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { __, confirm } from '@erxes/ui/src/utils';
+import { Button, DataWithLoader } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 
@@ -13,6 +13,7 @@ import Sidebar from './Sidebar';
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: boolean;
 };
 
 type State = {
@@ -26,6 +27,12 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ configsMap: this.props.configsMap || {} });
+    }
   }
 
   add = e => {
@@ -49,13 +56,15 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   delete = (currentConfigKey: string) => {
-    const { configsMap } = this.state;
-    delete configsMap.stageInMoveConfig[currentConfigKey];
-    delete configsMap.stageInMoveConfig['newStageInMoveConfig'];
+    confirm('This Action will delete this config are you sure?').then(() => {
+      const { configsMap } = this.state;
+      delete configsMap.stageInMoveConfig[currentConfigKey];
+      delete configsMap.stageInMoveConfig.newStageInMoveConfig;
 
-    this.setState({ configsMap });
+      this.setState({ configsMap });
 
-    this.props.save(configsMap);
+      this.props.save(configsMap);
+    });
   };
 
   renderConfigs(configs) {
@@ -85,6 +94,10 @@ class GeneralSettings extends React.Component<Props, State> {
   }
 
   render() {
+    const configCount = Object.keys(
+      this.state.configsMap.stageInMoveConfig || {}
+    ).length;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Erkhet movement config') }
@@ -92,9 +105,9 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.add}
-        icon="plus"
+        icon="plus-circle"
         uppercase={false}
       >
         New config
@@ -117,7 +130,15 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
-        content={this.renderContent()}
+        content={
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={this.props.loading}
+            count={configCount}
+            emptyText={__('There is no config') + '.'}
+            emptyImage="/images/actions/8.svg"
+          />
+        }
         hasBorder={true}
         transparent={true}
       />

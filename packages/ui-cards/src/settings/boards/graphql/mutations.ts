@@ -43,6 +43,7 @@ const commonPipelineParamsDef = `
   $metric: String,
   $hackScoringType: String,
   $templateId: String,
+  $isCheckDate: Boolean
   $isCheckUser: Boolean
   $isCheckDepartment: Boolean
   $excludeCheckUserIds: [String],
@@ -65,6 +66,7 @@ const commonPipelineParams = `
   endDate: $endDate,
   metric: $metric,
   templateId: $templateId,
+  isCheckDate: $isCheckDate,
   isCheckUser: $isCheckUser,
   isCheckDepartment: $isCheckDepartment
   excludeCheckUserIds: $excludeCheckUserIds,
@@ -114,18 +116,21 @@ const pipelinesUpdateOrder = `
   }
 `;
 
-const costAdd = `
-  mutation manageExpenses($costObjects: [CostObjectInput]) {
-    manageExpenses(costObjects: $costObjects) {
+const manageExpenses = `
+  mutation manageExpenses($expenseDocs: [ExpenseInput]) {
+    manageExpenses(expenseDocs: $expenseDocs) {
+      _id,
       name,
-      code
+      description,
+      createdAt,
+      createdBy
     }
   }
 `;
 
 export default {
   boardAdd,
-  costAdd,
+  manageExpenses,
   boardEdit,
   boardRemove,
   pipelineAdd,
@@ -133,5 +138,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

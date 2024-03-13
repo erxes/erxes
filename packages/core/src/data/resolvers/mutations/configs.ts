@@ -5,10 +5,10 @@ import {
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
-  sendRequest
 } from '../../utils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
+import fetch from 'node-fetch';
 
 const configMutations = {
   /**
@@ -17,7 +17,7 @@ const configMutations = {
   async configsUpdate(
     _root,
     { configsMap },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const codes = Object.keys(configsMap);
 
@@ -28,7 +28,7 @@ const configMutations = {
 
       const prevConfig = (await models.Configs.findOne({ code })) || {
         code: '',
-        value: []
+        value: [],
       };
 
       const value = configsMap[code];
@@ -57,7 +57,7 @@ const configMutations = {
           'UPLOAD_FILE_TYPES',
           'WIDGETS_UPLOAD_FILE_TYPES',
           'UPLOAD_SERVICE_TYPE',
-          'FILE_SYSTEM_PUBLIC'
+          'FILE_SYSTEM_PUBLIC',
         ].includes(code) &&
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
@@ -65,13 +65,13 @@ const configMutations = {
         registerOnboardHistory({
           models,
           type: 'generalSettingsUploadCreate',
-          user
+          user,
         });
       }
 
       if (
         ['sex_choices', 'company_industry_types', 'social_links'].includes(
-          code
+          code,
         ) &&
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
@@ -79,7 +79,7 @@ const configMutations = {
         registerOnboardHistory({
           models,
           type: 'generelSettingsConstantsCreate',
-          user
+          user,
         });
       }
 
@@ -92,9 +92,9 @@ const configMutations = {
             object: prevConfig,
             newData: updatedConfig,
             updatedDocument: updatedConfig,
-            description: updatedConfig.code
+            description: updatedConfig.code,
           },
-          user
+          user,
         );
       } else {
         await putCreateLog(
@@ -104,9 +104,9 @@ const configMutations = {
             type: 'config',
             description: updatedConfig.code,
             object: updatedConfig,
-            newData: updatedConfig
+            newData: updatedConfig,
           },
-          user
+          user,
         );
       }
     }
@@ -114,14 +114,14 @@ const configMutations = {
 
   async configsActivateInstallation(
     _root,
-    args: { token: string; hostname: string }
+    args: { token: string; hostname: string },
   ) {
     try {
-      return await sendRequest({
+      return await fetch(`${getCoreDomain()}/activate-installation`, {
         method: 'POST',
-        url: `${getCoreDomain()}/activate-installation`,
-        body: args
-      });
+        body: JSON.stringify(args),
+        headers: { 'Content-Type': 'application/json' },
+      }).then((res) => res.json());
     } catch (e) {
       throw new Error(e.message);
     }
@@ -130,10 +130,10 @@ const configMutations = {
   async configsManagePluginInstall(
     _root,
     args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const prevAction = await models.InstallationLogs.findOne({
-      message: { $ne: 'done' }
+      message: { $ne: 'done' },
     });
 
     if (prevAction) {
@@ -146,24 +146,24 @@ const configMutations = {
       action: 'managePluginInstall',
       data: {
         ...args,
-        subdomain
-      }
+        subdomain,
+      },
     });
 
     return { status: 'success' };
-  }
+  },
 };
 
 checkPermission(configMutations, 'configsUpdate', 'manageGeneralSettings');
 checkPermission(
   configMutations,
   'configsActivateInstallation',
-  'manageGeneralSettings'
+  'manageGeneralSettings',
 );
 checkPermission(
   configMutations,
   'configsManagePluginInstall',
-  'manageGeneralSettings'
+  'manageGeneralSettings',
 );
 
 export default configMutations;

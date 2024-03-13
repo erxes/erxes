@@ -1,11 +1,11 @@
 import { sendContactsMessage, sendFormsMessage } from './messageBroker';
 import { sendCoreMessage } from './messageBroker';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const getBalance = async (
   subdomain: string,
-  erxesCustomerId: string
+  erxesCustomerId: string,
 ) => {
   let balance = 0;
   const customer = await sendContactsMessage({
@@ -13,7 +13,7 @@ export const getBalance = async (
     action: 'customers.findOne',
     data: { _id: erxesCustomerId },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   const field = await sendFormsMessage({
@@ -21,10 +21,10 @@ export const getBalance = async (
     action: 'fields.findOne',
     data: {
       query: {
-        code: 'balance'
-      }
+        code: 'balance',
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   const customFieldsData = customer.customFieldsData || [];
@@ -45,17 +45,17 @@ export const getBalance = async (
 export const updateBalance = async (
   subdomain: string,
   erxesCustomerId: string,
-  balance: number
+  balance: number,
 ) => {
   const field = await sendFormsMessage({
     subdomain,
     action: 'fields.findOne',
     data: {
       query: {
-        code: 'balance'
-      }
+        code: 'balance',
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   const customer = await sendContactsMessage({
@@ -63,7 +63,7 @@ export const updateBalance = async (
     action: 'customers.findOne',
     data: { _id: erxesCustomerId },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   const customFieldsData = customer.customFieldsData || [];
@@ -85,28 +85,28 @@ export const updateBalance = async (
     action: 'customers.updateOne',
     data: {
       selector: {
-        _id: erxesCustomerId
+        _id: erxesCustomerId,
       },
       modifier: {
-        $set: { customFieldsData }
-      }
+        $set: { customFieldsData },
+      },
     },
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 };
 
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (!configs[code]) {
@@ -119,18 +119,18 @@ export const getConfig = async (
 export const sendSms = async (
   subdomain: string,
   phoneNumber: string,
-  content: string
+  content: string,
 ) => {
   const MESSAGE_PRO_API_KEY = await getConfig(
     'MESSAGE_PRO_API_KEY',
     subdomain,
-    ''
+    '',
   );
 
   const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
     'MESSAGE_PRO_PHONE_NUMBER',
     subdomain,
-    ''
+    '',
   );
 
   if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -138,16 +138,15 @@ export const sendSms = async (
   }
 
   try {
-    await sendRequest({
-      url: 'https://api.messagepro.mn/send',
-      method: 'GET',
-      params: {
-        key: MESSAGE_PRO_API_KEY,
-        from: MESSAGE_PRO_PHONE_NUMBER,
-        to: phoneNumber,
-        text: content
-      }
-    });
+    await fetch(
+      'https://api.messagepro.mn/send?' +
+        new URLSearchParams({
+          key: MESSAGE_PRO_API_KEY,
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content,
+        }),
+    );
 
     return 'sent';
   } catch (e) {
@@ -156,6 +155,6 @@ export const sendSms = async (
   }
 };
 
-export const numberWithCommas = number => {
+export const numberWithCommas = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };

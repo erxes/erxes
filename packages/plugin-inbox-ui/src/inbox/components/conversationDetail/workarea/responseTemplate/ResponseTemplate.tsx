@@ -1,16 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
-import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
-import React from 'react';
+import Icon from '@erxes/ui/src/components/Icon';
+import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
+import React from 'react';
+import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
 
 type Props = {
@@ -21,48 +21,8 @@ type Props = {
   content?: string;
 };
 
-type State = {
-  keysPressed: any;
-};
-
-class ResponseTemplate extends React.Component<Props, State> {
+class ResponseTemplate extends React.Component<Props> {
   private overlayRef;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      keysPressed: {}
-    };
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
-  }
-
-  handleKeyDown = (event: any) => {
-    const { keysPressed } = this.state;
-    const key = event.key;
-    const element = document.getElementById('overlay-trigger-button');
-
-    this.setState({ keysPressed: { ...keysPressed, [key]: true } }, () => {
-      if (this.state.keysPressed.Control === true && event.keyCode === 51) {
-        element.click();
-      }
-    });
-  };
-
-  handleKeyUp = (event: any) => {
-    delete this.state.keysPressed[event.key];
-
-    this.setState({ keysPressed: { ...this.state.keysPressed } });
-  };
 
   hidePopover = () => {
     this.overlayRef.hide();

@@ -7,21 +7,15 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import beforeResolvers from './beforeResolvers';
 import documents from './documents';
 import logs from './logUtils';
-import { initBroker } from './messageBroker';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: 'processes',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers()
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,20 +26,12 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
-    await generateModels('os');
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-    // es = options.elasticsearch;
-  },
-
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     logs: { consumers: logs },
     beforeResolvers,
     permissions,
-    documents
-  }
+    documents,
+  },
 };

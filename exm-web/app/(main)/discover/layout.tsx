@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import Feedback from "@/modules/discover/components/feedback/Feedback"
 import KnowledgebaseHeader from "@/modules/discover/components/knowledgebase/KnowledgebaseHeader"
-import RightNavbar from "@/modules/navbar/component/RightNavbar"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -45,7 +44,6 @@ export default function DiscoverLayout({ children }: ILayoutProps) {
                 Feedback
               </TabsTrigger>
             </div>
-            <RightNavbar />
           </div>
         </TabsList>
 

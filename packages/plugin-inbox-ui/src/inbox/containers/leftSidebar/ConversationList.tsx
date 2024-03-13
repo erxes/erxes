@@ -17,7 +17,6 @@ import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/
 import { IUser } from '@erxes/ui/src/auth/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -38,35 +37,38 @@ type FinalProps = {
   updateCountsForNewMessage: () => void;
 } & Props;
 
-class ConversationListContainer extends React.PureComponent<FinalProps> {
-  componentWillMount() {
-    const {
-      currentUser,
-      conversationsQuery,
-      totalCountQuery,
-      updateCountsForNewMessage
-    } = this.props;
+const ConversationListContainer = (props: FinalProps) => {
+  const {
+    currentUser,
+    queryParams,
+    counts,
+    history,
+    conversationsQuery,
+    totalCountQuery,
+    updateCountsForNewMessage
+  } = props;
 
-    conversationsQuery.subscribeToMore({
-      document: gql(subscriptions.conversationClientMessageInserted),
-      variables: {
-        subdomain: getSubdomain(),
-        userId: currentUser ? currentUser._id : null
-      },
-      updateQuery: () => {
-        if (updateCountsForNewMessage) {
-          updateCountsForNewMessage();
+  React.useEffect(() => {
+    if (!queryParams.isModalOpen) {
+      return conversationsQuery.subscribeToMore({
+        document: gql(subscriptions.conversationClientMessageInserted),
+        variables: {
+          subdomain: getSubdomain(),
+          userId: currentUser ? currentUser._id : null
+        },
+        updateQuery: () => {
+          if (updateCountsForNewMessage) {
+            updateCountsForNewMessage();
+          }
+
+          conversationsQuery.refetch();
+          totalCountQuery.refetch();
         }
+      });
+    }
+  });
 
-        conversationsQuery.refetch();
-        totalCountQuery.refetch();
-      }
-    });
-  }
-
-  getTotalCount() {
-    const { queryParams, counts, totalCountQuery } = this.props;
-
+  const getTotalCount = () => {
     let totalCount = totalCountQuery.conversationsTotalCount || 0;
 
     if (queryParams && counts) {
@@ -90,67 +92,60 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     }
 
     return totalCount;
-  }
+  };
 
-  render() {
-    const { history, conversationsQuery } = this.props;
+  const conversations = conversationsQuery.conversations || [];
 
-    const conversations = conversationsQuery.conversations || [];
+  // on change conversation
+  const onChangeConversation = conversation => {
+    routerUtils.setParams(history, { _id: conversation._id });
+  };
 
-    // on change conversation
-    const onChangeConversation = conversation => {
-      routerUtils.setParams(history, { _id: conversation._id });
-    };
-
-    const onLoadMore = () => {
-      return (
-        conversationsQuery &&
-        conversationsQuery.fetchMore({
-          variables: {
-            skip: conversations.length
-          },
-          updateQuery: (prevResult, { fetchMoreResult }) => {
-            if (
-              !fetchMoreResult ||
-              fetchMoreResult.conversations.length === 0
-            ) {
-              return prevResult;
-            }
-
-            const prevConversations = prevResult.conversations || [];
-            const prevConversationIds = prevConversations.map(
-              (conversation: IConversation) => conversation._id
-            );
-
-            const fetchedConversations: IConversation[] = [];
-
-            for (const conversation of fetchMoreResult.conversations) {
-              if (!prevConversationIds.includes(conversation._id)) {
-                fetchedConversations.push(conversation);
-              }
-            }
-
-            return {
-              ...prevResult,
-              conversations: [...prevConversations, ...fetchedConversations]
-            };
+  const onLoadMore = () => {
+    return (
+      conversationsQuery &&
+      conversationsQuery.fetchMore({
+        variables: {
+          skip: conversations.length
+        },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.conversations.length === 0) {
+            return prevResult;
           }
-        })
-      );
-    };
 
-    const updatedProps = {
-      ...this.props,
-      onLoadMore,
-      conversations,
-      onChangeConversation,
-      loading: conversationsQuery.loading,
-      totalCount: this.getTotalCount()
-    };
+          const prevConversations = prevResult.conversations || [];
+          const prevConversationIds = prevConversations.map(
+            (conversation: IConversation) => conversation._id
+          );
 
-    return <ConversationList {...updatedProps} />;
-  }
-}
+          const fetchedConversations: IConversation[] = [];
+
+          for (const conversation of fetchMoreResult.conversations) {
+            if (!prevConversationIds.includes(conversation._id)) {
+              fetchedConversations.push(conversation);
+            }
+          }
+
+          return {
+            ...prevResult,
+            conversations: [...prevConversations, ...fetchedConversations]
+          };
+        }
+      })
+    );
+  };
+
+  const updatedProps = {
+    ...props,
+    onLoadMore,
+    conversations,
+    onChangeConversation,
+    loading: conversationsQuery.loading,
+    totalCount: getTotalCount()
+  };
+
+  return <ConversationList {...updatedProps} />;
+};
 
 const ConversationListContainerWithRefetch = props => (
   <InboxManagementActionConsumer>

@@ -3,10 +3,9 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '../../../connectionResolver';
-import { MonpayAPI } from '../../../api/monpay/api';
 import { PAYMENTS } from '../../../api/constants';
 import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
+import { IContext } from '../../../connectionResolver';
 
 interface IParam {
   searchValue?: string;

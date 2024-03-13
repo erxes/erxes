@@ -6,7 +6,7 @@ import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
   DEFAULT_DATA_PER_CHART,
-  DEFAULT_LABELS_PER_CHART
+  DEFAULT_LABELS_PER_CHART,
 } from './utils';
 import { Spinner } from '@erxes/ui/src/components';
 
@@ -18,6 +18,7 @@ interface IChartProps {
   data?: number[];
   labels?: string[];
   template?: string;
+  options?: any;
   chartType: ChartType | string;
   name?: string;
   title?: string;
@@ -34,7 +35,8 @@ const ChartRenderer = (props: IChartProps) => {
     data,
     title,
     loading,
-    chartHeight
+    chartHeight,
+    options,
   } = props;
 
   if (loading) {
@@ -44,16 +46,16 @@ const ChartRenderer = (props: IChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   const chartData = {
-    labels: labels || DEFAULT_LABELS_PER_CHART[chartType],
+    labels: labels,
     datasets: datasets || [
       {
         label: title || 'Default Dataset',
-        data: data || DEFAULT_DATA_PER_CHART[chartType],
+        data,
         backgroundColor: DEFAULT_BACKGROUND_COLORS,
         borderColor: DEFAULT_BORDER_COLORS,
-        borderWidth: 1
-      }
-    ]
+        borderWidth: 1,
+      },
+    ],
   };
 
   if (chartType === 'pie') {
@@ -61,13 +63,13 @@ const ChartRenderer = (props: IChartProps) => {
   }
 
   let plugins: any = {
-    datalabels: { color: 'white', formatter: (value, ctx) => value }
+    datalabels: { color: 'white', formatter: (value, ctx) => value },
   };
 
   if (!datasets) {
     plugins = {
       ...plugins,
-      legend: { labels: { boxWidth: 0, boxHeight: 0 } }
+      legend: { labels: { boxWidth: 0, boxHeight: 0 } },
     };
   }
 
@@ -75,7 +77,7 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels],
-    options: { plugins }
+    options: { ...options, plugins },
   };
 
   useEffect(() => {

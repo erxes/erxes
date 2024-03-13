@@ -7,11 +7,7 @@ export interface IClassification {
   total: number;
   classification: string;
   newClassification: string;
-  dtl: {
-    amount: number;
-    contractId: string;
-    currency: string;
-  }[];
+  contractId: string;
 }
 
 export interface IClassificationDocument extends IClassification, Document {
@@ -42,17 +38,10 @@ export const classificationSchema = schemaHooksWrapper(
       default: () => new Date(),
       label: 'Created at'
     }),
-    createdBy: { type: String, optional: true, label: 'created member' },
-    dtl: field({
-      type: [
-        {
-          amount: Number,
-          contractId: String,
-          currency: String
-        }
-      ],
-      optional: true,
-      label: 'contract info'
+    createdBy: field({ type: String, optional: true, label: 'created member' }),
+    contractId: field({
+      type: String,
+      label: 'contractId'
     })
   }),
   'erxes_classificationSchema'

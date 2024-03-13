@@ -4,7 +4,6 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProiveder"
-import RightNavbar from "@/modules/navbar/component/RightNavbar"
 import { useAtomValue } from "jotai"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -73,7 +72,6 @@ const Timeclocks = () => {
                 Schedule
               </TabsTrigger>
             </div>
-            <RightNavbar />
           </div>
         </TabsList>
 

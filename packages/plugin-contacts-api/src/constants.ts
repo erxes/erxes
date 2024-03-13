@@ -234,6 +234,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'customers',
     description: 'Customers',
+    icon: 'user',
     types: [
       {
         name: 'customerMention',
@@ -244,6 +245,7 @@ export const NOTIFICATION_MODULES = [
   {
     name: 'companies',
     description: 'Companies',
+    icon: 'building',
     types: [
       {
         name: 'companyMention',

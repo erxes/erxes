@@ -20,9 +20,9 @@ const command = async () => {
 
   console.log('connected...');
 
-  Products = db.collection('products');
-  Uoms = db.collection('uoms');
-  Configs = db.collection('products_configs');
+  const Products = db.collection('products');
+  const Uoms = db.collection('uoms');
+  const Configs = db.collection('products_configs');
   let bulkUpdateOps = [];
   let counter = 0;
   let bulkCounter = 0;

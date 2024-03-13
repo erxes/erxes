@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import * as request from 'request-promise';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
@@ -35,78 +34,23 @@ interface IRequestParams {
   };
 }
 
-/**
- * Send request
- */
-export const sendRequest = ({
-  url,
-  headerType,
-  headerParams,
-  method,
-  body,
-  params
-}: IRequestParams): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-    const reqBody = JSON.stringify(body || {});
-    const reqParams = JSON.stringify(params || {});
-
-    debugExternalRequests(`
-        Sending request
-        url: ${url}
-        method: ${method}
-        body: ${reqBody}
-        params: ${reqParams}
-      `);
-
-    request({
-      uri: encodeURI(url || ''),
-      method,
-      headers: {
-        'Content-Type': headerType || 'application/json',
-        ...headerParams,
-        origin: DOMAIN
-      },
-      ...(headerType && headerType.includes('form')
-        ? { form: body }
-        : { body }),
-      qs: params,
-      json: true
-    })
-      .then(res => {
-        debugExternalRequests(`
-        Success from ${url}
-        requestBody: ${reqBody}
-        requestParams: ${reqParams}
-        responseBody: ${JSON.stringify(res)}
-      `);
-
-        return resolve(res);
-      })
-      .catch(e => {
-        if (e.code === 'ECONNREFUSED') {
-          debugExternalRequests(`Failed to connect ${url}`);
-          throw new Error(`Failed to connect ${url}`);
-        } else {
-          debugExternalRequests(`Error occurred in ${url}: ${e.body}`);
-          reject(e);
-        }
-      });
-  });
-};
-
 export const getEnv = ({
   name,
-  defaultValue
+  subdomain,
+  defaultValue,
 }: {
   name: string;
+  subdomain?: string;
   defaultValue?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (value && subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   if (!value) {
@@ -119,8 +63,8 @@ export const getEnv = ({
 /*
  * Generate url depending on given file upload publicly or not
  */
-export const generateAttachmentUrl = (urlOrName: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+export const generateAttachmentUrl = (subdomain: string, urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
   if (urlOrName.startsWith('http')) {
@@ -154,10 +98,22 @@ export const getConfigs = async (models: IModels) => {
 };
 
 export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    return getEnv({ name: code, defaultValue });
+  }
+
+  if (!models) {
+    return getEnv({ name: code, defaultValue });
+  }
+
   const configs = await getConfigs(models);
 
+  const envValue = getEnv({ name: code, defaultValue });
+
   if (!configs[code]) {
-    return defaultValue;
+    return envValue || defaultValue;
   }
 
   return configs[code];

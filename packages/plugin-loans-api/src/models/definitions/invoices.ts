@@ -13,6 +13,9 @@ export interface IInvoice {
   payment: number;
   interestEve: number;
   interestNonce: number;
+  calcInterest: number;
+  storedInterest: number;
+  commitmentInterest: number;
   undue: number;
   insurance: number;
   debt: number;
@@ -52,6 +55,13 @@ export const invoiceSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Created at',
       index: true
+    }),
+    calcInterest: field({ type: Number, min: 0, label: 'calcInterest' }),
+    storedInterest: field({ type: Number, min: 0, label: 'storedInterest' }),
+    commitmentInterest: field({
+      type: Number,
+      min: 0,
+      label: 'commitmentInterest'
     }),
     payment: field({ type: Number, min: 0, label: 'payment' }),
     interestEve: field({ type: Number, min: 0, label: 'interest eve' }),

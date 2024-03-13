@@ -36,6 +36,7 @@ const pipelines = `
       startDate
       endDate
       metric
+      isCheckDate
       isCheckUser
       isCheckDepartment
       excludeCheckUserIds
@@ -84,9 +85,15 @@ const boardDetail = `
   }
 `;
 
-const costs = `
-  query costs {
-	  costs 
+const expenses = `
+  query expenses {
+	  expenses {
+      _id
+      name
+      description
+      createdAt
+      createdBy
+    }
   }
 `;
 
@@ -96,5 +103,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  costs
+  expenses,
 };

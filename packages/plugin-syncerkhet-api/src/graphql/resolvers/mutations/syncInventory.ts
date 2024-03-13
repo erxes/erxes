@@ -1,10 +1,10 @@
 import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import { sendProductsMessage } from '../../../messageBroker';
 import {
   consumeInventory,
-  consumeInventoryCategory
+  consumeInventoryCategory,
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
@@ -19,7 +19,7 @@ const inventoryMutations = {
       subdomain,
       action: 'count',
       data: { query: { status: { $ne: 'deleted' } } },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
@@ -27,9 +27,9 @@ const inventoryMutations = {
       action: 'find',
       data: {
         query: { status: { $ne: 'deleted' } },
-        limit: productsCount
+        limit: productsCount,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     const productCategories = await sendProductsMessage({
@@ -37,7 +37,7 @@ const inventoryMutations = {
       action: 'categories.find',
       data: { query: {} },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const categoryOfId = {};
@@ -45,20 +45,22 @@ const inventoryMutations = {
       categoryOfId[cat._id] = cat;
     }
 
-    const productCodes = products.map(p => p.code) || [];
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inventory',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const productCodes = products.map((p) => p.code) || [];
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inventory',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
+    );
 
-    if (!response && Object.keys(JSON.parse(response)).length === 0) {
+    const responseData = await response.json();
+
+    if (!response.ok && Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
 
@@ -67,8 +69,8 @@ const inventoryMutations = {
     const deleteProducts: any = [];
     let matchedCount = 0;
 
-    let result = JSON.parse(response).map(r => r.fields);
-    const resultCodes = result.map(r => r.code) || [];
+    let result = responseData.map((r) => r.fields);
+    const resultCodes = result.map((r) => r.code) || [];
 
     const productByCode = {};
     for (const product of products) {
@@ -106,19 +108,19 @@ const inventoryMutations = {
     return {
       create: {
         count: createProducts.length,
-        items: createProducts
+        items: createProducts,
       },
       update: {
         count: updateProducts.length,
-        items: updateProducts
+        items: updateProducts,
       },
       delete: {
         count: deleteProducts.length,
-        items: deleteProducts
+        items: deleteProducts,
       },
       matched: {
-        count: matchedCount
-      }
+        count: matchedCount,
+      },
     };
   },
 
@@ -134,51 +136,55 @@ const inventoryMutations = {
       action: 'categories.find',
       data: {
         query: { status: 'active' },
-        sort: { order: 1 }
+        sort: { order: 1 },
       },
-      isRPC: true
+      isRPC: true,
     });
 
-    const categoryCodes = categories.map(c => c.code);
+    const categoryCodes = categories.map((c) => c.code);
 
     if (!categoryCodes) {
       throw new Error('No category codes found.');
     }
 
-    const response = await sendRequest({
-      url: process.env.ERKHET_URL + '/get-api/',
-      method: 'GET',
-      params: {
-        kind: 'inv_category',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true'
-      }
-    });
+    const response = await fetch(
+      process.env.ERKHET_URL +
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inv_category',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
+    );
 
-    if (!response || Object.keys(JSON.parse(response)).length === 0) {
+    const responseData = await response.json();
+
+    if (!response || Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
-    let result = JSON.parse(response).map(r => r.fields);
+    let result = responseData.map((r) => r.fields);
 
     // for update
-    const matchedErkhetData = result.filter(r => {
-      if (categoryCodes.find(p => p === r.code)) {
+    const matchedErkhetData = result.filter((r) => {
+      if (categoryCodes.find((p) => p === r.code)) {
         return r;
       }
     });
     // for create
-    const otherErkhetData = result.filter(r => !matchedErkhetData.includes(r));
+    const otherErkhetData = result.filter(
+      (r) => !matchedErkhetData.includes(r),
+    );
     // for delete
     let otherCategories: any[] = [];
     for (const code of categoryCodes) {
-      if (result.every(r => r.code !== code)) {
+      if (result.every((r) => r.code !== code)) {
         const response = await sendProductsMessage({
           subdomain,
           action: 'categories.findOne',
           data: { code: code },
-          isRPC: true
+          isRPC: true,
         });
         otherCategories.push(response);
       }
@@ -186,23 +192,23 @@ const inventoryMutations = {
     return {
       create: {
         count: otherErkhetData.length,
-        items: otherErkhetData
+        items: otherErkhetData,
       },
       update: {
         count: matchedErkhetData.length,
-        items: matchedErkhetData
+        items: matchedErkhetData,
       },
       delete: {
         count: otherCategories.length,
-        items: otherCategories
-      }
+        items: otherCategories,
+      },
     };
   },
 
   async toSyncCategories(
     _root,
     { action, categories }: { action: string; categories: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     try {
       switch (action) {
@@ -212,7 +218,7 @@ const inventoryMutations = {
               subdomain,
               category,
               category.code,
-              'create'
+              'create',
             );
           }
           break;
@@ -223,7 +229,7 @@ const inventoryMutations = {
               subdomain,
               category,
               category.code,
-              'update'
+              'update',
             );
           }
           break;
@@ -234,7 +240,7 @@ const inventoryMutations = {
               subdomain,
               category,
               category.code,
-              'delete'
+              'delete',
             );
           }
           break;
@@ -243,7 +249,7 @@ const inventoryMutations = {
           break;
       }
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       throw new Error('Error while syncing categories. ' + e);
@@ -253,7 +259,7 @@ const inventoryMutations = {
   async toSyncProducts(
     _root,
     { action, products }: { action: string; products: any[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     try {
       switch (action) {
@@ -279,12 +285,12 @@ const inventoryMutations = {
           break;
       }
       return {
-        status: 'success'
+        status: 'success',
       };
     } catch (e) {
       throw new Error('Error while syncing products. ' + e);
     }
-  }
+  },
 };
 
 export default inventoryMutations;

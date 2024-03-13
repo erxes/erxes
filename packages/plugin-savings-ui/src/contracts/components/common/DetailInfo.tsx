@@ -45,12 +45,18 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('First name', contract.customers?.firstName)}
 
         {this.renderRow('Status', contract.status)}
-        {this.renderRow('Start Date', dayjs(contract.startDate).format('ll'))}
+        {this.renderRow(
+          'Start Date',
+          dayjs(contract.startDate).format('YYYY/MM/DD')
+        )}
         {this.renderRow(
           'Tenor (in months)',
           (contract.duration || 0).toLocaleString()
         )}
-        {this.renderRow('End Date', dayjs(contract.endDate).format('ll'))}
+        {this.renderRow(
+          'End Date',
+          dayjs(contract.endDate).format('YYYY/MM/DD')
+        )}
 
         {this.renderRow(
           'Interest Rate',

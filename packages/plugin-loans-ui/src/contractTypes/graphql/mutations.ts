@@ -24,6 +24,7 @@ const commonFields = `
   $savingPlusLoanInterest:Float,
   $savingUpperPercent:Float,
   $usePrePayment:Boolean
+  $invoiceDay:String
 `;
 
 const commonVariables = `
@@ -49,7 +50,8 @@ const commonVariables = `
   productType: $productType,
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
-  usePrePayment: $usePrePayment
+  usePrePayment: $usePrePayment,
+  invoiceDay: $invoiceDay
 `;
 
 const contractTypesAdd = `

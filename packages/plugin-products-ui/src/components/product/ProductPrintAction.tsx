@@ -1,4 +1,9 @@
-import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import {
+  Flex,
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import { __, getEnv } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -67,8 +72,8 @@ type State = {
   documents: any[];
   loading: boolean;
   showPopup: boolean;
-  selectedDocumentId: String;
-  copyInfos: { id: string; c: number; product: any }[];
+  selectedDocumentId: string;
+  copyInfos: Array<{ id: string; c: number; product: any }>;
   copies: number;
   width: number;
   branchId: string;
@@ -268,9 +273,9 @@ class BulkDocuments extends React.Component<Props, State> {
                   dateFormat="YYYY-MM-DD"
                   timeFormat="HH:mm"
                   viewMode={'days'}
-                  closeOnSelect
-                  utc
-                  input
+                  closeOnSelect={true}
+                  utc={true}
+                  input={true}
                   value={this.state.date || null}
                   onChange={date =>
                     this.setState({ date: new Date(date || '') })
@@ -292,7 +297,7 @@ class BulkDocuments extends React.Component<Props, State> {
             </FormColumn>
             <FormColumn>
               {(copyInfos || []).map((copy, ind) => (
-                <Flex className="canFocus">
+                <Flex key={ind} className="canFocus">
                   <Label>{`${copy.product.code} - ${copy.product.name}: `}</Label>
                   <FormControl
                     {...formProps}
@@ -320,7 +325,9 @@ class BulkDocuments extends React.Component<Props, State> {
               ))}
             </FormColumn>
           </FormWrapper>
-          <Button onClick={this.print}>Print</Button>
+          <ModalFooter>
+            <Button onClick={this.print}>Print</Button>
+          </ModalFooter>
         </>
       );
     };
@@ -336,12 +343,12 @@ class BulkDocuments extends React.Component<Props, State> {
   }
 
   render() {
-    const { documents, loading } = this.state;
+    const { documents } = this.state;
 
     const trigger = (
-      <ActionButton onClick={this.loadDocuments}>
-        {loading ? 'loading' : __('Print document')}
-      </ActionButton>
+      <Button btnStyle="success" onClick={this.loadDocuments}>
+        {__('Print document')}
+      </Button>
     );
 
     return (

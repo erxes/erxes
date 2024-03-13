@@ -1,12 +1,12 @@
-import messageBroker from '../messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export default {
   handleMinutelyJob: async ({ subdomain }) => {
-    await messageBroker().sendMessage('automations:trigger', {
+    sendMessage('automations:trigger', {
       subdomain,
       data: {
-        actionType: 'waiting'
-      }
+        actionType: 'waiting',
+      },
     });
-  }
+  },
 };

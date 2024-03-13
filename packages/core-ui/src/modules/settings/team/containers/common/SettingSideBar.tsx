@@ -1,31 +1,41 @@
-import React from 'react';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui/src/team/graphql';
+
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
-  UnitsMainQueryResponse
+  PositionsMainQueryResponse,
+  UnitsMainQueryResponse,
 } from '@erxes/ui/src/team/types';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+
+import React from 'react';
 import SettingsSideBar from '../../components/common/SettingsSideBar';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
 
 type FinalProps = {
   branchListQuery: BranchesMainQueryResponse;
   unitListQuery: UnitsMainQueryResponse;
   departmentListQuery: DepartmentsMainQueryResponse;
+  positionListQuery: PositionsMainQueryResponse;
 };
 
 class SettingsSideBarContainer extends React.Component<FinalProps> {
   render() {
-    const { branchListQuery, unitListQuery, departmentListQuery } = this.props;
+    const {
+      branchListQuery,
+      unitListQuery,
+      departmentListQuery,
+      positionListQuery,
+    } = this.props;
 
     if (
       branchListQuery.loading ||
       unitListQuery.loading ||
-      departmentListQuery.loading
+      departmentListQuery.loading ||
+      positionListQuery.loading
     ) {
       return <Spinner />;
     }
@@ -33,7 +43,8 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
     if (
       branchListQuery.error ||
       unitListQuery.error ||
-      departmentListQuery.error
+      departmentListQuery.error ||
+      positionListQuery.error
     ) {
       return (
         <EmptyState image="/images/actions/5.svg" text="Something went wrong" />
@@ -42,9 +53,12 @@ class SettingsSideBarContainer extends React.Component<FinalProps> {
 
     return (
       <SettingsSideBar
-        branchTotalCount={branchListQuery.branchesMain.totalCount}
-        unitTotalCount={unitListQuery.unitsMain.totalCount}
-        departmentTotalCount={departmentListQuery.departmentsMain.totalCount}
+        branchTotalCount={branchListQuery?.branchesMain?.totalCount || 0}
+        unitTotalCount={unitListQuery?.unitsMain?.totalCount || 0}
+        departmentTotalCount={
+          departmentListQuery?.departmentsMain?.totalCount || 0
+        }
+        positionTotalCount={positionListQuery?.positionsMain?.totalCount || 0}
       />
     );
   }
@@ -56,25 +70,33 @@ export default withProps<{}>(
       name: 'branchListQuery',
       options: () => ({
         variables: {
-          withoutUserFilter: true
-        }
-      })
+          withoutUserFilter: true,
+        },
+      }),
     }),
     graphql<{}>(gql(queries.unitsMain), {
       name: 'unitListQuery',
       options: () => ({
         variables: {
-          withoutUserFilter: true
-        }
-      })
+          withoutUserFilter: true,
+        },
+      }),
     }),
     graphql<{}>(gql(queries.departmentsMain), {
       name: 'departmentListQuery',
       options: () => ({
         variables: {
-          withoutUserFilter: true
-        }
-      })
-    })
-  )(SettingsSideBarContainer)
+          withoutUserFilter: true,
+        },
+      }),
+    }),
+    graphql<{}>(gql(queries.positionsMain), {
+      name: 'positionListQuery',
+      options: () => ({
+        variables: {
+          withoutUserFilter: true,
+        },
+      }),
+    }),
+  )(SettingsSideBarContainer),
 );

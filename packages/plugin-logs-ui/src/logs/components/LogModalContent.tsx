@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import colors from '@erxes/ui/src/styles/colors';
 import React from 'react';
-import { LogBox } from '../styles';
+import { LogBox, LogBoxContainer } from '../styles';
 import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -198,7 +198,7 @@ export default class LogModal extends React.Component<Props> {
     iconType: string
   ): JSX.Element {
     if (!data || data === '{}') {
-      return <span />;
+      return <></>;
     }
 
     let color: string = colors.colorPrimary;
@@ -237,13 +237,19 @@ export default class LogModal extends React.Component<Props> {
 
   render() {
     const { log } = this.props;
+    const dataSections = [
+      log.oldData,
+      log.addedData,
+      log.changedData,
+      log.removedData
+    ].filter(Boolean);
 
     if (!log) {
       return null;
     }
 
     return (
-      <div className="modal-items-list">
+      <LogBoxContainer onlyOne={dataSections.length === 1}>
         {this.renderData(
           log.oldData,
           'Before any changes',
@@ -253,7 +259,7 @@ export default class LogModal extends React.Component<Props> {
         {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
         {this.renderData(log.changedData, 'Changed fields', 'warning', 'edit')}
         {this.renderData(log.removedData, 'Removed fields', 'danger', 'trash')}
-      </div>
+      </LogBoxContainer>
     );
   }
 

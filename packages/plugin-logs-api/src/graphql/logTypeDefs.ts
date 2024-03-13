@@ -37,7 +37,8 @@ export const queries = `
     page: Int,
     perPage: Int,
     type: String,
-    objectId: String
+    objectId: String,
+    searchValue: String,
   ): LogList
 
   getDbSchemaLabels(type: String): [SchemaField]

@@ -1,12 +1,14 @@
 import * as routerUtils from '../utils/router';
 
+import { __, router } from '../utils/core';
+
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';
 import Icon from './Icon';
 import { Modal } from 'react-bootstrap';
 import RTG from 'react-transition-group';
 import React from 'react';
-import { __ } from '../utils/core';
+import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -21,6 +23,7 @@ type Props = {
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
+  addisOpenToQueryParam?: boolean;
   history: any;
   paddingContent?: 'less-padding';
   centered?: boolean;
@@ -54,6 +57,23 @@ class ModalTrigger extends React.Component<Props, State> {
       isOpen: props.isOpen || false,
       autoOpenKey: ''
     };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isOpen } = this.state;
+    const queryParams = queryString.parse(location.search);
+
+    if (this.props.addisOpenToQueryParam && prevState.isOpen !== isOpen) {
+      if (isOpen && !queryParams.isOpen) {
+        router.setParams(this.props.history, {
+          isModalOpen: isOpen
+        });
+      }
+
+      if (queryParams.isModalOpen) {
+        router.removeParams(this.props.history, 'isModalOpen');
+      }
+    }
   }
 
   openModal = () => {

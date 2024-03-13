@@ -22,7 +22,7 @@ import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-import CostForm from './CostForm';
+
 type Props = {
   type: string;
   pipelines: IPipeline[];
@@ -170,7 +170,7 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
 
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -236,8 +236,11 @@ class Pipelines extends React.Component<Props, State> {
         </Link>
       );
     }
-    if (options && options.modal === 'true') {
-      return <CostForm />;
+
+    if (options && options.additionalButtonModal) {
+      const Content = options.additionalButtonModal;
+
+      return <Content />;
     }
 
     return null;
@@ -245,7 +248,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderButton() {
     const { options, boardId, history } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (!boardId) {
       return null;
@@ -275,7 +278,7 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { currentBoard, pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     const leftActionBar = (
       <Title>

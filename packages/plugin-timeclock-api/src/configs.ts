@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs/timelock';
@@ -9,28 +9,21 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './reportExport';
 import * as permissions from './permissions';
 import { removeDuplicates } from './removeDuplicateTimeclocks';
-
-export let mainDb;
-export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
-export let redis;
+import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'timeclock',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
 
   meta: {
     cronjobs,
-    permissions
+    permissions,
   },
 
   apolloServerContext: async (context, req) => {
@@ -43,15 +36,13 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-    const app = options.app;
+  onServerInit: async () => {
     app.get(
       '/remove-duplicates',
       routeErrorHandling(async (req: any, res) => {
         const remove = await removeDuplicates();
         return res.send(remove);
-      })
+      }),
     );
 
     app.get(
@@ -66,13 +57,8 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
-
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
-    redis = options.redis;
-    debug = options.debug;
-  }
+  },
+  setupMessageConsumers,
 };

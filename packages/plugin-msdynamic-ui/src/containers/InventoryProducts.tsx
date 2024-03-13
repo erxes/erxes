@@ -4,13 +4,14 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import {
   ToCheckProductsMutationResponse,
-  ToSyncProductsMutationResponse
+  ToSyncProductsMutationResponse,
 } from '../types';
+import { router } from '@erxes/ui/src';
 import { Bulk } from '@erxes/ui/src/components';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { mutations } from '../graphql';
 import React, { useState } from 'react';
-import InventoryProducts from '../components/InventoryProducts';
+import InventoryProducts from '../components/product/InventoryProducts';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -25,14 +26,20 @@ type FinalProps = {} & Props &
 const InventoryProductsContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
+  const brandId = props.queryParams.brandId || 'noBrand';
+
+  const setBrand = (brandId: string) => {
+    router.setParams(props.history, { brandId: brandId });
+    return router;
+  };
 
   if (loading) {
     return <Spinner />;
   }
 
   const setSyncStatusTrue = (data: any, products: any, action: string) => {
-    data[action].items = data[action].items.map(i => {
-      if (products.find(c => c.code === i.code)) {
+    data[action].items = data[action].items.map((i) => {
+      if (products.find((c) => c.Common_Item_No === i.Common_Item_No)) {
         const temp = i;
         temp.syncStatus = true;
         return temp;
@@ -42,9 +49,9 @@ const InventoryProductsContainer = (props: FinalProps) => {
   };
 
   const setSyncStatus = (data: any, action: string) => {
-    const createData = data[action].items.map(d => ({
+    const createData = data[action].items.map((d) => ({
       ...d,
-      syncStatus: false
+      syncStatus: false,
     }));
     data[action].items = createData;
 
@@ -54,20 +61,20 @@ const InventoryProductsContainer = (props: FinalProps) => {
   const toCheckProducts = () => {
     setLoading(true);
     props
-      .toCheckProducts({
-        variables: {}
+      .toCheckMsdProducts({
+        variables: { brandId },
       })
-      .then(response => {
-        const data = response.data.toCheckProducts;
+      .then((response) => {
+        const data = response.data.toCheckMsdProducts;
 
         setSyncStatus(data, 'create');
         setSyncStatus(data, 'update');
         setSyncStatus(data, 'delete');
 
-        setItems(response.data.toCheckProducts);
+        setItems(response.data.toCheckMsdProducts);
         setLoading(false);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -76,11 +83,12 @@ const InventoryProductsContainer = (props: FinalProps) => {
   const toSyncProducts = (action: string, products: any[]) => {
     setLoading(true);
     props
-      .toSyncProducts({
+      .toSyncMsdProducts({
         variables: {
+          brandId,
           action,
-          products
-        }
+          products,
+        },
       })
       .then(() => {
         setLoading(false);
@@ -92,7 +100,7 @@ const InventoryProductsContainer = (props: FinalProps) => {
         setSyncStatusTrue(data, products, action.toLowerCase());
         setItems(data);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         setLoading(false);
       });
@@ -102,8 +110,9 @@ const InventoryProductsContainer = (props: FinalProps) => {
     ...props,
     loading,
     items,
+    setBrand,
     toCheckProducts,
-    toSyncProducts
+    toSyncProducts,
   };
 
   const content = () => <InventoryProducts {...updatedProps} />;
@@ -116,14 +125,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckProductsMutationResponse, {}>(
       gql(mutations.toCheckProducts),
       {
-        name: 'toCheckProducts'
-      }
+        name: 'toCheckMsdProducts',
+      },
     ),
     graphql<Props, ToSyncProductsMutationResponse, {}>(
       gql(mutations.toSyncProducts),
       {
-        name: 'toSyncProducts'
-      }
-    )
-  )(InventoryProductsContainer)
+        name: 'toSyncMsdProducts',
+      },
+    ),
+  )(InventoryProductsContainer),
 );

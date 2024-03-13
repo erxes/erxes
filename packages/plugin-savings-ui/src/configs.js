@@ -39,5 +39,12 @@ module.exports = {
       location: 'transaction-list',
       permissions: ['showTransactions']
     }
-  ]
+  ],
+  customerRightSidebarSection: [
+    {
+      text: 'customerRightSidebarSection',
+      component: './contractSection',
+      scope: 'savings'
+    }
+  ],
 };

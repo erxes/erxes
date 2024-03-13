@@ -1,4 +1,9 @@
 export const types = () => `
+  type SavingLoans {
+    _id:String
+    number:String
+  }
+
   type SavingContract {
     _id: String!
     contractTypeId: String
@@ -38,6 +43,8 @@ export const types = () => `
     isAllowIncome: Boolean
     isAllowOutcome: Boolean
     isDeposit: Boolean
+    loansOfForeclosed: [SavingLoans]
+    customFieldsData: JSON
   }
 
   type SavingCloseInfo {
@@ -124,6 +131,7 @@ const commonFields = `
   isAllowIncome: Boolean
   isAllowOutcome: Boolean
   isDeposit: Boolean
+  customFieldsData: JSON
 `;
 
 const interestCorrectionFields = `

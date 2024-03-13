@@ -8,7 +8,7 @@ import {
   BoxContainer,
   FlexColumn,
   FormContentWrapper,
-  ReportsTemplatesSection
+  ReportsTemplatesSection,
 } from '../../styles';
 
 type Props = {
@@ -30,6 +30,8 @@ const ReportForm = (props: Props) => {
   const [serviceName, setServiceName] = useState('');
   const [reportName, setReportName] = useState('');
   const [reportTemplateType, setReportTemplateType] = useState(null);
+  const [reportTemplateDescription, setReportTemplateDescription] =
+    useState('');
 
   const onModalTrigger = (template: any) => {
     setShowModal(true);
@@ -37,6 +39,7 @@ const ReportForm = (props: Props) => {
     setServiceName(template.serviceName);
     setReportTemplateType(template.serviceType);
     setReportName(template.title);
+    setReportTemplateDescription(template.description);
   };
 
   return (
@@ -44,13 +47,13 @@ const ReportForm = (props: Props) => {
       <Wrapper.Header
         breadcrumb={[
           { title: __('Reports'), link: '/reports' },
-          { title: __('Create a report') }
+          { title: __('Create a report') },
         ]}
         title={__('Create a report')}
       />
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>{reportTemplateDescription}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <ReportFormModal

@@ -39,7 +39,7 @@ export default function FormComponent(props: Props) {
     undefined
   );
   const [fieldsCombined, setFieldsCombined] = useState<any[]>([]);
-  const [filterField, setFilterField] = useState<any[]>([]);
+  const [filterField, setFilterField] = useState<string>('');
 
   // Methods
   const generateDoc = (values: {}) => {
@@ -57,10 +57,8 @@ export default function FormComponent(props: Props) {
     };
   };
 
-  const renderFilterField = () => {
-    if (!attachment) {
-      return <></>;
-    }
+  const changeAttachment = files => {
+    setAttachment(files.length ? files[0] : undefined);
 
     if (isEnabled('forms')) {
       client
@@ -74,7 +72,16 @@ export default function FormComponent(props: Props) {
           setFieldsCombined(data?.fieldsCombinedByContentType || []);
         });
     } else {
-      setFieldsCombined(['code', 'barcode']);
+      setFieldsCombined([
+        { name: 'code', label: 'code' },
+        { name: 'barcode', label: 'barcode' }
+      ]);
+    }
+  };
+
+  const renderFilterField = () => {
+    if (!attachment) {
+      return <></>;
     }
 
     return (
@@ -93,6 +100,7 @@ export default function FormComponent(props: Props) {
       </FormGroup>
     );
   };
+
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -104,7 +112,7 @@ export default function FormComponent(props: Props) {
               <ControlLabel>{__('Date')}</ControlLabel>
               <Datetime
                 inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY MM DD"
+                dateFormat="YYYY-MM-DD"
                 timeFormat=""
                 viewMode={'days'}
                 closeOnSelect
@@ -169,11 +177,14 @@ export default function FormComponent(props: Props) {
             </FormGroup>
             <FormGroup>
               <ControlLabel>Attach file</ControlLabel>
+              <p>
+                {__(
+                  'xls file: A=>info, B=>filter, C=>changeCount || D=>lastCount'
+                )}
+              </p>
               <Uploader
                 defaultFileList={attachment ? [attachment] : []}
-                onChange={files =>
-                  setAttachment(files.length ? files[0] : undefined)
-                }
+                onChange={files => changeAttachment(files)}
                 multiple={false}
                 single={true}
               />

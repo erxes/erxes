@@ -1,10 +1,12 @@
 "use client"
 
 import ApolloProvider from "@/modules/ApolloProvider"
+import { totalAmountAtom } from "@/store/cart.store"
 import { atom, Provider } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 import { modeT } from "@/types/config.types"
+import { IPaymentAmountType } from "@/types/order.types"
 
 // products
 export const searchAtom = atom<string>("")
@@ -19,7 +21,13 @@ export const modeAtom = atomWithStorage<modeT>("mode", "main")
 
 export const currentPaymentTypeAtom = atom<string>("")
 
-export const byPercentTypesAtom = atom<string[]>([])
+export const paymentAmountTypeAtom = atom<IPaymentAmountType>("amount")
+
+export const displayAmountAtom = atom<number>((get) =>
+  get(paymentAmountTypeAtom) === "percent"
+    ? Number(((get(currentAmountAtom) / get(totalAmountAtom)) * 100).toFixed(1))
+    : get(currentAmountAtom)
+)
 
 export const customerSearchAtom = atom<string>("")
 
@@ -48,6 +56,8 @@ export const kioskModalView = atom<string>("")
 export const kioskDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
+
+export const orderCollapsibleAtom = atom<boolean>(false)
 
 export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
 

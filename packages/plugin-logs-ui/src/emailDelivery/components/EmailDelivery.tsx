@@ -12,6 +12,8 @@ import Select from 'react-select-plus';
 import { EMAIL_TYPES } from '../containers/EmailDelivery';
 import Row from './Row';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { FlexItem, FlexRow, InputBar } from '@erxes/ui-settings/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   list: any;
@@ -71,14 +73,20 @@ function EmailDelivery({
   status
 }: Props) {
   const [search, setSearch] = React.useState(searchValue);
+  const timerRef = React.useRef<number | null>(null);
 
   const handleSearch = e => {
-    const value = e.target.value;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
 
+    const value = e.target.value;
     setSearch(value);
 
-    router.removeParams(history, 'page');
-    router.setParams(history, { searchValue: value });
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue: value });
+    }, 500);
   };
 
   const handleEmailtype = ({ value }: { value: string }) => {
@@ -114,39 +122,50 @@ function EmailDelivery({
 
     const content = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={handleSearch}
-          value={search}
-        />
+        <FlexRow>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={handleSearch}
+                value={search}
+              />
+            </FlexItem>
+          </InputBar>
 
-        <React.Fragment>
-          {isEnabled('engages') && (
-            <Select
-              placeholder={__('Choose Email type')}
-              value={emailType}
-              options={emailTypeOptions}
-              onChange={handleEmailtype}
-              clearable={false}
-            />
-          )}
-          {isTransaction ? null : (
-            <Select
-              placeholder={__('Choose status')}
-              value={status}
-              options={STATUS_OPTIONS}
-              onChange={handleStatusChange}
-              resetValue={[]}
-            />
-          )}
-        </React.Fragment>
+          <React.Fragment>
+            {isEnabled('engages') && (
+              <InputBar type="selectBar">
+                <Select
+                  placeholder={__('Choose Email type')}
+                  value={emailType}
+                  options={emailTypeOptions}
+                  onChange={handleEmailtype}
+                  clearable={false}
+                />
+              </InputBar>
+            )}
+            {isTransaction ? null : (
+              <InputBar type="selectBar">
+                <Select
+                  placeholder={__('Choose status')}
+                  value={status}
+                  options={STATUS_OPTIONS}
+                  onChange={handleStatusChange}
+                  resetValue={[]}
+                />
+              </InputBar>
+            )}
+          </React.Fragment>
+        </FlexRow>
       </BarItems>
     );
 
     return (
       <Wrapper.ActionBar
-        left={<Title>{__('Email Deliveries')}</Title>}
+        left={<Title>{__(`Email Deliveries (${count})`)}</Title>}
         right={content}
       />
     );

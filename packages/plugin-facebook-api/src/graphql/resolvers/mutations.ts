@@ -19,45 +19,68 @@ const facebookMutations = {
 
     return { status: 'ok' };
   },
-  async facebookRepair(_root, { _id }: { _id: string }, { models }: IContext) {
-    await repairIntegrations(models, _id);
+  async facebookRepair(
+    _root,
+    { _id }: { _id: string },
+    { subdomain, models }: IContext,
+  ) {
+    await repairIntegrations(subdomain, models, _id);
 
     return 'success';
+  },
+
+  async facebookMessengerAddBot(_root, args, { models }: IContext) {
+    return await models.Bots.addBot(args);
+  },
+
+  async facebookMessengerUpdateBot(
+    _root,
+    { _id, ...args },
+    { models }: IContext,
+  ) {
+    return await models.Bots.updateBot(_id, args);
+  },
+
+  async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.removeBot(_id);
+  },
+  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
+    return await models.Bots.repair(_id);
   },
   async facebookChangeCommentStatus(
     _root,
     params: ICommentStatusParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { commentId } = params;
-    const comment = await models.Comments.findOne({ commentId });
+    const comment = await models.CommentConversation.findOne({ commentId });
 
     if (!comment) {
       throw new Error('Comment not found');
     }
 
-    await models.Comments.updateOne(
+    await models.CommentConversation.updateOne(
       { commentId },
-      { $set: { isResolved: comment.isResolved ? false : true } }
+      { $set: { isResolved: comment.isResolved ? false : true } },
     );
 
-    return models.Comments.findOne({ _id: comment._id });
+    return models.CommentConversation.findOne({ _id: comment._id });
   },
 
   async facebookReplyToComment(
     _root,
     params: IReplyParams,
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const { commentId, content, attachments, conversationId } = params;
 
-    const comment = await models.Comments.findOne({ commentId });
+    const comment = await models.CommentConversation.findOne({ commentId });
 
-    const post = await models.Posts.findOne({
+    const post = await models.PostConversations.findOne({
       $or: [
         { erxesApiId: conversationId },
-        { postId: comment ? comment.postId : '' }
-      ]
+        { postId: comment ? comment.postId : '' },
+      ],
     });
 
     if (!post) {
@@ -76,22 +99,22 @@ const facebookMutations = {
       attachment = {
         type: 'file',
         payload: {
-          url: attachments[0].url
-        }
+          url: attachments[0].url,
+        },
       };
     }
 
     let data = {
       message: content,
-      attachment_url: attachment.url
+      attachment_url: attachment.url,
     };
 
-    const id = comment ? comment.commentId : post.postId;
+    const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.commentId) {
+    if (comment && comment.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
-        attachment_url: attachment.url
+        attachment_url: attachment.url,
       };
     }
 
@@ -100,7 +123,7 @@ const facebookMutations = {
         isRPC: true,
         subdomain,
         action: 'conversations.findOne',
-        data: { query: { _id: conversationId } }
+        data: { query: { _id: conversationId } },
       });
 
       await sendReply(
@@ -108,7 +131,7 @@ const facebookMutations = {
         `${id}/comments`,
         data,
         recipientId,
-        inboxConversation && inboxConversation.integrationId
+        inboxConversation && inboxConversation.integrationId,
       );
 
       sendInboxMessage({
@@ -120,15 +143,15 @@ const facebookMutations = {
           conversations: [inboxConversation],
           type: 'conversationStateChange',
           mobile: true,
-          messageContent: content
-        }
+          messageContent: content,
+        },
       });
 
       return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
     }
-  }
+  },
 };
 
 export default facebookMutations;

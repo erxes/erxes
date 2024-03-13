@@ -27,6 +27,7 @@ import styled from 'styled-components';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 const TableWrapper = styled.div`
   table thead tr th {
@@ -270,6 +271,16 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
+    if (filterValues.brand) {
+      filteredProductsData = filteredProductsData.filter(
+        p =>
+          p.product &&
+          ((filterValues.brand === 'noBrand' &&
+            !p.product.scopeBrandIds.length) ||
+            p.product.scopeBrandIds.includes(filterValues.brand))
+      );
+    }
+
     if (filterValues.branches && filterValues.branches.length) {
       filteredProductsData = filteredProductsData.filter(p =>
         filterValues.branches.includes(p.branchId)
@@ -506,6 +517,20 @@ class ProductForm extends React.Component<Props, State> {
             initialValue={filterValues.vendors}
             multi={true}
             onSelect={companyIds => this.onFilter('vendors', companyIds)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>By brand</ControlLabel>
+          <SelectBrands
+            label="Choose brand"
+            name="brands"
+            initialValue={filterValues.brands}
+            customOption={{
+              label: 'No Brand',
+              value: 'noBrand'
+            }}
+            multi={false}
+            onSelect={brandId => this.onFilter('brand', brandId)}
           />
         </FormGroup>
         <Button

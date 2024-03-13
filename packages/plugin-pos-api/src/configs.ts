@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
@@ -16,25 +16,22 @@ import imports from './imports';
 import exporter from './exporter';
 import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'pos',
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig },
-    { path: `/file-export`, method: exportFileRunner }
+    { path: `/file-export`, method: exportFileRunner },
   ],
-  postHandlers: [{ path: `/api/unfetch-order-info`, method: unfetchOrderInfo }],
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  postHandlers: [
+    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
+    { path: `/pos-sync-config`, method: posSyncConfig },
+  ],
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -46,14 +43,8 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     afterMutations,
     automations,
@@ -64,6 +55,6 @@ export default {
     beforeResolvers,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };

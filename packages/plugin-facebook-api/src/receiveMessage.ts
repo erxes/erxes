@@ -1,31 +1,61 @@
 import { Activity } from 'botbuilder';
-import { graphqlPubsub } from './configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import { IModels } from './connectionResolver';
+import { INTEGRATION_KINDS } from './constants';
+import { putCreateLog } from './logUtils';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
-import { INTEGRATION_KINDS } from './constants';
+
+const checkIsBot = async (models: IModels, message, recipientId) => {
+  if (message?.payload) {
+    const payload = JSON.parse(message?.payload || '{}');
+    if (payload.botId) {
+      return payload.botId;
+    }
+  }
+
+  const bot = await models.Bots.findOne({ pageId: recipientId });
+
+  return bot?._id;
+};
 
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  activity: Activity
+  activity: Activity,
 ) => {
-  const {
+  let {
     recipient,
     sender,
     timestamp,
     text,
     attachments = [],
-    message
+    message,
+    postback,
   } = activity.channelData as IChannelData;
+
+  if (!text && !message && !!postback) {
+    text = postback.title;
+
+    message = {
+      mid: postback.mid,
+    };
+
+    if (postback.payload) {
+      message.payload = postback.payload;
+    }
+  }
+  if (message.quick_reply) {
+    message.payload = message.quick_reply.payload;
+  }
 
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER }
-    ]
+      { kind: INTEGRATION_KINDS.MESSENGER },
+    ],
   });
 
   const userId = sender.id;
@@ -38,40 +68,52 @@ const receiveMessage = async (
     subdomain,
     pageId,
     userId,
-    kind
+    kind,
   );
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
-    recipientId: recipient.id
+    recipientId: recipient.id,
   });
+
+  const botId = await checkIsBot(models, message, recipient.id);
 
   // create conversation
   if (!conversation) {
     // save on integrations db
+
     try {
       conversation = await models.Conversations.create({
         timestamp,
         senderId: userId,
         recipientId: recipient.id,
         content: text,
-        integrationId: integration._id
+        integrationId: integration._id,
+        isBot: !!botId,
+        botId,
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e
+          : e,
       );
     }
+  } else {
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (bot) {
+      conversation.botId = botId;
+    }
+    conversation.content = text || '';
   }
 
   const formattedAttachments = (attachments || [])
-    .filter(att => att.type !== 'fallback')
-    .map(att => ({
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : ''
+      url: att.payload ? att.payload.url : '',
     }));
 
   // save on api
@@ -87,10 +129,10 @@ const receiveMessage = async (
           content: text || '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
-          updatedAt: timestamp
-        })
+          updatedAt: timestamp,
+        }),
       },
-      isRPC: true
+      isRPC: true,
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -100,10 +142,9 @@ const receiveMessage = async (
     await models.Conversations.deleteOne({ _id: conversation._id });
     throw new Error(e);
   }
-
   // get conversation message
-  const conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid
+  let conversationMessage = await models.ConversationMessages.findOne({
+    mid: message.mid,
   });
 
   if (!conversationMessage) {
@@ -114,29 +155,47 @@ const receiveMessage = async (
         createdAt: timestamp,
         content: text,
         customerId: customer.erxesApiId,
-        attachments: formattedAttachments
+        attachments: formattedAttachments,
+        botId,
       });
-
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
+          conversationId: conversation.erxesApiId,
+        },
       });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId
-        }
-      });
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...created.toObject(),
+            conversationId: conversation.erxesApiId,
+          },
+        },
+      );
+
+      conversationMessage = created;
+      await putCreateLog(
+        models,
+        subdomain,
+        {
+          type: 'messages',
+          newData: message,
+          object: {
+            ...conversationMessage.toObject(),
+            payload: JSON.parse(message.payload || '{}'),
+          },
+        },
+        customer._id,
+      );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e
+          : e,
       );
     }
   }

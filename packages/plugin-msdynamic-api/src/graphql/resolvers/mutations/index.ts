@@ -1,3 +1,4 @@
-import Dynamic from './dynamic';
+import CheckDynamic from './checkDynamic';
+import SyncDynamic from './syncDynamic';
 
-export { Dynamic };
+export { CheckDynamic, SyncDynamic };

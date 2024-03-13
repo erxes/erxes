@@ -1,4 +1,4 @@
-import { ChooseBox, FlexContainer } from '@erxes/ui-engage/src/styles';
+import { ChooseBox } from '@erxes/ui-engage/src/styles';
 import PercentItem, { ItemWrapper } from './PercentItem';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -61,6 +61,7 @@ class List extends React.Component<Props> {
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}
+        refetchQueries={['engageMessages']}
       />
     );
   }
@@ -80,7 +81,7 @@ class List extends React.Component<Props> {
     const { emailPercentages } = this.props;
 
     if (!emailPercentages) {
-      return <>You haven't sent email campaigns yet.</>;
+      return <>You haven't sent email broadcast yet.</>;
     }
 
     const trigger = (
@@ -97,7 +98,7 @@ class List extends React.Component<Props> {
       avgClickPercent,
       avgRenderingFailurePercent,
       avgRejectPercent,
-      avgSendPercent
+      avgSendPercent,
     } = emailPercentages;
 
     const content = () => (
@@ -169,43 +170,14 @@ class List extends React.Component<Props> {
   }
 
   renderRightActionBar = () => {
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New campaign')}
-      </Button>
-    );
-
-    const content = () => (
-      <FlexContainer direction="column">
-        {this.renderBox(
-          'Auto campaign',
-          'Auto message description',
-          '/campaigns/create?kind=auto'
-        )}
-        {this.renderBox(
-          'Manual campaign',
-          'Manual message description',
-          '/campaigns/create?kind=manual'
-        )}
-        {this.renderBox(
-          'Visitor auto campaign',
-          'Visitor auto message description',
-          '/campaigns/create?kind=visitorAuto'
-        )}
-      </FlexContainer>
-    );
-
     return (
       <>
         {this.renderPercentage()}
-        <ModalTrigger
-          title="New campaign"
-          trigger={trigger}
-          content={content}
-          hideHeader={true}
-          enforceFocus={false}
-          centered={true}
-        />
+        <Link to="/campaigns/create?kind=manual">
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            {__('New broadcast')}
+          </Button>
+        </Link>
       </>
     );
   };
@@ -219,7 +191,7 @@ class List extends React.Component<Props> {
       loading,
       queryParams,
       isAllSelected,
-      refetch
+      refetch,
     } = this.props;
 
     const actionBar = (
@@ -254,7 +226,7 @@ class List extends React.Component<Props> {
           </tr>
         </thead>
         <tbody id="engageMessages">
-          {messages.map(message => (
+          {messages.map((message) => (
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}
@@ -272,8 +244,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Campaigns')}
-            breadcrumb={[{ title: __('Campaigns') }]}
+            title={__('XM Broadcast')}
+            breadcrumb={[{ title: __('XM Broadcast') }]}
             queryParams={queryParams}
           />
         }

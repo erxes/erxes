@@ -3,7 +3,7 @@ import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import * as cookieParser from 'cookie-parser';
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -14,28 +14,20 @@ import cronjobs from './cronjobs';
 import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
 
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
-
 export default {
   name: 'forum',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   hasSubscriptions: false,
 
   meta: {
     cronjobs,
-    tags
+    tags,
   },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {
@@ -47,7 +39,7 @@ export default {
     context.serverTiming = {
       startTime: res.startTime,
       endTime: res.endTime,
-      setMetric: res.setMetric
+      setMetric: res.setMetric,
     };
 
     if (req.cpUser) {
@@ -59,14 +51,6 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    const app = options.app;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

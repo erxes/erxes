@@ -118,11 +118,11 @@ export default function BlockList(props: Props) {
           onClick={onClick}
           queryParams={queryParams}
           queryParamName={`${linkToText}Id`}
-          isTeam={true}
           treeView={true}
           icon={renderIcon()}
           editAction={renderEditAction}
           removeAction={renderRemoveAction}
+          keyCount="userCount"
         />
       </SidebarList>
     </Box>

@@ -36,16 +36,12 @@ export interface IKitchenScreen {
   isPrint?: boolean
 }
 
-export interface IPaymentConfig extends ICoverConfig {
-  permissionConfig?: {
-    admins?: {
-      isTempBill?: boolean
-    }
-    cashiers?: {
-      isTempBill?: boolean
-    }
-  }
+export interface IPermissionConfig {
+  isTempBill?: boolean
+  directDiscount?: boolean
+  directDiscountLimit?: number
 }
+
 export interface ICoverConfig {
   paymentIds: string[]
   paymentTypes: IPaymentType[]

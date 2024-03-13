@@ -1,5 +1,6 @@
 const commonDetailFields = `
   avatar: String
+  coverPhoto: String
   fullName: String
   shortName: String
   birthDate: Date
@@ -34,9 +35,41 @@ export const types = `
     departmentId: String
   }
 
+  enum UserChatStatus{
+    offline
+    online
+  }
+
   type UserDetailsType {
     ${commonDetailFields}
   }
+
+  type CookieOrganization {
+    subdomain: String
+    name: String
+  }
+  
+  type Organization {
+    name: String
+    icon: String
+    subdomain: String
+    promoCodes: [String]
+    isPaid: Boolean
+    expiryDate: Date
+    plan: String
+    purchased: Int
+    isWhiteLabel: Boolean
+    setupService: JSON
+    onboardingDone: Boolean
+    contactRemaining: Boolean
+    experienceName: String
+    bundleNames: [String]
+  
+    charge: JSON
+    createdAt: Date
+    category: String
+  }
+
 
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
@@ -47,8 +80,13 @@ export const types = `
     details: UserDetailsType
     links: JSON
     status: String
+    chatStatus: UserChatStatus
     emailSignatures: JSON
     getNotificationByEmail: Boolean
+
+    currentOrganization: Organization
+    organizations: [CookieOrganization]
+    
     groupIds: [String]
     brandIds: [String]
     isSubscribed: String
@@ -68,6 +106,8 @@ export const types = `
     departments: [Department]
     branchIds: [String]
     branches: [Branch]
+    positionIds: [String]
+    positions: [Position]
     score: Float
     leaderBoardPosition: Int
     employeeId: String
@@ -96,6 +136,7 @@ const commonParams = `
   groupIds: [String]
   brandIds: [String]
   branchIds: [String]
+  positionIds: [String]
   departmentIds: [String]
   customFieldsData: JSON
   employeeId: String
@@ -109,6 +150,7 @@ const commonSelector = `
   brandIds: [String]
   departmentId: String
   branchId: String
+  isAssignee: Boolean
   branchIds: [String]
   departmentIds: [String]
   unitId: String
@@ -137,7 +179,6 @@ export const mutations = `
     email: String!,
     details: UserDetails,
     links: JSON
-    password: String!
     employeeId: String
   ): User
   usersEdit(_id: String!, ${commonParams}): User
@@ -149,4 +190,9 @@ export const mutations = `
   usersSeenOnBoard: User
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
+  usersSetChatStatus(_id: String!, status: UserChatStatus): User
+  editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
+  editOrganizationDomain(type: String, domain: String): Organization
+  loginWithGoogle: String
+  loginWithMagicLink(email: String!): String
  `;

@@ -1,6 +1,6 @@
 import { dateToShortStr } from '@erxes/api-utils/src/core';
 import * as moment from 'moment';
-import { serviceDiscovery } from './configs';
+
 import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
@@ -8,6 +8,7 @@ import {
   sendFormsMessage
 } from './messageBroker';
 import { IProductDocument } from './models/definitions/products';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const toMoney = value => {
   if (!value) {
@@ -75,7 +76,7 @@ export default {
       productById[product._id] = product;
     }
 
-    const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
+    const pricingAvailable = await isEnabled('pricing');
     let quantityRules = {};
 
     if (content.includes('{{ barcode }}')) {

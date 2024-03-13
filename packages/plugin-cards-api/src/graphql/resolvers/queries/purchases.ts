@@ -24,18 +24,18 @@ interface IPurchaseListParams extends IListParams {
 }
 
 const purchaseQueries = {
-  //list cost
-  async costs(_root, _args, { models }: IContext) {
-    return models.Costs.find({ status: 'active' }).lean();
+  // list expense
+  async expenses(_root, _args, { models }: IContext) {
+    return models.Expenses.find({ status: 'active' }).lean();
   },
 
-  //count cost
-  async costTotalCount(_root, _args, { models }: IContext) {
-    return models.Costs.countDocuments();
+  // count expense
+  async expensesTotalCount(_root, _args, { models }: IContext) {
+    return models.Expenses.countDocuments();
   },
-  //cost detail
-  async costDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Costs.findOne({ _id });
+  // expense detail
+  async expenseDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Expenses.findOne({ _id });
   },
 
   // purchase list
@@ -91,16 +91,6 @@ const purchaseQueries = {
       defaultValue: []
     });
 
-    const purchaseExpenseIds = purchases.flatMap(purchase => {
-      if (purchase.expensesData && purchase.expensesData.length > 0) {
-        return purchase.expensesData.flatMap(pData => pData.expenseId || []);
-      }
-    });
-
-    const expenses = await models.Costs.find({
-      _id: { $in: [...new Set(purchaseExpenseIds)] }
-    }).lean();
-
     for (const purchase of purchases) {
       let pd = purchase.productsData;
 
@@ -129,15 +119,6 @@ const purchaseQueries = {
         purchase.products.push({
           product: {
             name: '...More'
-          }
-        });
-      }
-
-      if (purchase.expensesData && purchase.expensesData.length > 0) {
-        purchase.expensesData.forEach((expense, ind) => {
-          if (expense.expenseId) {
-            purchase.expensesData[ind] =
-              expenses.find(e => e._id === expense.expenseId) || {};
           }
         });
       }
@@ -344,6 +325,35 @@ const purchaseQueries = {
       },
       isRPC: true
     });
+  },
+
+  async productsPriceLast(
+    _root,
+    { purchaseId, productIds }: { purchaseId: string; productIds: string[] },
+    { subdomain, models }: IContext
+  ) {
+    const result: { productId: string; price: number }[] = [];
+    for (const productId of productIds) {
+      const lastPurchase = await models.Purchases.findOne({
+        'productsData.productId': productIds,
+        _id: { $ne: purchaseId }
+      }).sort({ modifiedAt: -1 });
+      if (!lastPurchase) {
+        result.push({ productId, price: 0 });
+        continue;
+      }
+      const productData = (lastPurchase?.productsData || []).find(
+        pd => pd.productId === productId
+      );
+
+      if (!productData) {
+        result.push({ productId, price: 0 });
+        continue;
+      }
+
+      result.push({ productId, price: productData.unitPrice });
+    }
+    return result;
   }
 };
 

@@ -1,28 +1,21 @@
 import * as dotenv from 'dotenv';
 import {
-  ISendMessageArgs,
-  sendMessage as sendCommonMessage
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
 
-import client from '.';
-
-import { serviceDiscovery } from '../../configs';
-
-export const sendContactsMessage = (args: ISendMessageArgs) => {
+export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = (args: ISendMessageArgs) => {
+export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
     timeout: 50000,
-    ...args
+    ...args,
   });
 };

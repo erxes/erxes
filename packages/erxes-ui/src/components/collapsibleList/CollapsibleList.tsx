@@ -13,7 +13,6 @@ import {
 
 import EmptyState from '../EmptyState';
 import Icon from '../Icon';
-import { Link } from 'react-router-dom';
 import React from 'react';
 import { SidebarList } from '../../layout/styles';
 import Spinner from '../Spinner';
@@ -30,6 +29,7 @@ type Props = {
   queryParamName?: string;
   level?: number;
   icon?: string;
+  keyCount?: string;
 
   // hooks
   onClick?: (id: string) => void;
@@ -115,45 +115,40 @@ class CollapsibleList extends React.Component<Props, State> {
   };
 
   renderItemName = (item: any) => {
-    const { isProductCategory, isTeam } = this.props;
+    const { keyCount } = this.props;
 
-    if (isProductCategory || isTeam) {
+    if (keyCount) {
       return (
         <FlexBetween>
-          {item.code} - {isTeam ? item.title : item.name}
-          <ItemCount className="product-count">
-            {isTeam ? item.users.length : item.productCount}
-          </ItemCount>
+          {item.code} - {item.title || item.name}
+          <ItemCount className="product-count">{item[keyCount]}</ItemCount>
         </FlexBetween>
       );
     }
 
-    return item.name || '[undefined]';
+    return item.title || item.name || '[undefined]';
   };
 
   renderItemText = (item: any) => {
-    const { linkToText } = this.props;
+    const { onClick } = this.props;
 
-    if (linkToText) {
-      return (
-        <Link to={`${linkToText}${item._id}`}>{this.renderItemName(item)}</Link>
-      );
-    }
-
-    return <ItemText>{this.renderItemName(item)}</ItemText>;
+    return (
+      <ItemText
+        onClick={onClick ? () => onClick(item._id) : (undefined as any)}
+      >
+        {this.renderItemName(item)}
+      </ItemText>
+    );
   };
 
   renderItem = (item: any, hasChildren: boolean) => {
-    const { onClick, icon } = this.props;
+    const { icon } = this.props;
     const { key } = this.state;
     const isOpen = this.state.parentIds[item._id] || !!key;
 
     return (
       <FlexRow key={item._id}>
-        <SidebarListItem
-          isActive={this.isActive(item._id)}
-          onClick={onClick ? () => onClick(item._id) : (undefined as any)}
-        >
+        <SidebarListItem isActive={this.isActive(item._id)}>
           {icon && <Icon className="list-icon" icon={icon} />}
           {this.renderIcons(item, hasChildren, isOpen)}
           {this.renderItemText(item)}

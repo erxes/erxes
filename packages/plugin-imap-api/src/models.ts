@@ -112,6 +112,7 @@ export interface IIntegration {
   password: string;
   healthStatus?: string;
   error?: string;
+  lastFetchDate?: Date;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -126,7 +127,8 @@ export const integrationSchema = new Schema({
   user: String,
   password: String,
   healthStatus: String,
-  error: String
+  error: String,
+  lastFetchDate: Date
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}

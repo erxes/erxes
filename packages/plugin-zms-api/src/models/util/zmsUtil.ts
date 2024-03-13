@@ -10,16 +10,16 @@ const dictionary = {
 };
 
 const stringRegex = (to: number = 50) =>
-  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮ -]{1,${to}}$`);
+  new RegExp(`^[a-zA-Zа-яА-ЯёЁөӨүҮЪЬ -]{1,${to}}$`);
 const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
-const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
+const registerRegex = /^[a-zA-Z]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
 const booleanRegex = /^[0-1]{1}$/;
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const numberLimRegex = /^\d{1,10}$/;
-const fullDateRegex = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/;
-const amountRegex = /^([0-9]{1,20}).([0-9]{2})/;
+const fullDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
+const amountRegex = /^(\d{1,20}).(\d{2})/;
 
 function fieldValidator(
   object,

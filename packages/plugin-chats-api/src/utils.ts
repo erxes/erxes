@@ -1,10 +1,10 @@
 import * as admin from 'firebase-admin';
-import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 const initFirebase = async (models): Promise<void> => {
   const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
   });
 
   if (!config) {
@@ -19,7 +19,7 @@ const initFirebase = async (models): Promise<void> => {
     if (serviceAccount.private_key) {
       try {
         await admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
+          credential: admin.credential.cert(serviceAccount),
         });
       } catch (e) {
         console.log(`initFireBase error: ${e.message}`);
@@ -42,14 +42,14 @@ export const sendMobileNotification = async (
     title,
     body,
     customerId,
-    conversationId
+    conversationId,
   }: {
     receivers: string[];
     customerId?: string;
     title: string;
     body: string;
     conversationId?: string;
-  }
+  },
 ): Promise<void> => {
   if (!admin.apps.length) {
     await initFirebase(models);
@@ -61,16 +61,16 @@ export const sendMobileNotification = async (
     tokens.push(
       ...(await models.Users.find({
         _id: { $in: receivers },
-        role: { $ne: USER_ROLES.SYSTEM }
-      }).distinct('deviceTokens'))
+        role: { $ne: USER_ROLES.SYSTEM },
+      }).distinct('deviceTokens')),
     );
   }
 
   if (customerId) {
     tokens.push(
       ...(await models.Customers.findOne({ _id: customerId }).distinct(
-        'deviceTokens'
-      ))
+        'deviceTokens',
+      )),
     );
   }
 
@@ -82,15 +82,13 @@ export const sendMobileNotification = async (
         .send({
           token,
           notification: { title, body },
-          data: { conversationId: conversationId || 'fakeId' }
+          data: { conversationId: conversationId || 'fakeId' },
         })
-        .then(response => {
-          debugExternalApi(
-            `Successfully sent message: ${JSON.stringify(response)}`
-          );
+        .then((response) => {
+          debugInfo(`Successfully sent message: ${JSON.stringify(response)}`);
         })
-        .catch(error => {
-          debugExternalApi(`Error sending message: ${error.message}`);
+        .catch((error) => {
+          debugError(`Error sending message: ${error.message}`);
           throw error;
         });
     }

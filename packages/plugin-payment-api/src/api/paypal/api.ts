@@ -47,7 +47,7 @@ export class PaypalAPI extends BaseAPI {
     if (token) {
       return {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       };
     }
 
@@ -60,24 +60,24 @@ export class PaypalAPI extends BaseAPI {
           Accept: 'application/json',
           'Accept-Language': 'en_US',
           Authorization: `Basic ${Buffer.from(
-            `${clientId}:${clientSecret}`
-          ).toString('base64')}`
+            `${clientId}:${clientSecret}`,
+          ).toString('base64')}`,
         },
         data: {
-          grant_type: 'client_credentials'
-        }
-      });
+          grant_type: 'client_credentials',
+        },
+      }).then((r) => r.json());
 
       await redis.set(
         `paypal_token_${clientId}`,
         res.access_token,
         'EX',
-        res.expires_in - 60
+        res.expires_in - 60,
       );
 
       return {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${res.access_token}`
+        Authorization: `Bearer ${res.access_token}`,
       };
     } catch (e) {
       console.log('e', e);

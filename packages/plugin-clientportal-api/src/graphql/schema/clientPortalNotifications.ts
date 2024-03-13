@@ -40,6 +40,15 @@ export const types = `
     clientPortalId: String
     eventData: JSON
   }
+  input MobileFireBaseConfig {
+    sound: String
+    channelId: String
+  }
+
+  input EventDataFilter {
+    field: String,
+    values: [String]
+  }
 `;
 
 const params = `
@@ -50,7 +59,8 @@ const params = `
   notifType: NotificationType
   search: String
   startDate: String
-  endDate: String
+  endDate: String,
+  eventDataFilter: EventDataFilter
 `;
 
 export const queries = `
@@ -69,5 +79,5 @@ export const mutations = `
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 
-    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON): JSON
+  clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean, eventData: JSON, mobileConfig: MobileFireBaseConfig): JSON
 `;

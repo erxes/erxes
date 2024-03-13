@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { orderCollapsibleAtom } from "@/store"
 import { openCancelDialogAtom } from "@/store/history.store"
 import {
   activeOrderIdAtom,
@@ -11,22 +11,20 @@ import {
 } from "@/store/order.store"
 import { format, setHours, setMinutes } from "date-fns"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { AlarmClockIcon, EraserIcon, SlidersHorizontalIcon } from "lucide-react"
+import { EraserIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { CardTitle } from "@/components/ui/card"
+import { CollapsibleContent } from "@/components/ui/collapsible"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel"
+
+import DirectDiscount from "./directDiscount"
 
 const DeliveryInputs = () => {
   const [description, setDescription] = useAtom(descriptionAtom)
@@ -37,8 +35,7 @@ const DeliveryInputs = () => {
   const number = useAtomValue(orderNumberAtom)
   const changeCancel = useSetAtom(openCancelDialogAtom)
   const setInitialStates = useSetAtom(setInitialAtom)
-  const [open, setOpen] = useState(false)
-  // const
+  const setOpenCollapsible = useSetAtom(orderCollapsibleAtom)
 
   const chageTimeOfDate = (date: string, time: string) =>
     setMinutes(
@@ -57,45 +54,11 @@ const DeliveryInputs = () => {
   const disableOnPre = paidAmount > 0 && isPre
 
   return (
-    <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn(
-            "col-span-2 font-semibold h-11",
-            isPre && "border-2 border-primary text-primary hover:text-primary"
-          )}
-        >
-          {isPre ? (
-            <AlarmClockIcon className="h-5 w-5 animate-bounce" />
-          ) : (
-            <SlidersHorizontalIcon className="h-5 w-5" />
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <CardTitle className="mb-2">Хүргэлтийн мэдээлэл</CardTitle>
-        <div className="space-y-3">
-          <div className="col-span-3 pb-1">
-            <Label htmlFor="delivery" className="block pb-1">
-              Mэдээлэл
-            </Label>
-            <Textarea
-              className="max-h-20"
-              value={description || ""}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              id="isPre"
-              checked={isPre}
-              onCheckedChange={() => setIsPre(!isPre)}
-              disabled={paidAmount > 0}
-            />
-            <Label htmlFor="isPre">Урьдчилсан захиалга эсэх</Label>
-          </div>
-          <div className="col-span-2">
+    <CollapsibleContent className="col-span-2 mb-2 border-y py-3">
+      <div className="space-y-3">
+        <CardTitle>Хүргэлтийн мэдээлэл</CardTitle>
+        <div className="flex gap-2 items-end">
+          <div className="flex-auto">
             <Label className="block pb-1">Хүргэх өдөр</Label>
             <DatePicker
               date={!!dueDate ? new Date(dueDate) : undefined}
@@ -105,28 +68,50 @@ const DeliveryInputs = () => {
               disabled={disableOnPre}
             />
           </div>
-          <div className="flex gap-2 items-end">
-            <div className="flex-auto">
-              <Label className="block pb-1">Хүргэх цаг</Label>
-              <Input
-                type="time"
-                value={dueDate ? format(new Date(dueDate), "HH:mm") : ""}
-                onChange={(e) =>
-                  setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
-                }
-                disabled={disableOnPre}
-              />
-            </div>
-            <Button
-              variant="secondary"
-              className="px-3"
-              onClick={() => setDueDate(undefined)}
+          <div className="flex-auto">
+            <Label className="block pb-1">Хүргэх цаг</Label>
+            <Input
+              type="time"
+              value={dueDate ? format(new Date(dueDate), "HH:mm") : ""}
+              onChange={(e) =>
+                setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
+              }
               disabled={disableOnPre}
-            >
-              <EraserIcon className="h-5 w-5" />
-            </Button>
+            />
           </div>
-          {!!orderId && (
+          <Button
+            variant="ghost"
+            className="h-10 px-3"
+            size="sm"
+            onClick={() => setDueDate(undefined)}
+            disabled={disableOnPre}
+          >
+            <EraserIcon className="h-4 w-4" strokeWidth={1.5} />
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="isPre"
+            checked={isPre}
+            onCheckedChange={() => setIsPre(!isPre)}
+            disabled={paidAmount > 0}
+          />
+          <Label htmlFor="isPre">Урьдчилсан захиалга эсэх</Label>
+        </div>
+        <div>
+          <Label htmlFor="delivery" className="block pb-1">
+            Дэлгэрэнгүй
+          </Label>
+          <Textarea
+            className="max-h-20"
+            value={description || ""}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+        <DirectDiscount />
+        {!!orderId && (
+          <>
+            <Separator />
             <div className="col-span-3">
               <Button
                 variant="destructive"
@@ -140,14 +125,14 @@ const DeliveryInputs = () => {
                 refetchQueries={["ActiveOrders"]}
                 onCompleted={() => {
                   setInitialStates()
-                  setOpen(false)
+                  setOpenCollapsible(false)
                 }}
               />
             </div>
-          )}
-        </div>
-      </PopoverContent>
-    </Popover>
+          </>
+        )}
+      </div>
+    </CollapsibleContent>
   )
 }
 

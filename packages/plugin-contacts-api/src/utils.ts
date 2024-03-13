@@ -8,14 +8,14 @@ import {
   customerSchema,
   ICustomerDocument,
   locationSchema,
-  visitorContactSchema
+  visitorContactSchema,
 } from './models/definitions/customers';
-import messageBroker, {
+import {
   sendCoreMessage,
   sendEngagesMessage,
   sendFormsMessage,
   sendInboxMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels, IModels } from './connectionResolver';
@@ -24,29 +24,28 @@ import {
   CUSTOMER_BASIC_INFO,
   DEVICE_PROPERTIES_INFO,
   EMAIL_VALIDATION_STATUSES,
-  MODULE_NAMES
+  MODULE_NAMES,
 } from './constants';
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
-import { sendCommonMessage } from './messageBroker';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
     { name: 'companiesPrimaryNames', label: 'Company Primary Names' },
-    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' }
+    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' },
   ],
   ALL: [
     { name: 'tag', label: 'Tag' },
-    { name: 'ownerEmail', label: 'Owner email' }
-  ]
+    { name: 'ownerEmail', label: 'Owner email' },
+  ],
 };
 
 export const findCustomer = async (
   { Customers }: IModels,
   subdomain: string,
-  doc
+  doc,
 ) => {
   let customer;
 
@@ -57,8 +56,8 @@ export const findCustomer = async (
       ...defaultFilter,
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail }
-      ]
+        { primaryEmail: doc.customerPrimaryEmail },
+      ],
     }).lean();
   }
 
@@ -67,22 +66,22 @@ export const findCustomer = async (
       ...defaultFilter,
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone }
-      ]
+        { primaryPhone: doc.customerPrimaryPhone },
+      ],
     }).lean();
   }
 
   if (!customer && doc.customerCode) {
     customer = await Customers.findOne({
       ...defaultFilter,
-      code: doc.customerCode
+      code: doc.customerCode,
     }).lean();
   }
 
   if (!customer && doc._id) {
     customer = await Customers.findOne({
       ...defaultFilter,
-      _id: doc._id
+      _id: doc._id,
     }).lean();
   }
 
@@ -94,7 +93,6 @@ export const findCustomer = async (
     customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       customer,
       subdomain,
-      sendCommonMessage
     );
   }
 
@@ -104,7 +102,7 @@ export const findCustomer = async (
 export const findCompany = async (
   { Companies }: IModels,
   subdomain: string,
-  doc
+  doc,
 ) => {
   let company;
 
@@ -115,29 +113,29 @@ export const findCompany = async (
       ...defaultFilter,
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName }
-      ]
+        { primaryName: doc.companyPrimaryName },
+      ],
     }).lean();
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }],
     }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }],
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }],
     }).lean();
   }
 
@@ -146,8 +144,8 @@ export const findCompany = async (
       ...defaultFilter,
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail }
-      ]
+        { primaryEmail: doc.companyPrimaryEmail },
+      ],
     }).lean();
   }
 
@@ -156,22 +154,22 @@ export const findCompany = async (
       ...defaultFilter,
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone }
-      ]
+        { primaryPhone: doc.companyPrimaryPhone },
+      ],
     }).lean();
   }
 
   if (!company && doc.companyCode) {
     company = await Companies.findOne({
       ...defaultFilter,
-      code: doc.companyCode
+      code: doc.companyCode,
     }).lean();
   }
 
   if (!company && doc._id) {
     company = await Companies.findOne({
       ...defaultFilter,
-      _id: doc._id
+      _id: doc._id,
     }).lean();
   }
 
@@ -183,7 +181,6 @@ export const findCompany = async (
     company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       company,
       subdomain,
-      sendCommonMessage
     );
   }
 
@@ -194,20 +191,20 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string
+  subdomain: string,
 ) => {
   const users = await sendCoreMessage({
     subdomain,
     action: 'users.find',
     data: {
-      query: {}
+      query: {},
     },
-    isRPC: true
+    isRPC: true,
   });
 
-  const options: Array<{ label: string; value: any }> = users.map(user => ({
+  const options: Array<{ label: string; value: any }> = users.map((user) => ({
     value: user._id,
-    label: user.username || user.email || ''
+    label: user.username || user.email || '',
   }));
 
   return {
@@ -215,7 +212,7 @@ const generateUsersOptions = async (
     name,
     label,
     type,
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -223,20 +220,20 @@ const generateBrandsOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string
+  subdomain: string,
 ) => {
   const brands = await sendCoreMessage({
     subdomain,
     action: 'brands.find',
     data: {
-      query: {}
+      query: {},
     },
-    isRPC: true
+    isRPC: true,
   });
 
-  const options: Array<{ label: string; value: any }> = brands.map(brand => ({
+  const options: Array<{ label: string; value: any }> = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name
+    label: brand.name,
   }));
 
   return {
@@ -244,7 +241,7 @@ const generateBrandsOptions = async (
     name,
     label,
     type,
-    selectOptions: options
+    selectOptions: options,
   };
 };
 
@@ -253,10 +250,12 @@ const getTags = async (type: string, subdomain: string) => {
     subdomain,
     action: 'find',
     data: {
-      type: `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`
+      type: `contacts:${
+        ['lead', 'visitor'].includes(type) ? 'customer' : type
+      }`,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const selectOptions: Array<{ label: string; value: any }> = [];
@@ -264,7 +263,7 @@ const getTags = async (type: string, subdomain: string) => {
   for (const tag of tags) {
     selectOptions.push({
       value: tag._id,
-      label: tag.name
+      label: tag.name,
     });
   }
 
@@ -273,7 +272,7 @@ const getTags = async (type: string, subdomain: string) => {
     name: 'tagIds',
     label: 'Tag',
     type: 'tag',
-    selectOptions
+    selectOptions,
   };
 };
 
@@ -283,7 +282,7 @@ const getIntegrations = async (subdomain: string) => {
     action: 'integrations.find',
     data: { query: {} },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const selectOptions: Array<{ label: string; value: any }> = [];
@@ -291,7 +290,7 @@ const getIntegrations = async (subdomain: string) => {
   for (const integration of integrations) {
     selectOptions.push({
       value: integration._id,
-      label: integration.name
+      label: integration.name,
     });
   }
 
@@ -299,7 +298,7 @@ const getIntegrations = async (subdomain: string) => {
     _id: Math.random(),
     name: 'relatedIntegrationIds',
     label: 'Related integration',
-    selectOptions
+    selectOptions,
   };
 };
 
@@ -309,15 +308,15 @@ const getFormSubmissionFields = async (subdomain, config) => {
     action: 'fields.fieldsCombinedByContentType',
     data: {
       contentType: 'forms:form_submission',
-      config
+      config,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  return fields.map(field => ({
+  return fields.map((field) => ({
     ...field,
-    label: `form_submission:${field?.label || ''}`
+    label: `form_submission:${field?.label || ''}`,
   }));
 };
 
@@ -364,7 +363,7 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -381,20 +380,20 @@ export const generateFields = async ({ subdomain, data }) => {
         aggs: {
           trackedDataKeys: {
             nested: {
-              path: 'trackedData'
+              path: 'trackedData',
             },
             aggs: {
               fieldKeys: {
                 terms: {
                   field: 'trackedData.field',
-                  size: 10000
-                }
-              }
-            }
-          }
-        }
+                  size: 10000,
+                },
+              },
+            },
+          },
+        },
       },
-      defaultValue: { aggregations: { trackedDataKeys: {} } }
+      defaultValue: { aggregations: { trackedDataKeys: {} } },
     });
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
@@ -405,7 +404,7 @@ export const generateFields = async ({ subdomain, data }) => {
       fields.push({
         _id: Math.random(),
         name: `trackedData.${bucket.key}`,
-        label: bucket.key
+        label: bucket.key,
       });
     }
   }
@@ -414,7 +413,7 @@ export const generateFields = async ({ subdomain, data }) => {
     'ownerId',
     'Owner',
     'user',
-    subdomain
+    subdomain,
   );
 
   const tags = await getTags(type, subdomain);
@@ -429,7 +428,7 @@ export const generateFields = async ({ subdomain, data }) => {
     if (config) {
       const formSubmissionFields = await getFormSubmissionFields(
         subdomain,
-        config
+        config,
       );
       fields = [...fields, ...formSubmissionFields];
     }
@@ -440,13 +439,13 @@ export const generateFields = async ({ subdomain, data }) => {
       fields.push({
         _id: Math.random(),
         name: 'companiesPrimaryNames',
-        label: 'Company Primary Names'
+        label: 'Company Primary Names',
       });
 
       fields.push({
         _id: Math.random(),
         name: 'companiesPrimaryEmails',
-        label: 'Company Primary Emails'
+        label: 'Company Primary Emails',
       });
     }
   }
@@ -456,7 +455,7 @@ export const generateFields = async ({ subdomain, data }) => {
       'scopeBrandIds',
       'Brands',
       'brand',
-      subdomain
+      subdomain,
     );
 
     fields.push(brandsOptions);
@@ -468,7 +467,7 @@ export const generateFields = async ({ subdomain, data }) => {
     for (const extendField of EXTEND_FIELDS.ALL) {
       fields.push({
         _id: Math.random(),
-        ...extendField
+        ...extendField,
       });
     }
   }
@@ -478,7 +477,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
 export const getContentItem = async (
   { Customers, Companies }: IModels,
-  activityLog
+  activityLog,
 ) => {
   const { action, contentType, content } = activityLog;
 
@@ -505,10 +504,9 @@ export const getContentItem = async (
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
-    messageBroker(),
     `${process.env.DOMAIN}/gateway/pl:core`,
     services,
-    subdomain
+    subdomain,
   );
 
   return editor;
@@ -517,7 +515,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 export const prepareEngageCustomers = async (
   { Customers }: IModels,
   subdomain: string,
-  { engageMessage, customersSelector, action, user }
+  { engageMessage, customersSelector, action, user },
 ): Promise<any> => {
   const customerInfos: Array<{
     _id: string;
@@ -532,12 +530,10 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields = await editorAttributeUtil.getCustomerFields(
-    emailContent
-  );
+  const customerFields =
+    await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-
   // make sure email & phone are valid
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
@@ -552,7 +548,7 @@ export const prepareEngageCustomers = async (
     await sendEngagesMessage({
       subdomain,
       action: 'pre-notification',
-      data: { engageMessage, customerInfos }
+      data: { engageMessage, customerInfos },
     });
 
     if (customerInfos.length > 0) {
@@ -560,14 +556,14 @@ export const prepareEngageCustomers = async (
         ...engageMessage,
         customers: [],
         fromEmail: user.email,
-        engageMessageId: engageMessage._id
+        engageMessageId: engageMessage._id,
       };
 
       if (engageMessage.method === 'email' && engageMessage.email) {
         const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
-          user
+          user,
         });
 
         engageMessage.email.content = replacedContent;
@@ -583,7 +579,7 @@ export const prepareEngageCustomers = async (
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
-          data: { action, data }
+          data: { action, data },
         });
       }
     }
@@ -602,7 +598,7 @@ export const prepareEngageCustomers = async (
           content: emailContent,
           customer,
           item,
-          customerFields
+          customerFields,
         });
 
         customerInfos.push({
@@ -611,13 +607,13 @@ export const prepareEngageCustomers = async (
           emailValidationStatus: customer.emailValidationStatus,
           phoneValidationStatus: customer.phoneValidationStatus,
           primaryPhone: customer.primaryPhone,
-          replacers
+          replacers,
         });
       }
 
       // signal upstream that we are ready to take more data
       callback();
-    }
+    },
   });
 
   // generate fields option =======
@@ -625,17 +621,16 @@ export const prepareEngageCustomers = async (
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
-    primaryPhone: 1
+    primaryPhone: 1,
   };
 
   for (const field of customerFields || []) {
     fieldsOption[field] = 1;
   }
 
-  const customersStream = (Customers.find(
-    customersSelector,
-    fieldsOption
-  ) as any).stream();
+  const customersStream = (
+    Customers.find(customersSelector, fieldsOption) as any
+  ).stream();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
@@ -657,7 +652,7 @@ export const generateSystemFields = ({ data: { groupId } }) => {
 
   const serviceName = 'contacts';
 
-  CUSTOMER_BASIC_INFO.ALL.map(e => {
+  CUSTOMER_BASIC_INFO.ALL.map((e) => {
     contactsFields.push({
       text: e.label,
       type: e.field,
@@ -665,11 +660,11 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:customer`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
-  COMPANY_INFO.ALL.map(e => {
+  COMPANY_INFO.ALL.map((e) => {
     contactsFields.push({
       text: e.label,
       type: e.field,
@@ -677,17 +672,17 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:company`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
-  DEVICE_PROPERTIES_INFO.ALL.map(e => {
+  DEVICE_PROPERTIES_INFO.ALL.map((e) => {
     contactsFields.push({
       text: e.label,
       type: e.field,
       groupId,
       contentType: `${serviceName}:device`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 
@@ -702,7 +697,7 @@ export const updateContactsField = async (
     cachedCustomerId?: string;
     integration: any;
     submissionsGrouped: any;
-  }
+  },
 ) => {
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
@@ -759,7 +754,7 @@ export const updateContactsField = async (
       }
 
       if (
-        customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
+        customerSchemaLabels.findIndex((e) => e.name === submissionType) !== -1
       ) {
         if (
           submissionType === 'avatar' &&
@@ -790,7 +785,7 @@ export const updateContactsField = async (
       }
 
       if (
-        companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
+        companySchemaLabels.findIndex((e) => e.name === submissionType) !== -1
       ) {
         companyDoc[submissionType] = submission.value;
         continue;
@@ -806,7 +801,7 @@ export const updateContactsField = async (
           'textarea',
           'radio',
           'check',
-          'map'
+          'map',
         ].includes(submissionType)
       ) {
         const field = await sendFormsMessage({
@@ -814,10 +809,10 @@ export const updateContactsField = async (
           action: 'fields.findOne',
           data: {
             query: {
-              _id: submission.associatedFieldId
-            }
+              _id: submission.associatedFieldId,
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
 
         if (!field) {
@@ -829,23 +824,23 @@ export const updateContactsField = async (
           action: 'fieldsGroups.findOne',
           data: {
             query: {
-              _id: field.groupId
-            }
+              _id: field.groupId,
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
 
         if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
           companyCustomData.push({
             field: submission.associatedFieldId,
-            value: submission.value
+            value: submission.value,
           });
         }
 
         if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
           customFieldsData.push({
             field: submission.associatedFieldId,
-            value: submission.value
+            value: submission.value,
           });
         }
       }
@@ -856,7 +851,7 @@ export const updateContactsField = async (
         integrationId: integration._id,
         cachedCustomerId,
         email: customerDoc.email || '',
-        phone: customerDoc.phone || ''
+        phone: customerDoc.phone || '',
       });
 
       if (!cachedCustomer) {
@@ -865,7 +860,7 @@ export const updateContactsField = async (
           integration._id,
           customerDoc,
           integration.brandId || '',
-          leadData.saveAsCustomer
+          leadData.saveAsCustomer,
         );
       }
 
@@ -876,21 +871,21 @@ export const updateContactsField = async (
           ...customerDoc,
           customFieldsData,
           links: customerLinks,
-          scopeBrandIds: [integration.brandId || '']
+          scopeBrandIds: [integration.brandId || ''],
         },
-        cachedCustomer
+        cachedCustomer,
       );
 
       cachedCustomerId = cachedCustomer._id;
 
       conformityIds[groupId] = {
         customerId: cachedCustomer._id,
-        companyId: ''
+        companyId: '',
       };
     } else {
       let customer = await findCustomer(models, subdomain, {
         customerPrimaryEmail: customerDoc.email || '',
-        customerPrimaryPhone: customerDoc.phone || ''
+        customerPrimaryPhone: customerDoc.phone || '',
       });
 
       if (!customer) {
@@ -898,7 +893,7 @@ export const updateContactsField = async (
           models,
           integration._id,
           customerDoc,
-          integration.brandId || ''
+          integration.brandId || '',
         );
       }
 
@@ -909,9 +904,9 @@ export const updateContactsField = async (
           ...customerDoc,
           customFieldsData,
           links: customerLinks,
-          scopeBrandIds: [integration.brandId || '']
+          scopeBrandIds: [integration.brandId || ''],
         },
-        customer
+        customer,
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
@@ -930,7 +925,7 @@ export const updateContactsField = async (
     let company = await findCompany(models, subdomain, {
       companyPrimaryName: companyDoc.primaryName || '',
       companyPrimaryEmail: companyDoc.primaryEmail || '',
-      companyPrimaryPhone: companyDoc.primaryPhone || ''
+      companyPrimaryPhone: companyDoc.primaryPhone || '',
     });
 
     companyDoc.scopeBrandIds = [integration.brandId || ''];
@@ -961,7 +956,7 @@ export const updateContactsField = async (
     if (company.customFieldsData && companyCustomData.length > 0) {
       companyDoc.customFieldsData = prepareCustomFieldsData(
         company.customFieldsData,
-        companyCustomData
+        companyCustomData,
       );
     }
 
@@ -969,17 +964,17 @@ export const updateContactsField = async (
 
     // if company scopeBrandIds does not contain brandId
     if (
-      company.scopeBrandIds.findIndex(e => e === integration.brandId) === -1
+      company.scopeBrandIds.findIndex((e) => e === integration.brandId) === -1
     ) {
       await models.Companies.update(
         { _id: company._id },
-        { $push: { scopeBrandIds: integration.brandId } }
+        { $push: { scopeBrandIds: integration.brandId } },
       );
     }
 
     conformityIds[groupId] = {
       companyId: company._id,
-      customerId: conformityIds[groupId].customerId
+      customerId: conformityIds[groupId].customerId,
     };
   }
 
@@ -1002,8 +997,8 @@ export const updateContactsField = async (
           mainType: 'company',
           mainTypeId: companyId,
           relType: 'customer',
-          relTypeId: customerId
-        }
+          relTypeId: customerId,
+        },
       });
     }
 
@@ -1021,8 +1016,8 @@ export const updateContactsField = async (
           mainType: 'company',
           mainTypeId: mainCompanyId,
           relType: 'customer',
-          relTypeId
-        }
+          relTypeId,
+        },
       });
     }
   }
@@ -1034,7 +1029,7 @@ export const updateCustomerFromForm = async (
   models: IModels,
   browserInfo: any,
   doc: any,
-  customer: ICustomerDocument
+  customer: ICustomerDocument,
 ) => {
   const customerDoc: any = {
     ...doc,
@@ -1049,14 +1044,14 @@ export const updateCustomerFromForm = async (
       ? {}
       : {
           emails: [doc.email],
-          primaryEmail: doc.email
+          primaryEmail: doc.email,
         }),
     ...(customer.primaryPhone
       ? {}
       : {
           phones: [doc.phone],
-          primaryPhone: doc.phone
-        })
+          primaryPhone: doc.phone,
+        }),
   };
 
   if (!customer.customFieldsData) {
@@ -1066,7 +1061,7 @@ export const updateCustomerFromForm = async (
   if (customer.customFieldsData && doc.customFieldsData.length > 0) {
     customerDoc.customFieldsData = prepareCustomFieldsData(
       customer.customFieldsData,
-      doc.customFieldsData
+      doc.customFieldsData,
     );
   }
 
@@ -1089,7 +1084,7 @@ export const updateCustomerFromForm = async (
 
 const prepareCustomFieldsData = (
   customerData: ICustomField[],
-  submissionData: ICustomField[]
+  submissionData: ICustomField[],
 ) => {
   const customFieldsData: ICustomField[] = customerData;
 
@@ -1098,7 +1093,7 @@ const prepareCustomFieldsData = (
   }
 
   for (const data of submissionData) {
-    const existingData = customerData.find(e => e.field === data.field);
+    const existingData = customerData.find((e) => e.field === data.field);
 
     if (existingData) {
       if (Array.isArray(existingData.value)) {
@@ -1119,7 +1114,7 @@ const createCustomer = async (
   integrationId: string,
   customerDoc: any,
   brandId?: string,
-  saveAsCustomer?: boolean
+  saveAsCustomer?: boolean,
 ) => {
   const doc: any = {
     integrationId,
@@ -1129,7 +1124,7 @@ const createCustomer = async (
     lastName: customerDoc.lastName || '',
     middleName: customerDoc.middleName || '',
     primaryPhone: customerDoc.phone || '',
-    scopeBrandIds: [brandId || '']
+    scopeBrandIds: [brandId || ''],
   };
 
   if (saveAsCustomer) {
@@ -1146,7 +1141,7 @@ const getSocialLinkKey = (type: string) => {
 export const getSchemaLabels = async (type: string) => {
   let fieldNames: any[] = [];
 
-  const found: any = LOG_MAPPINGS.find(m => m.name === type);
+  const found: any = LOG_MAPPINGS.find((m) => m.name === type);
 
   if (found) {
     const schemas: any = found.schemas || [];
@@ -1190,10 +1185,10 @@ export const buildLabelList = (obj = {}): any[] => {
 const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerSchema, locationSchema, visitorContactSchema]
+    schemas: [customerSchema, locationSchema, visitorContactSchema],
   },
   {
     name: MODULE_NAMES.COMPANY,
-    schemas: [companySchema]
-  }
+    schemas: [companySchema],
+  },
 ];

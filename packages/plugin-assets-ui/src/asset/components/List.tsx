@@ -1,30 +1,28 @@
-import {
-  BarItems,
-  Button,
-  FormControl,
-  ModalTrigger,
-  router,
-  Table,
-  __,
-  confirm,
-  Alert,
-  Tip,
-  Icon
-} from '@erxes/ui/src';
+import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 import { IAsset, IAssetCategory } from '../../common/types';
-import { DefaultWrapper } from '../../common/utils';
-import Form from '../containers/Form';
-import Row from './Row';
-import SideBar from './SideBar';
-import { Link } from 'react-router-dom';
-import * as _loadash from 'lodash';
-import MergeAsset from './Merge';
 import { breadcrumb } from '../../common/constant';
-import { Title } from '@erxes/ui/src/styles/main';
-import { ContainerBox } from '../../style';
-import AssignArticles from '../containers/AssignArticles';
+import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
+import {
+  __,
+  router,
+  confirm,
+  Table,
+  FormControl,
+  Pagination,
+  DataWithLoader,
+  Button,
+  ModalTrigger,
+  Icon,
+  Alert
+} from '@erxes/ui/src';
+import Row from './Row';
+import { Link } from 'react-router-dom';
+import AssetForm from '../containers/AssetForm';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import MergeAssets from './actions/Merge';
+import AssignArticles from '../containers/actions/Assign';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   assets: IAsset[];
@@ -49,95 +47,81 @@ type Props = {
   mergeAssetLoading;
 };
 
-type State = {
-  searchValue?: string;
-};
+function List(props: Props) {
+  const {
+    assets,
+    assetsCount,
+    history,
+    queryParams,
+    isAllSelected,
+    bulk,
+    emptyBulk,
+    remove,
+    assignKbArticles,
+    toggleBulk,
+    toggleAll,
+    loading,
+    searchValue,
+    currentCategory,
+    currentParent,
+    mergeAssets,
+    mergeAssetLoading
+  } = props;
 
-class List extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+  const [search, setSearch] = React.useState(searchValue);
+  const timerRef = React.useRef<number | null>(null);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
+  React.useEffect(() => {
+    emptyBulk();
+  }, [assets.length]);
 
-  renderRightActionBarTrigger = (
-    <Button btnStyle="success" icon="plus-circle">
-      Add Assets
-    </Button>
-  );
+  const handleSearch = e => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
 
-  renderFormContent = props => {
-    return <Form {...props} queryParams={this.props.queryParams} />;
+    const value = e.target.value;
+    setSearch(value);
+
+    timerRef.current = window.setTimeout(() => {
+      router.setParams(history, { searchValue: value });
+      router.removeParams(history, 'page');
+    }, 500);
   };
 
-  renderRightActionBar = (
-    <ModalTrigger
-      title="Add Assets"
-      trigger={this.renderRightActionBarTrigger}
-      content={this.renderFormContent}
-      autoOpenKey="showListFormModal"
-      dialogClassName="transform"
-      size="lg"
-    />
-  );
+  const handleSelectAllChange = () => {
+    toggleAll(assets, 'assets');
+  };
 
-  renderRow() {
-    const { assets, history, toggleBulk, bulk, assignKbArticles } = this.props;
+  const moveCursorAtTheEnd = e => {
+    const tmpValue = e.target.value;
 
+    e.target.value = '';
+    e.target.value = tmpValue;
+  };
+
+  const renderRow = () => {
     return assets.map(asset => (
       <Row
         history={history}
         key={asset._id}
         asset={asset}
         toggleBulk={toggleBulk}
-        queryParams={this.props.queryParams}
+        queryParams={queryParams}
         isChecked={bulk.includes(asset)}
         assignKbArticles={assignKbArticles}
       />
     ));
-  }
-
-  onChange = () => {
-    const { toggleAll, assets } = this.props;
-    toggleAll(assets, 'assets');
   };
 
-  renderContent = () => {
-    const { isAllSelected } = this.props;
-
-    return (
-      <Table>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Code')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Category')}</th>
-            <th>{__('Parent')}</th>
-            <th>{__('Unit Price')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
+  const renderFormContent = formProps => {
+    return <AssetForm {...formProps} queryParams={queryParams} />;
   };
 
-  assetsMerge = props => {
-    const { bulk, mergeAssets, mergeAssetLoading } = this.props;
-
+  const assetsMerge = assetsProps => {
     return (
-      <MergeAsset
-        {...props}
+      <MergeAssets
+        {...assetsProps}
         objects={bulk}
         save={mergeAssets}
         mergeAssetLoading={mergeAssetLoading}
@@ -145,91 +129,32 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  assignArticles = props => {
-    const { bulk, assignKbArticles } = this.props;
-
-    return <AssignArticles {...props} objects={bulk} save={assignKbArticles} />;
-  };
-
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const { history } = this.props;
-    const searchValue = e.target.value;
-
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
-    }, 500);
-  };
-
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
-  removeAssets = assets => {
-    const assetIds: string[] = [];
-
-    assets.forEach(asset => {
-      assetIds.push(asset._id);
-    });
-
-    this.props.remove({ assetIds }, this.props.emptyBulk);
-  };
-
-  assignKbArticles = assets => {
-    const assetIds: string[] = [];
-
-    assets.forEach(asset => {
-      assetIds.push(asset._id);
-    });
-
-    this.props.assignKbArticles({ assetIds }, this.props.emptyBulk);
-  };
-
-  render() {
-    const {
-      bulk,
-      queryParams,
-      assetsCount,
-      currentCategory,
-      currentParent,
-      history
-    } = this.props;
-
-    let rightActionBar = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-
-        <Link to="/settings/importHistories?type=asset">
-          <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
-          </Button>
-        </Link>
-
-        {this.renderRightActionBar}
-      </BarItems>
+  const assignArticles = articlesProps => {
+    return (
+      <AssignArticles
+        {...articlesProps}
+        objects={bulk}
+        save={assignKbArticles}
+      />
     );
+  };
 
+  const removeAssets = selectedAssets => {
+    const assetIds: string[] = [];
+
+    selectedAssets.forEach(selectedAsset => {
+      assetIds.push(selectedAsset._id);
+    });
+
+    remove({ assetIds }, emptyBulk);
+  };
+
+  const rightActionBar = () => {
     if (bulk.length > 0) {
       const onClick = () => {
         confirm()
           .then(() => {
-            this.removeAssets(bulk);
+            removeAssets(bulk);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -237,37 +162,27 @@ class List extends React.Component<Props, State> {
       };
 
       const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
+        <Button btnStyle="success" icon="merge">
           Merge
         </Button>
       );
 
       const assignButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
+        <Button btnStyle="success" icon="merge">
           Assign knowledgebase articles
         </Button>
       );
 
-      rightActionBar = (
+      return (
         <BarItems>
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Asset"
-              size="lg"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
-              content={this.assetsMerge}
+              content={assetsMerge}
             />
           )}
-
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Remove
-          </Button>
 
           {isEnabled('knowledgebase') && (
             <ModalTrigger
@@ -275,47 +190,113 @@ class List extends React.Component<Props, State> {
               size="lg"
               dialogClassName="modal-1000w"
               trigger={assignButton}
-              content={this.assignArticles}
+              content={assignArticles}
             />
           )}
+
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+            Remove
+          </Button>
         </BarItems>
       );
     }
 
-    const handleClearParams = type => {
-      router.setParams(history, { [`${type}Id`]: null });
-    };
+    return (
+      <BarItems>
+        <InputBar type="searchBar">
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={handleSearch}
+              value={search}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
+        </InputBar>
 
-    const clearButton = type => (
-      <Button btnStyle="link" onClick={() => handleClearParams(type)}>
-        <Tip text={`Clear ${type}`}>
-          <Icon icon="cancel-1" />
-        </Tip>
-      </Button>
+        <Link to="/settings/importHistories?type=asset">
+          <Button btnStyle="simple" icon="arrow-from-right">
+            {__('Import items')}
+          </Button>
+        </Link>
+
+        <ModalTrigger
+          title="Add Assets"
+          trigger={
+            <Button btnStyle="success" icon="plus-circle">
+              Add Assets
+            </Button>
+          }
+          content={renderFormContent}
+          autoOpenKey="showListFormModal"
+          dialogClassName="transform"
+          size="lg"
+        />
+      </BarItems>
     );
+  };
 
-    const leftActionBar = (
-      <ContainerBox row>
-        <Title>
-          {currentCategory.name || currentParent.name || 'All Assets'}
-        </Title>
-        {!_loadash.isEmpty(currentCategory) && clearButton('category')}
-        {!_loadash.isEmpty(currentParent) && clearButton('parent')}
-      </ContainerBox>
-    );
+  const content = (
+    <Table>
+      <thead>
+        <tr>
+          <th style={{ width: 60 }}>
+            <FormControl
+              checked={isAllSelected}
+              componentClass="checkbox"
+              onChange={handleSelectAllChange}
+            />
+          </th>
+          <th>{__('Code')}</th>
+          <th>{__('Name')}</th>
+          <th>{__('Category')}</th>
+          <th>{__('Parent')}</th>
+          <th>{__('Unit Price')}</th>
+          <th>{__('Actions')}</th>
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
-    const updatedProps = {
-      title: 'List Assets',
-      rightActionBar,
-      leftActionBar,
-      content: this.renderContent(),
-      sidebar: <SideBar queryParams={queryParams} history={history} />,
-      totalCount: assetsCount,
-      breadcrumb: breadcrumb
-    };
+  const sidebar = <Sidebar queryParams={queryParams} history={history} />;
 
-    return <DefaultWrapper {...updatedProps} />;
-  }
+  const leftActionBar = (
+    <Title>{`${currentCategory.name ||
+      currentParent.name ||
+      'All Assets'} (${assetsCount})`}</Title>
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('List Assets')}
+          breadcrumb={breadcrumb}
+          queryParams={queryParams}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar()} />
+      }
+      content={
+        <DataWithLoader
+          data={content}
+          loading={loading}
+          count={assetsCount}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      leftSidebar={sidebar}
+      transparent={true}
+      hasBorder={true}
+      footer={<Pagination count={assetsCount} />}
+    />
+  );
 }
 
 export default List;

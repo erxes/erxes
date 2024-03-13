@@ -1,10 +1,7 @@
-import * as mongoose from 'mongoose';
-
 import * as _ from 'underscore';
-import { sendRPCMessage } from '../../messageBroker';
 import { generateModels } from '../../connectionResolvers';
-import { connect } from '../utils';
-
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
 const { subdomain } = workerData;
@@ -13,7 +10,7 @@ const WORKER_BULK_LIMIT = 300;
 
 let cancel = false;
 
-parentPort.once('message', message => {
+parentPort.once('message', (message) => {
   if (message === 'cancel') {
     parentPort.postMessage('Cancelled');
     cancel = true;
@@ -24,7 +21,7 @@ const create = async ({
   docs,
   user,
   contentType,
-  useElkSyncer
+  useElkSyncer,
 }: {
   docs: any;
   user: any;
@@ -43,10 +40,10 @@ const create = async ({
         docs,
         user,
         contentType: type,
-        useElkSyncer
+        useElkSyncer,
       },
-      timeout: 5 * 60 * 1000 // 5 minutes
-    }
+      timeout: 5 * 60 * 1000, // 5 minutes
+    },
   );
 
   const { objects, updated, error } = result;
@@ -58,7 +55,7 @@ const create = async ({
   return { objects, updated };
 };
 
-connect().then(async () => {
+const main = async () => {
   if (cancel) {
     return;
   }
@@ -74,7 +71,7 @@ connect().then(async () => {
     importHistoryId,
     percentage,
     useElkSyncer,
-    rowIndex
+    rowIndex,
   }: {
     user: any;
     scopeBrandIds: string[];
@@ -94,7 +91,7 @@ connect().then(async () => {
 
   let bulkDoc = [];
   const modifier: { $inc?; $push? } = {
-    $inc: {}
+    $inc: {},
   };
 
   try {
@@ -106,9 +103,9 @@ connect().then(async () => {
         contentType: type,
         user,
         scopeBrandIds,
-        useElkSyncer
+        useElkSyncer,
       },
-      timeout: 5 * 60 * 1000 // 5 minutes
+      timeout: 5 * 60 * 1000, // 5 minutes
     });
   } catch (e) {
     let startRow = 1;
@@ -132,20 +129,20 @@ connect().then(async () => {
         startRow,
         endRow,
         errorMsgs: e.message,
-        contentType
-      }
+        contentType,
+      },
     };
 
     await models.ImportHistory.update({ _id: importHistoryId }, modifier);
-
-    mongoose.connection.close();
 
     console.log(`Worker done`);
 
     parentPort.postMessage({
       action: 'remove',
-      message: 'Successfully finished the job'
+      message: 'Successfully finished the job',
     });
+
+    await disconnect();
   }
 
   try {
@@ -153,10 +150,10 @@ connect().then(async () => {
       docs: bulkDoc,
       user,
       contentType,
-      useElkSyncer
+      useElkSyncer,
     });
 
-    const cocIds = objects.map(obj => obj._id).filter(obj => obj);
+    const cocIds = objects.map((obj) => obj._id).filter((obj) => obj);
 
     modifier.$push = { ids: cocIds };
     modifier.$inc.updated = updated;
@@ -183,19 +180,21 @@ connect().then(async () => {
         startRow,
         endRow,
         errorMsgs: e.message,
-        contentType
-      }
+        contentType,
+      },
     };
   }
 
   await models.ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
-  mongoose.connection.close();
-
   console.log(`Worker done`);
 
   parentPort.postMessage({
     action: 'remove',
-    message: 'Successfully finished the job'
+    message: 'Successfully finished the job',
   });
-});
+
+  await disconnect();
+};
+
+main();

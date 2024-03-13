@@ -29,6 +29,7 @@ const params = `
   limit: Int,
   page: Int,
   perPage: Int,
+  searchValue: String,
   contentType: String,
   subType: String
 `;
@@ -38,7 +39,7 @@ export const queries = `
   documentsDetail(_id: String!): Document
   documentsGetEditorAttributes(contentType: String!): [DocumentEditorAttribute]
   documentsGetContentTypes:[DocumentsTypes]
-  documentsTotalCount: Int
+  documentsTotalCount(searchValue: String, contentType: String): Int
 `;
 
 export const mutations = `

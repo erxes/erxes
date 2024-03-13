@@ -20,8 +20,8 @@ export const CONTENT_TYPES = {
     'purchase',
     'ticket',
     'conversation',
-    'user'
-  ]
+    'user',
+  ],
 };
 
 export const SMS_DELIVERY_STATUSES = {
@@ -45,48 +45,48 @@ export const SMS_DELIVERY_STATUSES = {
     'delivery_failed',
     'delivery_unconfirmed',
     'webhook_delivered',
-    'error'
+    'error',
   ],
   OPTIONS: [
     {
       value: 'queued',
-      label: `The message is queued up on Telnyx's side`
+      label: `The message is queued up on Telnyx's side`,
     },
     {
       value: 'sending',
-      label: 'The message is currently being sent to an upstream provider'
+      label: 'The message is currently being sent to an upstream provider',
     },
     {
       value: 'sent',
-      label: 'The message has been sent to the upstream provider'
+      label: 'The message has been sent to the upstream provider',
     },
     {
       value: 'delivered',
-      label: 'The upstream provider has confirmed delivery of the message'
+      label: 'The upstream provider has confirmed delivery of the message',
     },
     {
       value: 'sending_failed',
-      label: 'Telnyx has failed to send the message to the upstream provider'
+      label: 'Telnyx has failed to send the message to the upstream provider',
     },
     {
       value: 'delivery_failed',
       label:
-        'The upstream provider has failed to send the message to the receiver'
+        'The upstream provider has failed to send the message to the receiver',
     },
     {
       value: 'delivery_unconfirmed',
       label:
-        'There is no indication whether or not the message has reached the receiver'
+        'There is no indication whether or not the message has reached the receiver',
     },
     {
       value: 'webhook_delivered',
-      label: 'Incoming sms delivered through webhook'
+      label: 'Incoming sms delivered through webhook',
     },
     {
       value: 'error',
-      label: 'error'
-    }
-  ]
+      label: 'error',
+    },
+  ],
 };
 
 export const SES_DELIVERY_STATUSES = {
@@ -106,46 +106,47 @@ export const SES_DELIVERY_STATUSES = {
     'open',
     'reject',
     'renderingfailure',
-    'send'
-  ]
+    'send',
+  ],
 };
 
 // used for activity logging
 export const ACTIVITY_LOG_ACTIONS = {
   SEND_EMAIL_CAMPAIGN: 'sendEmailCampaign',
-  SEND_SMS_CAMPAIGN: 'sendSmsCampaign'
+  SEND_SMS_CAMPAIGN: 'sendSmsCampaign',
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
   SMS: 'campaign-sms',
   EMAIL: 'campaign-email',
-  ALL: ['campaign-sms', 'campaign-email']
+  ALL: ['campaign-sms', 'campaign-email'],
 };
 
 export const CAMPAIGN_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
   MANUAL: 'manual',
-  ALL: ['auto', 'visitorAuto', 'manual']
+  ALL: ['auto', 'visitorAuto', 'manual'],
 };
 
 export const CAMPAIGN_METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   SMS: 'sms',
-  ALL: ['messenger', 'email', 'sms']
+  NOTIFICATION: 'notification',
+  ALL: ['messenger', 'email', 'sms', 'notification'],
 };
 
 export const MESSENGER_KINDS = {
   CHAT: 'chat',
   NOTE: 'note',
   POST: 'post',
-  ALL: ['chat', 'note', 'post']
+  ALL: ['chat', 'note', 'post'],
 };
 
 export const SENT_AS_CHOICES = {
   BADGE: 'badge',
   SNIPPET: 'snippet',
   FULL_MESSAGE: 'fullMessage',
-  ALL: ['badge', 'snippet', 'fullMessage']
+  ALL: ['badge', 'snippet', 'fullMessage'],
 };

@@ -19,10 +19,11 @@ import MSFmultiSelect from '../multipleSelectScript';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
+import Product from './Product';
 import { __ } from '../../utils';
 import { connection } from '../connection';
 import uploadHandler from '../../uploadHandler';
-import Product from './Product';
+import PhoneInput from './fields/PhoneInput';
 
 type Props = {
   field: IField;
@@ -537,27 +538,16 @@ export default class Field extends React.Component<Props, State> {
                     X
                   </button>
                 )}
-                <div style={{ display: 'flex', marginLeft: '-5px', marginRight: '-5px'}}>{fields.map((subField: IField) => {
-                  const value = values[index]
-                    ? values[index].find((v: any) => v._id === subField._id)
-                    : '';
+                <div className="field-group-row">
+                  {fields.map((subField: IField) => {
+                    const value = values[index]
+                      ? values[index].find((v: any) => v._id === subField._id)
+                      : '';
 
-                  const fieldStyle = () => {
-                    if (subField.column) {
-                      return {
-                        // width: `${100 / subField.column}%` ,
-                        width: `100%` ,
-                        margin: '0 5px',
-                        display: 'inline-block',
-                      };
-                    }
-                  };
-
-                  return (
-                    
+                    return (
                       <div
                         key={`${subField._id}-${index}`}
-                        style={fieldStyle()}
+                        className="subField-item"
                       >
                         <Field
                           key={subField._id}
@@ -569,9 +559,9 @@ export default class Field extends React.Component<Props, State> {
                           }}
                         />
                       </div>
-                  
-                  );
-                })}</div>
+                    );
+                  })}
+                </div>
               </div>
             );
           }
@@ -640,6 +630,22 @@ export default class Field extends React.Component<Props, State> {
     }
 
     switch (field.type) {
+      case 'phone':
+        const updatedProps = {
+          value: value || '',
+          onChange: this.onChange,
+          id: field._id,
+        };
+        return <PhoneInput {...updatedProps} />;
+
+      case 'company_primaryPhone': 
+        const updatedPropsCompany = {
+          value: value,
+          onChange: this.onChange,
+          id: field._id,
+        };
+        return <PhoneInput {...updatedPropsCompany} />;
+
       case 'select':
         return Field.renderSelect(options, {
           onChange: this.onSelectChange,
@@ -670,7 +676,7 @@ export default class Field extends React.Component<Props, State> {
         });
 
       case 'location':
-        return Field.renderSelect(COUNTRIES, {
+        return Field.renderSelect(COUNTRIES.map(c => c.name), {
           onChange: this.onSelectChange,
           id: field._id,
           value: String(value),

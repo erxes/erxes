@@ -9,7 +9,7 @@ import { checkRemainders } from '../../utils/products';
 import { IConfigDocument } from '../../../models/definitions/configs';
 import {
   getSimilaritiesProducts,
-  getSimilaritiesProductsCount
+  getSimilaritiesProductsCount,
 } from '../../../maskUtils';
 
 interface ICommonParams {
@@ -63,12 +63,12 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     ...paginationArgs
-  }: IProductParams
+  }: IProductParams,
 ) => {
   const { token } = config;
   const filter: any = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
-    tokens: { $in: [token] }
+    tokens: { $in: [token] },
   };
 
   if (type) {
@@ -96,15 +96,15 @@ const generateFilter = async (
         .replace(/\*/g, '.')
         .replace(/_/g, '.')
         .replace(/  /g, '.')}.*`,
-      'igu'
+      'igu',
     );
 
     filter.$or = [
       {
-        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }]
+        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }],
       },
       { name: { $in: [regex] } },
-      { barcodes: { $in: [searchValue] } }
+      { barcodes: { $in: [searchValue] } },
     ];
   }
 
@@ -115,7 +115,7 @@ const generateFilter = async (
 
     const { list } = await qb.runQueries();
 
-    filter._id = { $in: list.map(l => l._id) };
+    filter._id = { $in: list.map((l) => l._id) };
   }
 
   if (vendorId) {
@@ -126,15 +126,15 @@ const generateFilter = async (
 
   if (categoryId) {
     const category = await models.ProductCategories.getProductCategory({
-      _id: categoryId
+      _id: categoryId,
     });
 
     const relatedCategoryIds = (
       await models.ProductCategories.find(
-        { order: { $regex: new RegExp(`^${category.order}`) } },
-        { _id: 1 }
+        { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+        { _id: 1 },
       ).lean()
-    ).map(c => c._id);
+    ).map((c) => c._id);
 
     $and.push({ categoryId: { $in: relatedCategoryIds } });
   }
@@ -149,25 +149,25 @@ const generateFilter = async (
             _id: 1,
             meta: 1,
             intMeta: {
-              $convert: { input: '$meta', to: 'int', onError: '', onNull: '' }
-            }
-          }
+              $convert: { input: '$meta', to: 'int', onError: '', onNull: '' },
+            },
+          },
         },
-        { $match: { intMeta: { $lte: Number(categoryMeta) } } }
+        { $match: { intMeta: { $lte: Number(categoryMeta) } } },
       ];
     } else {
       categoryFilter = [
         { $project: { _id: 1, meta: 1 } },
-        { $match: { meta: { $eq: categoryMeta } } }
+        { $match: { meta: { $eq: categoryMeta } } },
       ];
     }
 
     const categories = await models.ProductCategories.aggregate([
       { $match: { tokens: { $in: [token] }, meta: { $exists: true } } },
-      ...categoryFilter
+      ...categoryFilter,
     ]);
 
-    $and.push({ categoryId: { $in: categories.map(c => c._id) } });
+    $and.push({ categoryId: { $in: categories.map((c) => c._id) } });
   }
 
   const lastFilter = { ...filter, $and };
@@ -177,8 +177,8 @@ const generateFilter = async (
       $and: [
         lastFilter,
         { categoryId: { $nin: config.kioskExcludeCategoryIds } },
-        { _id: { $nin: config.kioskExcludeProductIds } }
-      ]
+        { _id: { $nin: config.kioskExcludeProductIds } },
+      ],
     };
   }
 
@@ -193,7 +193,7 @@ const generateFilterCat = async ({
   searchValue,
   status,
   meta,
-  isKiosk
+  isKiosk,
 }) => {
   const { token } = config;
 
@@ -206,18 +206,18 @@ const generateFilterCat = async ({
 
   if (parentId) {
     if (withChild) {
-      const category = await (models as IModels).ProductCategories.getProductCategory(
-        {
-          _id: parentId
-        }
-      );
+      const category = await (
+        models as IModels
+      ).ProductCategories.getProductCategory({
+        _id: parentId,
+      });
 
       const relatedCategoryIds = (
         await models.ProductCategories.find(
-          { order: { $regex: new RegExp(`^${category.order}`) } },
-          { _id: 1 }
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: 1 },
         ).lean()
-      ).map(c => c._id);
+      ).map((c) => c._id);
 
       filter.parentId = { $in: relatedCategoryIds };
     } else {
@@ -267,7 +267,7 @@ const productQueries = {
       sortDirection,
       ...paginationArgs
     }: IProductParams,
-    { models, subdomain, config }: IContext
+    { models, subdomain, config }: IContext,
   ) {
     let filter = await generateFilter(subdomain, models, config, {
       type,
@@ -283,34 +283,36 @@ const productQueries = {
       segment,
       segmentData,
       categoryMeta,
-      isKiosk
+      isKiosk,
     });
 
     let sortParams: any = { code: 1 };
 
     if (sortField) {
-      sortParams = { [sortField]: sortDirection };
+      if (sortField === 'unitPrice') {
+        sortParams = { [`fdsa.${config.token}`]: sortDirection || 1 };
+      } else {
+        sortParams = { [sortField]: sortDirection || 1 };
+      }
     }
 
     if (groupedSimilarity) {
       return await getSimilaritiesProducts(models, filter, {
         groupedSimilarity,
-        ...paginationArgs
+        ...paginationArgs,
       });
     }
 
     const paginatedProducts = await paginate(
-      models.Products.find(filter)
-        .sort(sortParams)
-        .lean(),
-      paginationArgs
+      models.Products.find(filter).sort(sortParams).lean(),
+      paginationArgs,
     );
 
     return checkRemainders(
       subdomain,
       config,
       paginatedProducts,
-      branchId || ''
+      branchId || '',
     );
   },
 
@@ -334,9 +336,9 @@ const productQueries = {
       segmentData,
       categoryMeta,
       groupedSimilarity,
-      isKiosk
+      isKiosk,
     }: IProductParams,
-    { models, config, subdomain }: IContext
+    { models, config, subdomain }: IContext,
   ) {
     const filter = await generateFilter(subdomain, models, config, {
       type,
@@ -352,12 +354,12 @@ const productQueries = {
       segment,
       segmentData,
       categoryMeta,
-      isKiosk
+      isKiosk,
     });
 
     if (groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {
-        groupedSimilarity
+        groupedSimilarity,
       });
     }
 
@@ -367,42 +369,41 @@ const productQueries = {
   async poscProductSimilarities(
     _root,
     { _id, groupedSimilarity },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = str => {
+      const getRegex = (str) => {
         return new RegExp(
           `^${str
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.')
             .replace(/_/g, '.')}.*`,
-          'igu'
+          'igu',
         );
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup'
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
-        cf => cf.field
+        (cf) => cf.field,
       );
 
       const matchedMasks = codeMasks.filter(
-        cm =>
+        (cm) =>
           product.code.match(getRegex(cm)) &&
           (similarityGroups[cm].rules || [])
-            .map(sg => sg.fieldId)
-            .filter(sgf => customFieldIds.includes(sgf)).length ===
-            (similarityGroups[cm].rules || []).length
+            .map((sg) => sg.fieldId)
+            .filter((sgf) => customFieldIds.includes(sgf)).length ===
+            (similarityGroups[cm].rules || []).length,
       );
 
       if (!matchedMasks.length) {
         return {
-          products: await models.Products.find({ _id })
+          products: await models.Products.find({ _id }),
         };
       }
 
@@ -425,44 +426,44 @@ const productQueries = {
         $and: [
           {
             $or: codeRegexs,
-            'customFieldsData.field': { $in: fieldIds }
-          }
-        ]
+            'customFieldsData.field': { $in: fieldIds },
+          },
+        ],
       };
 
       return {
         products: await models.Products.find(filters).sort({ code: 1 }),
-        groups
+        groups,
       };
     }
 
     const category = await models.ProductCategories.getProductCategory({
-      _id: product.categoryId
+      _id: product.categoryId,
     });
     if (!category.isSimilarity || !category.similarities.length) {
       return {
-        products: await models.Products.find({ _id })
+        products: await models.Products.find({ _id }),
       };
     }
 
-    const fieldIds = category.similarities.map(r => r.fieldId);
+    const fieldIds = category.similarities.map((r) => r.fieldId);
     const filters: any = {
       $and: [
         {
           categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds }
-        }
-      ]
+          'customFieldsData.field': { $in: fieldIds },
+        },
+      ],
     };
 
     const groups: {
       title: string;
       fieldId: string;
-    }[] = category.similarities.map(r => ({ ...r }));
+    }[] = category.similarities.map((r) => ({ ...r }));
 
     return {
       products: await models.Products.find(filters).sort({ code: 1 }),
-      groups
+      groups,
     };
   },
 
@@ -480,7 +481,7 @@ const productQueries = {
       sortField,
       ...paginationArgs
     }: ICategoryParams,
-    { models, config }: IContext
+    { models, config }: IContext,
   ) {
     const filter = await generateFilterCat({
       models,
@@ -490,7 +491,7 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
     });
 
     let sortParams: any = { order: 1 };
@@ -502,10 +503,8 @@ const productQueries = {
     let categories;
     if (paginationArgs.page || paginationArgs.perPage) {
       categories = await paginate(
-        models.ProductCategories.find(filter)
-          .sort(sortParams)
-          .lean(),
-        paginationArgs
+        models.ProductCategories.find(filter).sort(sortParams).lean(),
+        paginationArgs,
       );
     } else {
       categories = await models.ProductCategories.find(filter)
@@ -519,7 +518,7 @@ const productQueries = {
       for (const cat of categories) {
         const product = await models.Products.findOne({
           categoryId: cat._id,
-          status: { $ne: PRODUCT_STATUSES.DELETED }
+          status: { $ne: PRODUCT_STATUSES.DELETED },
         });
 
         if (product) {
@@ -536,7 +535,7 @@ const productQueries = {
   async poscProductCategoriesTotalCount(
     _root,
     { parentId, withChild, searchValue, status, meta, isKiosk },
-    { models, config }: IContext
+    { models, config }: IContext,
   ) {
     const filter = await generateFilterCat({
       models,
@@ -546,7 +545,7 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
@@ -554,7 +553,7 @@ const productQueries = {
   async poscProductDetail(
     _root,
     { _id, branchId }: { _id: string; branchId?: string },
-    { subdomain, models, config }: IContext
+    { subdomain, models, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id });
 
@@ -562,7 +561,7 @@ const productQueries = {
       subdomain,
       config,
       [product],
-      branchId
+      branchId,
     );
 
     return result[0];
@@ -571,7 +570,7 @@ const productQueries = {
   poscProductCategoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
   },
@@ -579,7 +578,7 @@ const productQueries = {
   async getPriceInfo(
     _root,
     { productId }: { productId: string },
-    { models, subdomain, config }: IContext
+    { models, subdomain, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id: productId });
 
@@ -590,15 +589,15 @@ const productQueries = {
         departmentId: config.departmentId,
         branchId: config.branchId,
         products: [
-          { ...product, unitPrice: (product.prices || {})[config.token] }
-        ]
+          { ...product, unitPrice: (product.prices || {})[config.token] },
+        ],
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     return JSON.stringify(d);
-  }
+  },
 };
 
 export default productQueries;

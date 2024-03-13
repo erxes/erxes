@@ -8,6 +8,9 @@ import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { CustomRangeContainer, FilterContainer } from '../../styles';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -80,39 +83,41 @@ class CheckerSidebar extends React.Component<IProps, State> {
     const lblEnd = `${dateType}EndDate`;
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
-
-          <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat="YYYY-MM-DD"
-            timeFormat="HH:mm"
-            value={this.state[lblStart] || null}
-            closeOnSelect={true}
-            utc={true}
-            input={true}
-            onChange={this.onChangeRangeFilter.bind(this, lblStart)}
-            viewMode={'days'}
-            className={'filterDate'}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat="YYYY-MM-DD"
-            timeFormat="HH:mm"
-            value={this.state[lblEnd]}
-            closeOnSelect={true}
-            utc={true}
-            input={true}
-            onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
-            viewMode={'days'}
-            className={'filterDate'}
-          />
-        </FormGroup>
-      </>
+      <FormGroup>
+        <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
+        <CustomRangeContainer>
+          <DateContainer>
+            <Datetime
+              inputProps={{ placeholder: __('Choose Date') }}
+              dateFormat="YYYY-MM-DD"
+              timeFormat="HH:mm"
+              value={this.state[lblStart] || null}
+              closeOnSelect={true}
+              utc={true}
+              input={true}
+              onChange={this.onChangeRangeFilter.bind(this, lblStart)}
+              viewMode={'days'}
+              className={'filterDate'}
+            />
+          </DateContainer>
+          <EndDateContainer>
+            <DateContainer>
+              <Datetime
+                inputProps={{ placeholder: __('Choose Date') }}
+                dateFormat="YYYY-MM-DD"
+                timeFormat="HH:mm"
+                value={this.state[lblEnd]}
+                closeOnSelect={true}
+                utc={true}
+                input={true}
+                onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
+                viewMode={'days'}
+                className={'filterDate'}
+              />
+            </DateContainer>
+          </EndDateContainer>
+        </CustomRangeContainer>
+      </FormGroup>
     );
   }
 
@@ -135,66 +140,72 @@ class CheckerSidebar extends React.Component<IProps, State> {
     };
 
     return (
-      <Wrapper.Sidebar>
-        <Sidebar>
-          <Section collapsible={false}>
-            <Section.Title>{__('Filters')}</Section.Title>
-            <FormGroup>
-              <ControlLabel>Enter POS token</ControlLabel>
-              <FormControl
-                type="text"
-                placeholder={__('POS token')}
-                onChange={onChangePosToken}
-                defaultValue={posToken}
-                autoFocus={true}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Created by</ControlLabel>
-              <SelectTeamMembers
-                label="Choose users"
-                name="userId"
-                customOption={{ label: 'Choose user', value: '' }}
-                initialValue={userId || ''}
-                onSelect={onUserChange}
-                multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>POS</ControlLabel>
-              <FormControl
-                name={'posId'}
-                componentClass="select"
-                defaultValue={posId}
-                onChange={onChangeInput}
-              >
-                <option value="">{__('All')}</option>
-                {posList &&
-                  Array.isArray(posList) &&
-                  (posList || []).map(pos => (
-                    <option
-                      key={pos._id}
-                      value={pos._id}
-                    >{`${pos.name} - ${pos.description}`}</option>
-                  ))}
-              </FormControl>
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Number</ControlLabel>
-              <FormControl
-                type="text"
-                name="search"
-                onChange={onChangeInput}
-                defaultValue={search}
-                autoFocus={true}
-              />
-            </FormGroup>
-            {this.renderRange('paid')}
-            {this.renderRange('created')}
-          </Section>
+      <Wrapper.Sidebar hasBorder={true}>
+        <Section.Title>{__('Filters')}</Section.Title>
+        <FilterContainer>
+          <FormGroup>
+            <ControlLabel>Enter POS token</ControlLabel>
+            <FormControl
+              type="text"
+              placeholder={__('POS token')}
+              onChange={onChangePosToken}
+              defaultValue={posToken}
+              autoFocus={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Created by</ControlLabel>
+            <SelectTeamMembers
+              label="Choose users"
+              name="userId"
+              customOption={{ label: 'Choose user', value: '' }}
+              initialValue={userId || ''}
+              onSelect={onUserChange}
+              multi={false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>POS</ControlLabel>
+            <FormControl
+              name={'posId'}
+              componentClass="select"
+              defaultValue={posId}
+              onChange={onChangeInput}
+            >
+              <option value="">{__('All')}</option>
+              {posList &&
+                Array.isArray(posList) &&
+                (posList || []).map(pos => (
+                  <option
+                    key={pos._id}
+                    value={pos._id}
+                  >{`${pos.name} - ${pos.description}`}</option>
+                ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Number</ControlLabel>
+            <FormControl
+              type="text"
+              name="search"
+              onChange={onChangeInput}
+              defaultValue={search}
+              autoFocus={true}
+            />
+          </FormGroup>
+          {this.renderRange('paid')}
+          {this.renderRange('created')}
 
-          <Button onClick={this.onFilter}>Filter</Button>
-        </Sidebar>
+          <Button
+            block={true}
+            btnStyle="success"
+            uppercase={false}
+            onClick={this.onFilter}
+            icon="filter"
+          >
+            {__('Filter')}
+          </Button>
+        </FilterContainer>
       </Wrapper.Sidebar>
     );
   }

@@ -7,7 +7,7 @@ import erkhetRemainders from './queries/remainders';
 import syncHistories from './queries/syncHistories';
 import ManySyncHistory from './syncLog';
 
-const resolvers: any = async _serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   ManySyncHistory,
   Query: {

@@ -8,13 +8,15 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import DealSection from './DealSection';
+import LoanContractSection from './LoanContractSection';
+import ContractsCustomFields from '../list/ContractsCustomFields';
 
 const CompanySection = asyncComponent(
   () =>
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
-    )
+    ),
 );
 
 const CustomerSection = asyncComponent(
@@ -22,7 +24,7 @@ const CustomerSection = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
-    )
+    ),
 );
 
 type Props = {
@@ -52,23 +54,38 @@ export default class RightSidebar extends React.Component<Props> {
           <>
             {contract.customerType === 'customer' && (
               <CustomerSection
-                mainType="customers"
-                mainTypeId={contract.customerId}
-                title={'Primary Customers'}
+                items={[contract.customerId]}
+                title={__('Saving Primary Customers')}
+                name={'Contract'}
+              />
+            )}
+            {contract.customerType === 'company' && (
+              <CompanySection
+                mainType="contract"
+                mainTypeId={contract._id}
+                title={__('Saving Primary Companies')}
                 name={'Contract'}
               />
             )}
             <CustomerSection
               mainType="contractSub"
               mainTypeId={contract._id}
-              title={'Collectively Customers'}
+              title={__('Saving Collectively Customers')}
               name={'Contract'}
             />
-            {contract.customerType === 'company' && (
-              <CompanySection mainType="contract" mainTypeId={contract._id} />
-            )}
+
             {isEnabled('cards') && <DealSection contract={contract} />}
           </>
+        )}
+        {isEnabled('loans') && !!contract.loansOfForeclosed?.length && (
+          <LoanContractSection loanContracts={contract.loansOfForeclosed} />
+        )}
+        {isEnabled('forms') && !!contract.loansOfForeclosed?.length && (
+          <ContractsCustomFields
+            contract={contract}
+            collapseCallback={console.log}
+            isDetail
+          />
         )}
 
         <Box title={__('Other')} name="showOthers">

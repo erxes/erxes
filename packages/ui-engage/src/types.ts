@@ -38,7 +38,11 @@ export interface IEngageSms {
   content: string;
   fromIntegrationId: string;
 }
-
+export interface IEngageNotification {
+  title: string;
+  content: string;
+  isMobile: boolean;
+}
 export interface IEngageStats {
   send: number;
   delivery: number;
@@ -62,6 +66,10 @@ export interface IEngageSmsStats {
   delivery_unconfirmed: number;
   webhook_delivered: number;
   error?: number;
+}
+
+export interface IEngageNotificationStats {
+  read: number;
 }
 
 export interface IEmailDelivery {
@@ -105,6 +113,8 @@ export interface IEngageMessageDoc {
   isLive?: boolean;
   email?: IEngageEmail;
   messenger?: IEngageMessenger;
+  notification?: IEngageNotification;
+  cpId?: string;
   scheduleDate?: IEngageScheduleDate;
   shortMessage?: IEngageSms;
 }
@@ -113,6 +123,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   _id: string;
   stopDate: Date;
   createdDate: Date;
+  createdAt: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
   segments: ISegment[];
@@ -128,6 +139,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
+  notificationStats?: IEngageNotificationStats;
   fromIntegration?: IIntegration;
   createdUserName?: string;
 }
@@ -240,7 +252,7 @@ export type TagAdd = (params: {
 export type IEmailFormProps = {
   onChange: (
     name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value?: IEngageEmail | IEngageScheduleDate | string
+    value?: IEngageEmail | IEngageScheduleDate | string,
   ) => void;
   message?: string;
   users: IUser[];

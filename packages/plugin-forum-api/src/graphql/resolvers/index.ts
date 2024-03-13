@@ -18,7 +18,6 @@ import ForumQuizQuestion from './ForumQuizQuestion';
 import ForumQuizChoice from './ForumQuizChoice';
 
 export default async function generateResolvers(
-  serviceDiscovery
 ): Promise<IResolvers<any, IContext>> {
   const resolvers: IResolvers<any, IContext> = {
     ...customScalars,

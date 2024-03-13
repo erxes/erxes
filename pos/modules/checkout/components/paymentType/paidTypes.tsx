@@ -2,7 +2,9 @@ import dynamic from "next/dynamic"
 import { modeAtom } from "@/store"
 import {
   cashAmountAtom,
+  directDiscountAtom,
   mobileAmountAtom,
+  orderTotalAmountAtom,
   paidAmountsAtom,
 } from "@/store/order.store"
 import { useAtomValue } from "jotai"
@@ -28,6 +30,8 @@ const PaidTypes = () => {
   const cashAmount = useAtomValue(cashAmountAtom)
   const mobileAmount = useAtomValue(mobileAmountAtom)
   const paidAmounts = useAtomValue(paidAmountsAtom)
+  const directDiscount = useAtomValue(directDiscountAtom)
+  const totalAmount = useAtomValue(orderTotalAmountAtom)
   const mode = useAtomValue(modeAtom)
 
   const PaidType = mode === "market" ? Market : Main
@@ -41,6 +45,15 @@ const PaidTypes = () => {
           ({ amount, type }) =>
             !!amount && <PaidType amount={amount} type={type} key={type} />
         )}
+      {!!directDiscount && (
+        <>
+          <PaidType
+            type="total"
+            amount={(totalAmount / (100 - directDiscount)) * 100}
+          />
+          <PaidType type="discount" amount={directDiscount} percent />
+        </>
+      )}
     </>
   )
 }

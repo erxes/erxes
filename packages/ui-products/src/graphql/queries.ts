@@ -1,5 +1,37 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
+const vendorField = `
+  vendor {
+    _id
+    avatar
+    businessType
+    code
+    createdAt
+    customFieldsData
+    description
+    emails
+    industry
+    isSubscribed
+    links
+    location
+    mergedIds
+    modifiedAt
+    names
+    ownerId
+    parentCompanyId
+    phones
+    plan
+    primaryEmail
+    primaryName
+    primaryPhone
+    score
+    size
+    tagIds
+    trackedData
+    website
+  }
+`;
+
 const productFields = `
   _id
   name
@@ -8,6 +40,7 @@ const productFields = `
   code
   categoryId
   vendorId
+  ${isEnabled('contacts') ? vendorField : ``}
   scopeBrandIds
   status,
   description

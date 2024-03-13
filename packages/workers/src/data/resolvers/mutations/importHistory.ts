@@ -1,10 +1,11 @@
 import {
   receiveImportCreate,
-  receiveImportRemove
+  receiveImportRemove,
 } from '../../../worker/import/utils';
 import { IContext } from '../../../connectionResolvers';
-import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
+import { getFileUploadConfigs } from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 const importer = async (
   contentTypes,
@@ -16,10 +17,10 @@ const importer = async (
   user,
   models,
   subdomain,
-  scopeBrandIds
+  scopeBrandIds,
 ) => {
   try {
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
     await receiveImportCreate(
       {
@@ -32,15 +33,15 @@ const importer = async (
         importHistoryId,
         associatedContentType,
         associatedField,
-        scopeBrandIds
+        scopeBrandIds,
       },
       models,
-      subdomain
+      subdomain,
     );
   } catch (e) {
     return models.ImportHistory.updateOne(
       { _id: 'importHistoryId' },
-      { error: `Error occurred during creating import ${e.message}` }
+      { error: `Error occurred during creating import ${e.message}` },
     );
   }
 };
@@ -53,18 +54,18 @@ const importHistoryMutations = {
   async importHistoriesRemove(
     _root,
     { _id, contentType }: { _id: string; contentType },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const importHistory = await models.ImportHistory.getImportHistory(_id);
 
     await models.ImportHistory.updateOne(
       { _id: importHistory._id },
-      { $push: { removed: contentType } }
+      { $push: { removed: contentType } },
     );
     const content = {
       action: 'removeImport',
       importHistoryId: importHistory._id,
-      contentType
+      contentType,
     };
 
     return receiveImportRemove(content, models, subdomain);
@@ -73,11 +74,11 @@ const importHistoryMutations = {
   /**
    * Cancel uploading process
    */
-  async importHistoriesCancel(_root) {
-    await messageBroker().sendMessage(RABBITMQ_QUEUES.WORKERS, {
-      type: 'cancelImport'
+  async importHistoriesCancel(_root, _params, { subdomain }: IContext) {
+    await sendMessage(RABBITMQ_QUEUES.WORKERS, {
+      subdomain,
+      data: { type: 'cancelImport' },
     });
-
     return true;
   },
 
@@ -89,7 +90,7 @@ const importHistoryMutations = {
       columnsConfig,
       importName,
       associatedContentType,
-      associatedField
+      associatedField,
     }: {
       contentTypes: string[];
       files: any[];
@@ -98,7 +99,7 @@ const importHistoryMutations = {
       associatedContentType: string;
       associatedField: string;
     },
-    { user, models, subdomain, scopeBrandIds }: IContext
+    { user, models, subdomain, scopeBrandIds }: IContext,
   ) {
     const importHistory = await models.ImportHistory.createHistory(
       {
@@ -108,9 +109,9 @@ const importHistoryMutations = {
         failed: 0,
         contentTypes,
         name: importName,
-        attachments: files
+        attachments: files,
       },
-      user
+      user,
     );
 
     importer(
@@ -123,11 +124,11 @@ const importHistoryMutations = {
       user,
       models,
       subdomain,
-      scopeBrandIds
+      scopeBrandIds,
     );
 
     return 'success';
-  }
+  },
 };
 
 export default importHistoryMutations;

@@ -3,7 +3,7 @@ import { Document, Schema } from 'mongoose';
 import {
   customFieldSchema,
   ICustomField,
-  ILink
+  ILink,
 } from '@erxes/api-utils/src/definitions/common';
 import { COMPANY_SELECT_OPTIONS } from './constants';
 
@@ -55,7 +55,7 @@ export interface ICompanyDocument extends ICompany, Document {
 }
 
 const getEnum = (fieldName: string): string[] => {
-  return COMPANY_SELECT_OPTIONS[fieldName].map(option => option.value);
+  return COMPANY_SELECT_OPTIONS[fieldName].map((option) => option.value);
 };
 
 export const companySchema = schemaWrapper(
@@ -69,72 +69,72 @@ export const companySchema = schemaWrapper(
       type: String,
       label: 'Name',
       optional: true,
-      esType: 'keyword'
+      esType: 'keyword',
     }),
 
     names: field({
       type: [String],
       optional: true,
-      label: 'Names'
+      label: 'Names',
     }),
 
     avatar: field({
       type: String,
       optional: true,
-      label: 'Avatar'
+      label: 'Avatar',
     }),
 
     size: field({
       type: Number,
       label: 'Size',
       optional: true,
-      esType: 'number'
+      esType: 'number',
     }),
 
     industry: field({
       type: String,
       label: 'Industries',
       optional: true,
-      esType: 'keyword'
+      esType: 'keyword',
     }),
 
     website: field({
       type: String,
       label: 'Website',
-      optional: true
+      optional: true,
     }),
 
     plan: field({
       type: String,
       label: 'Plan',
-      optional: true
+      optional: true,
     }),
 
     parentCompanyId: field({
       type: String,
       optional: true,
-      label: 'Parent Company'
+      label: 'Parent Company',
     }),
 
     primaryEmail: field({
       type: String,
       optional: true,
       label: 'Primary email',
-      esType: 'email'
+      esType: 'email',
     }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
 
     primaryPhone: field({
       type: String,
       optional: true,
-      label: 'Primary phone'
+      label: 'Primary phone',
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
 
     primaryAddress: field({
       type: Object,
       label: 'Primary Address',
-      optional: true
+      optional: true,
     }),
     addresses: field({ type: [Object], optional: true, label: 'Addresses' }),
 
@@ -147,7 +147,8 @@ export const companySchema = schemaWrapper(
       optional: true,
       label: 'Status',
       esType: 'keyword',
-      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES
+      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES,
+      index: true,
     }),
 
     businessType: field({
@@ -156,7 +157,7 @@ export const companySchema = schemaWrapper(
       optional: true,
       label: 'Business Type',
       esType: 'keyword',
-      selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES
+      selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES,
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),
@@ -167,7 +168,7 @@ export const companySchema = schemaWrapper(
       default: 'No',
       enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
-      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
     isSubscribed: field({
       type: String,
@@ -175,7 +176,7 @@ export const companySchema = schemaWrapper(
       default: 'Yes',
       enum: getEnum('DO_NOT_DISTURB'),
       label: 'Subscribed',
-      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
@@ -183,26 +184,26 @@ export const companySchema = schemaWrapper(
       type: [String],
       optional: true,
       label: 'Tags',
-      index: true
+      index: true,
     }),
 
     // Merged company ids
     mergedIds: field({
       type: [String],
       optional: true,
-      label: 'Merged companies'
+      label: 'Merged companies',
     }),
 
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
-      label: 'Custom fields data'
+      label: 'Custom fields data',
     }),
 
     trackedData: field({
       type: [customFieldSchema],
       optional: true,
-      label: 'Tracked Data'
+      label: 'Tracked Data',
     }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
@@ -211,7 +212,7 @@ export const companySchema = schemaWrapper(
       type: Number,
       optional: true,
       label: 'Score',
-      esType: 'number'
-    })
-  })
+      esType: 'number',
+    }),
+  }),
 );

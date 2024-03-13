@@ -2,11 +2,12 @@ import { init } from './messageBrokerErkhetHelper';
 import { consumeCustomer } from './utils/consumeCustomer';
 import {
   consumeInventory,
-  consumeInventoryCategory
+  consumeInventoryCategory,
 } from './utils/consumeInventory';
 import redis from '@erxes/api-utils/src/redis';
 import { IModels } from './connectionResolver';
 import { ISyncLogDocument } from './models/definitions/syncLog';
+import { getConfig } from './utils/utils';
 
 let clientErkhet;
 
@@ -16,7 +17,13 @@ export const initBrokerErkhet = async () => {
   const { consumeQueue } = clientErkhet;
 
   consumeQueue('rpc_queue:erkhet', async ({ subdomain, data }) => {
-    const { object, old_code, action } = data;
+    const { object, old_code, action, api_key, api_secret } = data;
+    const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+
+    if (mainConfig.apiKey !== api_key || mainConfig.apiSecret !== api_secret) {
+      return;
+    }
+
     const objectData = JSON.parse(object)[0];
     const doc = objectData.fields;
     const kind = objectData.model;
@@ -41,24 +48,24 @@ export const sendRPCMessage = async (
   models: IModels,
   syncLog: ISyncLogDocument,
   channel: string,
-  message: any
+  message: any,
 ): Promise<any> => {
   await models.SyncLogs.updateOne(
     { _id: syncLog._id },
-    { $set: { sendData: message, sendStr: JSON.stringify(message) } }
+    { $set: { sendData: message, sendStr: JSON.stringify(message) } },
   );
   const response = await clientErkhet.sendRPCMessage(channel, message);
   if (typeof response === 'string') {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { responseStr: JSON.stringify(response), error: response } }
+      { $set: { responseStr: JSON.stringify(response), error: response } },
     );
   } else {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       {
-        $set: { responseData: response, responseStr: JSON.stringify(response) }
-      }
+        $set: { responseData: response, responseStr: JSON.stringify(response) },
+      },
     );
   }
   return response;
@@ -75,10 +82,10 @@ export const erkhetBroker = async () => {
   return await init({
     RABBITMQ_HOST: ERKHET_RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX: ERKHET_MESSAGE_BROKER_PREFIX,
-    redis
+    redis,
   });
 };
 
-export default function() {
+export default function () {
   return clientErkhet;
 }

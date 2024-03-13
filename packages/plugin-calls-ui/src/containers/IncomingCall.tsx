@@ -10,12 +10,12 @@ import { Alert } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
 import queries from '../graphql/queries';
 
-interface Props {
+interface IProps {
   closeModal?: () => void;
   callIntegrationsOfUser: any;
 }
 
-const IncomingCallContainer = (props: Props, context) => {
+const IncomingCallContainer = (props: IProps, context) => {
   const [customer, setCustomer] = useState<any>(undefined);
   const [conversation, setConversation] = useState<any>(undefined);
 
@@ -91,8 +91,8 @@ const IncomingCallContainer = (props: Props, context) => {
       });
   };
 
-  const getCustomerDetail = (phoneNumber?: string) => {
-    if (!phoneNumber) {
+  const getCustomerDetail = (phone?: string) => {
+    if (!phone) {
       return null;
     }
 
@@ -100,7 +100,7 @@ const IncomingCallContainer = (props: Props, context) => {
       .query({
         query: gql(queries.callCustomerDetail),
         fetchPolicy: 'network-only',
-        variables: { callerNumber: phoneNumber }
+        variables: { callerNumber: phone }
       })
       .then(({ data }: { data: any }) => {
         if (data && data.callsCustomerDetail) {
@@ -114,8 +114,8 @@ const IncomingCallContainer = (props: Props, context) => {
     return;
   };
 
-  const toggleSection = (phoneNumber): void => {
-    getCustomerDetail(phoneNumber);
+  const toggleSection = (phone): void => {
+    getCustomerDetail(phone);
   };
 
   const taggerRefetchQueries = [

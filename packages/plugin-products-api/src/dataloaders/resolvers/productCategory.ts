@@ -1,7 +1,8 @@
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../connectionResolver';
 import {
   IProductCategoryDocument,
-  PRODUCT_STATUSES
+  PRODUCT_STATUSES,
 } from '../../models/definitions/products';
 
 export default {
@@ -16,15 +17,15 @@ export default {
   async productCount(
     category: IProductCategoryDocument,
     {},
-    { models }: IContext
+    { models }: IContext,
   ) {
     const product_category_ids = await models.ProductCategories.find(
-      { order: { $regex: new RegExp(`^${category.order}`) } },
-      { _id: 1 }
+      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+      { _id: 1 },
     );
     return models.Products.countDocuments({
       categoryId: { $in: product_category_ids },
-      status: { $ne: PRODUCT_STATUSES.DELETED }
+      status: { $ne: PRODUCT_STATUSES.DELETED },
     });
-  }
+  },
 };

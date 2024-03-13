@@ -18,6 +18,7 @@ export const orderFields = `
   type
   description
   isPre
+  directDiscount
 `
 export const orderItemBaseFields = `
  _id
@@ -332,6 +333,7 @@ const progressHistory = gql`
       dueDate
       isPre
       description
+      deliveryInfo
     }
   }
 `
@@ -398,7 +400,7 @@ const queries = {
   ordersAtWaiting,
   historyItemDetail,
   ebarimtDetail,
-  payment
+  payment,
 }
 
 export default queries

@@ -1,7 +1,6 @@
 import configQueries from './configs';
 import accountQueries from './accounts';
-
-import { sendRequest } from '@erxes/api-utils/src';
+import fetch from 'node-fetch';
 
 export default {
   ...configQueries,
@@ -9,13 +8,12 @@ export default {
 
   khanbankRates: async (_root, _args, _context) => {
     try {
-      return await sendRequest({
-        url: 'https://api.khanbank.com/v1/rates',
-        method: 'GET'
-      });
+      return await fetch('https://api.khanbank.com/v1/rates').then((res) =>
+        res.json(),
+      );
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
     }
-  }
+  },
 };

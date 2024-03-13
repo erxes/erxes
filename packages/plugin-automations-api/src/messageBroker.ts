@@ -1,32 +1,36 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { setTimeout } from 'timers';
-import { receiveTrigger } from './utils';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgsOmitService,
+  MessageArgs,
+} from '@erxes/api-utils/src/core';
 import { playWait } from './actions';
+import {
+  checkWaitingResponseAction,
+  doWaitingResponseAction,
+} from './actions/wait';
 import { generateModels } from './connectionResolver';
+import { receiveTrigger } from './utils';
+import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = cl;
-
+export const setupMessageConsumers = async () => {
   consumeQueue('automations:trigger', async ({ subdomain, data }) => {
-    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait(models, subdomain);
+      await playWait(models, subdomain, data);
       return;
     }
 
-    setTimeout(async () => {
-      await receiveTrigger({ models, subdomain, type, targets });
-    }, 10000);
+    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
+      await doWaitingResponseAction(models, subdomain, data);
+      return;
+    }
+
+    await receiveTrigger({ models, subdomain, type, targets });
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {
@@ -36,61 +40,49 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Automations.countDocuments(query)
+      data: await models.Automations.countDocuments(query),
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplateMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'emailtemplates',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

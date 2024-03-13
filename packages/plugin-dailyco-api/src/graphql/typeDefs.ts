@@ -19,7 +19,7 @@ const mutations = `
   dailyCreateRoom(contentType:String!, contentTypeId:String!): VideoCallData
 `;
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
   scalar JSON
   scalar Date

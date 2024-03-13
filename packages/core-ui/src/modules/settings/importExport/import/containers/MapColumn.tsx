@@ -16,7 +16,7 @@ type Props = {
   attachments: IAttachment[];
   columnWithChosenField: any;
   serviceType?: string;
-  onChangeColumn: (column, value, contentType) => void;
+  onChangeColumn: (column, value, contentType, columns) => void;
 };
 
 type State = {};

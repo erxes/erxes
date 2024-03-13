@@ -2,7 +2,7 @@ import {
   IChecklist,
   IChecklistItem,
 } from '../../../models/definitions/checklists';
-import { graphqlPubsub } from '../../../configs';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
@@ -37,7 +37,11 @@ const checklistMutations = {
   /**
    * Adds checklist object and also adds an activity log
    */
-  async checklistsAdd(_root, args: IChecklist, { models, user, subdomain }: IContext) {
+  async checklistsAdd(
+    _root,
+    args: IChecklist,
+    { models, user, subdomain }: IContext,
+  ) {
     const checklist = await models.Checklists.createChecklist(args, user);
 
     await putCreateLog(
@@ -48,7 +52,7 @@ const checklistMutations = {
         newData: args,
         object: checklist,
       },
-      user
+      user,
     );
 
     checklistsChanged(checklist);
@@ -62,7 +66,7 @@ const checklistMutations = {
   async checklistsEdit(
     _root,
     { _id, ...doc }: IChecklistsEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const checklist = await models.Checklists.getChecklist(_id);
     const updated = await models.Checklists.updateChecklist(_id, doc);
@@ -76,7 +80,7 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated,
       },
-      user
+      user,
     );
 
     checklistDetailChanged(_id);
@@ -87,7 +91,11 @@ const checklistMutations = {
   /**
    * Removes a checklist
    */
-  async checklistsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async checklistsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext,
+  ) {
     const checklist = await models.Checklists.getChecklist(_id);
     const removed = await models.Checklists.removeChecklist(_id);
 
@@ -95,7 +103,7 @@ const checklistMutations = {
       models,
       subdomain,
       { type: 'checklist', object: checklist },
-      user
+      user,
     );
 
     checklistsChanged(checklist);
@@ -106,8 +114,15 @@ const checklistMutations = {
   /**
    * Adds a checklist item and also adds an activity log
    */
-  async checklistItemsAdd(_root, args: IChecklistItem, { user, models, subdomain }: IContext) {
-    const checklistItem = await models.ChecklistItems.createChecklistItem(args, user);
+  async checklistItemsAdd(
+    _root,
+    args: IChecklistItem,
+    { user, models, subdomain }: IContext,
+  ) {
+    const checklistItem = await models.ChecklistItems.createChecklistItem(
+      args,
+      user,
+    );
 
     await putCreateLog(
       models,
@@ -117,7 +132,7 @@ const checklistMutations = {
         newData: args,
         object: checklistItem,
       },
-      user
+      user,
     );
 
     checklistDetailChanged(checklistItem.checklistId);
@@ -131,7 +146,7 @@ const checklistMutations = {
   async checklistItemsEdit(
     _root,
     { _id, ...doc }: IChecklistItemsEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const updated = await models.ChecklistItems.updateChecklistItem(_id, doc);
@@ -145,7 +160,7 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated,
       },
-      user
+      user,
     );
 
     checklistDetailChanged(updated.checklistId);
@@ -159,7 +174,7 @@ const checklistMutations = {
   async checklistItemsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const removed = await models.ChecklistItems.removeChecklistItem(_id);
@@ -168,7 +183,7 @@ const checklistMutations = {
       models,
       subdomain,
       { type: 'checkListItem', object: checklistItem },
-      user
+      user,
     );
 
     checklistDetailChanged(checklistItem.checklistId);
@@ -179,7 +194,7 @@ const checklistMutations = {
   async checklistItemsOrder(
     _root,
     { _id, destinationIndex }: { _id: string; destinationIndex: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },

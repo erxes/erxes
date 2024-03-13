@@ -1,20 +1,48 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { generateModels } from './connectionResolver';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const setupMessageConsumers = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
   //   Reportss.send(data);
-
   //   return {
   //     status: 'success'
   //   };
   // });
+
+  consumeRPCQueue('reports:find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Reports.find(data).lean(),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue('reports:findLast', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Reports.findOne(data).sort({ createdAt: -1 }),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue(
+    'reports:updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Reports.updateMany(selector, modifier),
+        status: 'success',
+      };
+    },
+  );
 };
 //   consumeRPCQueue('reports:find', async ({ data }) => {
 //     return {
@@ -25,7 +53,7 @@ export const initBroker = async cl => {
 // };
 
 // export const sendCommonMessage = async (
-//   args: ISendMessageArgs & { serviceName: string }
+//   args: MessageArgs & { serviceName: string }
 // ) => {
 //   return sendMessage({
 //     serviceDiscovery,
@@ -34,34 +62,24 @@ export const initBroker = async cl => {
 //   });
 // };
 
-export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

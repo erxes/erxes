@@ -4,6 +4,7 @@ import {
   beginDateAtom,
   calcAmountsAtom,
   calcCashAtom,
+  capitronResponseAtom,
   cashAtom,
   currentAmountsAtom,
   currentCashTotalAtom,
@@ -33,6 +34,7 @@ const CoverCU = () => {
   // TODO: fix those
   const golomtResponse = useAtomValue(golomtResponseAtom)
   const tdbResponse = useAtomValue(tdbResponseAtom)
+  const capitronResponse = useAtomValue(capitronResponseAtom)
   const resetCover = useSetAtom(resetCoverDetailAtom)
 
   const router = useRouter()

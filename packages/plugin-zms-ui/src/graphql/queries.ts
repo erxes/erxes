@@ -12,7 +12,11 @@ query GetDictionaries($parentId: String) {
   }
 }
 `;
-
+const listZmsLogs = `
+  query getZmsLogs($zmsId: String) {
+    getZmsLogs(zmsId: $zmsId)
+}
+`;
 const listZmsParent = `
 query GetDictionaries($isParent: Boolean = true) {
   getDictionaries(isParent: $isParent) {
@@ -29,8 +33,30 @@ const totalCount = `
   }
 `;
 
+const listZmss = `
+  query GetZmses {
+    getZmses {
+      _id
+      customer {
+        o_c_customer_information {
+          o_c_customercode
+          o_c_customername
+          o_c_registerno
+        }
+      }
+    }
+  }
+`;
+const listLogs = `
+query getLogs {
+  getLogs
+}
+`;
 export default {
   listDictionary,
   totalCount,
-  listZmsParent
+  listZmsParent,
+  listZmss,
+  listLogs,
+  listZmsLogs
 };

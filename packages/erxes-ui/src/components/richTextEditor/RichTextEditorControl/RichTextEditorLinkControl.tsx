@@ -4,7 +4,7 @@ import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
-  RichTextEditorControlBase
+  RichTextEditorControlBase,
 } from './RichTextEditorControl';
 import Tip from '../../Tip';
 import { InputAction, InputWrapper, LinkInput, LinkWrapper } from './styles';
@@ -20,8 +20,10 @@ export type RichTextEditorLinkControlProps = {
 };
 
 export const RichTextEditorLinkControl = (
-  props: RichTextEditorLinkControlProps
+  props: RichTextEditorLinkControlProps,
 ) => {
+  let overLayRef;
+
   const { icon, initialExternal } = props;
 
   const ctx = useRichTextEditorContext();
@@ -53,18 +55,18 @@ export const RichTextEditorLinkControl = (
   const setLink = () => {
     handleClose();
     url === ''
-      ? ctx.editor
-          ?.chain()
-          .focus()
-          .extendMarkRange('link')
-          .unsetLink()
-          .run()
+      ? ctx.editor?.chain().focus().extendMarkRange('link').unsetLink().run()
       : ctx.editor
           ?.chain()
           .focus()
           .extendMarkRange('link')
           .setLink({ href: url, target: external ? '_blank' : null })
           .run();
+  };
+
+  const handleSave = () => {
+    setLink();
+    overLayRef.hide();
   };
 
   const handleInputKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -76,6 +78,9 @@ export const RichTextEditorLinkControl = (
 
   return (
     <OverlayTrigger
+      ref={(overlayTrigger) => {
+        overLayRef = overlayTrigger;
+      }}
       trigger="click"
       rootClose={true}
       placement="top"
@@ -87,7 +92,7 @@ export const RichTextEditorLinkControl = (
               aria-label={ctx.labels.linkEditorInputLabel}
               type="url"
               value={url}
-              onChange={e => setUrl(e.target.value)}
+              onChange={(e) => setUrl(e.target.value)}
               onKeyDown={handleInputKeydown}
             />
             <InputAction>
@@ -100,7 +105,7 @@ export const RichTextEditorLinkControl = (
                 }
               >
                 <button
-                  onClick={() => setExternal(e => !e)}
+                  onClick={() => setExternal((e) => !e)}
                   data-active={external || undefined}
                 >
                   <BoxArrowUpRight
@@ -110,7 +115,7 @@ export const RichTextEditorLinkControl = (
               </Tip>
             </InputAction>
           </InputWrapper>
-          <button onClick={setLink}>{ctx.labels.linkEditorSave}</button>
+          <button onClick={handleSave}>{ctx.labels.linkEditorSave}</button>
         </LinkWrapper>
       }
     >

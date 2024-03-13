@@ -1,20 +1,14 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-export let debug;
 
 export default {
   name: 'dailyco',
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   apolloServerContext: async (context, req): Promise<any> => {
@@ -23,12 +17,6 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-
-    initBroker(options.messageBrokerClient);
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

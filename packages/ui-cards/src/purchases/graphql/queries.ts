@@ -219,13 +219,13 @@ const checkDiscount = `
   }
 `;
 
-const productCategories = queries.productCategories;
-
-const costs = `
-  query costs {
-	  costs
+const productsPriceLast = `
+  query productsPriceLast($purchaseId: String, $productIds: [String]) {
+    productsPriceLast(purchaseId: $purchaseId, productIds: $productIds)
   }
 `;
+
+const productCategories = queries.productCategories;
 
 export default {
   purchases,
@@ -237,5 +237,5 @@ export default {
   archivedPurchases,
   archivedPurchasesCount,
   checkDiscount,
-  costs
+  productsPriceLast
 };

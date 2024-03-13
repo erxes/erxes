@@ -85,6 +85,10 @@ class BasicInfoSection extends React.Component<Props, State> {
 
     const expandForm = props => <ExpandForm {...props} contract={contract} />;
 
+    const contractForm = props => (
+      <ContractForm change {...props} contract={contract} />
+    );
+
     return (
       <Action>
         <Dropdown onToggle={isShown => isShown && onOpen()}>
@@ -121,6 +125,14 @@ class BasicInfoSection extends React.Component<Props, State> {
                 trigger={<a href="#toClose">{__('Expand Contract')}</a>}
                 size="lg"
                 content={expandForm}
+              />
+            </li>
+            <li>
+              <ModalTrigger
+                title={__('Change Contract')}
+                trigger={<a href="#toClose">{__('Change Contract')}</a>}
+                size="lg"
+                content={contractForm}
               />
             </li>
 
