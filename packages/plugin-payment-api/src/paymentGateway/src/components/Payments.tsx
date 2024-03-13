@@ -10,7 +10,7 @@ type Props = {
 };
 
 const PaymentGateway = (props: Props) => {
-  const [amount, setAmount] = useState(500);
+  const [invoice, setInvoice] = useState(props.invoiceDetail);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -27,6 +27,11 @@ const PaymentGateway = (props: Props) => {
   };
 
   const { payments } = props;
+
+  React.useEffect(() => {
+    
+  }
+  , [props.invoiceDetail.apiResponse]);
 
   return (
     <div id="root">
@@ -60,7 +65,7 @@ const PaymentGateway = (props: Props) => {
         <div className="block amount">
           <h4>Payment amount</h4>
           <h2 className="amount-total" id="payment-amount">
-            {amount} ₮
+            {invoice.amount} ₮
           </h2>
         </div>
       </div>
