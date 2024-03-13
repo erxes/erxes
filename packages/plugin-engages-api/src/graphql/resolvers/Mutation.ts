@@ -9,6 +9,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendLogsMessage,
+  sendImapMessage,
 } from '../../messageBroker';
 import {
   updateConfigs,
@@ -247,7 +248,7 @@ const engageMutations = {
     { subdomain, models }: IContext,
   ) {
     const { content, from, to, title } = args;
-
+    console.log(args, 'args');
     if (!(content && from && to && title)) {
       throw new Error(
         'Email content, title, from address or to address is missing',
@@ -280,7 +281,7 @@ const engageMutations = {
 
     try {
       const transporter = await createTransporter(models);
-
+      console.log(transporter, 'transporter');
       const response = await transporter.sendMail({
         from,
         to,
@@ -288,7 +289,7 @@ const engageMutations = {
         html: content,
         content: replacedContent,
       });
-
+      console.log(response, 'response');
       return JSON.stringify(response);
     } catch (e) {
       debugError(e.message);
@@ -355,7 +356,6 @@ const engageMutations = {
     { user, models, subdomain }: IContext,
   ) {
     const { body, customerId, ...doc } = args;
-
     const customerQuery = customerId
       ? { _id: customerId }
       : { primaryEmail: doc.to };
@@ -415,7 +415,20 @@ const engageMutations = {
       });
     }
 
-    return;
+    try {
+      const imapSendMail = await sendImapMessage({
+        subdomain,
+        action: 'imapMessage.create',
+        data: {
+          ...doc,
+        },
+        isRPC: true,
+      });
+      return imapSendMail;
+    } catch (e) {
+      console.log('error sending message');
+      throw e;
+    }
   },
 };
 
