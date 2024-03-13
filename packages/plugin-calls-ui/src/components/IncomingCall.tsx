@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { Alert, __ } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import {
   IncomingCallNav,
@@ -116,6 +116,22 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     return () => clearInterval(timer);
   }, [status, primaryPhone]);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.src = '/sound/incoming.mp3';
+      audioRef.current.play();
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, [audioRef.current]);
+
   const onTabClick = (tab: string) => {
     setCurrentTab(tab);
     setShrink(true);
@@ -208,6 +224,11 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   };
 
   const onAcceptCall = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
     }
@@ -221,6 +242,11 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
   };
 
   const onDeclineCall = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+
     setHaveIncomingCall(false);
     const { stopCall } = context;
 
@@ -251,6 +277,7 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
 
   const acceptIncomingTrigger = (
     <CallButton onClick={onAcceptCall}>
+      <audio ref={audioRef} loop autoPlay />
       <Icon icon="phone" size={18} />
     </CallButton>
   );
@@ -300,6 +327,10 @@ const IncomingCall: React.FC<Props> = (props: Props, context) => {
     );
   }
   if (status === 'accepted' && !haveIncomingCall) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
     return (
       hasMicrophone && (
         <Popover id="call-popover" className="call-popover">

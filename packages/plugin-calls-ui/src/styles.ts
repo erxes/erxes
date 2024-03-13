@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
@@ -241,6 +241,15 @@ export const IncomingCallNav = styled.div`
   }
 `;
 
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+`;
+
 export const CallButton = styledTS<{
   type?: string;
   height?: string;
@@ -251,7 +260,7 @@ export const CallButton = styledTS<{
   align-items: center;
   justify-content: center;
   background: ${(props) => (props.type === 'decline' ? '#FF4949' : '#13CE66')};
-  border-radius: 4px;
+  border-radius: 50%;
   margin-right: 8px;
   height: 30px;
   width: 30px;
@@ -259,6 +268,7 @@ export const CallButton = styledTS<{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
+  animation: ${pulse} 1s infinite alternate;
 `;
 
 export const InCall = styled.div`
