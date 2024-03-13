@@ -5,7 +5,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SideBarList from '../containers/sidebar/SideBarList';
 import ConfigList from '../containers/config/ConfigList';
-import TimeclockList from '../containers/timeclock/TimeclockList';
+import TimeclockList from '../containers/timeclock/TimeclockList2';
 import AbsenceList from '../containers/absence/AbsenceList';
 import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
@@ -21,7 +21,7 @@ type Props = {
   departments: IDepartment[];
 
   isCurrentUserAdmin: boolean;
-  isCurrentUserSupervisor?: boolean;
+  isCurrentUserSupervisor: boolean;
 
   currentDate?: string;
   queryParams: any;
@@ -34,13 +34,8 @@ type Props = {
 };
 
 function List(props: Props) {
-  const {
-    queryParams,
-    isCurrentUserAdmin,
-    history,
-    route,
-    searchFilter
-  } = props;
+  const { queryParams, isCurrentUserAdmin, history, route, searchFilter } =
+    props;
 
   const [showSideBar, setShowSideBar] = useState(true);
   const [rightActionBar, setRightActionBar] = useState(<div />);
@@ -127,7 +122,6 @@ function List(props: Props) {
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             getPagination={setPagination}
-            timeclockUser={queryParams.timeclockUser}
             history={history}
             queryParams={queryParams}
           />
@@ -151,7 +145,7 @@ function List(props: Props) {
           data={Component}
           loading={loading}
           emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
+          emptyImage='/images/actions/8.svg'
         />
       }
       leftSidebar={

@@ -1,3 +1,4 @@
 export const mutations = `
-  toCheckSynced(ids: [String]): [CheckResponse]
+  toCheck(type: String): JSON
+  toSync( items: [JSON],type: String): JSON
 `;

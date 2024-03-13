@@ -9,9 +9,9 @@ const { MONGO_URL } = process.env;
 export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
-  // autoReconnect: true,
   family: 4,
   useFindAndModify: false,
+  useUnifiedTopology: true,
 };
 
 mongoose.connection

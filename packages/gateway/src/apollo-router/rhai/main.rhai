@@ -1,12 +1,12 @@
 fn supergraph_service(service) {
   let add_cookies_to_response = |response| {
-    if response.context["set_cookie_headers"]?.len > 0 {
+    if response.is_primary() && response.context["set_cookie_headers"]?.len > 0 {
       response.headers["set-cookie"] = response.context["set_cookie_headers"];
     }
   };
 
   let add_server_timing_to_response = |response| {
-    if response.context["server_timing_headers"]?.len > 0 {
+    if response.is_primary() && response.context["server_timing_headers"]?.len > 0 {
       response.headers["server-timing"] = response.context["server_timing_headers"];
     }
   };

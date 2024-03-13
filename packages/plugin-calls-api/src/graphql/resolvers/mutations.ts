@@ -69,25 +69,31 @@ const callsMutations = {
     });
   },
 
-  async callTerminateSession(_root, {}, { models, user }: IContext) {
+  async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
 
-    graphqlPubsub.publish(`sessionTerminateRequested:${user._id}`, {
-      userId: user._id,
-    });
+    graphqlPubsub.publish(
+      `sessionTerminateRequested:${subdomain}:${user._id}`,
+      {
+        userId: user._id,
+      },
+    );
     return user._id;
   },
 
-  async callDisconnect(_root, {}, { models, user }: IContext) {
+  async callDisconnect(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
 
-    graphqlPubsub.publish(`sessionTerminateRequested:${user._id}`, {
-      userId: user._id,
-    });
+    graphqlPubsub.publish(
+      `sessionTerminateRequested:${subdomain}:${user._id}`,
+      {
+        userId: user._id,
+      },
+    );
 
     return 'disconnected';
   },

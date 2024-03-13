@@ -2,15 +2,16 @@ import {
   customFieldToObject,
   fetchPolaris,
   getCustomer,
-  getSavingContract,
+  getContract,
 } from '../utils';
 
 export const outcomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    transaction.contractId,
+    { _id: transaction.contractId },
+    'savings',
   );
 
   const customer = await getCustomer(subdomain, savingContract.customerId);
