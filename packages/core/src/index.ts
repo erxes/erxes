@@ -192,7 +192,7 @@ app.get('/read-file', async (req: any, res, next) => {
     const width = req.query.width;
 
     if (!key) {
-      return res.send('Invalid key');
+      return res.send('Invalid keay');
     }
 
     const response = await readFileRequest({
