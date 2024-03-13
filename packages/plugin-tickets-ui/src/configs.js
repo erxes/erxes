@@ -1,9 +1,9 @@
 module.exports = {
   srcDir: __dirname,
   name: 'tickets',
-  port: 3003,
+  port: 3050,
   scope: 'tickets',
-  url: 'http://localhost:3003/remoteEntry.js',
+  url: 'http://localhost:3050/remoteEntry.js',
   exposes: {
     './routes': './src/routes.tsx',
     './settings': './src/Settings.tsx',
@@ -14,7 +14,7 @@ module.exports = {
     './invoiceDetailRightSection': './src/common/Item.tsx',
   },
   routes: {
-    url: 'http://localhost:3003/remoteEntry.js',
+    url: 'http://localhost:3050/remoteEntry.js',
     scope: 'tickets',
     module: './routes',
   },

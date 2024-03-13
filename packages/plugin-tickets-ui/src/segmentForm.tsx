@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
+import { BoardsQueryResponse } from '@erxes/ui-tickets/src/boards/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
@@ -10,7 +10,7 @@ import Select from 'react-select-plus';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries } from '@erxes/ui-tickets/src/settings/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -21,19 +21,19 @@ type Props = {
 };
 
 class Form extends React.Component<any, any, any> {
-  generatePipelineOptions = boards => {
+  generatePipelineOptions = (boards) => {
     const config = this.props.config || {};
     const { boardId } = config;
 
-    const board = (boards || []).find(b => b._id === boardId);
+    const board = (boards || []).find((b) => b._id === boardId);
 
     if (!board) {
       return [];
     }
 
-    return (board.pipelines || []).map(p => ({
+    return (board.pipelines || []).map((p) => ({
       value: p._id,
-      label: p.name
+      label: p.name,
     }));
   };
 
@@ -59,13 +59,8 @@ class Form extends React.Component<any, any, any> {
   };
 
   render() {
-    const {
-      boardsQuery,
-      hideDetailForm,
-      propertyType,
-      type,
-      component
-    } = this.props;
+    const { boardsQuery, hideDetailForm, propertyType, type, component } =
+      this.props;
 
     const config = this.props.config || {};
 
@@ -83,9 +78,9 @@ class Form extends React.Component<any, any, any> {
               <ControlLabel>Board</ControlLabel>
               <Select
                 value={config.boardId}
-                options={boards.map(b => ({
+                options={boards.map((b) => ({
                   value: b._id,
-                  label: b.name
+                  label: b.name,
                 }))}
                 onChange={this.onChangeBoard.bind(this, 'boardId')}
               />
@@ -111,7 +106,7 @@ class Form extends React.Component<any, any, any> {
           'cards:deal',
           'cards:ticket',
           'cards:task',
-          'cards:purchase'
+          'cards:purchase',
         ].includes(propertyType)
       ) {
         return null;
@@ -154,8 +149,8 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type, propertyType }) => ({
-        variables: generateVariable(type, propertyType)
-      })
+        variables: generateVariable(type, propertyType),
+      }),
     })
   )(Form)
 );

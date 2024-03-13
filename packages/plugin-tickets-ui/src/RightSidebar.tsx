@@ -10,7 +10,7 @@ type Props = {
 const PortableTickets = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
+      /* webpackChunkName: "PortableTickets" */ '@erxes/ui-tickets/src/tickets/components/PortableTickets'
     )
 );
 

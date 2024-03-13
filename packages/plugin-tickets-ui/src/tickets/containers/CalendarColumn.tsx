@@ -1,18 +1,18 @@
 import * as compose from 'lodash.flowright';
-import { ColumnProps } from '@erxes/ui-cards/src/boards/components/Calendar';
+import { ColumnProps } from '@erxes/ui-tickets/src/boards/components/Calendar';
 import {
   calendarColumnQuery,
-  onCalendarLoadMore
-} from '@erxes/ui-cards/src/boards/utils';
+  onCalendarLoadMore,
+} from '@erxes/ui-tickets/src/boards/utils';
 import { withProps } from '@erxes/ui/src/utils';
 import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
 import CalendarColumn from '../components/CalendarColumn';
 import React from 'react';
-import { queries } from '@erxes/ui-cards/src/tickets/graphql';
+import { queries } from '@erxes/ui-tickets/src/tickets/graphql';
 import {
   TicketsQueryResponse,
-  TicketsTotalCountQueryResponse
-} from '@erxes/ui-cards/src/tickets/types';
+  TicketsTotalCountQueryResponse,
+} from '@erxes/ui-tickets/src/tickets/types';
 
 type FinalProps = ColumnProps & {
   ticketsQuery: TicketsQueryResponse;
@@ -33,7 +33,7 @@ class TicketColumnContainer extends React.Component<FinalProps> {
     const {
       ticketsQuery,
       ticketsTotalCountQuery,
-      date: { month }
+      date: { month },
     } = this.props;
 
     const { fetchMore } = ticketsQuery;
@@ -59,7 +59,7 @@ class TicketColumnContainer extends React.Component<FinalProps> {
       tickets,
       totalCount,
       title,
-      onLoadMore
+      onLoadMore,
     };
 
     return <CalendarColumn {...updatedProps} />;

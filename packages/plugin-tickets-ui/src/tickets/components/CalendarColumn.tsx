@@ -1,17 +1,17 @@
 import {
   ColumnContainer,
   ColumnContentBody,
-  ColumnFooter
-} from '@erxes/ui-cards/src/boards/components/Calendar';
-import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
+  ColumnFooter,
+} from '@erxes/ui-tickets/src/boards/components/Calendar';
+import { AddNew } from '@erxes/ui-tickets/src/boards/styles/stage';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IDateColumn } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import options from '@erxes/ui-cards/src/tickets/options';
-import { ITicket } from '@erxes/ui-cards/src/tickets/types';
-import Ticket from '@erxes/ui-cards/src/tickets/components/TicketItem';
+import options from '@erxes/ui-tickets/src/tickets/options';
+import { ITicket } from '@erxes/ui-tickets/src/tickets/types';
+import Ticket from '@erxes/ui-tickets/src/tickets/components/TicketItem';
 
 type Props = {
   tickets: ITicket[];

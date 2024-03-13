@@ -1,15 +1,15 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import { IBoard } from '@erxes/ui-tickets/src/boards/types';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { IOption } from '@erxes/ui/src/types';
-import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
+import MainActionBar from '@erxes/ui-tickets/src/boards/components/MainActionBar';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { __ } from 'coreui/utils';
-import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
+import { getBoardViewType } from '@erxes/ui-tickets/src/boards/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import options from '@erxes/ui-cards/src/tickets/options';
+import options from '@erxes/ui-tickets/src/tickets/options';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -29,20 +29,20 @@ const TicketMainActionBar = (props: Props) => {
 
   const viewType = getBoardViewType();
 
-  const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
+  const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
     label: kind.text,
-    value: kind.value
+    value: kind.value,
   }));
 
   sourceValues.push({
     label: 'Other',
-    value: 'other'
+    value: 'other',
   });
 
   const sources = queryParams ? queryParams.source : [];
   const onSourceSelect = (ops: IOption[]) =>
     onSelect(
-      ops.map(option => option.value),
+      ops.map((option) => option.value),
       'source'
     );
 
@@ -82,7 +82,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: `/ticket/${viewType}`
+    link: `/ticket/${viewType}`,
   };
 
   return <MainActionBar viewType={viewType} {...extendedProps} />;

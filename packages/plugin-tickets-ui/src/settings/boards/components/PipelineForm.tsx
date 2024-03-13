@@ -1,5 +1,5 @@
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
+import { IBoard, IPipeline, IStage } from '@erxes/ui-tickets/src/boards/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, generateTree } from 'coreui/utils';
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
@@ -18,7 +18,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
 import Select from 'react-select-plus';
-import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
+import { SelectMemberStyled } from '@erxes/ui-tickets/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
@@ -208,7 +208,7 @@ class PipelineForm extends React.Component<Props, State> {
                 (node, level) => ({
                   value: node._id,
                   label: `${'---'.repeat(level)} ${node.title}`,
-                }),
+                })
               )}
               onChange={this.onChangeDepartments.bind(this)}
               placeholder={__('Choose department ...')}

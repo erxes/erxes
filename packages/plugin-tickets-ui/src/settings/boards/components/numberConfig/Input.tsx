@@ -1,13 +1,13 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Attribution from './Attribution';
-import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+import { BoardHeader } from '@erxes/ui-tickets/src/settings/boards/styles';
 import React from 'react';
 
 type Props = {
@@ -43,7 +43,7 @@ function PlaceHolderInput(props: Props) {
     return (
       <Attribution
         config={config}
-        setConfig={conf => onChangeConfig(conf)}
+        setConfig={(conf) => onChangeConfig(conf)}
         attributions={attributions}
       />
     );
@@ -74,7 +74,7 @@ function PlaceHolderInput(props: Props) {
         index += 1;
       }
 
-      const deletes = Object.keys(by).filter(key => {
+      const deletes = Object.keys(by).filter((key) => {
         const val = by[key];
 
         if (start === end && val.min < start && val.max < start) {

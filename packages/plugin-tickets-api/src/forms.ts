@@ -16,7 +16,7 @@ const relations = (type) => {
     {
       name: 'ticketIds',
       label: 'Tickets',
-      relationType: 'cards:ticket',
+      relationType: 'tickets',
     },
   ].filter((r) => r.relationType !== type);
 };
@@ -26,7 +26,7 @@ export default {
     {
       description: 'Tickets',
       type: 'ticket',
-      relations: relations('cards:ticket'),
+      relations: relations('tickets'),
     },
   ],
   fields: generateFields,

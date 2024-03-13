@@ -1,4 +1,4 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import { IBoard } from '@erxes/ui-tickets/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -27,7 +27,7 @@ class BoardForm extends React.Component<Props, {}> {
 
     return {
       ...finalValues,
-      type
+      type,
     };
   };
 
@@ -65,7 +65,7 @@ class BoardForm extends React.Component<Props, {}> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: board
+            object: board,
           })}
         </ModalFooter>
       </>

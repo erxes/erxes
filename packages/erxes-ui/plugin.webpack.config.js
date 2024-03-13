@@ -1,31 +1,31 @@
-"use strict";
+'use strict';
 
-const webpack = require("webpack");
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const path = require("path");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
-const { MFLiveReloadPlugin } = require("@module-federation/fmr");
+const { MFLiveReloadPlugin } = require('@module-federation/fmr');
 
-const deps = require("./package.json").dependencies;
+const deps = require('./package.json').dependencies;
 const depNames = [
-  "@apollo/client",
-  "@types/styled-components",
-  "dayjs",
-  "graphql",
-  "lodash.flowright",
-  "query-string",
-  "react",
-  "react-bootstrap",
-  "react-dom",
-  "react-router-dom",
-  "react-select-plus",
-  "react-transition-group",
-  "styled-components",
-  "styled-components-ts",
+  '@apollo/client',
+  '@types/styled-components',
+  'dayjs',
+  'graphql',
+  'lodash.flowright',
+  'query-string',
+  'react',
+  'react-bootstrap',
+  'react-dom',
+  'react-router-dom',
+  'react-select-plus',
+  'react-transition-group',
+  'styled-components',
+  'styled-components-ts',
 ];
 
 const shared = {};
@@ -44,8 +44,8 @@ module.exports = (configs) => (env, args) => {
     output: {
       uniqueName: configs.name,
       publicPath:
-        args.mode === "development" ? `http://localhost:${port}/` : undefined,
-      chunkFilename: "[chunkhash].js",
+        args.mode === 'development' ? `http://localhost:${port}/` : undefined,
+      chunkFilename: '[chunkhash].js',
     },
 
     optimization: {
@@ -75,17 +75,17 @@ module.exports = (configs) => (env, args) => {
     },
 
     resolve: {
-      extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+      extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
       fallback: {
-        path: require.resolve("path-browserify"),
-        timers: require.resolve("timers-browserify"),
-        process: "process/browser",
+        path: require.resolve('path-browserify'),
+        timers: require.resolve('timers-browserify'),
+        process: 'process/browser',
       },
     },
 
     devServer: {
       port: port,
-      allowedHosts: "all",
+      allowedHosts: 'all',
       historyApiFallback: true,
     },
 
@@ -93,61 +93,62 @@ module.exports = (configs) => (env, args) => {
       rules: [
         {
           test: /\.m?js/,
-          type: "javascript/auto",
+          type: 'javascript/auto',
           resolve: {
             fullySpecified: false,
           },
         },
         {
           test: /\.(css|s[ac]ss)$/i,
-          use: ["style-loader", "css-loader", "postcss-loader"],
+          use: ['style-loader', 'css-loader', 'postcss-loader'],
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
-          type: "asset/resource",
+          type: 'asset/resource',
         },
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
-          type: "asset/resource",
+          type: 'asset/resource',
         },
         {
           test: /\.json$/,
-          loader: "json-loader",
+          loader: 'json-loader',
         },
         {
           test: /\.(ts|tsx|js|jsx)$/,
           exclude: /node_modules/,
           include: [
-            path.resolve(__dirname, "./src"),
-            path.resolve(__dirname, "../ui-settings/src"),
-            path.resolve(__dirname, "../ui-engage/src"),
-            path.resolve(__dirname, "../ui-contacts/src"),
-            path.resolve(__dirname, "../ui-segments/src"),
-            path.resolve(__dirname, "../ui-forms/src"),
-            path.resolve(__dirname, "../ui-inbox/src"),
-            path.resolve(__dirname, "../ui-products/src"),
-            path.resolve(__dirname, "../ui-cards/src"),
-            path.resolve(__dirname, "../ui-knowledgebase/src"),
-            path.resolve(__dirname, "../ui-notifications/src"),
-            path.resolve(__dirname, "../ui-automations/src"),
-            path.resolve(__dirname, "../ui-calendar/src"),
-            path.resolve(__dirname, "../ui-log/src"),
-            path.resolve(__dirname, "../ui-internalnotes/src"),
-            path.resolve(__dirname, "../ui-leads/src"),
-            path.resolve(__dirname, "../ui-tags/src"),
-            path.resolve(__dirname, "../ui-forum/src"),
-            path.resolve(__dirname, "../ui-emailtemplates/src"),
+            path.resolve(__dirname, './src'),
+            path.resolve(__dirname, '../ui-settings/src'),
+            path.resolve(__dirname, '../ui-engage/src'),
+            path.resolve(__dirname, '../ui-contacts/src'),
+            path.resolve(__dirname, '../ui-segments/src'),
+            path.resolve(__dirname, '../ui-forms/src'),
+            path.resolve(__dirname, '../ui-inbox/src'),
+            path.resolve(__dirname, '../ui-products/src'),
+            path.resolve(__dirname, '../ui-cards/src'),
+            path.resolve(__dirname, '../ui-tickets/src'),
+            path.resolve(__dirname, '../ui-knowledgebase/src'),
+            path.resolve(__dirname, '../ui-notifications/src'),
+            path.resolve(__dirname, '../ui-automations/src'),
+            path.resolve(__dirname, '../ui-calendar/src'),
+            path.resolve(__dirname, '../ui-log/src'),
+            path.resolve(__dirname, '../ui-internalnotes/src'),
+            path.resolve(__dirname, '../ui-leads/src'),
+            path.resolve(__dirname, '../ui-tags/src'),
+            path.resolve(__dirname, '../ui-forum/src'),
+            path.resolve(__dirname, '../ui-emailtemplates/src'),
             configs.srcDir,
           ],
           use: {
-            loader: "babel-loader",
+            loader: 'babel-loader',
             options: {
               presets: [
-                "@babel/preset-typescript",
-                "@babel/preset-react",
-                "@babel/preset-env",
+                '@babel/preset-typescript',
+                '@babel/preset-react',
+                '@babel/preset-env',
               ],
-              plugins: [["@babel/transform-runtime"]],
+              plugins: [['@babel/transform-runtime']],
             },
           },
         },
@@ -159,14 +160,14 @@ module.exports = (configs) => (env, args) => {
         // Make a global `process` variable that points to the `process` package,
         // because the `util` package expects there to be a global variable named `process`.
         // Thanks to https://stackoverflow.com/a/65018686/14239942
-        process: "process/browser",
+        process: 'process/browser',
       }),
       new InterpolateHtmlPlugin({
-        PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
+        PUBLIC_URL: 'public', // can modify `static` to another name or get it from `process`
       }),
       new ModuleFederationPlugin({
         name: configs.name,
-        filename: "remoteEntry.js",
+        filename: 'remoteEntry.js',
         remotes: {
           coreui: `promise new Promise(resolve => {
           const { REACT_APP_PUBLIC_PATH } = window.env || {};
@@ -206,16 +207,16 @@ module.exports = (configs) => (env, args) => {
         exposes: configs.exposes,
         shared: {
           ...shared,
-          "@erxes/ui": {
-            requiredVersion: "1.0.0",
+          '@erxes/ui': {
+            requiredVersion: '1.0.0',
             singleton: true,
           },
         },
       }),
       new HtmlWebPackPlugin({
-        template: path.resolve(__dirname, "./plugin.index.html"),
+        template: path.resolve(__dirname, './plugin.index.html'),
       }),
-      args.mode === "development"
+      args.mode === 'development'
         ? new MFLiveReloadPlugin({
             port, // the port your app runs on
             container: configs.name, // the name of your app, must be unique

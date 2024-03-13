@@ -1,8 +1,8 @@
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import BoardForm from './BoardForm';
-import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
+import { BoardItem } from '@erxes/ui-tickets/src/settings/boards/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import { IBoard } from '@erxes/ui-tickets/src/boards/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
@@ -38,7 +38,7 @@ class BoardRow extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <BoardForm
         {...props}
         board={board}

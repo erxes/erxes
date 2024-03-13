@@ -2,8 +2,8 @@ import * as compose from 'lodash.flowright';
 
 import {
   BoardsGetLastQueryResponse,
-  IBoard
-} from '@erxes/ui-cards/src/boards/types';
+  IBoard,
+} from '@erxes/ui-tickets/src/boards/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 
 import Home from '../components/Home';
@@ -13,7 +13,7 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries } from '@erxes/ui-tickets/src/settings/boards/graphql';
 import { withRouter } from 'react-router-dom';
 
 type HomeContainerProps = {
@@ -57,7 +57,7 @@ const LastBoard = (props: LastBoardProps & Props) => {
 
   const extendedProps = {
     ...props,
-    boardId: lastBoard._id
+    boardId: lastBoard._id,
   };
 
   return <HomeContainer {...extendedProps} />;
@@ -72,8 +72,8 @@ const LastBoardContainer = withProps<MainProps>(
       {
         name: 'boardGetLastQuery',
         options: ({ type }) => ({
-          variables: { type }
-        })
+          variables: { type },
+        }),
       }
     )
   )(LastBoard)

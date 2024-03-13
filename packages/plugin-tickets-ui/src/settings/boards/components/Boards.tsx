@@ -1,4 +1,4 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import { IBoard } from '@erxes/ui-tickets/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -26,7 +26,7 @@ class Boards extends React.Component<Props, {}> {
   renderItems = () => {
     const { type, boards, remove, renderButton, currentBoardId } = this.props;
 
-    return boards.map(board => (
+    return boards.map((board) => (
       <BoardRow
         type={type}
         key={board._id}
@@ -53,7 +53,7 @@ class Boards extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderBoardForm({ ...props, renderButton, type });
     };
 

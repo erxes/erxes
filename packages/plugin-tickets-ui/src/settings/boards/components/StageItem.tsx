@@ -3,12 +3,12 @@ import { __, generateTree } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IDepartment } from '@erxes/ui/src/team/types';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
+import { IStage } from '@erxes/ui-tickets/src/boards/types';
 import { PROBABILITY } from '../constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { StageItemContainer } from '@erxes/ui-cards/src/settings/boards/styles';
+import { StageItemContainer } from '@erxes/ui-tickets/src/settings/boards/styles';
 
 type Props = {
   stage: IStage;
@@ -34,7 +34,7 @@ class StageItem extends React.Component<Props> {
           label="Members"
           name="memberIds"
           initialValue={memberIds}
-          onSelect={ids => onChange(_id, 'memberIds', ids)}
+          onSelect={(ids) => onChange(_id, 'memberIds', ids)}
         />
         <Select
           value={departmentIds}
@@ -43,14 +43,14 @@ class StageItem extends React.Component<Props> {
             null,
             (node, level) => ({
               value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
+              label: `${'---'.repeat(level)} ${node.title}`,
             })
           )}
-          onChange={options =>
+          onChange={(options) =>
             onChange(
               _id,
               'departmentIds',
-              (options || []).map(o => o.value)
+              (options || []).map((o) => o.value)
             )
           }
           placeholder={__('Department ...')}
@@ -163,14 +163,14 @@ class StageItem extends React.Component<Props> {
           label="Can move members"
           name="canMoveMemberIds"
           initialValue={stage.canMoveMemberIds}
-          onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
+          onSelect={(ids) => onChange(stage._id, 'canMoveMemberIds', ids)}
         />
 
         <SelectTeamMembers
           label="Can edit members"
           name="canEditMemberIds"
           initialValue={stage.canEditMemberIds}
-          onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
+          onSelect={(ids) => onChange(stage._id, 'canEditMemberIds', ids)}
         />
 
         <Button

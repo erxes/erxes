@@ -7,24 +7,24 @@ import {
   IOption,
   RemovePipelineMutationResponse,
   UpdateOrderPipelineMutationResponse,
-  UpdateOrderPipelineMutationVariables
+  UpdateOrderPipelineMutationVariables,
 } from '../types';
 import {
   BoardDetailQueryResponse,
-  PipelinesQueryResponse
-} from '@erxes/ui-cards/src/boards/types';
+  PipelinesQueryResponse,
+} from '@erxes/ui-tickets/src/boards/types';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
 import {
   mutations,
-  queries
-} from '@erxes/ui-cards/src/settings/boards/graphql';
+  queries,
+} from '@erxes/ui-tickets/src/settings/boards/graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Pipelines from '../components/Pipelines';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import { queries as boardQueries } from '@erxes/ui-tickets/src/boards/graphql';
+import { getWarningMessage } from '@erxes/ui-tickets/src/boards/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
@@ -52,7 +52,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       archivePipelineMutation,
       copiedPipelineMutation,
       pipelinesUpdateOrderMutation,
-      boardDetailQuery
+      boardDetailQuery,
     } = this.props;
 
     if (pipelinesQuery?.loading) {
@@ -73,7 +73,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       confirm(message).then(() => {
         archivePipelineMutation({
           variables: { _id: pipelineId },
-          refetchQueries: getRefetchQueries(boardId, pipelineId)
+          refetchQueries: getRefetchQueries(boardId, pipelineId),
         })
           .then(() => {
             pipelinesQuery?.refetch({ boardId });
@@ -83,19 +83,19 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
             Alert.success(msg);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });
     };
 
     // duplicate action
-    const copied = pipelineId => {
+    const copied = (pipelineId) => {
       const message = `This will duplicate the current pipeline. Are you absolutely sure?`;
       confirm(message).then(() => {
         copiedPipelineMutation({
           variables: { _id: pipelineId },
-          refetchQueries: getRefetchQueries(boardId, pipelineId)
+          refetchQueries: getRefetchQueries(boardId, pipelineId),
         })
           .then(() => {
             pipelinesQuery?.refetch({ boardId });
@@ -106,19 +106,19 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
             Alert.success(msg);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });
     };
 
     // remove action
-    const remove = pipelineId => {
+    const remove = (pipelineId) => {
       confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(
         () => {
           removePipelineMutation({
             variables: { _id: pipelineId },
-            refetchQueries: getRefetchQueries(boardId, pipelineId)
+            refetchQueries: getRefetchQueries(boardId, pipelineId),
           })
             .then(() => {
               pipelinesQuery?.refetch({ boardId });
@@ -129,7 +129,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
               Alert.success(msg);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         }
@@ -142,7 +142,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       object,
-      confirmationUpdate
+      confirmationUpdate,
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
         pipelinesQuery?.refetch({ boardId });
@@ -168,10 +168,10 @@ class PipelinesContainer extends React.Component<FinalProps> {
       );
     };
 
-    const updateOrder = orders => {
+    const updateOrder = (orders) => {
       pipelinesUpdateOrderMutation({
-        variables: { orders }
-      }).catch(error => {
+        variables: { orders },
+      }).catch((error) => {
         Alert.error(error.message);
       });
     };
@@ -186,7 +186,9 @@ class PipelinesContainer extends React.Component<FinalProps> {
       copied,
       renderButton,
       updateOrder,
-      currentBoard: boardDetailQuery ? boardDetailQuery?.boardDetail : undefined
+      currentBoard: boardDetailQuery
+        ? boardDetailQuery?.boardDetail
+        : undefined,
     };
 
     return <Pipelines {...extendedProps} />;
@@ -198,7 +200,7 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
     'pipelinesQuery',
     {
       query: gql(boardQueries?.boardDetail),
-      variables: { _id: boardId }
+      variables: { _id: boardId },
     },
     {
       query: gql(boardQueries?.stages),
@@ -211,9 +213,9 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
         labelIds: undefined,
         extraParams: {},
         closeDateType: undefined,
-        userIds: undefined
-      }
-    }
+        userIds: undefined,
+      },
+    },
   ];
 };
 
@@ -225,14 +227,14 @@ export default withProps<Props>(
         name: 'pipelinesQuery',
         options: ({
           boardId = '',
-          type
+          type,
         }: {
           boardId: string;
           type: string;
         }) => ({
           variables: { boardId, type, isAll: true },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }
     ),
     graphql<Props, BoardDetailQueryResponse>(gql(queries?.boardDetail), {
@@ -240,25 +242,25 @@ export default withProps<Props>(
       skip: ({ boardId }: { boardId?: string }) => !boardId,
       options: ({ boardId }: { boardId?: string }) => ({
         variables: { _id: boardId },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, RemovePipelineMutationResponse, MutationVariables>(
       gql(mutations?.pipelineRemove),
       {
-        name: 'removePipelineMutation'
+        name: 'removePipelineMutation',
       }
     ),
     graphql<Props, ArchivePipelineMutationResponse, MutationVariables>(
       gql(mutations?.pipelinesArchive),
       {
-        name: 'archivePipelineMutation'
+        name: 'archivePipelineMutation',
       }
     ),
     graphql<Props, CopiedPipelineMutationResponse, MutationVariables>(
       gql(mutations?.pipelinesCopied),
       {
-        name: 'copiedPipelineMutation'
+        name: 'copiedPipelineMutation',
       }
     ),
 
@@ -267,7 +269,7 @@ export default withProps<Props>(
       UpdateOrderPipelineMutationResponse,
       UpdateOrderPipelineMutationVariables
     >(gql(mutations?.pipelinesUpdateOrder), {
-      name: 'pipelinesUpdateOrderMutation'
+      name: 'pipelinesUpdateOrderMutation',
     })
   )(PipelinesContainer)
 );

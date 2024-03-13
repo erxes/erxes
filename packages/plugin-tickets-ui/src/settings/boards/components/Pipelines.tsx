@@ -1,9 +1,9 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE,
-  EMPTY_CONTENT_PURCHASE_PIPELINE
+  EMPTY_CONTENT_PURCHASE_PIPELINE,
 } from '@erxes/ui-settings/src/constants';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { IBoard, IPipeline } from '@erxes/ui-tickets/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
@@ -13,7 +13,7 @@ import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '../types';
-import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
+import { PipelineCount } from '@erxes/ui-tickets/src/settings/boards/styles';
 import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
 import React from 'react';
@@ -21,7 +21,7 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
+import { collectOrders } from '@erxes/ui-tickets/src/boards/utils';
 
 type Props = {
   type: string;
@@ -77,7 +77,7 @@ class Pipelines extends React.Component<Props, State> {
       showModal,
       pipelines: props.pipelines,
       isDragDisabled: false,
-      searchValue: ''
+      searchValue: '',
     };
   }
 
@@ -106,11 +106,11 @@ class Pipelines extends React.Component<Props, State> {
 
   addPipeline = () => {
     this.setState({
-      showModal: true
+      showModal: true,
     });
   };
 
-  onChangePipelines = pipelines => {
+  onChangePipelines = (pipelines) => {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
@@ -122,7 +122,7 @@ class Pipelines extends React.Component<Props, State> {
     this.setState({ isDragDisabled: !isDragDisabled });
   };
 
-  searchHandler = event => {
+  searchHandler = (event) => {
     const searchValue = event.target.value.toLowerCase();
     const { history, pipelines } = this.props;
 
@@ -131,7 +131,7 @@ class Pipelines extends React.Component<Props, State> {
     let updatedPipelines = pipelines;
 
     if (searchValue) {
-      updatedPipelines = pipelines.filter(p =>
+      updatedPipelines = pipelines.filter((p) =>
         p.name.toLowerCase().includes(searchValue)
       );
     }
@@ -152,7 +152,7 @@ class Pipelines extends React.Component<Props, State> {
       sortItems(sortedPipelines, sortDirection, sortField);
     }
 
-    return sortedPipelines.map(pipeline => (
+    return sortedPipelines.map((pipeline) => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
