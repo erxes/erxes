@@ -238,6 +238,7 @@ const SipProviderContainer = (props) => {
       createSession={createSession}
       callsActiveSession={activeSession?.callsActiveSession}
       updateHistory={updateHistory}
+      callUserIntegration={filteredIntegration}
     >
       {(state) =>
         state?.callDirection === CALL_DIRECTION_INCOMING ? (

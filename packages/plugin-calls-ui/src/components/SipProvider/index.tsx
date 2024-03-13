@@ -233,7 +233,6 @@ export default class SipProvider extends React.Component<
     const { callUserIntegration } = this.props;
     const { inboxId, phone, wsServer, token, operators } =
       callUserIntegration || {};
-
     if (
       inboxId !== callConfig.inboxId ||
       phone !== callConfig.phone ||
