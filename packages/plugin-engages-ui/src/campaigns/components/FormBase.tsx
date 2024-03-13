@@ -110,17 +110,7 @@ class FormBase extends React.Component<Props> {
   };
 
   renderTitle() {
-    const { kind } = this.props;
-
-    let title = __('Auto broadcast');
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      title = __('Manual broadcast');
-    }
-
-    if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      title = __('Visitor auto broadcast');
-    }
+    let title = __('New broadcast');
 
     return title;
   }
