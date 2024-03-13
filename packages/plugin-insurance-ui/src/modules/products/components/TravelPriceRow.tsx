@@ -30,12 +30,12 @@ const DURATION_OPTIONS = [
 ];
 
 const GROUP_OPTIONS = [
-  { value: '10', label: 'group of 1-10' },
+  { value: '1', label: 'individual' },
+  { value: '10', label: 'group of 2-10' },
   { value: '20', label: 'group of 11-20' },
-  { value: '30', label: 'group of 21-30' },
-  { value: '40', label: 'group of 31-40' },
-  { value: '50', label: 'group of 41-50' },
-  { value: '60', label: 'group of 51-60' },
+  { value: '50', label: 'group of 21-50' },
+  { value: '100', label: 'group of 51-100' },
+
 ];
 
 const Row = (props: Props) => {
