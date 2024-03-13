@@ -1,7 +1,9 @@
 import { IContext } from '../../connectionResolver';
 import {
+  findTimeclockTeamMemberIds,
   paginateArray,
   timeclockReportByUser,
+  timeclockReportByUsers,
   timeclockReportFinal,
   timeclockReportPivot,
   timeclockReportPreliminary
@@ -461,6 +463,62 @@ const timeclockQueries = {
 
     return {
       list: returnReport,
+      totalCount: totalTeamMemberIds.length
+    };
+  },
+  async timeclockReportByUsers(
+    _root,
+    {
+      userIds,
+      branchIds,
+      departmentIds,
+      startDate,
+      endDate,
+      page,
+      perPage,
+      isCurrentUserAdmin
+    },
+    { subdomain, models, user }: IContext
+  ) {
+    let filterGiven = false;
+    let totalTeamMemberIds;
+    let totalTeamMembers;
+
+    if (userIds || branchIds || departmentIds) {
+      filterGiven = true;
+    }
+
+    if (filterGiven) {
+      totalTeamMemberIds = await generateCommonUserIds(
+        subdomain,
+        userIds,
+        branchIds,
+        departmentIds
+      );
+
+      totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+    } else {
+      if (isCurrentUserAdmin) {
+        // return all team member ids
+        totalTeamMemberIds = await findTimeclockTeamMemberIds(
+          models,
+          startDate,
+          endDate
+        );
+        totalTeamMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
+      } else {
+        // return supervisod users including current user
+        totalTeamMembers = await returnSupervisedUsers(user, subdomain);
+        totalTeamMemberIds = totalTeamMembers.map(usr => usr._id);
+      }
+    }
+
+    return {
+      list: await timeclockReportByUsers(
+        paginateArray(totalTeamMemberIds, perPage, page),
+        models,
+        { startDate, endDate }
+      ),
       totalCount: totalTeamMemberIds.length
     };
   }

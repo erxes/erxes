@@ -1,7 +1,7 @@
-import { fetchPolaris, getLoanContract } from '../utils';
+import { fetchPolaris, getContract } from '../utils';
 
 export const changeLoanSchedule = async (subdomain, params) => {
-  const loanContract = await getLoanContract(subdomain, params.contractId);
+  const loanContract = await getContract(subdomain, params.contractId, 'loans');
 
   const sendData = [
     {},

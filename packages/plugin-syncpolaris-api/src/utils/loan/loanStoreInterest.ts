@@ -1,4 +1,4 @@
-import { fetchPolaris, getLoanContract } from '../utils';
+import { fetchPolaris } from '../utils';
 import { IPolarisStoreInterest } from './types';
 
 export const createLoanStoreInterest = async (subdomain, storeInterest) => {

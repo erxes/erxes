@@ -3,7 +3,10 @@ import * as Telnyx from 'telnyx';
 import { IModels } from './connectionResolver';
 
 import { SMS_DELIVERY_STATUSES } from './constants';
-import { sendIntegrationsMessage } from './messageBroker';
+import {
+  sendIntegrationsMessage,
+  sendClientPortalMessage,
+} from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
 // import { getEnv } from './utils';
 
@@ -15,7 +18,7 @@ export const getTelnyxInfo = async (subdomain: string) => {
     isRPC: true,
     action: 'api_to_integrations',
     subdomain,
-    data: { action: 'getTelnyxInfo' }
+    data: { action: 'getTelnyxInfo' },
   });
 
   const { telnyxApiKey, integrations = [] } = data;
@@ -31,7 +34,7 @@ export const getTelnyxInfo = async (subdomain: string) => {
   return {
     telnyxApiKey,
     instance: new Telnyx(telnyxApiKey),
-    integrations
+    integrations,
   };
 };
 
@@ -42,7 +45,9 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
     const initialRequest = await models.SmsRequests.findOne({ telnyxId: id });
 
     if (initialRequest) {
-      const receiver = to.find(item => item.phone_number === initialRequest.to);
+      const receiver = to.find(
+        (item) => item.phone_number === initialRequest.to,
+      );
 
       // prevent updates since sms is delivered
       if (receiver && receiver.status !== SMS_DELIVERY_STATUSES.DELIVERED) {
@@ -53,25 +58,46 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
         await models.SmsRequests.updateRequest(initialRequest._id, {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
-          statusUpdates: statuses
+          statusUpdates: statuses,
         });
       }
     }
   }
 };
 
-export const prepareSmsStats = async (models: IModels, engageMessageId: string) => {
+export const prepareSmsStats = async (
+  models: IModels,
+  engageMessageId: string,
+) => {
   const stats = await models.SmsRequests.aggregate([
     { $match: { engageMessageId } },
-    { $group: { _id: '$status', count: { $sum: 1 } } }
+    { $group: { _id: '$status', count: { $sum: 1 } } },
   ]);
-
   const result: any = { total: 0 };
 
   for (const s of stats) {
     result[s._id] = s.count || 0;
     result.total += s.count || 0;
   }
+
+  return result;
+};
+
+export const prepareNotificationStats = async (
+  subdomain,
+  engageMessageId: string,
+) => {
+  const clientPortalNotifications = await sendClientPortalMessage({
+    subdomain,
+    action: 'clientPortalEngageNotifications',
+    data: {
+      selector: { isRead: true, groupId: engageMessageId },
+    },
+    isRPC: true,
+    defaultValue: 0,
+  });
+
+  const result: any = { read: clientPortalNotifications || 0 };
 
   return result;
 };
@@ -85,13 +111,13 @@ const isNumberNorthAmerican = (phoneNumber: string) => {
 export const prepareMessage = async ({
   shortMessage,
   to,
-  integrations
+  integrations,
 }: IMessageParams): Promise<ITelnyxMessageParams> => {
   // const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
   const { content, from, fromIntegrationId } = shortMessage;
 
   const integration = integrations.find(
-    i => i.erxesApiId === fromIntegrationId
+    (i) => i.erxesApiId === fromIntegrationId,
   );
 
   if (!integration || !integration.telnyxPhoneNumber) {
@@ -123,14 +149,14 @@ export const handleMessageCallback = async (
   models: IModels,
   err: any,
   res: any,
-  data: ICallbackParams
+  data: ICallbackParams,
 ) => {
   const { engageMessageId, msg } = data;
 
   const request = await models.SmsRequests.createRequest({
     engageMessageId,
     to: msg.to,
-    requestData: JSON.stringify(msg)
+    requestData: JSON.stringify(msg),
   });
 
   if (err) {
@@ -138,31 +164,31 @@ export const handleMessageCallback = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `${err.message} "${msg.to}"`
+        `${err.message} "${msg.to}"`,
       );
     }
 
     await models.SmsRequests.updateRequest(request._id, {
       errorMessages: [err.message],
-      status: 'error'
+      status: 'error',
     });
   }
 
   if (res && res.data && res.data.to) {
-    const receiver = res.data.to.find(item => item.phone_number === msg.to);
+    const receiver = res.data.to.find((item) => item.phone_number === msg.to);
 
     if (engageMessageId) {
       await models.Logs.createLog(
         engageMessageId,
         'success',
-        `Message successfully sent to "${msg.to}"`
+        `Message successfully sent to "${msg.to}"`,
       );
     }
 
     await models.SmsRequests.updateRequest(request._id, {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
-      telnyxId: res.data.id
+      telnyxId: res.data.id,
     });
   }
 };

@@ -1,11 +1,8 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'meetings',
@@ -25,11 +22,6 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

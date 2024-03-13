@@ -12,7 +12,7 @@ import {
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   sendContactsMessage,
   sendIntegrationsMessage,
@@ -513,7 +513,7 @@ const integrationMutations = {
       }
     } catch (e) {
       if (e.message !== 'Integration not found') {
-        debug.error(e);
+        debugError(e);
         throw e;
       }
     }
@@ -555,7 +555,7 @@ const integrationMutations = {
 
       return 'success';
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
   },
@@ -582,7 +582,7 @@ const integrationMutations = {
 
       return response;
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       throw e;
     }
   },

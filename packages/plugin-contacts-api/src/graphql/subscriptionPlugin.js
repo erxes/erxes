@@ -1,7 +1,7 @@
-var { withFilter } = require("graphql-subscriptions");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "contacts",
+  name: 'contacts',
   typeDefs: `
       customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
 		`,
@@ -11,14 +11,9 @@ module.exports = {
        * Listen for customer connection
        */
       customerConnectionChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('customerConnectionChanged'),
-          // filter by customerId
-          (payload, variables) => {
-            return payload.customerConnectionChanged._id === variables._id;
-          }
-        )
-      }
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`customerConnectionChanged:${_id}`),
+      },
     };
   },
 };

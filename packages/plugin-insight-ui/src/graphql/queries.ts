@@ -443,6 +443,7 @@ const tags = `
     tags(type: $type, perPage: $perPage) {
       _id
       name
+      parentId
       colorCode
     }
   }
@@ -462,8 +463,8 @@ const boards = `
   }
 `;
 const stages = `
-  query stages($pipelineId: String!, $isAll: Boolean) {
-    stages(pipelineId: $pipelineId, isAll: $isAll) {
+  query stages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    stages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
       _id
       name
       probability
@@ -496,8 +497,8 @@ const pipelines = `
 `;
 
 const pipelineLabels = `
-  query pipelineLabels($pipelineId: String!) {
-    pipelineLabels(pipelineId: $pipelineId) {
+  query pipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
     }
   }
@@ -674,6 +675,12 @@ const dashboardDetail = `
   }
 `;
 
+const dashboardGetLast = `
+  query dashboardGetLast {
+    dashboardGetLast
+  }
+`;
+
 const sectionList = `
   query sections($type: String) {
     sections(type: $type) {
@@ -685,11 +692,33 @@ const sectionList = `
     }
   }
 `;
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
+
+const tagsGetTypes = `
+  query tagsGetTypes {
+    tagsGetTypes
+  }
+`;
+const assets = `
+  query assets($searchValue: String) {
+    assets(searchValue: $searchValue) {
+      _id,
+      name,
+      code,
+      order
+    }
+  }
+`;
 
 export default {
   //dashboard
   dashboardList,
   dashboardDetail,
+  dashboardGetLast,
 
   //section
   sectionList,
@@ -714,7 +743,7 @@ export default {
   integrations,
 
   tags,
-
+  assets,
   boards,
   stages,
   pipelines,
@@ -730,4 +759,6 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
+  fieldsGetTypes,
+  tagsGetTypes,
 };

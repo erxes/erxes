@@ -217,6 +217,23 @@ export const queries = `
 `;
 
 export const mutations = `
+  integrationsCreateMessengerOnboarding(
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+    
+    
+  integrationsEditMessengerOnboarding(
+    _id: String!,
+    brandId: String!,
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+ 
   integrationsCreateMessengerIntegration(
     name: String!,
     brandId: String!,

@@ -7,7 +7,7 @@ import {
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

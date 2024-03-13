@@ -12,7 +12,7 @@ import {
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'imap:createIntegration',
     async ({ subdomain, data: { doc, integrationId } }) => {

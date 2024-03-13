@@ -31,6 +31,7 @@ export const types = `
     summary: String
     content: String
     status: String
+    isPrivate: Boolean
     reactionChoices: [String]
     reactionCounts: JSON
     createdBy: String
@@ -52,6 +53,7 @@ export const types = `
     summary: String
     content: String!
     status: String!
+    isPrivate: Boolean
     reactionChoices: [String]
     categoryIds: [String]
     topicId: String

@@ -1,9 +1,9 @@
-var { withFilter } = require("graphql-subscriptions");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "notifications",
+  name: 'notifications',
   typeDefs: `
-        notificationInserted(userId: String): Notification
+        notificationInserted(subdomain: String!, userId: String): Notification
         notificationRead(userId: String): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -14,7 +14,7 @@ module.exports = {
       notificationInserted: {
         resolve(
           payload,
-          _args,
+          _params,
           { dataSources: { gatewayDataSource } },
           info
         ) {
@@ -31,22 +31,14 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('notificationInserted'),
-          (payload, variables) => {
-            return payload.notificationInserted.userId === variables.userId;
-          }
-        )
+        subscribe: (_, { userId, subdomain }) =>
+          graphqlPubsub.asyncIterator(`notificationInserted:${subdomain}:${userId}`),
       },
-    
+
       notificationRead: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('notificationRead'),
-          (payload, variables) => {
-            return payload.notificationRead.userId === variables.userId;
-          }
-        )
-      }
+        subscribe: (_, { userId }) =>
+          graphqlPubsub.asyncIterator(`notificationRead:${userId}`),
+      },
     };
   },
 };

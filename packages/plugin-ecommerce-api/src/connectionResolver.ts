@@ -21,21 +21,19 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.ProductReview = db.model<IProductreviewDocument, IProductReviewModel>(
     'ecommerce_productreview',
-    loadProductReviewClass(models, subdomain)
+    loadProductReviewClass(models, subdomain),
   );
   models.Wishlist = db.model<IWishlistDocument, IWishlistModel>(
     'ecommerce_wishlist',
-    loadWishlistClass(models, subdomain)
+    loadWishlistClass(models, subdomain),
   );
   models.LastViewedItem = db.model<
     ILastViewedItemDocument,
@@ -45,7 +43,4 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

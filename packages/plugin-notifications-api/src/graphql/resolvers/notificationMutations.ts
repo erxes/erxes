@@ -26,7 +26,7 @@ const notificationMutations = {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
 
-    graphqlPubsub.publish('notificationRead', {
+    graphqlPubsub.publish(`notificationRead:${user._id}`, {
       notificationRead: { userId: user._id },
     });
 

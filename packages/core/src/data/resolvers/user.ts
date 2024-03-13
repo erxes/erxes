@@ -191,6 +191,10 @@ export default {
     return models.Branches.find({ _id: { $in: user.branchIds } });
   },
 
+  async positions(user: IUserDocument, _args, { models }: IContext) {
+    return models.Positions.find({ _id: { $in: user.positionIds } });
+  },
+
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
     return (
       (await models.Users.find({

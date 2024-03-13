@@ -3,11 +3,14 @@ import React, { useEffect } from 'react';
 import { queries } from '../graphql';
 import { gql, useLazyQuery } from '@apollo/client';
 
-import { Spinner } from '@erxes/ui/src/components';
 import Contact from '../components/Contact';
 
-const ContactsContainer = () => {
+type Props = {
+  changeMainTab: (phoneNumber: string, shiftTab: string) => void;
+};
+const ContactsContainer = (props: Props) => {
   let customers;
+  const { changeMainTab } = props;
 
   useEffect(() => {
     searchCustomer('');
@@ -21,8 +24,8 @@ const ContactsContainer = () => {
         searchValue: searchValue || '',
         type: 'lead',
         sortField: 'createdAt',
-        sortDirection: -1
-      }
+        sortDirection: -1,
+      },
     });
   };
 
@@ -33,6 +36,7 @@ const ContactsContainer = () => {
       history={history}
       customers={customers}
       searchCustomer={searchCustomer}
+      changeMainTab={changeMainTab}
     />
   );
 };

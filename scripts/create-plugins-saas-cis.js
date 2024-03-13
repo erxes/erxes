@@ -109,6 +109,10 @@ var main = async () => {
         uiConfigs.layout.url = url;
       }
 
+      if (uiConfigs.innerWidget) {
+        uiConfigs.innerWidget.url = url;
+      }
+
       pluginsMap[plugin.name] = {
         ui: uiConfigs,
       };
@@ -165,13 +169,6 @@ var main = async () => {
   if (dups.length) {
     console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
   }
-
-  fs.writeFileSync(
-    filePath('./scripts/pluginsMap.js'),
-    `
-    module.exports = ${JSON.stringify(pluginsMap)}
-  `
-  );
 
   fs.writeFileSync(
     filePath('./scripts/ownCloud/core-ui/plugins.js'),

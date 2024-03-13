@@ -73,7 +73,8 @@ var plugins = [
   { name: 'zms', api: true, ui: true },
   { name: 'syncpolaris', api: true, ui: true },
   { name: 'reports', api: true, ui: true },
-  { name: 'instagram', api: true, ui: true }
+  { name: 'instagram', api: true, ui: true },
+  { name: 'insight', api: true, ui: true },
 ];
 
 const pluginsMap = {};
@@ -100,9 +101,9 @@ var main = async () => {
         uiContent
       );
 
-      const uiConfigs = require(filePath(
-        `./packages/plugin-${plugin.name}-ui/src/configs.js`
-      ));
+      const uiConfigs = require(
+        filePath(`./packages/plugin-${plugin.name}-ui/src/configs.js`)
+      );
 
       delete uiConfigs.port;
 
@@ -117,8 +118,12 @@ var main = async () => {
         uiConfigs.layout.url = url;
       }
 
+      if (uiConfigs.innerWidget) {
+        uiConfigs.innerWidget.url = url;
+      }
+
       pluginsMap[plugin.name] = {
-        ui: uiConfigs
+        ui: uiConfigs,
       };
     }
 
@@ -135,17 +140,17 @@ var main = async () => {
       let essyncer;
 
       try {
-        permissions = require(filePath(
-          `./packages/plugin-${plugin.name}-api/src/permissions.js`
-        ));
+        permissions = require(
+          filePath(`./packages/plugin-${plugin.name}-api/src/permissions.js`)
+        );
       } catch (e) {
         console.log(`no permissions file found for ${plugin.name}`);
       }
 
       try {
-        essyncer = require(filePath(
-          `./packages/plugin-${plugin.name}-api/src/essyncer.js`
-        ));
+        essyncer = require(
+          filePath(`./packages/plugin-${plugin.name}-api/src/essyncer.js`)
+        );
       } catch (e) {
         console.log(`no essyncer file found for ${plugin.name}`);
       }

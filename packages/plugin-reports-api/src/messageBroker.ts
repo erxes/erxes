@@ -6,7 +6,7 @@ import {
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   // consumeQueue('reports:send', async ({ data }) => {
   //   Reportss.send(data);
   //   return {
@@ -19,6 +19,15 @@ export const initBroker = async () => {
 
     return {
       data: await models.Reports.find(data).lean(),
+      status: 'success',
+    };
+  });
+
+  consumeRPCQueue('reports:findLast', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Reports.findOne(data).sort({ createdAt: -1 }),
       status: 'success',
     };
   });

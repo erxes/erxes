@@ -6,37 +6,37 @@ import { sendCommonMessage, sendFormsMessage } from '../messageBroker';
 import {
   getFilterTagIds,
   validRiskIndicators,
-  validateCalculateMethods
+  validateCalculateMethods,
 } from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
 import {
   IIndicatorsGroupsDocument,
   IRiskIndicatorsDocument,
   riskIndicatorGroupSchema,
-  riskIndicatorSchema
+  riskIndicatorSchema,
 } from './definitions/indicator';
 
 export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   riskIndicators(
-    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorsTotalCount(
-    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorDetail(params: {
     _id: string;
     fieldsSkip: any;
   }): Promise<IRiskIndicatorsDocument>;
   riskIndicatorAdd(
-    params: IRiskIndicatorsField
+    params: IRiskIndicatorsField,
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorRemove(_ids: string[]): void;
   riskIndicatorUpdate(
     _id?: string,
-    doc?: IRiskIndicatorsField
+    doc?: IRiskIndicatorsField,
   ): Promise<IRiskIndicatorsDocument>;
   removeRiskIndicatorUnusedForms(
-    ids: string[]
+    ids: string[],
   ): Promise<IRiskIndicatorsDocument>;
   duplicateRiskIndicator(indicatorId: string): Promise<IRiskIndicatorsDocument>;
 }
@@ -48,7 +48,7 @@ const statusColors = {
   Danger: '#ff6600',
   Success: '#3ccc38',
   In_Progress: '#3B85F4',
-  No_Result: '#888'
+  No_Result: '#888',
 };
 
 const generateIds = async ({
@@ -56,7 +56,7 @@ const generateIds = async ({
   useSendMessage,
   params,
   serviceName,
-  action
+  action,
 }) => {
   if (useSendMessage) {
     const items = await sendCommonMessage({
@@ -65,10 +65,10 @@ const generateIds = async ({
       action,
       data: params,
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    return { $in: items.map(item => item._id) };
+    return { $in: items.map((item) => item._id) };
   }
 
   return params;
@@ -85,7 +85,7 @@ const generateFilter = async (
     operationId?: string;
     withChilds?: boolean;
   } & IRiskIndicatorsField &
-    PaginateField
+    PaginateField,
 ) => {
   let filter: any = {};
 
@@ -120,7 +120,7 @@ const generateFilter = async (
     }
     filter.createdAt = {
       ...filter.createdAt,
-      $lte: new Date(params.sortToDate)
+      $lte: new Date(params.sortToDate),
     };
   }
 
@@ -167,7 +167,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
-        PaginateField
+        PaginateField,
     ) {
       const filter = await generateFilter(subdomain, params);
       const sort = generateOrderFilters(params);
@@ -178,7 +178,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
-        PaginateField
+        PaginateField,
     ) {
       const filter = await generateFilter(subdomain, params);
       return await models.RiskIndicators.find(filter).countDocuments();
@@ -186,7 +186,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async riskIndicatorAdd(params: IRiskIndicatorsField) {
       try {
-        await validRiskIndicators(params);
+        await validRiskIndicators(models, params);
       } catch (e) {
         throw new Error(e.message);
       }
@@ -207,7 +207,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async riskIndicatorUpdate(
       _id: string,
-      doc: IRiskIndicatorsField
+      doc: IRiskIndicatorsField,
     ) {
       if (!_id && !doc) {
         throw new Error('Not found risk assessment');
@@ -216,7 +216,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
       try {
         return await models.RiskIndicators.findByIdAndUpdate(_id, {
           ...doc,
-          modifiedAt: new Date()
+          modifiedAt: new Date(),
         });
       } catch (e) {
         throw new Error('Something went wrong');
@@ -225,7 +225,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
 
     public static async duplicateRiskIndicator(indicatorId: string) {
       const indicator = await models.RiskIndicators.findOne({
-        _id: indicatorId
+        _id: indicatorId,
       }).lean();
       if (!indicator) {
         throw new Error('Could not find indicator');
@@ -234,17 +234,17 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
       const { _id, name, forms, ...indicatorDoc } = indicator;
 
       const newForms = await Promise.all(
-        forms.map(async form => {
+        forms.map(async (form) => {
           const newForm = await sendFormsMessage({
             subdomain,
             action: 'duplicate',
             data: { formId: form.formId },
             isRPC: true,
-            defaultValue: null
+            defaultValue: null,
           });
 
           return { ...form, formId: newForm._id };
-        })
+        }),
       );
 
       return await models.RiskIndicators.create({
@@ -252,7 +252,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
         name: `${name}-copied`,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        forms: newForms
+        forms: newForms,
       });
     }
     public static async riskIndicatorDetail(params: {
@@ -275,7 +275,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
           action: 'removeForm',
           data: { $in: ids },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         });
         return { status: 'removed' };
       } catch (error) {
@@ -309,7 +309,7 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       await this.validateIndicatorsGroups(doc);
       return await models.IndicatorsGroups.updateOne(
         { _id },
-        { $set: { ...doc, modifiedAt: new Date() } }
+        { $set: { ...doc, modifiedAt: new Date() } },
       );
     }
     public static async removeGroups(ids: string[]) {

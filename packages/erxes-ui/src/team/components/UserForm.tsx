@@ -20,6 +20,8 @@ type Props = {
   selectedBrandIds: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
+  history?: any;
+  queryParams?: any;
 } & ICommonFormProps;
 
 type State = {
@@ -43,30 +45,30 @@ class UserForm extends React.Component<Props, State> {
           : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrandIds: props.selectedBrandIds
+      selectedBrandIds: props.selectedBrandIds,
     };
   }
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
-  generateParams = options => {
-    return options.map(option => ({
+  generateParams = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.name
+      label: option.name,
     }));
   };
 
-  collectValues = items => {
-    return items.map(item => (typeof item === 'string' ? item : item.value));
+  collectValues = (items) => {
+    return items.map((item) => (typeof item === 'string' ? item : item.value));
   };
 
   renderGroups() {
     const self = this;
     const { groups } = this.props;
 
-    const onChange = selectedGroups => {
+    const onChange = (selectedGroups) => {
       this.setState({ selectedGroups });
     };
 
@@ -94,7 +96,7 @@ class UserForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = selectedBrandIds => {
+    const onChange = (selectedBrandIds) => {
       this.setState({ selectedBrandIds });
     };
 
@@ -118,7 +120,7 @@ class UserForm extends React.Component<Props, State> {
     const self = this;
     const { channels } = this.props;
 
-    const onChange = selectedChannels => {
+    const onChange = (selectedChannels) => {
       self.setState({ selectedChannels });
     };
 
@@ -149,7 +151,7 @@ class UserForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -157,6 +159,7 @@ class UserForm extends React.Component<Props, State> {
       _id: finalValues._id,
       username: finalValues.username,
       email: finalValues.email,
+      positionIds: this.props.queryParams?.positionIds,
       details: {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
@@ -168,13 +171,13 @@ class UserForm extends React.Component<Props, State> {
         operatorPhone: finalValues.operatorPhone,
         firstName: finalValues.firstName,
         lastName: finalValues.lastName,
-        middleName: finalValues.middleName
+        middleName: finalValues.middleName,
       },
       channelIds: this.collectValues(selectedChannels),
       links,
       groupIds: this.collectValues(selectedGroups),
       brandIds: selectedBrandIds,
-      employeeId: finalValues.employeeId
+      employeeId: finalValues.employeeId,
     };
   };
 
@@ -187,6 +190,7 @@ class UserForm extends React.Component<Props, State> {
         <UserCommonInfos
           user={user}
           onAvatarUpload={this.onAvatarUpload}
+          history={this.props.history}
           formProps={formProps}
         />
 

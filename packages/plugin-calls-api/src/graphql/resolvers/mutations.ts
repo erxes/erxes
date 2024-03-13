@@ -4,9 +4,13 @@ import { IContext, IModels } from '../../connectionResolver';
 import receiveCall from '../../receiveCall';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { ICallHistory } from '../../models/definitions/callHistories';
 
 export interface ISession {
   sessionCode: string;
+}
+interface ICallHistoryEdit extends ICallHistory {
+  _id: string;
 }
 
 const callsMutations = {
@@ -21,8 +25,8 @@ const callsMutations = {
     return integration;
   },
 
-  async callAddCustomer(_root, args, { models, subdomain }: IContext) {
-    const customer = await receiveCall(models, subdomain, args);
+  async callAddCustomer(_root, args, { models, subdomain, user }: IContext) {
+    const customer = await receiveCall(models, subdomain, args, user);
     let conversation;
     if (args.callID) {
       conversation = await models.Conversations.findOne({
@@ -65,27 +69,78 @@ const callsMutations = {
     });
   },
 
-  async callTerminateSession(_root, {}, { models, user }: IContext) {
+  async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
 
-    graphqlPubsub.publish('sessionTerminateRequested', {
-      userId: user._id,
-    });
+    graphqlPubsub.publish(
+      `sessionTerminateRequested:${subdomain}:${user._id}`,
+      {
+        userId: user._id,
+      },
+    );
     return user._id;
   },
 
-  async callDisconnect(_root, {}, { models, user }: IContext) {
+  async callDisconnect(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
 
-    graphqlPubsub.publish('sessionTerminateRequested', {
-      userId: user._id,
-    });
+    graphqlPubsub.publish(
+      `sessionTerminateRequested:${subdomain}:${user._id}`,
+      {
+        userId: user._id,
+      },
+    );
 
     return 'disconnected';
+  },
+
+  async callHistoryAdd(
+    _root,
+    doc: ICallHistory,
+    { user, docModifier, models, subdomain }: IContext,
+  ) {
+    const history = await models.CallHistory.create({
+      ...docModifier({ ...doc }),
+      createdAt: new Date(),
+      createdBy: user._id,
+      updatedBy: user._id,
+    });
+
+    return models.CallHistory.getCallHistory(history.sessionId);
+  },
+
+  /**
+   * Updates a history
+   */
+  async callHistoryEdit(
+    _root,
+    { ...doc }: ICallHistoryEdit,
+    { user, models }: IContext,
+  ) {
+    await models.CallHistory.updateOne(
+      { sessionId: doc.sessionId },
+      { $set: { ...doc, updatedAt: new Date(), updatedBy: user._id } },
+    );
+
+    return models.CallHistory.getCallHistory(doc.sessionId);
+  },
+
+  async callHistoryRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    const history = await models.CallHistory.findOne({ _id });
+
+    if (!history) {
+      throw new Error(`Call history not found with id ${_id}`);
+    }
+
+    return history.remove();
   },
 };
 

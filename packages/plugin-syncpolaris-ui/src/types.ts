@@ -46,3 +46,13 @@ export type SyncHistoriesCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type ToCheckMutationResponse = {
+  toCheck: (mutation: { variables: { type: string } }) => Promise<any>;
+};
+
+export type ToSyncMutationResponse = {
+  toSync: (mutation: {
+    variables: { type: string; items: any[] };
+  }) => Promise<any>;
+};

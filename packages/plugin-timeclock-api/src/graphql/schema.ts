@@ -184,8 +184,9 @@ export const types = `
     absenceInfo: IUserAbsenceInfo
 
     scheduledShifts: [Shift]
+    schedules: [Schedule]
     timeclocks: [Timeclock]
-    requests: [Absence]
+    requests: [JSON]
 
     totalHoursWorkedSelectedDay: Float
     totalHoursScheduledSelectedDay: Float
@@ -298,6 +299,11 @@ export const types = `
     list: [DeviceConfig]
     totalCount: Float
   }
+
+  type TimeclockReportByUsersListResponse {
+    list: [UserReport]
+    totalCount: Int
+  }
 `;
 
 const timeclockParams = `
@@ -382,7 +388,7 @@ export const queries = `
   absenceTypes:[AbsenceType]
   
   timeclockReports(${queryParams}): TimeclockReportsListResponse
-
+  timeclockReportByUsers(${queryParams}):TimeclockReportByUsersListResponse
   
   timeclockReportByUser(selectedUser: String, selectedMonth: String, selectedYear: String, selectedDate:String): UserReport
   

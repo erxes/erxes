@@ -35,9 +35,9 @@ const SectionQueries = {
     params,
     { commonQuerySelector, models }: IContext,
   ) => {
-    return models.Sections.find(
-      await generateFilter(params, commonQuerySelector),
-    );
+    const filter = await generateFilter(params, commonQuerySelector);
+
+    return models.Sections.find(filter).sort({ createdAt: -1 });
   },
 };
 

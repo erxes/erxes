@@ -7,7 +7,7 @@ const notificationQueries = {
   async clientPortalNotificationCount(
     _root,
     { all }: { all: boolean },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -15,7 +15,7 @@ const notificationQueries = {
 
     const qry: { receiver: string; isRead?: boolean } = {
       receiver: cpUser._id,
-      isRead: false
+      isRead: false,
     };
 
     if (all) {
@@ -35,16 +35,16 @@ const notificationQueries = {
       search,
       startDate,
       endDate,
-      eventDataFilter
+      eventDataFilter,
     },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
     const query: any = {
-      receiver: cpUser._id
+      receiver: cpUser._id,
     };
 
     if (requireRead) {
@@ -61,13 +61,13 @@ const notificationQueries = {
 
     if (startDate) {
       query.createdAt = {
-        $gte: new Date(startDate)
+        $gte: new Date(startDate),
       };
     }
 
     if (endDate) {
       query.createdAt = {
-        $lte: new Date(endDate)
+        $lte: new Date(endDate),
       };
     }
 
@@ -80,15 +80,15 @@ const notificationQueries = {
       models.ClientPortalNotifications.find(query).sort({ createdAt: -1 }),
       {
         page,
-        perPage
-      }
+        perPage,
+      },
     );
   },
 
   async clientPortalNotificationDetail(
     _root,
     { _id },
-    { models, cpUser }: IContext
+    { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -96,7 +96,7 @@ const notificationQueries = {
 
     const notification = await models.ClientPortalNotifications.findOne({
       _id,
-      receiver: cpUser._id
+      receiver: cpUser._id,
     });
 
     if (!notification) {
@@ -104,7 +104,7 @@ const notificationQueries = {
     }
 
     return notification;
-  }
+  },
 };
 
 export default notificationQueries;
