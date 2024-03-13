@@ -1,3 +1,10 @@
+### [1.6.3-rc.2](https://github.com/erxes/erxes/compare/1.6.3-rc.1...1.6.3-rc.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix time clock list ui  ([67196c9](https://github.com/erxes/erxes/commit/67196c9efe1f10ed7c60c2d3bea98619d54083fe))
+
 ### [1.6.3-rc.1](https://github.com/erxes/erxes/compare/1.6.3-rc.0...1.6.3-rc.1) (2024-03-07)
 
 
