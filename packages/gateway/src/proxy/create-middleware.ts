@@ -49,7 +49,6 @@ export async function applyProxies(app: Express, targets: ErxesProxyTarget[]) {
     createProxyMiddleware({
       router,
       pathRewrite,
-      ws: true,
       onProxyReq,
       logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
     }),
