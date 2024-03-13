@@ -14,19 +14,20 @@ export default function getSubdomain(headers: IncomingHttpHeaders): string {
     }
   }
 
-  const hostname = nginxHostname || headers.host;
+  const host = nginxHostname || headers.host;
 
-  if (!hostname) {
+  if (!host) {
     console.error('getSubdomain: Unable to find hostname');
     throw new Error('getSubdomain: Unable to find hostname');
   }
 
-  // remove from last : character to EOL
-  const withoutPort = hostname.replace(/:(?!.*?:)\d+$/, '');
+  // 1. remove http:// etc,
+  // 2. remove from last : character to EOL
+  const hostname = host
+    .replace(/(^\w+:|^)\/\//, '')
+    .replace(/:(?!.*?:)\d+$/, '');
 
-  const subdomain = (
-    !isIP(withoutPort) ? withoutPort.split('.') : [withoutPort]
-  )[0];
+  const subdomain = (!isIP(hostname) ? hostname.split('.') : [hostname])[0];
 
   return subdomain;
 }
