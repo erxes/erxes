@@ -150,6 +150,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     '/graphql',
     expressMiddleware(apolloServer, {
       context: async ({ req, res }) => {
+        if (
+          req.body.operationName === 'IntrospectionQuery' ||
+          req.body.operationName === 'SubgraphIntrospectQuery'
+        ) {
+          return {};
+        }
         let user: any = null;
 
         if (req.headers.user) {

@@ -200,7 +200,7 @@ const LeftSideBar = (props: Props) => {
           <DateControl
             required={false}
             value={startDate}
-            name='startDate'
+            name="startDate"
             placeholder={'Starting date'}
             dateFormat={'YYYY-MM-DD'}
             onChange={onStartDateChange}
@@ -208,7 +208,7 @@ const LeftSideBar = (props: Props) => {
           <DateControl
             required={false}
             value={endDate}
-            name='endDate'
+            name="endDate"
             placeholder={'Ending date'}
             dateFormat={'YYYY-MM-DD'}
             onChange={onEndDateChange}
@@ -264,7 +264,7 @@ const LeftSideBar = (props: Props) => {
   const renderDateFilterMenu = () => {
     return (
       <Trigger
-        type='trigger'
+        type="trigger"
         isHoverActionBar={isHovered}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -274,7 +274,8 @@ const LeftSideBar = (props: Props) => {
             <div
               key={d.value}
               className={d.value === currentDateOption ? 'active' : 'passive'}
-              onClick={() => onDateButtonClick(d.value)}>
+              onClick={() => onDateButtonClick(d.value)}
+            >
               {d.label}
             </div>
           );
@@ -292,7 +293,7 @@ const LeftSideBar = (props: Props) => {
           <Select
             value={selectedDepartments}
             onChange={onDepartmentSelect}
-            placeholder='Select departments'
+            placeholder="Select departments"
             multi={true}
             options={departments && renderDepartmentOptions(departments)}
           />
@@ -302,7 +303,7 @@ const LeftSideBar = (props: Props) => {
           <Select
             value={selectedBranches}
             onChange={onBranchSelect}
-            placeholder='Select branches'
+            placeholder="Select branches"
             multi={true}
             options={branches && renderBranchOptions(branches)}
           />
@@ -311,9 +312,9 @@ const LeftSideBar = (props: Props) => {
           <ControlLabel>Team members</ControlLabel>
           <SelectTeamMembers
             initialValue={currUserIds}
-            customField='employeeId'
-            label='Select team member'
-            name='userIds'
+            customField="employeeId"
+            label="Select team member"
+            name="userIds"
             customOption={prepareCurrentUserOption(currentUser)}
             filterParams={filterParams}
             queryParams={queryParams}
@@ -321,7 +322,7 @@ const LeftSideBar = (props: Props) => {
           />
         </div>
 
-        <Button btnStyle='warning' onClick={cleanFilter}>
+        <Button btnStyle="warning" onClick={cleanFilter}>
           Clear filter
         </Button>
       </FlexColumnCustom>
