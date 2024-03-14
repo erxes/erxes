@@ -12,7 +12,7 @@ import {
 } from './redis';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
-import { applyProxies } from './proxy/create-middleware';
+import { applyProxies } from './proxy/middleware';
 import { startRouter, stopRouter } from './apollo-router';
 import {
   startSubscriptionServer,
@@ -52,9 +52,13 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 
   await startRouter(targets);
 
-  await applyProxies(app, targets);
+  const proxy = await applyProxies(app, targets);
 
   const httpServer = http.createServer(app);
+
+  if (proxy.upgrade) {
+    httpServer.on('upgrade', proxy.upgrade);
+  }
 
   httpServer.on('close', () => {
     try {

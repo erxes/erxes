@@ -62,7 +62,7 @@ async function ensureGraphqlEndpointIsUp({
           `,
     }),
   });
-  if (res.status === 200) {
+  if (res.ok) {
     return;
   }
 
