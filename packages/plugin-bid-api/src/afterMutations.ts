@@ -27,24 +27,24 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
 
     if (action === 'update') {
-      const configs = await sendCommonMessage({
-        subdomain,
-        serviceName: 'core',
-        action: 'configs.findOne',
-        data: {
-          query: {
-            code: 'POLARIS_API_URL',
-          },
-        },
-        isRPC: true,
-        defaultValue: null,
-      });
+      // const configs = await sendCommonMessage({
+      //   subdomain,
+      //   serviceName: 'core',
+      //   action: 'configs.findOne',
+      //   data: {
+      //     query: {
+      //       code: 'POLARIS_API_URL',
+      //     },
+      //   },
+      //   isRPC: true,
+      //   defaultValue: null,
+      // });
 
-      if (!configs) {
-        return;
-      }
+      // if (!configs) {
+      //   return;
+      // }
 
-      const url = `${configs.value}/user/update`;
+      const url = 'https://crm-api.bid.mn/api/v1/user/update';
 
       const polarisData = await Polarissyncs.findOne({
         customerId: params.object._id,

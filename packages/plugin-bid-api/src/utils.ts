@@ -49,22 +49,22 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     throw new Error('Customer not found');
   }
 
-  const configs = await sendCommonMessage({
-    subdomain,
-    serviceName: 'core',
-    action: 'configs.findOne',
-    data: {
-      query: {
-        code: 'POLARIS_API_URL',
-      },
-    },
-    isRPC: true,
-    defaultValue: null,
-  });
+  // const configs = await sendCommonMessage({
+  //   subdomain,
+  //   serviceName: 'core',
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'POLARIS_API_URL',
+  //     },
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null,
+  // });
 
-  if (!configs) {
-    throw new Error('Config not found');
-  }
+  // if (!configs) {
+  //   throw new Error('Config not found');
+  // }
 
   const body: any = {
     customer_code: '',
@@ -87,7 +87,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   }
 
   try {
-    const url = `${configs.value}/user/info`;
+    const url = 'https://crm-api.bid.mn/api/v1/user/info';
 
     const response = await fetch(url, {
       method: 'POST',
@@ -257,22 +257,22 @@ export const addCustomer = async (req, res, subdomain) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const configs = await sendCommonMessage({
-    subdomain,
-    serviceName: 'core',
-    action: 'configs.findOne',
-    data: {
-      query: {
-        code: 'POLARIS_API_URL',
-      },
-    },
-    isRPC: true,
-    defaultValue: null,
-  });
+  // const configs = await sendCommonMessage({
+  //   subdomain,
+  //   serviceName: 'core',
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'POLARIS_API_URL',
+  //     },
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null,
+  // });
 
-  if (!configs) {
-    return res.status(200).json({ error: 'Config not found' });
-  }
+  // if (!configs) {
+  //   return res.status(200).json({ error: 'Config not found' });
+  // }
 
   const body: any = {
     customer_code: '',
@@ -293,7 +293,7 @@ export const addCustomer = async (req, res, subdomain) => {
   }
 
   try {
-    const url = `${configs.value}/user/info`;
+    const url = 'https://crm-api.bid.mn/api/v1/user/info';
 
     const response = await fetch(url, {
       method: 'POST',
