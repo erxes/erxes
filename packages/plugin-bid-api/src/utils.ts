@@ -97,6 +97,8 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       body: JSON.stringify(body),
     });
 
+    console.error("STATUS CODE", response.status);
+
     if (response.status !== 200) {
       throw new Error('Failed to fetch data');
     }
