@@ -2,10 +2,6 @@ import { IncomingHttpHeaders } from 'http';
 
 export const userHeaderName = 'erxes-user';
 
-export function deleteUserHeader(headers: IncomingHttpHeaders) {
-  delete headers[userHeaderName];
-}
-
 export function extractUserFromHeader(headers: IncomingHttpHeaders): any {
   const userHeader = headers[userHeaderName];
   if (!userHeader) {
@@ -24,4 +20,5 @@ export function setUserHeader(headers: IncomingHttpHeaders, user: any) {
   const userJson = JSON.stringify(user);
   const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
   headers[userHeaderName] = userJsonBase64;
+  headers['userid'] = user._id || '';
 }

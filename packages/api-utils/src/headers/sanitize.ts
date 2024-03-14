@@ -3,4 +3,5 @@ import { userHeaderName } from './user';
 
 export function sanitizeHeaders(headers: IncomingHttpHeaders) {
   delete headers[userHeaderName];
+  delete headers['userid'];
 }
