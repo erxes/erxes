@@ -99,7 +99,7 @@ export const validateOrder = async (
 ) => {
   const { items = [] } = doc;
 
-  if (items.filter(i => !i.isPackage).length < 1) {
+  if (!items.filter(i => !i.isPackage).length) {
     throw new Error('Products missing in order. Please add products');
   }
 
@@ -127,7 +127,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      p => (p.isCheckRems || {})[config.token] || false
+      p => (p.isCheckRems || {})[config.token || ''] || false
     );
 
     if (checkProducts.length) {
