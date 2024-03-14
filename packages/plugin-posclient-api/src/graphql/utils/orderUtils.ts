@@ -657,15 +657,16 @@ export const prepareOrderDoc = async (
     }).lean();
 
     if (deliveryProd) {
+      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
         count: 1,
-        unitPrice: (deliveryProd.prices || {})[config.token] || 0,
+        unitPrice: deliveryUnitPrice,
         isPackage: true,
         isTake: true
       });
-      doc.totalAmount += deliveryProd.unitPrice;
+      doc.totalAmount += deliveryUnitPrice;
     }
   }
 
