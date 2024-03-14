@@ -71,7 +71,7 @@ const Form = (props: Props) => {
       assignedUserIds: userIds,
       assignedDepartmentIds: departmentIds,
       charts: Array.from([...new Set(templateCharts)]),
-      reportTemplateType: serviceType,
+      serviceType,
       serviceName,
     });
   };

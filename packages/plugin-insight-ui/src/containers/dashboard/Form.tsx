@@ -13,7 +13,7 @@ import {
   DashboardDetailQueryResponse,
   DashboardEditMutationResponse,
   DashboardFormMutationVariables,
-  ReportTemplatesListQueryResponse,
+  InsightTemplatesListQueryResponse,
 } from '../../types';
 
 type Props = {
@@ -36,8 +36,8 @@ const FormContainer = (props: Props) => {
     },
   );
 
-  const reportTemplatesListQuery = useQuery<ReportTemplatesListQueryResponse>(
-    gql(queries.reportTemplatesList),
+  const reportTemplatesListQuery = useQuery<InsightTemplatesListQueryResponse>(
+    gql(queries.insightTemplatesList),
   );
 
   const [dashboardAddMutation] = useMutation(gql(mutations.dashboardAdd), {
@@ -109,7 +109,7 @@ const FormContainer = (props: Props) => {
   const dashboard = dashboardDetailQuery?.data?.dashboardDetail;
   const loading = dashboardDetailQuery.loading;
   const reportTemplates =
-    reportTemplatesListQuery?.data?.reportTemplatesList || [];
+    reportTemplatesListQuery?.data?.insightTemplatesList || [];
 
   const updatedProps = {
     ...props,

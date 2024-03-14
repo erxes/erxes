@@ -18,6 +18,19 @@ enum IChartType {
   LINE = 'line',
 }
 
+export interface IChartEdit {
+  layout?: string;
+  vizState?: string;
+  name?: string;
+  type?: string;
+}
+
+export interface IChartFilter {
+  fieldName: string;
+  filterValue: string;
+  filterType: IChartFilterType;
+}
+
 export interface IDashboard {
   name: string;
   sectionId: string;
@@ -43,6 +56,33 @@ export interface IDashboardDocument extends IDashboard, Document {
   _id: string;
 }
 
+export interface IReport {
+  name: string;
+  visibility: IVisibilityType;
+  memberIds: string[];
+  tagIds: string[];
+
+  createdAt: Date;
+  createdBy: string;
+
+  updatedAt: Date;
+  updatedBy: string;
+
+  serviceName?: string;
+  serviceType?: string;
+
+  assignedUserIds: string[];
+  assignedDepartmentIds: string[];
+
+  charts?: IChartDocument[];
+
+  sectionId?: string;
+}
+
+export interface IReportDocument extends IReport, Document {
+  _id: string;
+}
+
 export interface ISection {
   name: string;
   type: string;
@@ -60,7 +100,7 @@ export interface ISectionDocument extends ISection, Document {
 
 export interface IChart {
   name: string;
-  dashboardId: string;
+  insightId: string;
   contentType: string;
   templateType: string;
   order: number;
@@ -75,19 +115,6 @@ export interface IChart {
   layout: string;
 }
 
-export interface IChartEdit {
-  layout?: string;
-  vizState?: string;
-  name?: string;
-  type?: string;
-}
-
-export interface IChartFilter {
-  fieldName: string;
-  filterValue: string;
-  filterType: IChartFilterType;
-}
-
 export interface IChartDocument extends IChart, Document {
   _id: string;
 }
@@ -99,7 +126,7 @@ export const dashboardSchema = schemaHooksWrapper(
     sectionId: field({ type: String, label: 'Section id' }),
     visibility: field({
       type: IVisibilityType,
-      label: 'Report visibility',
+      label: 'Dashboard visibility',
     }),
     assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
     assignedDepartmentIds: field({
@@ -130,6 +157,43 @@ export const dashboardSchema = schemaHooksWrapper(
   }),
   'erxes_dashboard',
 );
+
+export const reportSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Report name', index: true }),
+  visibility: field({
+    type: IVisibilityType,
+    label: 'Report visibility',
+  }),
+  assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
+  assignedDepartmentIds: field({
+    type: [String],
+    label: 'Assigned department ids',
+  }),
+  tagIds: field({ type: [String], label: 'Assigned tag ids' }),
+  createdAt: field({
+    default: Date.now(),
+    type: Date,
+    label: 'Created at',
+    index: true,
+  }),
+  serviceName: field({ type: String, label: 'Service name' }),
+  serviceType: field({ type: String, label: 'Service type' }),
+  sectionId: field({ type: String, label: 'Section id' }),
+  createdBy: field({
+    type: String,
+    label: 'Created by user id',
+    index: true,
+  }),
+  updatedAt: field({
+    type: Date,
+    label: 'Last updated at',
+  }),
+  updatedBy: field({
+    type: String,
+    label: 'Last updated by user id',
+  }),
+});
 
 export const sectionSchema = schemaHooksWrapper(
   new Schema({
@@ -163,14 +227,14 @@ export const chartSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Chart name', index: true }),
-    dashboardId: field({
+    insightId: field({
       type: String,
-      label: 'Id of a corresponding dashboard',
+      label: 'Id of a corresponding insight',
       index: true,
     }),
     contentType: field({ type: String, label: 'Content type' }),
     serviceName: field({ type: String, label: 'Service name' }),
-    layout: field({ type: String, label: 'Dashboard item - layout' }),
+    layout: field({ type: String, label: 'Insight item - layout' }),
     vizState: field({ type: String }),
     templateType: field({
       type: String,
@@ -183,5 +247,5 @@ export const chartSchema = schemaHooksWrapper(
     dimension: field({ type: JSON, label: 'Dimension' }),
     defaultFilterId: field({ type: String, label: 'Default filter id' }),
   }),
-  'erxes_dashboard_chart',
+  'erxes_insight_chart',
 );

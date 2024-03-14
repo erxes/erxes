@@ -17,6 +17,8 @@ type Props = {
 const SelectDashboardContainer = (props: Props) => {
   const { queryParams, history, data } = props;
 
+  console.log('data', data)
+
   const sectionsQuery = useQuery<SectionsListQueryResponse>(
     gql(queries.sectionList),
     {

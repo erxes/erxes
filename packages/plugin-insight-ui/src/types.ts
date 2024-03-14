@@ -173,7 +173,7 @@ export interface IReportTemplate {
 
 // queries
 export type ReportsListQueryResponse = {
-  reportsList: {
+  reportList: {
     list: IReport[];
     totalCount: number;
   };
@@ -187,25 +187,25 @@ export type ReportDetailQueryResponse = {
   loading: boolean;
 };
 
-export type ReportTemplatesListQueryResponse = {
-  reportTemplatesList: ReportTemplate[];
+export type InsightTemplatesListQueryResponse = {
+  insightTemplatesList: InsightTemplate[];
   refetch: () => void;
   loading: boolean;
 };
 
-export type reportServicesListQueryResponse = {
-  reportServicesList: string[];
+export type InsightServicesListQueryResponse = {
+  insightServicesList: string[];
   refetch: () => void;
   loading: boolean;
 };
 
 export type ReportFormMutationResponse = {
-  reportsAddMutation: (params: {
+  reportAddMutation: (params: {
     variables: ReportFormMutationVariables;
   }) => Promise<any>;
 };
 
-type ReportTemplate = {
+type InsightTemplate = {
   title: string;
   description: string;
   charts: string[];
@@ -247,19 +247,13 @@ export type ReportMutationVariables = {
   type?: string;
 };
 
-export type ReportsMutationResponse = {
-  reportsRemoveManyMutation: (params: {
+export type ReportMutationResponse = {
+  reporzRemoveManyMutation: (params: {
     variables: { ids: string[] };
   }) => Promise<any>;
 
-  reportsEditMutation: (params: {
+  reportEditMutation: (params: {
     variables: ReportMutationVariables;
-  }) => Promise<any>;
-
-  reportChartsEditMutation: (params: { variables: any }) => Promise<any>;
-
-  reportChartsRemoveMutation: (params: {
-    variables: { _id: string };
   }) => Promise<any>;
 };
 
@@ -324,37 +318,37 @@ export interface IFieldLogic {
 
 //queries
 
-export type ReportChartGetResultQueryResponse = {
-  reportChartGetResult: any;
+export type ChartGetResultQueryResponse = {
+  chartGetResult: any;
   refetch: () => void;
   loading: boolean;
 };
 
-export type ReportChartTemplatesListQueryResponse = {
-  reportChartTemplatesList: any[];
+export type InsightChartTemplatesListQueryResponse = {
+  insightChartTemplatesList: any[];
   refetch: () => void;
   loading: boolean;
 };
 
 // mutations
 
-export type ReportChartFormMutationVariables = {
+export type ChartFormMutationVariables = {
   _id?: string;
   name: string;
-  reportId: string;
+  insightId: string;
   chartType: string;
   filters: any[];
   order: string;
 };
 
-export type ReportChartFormMutationResponse = {
-  reportChartsAddMutation: (params: {
-    variables: ReportChartFormMutationVariables;
+export type ChartFormMutationResponse = {
+  chartsAddMutation: (params: {
+    variables: ChartFormMutationVariables;
   }) => Promise<any>;
-  reportChartsEditMutation: (params: {
-    variables: ReportChartFormMutationVariables;
+  chartsEditMutation: (params: {
+    variables: ChartFormMutationVariables;
   }) => Promise<any>;
-  reportChartsRemoveMutation: (_id: string) => Promise<void>;
+  chartsRemoveMutation: (_id: string) => Promise<void>;
 };
 
 // Dashboard
@@ -408,7 +402,10 @@ enum DashboardVisibility {
 // queries
 
 export type DashboardsListQueryResponse = {
-  dashboards: IDashboard[];
+  dashboardList: {
+    list: IDashboard[];
+    totalCount: number;
+  };
   refetch: () => void;
   loading: boolean;
 };

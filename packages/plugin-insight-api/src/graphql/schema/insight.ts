@@ -1,58 +1,22 @@
-export const types = `
+export const types = (tagsAvailable) => `
 
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
+  ${
+  tagsAvailable
+    ? `
+      extend type Tag @key(fields: "_id"){
+        _id: String! @external
+      }
+    `
+    : ``
+  }
+
   enum VisibilityType {
     public
     private
-  }
-
-  type Dashboard {
-    _id: String!
-    name: String
-    sectionId: String
-
-    visibility: VisibilityType
-
-    serviceTypes: [String]
-    serviceNames: [String]
-    
-    assignedUserIds: [String]
-    assignedDepartmentIds: [String]
-    
-    members: [User]
-    charts: [DashboardChart]
-    chartsCount: Int
-
-    updatedAt:Date
-    updatedBy: User
-
-    createdAt:Date
-    createdBy: User
-    },
-      type DashboardListResponse {
-      list: [Dashboard],
-      totalCount: Int,
-    }
-
-
-  type DashboardChart {
-    _id: String
-    name: String
-    dashboardId: String!
-    contentType: String
-    serviceName: String
-    templateType: String
-    order: Int
-    chartType: ChartType
-    chartTypes: [ChartType]
-    filter: JSON
-    dimension: JSON
-    defaultFilter: ChartFilter
-    layout: String
-    vizState: String
   }
 
   enum ChartType {
@@ -85,7 +49,95 @@ export const types = `
     NUMBER
   }
 
-  input DashboardChartsAddParams {
+  type InsightTemplate {
+    title: String
+    description: String
+    charts: [String]
+    img: String
+    serviceName: String
+    serviceType: String
+    type: String
+  }
+
+  type Dashboard {
+    _id: String!
+    name: String
+    sectionId: String
+
+    visibility: VisibilityType
+
+    serviceTypes: [String]
+    serviceNames: [String]
+    
+    assignedUserIds: [String]
+    assignedDepartmentIds: [String]
+    
+    members: [User]
+    charts: [Chart]
+    chartsCount: Int
+
+    updatedAt:Date
+    updatedBy: User
+
+    createdAt:Date
+    createdBy: User
+    }
+
+    type DashboardListResponse {
+      list: [Dashboard],
+      totalCount: Int,
+    }
+
+    type Report {
+      _id: String!
+      name: String
+      visibility: VisibilityType
+
+      assignedUserIds: [String]
+      assignedDepartmentIds: [String]
+      tagIds: [String]
+
+      members: [User]
+      ${tagsAvailable ? 'tags: [Tag]' : ''}
+      charts: [Chart]
+      chartsCount: Int
+  
+      updatedAt:Date
+      updatedBy: User
+  
+      createdAt:Date
+      createdBy: User
+  
+      sectionId: String
+      
+      serviceName: String
+      serviceType: String
+    }
+
+    type ReportsListResponse {
+      list: [Report]
+      totalCount: Int
+    }
+
+  type Chart {
+    _id: String
+    name: String
+    insightId: String!
+    contentType: String
+    serviceName: String
+    serviceType: String
+    templateType: String
+    order: Int
+    chartType: ChartType
+    chartTypes: [ChartType]
+    filter: JSON
+    dimension: JSON
+    defaultFilter: ChartFilter
+    layout: String
+    vizState: String
+  }
+
+  input ChartsAddParams {
     templateType: String
     serviceName: String!
     chartTemplateTypes: [JSON]
@@ -105,15 +157,30 @@ export const types = `
 `;
 
 const queryParams = `
-  page: Int
-  perPage: Int
+searchValue: String
+perPage: Int
+page: Int
+departmentId: String
+tag: String
 `;
 
 export const queries = `
-  dashboards(${queryParams}): [Dashboard]
-  dashboardDetail(_id: String!): Dashboard
-  dashboardGetLast: JSON
+  insightGetLast: JSON
+  insightTemplatesList(searchValue: String, serviceName: String): [InsightTemplate]
+  insightChartTemplatesList(serviceName: String!, charts: [String]): [JSON]
+  insightServicesList: [String]
+  insightChartGetTemplates(serviceName: String!): JSON
+  insightChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
 
+  chartGetResult(serviceName: String!, templateType: String!, filter: JSON, dimension: JSON): JSON
+
+  dashboardList(${queryParams}): DashboardListResponse
+  dashboardDetail(_id: String!): Dashboard
+
+  reportList(${queryParams}): ReportsListResponse
+  reportDetail(reportId: String!): Report
+  reportsCountByTags:JSON
+  
   sections(type: String): [Section]
 
 `;
@@ -129,10 +196,21 @@ const dashboardParams = `
   charts: [JSON]
 `;
 
-const dashboardChartParams = `
+const reportParams = `
+  name: String,
+  visibility: VisibilityType,
+  assignedUserIds: [String],
+  assignedDepartmentIds: [String],
+  tagIds: [String],
+  serviceName: String
+  serviceType: String
+  sectionId: String
+  charts: [JSON]
+`;
+
+const chartParams = `
   name: String
   chartType: String
-  templateType: String
   order: Int
   vizState: String
   layout: String
@@ -154,10 +232,18 @@ export const mutations = `
   dashboardRemove(_id: String!): JSON
   dashboardDuplicate(_id: String!): Dashboard
 
-  dashboardChartsAdd(${dashboardChartParams}, dashboardId: String!): DashboardChart
-  dashboardChartsRemove(_id: String!): JSON
-  dashboardChartsEdit(_id: String!, ${dashboardChartParams}): DashboardChart
-  dashboardChartsAddMany( charts: [DashboardChartsAddParams] ,dashboardId: String!): [DashboardChart] 
+  chartsAdd(${chartParams}, insightId: String!): Chart
+  chartsRemove(_id: String!): JSON
+  chartsEdit(_id: String!, ${chartParams}): Chart
+  chartsAddMany( charts: [ChartsAddParams] ,insightId: String!): [Chart] 
+  chartsEditMany( insightId: String!, ${reportParams}): JSON
+
+  reportAdd(${reportParams}): Report
+  reportRemove(_id: String!): JSON
+  reportRemoveMany(ids: [String]!): JSON 
+   
+  reportsEdit(_id:String!, ${reportParams}): Report
+  reportDuplicate(_id: String!): Report
 
   sectionAdd(${sectionParams}): Section
   sectionEdit(_id: String!, ${sectionParams}): Section

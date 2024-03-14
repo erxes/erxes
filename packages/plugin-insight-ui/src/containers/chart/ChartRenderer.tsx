@@ -105,7 +105,7 @@ const ChartRendererList = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<any>(gql(queries.reportChartGetResult), {
+    graphql<any>(gql(queries.chartGetResult), {
       name: 'reportChartGetResultQuery',
       options: ({ chartVariables, filter, dimension }) => ({
         variables: {

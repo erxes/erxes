@@ -11,7 +11,7 @@ import {
   ReportDetailQueryResponse,
   ReportEditMutationResponse,
   ReportFormMutationVariables,
-  ReportTemplatesListQueryResponse,
+  InsightTemplatesListQueryResponse,
 } from '../../types';
 
 type Props = {
@@ -34,8 +34,8 @@ const FormContainer = (props: Props) => {
     },
   );
 
-  const reportTemplatesListQuery = useQuery<ReportTemplatesListQueryResponse>(
-    gql(queries.reportTemplatesList),
+  const reportTemplatesListQuery = useQuery<InsightTemplatesListQueryResponse>(
+    gql(queries.insightTemplatesList),
   );
 
   const [reportAddMutation] = useMutation(gql(mutations.reportAdd), {
@@ -51,7 +51,7 @@ const FormContainer = (props: Props) => {
   });
 
   const [reportEditMutation] = useMutation(
-    gql(mutations.reportChartsEditMany),
+    gql(mutations.chartsEditMany),
     {
       refetchQueries: [
         {
@@ -73,7 +73,7 @@ const FormContainer = (props: Props) => {
 
   const handleMutation = (values: ReportFormMutationVariables) => {
     if (reportId) {
-      return reportEditMutation({ variables: { reportId, ...values } })
+      return reportEditMutation({ variables: { insightId: reportId, ...values } })
         .then(() => {
           closeDrawer();
 
@@ -88,7 +88,7 @@ const FormContainer = (props: Props) => {
         closeDrawer();
 
         Alert.success('Successfully created report');
-        const { _id } = res.data.reportsAdd;
+        const { _id } = res.data.reportAdd;
         if (_id) {
           history.push(`/insight?reportId=${_id}`);
         }
@@ -105,7 +105,7 @@ const FormContainer = (props: Props) => {
   const report = reportDetailQuery?.data?.reportDetail;
   const loading = reportDetailQuery.loading;
   const reportTemplates =
-    reportTemplatesListQuery?.data?.reportTemplatesList || [];
+    reportTemplatesListQuery?.data?.insightTemplatesList || [];
 
   const updatedProps = {
     ...props,

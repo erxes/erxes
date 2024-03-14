@@ -78,6 +78,9 @@ const Form = (props: Props) => {
   const [dimension, setDimension] = useState<any>(chart?.dimension || {});
   const [dimensions, setDimensions] = useState<any>([]);
 
+  console.log('serviceName', serviceName)
+  console.log('type', type)
+
   useEffect(() => {
     if (type === 'report' && !chart) {
       updateServiceName(item?.serviceName || undefined);
@@ -114,7 +117,7 @@ const Form = (props: Props) => {
 
     return {
       _id: finalValues._id,
-      [type + 'Id']: item._id,
+      insightId: item._id,
       chartType,
       name,
       filter: filters,
