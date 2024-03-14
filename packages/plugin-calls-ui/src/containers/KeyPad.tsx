@@ -9,12 +9,12 @@ import KeyPad from '../components/Keypad';
 import { ICallConversation } from '../types';
 
 type IProps = {
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
 };
 const KeyPadContainer = (props: IProps) => {
-  const { callIntegrationsOfUser, setConfig, phoneNumber } = props;
+  const { callUserIntegrations, setConfig, phoneNumber } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
   const [conversation, setConversation] =
@@ -100,7 +100,7 @@ const KeyPadContainer = (props: IProps) => {
     <KeyPad
       addCustomer={createCustomer}
       key={1}
-      callIntegrationsOfUser={callIntegrationsOfUser}
+      callUserIntegrations={callUserIntegrations}
       setConfig={setConfig}
       customer={customer}
       toggleSectionWithPhone={toggleSection}

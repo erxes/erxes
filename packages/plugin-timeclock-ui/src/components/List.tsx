@@ -55,7 +55,7 @@ function List(props: Props) {
               getActionBar={setRightActionBar}
               queryParams={queryParams}
               history={history}
-            />
+            />,
           );
         }
         setLoading(false);
@@ -70,7 +70,7 @@ function List(props: Props) {
             queryParams={queryParams}
             getPagination={setPagination}
             history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -83,7 +83,7 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             queryParams={queryParams}
             history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -96,7 +96,7 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             queryParams={queryParams}
             history={history}
-          />
+          />,
         );
         setLoading(false);
         break;
@@ -110,7 +110,7 @@ function List(props: Props) {
               getActionBar={setRightActionBar}
               queryParams={queryParams}
               history={history}
-            />
+            />,
           );
         }
         setLoading(false);
@@ -124,7 +124,7 @@ function List(props: Props) {
             getPagination={setPagination}
             history={history}
             queryParams={queryParams}
-          />
+          />,
         );
         setLoading(false);
     }

@@ -6,7 +6,7 @@ import {
   COLORS,
   dateOfTheMonthFormat,
   dayOfTheWeekFormat,
-  timeFormat
+  timeFormat,
 } from '../../constants';
 import {
   BorderedTd,
@@ -15,7 +15,7 @@ import {
   RequestInfo,
   TimeclockInfo,
   TimeclockTableWrapper,
-  ToggleButton
+  ToggleButton,
 } from '../../styles';
 import { IShift, IUserReport } from '../../types';
 
@@ -59,13 +59,13 @@ const TimeclockList = (props: Props) => {
     isCurrentUserAdmin,
     startClockTime,
     getActionBar,
-    showSideBar
+    showSideBar,
   } = props;
   const { startDate, endDate } = queryParams;
   const [showModal, setShowModal] = useState(false);
   const [editTimeclock, setEditTimeclock] = useState({});
   const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false,
   );
 
   let lastColumnIdx = 1;
@@ -105,7 +105,7 @@ const TimeclockList = (props: Props) => {
         dateField,
         text: startRange.format(dateOfTheMonthFormat),
         backgroundColor,
-        date: startRange.toDate()
+        date: startRange.toDate(),
       };
 
       columnNo += 1;
@@ -125,17 +125,19 @@ const TimeclockList = (props: Props) => {
           </th>
           <th
             rowSpan={2}
-            style={{ textAlign: 'center', border: '1px solid #EEE' }}>
+            style={{ textAlign: 'center', border: '1px solid #EEE' }}
+          >
             {__('Employee Id')}
           </th>
           <th
             rowSpan={2}
             style={{ border: '1px solid #EEE' }}
-            className='fixed-column'>
+            className="fixed-column"
+          >
             {__('Team members')}
           </th>
 
-          {Object.keys(daysAndDatesHeaders).map(dateField => {
+          {Object.keys(daysAndDatesHeaders).map((dateField) => {
             return (
               <th
                 key={dateField}
@@ -144,17 +146,18 @@ const TimeclockList = (props: Props) => {
                     daysAndDatesHeaders[dateField].backgroundColor,
                   border: '1px solid #EEE',
                   width: '100%',
-                  textAlign: 'center'
-                }}>
+                  textAlign: 'center',
+                }}
+              >
                 {dayjs(daysAndDatesHeaders[dateField].date).format(
-                  dayOfTheWeekFormat
+                  dayOfTheWeekFormat,
                 )}
               </th>
             );
           })}
         </tr>
         <tr>
-          {Object.keys(daysAndDatesHeaders).map(dateField => {
+          {Object.keys(daysAndDatesHeaders).map((dateField) => {
             return (
               <th
                 key={dateField}
@@ -162,8 +165,9 @@ const TimeclockList = (props: Props) => {
                   backgroundColor:
                     daysAndDatesHeaders[dateField].backgroundColor,
                   border: '1px solid #EEE',
-                  textAlign: 'center'
-                }}>
+                  textAlign: 'center',
+                }}
+              >
                 {daysAndDatesHeaders[dateField].text}
               </th>
             );
@@ -234,7 +238,8 @@ const TimeclockList = (props: Props) => {
         <td>{user.employeeId || '-'}</td>
         <td
           style={{ width: '10%', textAlign: 'left' }}
-          className='fixed-column'>
+          className="fixed-column"
+        >
           <div>
             {`${
               user.details?.lastName ? user.details?.lastName.charAt(0) : ''
@@ -259,7 +264,7 @@ const TimeclockList = (props: Props) => {
 
       for (const scheduleShift of scheduleShifts) {
         const dateField = dayjs(scheduleShift.shiftStart).format(
-          dateOfTheMonthFormat
+          dateOfTheMonthFormat,
         );
 
         scheduleShiftsInfo[dateField] = { scheduled: true };
@@ -279,7 +284,7 @@ const TimeclockList = (props: Props) => {
         timeclocksObj[timeclock._id] = timeclock;
 
         const dateField = dayjs(timeclock.shiftStart).format(
-          dateOfTheMonthFormat
+          dateOfTheMonthFormat,
         );
 
         const shiftStart = dayjs(timeclock.shiftStart).format(timeFormat);
@@ -295,9 +300,9 @@ const TimeclockList = (props: Props) => {
               shiftStart,
               shiftEnd,
               shiftNotClosed: timeclock.shiftNotClosed,
-              shiftActive: timeclock.shiftActive || !timeclock.shiftEnd
+              shiftActive: timeclock.shiftActive || !timeclock.shiftEnd,
             },
-            ...prevTimeclock
+            ...prevTimeclock,
           ];
 
           continue;
@@ -310,8 +315,8 @@ const TimeclockList = (props: Props) => {
             shiftEnd,
             shiftNotClosed: timeclock.shiftNotClosed,
             deviceType: timeclock.deviceType,
-            shiftActive: timeclock.shiftActive || !timeclock.shiftEnd
-          }
+            shiftActive: timeclock.shiftActive || !timeclock.shiftEnd,
+          },
         ];
       }
     }
@@ -338,7 +343,7 @@ const TimeclockList = (props: Props) => {
 
           for (const requestDate of request.requestDates) {
             const date = dayjs(new Date(requestDate)).format(
-              dateOfTheMonthFormat
+              dateOfTheMonthFormat,
             );
 
             // if multiple requests per day
@@ -346,7 +351,7 @@ const TimeclockList = (props: Props) => {
               requestsInfo[date].push({
                 reason: request.reason,
                 backgroundColor: getAbsenceDayColor(request.absenceType || ''),
-                absenceDuration: abseneDurationPerDay
+                absenceDuration: abseneDurationPerDay,
               });
 
               continue;
@@ -356,8 +361,8 @@ const TimeclockList = (props: Props) => {
               {
                 reason: request.reason,
                 backgroundColor: getAbsenceDayColor(request.absenceType || ''),
-                absenceDuration: abseneDurationPerDay
-              }
+                absenceDuration: abseneDurationPerDay,
+              },
             ];
           }
 
@@ -376,7 +381,7 @@ const TimeclockList = (props: Props) => {
           requestsInfo[dateField].push({
             reason: request.reason,
             backgroundColor: getAbsenceDayColor(request.absenceType || ''),
-            absenceDuration
+            absenceDuration,
           });
           continue;
         }
@@ -385,8 +390,8 @@ const TimeclockList = (props: Props) => {
           {
             reason: request.reason,
             backgroundColor: getAbsenceDayColor(request.absenceType || ''),
-            absenceDuration
-          }
+            absenceDuration,
+          },
         ];
       }
     }
@@ -399,7 +404,7 @@ const TimeclockList = (props: Props) => {
         <td
           style={{
             border: '1px solid #EEEEEE',
-            backgroundColor: COLORS.blank
+            backgroundColor: COLORS.blank,
           }}
         />
       );
@@ -407,7 +412,7 @@ const TimeclockList = (props: Props) => {
       const contentInsideCell: any = [];
 
       const getDate = new Date(
-        new Date(dateField).setFullYear(new Date().getFullYear())
+        new Date(dateField).setFullYear(new Date().getFullYear()),
       );
       // absent day
       if (
@@ -420,9 +425,10 @@ const TimeclockList = (props: Props) => {
           <RequestInfo
             backgroundColor={COLORS.absent}
             borderColor={COLORS.absentBorder}
-            textColor={COLORS.white}>
+            textColor={COLORS.white}
+          >
             Absent
-          </RequestInfo>
+          </RequestInfo>,
         );
 
         emptyCell = false;
@@ -431,12 +437,13 @@ const TimeclockList = (props: Props) => {
       // add timeclock content
       if (dateField in timeclocksInfo) {
         contentInsideCell.push(
-          timeclocksInfo[dateField].map(timeclock => {
+          timeclocksInfo[dateField].map((timeclock) => {
             return (
               <Tip
-                text='Edit timeclock'
-                placement='bottom-start'
-                key={timeclock._id}>
+                text="Edit timeclock"
+                placement="bottom-start"
+                key={timeclock._id}
+              >
                 <TimeclockInfo
                   disabled={timeclock.shiftNotClosed}
                   activeShift={timeclock.shiftActive}
@@ -447,33 +454,35 @@ const TimeclockList = (props: Props) => {
                   onClick={() => {
                     setShowModal(true);
                     setEditTimeclock(timeclocksObj[timeclock._id]);
-                  }}>
+                  }}
+                >
                   {timeclock.shiftStart} ~ {timeclock.shiftEnd}
                 </TimeclockInfo>
               </Tip>
             );
-          })
+          }),
         );
         emptyCell = false;
       }
       // add request content
       if (requestsInfo[dateField]) {
-        requestsInfo[dateField].map(request => {
+        requestsInfo[dateField].map((request) => {
           contentInsideCell.push(
             <Tip
-              placement='bottom-start'
-              text={`${request.reason}\n${request.absenceDuration}`}>
+              placement="bottom-start"
+              text={`${request.reason}\n${request.absenceDuration}`}
+            >
               <RequestInfo backgroundColor={request.backgroundColor}>
                 {request.reason}
               </RequestInfo>
-            </Tip>
+            </Tip>,
           );
         });
         emptyCell = false;
       }
 
       listRowOnColumnOrder.push(
-        emptyCell ? shiftCell : <BorderedTd>{contentInsideCell}</BorderedTd>
+        emptyCell ? shiftCell : <BorderedTd>{contentInsideCell}</BorderedTd>,
       );
     }
 
@@ -488,20 +497,21 @@ const TimeclockList = (props: Props) => {
   const actionBarLeft = (
     <FlexRowLeft>
       <ToggleButton
-        id='btn-inbox-channel-visible'
+        id="btn-inbox-channel-visible"
         isActive={isSideBarOpen}
-        onClick={onToggleSidebar}>
-        <Icon icon='subject' />
+        onClick={onToggleSidebar}
+      >
+        <Icon icon="subject" />
       </ToggleButton>
     </FlexRowLeft>
   );
 
-  const modalContent = contenProps => (
+  const modalContent = (contenProps) => (
     <TimeForm {...contenProps} {...props} startClockTime={startClockTime} />
   );
 
   const trigger = (
-    <Button btnStyle={'success'} icon='plus-circle'>
+    <Button btnStyle={'success'} icon="plus-circle">
       Start Shift
     </Button>
   );
@@ -541,7 +551,7 @@ const TimeclockList = (props: Props) => {
         {showModal && renderEditForm()}
         <tbody>
           {reportByUsers.map((r, i) =>
-            renderUserReportRow({ ...r, index: i + 1 })
+            renderUserReportRow({ ...r, index: i + 1 }),
           )}
         </tbody>
       </Table>
