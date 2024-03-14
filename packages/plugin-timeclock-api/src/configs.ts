@@ -18,13 +18,13 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
   meta: {
     cronjobs,
-    permissions
+    permissions,
   },
 
   apolloServerContext: async (context, req) => {
@@ -43,7 +43,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const remove = await removeDuplicates();
         return res.send(remove);
-      })
+      }),
     );
 
     app.get(
@@ -58,7 +58,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     app.get(
@@ -74,7 +74,7 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      })
+      }),
     );
 
     app.get(
@@ -93,5 +93,5 @@ export default {
       }),
     );
   },
-  setupMessageConsumers
+  setupMessageConsumers,
 };

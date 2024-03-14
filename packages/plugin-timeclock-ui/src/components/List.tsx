@@ -145,7 +145,7 @@ function List(props: Props) {
           data={Component}
           loading={loading}
           emptyText={__('Theres no timeclock')}
-          emptyImage='/images/actions/8.svg'
+          emptyImage="/images/actions/8.svg"
         />
       }
       leftSidebar={
