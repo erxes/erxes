@@ -47,6 +47,12 @@ export const initApolloServer = async (app, httpServer) => {
     '/graphql',
     expressMiddleware(apolloServer, {
       context: async ({ req, res }) => {
+        if (
+          req.body.operationName === 'IntrospectionQuery' ||
+          req.body.operationName === 'SubgraphIntrospectQuery'
+        ) {
+          return {};
+        }
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
