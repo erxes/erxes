@@ -8,7 +8,7 @@ import WidgetPopover from './WidgetPopover';
 import Popover from 'react-bootstrap/Popover';
 
 type Props = {
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
 };
 const Widget = (props: Props) => {
