@@ -20,7 +20,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ItemList from '../stage/ItemList';
-import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __, isEnabled } from '@erxes/ui/src/utils/core';
@@ -375,20 +374,6 @@ export default class Stage extends React.Component<Props, State> {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
-    const renderDetail = () => {
-      if (window.location.pathname.includes('deal')) {
-        return (
-          <ItemProductProbabilities
-            totalAmount={stage.amount}
-            unusedTotalAmount={stage.unUsedAmount}
-            probability={stage.probability}
-          />
-        );
-      }
-
-      return null;
-    };
-
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
@@ -402,7 +387,6 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                {renderDetail()}
 
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>

@@ -9,10 +9,10 @@ export const TAG_TYPES = {
   INTEGRATION: __('inbox:integration'),
   PRODUCT: __('products:product'),
   PRODUCT_TEMPLATE: __('productTemplate'),
-  DEAL: __('cards:deal'),
-  TICKET: __('cards:ticket'),
-  TASK: __('cards:task'),
-  PURCHASE: __('cards:purchase'),
+  DEAL: __('deals:deal'),
+  TICKET: __('tickets:ticket'),
+  TASK: __('tasks:task'),
+  PURCHASE: __('purchases:purchase'),
   DASHBOARD: __('dashboard:dashboard'),
   REPORT: __('reports:reports'),
   ALL_LIST: [
@@ -24,6 +24,6 @@ export const TAG_TYPES = {
     'product',
     'productTemplate',
     'deal',
-    'purchase'
-  ]
+    'purchase',
+  ],
 };

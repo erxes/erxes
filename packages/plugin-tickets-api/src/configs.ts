@@ -13,6 +13,8 @@ import cronjobs from './cronjobs/common';
 import logs from './logUtils';
 
 import { NOTIFICATION_MODULES } from './constants';
+import segments from './segments';
+import tags from './tags';
 
 export default {
   name: 'tickets',
@@ -34,6 +36,8 @@ export default {
     cronjobs,
     forms,
     search,
+    tags,
+    segments,
     logs: { providesActivityLog: true, consumers: logs },
     notificationModules: NOTIFICATION_MODULES,
   },

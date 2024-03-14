@@ -18,8 +18,6 @@ import Watch from '../../containers/editForm/Watch';
 import Comment from '../../../comment/containers/Comment';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import PrintActionButton from './PrintDocumentBtn';
-import { Button } from 'react-bootstrap';
 
 type Props = {
   item: IItem;
@@ -38,7 +36,7 @@ class Actions extends React.Component<Props> {
     const { onUpdate, saveItem } = this.props;
 
     if (saveItem) {
-      saveItem({ priority: value }, updatedItem => {
+      saveItem({ priority: value }, (updatedItem) => {
         onUpdate(updatedItem);
       });
     }
@@ -53,10 +51,10 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = (labels) => saveItem({ labels });
 
     const tags = item.tags || [];
     const pipelineTagId = item.pipeline.tagId || '';
@@ -71,15 +69,6 @@ class Actions extends React.Component<Props> {
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
-
-    const TAG_TYPE =
-      options.type === 'deal'
-        ? TAG_TYPES.DEAL
-        : options.type === 'task'
-        ? TAG_TYPES.TASK
-        : options.type === 'purchase' // Add a new condition for 'purchase'
-        ? TAG_TYPES.PURCHASE
-        : TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -127,9 +116,9 @@ class Actions extends React.Component<Props> {
         />
         {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPE}
+            type={TAG_TYPES.TICKET}
             trigger={tagTrigger}
-            refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
+            refetchQueries={['ticketDetail']}
             targets={[item]}
             parentTagId={pipelineTagId}
             singleSelect={true}
@@ -142,11 +131,10 @@ class Actions extends React.Component<Props> {
             item,
             contentType: 'cards',
             subType: item.stage?.type,
-            path: `stageId=${item.stageId}`
+            path: `stageId=${item.stageId}`,
           },
           true
         )}
-        {/* {isEnabled('documents') && <PrintActionButton item={item} />} */}
       </ActionContainer>
     );
   }
