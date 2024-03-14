@@ -403,10 +403,9 @@ export const createGenerateModels = <IModels>(
       const organization = await coreModelOrganizations.findOne({ subdomain });
 
       if (!organization) {
-        return {} as IModels;
-        // throw new Error(
-        //   `Organization with subdomain = ${subdomain} is not found`
-        // );
+        throw new Error(
+          `Organization with subdomain = ${subdomain} is not found`
+        );
       }
 
       const DB_NAME = getEnv({ name: 'DB_NAME' });
