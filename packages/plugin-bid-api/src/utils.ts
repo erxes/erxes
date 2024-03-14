@@ -89,6 +89,10 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
   try {
     const url = 'https://crm-api.bid.mn/api/v1/user/info';
 
+    console.log('URL', url);
+
+    console.log('BODY', body);
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -96,6 +100,8 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       },
       body: JSON.stringify(body),
     });
+
+    console.log('RESPONSE', response);
 
     console.error("STATUS CODE", response.status);
 
