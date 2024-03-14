@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { IModels } from './connectionResolver';
 
 export const polarissyncSchema = new Schema({
   customerId: String,
@@ -7,23 +8,23 @@ export const polarissyncSchema = new Schema({
   updatedAt: Date,
 });
 
-export const loadPolarissyncClass = () => {
+export const loadPolarissyncClass = (models: IModels) => {
   class Polarissync {
     // create
     public static async createOrUpdate(doc) {
-      const existingData = await Polarissyncs.findOne({
+      const existingData = await models.Polarissyncs.findOne({
         customerId: doc.customerId,
       });
 
       if (existingData) {
-        await Polarissyncs.updateOne(
+        await models.Polarissyncs.updateOne(
           { customerId: doc.customerId },
           { $set: { data: doc.data, updatedAt: new Date() } },
         );
 
-        return Polarissyncs.findOne({ customerId: doc.customerId });
+        return models.Polarissyncs.findOne({ customerId: doc.customerId });
       } else {
-        return Polarissyncs.create({
+        return models.Polarissyncs.create({
           ...doc,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -36,8 +37,3 @@ export const loadPolarissyncClass = () => {
 
   return polarissyncSchema;
 };
-
-export const Polarissyncs = model<any, any>(
-  'polaris_datas',
-  loadPolarissyncClass(),
-);

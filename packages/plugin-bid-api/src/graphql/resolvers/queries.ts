@@ -1,10 +1,9 @@
-import { IContext } from '../../connectionResolvers';
+import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
-import { Polarissyncs } from '../../models';
 
 const polarissyncQueries = {
-  bidGetPolarisData(_root, { customerId }, _context: IContext) {
-    return Polarissyncs.findOne({ customerId });
+  bidGetPolarisData(_root, { customerId }, { models }: IContext) {
+    return models.Polarissyncs.findOne({ customerId });
   },
 
   async bidGetConfigs(_root, _args, { subdomain }: IContext) {

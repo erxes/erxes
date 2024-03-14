@@ -1,19 +1,24 @@
 import { sendCommonMessage } from './messageBroker';
 import fetch from 'node-fetch';
-import { Polarissyncs } from './models';
+
 import { fetchPolarisData } from './utils';
+import { IModels } from './connectionResolver';
 
 export default {
   'contacts:customer': ['create', 'update'],
   'inbox:conversation': ['create'],
 };
 
-export const afterMutationHandlers = async (subdomain, params) => {
+export const afterMutationHandlers = async (
+  models: IModels,
+  subdomain,
+  params
+) => {
   const { type, action } = params;
   if (type === 'inbox:conversation' && action === 'create') {
     const doc: any = params.object;
 
-    await fetchPolarisData(subdomain, doc);
+    await fetchPolarisData(models, subdomain, doc);
     return;
   }
 
@@ -22,7 +27,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const doc: any = params.object;
       doc.customerId = doc._id;
 
-      await fetchPolarisData(subdomain, doc);
+      await fetchPolarisData(models, subdomain, doc);
       return;
     }
 
@@ -46,7 +51,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       const url = 'https://crm-api.bid.mn/api/v1/user/update';
 
-      const polarisData = await Polarissyncs.findOne({
+      const polarisData = await models.Polarissyncs.findOne({
         customerId: params.object._id,
       });
 
