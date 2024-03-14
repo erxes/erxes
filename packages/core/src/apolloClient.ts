@@ -34,11 +34,11 @@ export const initApolloServer = async (app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs,
-        resolvers
-      }
+        resolvers,
+      },
     ]),
     // for graceful shutdowns
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await apolloServer.start();
@@ -63,7 +63,7 @@ export const initApolloServer = async (app, httpServer) => {
             throw new Error(`Multiple user headers`);
           }
           const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8'
+            'utf-8',
           );
           user = JSON.parse(userJson);
         }
@@ -72,7 +72,7 @@ export const initApolloServer = async (app, httpServer) => {
 
         const requestInfo = {
           secure: req.secure,
-          cookies: req.cookies
+          cookies: req.cookies,
         };
 
         if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -80,14 +80,14 @@ export const initApolloServer = async (app, httpServer) => {
             brandIdSelector: {},
             singleBrandIdSelector: {},
             userBrandIdsSelector: {},
-            docModifier: doc => doc,
+            docModifier: (doc) => doc,
             commonQuerySelector: {},
             user,
             res,
             requestInfo,
             dataLoaders,
             subdomain,
-            models
+            models,
           };
         }
 
@@ -118,7 +118,7 @@ export const initApolloServer = async (app, httpServer) => {
         return {
           brandIdSelector,
           singleBrandIdSelector,
-          docModifier: doc => ({ ...doc, scopeBrandIds }),
+          docModifier: (doc) => ({ ...doc, scopeBrandIds }),
           commonQuerySelector,
           commonQuerySelectorElk,
           userBrandIdsSelector,
@@ -127,10 +127,10 @@ export const initApolloServer = async (app, httpServer) => {
           requestInfo,
           dataLoaders,
           subdomain,
-          models
+          models,
         };
-      }
-    })
+      },
+    }),
   );
 
   return apolloServer;

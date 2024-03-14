@@ -78,7 +78,7 @@ async function ensureGraphqlEndpointIsUp({
   }
 
   throw new Error(
-    `Plugin ${name}'s graphql endpoint ${endponit} is not ready yet`
+    `Plugin ${name}'s graphql endpoint ${endponit} is not ready yet`,
   );
 }
 
@@ -101,7 +101,7 @@ export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
     const serviceNames = await getServices();
 
     const proxyTargets: ErxesProxyTarget[] = await Promise.all(
-      serviceNames.map(retryGetProxyTarget)
+      serviceNames.map(retryGetProxyTarget),
     );
 
     await Promise.all(proxyTargets.map(retryEnsureGraphqlEndpointIsUp));
