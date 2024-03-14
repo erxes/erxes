@@ -33,7 +33,7 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+    `${DOMAIN}/gateway/pl:instagram/instalogin`,
   );
 
   const conf = {
