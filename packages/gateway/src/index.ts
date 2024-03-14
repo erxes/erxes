@@ -20,14 +20,14 @@ import {
 } from './subscription';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
+import { sanitizeHeaders } from '@erxes/api-utils/src/headers';
 
 const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
 
 (async () => {
   app.use((req, _res, next) => {
-    // this is important for security reasons
-    delete req.headers['user'];
+    sanitizeHeaders(req.headers);
     next();
   });
 
