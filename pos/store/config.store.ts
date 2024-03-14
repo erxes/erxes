@@ -24,6 +24,11 @@ export const setConfigsAtom = atom(null, (get, set, update: IConfig[]) => {
   set(configsAtom, update)
 })
 export const currentUserAtom = atom<ICurrentUser | null>(null)
+export const userLabelAtom = atom((get) => {
+  const { details, email } = get(currentUserAtom) || {}
+  const { fullName, position } = details || {}
+  return fullName ? `${fullName} ${position ? `(${position})` : ""}` : email
+})
 
 export const isAdminAtom = atom((get) =>
   get(configAtom)?.adminIds?.includes(get(currentUserAtom)?._id || "")

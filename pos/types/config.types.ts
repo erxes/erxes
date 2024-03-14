@@ -84,4 +84,10 @@ export interface ICurrentUser {
   }
 }
 
-export type modeT = "market" | "main" | "kiosk" | "coffee-shop" | "restaurant"
+export type modeT =
+  | "market"
+  | "main"
+  | "kiosk"
+  | "coffee-shop"
+  | "restaurant"
+  | "mobile"
