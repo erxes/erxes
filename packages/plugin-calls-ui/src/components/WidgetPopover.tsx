@@ -8,13 +8,13 @@ import HistoryContainer from '../containers/History';
 
 type Props = {
   autoOpenTab: string;
-  callIntegrationsOfUser?: any;
+  callUserIntegrations?: any;
   setConfig?: any;
 };
 
 const WidgetPopover = ({
   autoOpenTab,
-  callIntegrationsOfUser,
+  callUserIntegrations,
   setConfig,
 }: Props) => {
   const [currentTab, setCurrentTab] = useState(autoOpenTab || 'Keyboard');
@@ -47,7 +47,7 @@ const WidgetPopover = ({
       </TabContent>
       <TabContent show={currentTab === 'Keyboard'}>
         <KeyPadContainer
-          callIntegrationsOfUser={callIntegrationsOfUser}
+          callUserIntegrations={callUserIntegrations}
           setConfig={setConfig}
           phoneNumber={phoneNumber}
         />
