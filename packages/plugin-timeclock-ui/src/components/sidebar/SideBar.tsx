@@ -7,7 +7,7 @@ import {
   FlexRow,
   SidebarActions,
   SidebarHeader,
-  Trigger
+  Trigger,
 } from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -41,14 +41,14 @@ const LeftSideBar = (props: Props) => {
     queryParams,
     departments,
     currentUser,
-    isCurrentUserAdmin
+    isCurrentUserAdmin,
   } = props;
 
   const [currUserIds, setUserIds] = useState(queryParams.userIds);
 
   const [selectedBranches, setBranches] = useState(queryParams.branchIds);
   const [selectedDepartments, setDepartments] = useState(
-    queryParams.departmentIds
+    queryParams.departmentIds,
   );
 
   const [isHovered, setIsHovered] = useState(false);
@@ -65,7 +65,7 @@ const LeftSideBar = (props: Props) => {
   const dateOptions = [
     { label: 'Today', value: 'today' },
     { label: 'This Week', value: 'thisWeek' },
-    { label: 'This Month', value: 'thisMonth' }
+    { label: 'This Month', value: 'thisMonth' },
   ];
 
   const returnTotalUserOptions = () => {
@@ -88,14 +88,14 @@ const LeftSideBar = (props: Props) => {
     ? {}
     : {
         ids: returnTotalUserOptions(),
-        excludeIds: false
+        excludeIds: false,
       };
 
   const [startDate, setStartDate] = useState(
-    queryParams.startDate || startOfThisMonth
+    queryParams.startDate || startOfThisMonth,
   );
   const [endDate, setEndDate] = useState(
-    queryParams.endDate || startOfNextMonth
+    queryParams.endDate || startOfNextMonth,
   );
 
   const cleanFilter = () => {
@@ -110,7 +110,7 @@ const LeftSideBar = (props: Props) => {
       'branchIds',
       'startDate',
       'endDate',
-      'departmentIds'
+      'departmentIds',
     );
     removePageParams();
   };
@@ -122,7 +122,7 @@ const LeftSideBar = (props: Props) => {
   const setParams = (key: string, value: any) => {
     if (value) {
       router.setParams(history, {
-        [key]: value
+        [key]: value,
       });
 
       removePageParams();
@@ -137,57 +137,57 @@ const LeftSideBar = (props: Props) => {
   }
 
   const renderDepartmentOptions = (depts: IDepartment[]) => {
-    return depts.map(dept => ({
+    return depts.map((dept) => ({
       value: dept._id,
       label: dept.title,
-      userIds: dept.userIds
+      userIds: dept.userIds,
     }));
   };
 
   const renderBranchOptions = (branchesList: IBranch[]) => {
-    return branchesList.map(branch => ({
+    return branchesList.map((branch) => ({
       value: branch._id,
       label: branch.title,
-      userIds: branch.userIds
+      userIds: branch.userIds,
     }));
   };
 
-  const onBranchSelect = selectedBranch => {
+  const onBranchSelect = (selectedBranch) => {
     setBranches(selectedBranch);
 
     const selectedBranchIds: string[] = [];
 
-    selectedBranch.map(branch => {
+    selectedBranch.map((branch) => {
       selectedBranchIds.push(branch.value);
     });
 
     setParams('branchIds', selectedBranchIds);
   };
 
-  const onDepartmentSelect = selectedDepartment => {
+  const onDepartmentSelect = (selectedDepartment) => {
     setDepartments(selectedDepartment);
 
     const selectedDepartmentIds: string[] = [];
 
-    selectedDepartment.map(department => {
+    selectedDepartment.map((department) => {
       selectedDepartmentIds.push(department.value);
     });
 
     setParams('departmentIds', selectedDepartmentIds);
   };
 
-  const onMemberSelect = selectedUsers => {
+  const onMemberSelect = (selectedUsers) => {
     setUserIds(selectedUsers);
 
     setParams('userIds', selectedUsers);
   };
 
-  const onStartDateChange = date => {
+  const onStartDateChange = (date) => {
     setStartDate(date);
     setParams('startDate', date);
   };
 
-  const onEndDateChange = date => {
+  const onEndDateChange = (date) => {
     setEndDate(date);
 
     setParams('endDate', date);
@@ -267,8 +267,9 @@ const LeftSideBar = (props: Props) => {
         type='trigger'
         isHoverActionBar={isHovered}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
-        {dateOptions.map(d => {
+        onMouseLeave={onMouseLeave}
+      >
+        {dateOptions.map((d) => {
           return (
             <div
               key={d.value}
