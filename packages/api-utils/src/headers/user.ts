@@ -15,7 +15,6 @@ export function extractUserFromHeader(headers: IncomingHttpHeaders): any {
 }
 
 export function setUserHeader(headers: IncomingHttpHeaders, user: any) {
-  console.log('setUserHeader', user);
   if (!user) return;
   const userJson = JSON.stringify(user);
   const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
