@@ -15,6 +15,9 @@ import logs from './logUtils';
 import { NOTIFICATION_MODULES } from './constants';
 import segments from './segments';
 import tags from './tags';
+import imports from './imports';
+import internalNotes from './internalNotes';
+import exporter from './exporter';
 
 export default {
   name: 'tickets',
@@ -38,6 +41,9 @@ export default {
     search,
     tags,
     segments,
+    imports,
+    exporter,
+    internalNotes,
     logs: { providesActivityLog: true, consumers: logs },
     notificationModules: NOTIFICATION_MODULES,
   },

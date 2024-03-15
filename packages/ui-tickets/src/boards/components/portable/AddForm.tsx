@@ -390,7 +390,7 @@ class AddForm extends React.Component<Props, State> {
         {loadDynamicComponent('relationForm', {
           ...this.props,
           onChange: this.onRelationsChange,
-          contentType: `cards:${type}`,
+          contentType: `tickets:${type}`,
         })}
 
         <FormFooter>

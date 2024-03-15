@@ -35,9 +35,9 @@ export const setupMessageConsumers = async () => {
           contentType,
           contentTypeId: { $in: oldContentTypeIds || [] },
         },
-        { contentTypeId: newContentTypeId },
+        { contentTypeId: newContentTypeId }
       );
-    },
+    }
   );
 
   consumeQueue(
@@ -45,7 +45,7 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { contentType, contentTypeIds } }) => {
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -57,12 +57,12 @@ export const setupMessageConsumers = async () => {
         data: await models.InternalNotes.find(data).lean(),
         status: 'success',
       };
-    },
+    }
   );
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -71,7 +71,7 @@ export const sendNotificationsMessage = async (
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -79,8 +79,17 @@ export const sendCardsMessage = async (
   });
 };
 
+export const sendTicketsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tickets',
+    ...args,
+  });
+};
+
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -89,7 +98,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -98,7 +107,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',

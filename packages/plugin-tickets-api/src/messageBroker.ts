@@ -253,7 +253,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return { data: await getCardItem(models, data), status: 'success' };

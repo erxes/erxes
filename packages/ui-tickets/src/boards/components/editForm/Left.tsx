@@ -218,7 +218,7 @@ const Left = (props: Props) => {
 
       <ActivityInputs
         contentTypeId={item._id}
-        contentType={`cards:${options.type}`}
+        contentType={`tickets:${options.type}`}
         showEmail={false}
       />
 
@@ -226,7 +226,7 @@ const Left = (props: Props) => {
         <ActivityLogs
           target={item.name}
           contentId={item._id}
-          contentType={`cards:${options.type}`}
+          contentType={`tickets:${options.type}`}
           extraTabs={
             options.type === 'cards:task'
               ? []
