@@ -34,7 +34,7 @@ export const removeProducts = (subdomain, _ids) =>
   });
 
 export const removeTickets = (subdomain, _ids) =>
-  sendRPCMessage('cards:tickets.remove', {
+  sendRPCMessage('tickets:remove', {
     subdomain,
     data: { _ids },
   });

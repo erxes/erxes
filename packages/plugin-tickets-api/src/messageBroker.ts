@@ -20,7 +20,7 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const ticket = await models.Tickets.createTicket(data);
@@ -41,7 +41,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:editItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:editItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const objModels = {
@@ -77,7 +77,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:createChildItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:createChildItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { type, itemId, ...doc } = data;
@@ -107,7 +107,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:createRelatedItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:createRelatedItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { type, sourceType, itemId, name, stageId } = data;
@@ -136,7 +136,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     if (!data.query) {
@@ -154,7 +154,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:tickets.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -163,19 +163,16 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue(
-    'cards:tickets.remove',
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('tickets:remove', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Tickets.removeTickets(_ids),
-      };
-    }
-  );
+    return {
+      status: 'success',
+      data: await models.Tickets.removeTickets(_ids),
+    };
+  });
 
-  consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:stages.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -184,7 +181,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:stages.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:stages.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -193,7 +190,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:pipelines.find', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:pipelines.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -202,7 +199,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:boards.find', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:boards.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -211,7 +208,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:boards.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:boards.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -221,7 +218,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    'cards:boards.count',
+    'tickets:boards.count',
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
@@ -233,7 +230,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    'cards:checklists.removeChecklists',
+    'tickets:checklists.removeChecklists',
     async ({ subdomain, data: { type, itemIds } }) => {
       const models = await generateModels(subdomain);
 
@@ -244,14 +241,17 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue('cards:conversationConvert', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'tickets:conversationConvert',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await conversationConvertToCard(models, subdomain, data),
-    };
-  });
+      return {
+        status: 'success',
+        data: await conversationConvertToCard(models, subdomain, data),
+      };
+    }
+  );
 
   consumeRPCQueue('tickets:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -260,7 +260,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    'cards:tickets.updateMany',
+    'tickets:updateMany',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -271,7 +271,7 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -280,7 +280,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:sendNotifications', async ({ subdomain, data }) => {
+  consumeRPCQueue('tickets:sendNotifications', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -290,7 +290,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    'cards:getLink',
+    'tickets:getLink',
     async ({ subdomain, data: { _id, type } }) => {
       const models = await generateModels(subdomain);
 
@@ -318,7 +318,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'cards:pipelines.findOne',
+    'tickets:pipelines.findOne',
     async ({ subdomain, data: { _id, stageId } }) => {
       let pipelineId = _id;
       const models = await generateModels(subdomain);
@@ -344,7 +344,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'cards:pipelineLabels.find',
+    'tickets:pipelineLabels.find',
     async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -356,7 +356,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    'cards:pipelinesChanged',
+    'tickets:pipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
@@ -374,7 +374,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    'cards:publishHelperItems',
+    'tickets:publishHelperItems',
     async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
       const targetTypes = ['deal', 'task', 'ticket', 'purchase'];
       const targetRelTypes = ['company', 'customer'];
@@ -402,7 +402,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'cards:getModuleRelation',
+    'tickets:getModuleRelation',
     async ({ subdomain, data: { module, target, triggerType } }) => {
       let filter;
 
