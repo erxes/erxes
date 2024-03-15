@@ -11,7 +11,6 @@ type HostnameGetter = (req: IncomingMessage) => string | undefined;
 const getHostname: HostnameGetter = (
   req: IncomingMessage,
 ): string | undefined => {
-  // const trust = req.app.get('trust proxy fn');
   let host = req.headers['X-Forwarded-Host'];
 
   if (Array.isArray(host)) {
