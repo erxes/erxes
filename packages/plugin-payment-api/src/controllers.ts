@@ -17,12 +17,11 @@ const router = Router();
 router.get('/invoice/:invoiceId', async (req, res) => {
   const { invoiceId } = req.params;
 
-  const appToken = (req.headers['erxes-app-token'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOnsiY3JlYXRlZEF0IjoiMjAyNC0wMy0xM1QwMDoyNTozNy45MzBaIiwibmFtZSI6InBheW1lbnQiLCJ1c2VyR3JvdXBJZCI6ImNNbDBhUGNRNUFQTkQ5UTdjdkVpNiIsImV4cGlyZURhdGUiOiIyMDI0LTA0LTEyVDA1OjUzOjMyLjQxN1oiLCJhbGxvd0FsbFBlcm1pc3Npb24iOmZhbHNlLCJub0V4cGlyZSI6dHJ1ZSwiX2lkIjoiUkpVNGtJc3FoOFNnVWw0SjN4TTZhIiwiX192IjowfSwiaWF0IjoxNzEwMzA5MjIzfQ.cq8PXxhVZL3H0eHcL5H1hqbrcr1oSvN9t7RmLcS_aSQ').toString();
+  const appToken = req.headers['erxes-app-token'] as string;
 
-
-  // if (!appToken) {
-  //   return res.status(401).render('unauthorized');
-  // }
+  if (!appToken) {
+    return res.status(401).render('unauthorized');
+  }
 
   if (!invoiceId) {
     return res.status(404).render('notFound');
@@ -36,10 +35,16 @@ router.get('/invoice/:invoiceId', async (req, res) => {
     return res.status(404).render('notFound');
   }
 
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+  const apiDomain = DOMAIN.replace('<subdomain>', subdomain);
+
   return res.render('index', {
     title: 'Payment gateway',
-    domain: 'http://localhost:4000',
+    apiDomain,
     appToken,
+    invoiceId,
   });
 });
 

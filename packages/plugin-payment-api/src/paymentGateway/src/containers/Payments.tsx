@@ -1,7 +1,13 @@
 import React from 'react';
-import { useQuery, useMutation, gql } from '@apollo/client';
-import Loader from '../common/Loader';
+import { useQuery, useMutation, gql, useSubscription } from '@apollo/client';
+import Spinner from '../common/Spinner';
 import Component from '../components/Payments';
+
+const SUBSCRIPTION = gql`
+  subscription invoiceUpdated($invoiceId: String!) {
+    invoiceUpdated(_id: $invoiceId)
+  }
+`;
 
 const PAYMENTS_QRY = gql`
   query Payments($status: String) {
@@ -27,38 +33,71 @@ const INVOICE = gql`
       paymentId
       paymentKind
       status
+      contentType
+      contentTypeId
     }
+  }
+`;
+
+const CHECK_INVOICE = gql`
+  mutation InvoicesCheck($id: String!) {
+    invoicesCheck(_id: $id)
   }
 `;
 
 type Props = {
   invoiceId: string;
-  appToken: string;
+  apiDomain: string;
 };
 
 const Payments = (props: Props) => {
-  const { appToken, invoiceId } = props;
+  const { invoiceId } = props;
 
-  const context = {
-    headers: {
-      'erxes-app-token': appToken,
-    },
+  const { data, loading } = useQuery(PAYMENTS_QRY);
+
+  const [checkInvoice] = useMutation(CHECK_INVOICE);
+
+  const checkInvoiceHandler = (id: string) => {
+    checkInvoice({ variables: { id } })
+      .catch((e) => {
+        console.log(e);
+      })
+      .then((res: any) => {
+        const status = res.data && res.data.invoicesCheck;
+        if (status !== 'paid') {
+          window.alert('Not paid yet!, Please try again later.');
+        } else {
+          window.alert('Payment has been successfully processed. Thank you! ');
+          postMessage();
+          // if paid and if its rendered in iframe, close the iframe
+        }
+      });
   };
 
-  const { data, loading } = useQuery(PAYMENTS_QRY, {
-    context,
+  // subscription
+  const subscription = useSubscription(SUBSCRIPTION, {
+    variables: { invoiceId },
   });
 
   const invoiceDetailQuery = useQuery(INVOICE, {
     variables: { id: invoiceId },
-    context,
   });
 
-  if (loading || invoiceDetailQuery.loading) {
-    return <Loader />;
-  }
+  React.useEffect(() => {
+    if (subscription.data && subscription.data.invoiceUpdated) {
+      // check invoice status
+      const res = subscription.data.invoiceUpdated;
+      if (res.status === 'paid') {
+        window.alert('Payment has been successfully processed. Thank you! ');
+        postMessage();
+      }
+    }
+  }, [subscription.data]);
 
-  console.log('invoiceDetail = ', invoiceDetailQuery.data);
+  if (loading || invoiceDetailQuery.loading) {
+    console.log('loading');
+    return <Spinner />;
+  }
 
   if (invoiceDetailQuery.error) {
     return <div>{invoiceDetailQuery.error.message}</div>;
@@ -68,10 +107,29 @@ const Payments = (props: Props) => {
     ? invoiceDetailQuery.data.invoiceDetail
     : null;
 
+  const postMessage = () => {
+    const message = {
+      fromPayment: true,
+      message: 'paymentSuccessfull',
+      invoiceId,
+      contentType: invoiceDetail.contentType,
+      contentTypeId: invoiceDetail.contentTypeId,
+    };
+
+    if (window.opener) {
+      window.opener.postMessage(message, '*');
+    }
+
+    if (window.parent) {
+      window.parent.postMessage(message, '*');
+    }
+  };
+
   const updatedProps = {
     ...props,
     invoiceDetail,
     payments: data.payments,
+    checkInvoiceHandler,
   };
 
   return <Component {...updatedProps} />;

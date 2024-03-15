@@ -6,7 +6,9 @@ import '../common/styles.css';
 type Props = {
   invoiceDetail: any;
   payments: any;
+  apiDomain: string;
   // onClickPayment: (paymentId: string) => void;
+  checkInvoiceHandler: (id: string) => void;
 };
 
 const PaymentGateway = (props: Props) => {
@@ -50,7 +52,7 @@ const PaymentGateway = (props: Props) => {
               }}
             >
               <img
-                src={`/pl:payment/static/images/payments/${payment.kind}.png`}
+                src={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
                 alt={payment.kind}
               />
               <div className="payment-name">
@@ -67,6 +69,7 @@ const PaymentGateway = (props: Props) => {
         </div>
       </div>
       <Modal
+        {...props}
         isOpen={modalIsOpen}
         onClose={closeModal}
         invoiceId={invoice._id}

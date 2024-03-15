@@ -1,7 +1,6 @@
+import { gql, useMutation } from '@apollo/client';
 import React from 'react';
 import Component from '../components/PaymentModal';
-import { useQuery, useMutation, gql } from '@apollo/client';
-import Loader from '../common/Loader';
 
 const INVOICE_UPDATE = gql`
   mutation InvoiceSelectPayment($id: String!, $paymentId: String!) {
@@ -25,6 +24,7 @@ type Props = {
   onClose: () => void;
   paymentId: string;
   invoiceId: string;
+  checkInvoiceHandler: (id: string) => void;
 };
 
 const PaymentModal = (props: Props) => {
@@ -49,10 +49,6 @@ const PaymentModal = (props: Props) => {
 
   const [setPaymentMethod, { loading, error }] = useMutation(INVOICE_UPDATE);
 
-  if (loading) {
-    return <Loader />;
-  }
-
   if (error) {
     return <div>Error! {error.message}</div>;
   }
@@ -60,6 +56,7 @@ const PaymentModal = (props: Props) => {
   const updatedProps = {
     ...props,
     invoice,
+    loading,
   };
 
   return <Component {...updatedProps} />;

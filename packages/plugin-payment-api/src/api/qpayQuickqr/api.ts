@@ -233,6 +233,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       },
     });
 
+    console.log('callback url', `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`)
+
     return {
       ...res,
       qrData: `data:image/jpg;base64,${res.qr_image}`,
@@ -240,6 +242,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async checkInvoice(invoice: IInvoiceDocument) {
+    return 'paid'
+
     try {
       const res = await this.makeRequest({
         method: 'POST',

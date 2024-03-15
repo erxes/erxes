@@ -101,7 +101,6 @@ export const loadInvoiceClass = (models: IModels) => {
                 paymentKind: payment.kind,
                 selectedPaymentId: payment._id,
                 createdAt: new Date(),
-                identifier: doc.identifier
               }
             }
           );
@@ -243,6 +242,7 @@ export const loadInvoiceClass = (models: IModels) => {
       const api = new ErxesPayment(payment);
 
       const status = await api.manualCheck(invoice);
+      // const status = 'paid'
 
       if (status === 'paid') {
         invoice.status = status;

@@ -641,6 +641,10 @@ html {
     position: fixed;
     z-index: 9999;
   }
+
+  .default-modal {
+    background-image: linear-gradient(to top, #ffffff, #ffffff);
+  }
   
   .qpay-modal {
     background-image: linear-gradient(to top, #ffffff, #002752);

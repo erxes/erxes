@@ -36,7 +36,7 @@ export const loadPaymentClass = (models: IModels) => {
       const payment = await models.Payments.findOne({ _id }).lean();
 
       if (!payment) {
-        console.error(`Payment not found with given id ${_id}}`);
+        console.error(`Payment not found with given id ${_id}`);
         return null;
       }
 
