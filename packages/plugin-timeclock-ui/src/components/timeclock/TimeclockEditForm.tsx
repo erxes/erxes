@@ -10,7 +10,7 @@ import {
   FlexCenter,
   FlexColumn,
   FlexRow,
-  FlexRowEven
+  FlexRowEven,
 } from '../../styles';
 
 type Props = {
@@ -24,29 +24,29 @@ const TimeclockEditForm = ({
   timeclock,
   timeclockEdit,
   showModal,
-  setShowModal
+  setShowModal,
 }: Props) => {
   const [show, setShow] = useState(showModal);
 
   const [shiftStartInsert, setShiftStartInsert] = useState(
-    timeclock.shiftStart
+    timeclock.shiftStart,
   );
 
   const [shiftEndInsert, setShiftEndInsert] = useState(
-    timeclock.shiftEnd || timeclock.shiftStart
+    timeclock.shiftEnd || timeclock.shiftStart,
   );
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive);
 
-  const onShiftStartInsertChange = date => {
+  const onShiftStartInsertChange = (date) => {
     setShiftStartInsert(date);
   };
 
-  const onShiftEndInsertChange = date => {
+  const onShiftEndInsertChange = (date) => {
     setShiftEndInsert(date);
   };
 
-  const toggleShiftActive = e => {
+  const toggleShiftActive = (e) => {
     setShiftEnded(e.target.checked);
   };
 
@@ -74,7 +74,7 @@ const TimeclockEditForm = ({
         _id: timeclock._id,
         shiftStart: shiftStartInsert,
         shiftActive: true,
-        inDeviceType
+        inDeviceType,
       };
     }
 
@@ -88,7 +88,7 @@ const TimeclockEditForm = ({
       shiftEnd: shiftEndInsert,
       shiftActive: false,
       inDeviceType,
-      outDeviceType
+      outDeviceType,
     };
   };
 
@@ -107,7 +107,7 @@ const TimeclockEditForm = ({
   };
 
   return (
-    <Modal show={show} backdrop='static' onHide={() => setShowModal(false)}>
+    <Modal show={show} backdrop="static" onHide={() => setShowModal(false)}>
       <Modal.Header closeButton>
         <Modal.Title>Edit Timeclock</Modal.Title>
       </Modal.Header>
@@ -135,9 +135,9 @@ const TimeclockEditForm = ({
             <ControlLabel>Shift Ended</ControlLabel>
             <FlexRowEven>
               <FormControl
-                name='shiftActive'
+                name="shiftActive"
                 defaultChecked={shiftEnded}
-                componentClass='checkbox'
+                componentClass="checkbox"
                 onChange={toggleShiftActive}
               />
               <div>Ended</div>
@@ -146,7 +146,7 @@ const TimeclockEditForm = ({
           <CustomRangeContainer>
             <DateControl
               value={shiftStartInsert}
-              name='startDate'
+              name="startDate"
               placeholder={'Starting date'}
               dateFormat={'YYYY-MM-DD'}
               timeFormat={'HH:mm'}
@@ -161,7 +161,7 @@ const TimeclockEditForm = ({
               <CustomRangeContainer>
                 <DateControl
                   value={shiftEndInsert}
-                  name='startDate'
+                  name="startDate"
                   placeholder={'Starting date'}
                   dateFormat={'YYYY-MM-DD'}
                   timeFormat={'HH:mm'}
@@ -171,7 +171,7 @@ const TimeclockEditForm = ({
             </>
           )}
           <FlexCenter>
-            <Button btnStyle='primary' onClick={editTimeClock}>
+            <Button btnStyle="primary" onClick={editTimeClock}>
               Save
             </Button>
           </FlexCenter>

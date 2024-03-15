@@ -1,4 +1,4 @@
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { RequestHandler, createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
 import * as dotenv from 'dotenv';
 import { apolloRouterPort } from '../apollo-router';
@@ -9,14 +9,16 @@ const { NODE_ENV } = process.env;
 
 const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('hostname', req.hostname);
-  proxyReq.setHeader('userid', req.user ? req.user._id : '');
 };
 
 const forbid = (_req, res) => {
-  res.status(403).send();
+  res.status(403).end();
 };
 
-export async function applyProxies(app: Express, targets: ErxesProxyTarget[]) {
+export function applyProxies(
+  app: Express,
+  targets: ErxesProxyTarget[],
+): RequestHandler {
   app.use('/rpc', forbid);
 
   const router = {
@@ -45,13 +47,23 @@ export async function applyProxies(app: Express, targets: ErxesProxyTarget[]) {
   }
   router['/'] = core.address;
 
-  app.use(
-    createProxyMiddleware({
+  const proxyMiddleware = createProxyMiddleware(
+    function filter(pathname, req): boolean {
+      const isHttp = req.protocol === 'http' || req.protocol === 'https';
+      const isGraphql = pathname.startsWith('/graphql');
+      const isSubscription = !isHttp && isGraphql;
+      // Graphql subscriptions are handled by gateway itself. Do not proxy them.
+      return !isSubscription;
+    },
+    {
       router,
       pathRewrite,
       ws: true,
       onProxyReq,
       logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
-    }),
+    },
   );
+
+  app.use(proxyMiddleware);
+  return proxyMiddleware;
 }

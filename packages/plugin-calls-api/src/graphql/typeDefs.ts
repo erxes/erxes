@@ -90,7 +90,7 @@ const filterParams = `
 
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
-  callIntegrationsOfUser: [CallsIntegrationDetailResponse]
+  callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(callerNumber: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
