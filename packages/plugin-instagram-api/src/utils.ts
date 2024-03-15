@@ -31,15 +31,15 @@ export const graphRequest = {
 
   delete(...args): any {
     return this.base('del', ...args);
-  }
+  },
 };
 export const getFacebookPageIdsForInsta = async (
   accessToken: string,
-  instagramPageId: string
+  instagramPageId: string,
 ): Promise<string | null> => {
   const response: any = await graphRequest.get(
     '/me/accounts?fields=instagram_business_account, access_token,id,name',
-    accessToken
+    accessToken,
   );
 
   for (const page of response.data) {
@@ -57,20 +57,20 @@ export const getFacebookPageIdsForInsta = async (
 
 export const subscribePage = async (
   pageId,
-  pageToken
+  pageToken,
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages']
+    subscribed_fields: ['conversations', 'feed', 'messages'],
   });
 };
 
 export const getPageAccessToken = async (
   pageId: string,
-  userAccessToken: string
+  userAccessToken: string,
 ) => {
   const response = await graphRequest.get(
     `${pageId}/?fields=access_token`,
-    userAccessToken
+    userAccessToken,
   );
 
   return response.access_token;
@@ -79,10 +79,10 @@ export const getPageAccessToken = async (
 export const refreshPageAccesToken = async (
   models: IModels,
   pageId: string,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
 ) => {
   const account = await models.Accounts.getAccount({
-    _id: integration.accountId
+    _id: integration.accountId,
   });
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
@@ -93,7 +93,7 @@ export const refreshPageAccesToken = async (
 
   await models.Integrations.updateOne(
     { _id: integration._id },
-    { $set: { facebookPageTokensMap } }
+    { $set: { facebookPageTokensMap } },
   );
 
   return facebookPageTokensMap;
@@ -101,12 +101,12 @@ export const refreshPageAccesToken = async (
 
 export const unsubscribePage = async (
   pageId,
-  pageToken
+  pageToken,
 ): Promise<{ success: true } | any> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
-    .then(res => res)
-    .catch(e => {
+    .then((res) => res)
+    .catch((e) => {
       debugError(e);
       throw e;
     });
@@ -114,32 +114,37 @@ export const unsubscribePage = async (
 export const getPageList = async (
   models: IModels,
   accessToken?: string,
-  kind?: string
+  kind?: string,
 ) => {
   const response: any = await graphRequest.get(
     '/me/accounts?fields=instagram_business_account, access_token,id,name',
-    accessToken
+    accessToken,
   );
 
   const pages: any[] = [];
 
   for (const page of response.data) {
+    console.log(
+      page.instagram_business_account,
+      'page.instagram_business_accoun',
+    );
+
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
       const accounInfo: any = await graphRequest.get(
         `${pageId}?fields=username`,
-        accessToken
+        accessToken,
       );
 
       const integration = await models.Integrations.findOne({
         instagramPageId: accounInfo.id,
-        kind
+        kind,
       });
 
       pages.push({
         id: accounInfo.id,
         name: accounInfo.username,
-        isUsed: integration ? true : false
+        isUsed: integration ? true : false,
       });
     }
   }
@@ -149,7 +154,7 @@ export const getPageList = async (
 
 export const getPageAccessTokenFromMap = (
   pageId: string,
-  pageTokens: { [key: string]: string }
+  pageTokens: { [key: string]: string },
 ): string => {
   return (pageTokens || {})[pageId];
 };
@@ -157,16 +162,16 @@ export const getPageAccessTokenFromMap = (
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
-  facebookPageTokensMap?: { [key: string]: string }
+  facebookPageTokensMap?: { [key: string]: string },
 ) => {
   if (facebookPageTokensMap !== undefined) {
     const token = await getPageAccessTokenFromMap(
       facebookPageId,
-      facebookPageTokensMap
+      facebookPageTokensMap,
     );
     const accounInfo: any = await graphRequest.get(
       `${userId}?fields=name,profile_pic`,
-      token
+      token,
     );
 
     return accounInfo;
@@ -178,7 +183,7 @@ export const getInstagramUser = async (
 
     // Or throw an error
     throw new Error(
-      'facebookPageTokensMap is undefined. Unable to get Instagram user.'
+      'facebookPageTokensMap is undefined. Unable to get Instagram user.',
     );
   }
 };
@@ -187,12 +192,12 @@ export const sendReply = async (
   models: IModels,
   url: string,
   data: any,
-  integrationId: string
+  integrationId: string,
 ) => {
   let integration;
   try {
     integration = await models.Integrations.getIntegration({
-      erxesApiId: integrationId
+      erxesApiId: integrationId,
     });
 
     // Continue with the code assuming the integration was successfully retrieved
@@ -208,28 +213,28 @@ export const sendReply = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(
       facebookPageId,
-      facebookPageTokensMap
+      facebookPageTokensMap,
     );
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`
+      `Error ocurred while trying to get page access token with ${e.message}`,
     );
     return e;
   }
 
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data
+      ...data,
     });
     debugInstagram(
-      `Successfully sent data to Instagram ${JSON.stringify(data)}`
+      `Successfully sent data to Instagram ${JSON.stringify(data)}`,
     );
     return response;
   } catch (e) {
     debugError(
       `Error ocurred while trying to send post request to facebook ${
         e.message
-      } data: ${JSON.stringify(data)}`
+      } data: ${JSON.stringify(data)}`,
     );
     throw new Error(e.message);
   }
@@ -248,9 +253,9 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
       attachment: {
         type,
         payload: {
-          url
-        }
-      }
+          url,
+        },
+      },
     });
   }
 

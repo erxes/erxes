@@ -114,7 +114,7 @@ export const setupMessageConsumers = async () => {
     'instagram:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
-
+      console.log(kind, 'kind');
       if (kind === 'instagram') {
         return instagramCreateIntegration(models, doc);
       }

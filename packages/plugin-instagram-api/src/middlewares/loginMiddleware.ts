@@ -28,7 +28,7 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+    `https://24cd-202-21-104-34.ngrok-free.app/pl:instagram/iglogin`,
   );
 
   const conf = {
@@ -45,7 +45,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: DOMAIN,
+      state: 'https://24cd-202-21-104-34.ngrok-free.app/pl:instagram',
     });
 
     // checks whether a user denied the app facebook login/permissions
