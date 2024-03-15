@@ -43,6 +43,7 @@ export default {
     segments,
     imports,
     exporter,
+    permissions,
     internalNotes,
     logs: { providesActivityLog: true, consumers: logs },
     notificationModules: NOTIFICATION_MODULES,
