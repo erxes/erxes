@@ -9,6 +9,7 @@ module.exports = {
     './settings': './src/Settings.tsx',
     './propertyGroupForm': './src/propertyGroupForm.tsx',
     './segmentForm': './src/segmentForm.tsx',
+    './activityLog': './src/activityLogs/activityLog.tsx',
     './contactDetailRightSidebar': './src/RightSidebar.tsx',
     './selectRelation': './src/common/SelectRelation.tsx',
     './invoiceDetailRightSection': './src/common/Item.tsx',

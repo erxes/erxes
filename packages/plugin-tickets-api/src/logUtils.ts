@@ -28,6 +28,7 @@ import {
   getContentTypeDetail,
 } from './utils';
 import { sendToWebhook } from '@erxes/api-utils/src';
+import { loadBoardClass } from './models/Boards';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -467,7 +468,7 @@ export const putDeleteLog = async (
 
   await commonPutDeleteLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `tickets:${logDoc.type}` },
     user
   );
 };
@@ -489,7 +490,7 @@ export const putUpdateLog = async (
 
   await commonPutUpdateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `tickets:${logDoc.type}` },
     user
   );
 };
@@ -511,7 +512,7 @@ export const putCreateLog = async (
 
   await commonPutCreateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `tickets:${logDoc.type}` },
     user
   );
 };
@@ -524,7 +525,7 @@ export const putActivityLog = async (
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `cards:${data.contentType}` },
+    data: { ...data, contentType: `tickets:${data.contentType}` },
   };
 
   if (action === 'createBoardItemMovementLog') {
@@ -532,7 +533,7 @@ export const putActivityLog = async (
       subdomain,
       data: {
         action,
-        type: `cards:${data.contentType}`,
+        type: `tickets:${data.contentType}`,
         params,
       },
     });
