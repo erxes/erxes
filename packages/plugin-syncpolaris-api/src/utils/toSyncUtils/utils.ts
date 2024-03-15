@@ -177,19 +177,17 @@ export const setLoanWithSchedule = async (subdomain, item, updateData) => {
     { number: item.number },
     { $set: updateData },
     'loans',
-  ).then(async()=>{
-      await preLoanSchedule(subdomain,item)
-  }).catch((error)=>{
-      console.log('update loan and schedule:', error)
-  })
+  )
+  await preLoanSchedule(subdomain,item)
 };
 
 
 export const preLoanSchedule = async (subdomain, item) => {
   try {
-    
+
     const mainLoanSchedule = await getMainLoanSchedule(subdomain, {contractId: item._id})
     const loanSchedules = await getLoanSchedule(subdomain, { number: item.number })
+
     if(!mainLoanSchedule && loanSchedules) {
       await createLoanSchedule(subdomain,loanSchedules,item._id)
     }
@@ -221,7 +219,7 @@ export const createLoanSchedule = async (subdomain,loanSchedules, contractId) =>
   try {
     const result: any[] = [] 
 
-    for await (const schedule of loanSchedules) {
+    for(const schedule of loanSchedules) {
       const loanSchedule  = {
         "status": "pending",
         "payDate": new Date(schedule.schdDate),
