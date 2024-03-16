@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Tab, TabsContainer, TabContent } from '../styles';
-import { Icon } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import KeyPadContainer from '../containers/KeyPad';
+import { Tab, TabContent, TabsContainer } from '../styles';
+
 import ContactsContainer from '../containers/Contacts';
 import HistoryContainer from '../containers/History';
+import { Icon } from '@erxes/ui/src/components';
+import KeyPadContainer from '../containers/KeyPad';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   autoOpenTab: string;
@@ -74,7 +75,7 @@ const WidgetPopover = ({
           className={currentTab === 'Contact' ? 'active' : ''}
           onClick={contactsOnClick}
         >
-          <Icon icon="book" size={20} />
+          <Icon icon="book" size={18} />
           {__('Contact')}
         </Tab>
       </TabsContainer>

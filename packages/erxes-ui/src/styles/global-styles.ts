@@ -503,7 +503,7 @@ a:hover {
   width: 360px;
   max-width: 360px;
   position: fixed !important;
-  bottom: 120px;
+  bottom: 155px;
   top: auto !important;
   transform: none !important;
 }

@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import {
-  InputBar,
-  NumberInput,
-  BackIcon,
-  ChooseCountry,
-  InCall,
-  CallInfo,
-  PhoneNumber,
-  ContactItem,
-  CallTabsContainer,
-  CallTab,
-  DisconnectCall,
-} from '../styles';
-import { inCallTabs } from '../constants';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Select from 'react-select-plus';
-import { Button, Icon } from '@erxes/ui/src/components';
-import { Alert, __ } from '@erxes/ui/src/utils';
 import * as PropTypes from 'prop-types';
+
+import { Alert, __ } from '@erxes/ui/src/utils';
+import {
+  BackIcon,
+  CallInfo,
+  CallTab,
+  CallTabsContainer,
+  ChooseCountry,
+  ContactItem,
+  DisconnectCall,
+  HeaderItem,
+  InCall,
+  InputBar,
+  Keypad,
+  KeypadHeader,
+  NumberInput,
+  PhoneNumber,
+} from '../styles';
+import { Button, Icon } from '@erxes/ui/src/components';
 import {
   CALL_DIRECTION_INCOMING,
   CALL_STATUS_ACTIVE,
@@ -27,7 +27,8 @@ import {
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
 } from '../lib/enums';
-import { callPropType, sipPropType } from '../lib/types';
+import { ICallConversation, ICustomer } from '../types';
+import React, { useEffect, useState } from 'react';
 import {
   callActions,
   formatPhone,
@@ -35,8 +36,12 @@ import {
   renderFooter,
   renderKeyPad,
 } from '../utils';
+import { callPropType, sipPropType } from '../lib/types';
+
+import { FormControl } from '@erxes/ui/src/components/form';
 import Popover from 'react-bootstrap/Popover';
-import { ICallConversation, ICustomer } from '../types';
+import Select from 'react-select-plus';
+import { inCallTabs } from '../constants';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -418,6 +423,24 @@ const KeyPad = (props: Props, context) => {
       )}
       {Sip.call?.direction !== CALL_DIRECTION_INCOMING && (
         <NumberInput>
+          <KeypadHeader>
+            <HeaderItem>
+              <Icon className="online" icon="signal-alt-3" />
+              Online
+            </HeaderItem>
+            <HeaderItem>
+              <Icon className="reload" icon="reload" />
+              Reload
+            </HeaderItem>
+            <HeaderItem>
+              <Icon className="pause" size={14} icon="pause-circle" />
+              Pause
+            </HeaderItem>
+            <HeaderItem>
+              <Icon className="off" size={13} icon="pause-1" />
+              Turn off
+            </HeaderItem>
+          </KeypadHeader>
           <InputBar type="keypad">
             <FormControl
               placeholder={__('Enter Phone Number')}
@@ -468,8 +491,12 @@ const KeyPad = (props: Props, context) => {
             {(!Sip.call ||
               Sip.sip?.status === SIP_STATUS_ERROR ||
               Sip.sip?.status === SIP_STATUS_DISCONNECTED) && (
-              <Button btnStyle="success" onClick={handleCallConnect}>
-                Connect to Call
+              <Button
+                btnStyle="success"
+                icon="phone-call"
+                onClick={handleCallConnect}
+              >
+                Call
               </Button>
             )}
           </>
