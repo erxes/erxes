@@ -1,7 +1,5 @@
 import * as JsSIP from 'jssip';
 import * as PropTypes from 'prop-types';
-import React from 'react';
-import dummyLogger from '../../lib/dummyLogger';
 
 import {
   CALL_DIRECTION_INCOMING,
@@ -26,14 +24,17 @@ import {
   SipStatus,
 } from '../../lib/enums';
 import {
-  callPropType,
   ExtraHeaders,
-  extraHeadersPropType,
   IceServers,
+  callPropType,
+  extraHeadersPropType,
   iceServersPropType,
   sipPropType,
 } from '../../lib/types';
 import { ICallConfigDoc } from '../../types';
+
+import React from 'react';
+import dummyLogger from '../../lib/dummyLogger';
 import { setLocalStorage } from '../../utils';
 
 export default class SipProvider extends React.Component<
@@ -181,7 +182,7 @@ export default class SipProvider extends React.Component<
     const callConfig = JSON.parse(
       localStorage.getItem('config:call_integrations') || '{}',
     );
-    const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+    const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
 
     if (
       this.state.sipStatus === SIP_STATUS_REGISTERED &&

@@ -5,6 +5,7 @@ type Props = {
   callUserIntegrations: any;
   setConfig: any;
 };
+
 const WidgetContainer = (props: Props) => {
   return <Widget {...props} />;
 };

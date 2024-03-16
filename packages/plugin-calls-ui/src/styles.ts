@@ -1,12 +1,24 @@
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import {
+  animationPulse,
+  pop,
+  slideRight,
+} from '@erxes/ui/src/utils/animations';
 import styled, { keyframes } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import styledTS from 'styled-components-ts';
 
 export const Tab = styled(TabTitle)`
   display: flex;
   flex-direction: column;
+  font-size: 12px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+  > i {
+    height: 20px;
+  }
 
   &.active::before {
     border-bottom: none;
@@ -19,10 +31,12 @@ export const Tab = styled(TabTitle)`
 
 export const TabsContainer = styled(Tabs)`
   height: fit-content;
+  border-top: 1px solid ${colors.borderPrimary};
 `;
 
 export const TabContent = styledTS<{ show: boolean }>(styled.div)`
   display:${(props) => (props.show ? 'block' : 'none')};
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 export const CallHistory = styled.div`
@@ -103,8 +117,8 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   border-radius: 8px;
   height: 41px;
   margin: ${(props) =>
-    props.type === 'country' ? '5px 0px 10px 0px' : '20px 20px 10px 20px'};
-  border: 1.2px solid rgba(0, 0, 0, 0.12);
+    props.type === 'country' ? '5px 0px 10px 0px' : '10px 20px'};
+  border: 1px solid ${colors.borderPrimary};
 
   input {
     border-bottom: 0;
@@ -134,10 +148,11 @@ export const NumberInput = styled.div`
   }
 
   .Select {
-    border: 1.2px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid ${colors.borderPrimary};
     border-radius: ${dimensions.unitSpacing}px;
-    margin: ${dimensions.coreSpacing}px;
+    margin: 8px 20px 10px;
     padding: 10px 20px;
+    font-size: 15px;
   }
 
   .Select-control {
@@ -153,7 +168,7 @@ export const NumberInput = styled.div`
 `;
 
 export const CountryCode = styled.div`
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-right: 1px solid ${colors.borderPrimary};
   padding-right: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
   width: 82px;
@@ -195,7 +210,7 @@ export const Keypad = styled.div`
   gap: 5px;
   display: flex;
   flex-wrap: wrap;
-  padding: 10px ${dimensions.coreSpacing}px 0;
+  padding: 0 ${dimensions.coreSpacing}px;
 
   .number {
     width: 32%;
@@ -203,8 +218,15 @@ export const Keypad = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 16px;
     border: 1.12px solid rgba(0, 0, 0, 0.08);
     border-radius: ${dimensions.unitSpacing}px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
   }
 
   .symbols {
@@ -213,7 +235,12 @@ export const Keypad = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 25px;
+    font-size: 22px;
+    cursor: pointer;
+
+    > div {
+      cursor: pointer;
+    }
   }
 
   .plus {
@@ -232,8 +259,13 @@ export const CountryContainer = styled.div`
   overflow: auto;
 `;
 
-export const IncomingCallNav = styled.div`
+export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
   display: flex;
+  position: fixed;
+  bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
+  right: ${(props) => (props.type === 'outgoing' ? '0' : '20px')};
+  z-index: 999;
+  animation: ${slideRight} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 
   button {
     height: 30px;
@@ -300,38 +332,50 @@ export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
     font-size: 15px;`
       : `font-weight: 500;
     font-size: 18px;`}
+
+    > h5 {
+      margin: 0;
+    }
 `;
 
 export const Actions = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   styled.div,
 )`
-  width: 70px;
-  height: 70px
-  border-radius: 50%;
-  border: 1.2px solid rgba(255, 255, 255, 0.7);
+  width: 60px;
+  height: 60px
+  border-radius: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   cursor: pointer;
-  color: #fff;
-  background: ${(props) => props.shrink && '#999999'};
+  color: ${colors.colorWhite};
+  background: rgba(255, 255, 255, 0.4);
+  margin-bottom: 5px;
+  transition: all ease .3s;
 
   ${(props) =>
     props.isDecline &&
     `
-    border-color: #FF4949;
-    background: #FF4949;
+    background: ${colors.colorCoreRed};
   `}
 
   &:hover {
-    color: rgba(0, 0, 0, 0.62);
-    background: #fff;
+    background: ${(props) =>
+      props.isDecline ? 'rgba(234, 71, 93, 0.6)' : 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -349,9 +393,9 @@ export const ActionNumber = styled.div`
 
 export const InCallFooter = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 40px;
 `;
 
 export const CallTab = styled(TabTitle)`
@@ -408,13 +452,35 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
   }
 `;
 
-export const NotifButton = styled.div`
+export const WidgetWrapper = styled.div`
   cursor: pointer;
-  text-align: center;
-  width: 100%;
+  width: 56px;
+  height: 56px;
+  border-radius: 56px;
+  background: ${colors.colorCoreGreen};
   position: relative;
-  transition: all 0.3s ease;
-  color: ${colors.textSecondary};
+  color: ${colors.colorWhite};
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  transition:
+    box-shadow 0.3s ease-in-out,
+    background-image 0.3s ease-in;
+  animation: ${pop} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:before {
+    animation: ${animationPulse} 3s infinite;
+    border-radius: 50%;
+    color: inherit;
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
 
   span {
     position: absolute;
@@ -438,37 +504,128 @@ export const DisconnectCall = styled.div`
 
 /* IncomingCall.css */
 export const IncomingContainer = styled.div`
-  padding: 20px;
-  width: 300px;
+  padding: ${dimensions.unitSpacing}px;
   text-align: center;
+  min-width: 380px;
+  background: ${colors.colorWhite};
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: ${dimensions.unitSpacing}px;
+  overflow: hidden;
+`;
+
+export const IncomingContent = styled.div`
+  background: linear-gradient(
+    170.05deg,
+    #5b38ca 0%,
+    #4e31a8 49.66%,
+    #1f0f53 98.7%
+  );
+  padding: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+
+  > p {
+    margin: ${dimensions.unitSpacing}px 0;
+  }
 `;
 
 export const IncomingButtonContainer = styled.div`
-  margin-top: 20px;
-  margin-left: 40%;
+  margin-top: ${dimensions.coreSpacing}px;
   display: flex;
+  justify-content: space-between;
+  margin: 20px 80px 0;
+
+  b {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
 `;
 
 export const IncomingActionButton = styledTS<{
   type?: string;
 }>(styled.div)`
-  
+  display: flex;
   align-items: center;
   justify-content: center;
   background: ${(props) => (props.type === 'decline' ? '#FF4949' : '#13CE66')};
-  border-radius: 4px;
-  margin-right: 8px;
-  height: 30px;
-  width: 80px;
-
-  padding: 5px 10px;
+  border-radius: 60px;
+  height: 60px;
+  width: 60px;
   transition: background-color 0.3s ease;
+  cursor: pointer;
 
   &:hover {
     background-color: ${(props) =>
       props.type === 'accepted' ? '#45a049' : '#d32f2f'};
   }
 `;
+
 export const NameCardContainer = styled.div`
-  margin-left: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  > h5 {
+    margin: 0 0 ${dimensions.unitSpacing}px;
+
+    > i {
+      margin-right: 5px;
+      animation: ${pulse} 2s infinite;
+    }
+  }
+
+  > h4 {
+    font-weight: 800;
+    word-break: break-word;
+  }
+`;
+
+export const KeypadHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: #fcfcfd;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+export const HeaderItem = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  padding: 5px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all ease 0.3s;
+
+  > i {
+    margin-right: 5px;
+
+    &.reload {
+      color: #667085;
+    }
+    &.on {
+      color: ${colors.colorCoreGreen};
+    }
+    &.off {
+      color: ${colors.colorCoreRed};
+    }
+    &.pause {
+      color: ${colors.colorCoreSunYellow};
+    }
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
+
+export const IncomingCalls = styled.div`
+  display: flex;
+`;
+
+export const ActiveCalls = styled.div`
+  background: ${colors.colorWhite};
 `;
