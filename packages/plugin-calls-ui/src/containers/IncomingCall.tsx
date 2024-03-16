@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 
 import { Alert } from '@erxes/ui/src/utils';
+import { ICustomer } from '../types';
 import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
@@ -15,9 +16,14 @@ interface IProps {
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
-  const [customer, setCustomer] = useState<any>(undefined);
+  const [customer, setCustomer] = useState<any>({
+    firstName: 'Anu-Ujin',
+    middleName: '',
+    lastName: 'B',
+    phones: ['343443', '344334'],
+    primaryPhone: '99123569',
+  } as ICustomer);
   const [conversation, setConversation] = useState<any>(undefined);
-
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callUserIntegrations } = props;
