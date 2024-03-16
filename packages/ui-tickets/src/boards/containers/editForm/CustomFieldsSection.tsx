@@ -76,7 +76,7 @@ export default (props: Props) => {
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: `cards:${options.type}`,
+            contentType: `tickets:${options.type}`,
             config: {
               boardId: item.boardId || '',
               pipelineId: item.pipeline._id || '',
@@ -89,8 +89,8 @@ export default (props: Props) => {
         gql(options.mutations.editMutation),
         {
           name: 'editMutation',
-        },
-      ),
-    )(CustomFieldsSection),
+        }
+      )
+    )(CustomFieldsSection)
   );
 };

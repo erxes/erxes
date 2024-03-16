@@ -7,18 +7,18 @@ class Form extends React.Component<any, any> {
     const config = props.config || {};
 
     this.state = {
-      selectedItems: config.boardsPipelines || []
+      selectedItems: config.boardsPipelines || [],
     };
   }
 
-  itemsChange = items => {
+  itemsChange = (items) => {
     this.setState({ selectedItems: items }, () => {
       const boardsPipelines =
         items &&
-        items.map(e => {
+        items.map((e) => {
           const boardsPipeline = {
             boardId: e.boardId,
-            pipelineIds: e.pipelineIds
+            pipelineIds: e.pipelineIds,
           };
 
           return boardsPipeline;
@@ -33,7 +33,7 @@ class Form extends React.Component<any, any> {
       <SelectBoards
         isRequired={false}
         onChangeItems={this.itemsChange}
-        type={this.props.type.replace('cards:', '')}
+        type={this.props.type.replace('tickets:', '')}
         selectedItems={this.state.selectedItems}
       />
     );

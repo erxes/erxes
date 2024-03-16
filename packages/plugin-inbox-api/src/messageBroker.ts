@@ -23,7 +23,7 @@ const createConversationAndMessage = async (
   visitorId,
   integrationId,
   content,
-  engageData,
+  engageData
 ) => {
   // create conversation
   const conversation = await models.Conversations.createConversation({
@@ -69,11 +69,11 @@ export const setupMessageConsumers = () => {
         visitorId,
         integrationId,
         content,
-        engageData,
+        engageData
       );
 
       return { data: response, status: 'success' };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -102,7 +102,7 @@ export const setupMessageConsumers = () => {
           contentType,
         }),
       };
-    },
+    }
   );
 
   consumeRPCQueue('inbox:integrations.receive', async ({ subdomain, data }) => {
@@ -113,7 +113,7 @@ export const setupMessageConsumers = () => {
     'inbox:integrationsNotification',
     async ({ subdomain, data }) => {
       await receiveIntegrationsNotification(subdomain, data);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -123,11 +123,11 @@ export const setupMessageConsumers = () => {
 
       const integrations = await models.Integrations.findIntegrations(
         query,
-        options,
+        options
       );
 
       return { data: integrations, status: 'success' };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -138,7 +138,7 @@ export const setupMessageConsumers = () => {
       const count = await models.Integrations.count(selector);
 
       return { data: count, status: 'success' };
-    },
+    }
   );
 
   consumeQueue(
@@ -147,7 +147,7 @@ export const setupMessageConsumers = () => {
       const models = await generateModels(subdomain);
 
       await models.Conversations.changeCustomer(customerId, customerIds);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -161,7 +161,7 @@ export const setupMessageConsumers = () => {
           _id: conversationId,
         }).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -173,7 +173,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await models.ConversationMessages.findOne(data).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -185,7 +185,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await models.ConversationMessages.find(data).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue('inbox:integrations.findOne', async ({ subdomain, data }) => {
@@ -210,7 +210,7 @@ export const setupMessageConsumers = () => {
         data: updated,
         status: 'success',
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -219,7 +219,7 @@ export const setupMessageConsumers = () => {
       const models = await generateModels(subdomain);
 
       return models.Conversations.removeCustomersConversations(customerIds);
-    },
+    }
   );
 
   consumeQueue(
@@ -229,7 +229,7 @@ export const setupMessageConsumers = () => {
 
       await models.ConversationMessages.deleteMany({ conversationId: _id });
       return models.Conversations.deleteOne({ _id });
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -241,7 +241,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await models.Conversations.find(query).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -253,7 +253,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await models.Conversations.findOne(query),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -266,7 +266,7 @@ export const setupMessageConsumers = () => {
           status: 'success',
           data: await models.Conversations.updateOne(
             { _id: id },
-            { status: status },
+            { status: status }
           ),
         };
       }
@@ -275,7 +275,7 @@ export const setupMessageConsumers = () => {
         errorMessage:
           'id and status are required. id is ${id} and status is ${status}',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -287,7 +287,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await models.Conversations.find(query).countDocuments(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -299,7 +299,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: await paginate(models.Conversations.find(query), listParams),
       };
-    },
+    }
   );
 
   consumeQueue('inbox:visitor.convertResponse', async ({ subdomain, data }) => {
@@ -352,7 +352,7 @@ export const setupMessageConsumers = () => {
         status: 'success',
         data: filter,
       };
-    },
+    }
   );
 
   consumeQueue('inbox:sendNotifications', async ({ data, subdomain }) => {
@@ -365,7 +365,7 @@ export const setupMessageConsumers = () => {
       const models = await generateModels(subdomain);
 
       await pConversationClientMessageInserted(models, subdomain, data);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -376,15 +376,15 @@ export const setupMessageConsumers = () => {
       return {
         status: 'success',
         data: await models.ConversationMessages.widgetsGetUnreadMessagesCount(
-          data.conversationId,
+          data.conversationId
         ),
       };
-    },
+    }
   );
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -392,7 +392,7 @@ export const sendCommonMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -401,7 +401,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendFormsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -417,7 +417,7 @@ export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
 };
 
 export const sendEngagesMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -426,7 +426,7 @@ export const sendEngagesMessage = (
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -434,8 +434,17 @@ export const sendCardsMessage = async (
   });
 };
 
+export const sendTicketsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tickets',
+    ...args,
+  });
+};
+
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -451,7 +460,7 @@ export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
 };
 
 export const sendIntegrationsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -460,7 +469,7 @@ export const sendIntegrationsMessage = (
 };
 
 export const sendSegmentsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -469,7 +478,7 @@ export const sendSegmentsMessage = (
 };
 
 export const sendNotificationsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -478,7 +487,7 @@ export const sendNotificationsMessage = (
 };
 
 export const sendKnowledgeBaseMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
@@ -487,7 +496,7 @@ export const sendKnowledgeBaseMessage = (
 };
 
 export const sendLogsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
@@ -496,7 +505,7 @@ export const sendLogsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
@@ -508,7 +517,7 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
   sendSegmentsMessage({
     subdomain,
