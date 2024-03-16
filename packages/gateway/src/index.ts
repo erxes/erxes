@@ -12,7 +12,7 @@ import {
 } from './redis';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
-import { applyProxies } from './proxy/middleware';
+import { applyProxiesCoreless, applyProxyToCore } from './proxy/middleware';
 import { startRouter, stopRouter } from './apollo-router';
 import {
   startSubscriptionServer,
@@ -52,13 +52,9 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 
   await startRouter(targets);
 
-  const proxy = await applyProxies(app, targets);
+  applyProxiesCoreless(app, targets);
 
   const httpServer = http.createServer(app);
-
-  if (proxy.upgrade) {
-    httpServer.on('upgrade', proxy.upgrade);
-  }
 
   httpServer.on('close', () => {
     try {
@@ -79,6 +75,8 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   await setBeforeResolvers();
   await setAfterMutations();
   await setAfterQueries();
+
+  await applyProxyToCore(app, targets);
 
   console.log(`Erxes gateway ready at http://localhost:${port}/`);
 })();
