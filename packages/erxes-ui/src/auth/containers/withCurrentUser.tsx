@@ -5,6 +5,7 @@ import { storeConstantToStore, withProps } from "../../utils";
 
 import { CurrentUserQueryResponse } from "../types";
 import React from "react";
+import Spinner from "modules/common/components/Spinner";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
@@ -17,7 +18,7 @@ const withCurrentUser = (Component) => {
     const { currentUserQuery } = props;
 
     if (currentUserQuery.loading) {
-      return <div />;
+      return <Spinner />;
     }
 
     const currentUser = currentUserQuery.currentUser || {};
