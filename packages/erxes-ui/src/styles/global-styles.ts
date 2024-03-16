@@ -451,7 +451,7 @@ a:hover {
   z-index: 1040;
 }
 
-[id^="headlessui-popover-button-"], [id^="headlessui-menu-button-"], #rte-controls-group-dropdown-button {
+[id^="headlessui-popover-button-"], [id^="headlessui-menu-button-"], [id^="headlessui-listbox-button-"], #rte-controls-group-dropdown-button {
   padding: 0;
   background: none;
   border: 0;
@@ -468,6 +468,7 @@ a:hover {
   position: relative;
   box-shadow: 0 0 0 1px rgba(0,0,0,.05);
   background: ${colors.colorWhite};
+  border-radius: 0.25rem;
 }
 
 [id^="headlessui-listbox-options-"] span {

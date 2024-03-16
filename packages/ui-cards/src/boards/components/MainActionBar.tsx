@@ -4,7 +4,7 @@ import {
   HeaderButton,
   HeaderLabel,
   HeaderLink,
-  PageHeader
+  PageHeader,
 } from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
 import { __, isEnabled } from '@erxes/ui/src/utils/core';
@@ -13,12 +13,10 @@ import {
   groupByGantt,
   groupByList,
   showByTime,
-  stackByChart
+  stackByChart,
 } from '../constants';
 
 import Button from '@erxes/ui/src/components/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Filter from '@erxes/ui/src/components/filter/Filter';
 import { GroupByContent } from '../styles/common';
@@ -31,6 +29,7 @@ import RightMenu from './RightMenu';
 import SelectType from './SelectType';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import Tip from '@erxes/ui/src/components/Tip';
+import { Listbox, Transition } from '@headlessui/react';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -61,7 +60,7 @@ class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
     viewType: 'board',
     boardText: 'Board',
-    pipelineText: 'Pipeline'
+    pipelineText: 'Pipeline',
   };
 
   constructor(props: Props) {
@@ -69,7 +68,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       showDetail:
-        localStorage.getItem('showSalesDetail') === 'true' ? true : false
+        localStorage.getItem('showSalesDetail') === 'true' ? true : false,
     };
   }
 
@@ -81,7 +80,7 @@ class MainActionBar extends React.Component<Props, State> {
       );
     }
 
-    return boards.map(board => {
+    return boards.map((board) => {
       let link = `${this.props.link}?id=${board._id}`;
 
       const { pipelines = [] } = board;
@@ -95,12 +94,12 @@ class MainActionBar extends React.Component<Props, State> {
       }
 
       return (
-        <li key={board._id}>
+        <Listbox.Option key={board._id} value={board.name}>
           <Link to={link}>{board.name}</Link>
           {currentBoard && board._id === currentBoard._id && (
             <Icon icon="check-1" size={15} />
           )}
-        </li>
+        </Listbox.Option>
       );
     });
   }
@@ -123,9 +122,9 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    return pipelines.map(pipeline => {
+    return pipelines.map((pipeline) => {
       return (
-        <li key={pipeline._id}>
+        <Listbox.Option key={pipeline._id} value={pipeline.name}>
           <Link
             to={`${link}?id=${currentBoard._id}&pipelineId=${pipeline._id}`}
           >
@@ -134,7 +133,7 @@ class MainActionBar extends React.Component<Props, State> {
           {currentPipeline && pipeline._id === currentPipeline._id && (
             <Icon icon="check-1" size={15} />
           )}
-        </li>
+        </Listbox.Option>
       );
     });
   }
@@ -148,7 +147,7 @@ class MainActionBar extends React.Component<Props, State> {
       link,
       extraFilter,
       options,
-      clearFilter
+      clearFilter,
     } = this.props;
 
     const rightMenuProps = {
@@ -159,7 +158,7 @@ class MainActionBar extends React.Component<Props, State> {
       extraFilter,
       options,
       isFiltered,
-      clearFilter
+      clearFilter,
     };
 
     return <RightMenu {...rightMenuProps} />;
@@ -174,7 +173,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     if (currentPipeline.visibility === 'public') {
       return (
-        <HeaderButton isActive={true}>
+        <HeaderButton $isActive={true}>
           <Icon icon="earthgrid" /> {__('Public')}
         </HeaderButton>
       );
@@ -184,7 +183,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <>
-        <HeaderButton isActive={true}>
+        <HeaderButton $isActive={true}>
           <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
@@ -280,93 +279,102 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <ButtonGroup>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
-            <Button btnStyle="primary" icon="list-ui-alt">
-              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
-              <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li key="board">
-              <Link
-                to={onFilterClick('board')}
-                className={viewType === 'board' ? 'active' : ''}
-              >
-                {__('Board')}
-              </Link>
-            </li>
-            <li key="calendar">
-              <Link
-                to={onFilterClick('calendar')}
-                className={viewType === 'calendar' ? 'active' : ''}
-              >
-                {__('Calendar')}
-              </Link>
-            </li>
-            {options.type === 'deal' && (
-              <li key="conversion">
-                <Link
-                  to={onFilterClick('conversion')}
-                  className={viewType === 'conversion' ? 'active' : ''}
-                >
-                  {__('Conversion')}
-                </Link>
-              </li>
-            )}
-            {options.type === 'purchase' && (
-              <li key="conversion">
-                <Link
-                  to={onFilterClick('conversion')}
-                  className={viewType === 'conversion' ? 'active' : ''}
-                >
-                  {__('Conversion')}
-                </Link>
-              </li>
-            )}
-            <li key="activity">
-              <Link
-                to={onFilterClick('activity')}
-                className={viewType === 'activity' ? 'active' : ''}
-              >
-                {__('Activity')}
-              </Link>
-            </li>
-            <li key="list">
-              <Link
-                to={onFilterClick('list')}
-                className={viewType === 'list' ? 'active' : ''}
-              >
-                {__('List')}
-              </Link>
-            </li>
-            <li key="chart">
-              <Link
-                to={onFilterClick('chart')}
-                className={viewType === 'chart' ? 'active' : ''}
-              >
-                {__('Chart')}
-              </Link>
-            </li>
-            <li key="gantt">
-              <Link
-                to={onFilterClick('gantt')}
-                className={viewType === 'gantt' ? 'active' : ''}
-              >
-                {__('Gantt')}
-              </Link>
-            </li>
+        <Listbox>
+          <div className="relative">
+            <Listbox.Button>
+              <Button btnStyle="primary" icon="list-ui-alt">
+                {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+                <Icon icon="angle-down" />
+              </Button>
+            </Listbox.Button>
+            <Transition
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              className="absolute w-full shadow-lg"
+            >
+              <Listbox.Options static>
+                <li key="board">
+                  <Link
+                    to={onFilterClick('board')}
+                    className={viewType === 'board' ? 'active' : ''}
+                  >
+                    {__('Board')}
+                  </Link>
+                </li>
+                <li key="calendar">
+                  <Link
+                    to={onFilterClick('calendar')}
+                    className={viewType === 'calendar' ? 'active' : ''}
+                  >
+                    {__('Calendar')}
+                  </Link>
+                </li>
+                {options.type === 'deal' && (
+                  <li key="conversion">
+                    <Link
+                      to={onFilterClick('conversion')}
+                      className={viewType === 'conversion' ? 'active' : ''}
+                    >
+                      {__('Conversion')}
+                    </Link>
+                  </li>
+                )}
+                {options.type === 'purchase' && (
+                  <li key="conversion">
+                    <Link
+                      to={onFilterClick('conversion')}
+                      className={viewType === 'conversion' ? 'active' : ''}
+                    >
+                      {__('Conversion')}
+                    </Link>
+                  </li>
+                )}
+                <li key="activity">
+                  <Link
+                    to={onFilterClick('activity')}
+                    className={viewType === 'activity' ? 'active' : ''}
+                  >
+                    {__('Activity')}
+                  </Link>
+                </li>
+                <li key="list">
+                  <Link
+                    to={onFilterClick('list')}
+                    className={viewType === 'list' ? 'active' : ''}
+                  >
+                    {__('List')}
+                  </Link>
+                </li>
+                <li key="chart">
+                  <Link
+                    to={onFilterClick('chart')}
+                    className={viewType === 'chart' ? 'active' : ''}
+                  >
+                    {__('Chart')}
+                  </Link>
+                </li>
+                <li key="gantt">
+                  <Link
+                    to={onFilterClick('gantt')}
+                    className={viewType === 'gantt' ? 'active' : ''}
+                  >
+                    {__('Gantt')}
+                  </Link>
+                </li>
 
-            <li key="time">
-              <Link
-                to={onFilterClick('time')}
-                className={viewType === 'time' ? 'active' : ''}
-              >
-                {__('Time')}
-              </Link>
-            </li>
-          </Dropdown.Menu>
-        </Dropdown>
+                <li key="time">
+                  <Link
+                    to={onFilterClick('time')}
+                    className={viewType === 'time' ? 'active' : ''}
+                  >
+                    {__('Time')}
+                  </Link>
+                </li>
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
       </ButtonGroup>
     );
   };
@@ -374,13 +382,13 @@ class MainActionBar extends React.Component<Props, State> {
   onDetailShowHandler = () => {
     this.setState(
       {
-        showDetail: !this.state.showDetail
+        showDetail: !this.state.showDetail,
       },
       () => {
         localStorage.setItem('showSalesDetail', `${this.state.showDetail}`);
         const storageChangeEvent = new Event('storageChange');
         window.dispatchEvent(storageChangeEvent);
-      }
+      },
     );
   };
 
@@ -410,7 +418,7 @@ class MainActionBar extends React.Component<Props, State> {
       rightContent,
       boardText,
       pipelineText,
-      queryParams
+      queryParams,
     } = this.props;
 
     const type = options.type;
@@ -424,28 +432,46 @@ class MainActionBar extends React.Component<Props, State> {
         <HeaderLabel>
           <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            <HeaderButton rightIconed={true}>
-              {(currentBoard && currentBoard.name) || __('Choose board')}
-              <Icon icon="angle-down" />
-            </HeaderButton>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
-        </Dropdown>
+        <Listbox>
+          <div className="relative">
+            <Listbox.Button>
+              <HeaderButton $rightIconed={true}>
+                {(currentBoard && currentBoard.name) || __('Choose board')}
+                <Icon icon="angle-down" />
+              </HeaderButton>
+            </Listbox.Button>
+            <Transition
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              className="absolute w-full shadow-lg"
+            >
+              <Listbox.Options static>{this.renderBoards()}</Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
         <HeaderLabel>
           <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
         </HeaderLabel>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
-            <HeaderButton rightIconed={true}>
-              {(currentPipeline && currentPipeline.name) ||
-                __('Choose pipeline')}
-              <Icon icon="angle-down" />
-            </HeaderButton>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
-        </Dropdown>
+        <Listbox>
+          <div className="relative">
+            <Listbox.Button>
+              <HeaderButton $rightIconed={true}>
+                {(currentPipeline && currentPipeline.name) ||
+                  __('Choose pipeline')}
+                <Icon icon="angle-down" />
+              </HeaderButton>
+            </Listbox.Button>
+            <Transition
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              className="absolute w-full shadow-lg"
+            >
+              <Listbox.Options static>{this.renderPipelines()}</Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')} placement="bottom">
             <Link
