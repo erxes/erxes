@@ -16,7 +16,7 @@ module.exports = {
           payload,
           _params,
           { dataSources: { gatewayDataSource } },
-          info
+          info,
         ) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
@@ -31,8 +31,16 @@ module.exports = {
           `,
           });
         },
-        subscribe: (_, { userId, subdomain }) =>
-          graphqlPubsub.asyncIterator(`notificationInserted:${subdomain}:${userId}`),
+        subscribe: (_, { userId, subdomain }, context) => {
+          if (subdomain !== context?.subdomain) {
+            console.error(
+              `subscribe error: Parameter subdomain ${subdomain} and context subdomain ${context.subdomain} doesn't match`,
+            );
+          }
+          return graphqlPubsub.asyncIterator(
+            `notificationInserted:${subdomain}:${userId}`,
+          );
+        },
       },
 
       notificationRead: {
