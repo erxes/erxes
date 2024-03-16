@@ -245,12 +245,12 @@ const SipProviderContainer = (props) => {
     >
       {(state) => (
         <>
-          {/* {state?.callDirection === CALL_DIRECTION_INCOMING && ( */}
-          <IncomingCallContainer
-            {...props}
-            callUserIntegrations={callUserIntegrations}
-          />
-          {/* )} */}
+          {state?.callDirection === CALL_DIRECTION_INCOMING && (
+            <IncomingCallContainer
+              {...props}
+              callUserIntegrations={callUserIntegrations}
+            />
+          )}
           <WidgetContainer
             {...props}
             callUserIntegrations={callUserIntegrations}
