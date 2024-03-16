@@ -121,7 +121,7 @@ module.exports = {
           (_, { userId, subdomain }, context) => {
             if (subdomain !== context?.subdomain) {
               console.error(
-                `subscribe error: Parameter subdomain ${subdomain} and context subdomain ${context.subdomain} doesn't match`,
+                `conversationClientMessageInserted subscribe error: Parameter subdomain ${subdomain} and context subdomain ${context.subdomain} doesn't match`,
               );
             }
             return graphqlPubsub.asyncIterator(
