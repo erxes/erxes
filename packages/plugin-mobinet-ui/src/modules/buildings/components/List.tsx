@@ -82,9 +82,9 @@ const List = (props: Props) => {
 
     if (buildings.length > 0 && map) {
       map.highlight((feature: { id: string }) => {
-        console.log('feature  ', feature.id);
+        // console.log('feature  ', feature.id);
         const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
-        console.log('foundBuilding  ', foundBuilding);
+        // console.log('foundBuilding  ', foundBuilding);
         const current = currentOsmBuilding?.id === feature.id;
         if (foundBuilding && foundBuilding?.serviceStatus === 'active') {
           return '#ff0000';
@@ -168,6 +168,7 @@ const List = (props: Props) => {
       onChangeCenter,
       onload,
       center,
+      buildings,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -177,13 +178,22 @@ const List = (props: Props) => {
     if (viewType !== '2d') {
       return null;
     }
+    const onload = (bounds: ICoordinates[], mapRef) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+
+      setMap(mapRef.current);
+    };
 
     return (
       <OSMap
         id={Math.random().toString(10)}
         width={'100%'}
         height={'100%'}
+        onChangeCenter={onChangeCenter}
+        onload={onload}
         center={center}
+        buildings={buildings}
         zoom={16}
         addMarkerOnCenter={false}
         // onChangeCenter={onChangeCenter}
