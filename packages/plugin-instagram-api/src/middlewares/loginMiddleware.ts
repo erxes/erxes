@@ -3,7 +3,12 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from '../connectionResolver';
 import { getConfig, getEnv } from '../commonUtils';
 import { graphRequest } from '../utils';
-import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import {
+  debugFacebook,
+  debugRequest,
+  debugResponse,
+  debugInstagram,
+} from '../debuggers';
 import { repairIntegrations } from '../helpers';
 
 const loginMiddleware = async (req, res) => {
@@ -28,7 +33,7 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+    `${DOMAIN}/gateway/pl:instagram/instalogin`,
   );
 
   const conf = {
@@ -37,9 +42,13 @@ const loginMiddleware = async (req, res) => {
     scope: INSTAGRAM_PERMISSIONS,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
   };
+  console.log(conf, 'conf');
+
+  console.log('req.code:', JSON.stringify(req.code));
   debugRequest(debugFacebook, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
+
   if (!req.query.code) {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
@@ -47,17 +56,21 @@ const loginMiddleware = async (req, res) => {
       scope: conf.scope,
       state: DOMAIN,
     });
-
+    console.log(authUrl, 'authUrl');
     // checks whether a user denied the app facebook login/permissions
     if (!req.query.error) {
-      debugResponse(debugFacebook, req, authUrl);
-      return res.redirect(authUrl);
+      debugResponse(debugInstagram, req, authUrl);
+      console.log('!req.query.error...', authUrl);
+      const url = await res.redirect(authUrl);
+      console.log(url, 'url');
+      return url;
     } else {
-      debugResponse(debugFacebook, req, 'access denied');
+      console.log('access denied...');
+      debugResponse(debugInstagram, req, 'access denied');
       return res.send('access denied');
     }
   }
-
+  console.log('conf2 end boljin...');
   const config = {
     client_id: conf.client_id,
     redirect_uri: conf.redirect_uri,
@@ -65,7 +78,7 @@ const loginMiddleware = async (req, res) => {
     code: req.query.code,
   };
 
-  debugResponse(debugFacebook, req, JSON.stringify(config));
+  debugResponse(debugInstagram, req, JSON.stringify(config));
 
   // If this branch executes user is already being redirected back with
   // code (whatever that is)
@@ -119,7 +132,7 @@ const loginMiddleware = async (req, res) => {
 
     debugResponse(debugFacebook, req, url);
 
-    return res.redirect(url);
+    return await res.redirect(url);
   });
 };
 export default loginMiddleware;

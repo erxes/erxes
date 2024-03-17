@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
@@ -24,7 +24,7 @@ const generateFilter = (commonSelector, args: IListParams) => {
   if (searchValue) {
     filter.$or = [
       { name: new RegExp(`.*${searchValue}.*`, 'i') },
-      { content: new RegExp(`.*${searchValue}.*`, 'i') }
+      { content: new RegExp(`.*${searchValue}.*`, 'i') },
     ];
   }
 
@@ -38,10 +38,10 @@ const responseTemplateQueries = {
   responseTemplates(
     _root,
     args: IListParams,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     const filter = generateFilter(commonQuerySelector, args);
-
+    console.log(filter, 'filter');
     return paginate(models.ResponseTemplates.find(filter), args);
   },
 
@@ -51,12 +51,12 @@ const responseTemplateQueries = {
   responseTemplatesTotalCount(
     _root,
     args: IListParams,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
     return models.ResponseTemplates.find(filter).countDocuments();
-  }
+  },
 };
 
 requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');
@@ -64,7 +64,7 @@ checkPermission(
   responseTemplateQueries,
   'responseTemplates',
   'showResponseTemplates',
-  []
+  [],
 );
 
 export default responseTemplateQueries;
