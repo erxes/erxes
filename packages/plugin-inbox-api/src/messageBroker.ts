@@ -452,6 +452,15 @@ export const sendTasksMessage = async (
   });
 };
 
+export const sendDealsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'deals',
+    ...args,
+  });
+};
+
 export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

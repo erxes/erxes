@@ -11,6 +11,7 @@ import {
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendDealsMessage,
   sendProductsMessage,
   sendTasksMessage,
   sendTicketsMessage,
@@ -66,7 +67,7 @@ const findContentItemName = async (
     }
   }
   if (type === MODULE_NAMES.DEAL) {
-    const cardItem = await sendTicketsMessage({
+    const cardItem = await sendDealsMessage({
       subdomain,
       action: 'findItem',
       data: {

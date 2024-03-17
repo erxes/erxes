@@ -72,15 +72,6 @@ class Actions extends React.Component<Props> {
       </ColorButton>
     );
 
-    const TAG_TYPE =
-      options.type === 'deal'
-        ? TAG_TYPES.DEAL
-        : options.type === 'task'
-          ? TAG_TYPES.TASK
-          : options.type === 'purchase' // Add a new condition for 'purchase'
-            ? TAG_TYPES.PURCHASE
-            : TAG_TYPES.TICKET;
-
     const tagTrigger = (
       <PopoverButton id="conversationTags">
         {tags.length ? (
@@ -127,7 +118,7 @@ class Actions extends React.Component<Props> {
         />
         {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPE}
+            type={TAG_TYPES.DEAL}
             trigger={tagTrigger}
             refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}

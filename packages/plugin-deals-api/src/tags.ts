@@ -6,18 +6,6 @@ export default {
       description: 'Deals',
       type: 'deal',
     },
-    {
-      description: 'Purchases',
-      type: 'purchase',
-    },
-    {
-      description: 'Tasks',
-      type: 'task',
-    },
-    {
-      description: 'Tickets',
-      type: 'ticket',
-    },
   ],
 
   tag: async ({ subdomain, data }) => {
