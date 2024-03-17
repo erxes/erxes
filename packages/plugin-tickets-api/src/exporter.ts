@@ -56,9 +56,7 @@ const prepareDataCount = async (
   subdomain: string,
   query: any
 ): Promise<any> => {
-  const { contentType, segmentData } = query;
-
-  const type = contentType.split(':')[1];
+  const { segmentData } = query;
 
   let data = 0;
 
@@ -75,11 +73,7 @@ const prepareDataCount = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
-    case MODULE_NAMES.TICKET:
-      data = await models.Tickets.find(boardItemsFilter).count();
-      break;
-  }
+  data = await models.Tickets.find(boardItemsFilter).count();
 
   return data;
 };
