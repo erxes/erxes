@@ -42,16 +42,17 @@ export default class RightSidebar extends React.Component<Props> {
           mainTypeId={company._id}
           actionSection={ActionSection}
         />
-        {isEnabled('cards') && (
+        {isEnabled('tickets') && (
           <PortableTickets mainType="company" mainTypeId={company._id} />
         )}
-        {isEnabled('cards') && (
-          <>
-            <PortableDeals mainType="company" mainTypeId={company._id} />
-            <PortableTickets mainType="company" mainTypeId={company._id} />
-            <PortableTasks mainType="company" mainTypeId={company._id} />
-            <PortablePurchases mainType="company" mainTypeId={company._id} />
-          </>
+        {isEnabled('deals') && (
+          <PortableDeals mainType="company" mainTypeId={company._id} />
+        )}
+        {isEnabled('tasks') && (
+          <PortableTasks mainType="company" mainTypeId={company._id} />
+        )}
+        {isEnabled('purchases') && (
+          <PortablePurchases mainType="company" mainTypeId={company._id} />
         )}
         {pluginsOfCompanySidebar(company)}
         <Box title={__('Other')} name="showOthers">

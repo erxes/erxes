@@ -82,36 +82,34 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
-        {isEnabled('cards') && (
+        {isEnabled('tickets') && (
           <PortableTickets
             mainType="customer"
             mainTypeId={customer._id}
             mainTypeName={mainTypeName}
           />
         )}
-        {isEnabled('cards') && (
-          <>
-            <PortableDeals
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
-            <PortableTickets
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
-            <PortableTasks
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
-            <PortabelPurchases
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
-          </>
+
+        {isEnabled('deals') && (
+          <PortableDeals
+            mainType="customer"
+            mainTypeId={customer._id}
+            mainTypeName={mainTypeName}
+          />
+        )}
+        {isEnabled('tasks') && (
+          <PortableTasks
+            mainType="customer"
+            mainTypeId={customer._id}
+            mainTypeName={mainTypeName}
+          />
+        )}
+        {isEnabled('purchases') && (
+          <PortabelPurchases
+            mainType="customer"
+            mainTypeId={customer._id}
+            mainTypeName={mainTypeName}
+          />
         )}
 
         {pluginsOfCustomerSidebar(customer)}

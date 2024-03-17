@@ -88,6 +88,15 @@ export const sendTicketsMessage = async (
   });
 };
 
+export const sendTasksMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tasks',
+    ...args,
+  });
+};
+
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

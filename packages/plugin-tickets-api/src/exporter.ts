@@ -39,19 +39,14 @@ const prepareData = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
-    case MODULE_NAMES.TICKET:
-      if (!segmentData) {
-        data = await models.Tickets.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Tickets.find(boardItemsFilter).lean();
-
-      break;
+  if (!segmentData) {
+    data = await models.Tickets.find(boardItemsFilter)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
   }
+
+  data = await models.Tickets.find(boardItemsFilter).lean();
 
   return data;
 };

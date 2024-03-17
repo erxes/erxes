@@ -14,13 +14,12 @@ import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   sendContactsMessage,
-  sendCardsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage,
   sendNotificationsMessage,
   sendCommonMessage,
   sendAutomationsMessage,
   sendTicketsMessage,
+  sendTasksMessage,
 } from '../../messageBroker';
 import { putUpdateLog } from '../../logUtils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
@@ -658,12 +657,23 @@ const conversationMutations = {
       user,
     };
 
-    return sendTicketsMessage({
-      subdomain,
-      action: 'conversationConvert',
-      data: args,
-      isRPC: true,
-    });
+    if (type === 'ticket') {
+      return sendTicketsMessage({
+        subdomain,
+        action: 'conversationConvert',
+        data: args,
+        isRPC: true,
+      });
+    }
+
+    if (type === 'task') {
+      return sendTasksMessage({
+        subdomain,
+        action: 'conversationConvert',
+        data: args,
+        isRPC: true,
+      });
+    }
   },
 
   async conversationEditCustomFields(

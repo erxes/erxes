@@ -12,6 +12,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
+  sendTasksMessage,
   sendTicketsMessage,
 } from './messageBroker';
 import {
@@ -50,6 +51,51 @@ const findContentItemName = async (
     type === MODULE_NAMES.GROWTH_HACK;
 
   if (type === MODULE_NAMES.TICKET) {
+    const cardItem = await sendTicketsMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.DEAL) {
+    const cardItem = await sendTicketsMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.TASK) {
+    const cardItem = await sendTasksMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.GROWTH_HACK) {
     const cardItem = await sendTicketsMessage({
       subdomain,
       action: 'findItem',

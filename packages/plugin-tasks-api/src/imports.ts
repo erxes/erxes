@@ -11,14 +11,8 @@ export default {
 
     try {
       let objects;
-      let model;
 
-      switch (contentType) {
-        case 'task':
-          model = models.Tasks;
-      }
-
-      objects = await model.insertMany(docs);
+      objects = await models.Tasks.insertMany(docs);
       return { objects, updated: 0 };
     } catch (e) {
       return { error: e.message };

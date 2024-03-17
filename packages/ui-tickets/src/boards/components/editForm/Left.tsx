@@ -228,9 +228,9 @@ const Left = (props: Props) => {
           contentId={item._id}
           contentType={`tickets:${options.type}`}
           extraTabs={
-            options.type === 'cards:task'
+            options.type === 'tasks:task'
               ? []
-              : [{ name: 'cards:task', label: 'Task' }]
+              : [{ name: 'tasks:task', label: 'Task' }]
           }
         />
       )}

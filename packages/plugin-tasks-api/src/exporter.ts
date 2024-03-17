@@ -39,19 +39,14 @@ const prepareData = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
-    case MODULE_NAMES.TASK:
-      if (!segmentData) {
-        data = await models.Tasks.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Tasks.find(boardItemsFilter).lean();
-
-      break;
+  if (!segmentData) {
+    data = await models.Tasks.find(boardItemsFilter)
+      .skip(skip)
+      .limit(perPage)
+      .lean();
   }
+
+  data = await models.Tasks.find(boardItemsFilter).lean();
 
   return data;
 };
@@ -80,12 +75,7 @@ const prepareDataCount = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
-    case MODULE_NAMES.TASK:
-      data = await models.Tasks.find(boardItemsFilter).count();
-
-      break;
-  }
+  data = await models.Tasks.find(boardItemsFilter).count();
 
   return data;
 };

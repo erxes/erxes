@@ -443,6 +443,15 @@ export const sendTicketsMessage = async (
   });
 };
 
+export const sendTasksMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tasks',
+    ...args,
+  });
+};
+
 export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

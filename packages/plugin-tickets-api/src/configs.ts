@@ -18,6 +18,7 @@ import tags from './tags';
 import imports from './imports';
 import internalNotes from './internalNotes';
 import exporter from './exporter';
+import webhooks from './webhooks';
 
 export default {
   name: 'tickets',
@@ -39,6 +40,7 @@ export default {
     cronjobs,
     forms,
     search,
+    webhooks,
     tags,
     segments,
     imports,
