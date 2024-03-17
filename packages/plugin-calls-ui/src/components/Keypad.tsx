@@ -1,7 +1,7 @@
 import * as PropTypes from 'prop-types';
 
-import { Alert, __ } from '@erxes/ui/src/utils';
 import {
+  ActiveCalls,
   BackIcon,
   CallInfo,
   CallTab,
@@ -11,12 +11,14 @@ import {
   DisconnectCall,
   HeaderItem,
   InCall,
+  IncomingCalls,
   InputBar,
   Keypad,
   KeypadHeader,
   NumberInput,
   PhoneNumber,
 } from '../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { Button, Icon } from '@erxes/ui/src/components';
 import {
   CALL_DIRECTION_INCOMING,
@@ -84,7 +86,7 @@ const KeyPad = (props: Props, context) => {
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
-    JSON.parse(defaultCallIntegration)?.phone ||
+    JSON.parse(defaultCallIntegration || '{}')?.phone ||
       callUserIntegrations?.[0]?.phone ||
       '',
   );
@@ -126,7 +128,7 @@ const KeyPad = (props: Props, context) => {
 
     if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
       const inboxId =
-        JSON.parse(defaultCallIntegration)?.inboxId ||
+        JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
 
       addCustomer(inboxId, formatedPhone, call?.id);
@@ -505,6 +507,7 @@ const KeyPad = (props: Props, context) => {
     </>
   );
 };
+
 KeyPad.contextTypes = {
   sip: sipPropType,
   call: callPropType,
@@ -519,4 +522,5 @@ KeyPad.contextTypes = {
   isHolded: PropTypes.func,
   sendDtmf: PropTypes.func,
 };
+
 export default KeyPad;
