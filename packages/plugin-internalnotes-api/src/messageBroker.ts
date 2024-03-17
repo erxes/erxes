@@ -106,6 +106,15 @@ export const sendDealsMessage = async (
   });
 };
 
+export const sendPurchasesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'purchases',
+    ...args,
+  });
+};
+
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

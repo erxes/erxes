@@ -21,24 +21,9 @@ import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Deal',
-    contentType: 'deal',
-    icon: 'signal-alt-3',
-  },
-  {
     text: 'Purchase',
     contentTypeL: 'purchase',
     icon: 'signal-alt-3',
-  },
-  {
-    text: 'Task',
-    contentType: 'task',
-    icon: 'laptop',
-  },
-  {
-    text: 'Ticket',
-    contentType: 'ticket',
-    icon: 'ticket',
   },
 ];
 export const PRIORITIES = {
@@ -174,30 +159,14 @@ export const BOARD_BASIC_INFOS = [
 
 export const MODULE_NAMES = {
   BOARD: 'board',
-  BOARD_DEAL: 'dealBoards',
   BOARD_PURCHASE: 'purchaseBoards',
-  BOARD_TASK: 'taskBoards',
-  BOARD_TICKET: 'ticketBoards',
-  BOARD_GH: 'growthHackBoards',
-  PIPELINE_DEAL: 'dealPipelines',
   PIPELINE_PURCHASE: 'purchasePipelines',
-  PIPELINE_TASK: 'taskPipelines',
-  PIPELINE_TICKET: 'ticketPipelines',
-  PIPELINE_GH: 'growthHackPipelines',
-  STAGE_DEAL: 'dealStages',
   STAGE_PURCHASE: 'purchaseStages',
-  STAGE_TASK: 'taskStages',
-  STAGE_TICKET: 'ticketStages',
-  STAGE_GH: 'growthHackStages',
   CHECKLIST: 'checklist',
   CHECKLIST_ITEM: 'checkListItem',
-  DEAL: 'deal',
   PURCHASE: 'purchase',
-  TICKET: 'ticket',
-  TASK: 'task',
   PIPELINE_LABEL: 'pipelineLabel',
   PIPELINE_TEMPLATE: 'pipelineTemplate',
-  GROWTH_HACK: 'growthHack',
 };
 
 interface ISchemaMap {
@@ -207,35 +176,11 @@ interface ISchemaMap {
 
 export const LOG_MAPPINGS: ISchemaMap[] = [
   {
-    name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
     name: MODULE_NAMES.BOARD_PURCHASE,
     schemas: [attachmentSchema, boardSchema],
   },
   {
-    name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
-    name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema],
-  },
-  {
     name: MODULE_NAMES.PIPELINE_PURCHASE,
-    schemas: [pipelineSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema],
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TICKET,
     schemas: [pipelineSchema],
   },
   {
@@ -259,23 +204,7 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [pipelineTemplateSchema, stageSchema],
   },
   {
-    name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema],
-  },
-  {
     name: MODULE_NAMES.STAGE_PURCHASE,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_TASK,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_TICKET,
-    schemas: [boardStageSchema],
-  },
-  {
-    name: MODULE_NAMES.STAGE_GH,
     schemas: [boardStageSchema],
   },
 ];
@@ -356,38 +285,6 @@ export const CARD_PROPERTIES_INFO = {
 
 export const NOTIFICATION_MODULES = [
   {
-    name: 'deals',
-    description: 'Deals',
-    icon: 'piggy-bank',
-    types: [
-      {
-        name: 'dealAdd',
-        text: 'Assigned a new deal  card',
-      },
-      {
-        name: 'dealRemoveAssign',
-        text: 'Removed from the deal card',
-      },
-      {
-        name: 'dealEdit',
-        text: 'Deal card edited',
-      },
-      {
-        name: 'dealChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'dealDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'dealDelete',
-        text: 'Deal card deleted',
-      },
-    ],
-  },
-
-  {
     name: 'purchases',
     description: 'Purchases',
     icon: 'bag-alt',
@@ -415,70 +312,6 @@ export const NOTIFICATION_MODULES = [
       {
         name: 'purchaseDelete',
         text: 'Purchase card deleted',
-      },
-    ],
-  },
-
-  {
-    name: 'tickets',
-    description: 'Tickets',
-    icon: 'ticket',
-    types: [
-      {
-        name: 'ticketAdd',
-        text: 'Assigned a new ticket  card',
-      },
-      {
-        name: 'ticketRemoveAssign',
-        text: 'Removed from the ticket card',
-      },
-      {
-        name: 'ticketEdit',
-        text: 'Ticket card edited',
-      },
-      {
-        name: 'ticketChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'ticketDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'ticketDelete',
-        text: 'Ticket card deleted',
-      },
-    ],
-  },
-
-  {
-    name: 'tasks',
-    description: 'Tasks',
-    icon: 'file-check-alt',
-    types: [
-      {
-        name: 'taskAdd',
-        text: 'Assigned a new task  card',
-      },
-      {
-        name: 'taskRemoveAssign',
-        text: 'Removed from the task card',
-      },
-      {
-        name: 'taskEdit',
-        text: 'Task card edited',
-      },
-      {
-        name: 'taskChange',
-        text: 'Moved between stages',
-      },
-      {
-        name: 'taskDueDate',
-        text: 'Due date is near',
-      },
-      {
-        name: 'taskDelete',
-        text: 'Task card deleted',
       },
     ],
   },

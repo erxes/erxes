@@ -24,24 +24,9 @@ export default {
 
   contentTypes: [
     {
-      type: 'deal',
-      description: 'Deal',
-      esIndex: 'deals',
-    },
-    {
       type: 'purchase',
       description: 'Purchase',
       esIndex: 'purchases',
-    },
-    {
-      type: 'ticket',
-      description: 'Ticket',
-      esIndex: 'tickets',
-    },
-    {
-      type: 'task',
-      description: 'Task',
-      esIndex: 'tasks',
     },
   ],
 

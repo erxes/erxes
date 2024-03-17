@@ -1,14 +1,14 @@
 export const VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',
-  ALL: ['public', 'private']
+  ALL: ['public', 'private'],
 };
 
 export const HACK_SCORING_TYPES = {
   RICE: 'rice',
   ICE: 'ice',
   PIE: 'pie',
-  ALL: ['rice', 'ice', 'pie']
+  ALL: ['rice', 'ice', 'pie'],
 };
 
 export const PROBABILITY = {
@@ -38,19 +38,19 @@ export const PROBABILITY = {
     'Won',
     'Lost',
     'Done',
-    'Resolved'
-  ]
+    'Resolved',
+  ],
 };
 
 export const BOARD_STATUSES = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',
-  ALL: ['active', 'archived']
+  ALL: ['active', 'archived'],
 };
 
 export const BOARD_STATUSES_OPTIONS = [
   { label: 'Active', value: 'active' },
-  { label: 'Archived', value: 'archived' }
+  { label: 'Archived', value: 'archived' },
 ];
 
 export const TIME_TRACK_TYPES = {
@@ -58,105 +58,41 @@ export const TIME_TRACK_TYPES = {
   STOPPED: 'stopped',
   PAUSED: 'paused',
   COMPLETED: 'completed',
-  ALL: ['started', 'stopped', 'paused', 'completed']
+  ALL: ['started', 'stopped', 'paused', 'completed'],
 };
 
 export const BOARD_TYPES = {
-  DEAL: 'deal',
-  TICKET: 'ticket',
   PURCHASE: 'purchase',
-  TASK: 'task',
-  GROWTH_HACK: 'growthHack',
-  ALL: ['deal', 'ticket', 'purchase', 'task', 'growthHack']
+  ALL: ['purchase'],
 };
 
 export const NOTIFICATION_TYPES = {
-  DEAL_ADD: 'dealAdd',
-  DEAL_REMOVE_ASSIGN: 'dealRemoveAssign',
-  DEAL_EDIT: 'dealEdit',
-  DEAL_CHANGE: 'dealChange',
-  DEAL_DUE_DATE: 'dealDueDate',
-  DEAL_DELETE: 'dealDelete',
   PURCHASE_ADD: 'purchaseAdd',
   PURCHASE_REMOVE_ASSIGN: 'purchaseRemoveAssign',
   PURCHASE_EDIT: 'purchaseEdit',
   PURCHASE_CHANGE: 'purchaseChange',
   PURCHASE_DUE_DATE: 'purchaseDueDate',
   PURCHASE_DELETE: 'purchaseDelete',
-  GROWTHHACK_ADD: 'growthHackAdd',
-  GROWTHHACK_REMOVE_ASSIGN: 'growthHackRemoveAssign',
-  GROWTHHACK_EDIT: 'growthHackEdit',
-  GROWTHHACK_CHANGE: 'growthHackChange',
-  GROWTHHACK_DUE_DATE: 'growthHackDueDate',
-  GROWTHHACK_DELETE: 'growthHackDelete',
-  TICKET_ADD: 'ticketAdd',
-  TICKET_REMOVE_ASSIGN: 'ticketRemoveAssign',
-  TICKET_EDIT: 'ticketEdit',
-  TICKET_CHANGE: 'ticketChange',
-  TICKET_DUE_DATE: 'ticketDueDate',
-  TICKET_DELETE: 'ticketDelete',
-  TASK_ADD: 'taskAdd',
-  TASK_REMOVE_ASSIGN: 'taskRemoveAssign',
-  TASK_EDIT: 'taskEdit',
-  TASK_CHANGE: 'taskChange',
-  TASK_DUE_DATE: 'taskDueDate',
-  TASK_DELETE: 'taskDelete',
   ALL: [
-    'dealAdd',
-    'dealRemoveAssign',
-    'dealEdit',
-    'dealChange',
-    'dealDueDate',
-    'dealDelete',
     'purchaseAdd',
     'purchaseRemoveAssign',
     'purchaseEdit',
     'purchaseChange',
     'purchaseDueDate',
     'purchaseDelete',
-    'growthHackAdd',
-    'growthHackRemoveAssign',
-    'growthHackEdit',
-    'growthHackChange',
-    'growthHackDueDate',
-    'growthHackDelete',
-    'ticketAdd',
-    'ticketRemoveAssign',
-    'ticketEdit',
-    'ticketChange',
-    'ticketDueDate',
-    'ticketDelete',
-    'taskAdd',
-    'taskRemoveAssign',
-    'taskEdit',
-    'taskChange',
-    'taskDueDate',
-    'taskDelete'
-  ]
+  ],
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
-  DEAL: 'deal',
   PURCHASE: 'purchase',
-  TICKET: 'ticket',
-  TASK: 'task',
   PRODUCT: 'product',
-  GROWTH_HACK: 'growthHack',
   CHECKLIST: 'checklist',
 
-  ALL: [
-    'deal',
-    'purchase',
-    'ticket',
-    'task',
-    'product',
-    'growthHack',
-    'checklist'
-  ]
+  ALL: ['purchase', 'product', 'checklist'],
 };
 
 export const EXPENSE_DIVIDE_TYPES = {
   QUANTITY: 'quantity',
   AMOUNT: 'amount',
-  ALL: ['quantity', 'amount']
+  ALL: ['quantity', 'amount'],
 };

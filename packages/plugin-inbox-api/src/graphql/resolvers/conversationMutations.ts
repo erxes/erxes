@@ -21,6 +21,7 @@ import {
   sendTicketsMessage,
   sendTasksMessage,
   sendDealsMessage,
+  sendPurchasesMessage,
 } from '../../messageBroker';
 import { putUpdateLog } from '../../logUtils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
@@ -678,6 +679,15 @@ const conversationMutations = {
 
     if (type === 'deal') {
       return sendDealsMessage({
+        subdomain,
+        action: 'conversationConvert',
+        data: args,
+        isRPC: true,
+      });
+    }
+
+    if (type === 'purchase') {
+      return sendPurchasesMessage({
         subdomain,
         action: 'conversationConvert',
         data: args,

@@ -7,8 +7,8 @@ import {
   Icon,
 } from '@erxes/ui/src/components';
 import React from 'react';
-import { AddForm } from '@erxes/ui-cards/src/boards/containers/portable';
-import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
+import { AddForm } from '@erxes/ui-purchases/src/boards/containers/portable';
+import EditForm from '@erxes/ui-purchases/src/boards/containers/editForm/EditForm';
 import { IOptions } from '../../types';
 import { __ } from '@erxes/ui/src/utils';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';

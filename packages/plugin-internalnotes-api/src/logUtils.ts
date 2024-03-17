@@ -13,6 +13,7 @@ import {
   sendCoreMessage,
   sendDealsMessage,
   sendProductsMessage,
+  sendPurchasesMessage,
   sendTasksMessage,
   sendTicketsMessage,
 } from './messageBroker';
@@ -83,6 +84,21 @@ const findContentItemName = async (
   }
   if (type === MODULE_NAMES.TASK) {
     const cardItem = await sendTasksMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.PURCHASE) {
+    const cardItem = await sendPurchasesMessage({
       subdomain,
       action: 'findItem',
       data: {

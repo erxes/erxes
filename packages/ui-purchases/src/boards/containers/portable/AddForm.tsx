@@ -5,7 +5,7 @@ import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import { mutations } from '../../../conformity/graphql';
 import {
   EditConformityMutation,
-  IConformityEdit
+  IConformityEdit,
 } from '../../../conformity/types';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
@@ -19,7 +19,7 @@ import {
   IItemParams,
   IOptions,
   SaveMutation,
-  StagesQueryResponse
+  StagesQueryResponse,
 } from '../../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -72,7 +72,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       relTypeIds,
       editConformity,
       bookingProductId,
-      parentId
+      parentId,
     } = this.props;
 
     doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
@@ -97,8 +97,8 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: sourceConversationId || ''
-        }
+          _id: sourceConversationId || '',
+        },
       })
         .then(({ data }) => {
           const message = `You've successfully converted a conversation to ${options.type}`;
@@ -109,14 +109,14 @@ class AddFormContainer extends React.Component<FinalProps> {
                 mainType: options.type,
                 mainTypeId: data.conversationConvertToCard,
                 relType,
-                relTypeIds
-              }
+                relTypeIds,
+              },
             });
           }
 
           this.afterSave(message, callback, data);
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     } else {
@@ -135,8 +135,8 @@ class AddFormContainer extends React.Component<FinalProps> {
                     mainType: options.type,
                     mainTypeId: data[options.mutationsName.addMutation]._id,
                     relType: key,
-                    relTypeIds: relationData[key]
-                  }
+                    relTypeIds: relationData[key],
+                  },
                 });
               }
             }
@@ -148,8 +148,8 @@ class AddFormContainer extends React.Component<FinalProps> {
                 mainType: options.type,
                 mainTypeId: data[options.mutationsName.addMutation]._id,
                 relType,
-                relTypeIds
-              }
+                relTypeIds,
+              },
             });
           }
 
@@ -159,7 +159,7 @@ class AddFormContainer extends React.Component<FinalProps> {
             data[options.mutationsName.addMutation]
           );
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     }
@@ -182,7 +182,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         .query({
           query: gql(queries[`${type}s`]),
           fetchPolicy: 'network-only',
-          variables: { stageId: item.stageId, _ids: [item._id] }
+          variables: { stageId: item.stageId, _ids: [item._id] },
         })
         .then(({ data }: any) => {
           if (data && data[`${type}s`] && data[`${type}s`].length) {
@@ -203,7 +203,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       .query({
         query: gql(queries[`${type}s`]),
         fetchPolicy: 'network-only',
-        variables: { stageId, limit: 0 }
+        variables: { stageId, limit: 0 },
       })
       .then(({ data }: any) => {
         callback(data[`${type}s`]);
@@ -219,7 +219,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
       fetchCards: this.fetchCards,
-      stages: stagesQuery?.stages || []
+      stages: stagesQuery?.stages || [],
     };
 
     return <AddForm {...extendedProps} />;
@@ -243,23 +243,23 @@ export default (props: IProps) =>
               refetchQueries: [
                 {
                   query: gql(queries.stageDetail),
-                  variables: { _id: stageId }
-                }
-              ]
+                  variables: { _id: stageId },
+                },
+              ],
             };
-          }
+          },
         }
       ),
       graphql<IProps, ConvertToMutationResponse, ConvertToMutationVariables>(
         gql(boardMutations.conversationConvertToCard),
         {
-          name: 'conversationConvertToCard'
+          name: 'conversationConvertToCard',
         }
       ),
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(
         gql(mutations.conformityEdit),
         {
-          name: 'editConformity'
+          name: 'editConformity',
         }
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
@@ -267,19 +267,19 @@ export default (props: IProps) =>
         skip: !isEnabled('forms'),
         options: ({ options, pipelineId }) => ({
           variables: {
-            contentType: `cards:${options.type}`,
+            contentType: `purchases:${options.type}`,
             isVisibleToCreate: true,
-            pipelineId
-          }
-        })
+            pipelineId,
+          },
+        }),
       }),
       graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
         name: 'stagesQuery',
         options: (finalProps: FinalProps) => ({
           variables: {
-            pipelineId: finalProps.pipelineId || ''
-          }
-        })
+            pipelineId: finalProps.pipelineId || '',
+          },
+        }),
       })
     )(AddFormContainer)
   );

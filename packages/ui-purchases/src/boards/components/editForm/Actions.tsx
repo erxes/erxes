@@ -38,7 +38,7 @@ class Actions extends React.Component<Props> {
     const { onUpdate, saveItem } = this.props;
 
     if (saveItem) {
-      saveItem({ priority: value }, updatedItem => {
+      saveItem({ priority: value }, (updatedItem) => {
         onUpdate(updatedItem);
       });
     }
@@ -53,10 +53,10 @@ class Actions extends React.Component<Props> {
       removeItem,
       sendToBoard,
       onChangeStage,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = (labels) => saveItem({ labels });
 
     const tags = item.tags || [];
     const pipelineTagId = item.pipeline.tagId || '';
@@ -71,15 +71,6 @@ class Actions extends React.Component<Props> {
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
-
-    const TAG_TYPE =
-      options.type === 'deal'
-        ? TAG_TYPES.DEAL
-        : options.type === 'task'
-        ? TAG_TYPES.TASK
-        : options.type === 'purchase' // Add a new condition for 'purchase'
-        ? TAG_TYPES.PURCHASE
-        : TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -127,7 +118,7 @@ class Actions extends React.Component<Props> {
         />
         {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPE}
+            type={TAG_TYPES.PURCHASE}
             trigger={tagTrigger}
             refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}
@@ -140,9 +131,9 @@ class Actions extends React.Component<Props> {
           'cardDetailAction',
           {
             item,
-            contentType: 'cards',
+            contentType: 'purchases',
             subType: item.stage?.type,
-            path: `stageId=${item.stageId}`
+            path: `stageId=${item.stageId}`,
           },
           true
         )}

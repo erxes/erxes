@@ -407,10 +407,6 @@ export const buildFile = async (
     });
   }
 
-  if (type === MODULE_NAMES.DEAL) {
-    headers = filterHeaders(headers);
-  }
-
   for (const item of data) {
     rowIndex++;
     // Iterating through basic info columns
@@ -457,9 +453,6 @@ export const buildFile = async (
         dealRowIndex = indexes?.dealRowIndex;
       } else {
         let index = rowIndex;
-        if (type === MODULE_NAMES.DEAL) {
-          index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
-        }
 
         const cellValue = await fillCellValue(
           models,

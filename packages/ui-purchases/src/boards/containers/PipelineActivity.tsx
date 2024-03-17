@@ -80,7 +80,7 @@ const ActivityList = (props: WithStagesProps) => {
 const commonOptions = (queryParams) => {
   const variables = {
     action: queryParams.action,
-    contentType: `cards:${queryParams.type}`,
+    contentType: `purchases:${queryParams.type}`,
     ...generatePaginationParams(queryParams),
   };
 
@@ -88,7 +88,7 @@ const commonOptions = (queryParams) => {
 };
 
 const commonParams = (queryParams, options) => ({
-  contentType: `cards:${options.type}`,
+  contentType: `purchases:${options.type}`,
   pipelineId: queryParams.pipelineId,
   page: parseInt(queryParams.page || '1', 10),
   perPage: parseInt(queryParams.perPage || '10', 10),
@@ -107,7 +107,7 @@ export default withProps<Props>(
           },
         }),
         skip: !isEnabled('logs') ? true : false,
-      },
+      }
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {
       name: 'internalNotesByActionQuery',
@@ -117,6 +117,6 @@ export default withProps<Props>(
         },
       }),
       skip: !isEnabled('internalnotes') ? true : false,
-    }),
-  )(ActivityList),
+    })
+  )(ActivityList)
 );

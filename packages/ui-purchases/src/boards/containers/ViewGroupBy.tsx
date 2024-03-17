@@ -49,7 +49,7 @@ class WithStages extends Component<WithStagesProps> {
       viewType,
       pipeline,
       tagsQuery,
-      usersQuery
+      usersQuery,
     } = this.props;
 
     let groupType = 'stage';
@@ -61,7 +61,7 @@ class WithStages extends Component<WithStagesProps> {
     }
 
     if (queryParams.groupBy === 'priority') {
-      groups = PRIORITIES.map(p => ({ _id: p, name: p } || []));
+      groups = PRIORITIES.map((p) => ({ _id: p, name: p }) || []);
       groupType = 'priority';
     }
 
@@ -75,28 +75,28 @@ class WithStages extends Component<WithStagesProps> {
         {
           _id: 'overDue',
           name: 'Overdue',
-          value: 'overdue'
+          value: 'overdue',
         },
         {
           _id: 'dueTomorrow',
           name: 'Due tomorrow',
-          value: 'nextDay'
+          value: 'nextDay',
         },
         {
           _id: 'dueWeek',
           name: 'Due next week',
-          value: 'nextWeek'
+          value: 'nextWeek',
         },
         {
           _id: 'dueMonth',
           name: 'Due next month',
-          value: 'nextMonth'
+          value: 'nextMonth',
         },
         {
           _id: 'noCloseDate',
           name: 'Has no close date',
-          value: 'noCloseDate'
-        }
+          value: 'noCloseDate',
+        },
       ];
       groups = renderLink();
       groupType = 'dueDate';
@@ -183,35 +183,35 @@ export default withProps<Props>(
           extraParams: getExtraParams(queryParams),
           closeDateType: queryParams.closeDateType,
           userIds: queryParams.userIds,
-          assignedToMe: queryParams.assignedToMe
-        }
-      })
+          assignedToMe: queryParams.assignedToMe,
+        },
+      }),
     }),
     graphql<Props, StagesQueryResponse>(gql(queries.pipelineLabels), {
       name: 'pipelineLabelsQuery',
       options: ({ pipeline }) => ({
         variables: {
-          pipelineId: pipeline._id
-        }
-      })
+          pipelineId: pipeline._id,
+        },
+      }),
     }),
     graphql<Props, StagesQueryResponse>(gql(queries.pipelineAssignedUsers), {
       name: 'pipelineAssigneeQuery',
       options: ({ pipeline }) => ({
         variables: {
-          _id: pipeline._id
-        }
-      })
+          _id: pipeline._id,
+        },
+      }),
     }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
       name: 'tagsQuery',
       skip: ({ pipeline }: Props) => pipeline.tagId === '',
       options: ({ pipeline, options }: Props) => ({
         variables: {
-          type: `cards:${options.type}`,
-          parentId: pipeline.tagId
-        }
-      })
+          type: `purchases:${options.type}`,
+          parentId: pipeline.tagId,
+        },
+      }),
     }),
     graphql<Props, AllUsersQueryResponse>(gql(userQueries.allUsers), {
       name: 'usersQuery',
@@ -219,9 +219,9 @@ export default withProps<Props>(
         variables: {
           isActive: true,
           assignedToMe: queryParams?.assignedToMe,
-          ids: queryParams?.assignedUserIds
-        }
-      })
+          ids: queryParams?.assignedUserIds,
+        },
+      }),
     })
   )(WithStages)
 );
