@@ -16,9 +16,9 @@ import { queries } from '../graphql';
 
 const GetConformity = asyncComponent(
   () =>
-    isEnabled('cards') &&
+    // isEnabled('cards') &&
     import(
-      /* webpackChunkName: "GetConformity" */ '@erxes/ui-cards/src/conformity/containers/GetConformity'
+      /* webpackChunkName: "GetConformity" */ '@erxes/ui-tickets/src/conformity/containers/GetConformity'
     )
 );
 
@@ -41,10 +41,10 @@ function Component(
     mainTypeId = '',
     onSelect,
     collapseCallback,
-    title
+    title,
   }: Props
 ) {
-  const renderCompanyChooser = props => {
+  const renderCompanyChooser = (props) => {
     return (
       <CompanyChooser
         {...props}
@@ -54,7 +54,7 @@ function Component(
     );
   };
 
-  const renderRelatedCompanyChooser = props => {
+  const renderRelatedCompanyChooser = (props) => {
     return (
       <CompanyChooser
         {...props}
@@ -94,7 +94,7 @@ function Component(
     />
   );
 
-  const renderExternaleWebsite = links => {
+  const renderExternaleWebsite = (links) => {
     if (!links || !links.website) {
       return null;
     }
@@ -146,9 +146,9 @@ type IProps = {
 };
 
 export default (props: IProps) => {
-  if (!isEnabled('cards')) {
-    return null;
-  }
+  // if (!isEnabled('cards')) {
+  //   return null;
+  // }
 
   return (
     <GetConformity

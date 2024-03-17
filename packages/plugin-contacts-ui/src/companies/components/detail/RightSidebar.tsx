@@ -43,6 +43,9 @@ export default class RightSidebar extends React.Component<Props> {
           actionSection={ActionSection}
         />
         {isEnabled('cards') && (
+          <PortableTickets mainType="company" mainTypeId={company._id} />
+        )}
+        {isEnabled('cards') && (
           <>
             <PortableDeals mainType="company" mainTypeId={company._id} />
             <PortableTickets mainType="company" mainTypeId={company._id} />
