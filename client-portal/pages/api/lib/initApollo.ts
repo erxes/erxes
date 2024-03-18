@@ -129,7 +129,7 @@ function create(
   const client = new ApolloClient({
     connectToDevTools: process.browser,
     ssrMode: false, // Disables forceFetch on the server (so queries are only run once)
-    link: ApolloLink.from([errorLink, authLink, splitLink]),
+    link: ApolloLink.from([errorLink, authLink, httpLink]),
     cache: new InMemoryCache().restore(initialState || {}),
   });
 
