@@ -12,7 +12,7 @@ import {
   ItemsQueryResponse,
   ITimeData,
   RemoveStageMutation,
-  SaveItemMutation
+  SaveItemMutation,
 } from '../../types';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import { subscriptions } from '../../graphql';
@@ -51,7 +51,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
 
     this.state = {
       items: itemsQuery[options.queriesName.itemsQuery] || [],
-      perPage: 20
+      perPage: 20,
     };
   }
 
@@ -59,22 +59,22 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
     const { itemsQuery, pipeline } = this.props;
 
     this.unsubcribe = itemsQuery.subscribeToMore({
-      document: gql(subscriptions.pipelinesChanged),
+      document: gql(subscriptions.taskPipelinesChanged),
       variables: { _id: pipeline._id },
       updateQuery: (
         prev,
         {
           subscriptionData: {
-            data: { pipelinesChanged }
-          }
+            data: { taskPipelinesChanged },
+          },
         }
       ) => {
-        if (!pipelinesChanged || !pipelinesChanged.data) {
+        if (!taskPipelinesChanged || !taskPipelinesChanged.data) {
           return;
         }
 
         itemsQuery.refetch();
-      }
+      },
     });
   }
 
@@ -138,7 +138,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         .then(() => {
           Alert.success(options.texts.changeSuccessText);
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -146,17 +146,17 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
     const refetch = () => {
       itemsQuery.refetch().then(({ data }) => {
         this.setState({
-          items: data[options.queriesName.itemsQuery] || []
+          items: data[options.queriesName.itemsQuery] || [],
         });
       });
     };
 
     const resources =
       groups &&
-      groups.map(resource => {
+      groups.map((resource) => {
         return {
           id: resource._id,
-          title: resource.name || resource.username
+          title: resource.name || resource.username,
         };
       });
 
@@ -169,7 +169,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
           group: item.stage?._id,
           start_time: moment.utc(item.startDate),
           end_time: moment.utc(item.closeDate),
-          title: item.name
+          title: item.name,
         });
       }
     }
@@ -182,7 +182,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
             group: tagId,
             start_time: moment.utc(item.startDate),
             end_time: moment.utc(item.closeDate),
-            title: item.name
+            title: item.name,
           });
         }
       }
@@ -196,7 +196,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
             group: assignedUser._id,
             start_time: moment.utc(item.startDate),
             end_time: moment.utc(item.closeDate),
-            title: item.name
+            title: item.name,
           });
         }
       }
@@ -208,7 +208,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       items: this.state.items,
       resources: resources,
       events: events,
-      itemMoveResizing
+      itemMoveResizing,
     };
 
     if (itemsQuery.loading) {
@@ -226,8 +226,8 @@ const withQuery = ({ options }) => {
         name: 'itemsQuery',
         options: ({ queryParams }) => ({
           variables: getFilterParams(queryParams, options.getExtraParams),
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }),
       graphql<Props>(gql(options.mutations.editMutation), {
         name: 'editMutation',
@@ -235,10 +235,10 @@ const withQuery = ({ options }) => {
           refetchQueries: [
             {
               query: gql(options.queries.itemsQuery),
-              variables: getFilterParams(queryParams, options.getExtraParams)
-            }
-          ]
-        })
+              variables: getFilterParams(queryParams, options.getExtraParams),
+            },
+          ],
+        }),
       })
     )(TimeItemsContainer)
   );

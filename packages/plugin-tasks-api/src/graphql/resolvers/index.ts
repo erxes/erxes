@@ -10,7 +10,6 @@ import {
 import {
   Board as BoardMutations,
   Task as TaskMutations,
-  PipelineTemplate as PipelineTemplateMutations,
   PipelineLabel as PipelineLabelMutations,
   Checklists as ChecklistMutations,
 } from './mutations';
@@ -34,7 +33,6 @@ const resolvers: any = {
   Mutation: {
     ...BoardMutations,
     ...TaskMutations,
-    ...PipelineTemplateMutations,
     ...PipelineLabelMutations,
     ...ChecklistMutations,
   },

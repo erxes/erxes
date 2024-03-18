@@ -1,6 +1,6 @@
-const pipelinesChanged = `
-  subscription pipelinesChanged($_id: String!) {
-    pipelinesChanged(_id: $_id) {
+const taskPipelinesChanged = `
+  subscription taskPipelinesChanged($_id: String!) {
+    taskPipelinesChanged(_id: $_id) {
       _id
       proccessId
       action
@@ -10,5 +10,5 @@ const pipelinesChanged = `
 `;
 
 export default {
-  pipelinesChanged
+  taskPipelinesChanged,
 };

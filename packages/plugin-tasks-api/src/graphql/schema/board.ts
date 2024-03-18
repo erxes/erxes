@@ -193,22 +193,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  boardsAdd(${commonParams}): Board
-  boardsEdit(_id: String!, ${commonParams}): Board
-  boardsRemove(_id: String!): JSON
-  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  taskBoardsAdd(${commonParams}): Board
+  taskBoardsEdit(_id: String!, ${commonParams}): Board
+  taskBoardsRemove(_id: String!): JSON
+  taskBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  taskBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
-  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
-  pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON
-  pipelinesCopied(_id: String!): JSON
+  taskPipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
+  taskPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
+  taskPipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
+  taskPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
+  taskPipelinesRemove(_id: String!): JSON
+  taskPipelinesArchive(_id: String!): JSON
+  taskPipelinesCopied(_id: String!): JSON
 
-  stagesUpdateOrder(orders: [OrderItem]): [Stage]
-  stagesRemove(_id: String!): JSON
-  stagesEdit(_id: String!, type: String, name: String, status: String): Stage
-  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  taskStagesUpdateOrder(orders: [OrderItem]): [Stage]
+  taskStagesRemove(_id: String!): JSON
+  taskStagesEdit(_id: String!, type: String, name: String, status: String): Stage
+  taskStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

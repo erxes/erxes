@@ -9,24 +9,24 @@ const commonParams = `
 `;
 
 const boardAdd = `
-  mutation boardsAdd(${commonParamsDef}) {
-    boardsAdd(${commonParams}) {
+  mutation taskBoardsAdd(${commonParamsDef}) {
+    taskBoardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
-    boardsEdit(_id: $_id, ${commonParams}) {
+  mutation taskBoardsEdit($_id: String!, ${commonParamsDef}) {
+    taskBoardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation boardsRemove($_id: String!) {
-    boardsRemove(_id: $_id)
+  mutation taskBoardsRemove($_id: String!) {
+    taskBoardsRemove(_id: $_id)
   }
 `;
 
@@ -77,40 +77,40 @@ const commonPipelineParams = `
 `;
 
 const pipelineAdd = `
-  mutation pipelinesAdd(${commonPipelineParamsDef}) {
-    pipelinesAdd(${commonPipelineParams}) {
+  mutation taskPipelinesAdd(${commonPipelineParamsDef}) {
+    taskPipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation taskPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    taskPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation pipelinesRemove($_id: String!) {
-    pipelinesRemove(_id: $_id)
+  mutation taskPipelinesRemove($_id: String!) {
+    taskPipelinesRemove(_id: $_id)
   }
 `;
 const pipelinesArchive = `
-  mutation pipelinesArchive($_id: String!) {
-    pipelinesArchive(_id: $_id)
+  mutation taskPipelinesArchive($_id: String!) {
+    taskPipelinesArchive(_id: $_id)
   }
 `;
 
 const pipelinesCopied = `
-  mutation pipelinesCopied($_id: String!) {
-    pipelinesCopied(_id: $_id)
+  mutation taskPipelinesCopied($_id: String!) {
+    taskPipelinesCopied(_id: $_id)
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
-    pipelinesUpdateOrder(orders: $orders) {
+  mutation taskPipelinesUpdateOrder($orders: [OrderItem]) {
+    taskPipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }
