@@ -115,6 +115,15 @@ export const sendPurchasesMessage = async (
   });
 };
 
+export const sendGrowthHacksMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'growthhacks',
+    ...args,
+  });
+};
+
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
