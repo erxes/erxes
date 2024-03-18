@@ -9,8 +9,6 @@ const salaryQueries = {
   async salaryReport(_root, args: any, { models }: IContext) {
     const { page = 1, perPage = 20, employeeId } = args;
 
-    console.log('ajajjajaj');
-
     const qry: any = {};
 
     if (employeeId) {
@@ -26,7 +24,7 @@ const salaryQueries = {
   async salaryByEmployee(
     _root,
     args: { password: string; page: number; perPage: number },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain }: IContext
   ) {
     const { password, page = 1, perPage = 20 } = args;
     const employee = await sendCommonMessage({
@@ -34,10 +32,10 @@ const salaryQueries = {
       serviceName: 'core',
       action: 'users.findOne',
       data: {
-        _id: user._id,
+        _id: user._id
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     const checkPassword = await sendCommonMessage({
@@ -46,10 +44,10 @@ const salaryQueries = {
       action: 'users.comparePassword',
       data: {
         password,
-        userPassword: employee.password,
+        userPassword: employee.password
       },
       isRPC: true,
-      defaultValue: false,
+      defaultValue: false
     });
 
     if (!checkPassword) {
@@ -58,11 +56,11 @@ const salaryQueries = {
 
     const list = await paginate(
       models.Salaries.find({ employeeId: employee.employeeId }),
-      { page, perPage },
+      { page, perPage }
     );
 
     const totalCount = await models.Salaries.find({
-      employeeId: employee.employeeId,
+      employeeId: employee.employeeId
     }).countDocuments();
 
     return { list, totalCount };
@@ -72,7 +70,7 @@ const salaryQueries = {
     const labels: any = {};
     const exclude = ['createdAt', 'createdBy'];
 
-    Object.keys(salarySchema.paths).forEach((path) => {
+    Object.keys(salarySchema.paths).forEach(path => {
       if (
         salarySchema.paths[path].options.label === undefined ||
         exclude.includes(path)
@@ -89,7 +87,7 @@ const salaryQueries = {
     const symbmols: any = {};
     const exclude = ['createdAt', 'createdBy'];
 
-    Object.keys(salarySchema.paths).forEach((path) => {
+    Object.keys(salarySchema.paths).forEach(path => {
       if (
         salarySchema.paths[path].options.symbol === undefined ||
         exclude.includes(path)
@@ -100,12 +98,12 @@ const salaryQueries = {
     });
 
     return symbmols;
-  },
+  }
 };
 
-// requireLogin(salaryQueries, 'salaryReport');
-// requireLogin(salaryQueries, 'salaryByEmployee');
+requireLogin(salaryQueries, 'salaryReport');
+requireLogin(salaryQueries, 'salaryByEmployee');
 
-// checkPermission(salaryQueries, 'salaryReport', 'showSalaries', []);
+checkPermission(salaryQueries, 'salaryReport', 'showSalaries', []);
 
 export default salaryQueries;

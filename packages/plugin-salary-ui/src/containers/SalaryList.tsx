@@ -18,28 +18,28 @@ export default function ListContainer(props: Props) {
     props.history.location.pathname === '/profile/salaries';
 
   const variables: any = {
-    ...router.generatePaginationParams(props.queryParams || {}),
+    ...router.generatePaginationParams(props.queryParams || {})
   };
 
   const salariesQry = useQuery(gql(queries.salaryReport), {
     variables: {
-      ...variables,
+      ...variables
     },
     skip: isEmployeeSalary,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   });
 
   const [removeSalary] = useMutation(gql(mutations.removeSalary), {
     variables: { _id: '' },
-    refetchQueries: [gql(queries.salaryReport)],
+    refetchQueries: [gql(queries.salaryReport)]
   });
 
   const labelsQuery = useQuery(gql(queries.labelsQuery), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first'
   });
 
   const symbolsQuery = useQuery(gql(queries.symbolsQuery), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first'
   });
 
   const [getEmployeeSalary, { data, loading, error }] = useLazyQuery(
@@ -47,9 +47,9 @@ export default function ListContainer(props: Props) {
     {
       fetchPolicy: 'network-only',
       variables: {
-        password: '',
-      },
-    },
+        password: ''
+      }
+    }
   );
 
   if (
@@ -65,14 +65,14 @@ export default function ListContainer(props: Props) {
     const message = 'Please enter your password to confirm this action.';
 
     confirm(message, { hasPasswordConfirm: true })
-      .then((password) => {
+      .then(password => {
         getEmployeeSalary({
           variables: {
-            password: password as string,
-          },
+            password: password as string
+          }
         });
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -82,13 +82,13 @@ export default function ListContainer(props: Props) {
 
     confirm(message).then(() => {
       removeSalary({
-        variables: { _id: id },
+        variables: { _id: id }
       })
         .then(() => {
           Alert.success(__('Successfully deleted.'));
           salariesQry.refetch();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     });
@@ -115,8 +115,8 @@ export default function ListContainer(props: Props) {
     }
   }
 
-  const labels = labelsQuery.data.bichilSalaryLabels || {};
-  const symbols = symbolsQuery.data.bichilSalarySymbols || {};
+  const labels = labelsQuery.data.salaryLabels || {};
+  const symbols = symbolsQuery.data.salarySymbols || {};
 
   const extendedProps = {
     ...props,
@@ -127,7 +127,7 @@ export default function ListContainer(props: Props) {
     isEmployeeSalary,
     remove,
     refetch,
-    confirmPassword,
+    confirmPassword
   };
 
   return <List {...extendedProps} />;
