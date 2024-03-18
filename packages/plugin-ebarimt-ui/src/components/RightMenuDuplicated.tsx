@@ -53,7 +53,8 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+    const { showMenu } = this.state;
+    this.setState({ showMenu: !showMenu });
   };
 
   onChangeInput = e => {
