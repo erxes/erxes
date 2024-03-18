@@ -193,22 +193,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  boardsAdd(${commonParams}): Board
-  boardsEdit(_id: String!, ${commonParams}): Board
-  boardsRemove(_id: String!): JSON
-  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  ticketBoardsAdd(${commonParams}): Board
+  ticketBoardsEdit(_id: String!, ${commonParams}): Board
+  ticketBoardsRemove(_id: String!): JSON
+  ticketBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  ticketBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
-  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
-  pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON
-  pipelinesCopied(_id: String!): JSON
+  ticketPipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
+  ticketPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
+  ticketPipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
+  ticketPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
+  ticketPipelinesRemove(_id: String!): JSON
+  ticketPipelinesArchive(_id: String!): JSON
+  ticketPipelinesCopied(_id: String!): JSON
 
-  stagesUpdateOrder(orders: [OrderItem]): [Stage]
-  stagesRemove(_id: String!): JSON
-  stagesEdit(_id: String!, type: String, name: String, status: String): Stage
-  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  ticketStagesUpdateOrder(orders: [OrderItem]): [Stage]
+  ticketStagesRemove(_id: String!): JSON
+  ticketStagesEdit(_id: String!, type: String, name: String, status: String): Stage
+  ticketStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

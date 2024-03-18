@@ -13,10 +13,10 @@ export const commonParams = `
 `;
 
 const checklistsAdd = `
-  mutation checklistsAdd(
+  mutation ticketChecklistsAdd(
     ${commonVariables}
   ) {
-    checklistsAdd(
+    ticketChecklistsAdd(
       ${commonParams}
     ) {
       ${checklistFields}
@@ -25,11 +25,11 @@ const checklistsAdd = `
 `;
 
 const checklistsEdit = `
-  mutation checklistsEdit(
+  mutation ticketChecklistsEdit(
     $_id: String!,
     ${commonVariables}
   ) {
-    checklistsEdit(
+    ticketChecklistsEdit(
       _id: $_id,
       ${commonParams}
     ) {
@@ -39,8 +39,8 @@ const checklistsEdit = `
 `;
 
 const checklistsRemove = `
-  mutation checklistsRemove($_id: String!) {
-    checklistsRemove(_id: $_id) {
+  mutation ticketChecklistsRemove($_id: String!) {
+    ticketChecklistsRemove(_id: $_id) {
       _id
     }
   }
@@ -61,10 +61,10 @@ const commonItemParams = `
 `;
 
 const checklistItemsAdd = `
-  mutation checklistItemsAdd(
+  mutation ticketChecklistItemsAdd(
     ${commonItemVariables}
   ) {
-    checklistItemsAdd(
+    ticketChecklistItemsAdd(
       ${commonItemParams}
     ) {
       _id
@@ -75,11 +75,11 @@ const checklistItemsAdd = `
 `;
 
 const checklistItemsEdit = `
-  mutation checklistItemsEdit(
+  mutation ticketChecklistItemsEdit(
     $_id: String!,
     ${commonItemVariables}
   ) {
-    checklistItemsEdit(
+    ticketChecklistItemsEdit(
       _id: $_id,
       ${commonItemParams}
     ) {
@@ -91,16 +91,16 @@ const checklistItemsEdit = `
 `;
 
 const checklistItemsRemove = `
-  mutation checklistItemsRemove($_id: String!) {
-    checklistItemsRemove(_id: $_id) {
+  mutation ticketChecklistItemsRemove($_id: String!) {
+    ticketChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
 `;
 
 const checklistItemsOrder = `
-  mutation checklistItemsOrder($_id: String!, $destinationIndex: Int) {
-    checklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+  mutation ticketChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
+    ticketChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
       _id
     }
   }
@@ -113,5 +113,5 @@ export default {
   checklistItemsAdd,
   checklistItemsEdit,
   checklistItemsOrder,
-  checklistItemsRemove
+  checklistItemsRemove,
 };

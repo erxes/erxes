@@ -1,26 +1,25 @@
 var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: 'cards',
+  name: 'tickets',
   typeDefs: `
-      pipelinesChanged(_id: String!): PipelineChangeResponse
+      ticketPipelinesChanged(_id: String!): PipelineChangeResponse
 
-      checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-      checklistDetailChanged(_id: String!): Checklist
-      productsDataChanged(_id: String!): ProductsDataChangeResponse
+      ticketChecklistsChanged(contentType: String!, contentTypeId: String!): Checklist
+      ticketChecklistDetailChanged(_id: String!): Checklist
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
-      pipelinesChanged: {
+      ticketPipelinesChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`ticketPipelinesChanged:${_id}`),
       },
-      checklistsChanged: {
+      ticketChecklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.checklistsChanged._id },
+            queryVariables: { _id: payload.ticketChecklistsChanged._id },
             buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
@@ -32,16 +31,16 @@ module.exports = {
         },
         subscribe: (_, { contentType, contentTypeId }) =>
           graphqlPubsub.asyncIterator(
-            `checklistsChanged:${contentType}:${contentTypeId}`
+            `ticketChecklistsChanged:${contentType}:${contentTypeId}`
           ),
       },
 
-      checklistDetailChanged: {
+      ticketChecklistDetailChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.checklistDetailChanged._id },
+            queryVariables: { _id: payload.ticketChecklistDetailChanged._id },
             buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
@@ -52,12 +51,7 @@ module.exports = {
           });
         },
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`),
-      },
-
-      productsDataChanged: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`ticketChecklistDetailChanged:${_id}`),
       },
     };
   },

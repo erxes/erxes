@@ -21,8 +21,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  pipelineLabelsAdd(${commonParams}): PipelineLabel
-  pipelineLabelsEdit(_id: String!, ${commonParams}): PipelineLabel
-  pipelineLabelsRemove(_id: String!): JSON
-  pipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
+  ticketPipelineLabelsAdd(${commonParams}): PipelineLabel
+  ticketPipelineLabelsEdit(_id: String!, ${commonParams}): PipelineLabel
+  ticketPipelineLabelsRemove(_id: String!): JSON
+  ticketPipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
 `;

@@ -10,14 +10,14 @@ const pipelineLabelMutations = {
   /**
    * Creates a new pipeline label
    */
-  async pipelineLabelsAdd(
+  async ticketPipelineLabelsAdd(
     _root,
     { ...doc }: IPipelineLabel,
     { user, models, subdomain }: IContext
   ) {
     const pipelineLabel = await models.PipelineLabels.createPipelineLabel({
       createdBy: user._id,
-      ...doc
+      ...doc,
     });
 
     await putCreateLog(
@@ -28,9 +28,9 @@ const pipelineLabelMutations = {
         newData: {
           ...doc,
           createdBy: user._id,
-          createdAt: pipelineLabel.createdAt
+          createdAt: pipelineLabel.createdAt,
         },
-        object: pipelineLabel
+        object: pipelineLabel,
       },
       user
     );
@@ -41,7 +41,7 @@ const pipelineLabelMutations = {
   /**
    * Edit pipeline label
    */
-  async pipelineLabelsEdit(
+  async ticketPipelineLabelsEdit(
     _root,
     { _id, ...doc }: IPipelineLabelsEdit,
     { user, models, subdomain }: IContext
@@ -55,7 +55,7 @@ const pipelineLabelMutations = {
       {
         type: 'pipelineLabel',
         newData: doc,
-        object: pipelineLabel
+        object: pipelineLabel,
       },
       user
     );
@@ -66,7 +66,7 @@ const pipelineLabelMutations = {
   /**
    * Remove pipeline label
    */
-  async pipelineLabelsRemove(
+  async ticketPipelineLabelsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -87,17 +87,17 @@ const pipelineLabelMutations = {
   /**
    * Attach a label
    */
-  pipelineLabelsLabel(
+  ticketPipelineLabelsLabel(
     _root,
     {
       pipelineId,
       targetId,
-      labelIds
+      labelIds,
     }: { pipelineId: string; targetId: string; labelIds: string[] },
     { models }: IContext
   ) {
     return models.PipelineLabels.labelsLabel(pipelineId, targetId, labelIds);
-  }
+  },
 };
 
 export default pipelineLabelMutations;
