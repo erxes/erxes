@@ -7,7 +7,7 @@ import SyncHistorySidebar from './syncHistorySidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 
 interface IProps extends IRouterProps {
-  syncHistories: any[];
+  syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
   history: any;
@@ -15,7 +15,7 @@ interface IProps extends IRouterProps {
 }
 class SyncHistoryList extends React.Component<IProps> {
   render() {
-    const { history, syncHistories, totalCount, loading, queryParams } =
+    const { history, syncHistoriesPolaris, totalCount, loading, queryParams } =
       this.props;
 
     const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
@@ -30,7 +30,7 @@ class SyncHistoryList extends React.Component<IProps> {
           </tr>
         </thead>
         <tbody id="SyncHistories">
-          {(syncHistories || []).map((item) => (
+          {(syncHistoriesPolaris || []).map((item) => (
             <tr key={item._id}>
               <td>{dayjs(item.createdAt).format('lll')}</td>
               <td>{item.createdUser?.email}</td>
