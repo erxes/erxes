@@ -36,8 +36,6 @@ type State = {
 } & StringState;
 
 export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
-
   constructor(props) {
     super(props);
 
@@ -47,18 +45,12 @@ export default class RightMenu extends React.Component<Props, State> {
 
       filterParams: this.props.queryParams
     };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
   }
 
   setFilter = () => {
     const { filterParams } = this.state;
     this.props.onFilter({ ...filterParams, page: '1' });
   };
-
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
 
   toggleMenu = () => {
     this.setState({ showMenu: !this.state.showMenu });
@@ -168,7 +160,7 @@ export default class RightMenu extends React.Component<Props, State> {
     const { isFiltered } = this.props;
 
     return (
-      <div ref={this.setWrapperRef}>
+      <div>
         {isFiltered && (
           <Button
             btnStyle="warning"

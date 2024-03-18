@@ -32,8 +32,6 @@ type State = {
 };
 
 class PutResponsesDuplicated extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
   renderRow(putResponse, index) {
     const { _id, date, number, count } = putResponse;
 
@@ -52,7 +50,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
 
     return (
       <ModalTrigger
-        key={_id}
+        key={`${_id.contentId}${_id.taxType}}`}
         title={`Order detail`}
         trigger={trigger}
         autoOpenKey="showProductModal"
