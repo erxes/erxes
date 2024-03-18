@@ -53,7 +53,7 @@ const ebarimtMutations = {
       },
     }).then((r) => r.json());
 
-    if (response.success === 'true') {
+    if (['true', true].includes(response.success)) {
       await models.PutResponses.updateOne(
         { _id: putResponse._id },
         { $set: { status: 'inactive' } },
@@ -64,7 +64,7 @@ const ebarimtMutations = {
       ...response,
     });
 
-    return models.PutResponses.find({ _id: resObj._id })
+    return models.PutResponses.findOne({ _id: resObj._id })
       .lean();
   },
 
