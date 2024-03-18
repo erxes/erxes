@@ -7,7 +7,7 @@ import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import { repairIntegrations } from '../helpers';
 
 const loginMiddleware = async (req, res) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
   const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
   const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');

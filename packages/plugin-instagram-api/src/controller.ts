@@ -8,19 +8,19 @@ import {
   debugError,
   debugInstagram,
   debugRequest,
-  debugResponse
+  debugResponse,
 } from './debuggers';
 
-const init = async app => {
+const init = async (app) => {
   app.get('/instagram/login', loginMiddleware);
 
   app.get('/instagram/get-accounts', async (req, res, next) => {
     debugRequest(debugInstagram, req);
     const accountId = req.query.accountId;
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
     const account = await models.Accounts.getAccount({
-      _id: req.query.accountId
+      _id: req.query.accountId,
     });
 
     const accessToken = account.token;
@@ -36,9 +36,9 @@ const init = async app => {
           {
             $set: {
               healthStatus: 'account-token',
-              error: `${e.message}`
-            }
-          }
+              error: `${e.message}`,
+            },
+          },
         );
       }
 
@@ -52,12 +52,12 @@ const init = async app => {
   });
 
   app.get('/instagram/receive', async (req, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const INSTAGRAM_VERIFY_TOKEN = await getConfig(
       models,
-      'INSTAGRAM_VERIFY_TOKEN'
+      'INSTAGRAM_VERIFY_TOKEN',
     );
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
@@ -70,7 +70,7 @@ const init = async app => {
     }
   });
   app.post('/instagram/receive', async (req, res, next) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
     const data = req.body;
     if (data.object !== 'instagram') {

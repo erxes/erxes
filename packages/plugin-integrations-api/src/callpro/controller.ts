@@ -77,7 +77,7 @@ const init = async (app) => {
   app.post(
     '/callpro-receive',
     routeErrorHandling(async (req, res) => {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       debugRequest(debugCallPro, req);

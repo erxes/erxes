@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataloaders';
 import imports from './imports';
@@ -11,6 +10,7 @@ import forms from './forms';
 import internalNotes from './internalNotes';
 import logUtils from './logUtils';
 import * as permissions from './permissions';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'assets',
@@ -22,10 +22,9 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
     context.models = models;
 
     context.dataLoaders = generateAllDataLoaders(models, subdomain);

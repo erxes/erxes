@@ -5,7 +5,7 @@ import { generateModels, IModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import {
   posOrderRecordsCountQuery,
-  posOrderRecordsQuery
+  posOrderRecordsQuery,
 } from './graphql/resolvers/queries/orders';
 
 export const createXlsFile = async () => {
@@ -27,7 +27,7 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   return columnNames;
 };
 
-const generateLabel = customer => {
+const generateLabel = (customer) => {
   const { firstName, primaryEmail, primaryPhone, lastName } =
     customer || ({} as any);
 
@@ -114,12 +114,12 @@ const getCellValue = (order, colName) => {
             [
               ...order.paidAmounts,
               { type: 'cash', amount: order.cashAmount },
-              { type: 'mobile', amount: order.mobileAmount }
+              { type: 'mobile', amount: order.mobileAmount },
             ]
-              .filter(pa => pa.amount > 0)
-              .map(pa => pa.type)
-          )
-        )
+              .filter((pa) => pa.amount > 0)
+              .map((pa) => pa.type),
+          ),
+        ),
       ].join(', ');
   }
 
@@ -135,7 +135,7 @@ const getCellValue = (order, colName) => {
  */
 export const fillCellValue = async (
   colName: string,
-  item: any
+  item: any,
 ): Promise<string> => {
   const emptyMsg = '-';
 
@@ -193,14 +193,14 @@ const generateParams = ({ queryParams }) => ({
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
   posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(',')
+  types: queryParams.types && queryParams.types.split(','),
 });
 
 // Prepares data depending on module type
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const params = generateParams({ queryParams: query });
   const perPage = params.perPage;
@@ -215,7 +215,7 @@ const prepareData = async (
       subdomain,
       models,
       { ...params, page },
-      {}
+      {},
     );
     datas = datas.concat(orders);
   }
@@ -227,7 +227,7 @@ const addCell = (
   value: string,
   sheet: any,
   columnNames: string[],
-  rowIndex: number
+  rowIndex: number,
 ): void => {
   let fixedValue = value;
 
@@ -274,20 +274,20 @@ const headers = [
   { name: 'discountType', label: 'Discount type' },
   { name: 'salePrice', label: 'Sale price' },
   { name: 'amount', label: 'Amount' },
-  { name: 'payType', label: 'Payment type' }
+  { name: 'payType', label: 'Payment type' },
 ];
 
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<{ name: string; response: string }> => {
   const data = await prepareData(models, subdomain, query);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
 
-  const columnNames: string[] = headers.map(h => h.name);
+  const columnNames: string[] = headers.map((h) => h.name);
   let rowIndex: number = 1;
 
   for (const column of headers) {
@@ -306,13 +306,13 @@ export const buildFile = async (
 
   return {
     name: `posOrders - ${moment().format('YYYY-MM-DD HH:mm')}`,
-    response: await generateXlsx(workbook)
+    response: await generateXlsx(workbook),
   };
 };
 
 export const exportFileRunner = async (req, res) => {
   const { query } = req;
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
 
   const models = await generateModels(subdomain);
 

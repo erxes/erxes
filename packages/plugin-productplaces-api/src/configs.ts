@@ -4,7 +4,6 @@ import { generateModels } from './connectionResolver';
 
 import { setupMessageConsumers } from './messageBroker';
 import afterMutations from './afterMutations';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 
 export default {
@@ -23,9 +22,8 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
     return context;

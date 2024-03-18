@@ -14,7 +14,7 @@ import { debugInfo, debugError } from '../debuggers';
 import * as http from 'http';
 import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import * as path from 'path';
 import * as ws from 'ws';
@@ -207,6 +207,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             res,
           };
         }
+
+        if (!context) {
+          context = {};
+        }
+
+        context.subdomain = getSubdomainHeader(req);
 
         await configs.apolloServerContext(context, req, res);
 
@@ -499,7 +505,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         }));
 
         app.post('/initial-setup', async (req, res) => {
-          await initialSetup.generate({ subdomain: getSubdomain(req) });
+          await initialSetup.generate({ subdomain: getSubdomainHeader(req) });
           return res.end('ok');
         });
       }

@@ -8,7 +8,7 @@ import { generateModels } from './connectionResolver';
 const { JWT_TOKEN_SECRET = '' } = process.env;
 
 const webhookReceiver = async (req: Request, res: Response): Promise<void> => {
-  const subdomain: string = getSubdomain(req);
+  const subdomain: string = getSubdomainHeader(req);
   const models = generateModels(subdomain);
   const authHeader = req.headers.authorization;
 

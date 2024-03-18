@@ -42,7 +42,6 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import {
   authCookieOptions,
-  getSubdomain,
   connectionOptions,
 } from '@erxes/api-utils/src/core';
 import segments from './segments';
@@ -56,6 +55,7 @@ import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import { handleCoreLogin, handleMagiclink, ssocallback } from './saas';
 import app from '@erxes/api-utils/src/app';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const {
   JWT_TOKEN_SECRET,
@@ -99,7 +99,7 @@ app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 app.get(
   '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const userCount = await models.Users.countDocuments();
@@ -149,7 +149,7 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const name = req.query.name;
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     registerOnboardHistory({ models, type: `${name}Download`, user: req.user });
@@ -165,7 +165,7 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     registerOnboardHistory({
@@ -183,7 +183,7 @@ app.get(
 
 // read file
 app.get('/read-file', async (req: any, res, next) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   try {
@@ -226,7 +226,7 @@ app.post(
       return res.end('forbidden');
     }
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const status = await deleteFile(models, req.body.fileName);
@@ -243,7 +243,7 @@ app.post(
 app.get(
   '/unsubscribe',
   routeErrorHandling(async (req: any, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     await handleUnsubscription(models, subdomain, req.query);

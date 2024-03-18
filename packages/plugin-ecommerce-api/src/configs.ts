@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export default {
   name: 'ecommerce',
@@ -13,8 +12,8 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
-    context.subdomain = subdomain;
+    const { subdomain } = context;
+
     context.models = await generateModels(subdomain);
     return context;
   },

@@ -1,4 +1,3 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as cookieParser from 'cookie-parser';
 
 import afterMutations from './afterMutations';
@@ -33,8 +32,7 @@ export default {
   },
 
   apolloServerContext: async (context, req, res) => {
-    const subdomain = getSubdomain(req);
-
+    const { subdomain } = context;
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
@@ -43,7 +41,6 @@ export default {
 
     const models = await generateModels(subdomain);
 
-    context.subdomain = subdomain;
     context.models = models;
     context.requestInfo = requestInfo;
     context.res = res;

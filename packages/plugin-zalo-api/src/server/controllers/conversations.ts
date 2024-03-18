@@ -174,7 +174,7 @@ export const createConversationMessage = async (
 };
 
 export const receiveMessage = async (req) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const data = req.body;

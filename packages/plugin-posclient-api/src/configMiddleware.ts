@@ -5,7 +5,7 @@ import { generateModels } from './connectionResolver';
 export default async function posUserMiddleware(
   req: Request & { posConfig?: any },
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   let token;
   try {
@@ -14,7 +14,7 @@ export default async function posUserMiddleware(
 
   if (token) {
     try {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       req.posConfig = (await models.Configs.findOne({ token }).lean()) || {};

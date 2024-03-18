@@ -7,14 +7,14 @@ const EXCLUDE_PATH = [
   '/nylas/auth/callback',
   '/nylas/oauth2/callback',
   '/gmail/webhook',
-  '/gmail/login'
+  '/gmail/login',
 ];
 
 export let userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
 
   if (EXCLUDE_PATH.includes(path)) {
     return next();
@@ -25,9 +25,9 @@ const userMiddleware = async (req, _res, next) => {
       subdomain,
       action: 'integrations.receive',
       data: {
-        action: 'getUserIds'
+        action: 'getUserIds',
       },
-      isRPC: true
+      isRPC: true,
     });
 
     userIds = response.userIds;

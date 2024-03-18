@@ -4,10 +4,14 @@ import * as jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 import redis from '@erxes/api-utils/src/redis';
 import { generateModels } from '../connectionResolver';
-import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
+import { userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import fetch from 'node-fetch';
-import { sanitizeHeaders, setUserHeader } from '@erxes/api-utils/src/headers';
+import {
+  getSubdomainHeader,
+  sanitizeHeaders,
+  setUserHeader,
+} from '@erxes/api-utils/src/headers';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -65,7 +69,7 @@ export default async function userMiddleware(
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   if (appToken) {

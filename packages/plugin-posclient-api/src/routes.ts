@@ -2,7 +2,7 @@ import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 
 export const posInitialSetup = async (req, res) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const config = await models.Configs.findOne();

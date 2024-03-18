@@ -347,13 +347,6 @@ export const generateAttachmentUrl = (urlOrName: string) => {
   return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
 };
 
-export const getSubdomain = (req): string => {
-  const hostname =
-    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
-  const subdomain = hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-  return subdomain;
-};
-
 export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -373,28 +366,19 @@ export const createGenerateModels = <IModels>(
 
   if (VERSION && VERSION !== 'saas') {
     let models: IModels | null = null;
-    return async function genereteModels(
-      hostnameOrSubdomain: string,
-    ): Promise<IModels> {
+    return async function genereteModels(subdomain: string): Promise<IModels> {
       if (models) {
         return models;
       }
 
-      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
+      models = await loadClasses(mongoose.connection, subdomain);
 
       return models;
     };
   } else {
     return async function genereteModels(
-      hostnameOrSubdomain: string = '',
+      subdomain: string = '',
     ): Promise<IModels> {
-      let subdomain: string = hostnameOrSubdomain;
-
-      // means hostname
-      if (subdomain && subdomain.includes('.')) {
-        subdomain = getSubdomain(hostnameOrSubdomain);
-      }
-
       if (!subdomain) {
         throw new Error(`Subdomain is \`${subdomain}\``);
       }

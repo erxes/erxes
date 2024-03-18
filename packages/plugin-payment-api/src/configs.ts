@@ -1,4 +1,3 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
 import * as cookieParser from 'cookie-parser';
@@ -47,7 +46,7 @@ export default {
   })),
 
   apolloServerContext: async (context, req, res) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
     const requestInfo = {
@@ -56,7 +55,6 @@ export default {
       headers: req.headers,
     };
 
-    context.subdomain = subdomain;
     context.models = models;
 
     context.requestInfo = requestInfo;

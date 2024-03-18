@@ -8,7 +8,6 @@ import tags from './tags';
 import logs from './logUtils';
 import cronjobs from './cronjobs/engages';
 import * as permissions from './permissions';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
 
@@ -26,12 +25,11 @@ export default {
   meta: { tags, logs: { consumers: logs }, webhooks, cronjobs, permissions },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
     context.dataloaders = {};
 
     context.models = await generateModels(subdomain);
-    context.subdomain = subdomain;
 
     return context;
   },

@@ -33,11 +33,11 @@ export const initApolloServer = async (app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs,
-        resolvers
-      }
+        resolvers,
+      },
     ]),
     // for graceful shutdowns
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await apolloServer.start();
@@ -52,22 +52,22 @@ export const initApolloServer = async (app, httpServer) => {
         ) {
           return {};
         }
-        
+
         let user: any = null;
 
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         if (req.headers.user) {
           const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8'
+            'utf-8',
           );
           user = JSON.parse(userJson);
         }
 
         const requestInfo = {
           secure: req.secure,
-          cookies: req.cookies
+          cookies: req.cookies,
         };
 
         let context;
@@ -77,13 +77,13 @@ export const initApolloServer = async (app, httpServer) => {
             brandIdSelector: {},
             singleBrandIdSelector: {},
             userBrandIdsSelector: {},
-            docModifier: doc => doc,
+            docModifier: (doc) => doc,
             commonQuerySelector: {},
             user,
             res,
             requestInfo,
             subdomain,
-            models
+            models,
           };
         } else {
           let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
@@ -114,7 +114,7 @@ export const initApolloServer = async (app, httpServer) => {
             brandIdSelector,
             singleBrandIdSelector,
             userBrandIdsSelector,
-            docModifier: doc => ({ ...doc, scopeBrandIds }),
+            docModifier: (doc) => ({ ...doc, scopeBrandIds }),
             scopeBrandIds,
             commonQuerySelector,
             user,
@@ -122,13 +122,13 @@ export const initApolloServer = async (app, httpServer) => {
             requestInfo,
             subdomain,
             models,
-            commonQuerySelectorElk
+            commonQuerySelectorElk,
           };
         }
 
         return context;
-      }
-    })
+      },
+    }),
   );
 
   return apolloServer;

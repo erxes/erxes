@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 import * as permissions from './permissions';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 
@@ -18,10 +17,9 @@ export default {
   },
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = subdomain;
     context.models = models;
 
     return context;

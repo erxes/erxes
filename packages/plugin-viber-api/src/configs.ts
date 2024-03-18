@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 import { setupMessageConsumers } from './messageBroker';
 import init from './controller';
 import webhookListen from './viber/webhookListen';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'viber',
@@ -25,8 +25,8 @@ export default {
   postHandlers: [{ path: '/webhook/:integrationId', method: webhookListen }],
 
   apolloServerContext: async (context, req): Promise<any> => {
-    const subdomain: string = getSubdomain(req);
-    context.subdomain = subdomain;
+    const subdomain: string = getSubdomainHeader(req);
+
     return context;
   },
 

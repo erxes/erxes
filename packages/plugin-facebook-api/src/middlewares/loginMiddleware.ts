@@ -8,7 +8,7 @@ import { getConfig, getEnv } from '../commonUtils';
 import { graphRequest } from '../utils';
 
 const loginMiddleware = async (req, res) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');

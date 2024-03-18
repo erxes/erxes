@@ -3,8 +3,8 @@ import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
 import webhookReceiver from './webhook';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'calls',
@@ -33,10 +33,9 @@ export default {
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
     context.models = models;
 
     return context;

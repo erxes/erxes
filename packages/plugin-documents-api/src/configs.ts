@@ -2,10 +2,10 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { setupMessageConsumers, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'documents',
@@ -18,9 +18,8 @@ export default {
   },
   segment: {},
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
   },
   meta: {
@@ -32,7 +31,7 @@ export default {
       path: '/print',
       method: async (req, res, next) => {
         const { _id, copies, width, itemId } = req.query;
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
         const document = await models.Documents.findOne({ _id });
 

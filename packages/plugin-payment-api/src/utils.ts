@@ -17,7 +17,7 @@ import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const kind = query.kind || route.path.split('/').slice(-1).pop();

@@ -20,7 +20,6 @@ import forms from './forms';
 import * as permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './cronjobs/conversations';
@@ -31,6 +30,7 @@ import payment from './payment';
 import reports from './reports';
 import app from '@erxes/api-utils/src/app';
 import exporter from './exporter';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'inbox',
@@ -64,13 +64,11 @@ export default {
     exporter,
   },
   apolloServerContext: async (context, req, res) => {
-    const subdomain = getSubdomain(req);
-
+    const subdomain = context.subdomain;
     const models = await generateModels(subdomain);
 
     context.models = models;
     context.dataLoaders = generateAllDataLoaders(models);
-    context.subdomain = subdomain;
 
     context.serverTiming = {
       startTime: res.startTime,
@@ -88,7 +86,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { name, triggerAutomation, customerId, attributes } = req.body;
-          const subdomain = getSubdomain(req);
+          const subdomain = getSubdomainHeader(req);
 
           const response =
             name === 'pageView'
@@ -111,7 +109,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
-          const subdomain = getSubdomain(req);
+          const subdomain = getSubdomainHeader(req);
 
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
@@ -124,7 +122,7 @@ export default {
       '/events-update-customer-properties',
       routeErrorHandling(
         async (req, res) => {
-          const subdomain = getSubdomain(req);
+          const subdomain = getSubdomainHeader(req);
 
           const response = await updateCustomerProperties(subdomain, req.body);
           return res.json(response);

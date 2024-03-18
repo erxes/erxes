@@ -2,13 +2,13 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import app from '@erxes/api-utils/src/app';
 
 import tags from './tags';
 import { buildFile } from './reportExport';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'reports',
@@ -21,10 +21,9 @@ export default {
 
   meta: { logs: {}, tags },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = subdomain;
     context.models = models;
 
     return context;
@@ -36,7 +35,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(subdomain, query);

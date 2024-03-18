@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import cronjobs from './cronjobs/timelock';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -11,6 +10,7 @@ import * as permissions from './permissions';
 import { removeDuplicates } from './removeDuplicateTimeclocks';
 import app from '@erxes/api-utils/src/app';
 import { buildFile as timeclockBuildFile } from './timeclockExport';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'timeclock',
@@ -28,10 +28,9 @@ export default {
   },
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
     context.models = models;
 
     return context;
@@ -50,7 +49,7 @@ export default {
       '/report-export',
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(models, subdomain, query);
@@ -66,7 +65,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await timeclockBuildFile(models, subdomain, query);
@@ -82,7 +81,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await timeclockBuildFile(models, subdomain, query);

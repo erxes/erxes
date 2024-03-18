@@ -4,7 +4,6 @@ import typeDefs from './graphql/typeDefs';
 
 import { setupMessageConsumers } from './messageBroker';
 // import logs from './logUtils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { exportCensusRunner } from './exporterByUrl';
 import * as permissions from './permissions';
 
@@ -19,9 +18,8 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
     return context;

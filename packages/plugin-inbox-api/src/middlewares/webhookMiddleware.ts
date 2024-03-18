@@ -118,7 +118,7 @@ const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
 };
 
 const webhookMiddleware = async (req, res, next) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   try {

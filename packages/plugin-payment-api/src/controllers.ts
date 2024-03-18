@@ -20,7 +20,7 @@ router.post('/checkInvoice', async (req, res) => {
   const status = await redisUtils.getInvoiceStatus(invoiceId);
 
   if (status === 'paid') {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
     const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
 
@@ -37,7 +37,7 @@ router.post('/checkInvoice', async (req, res) => {
 router.post('/gateway/manualCheck', async (req, res) => {
   const { invoiceId } = req.body;
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const status = await models.Invoices.checkInvoice(invoiceId);
@@ -81,7 +81,7 @@ router.post('/gateway/storepay', async (req, res) => {
     return res.json({ status: 'error' });
   }
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const invoice = await models.Invoices.findOne({
@@ -124,7 +124,7 @@ router.post('/gateway/storepay', async (req, res) => {
 router.post('/gateway/updateInvoice', async (req, res) => {
   const { selectedPaymentId, paymentKind, invoiceData, phone } = req.body;
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   let invoice = await models.Invoices.findOne({ _id: invoiceData._id });
@@ -194,7 +194,7 @@ router.get('/gateway', async (req, res) => {
     Buffer.from(params as string, 'base64').toString('utf8'),
   );
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const filter: any = {};
@@ -253,7 +253,7 @@ router.post('/gateway', async (req, res, next) => {
     Buffer.from(params as string, 'base64').toString('utf8'),
   );
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
@@ -385,7 +385,7 @@ router.post('/gateway', async (req, res, next) => {
 router.post('/gateway/monpay/coupon', async (req, res, next) => {
   const { invoiceData, couponCode } = req.body;
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   // login to monpay and get token

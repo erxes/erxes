@@ -5,16 +5,16 @@ export let userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
 
   if (userIds.length === 0) {
     const response = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
       data: {
-        action: 'getUserIds'
+        action: 'getUserIds',
       },
-      isRPC: true
+      isRPC: true,
     });
 
     userIds = response.userIds;

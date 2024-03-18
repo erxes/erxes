@@ -21,6 +21,7 @@ import {
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 import { sanitizeHeaders } from '@erxes/api-utils/src/headers';
+import { setSubdomainHeader } from './util/subdomain';
 
 const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
@@ -28,6 +29,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 (async () => {
   app.use((req, _res, next) => {
     sanitizeHeaders(req.headers);
+    setSubdomainHeader(req);
     next();
   });
 

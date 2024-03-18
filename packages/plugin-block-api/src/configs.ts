@@ -2,12 +2,12 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import app from '@erxes/api-utils/src/app';
 // import { getBalance, sendSms, updateBalance } from './utils';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'block',
@@ -19,10 +19,9 @@ export default {
   },
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
     context.models = models;
 
     return context;
@@ -34,7 +33,7 @@ export default {
       routeErrorHandling(async (req, res) => {
         debugInfo(`/tdb/receive': `);
         console.log('/tdb/receive');
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         await models.Transactions.create({

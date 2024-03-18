@@ -125,7 +125,7 @@ export const engageTracker = async (req, res) => {
 
     debugInfo(`receiving on tracker: ${JSON.stringify(message)}`);
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;

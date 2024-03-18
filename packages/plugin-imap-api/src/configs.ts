@@ -5,7 +5,7 @@ import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv } from '@erxes/api-utils/src/core';
 import startDistributingJobs, {
   findAttachmentParts,
   createImap,
@@ -16,6 +16,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getOrganizations } from '@erxes/api-utils//src/saas/saas';
 import logs from './logUtils';
 import app from '@erxes/api-utils/src/app';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'imap',
@@ -35,9 +36,8 @@ export default {
     logs: { providesActivityLog: true, consumers: logs },
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
   },
 
@@ -46,7 +46,7 @@ export default {
       '/read-mail-attachment',
       routeErrorHandling(
         async (req, res, next) => {
-          const subdomain = getSubdomain(req);
+          const subdomain = getSubdomainHeader(req);
           const models = await generateModels(subdomain);
 
           const { messageId, integrationId, filename } = req.query;

@@ -8,7 +8,7 @@ import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { extractUserFromHeader } from '@erxes/api-utils/src/headers';
 
 // load environment variables
@@ -54,7 +54,7 @@ export const initApolloServer = async (app, httpServer) => {
         ) {
           return {};
         }
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         let user: any = extractUserFromHeader(req.headers);

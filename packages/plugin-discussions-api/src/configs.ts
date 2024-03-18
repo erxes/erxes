@@ -3,7 +3,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
@@ -17,10 +16,10 @@ export default {
   },
   segment: {},
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
     context.cpUser = req.cpUser;
-    context.subdomain = subdomain;
+
     context.models = await generateModels(subdomain);
   },
 

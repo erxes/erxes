@@ -15,7 +15,6 @@ import imports from './imports';
 import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import documents from './documents';
 import tags from './tags';
@@ -25,7 +24,7 @@ import dashboards from './dashboards';
 import payment from './payment';
 import reports from './reports';
 import app from '@erxes/api-utils/src/app';
-
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { NOTIFICATION_MODULES } from './constants';
 
 export default {
@@ -65,10 +64,8 @@ export default {
   },
 
   apolloServerContext: async (context, req, res) => {
-    const subdomain = getSubdomain(req);
-
+    const { subdomain } = context;
     context.models = await generateModels(subdomain);
-    context.subdomain = subdomain;
 
     context.serverTiming = {
       startTime: res.startTime,
@@ -85,7 +82,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(models, subdomain, query);

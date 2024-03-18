@@ -6,10 +6,11 @@ import { getEnv, saveValidatedToken } from './data/utils';
 import { debugBase, debugError } from './debuggers';
 
 import { generateModels } from './connectionResolver';
-import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { getOrganizationDetail } from '@erxes/api-utils/src/saas/saas';
 import redis from '@erxes/api-utils/src/redis';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const setCookie = async (res, user, subdomain: string, token: string) => {
   await saveValidatedToken(token, user);
@@ -65,7 +66,7 @@ export const handleMagiclink = async (req: any, res) => {
 
 export const handleCoreLogin = async (req: any, res) => {
   const { token } = req.query;
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
 
   // already signed in
   if (req.user) {
@@ -110,7 +111,7 @@ export const ssocallback = async (req: any, res) => {
   const workosClient = new Workos(getEnv({ name: 'WORKOS_API_KEY' }));
 
   try {
-    const sub = subdomain || (await getSubdomain(req));
+    const sub = subdomain || (await getSubdomainHeader(req));
     const models = await generateModels(sub);
     const FRONT_DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
     const { profile } = await workosClient.sso.getProfileAndToken({

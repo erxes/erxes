@@ -1,16 +1,15 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
-
-import { generateModels } from "../connectionResolver";
+import { generateModels } from '../connectionResolver';
 
 const widgetsMiddleware = async (req, res) => {
   const { WIDGETS_DOMAIN } = process.env;
 
-  const domain = WIDGETS_DOMAIN || 'http://localhost:3200'
+  const domain = WIDGETS_DOMAIN || 'http://localhost:3200';
 
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const script = await models.Scripts.findOne({ _id: req.query.id });
@@ -19,7 +18,7 @@ const widgetsMiddleware = async (req, res) => {
     return res.end('Not found');
   }
 
-  const generateScript = type => {
+  const generateScript = (type) => {
     return `
       (function() {
         var script = document.createElement('script');
@@ -48,7 +47,7 @@ const widgetsMiddleware = async (req, res) => {
   if (script.leadMaps) {
     erxesSettings += 'forms: [';
 
-    script.leadMaps.forEach(map => {
+    script.leadMaps.forEach((map) => {
       erxesSettings += `{ brand_id: "${map.brandCode}", form_id: "${map.formCode}" },`;
       includeScripts += generateScript('form');
     });

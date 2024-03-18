@@ -10,7 +10,7 @@ export default async function cpUserMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
   const { body } = req;
 

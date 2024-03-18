@@ -122,7 +122,7 @@ const saveMessages = async (linkedin, integration, criteria) => {
 // controller for zalo
 const init = async (app) => {
   app.get('/login', async (req, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const ZALO_APP_ID = await getConfig(models, 'ZALO_APP_ID');
@@ -221,7 +221,7 @@ const init = async (app) => {
   });
 
   app.post('/receive', async (req, res, next) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const data = req.body;

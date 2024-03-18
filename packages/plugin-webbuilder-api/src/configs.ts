@@ -3,11 +3,11 @@ import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { pageReplacer } from './utils';
 const permissions = require('./permissions');
 import app from '@erxes/api-utils/src/app';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'webbuilder',
@@ -20,11 +20,10 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
     const models = await generateModels(subdomain);
 
-    context.subdomain = subdomain;
     context.models = models;
 
     return context;
@@ -33,7 +32,7 @@ export default {
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
 
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       const site = await models.Sites.findOne({ name: sitename }).lean();
@@ -64,7 +63,7 @@ export default {
     });
 
     app.get('/:sitename/detail/:contenttype/:entryid', async (req, res) => {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       const { sitename, contenttype, entryid } = req.params;
@@ -119,7 +118,7 @@ export default {
     });
 
     app.get('/:sitename/page/:name', async (req, res) => {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       const { sitename, name } = req.params;
@@ -149,7 +148,7 @@ export default {
     });
 
     app.get('/:sitename/get-data', async (req, res) => {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       const { sitename } = req.params;

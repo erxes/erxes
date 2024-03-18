@@ -5,12 +5,12 @@ import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 
 import { checkFile, isImage, resizeImage, uploadFile } from '../data/utils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
 

@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import cronjobs, {
   createCeremonies,
@@ -13,6 +12,7 @@ import automations from './automations';
 import segments from './segments';
 import forms from './forms';
 import app from '@erxes/api-utils/src/app';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'exmfeed',
@@ -25,9 +25,8 @@ export default {
   },
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
     return context;
@@ -35,7 +34,7 @@ export default {
 
   onServerInit: async () => {
     app.get('/trigger-cron', async (req, res) => {
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
 
       await createCeremonies(subdomain);
       await sendCeremonyNotification(subdomain);

@@ -4,11 +4,11 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendPosMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from './messageBroker';
 
 export const getOrderInfo = async (req, res) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const result: any = {};
 
   const { id } = req.query;
@@ -17,7 +17,7 @@ export const getOrderInfo = async (req, res) => {
     subdomain,
     action: 'deals.findOne',
     data: { _id: id },
-    isRPC: true
+    isRPC: true,
   });
 
   if (deal && deal._id === id) {
@@ -27,9 +27,9 @@ export const getOrderInfo = async (req, res) => {
       data: {
         mainType: 'deal',
         mainTypeId: id,
-        relTypes: ['customer', 'company']
+        relTypes: ['customer', 'company'],
       },
-      isRPC: true
+      isRPC: true,
     });
 
     result.type = 'deal';
@@ -37,26 +37,26 @@ export const getOrderInfo = async (req, res) => {
 
     const customerIds = conformities
       .map(
-        c =>
+        (c) =>
           (c.mainType === 'customer' && c.mainTypeId) ||
           (c.relType === 'customer' && c.relTypeId) ||
-          ''
+          '',
       )
-      .filter(c => c);
+      .filter((c) => c);
     const companyIds = conformities
       .map(
-        c =>
+        (c) =>
           (c.mainType === 'company' && c.mainTypeId) ||
           (c.relType === 'company' && c.relTypeId) ||
-          ''
+          '',
       )
-      .filter(c => c);
+      .filter((c) => c);
     if (customerIds.length) {
       const customers = await sendContactsMessage({
         subdomain,
         action: 'customers.find',
         data: { _id: { $in: customerIds } },
-        isRPC: true
+        isRPC: true,
       });
       if (customers && customers.length) {
         result.customers = customers;
@@ -67,7 +67,7 @@ export const getOrderInfo = async (req, res) => {
         subdomain,
         action: 'companies.find',
         data: { _id: { $in: companyIds } },
-        isRPC: true
+        isRPC: true,
       });
       if (companies && companies.length) {
         result.companies = companies;
@@ -77,9 +77,9 @@ export const getOrderInfo = async (req, res) => {
       subdomain,
       action: 'find',
       data: {
-        query: { _id: { $in: deal.productsData.map(p => p.productId) } },
-        limit: deal.productsData.length
-      }
+        query: { _id: { $in: deal.productsData.map((p) => p.productId) } },
+        limit: deal.productsData.length,
+      },
     });
     result.products = products;
 
@@ -90,7 +90,7 @@ export const getOrderInfo = async (req, res) => {
     subdomain,
     action: 'orders.findOne',
     data: { _id: id },
-    isRPC: true
+    isRPC: true,
   });
 
   if (order && order._id === id) {
@@ -102,7 +102,7 @@ export const getOrderInfo = async (req, res) => {
           subdomain,
           action: 'companies.find',
           data: { _id: { $in: [order.customerId] } },
-          isRPC: true
+          isRPC: true,
         });
         if (companies && companies.length) {
           result.companies = companies;
@@ -112,7 +112,7 @@ export const getOrderInfo = async (req, res) => {
           subdomain,
           action: 'users.find',
           data: { query: { _id: order.customerId } },
-          isRPC: true
+          isRPC: true,
         });
         if (users && users.length) {
           result.users = users;
@@ -122,7 +122,7 @@ export const getOrderInfo = async (req, res) => {
           subdomain,
           action: 'customers.find',
           data: { _id: { $in: [order.customerId] } },
-          isRPC: true
+          isRPC: true,
         });
         if (customers && customers.length) {
           result.customers = customers;
@@ -134,9 +134,9 @@ export const getOrderInfo = async (req, res) => {
       subdomain,
       action: 'find',
       data: {
-        query: { _id: { $in: order.items.map(p => p.productId) } },
-        limit: order.items.length
-      }
+        query: { _id: { $in: order.items.map((p) => p.productId) } },
+        limit: order.items.length,
+      },
     });
     result.products = products;
 

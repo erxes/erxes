@@ -18,7 +18,7 @@ const init = async (app) => {
       `Request to get post data with: ${JSON.stringify(req.query)}`,
     );
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const { erxesApiId } = req.query;
@@ -29,7 +29,7 @@ const init = async (app) => {
   });
 
   app.get('/facebook/get-status', async (req, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const { integrationId } = req.query;
@@ -56,7 +56,7 @@ const init = async (app) => {
 
   // Facebook endpoint verifier
   app.get('/facebook/receive', async (req, res) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const FACEBOOK_VERIFY_TOKEN = await getConfig(
@@ -76,7 +76,7 @@ const init = async (app) => {
   });
 
   app.post('/facebook/receive', async (req, res, next) => {
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
     const models = await generateModels(subdomain);
 
     const data = req.body;

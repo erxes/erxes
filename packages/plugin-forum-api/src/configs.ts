@@ -6,7 +6,6 @@ import * as cookieParser from 'cookie-parser';
 import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import { generateModels } from './db/models';
 import { IContext } from './graphql';
@@ -31,10 +30,8 @@ export default {
   },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {
-    const subdomain = getSubdomain(req);
-
+    const { subdomain } = context;
     context.models = await generateModels(subdomain);
-    context.subdomain = subdomain;
 
     context.serverTiming = {
       startTime: res.startTime,

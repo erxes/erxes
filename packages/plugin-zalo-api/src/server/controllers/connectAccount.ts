@@ -13,7 +13,7 @@ import {
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const connectAccount = async (req, res) => {
-  const subdomain = getSubdomain(req);
+  const subdomain = getSubdomainHeader(req);
   const models = await generateModels(subdomain);
 
   const ZALO_APP_ID = await getConfig(models, 'ZALO_APP_ID');

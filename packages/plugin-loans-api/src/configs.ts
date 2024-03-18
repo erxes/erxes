@@ -10,7 +10,6 @@ import logs from './logUtils';
 import * as permissions from './permissions';
 import payment from './payment';
 import { checkContractScheduleAnd } from './cronjobs/contractCronJobs';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 
 interface IConfig {
   name: string;
@@ -46,9 +45,8 @@ export default {
   },
 
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
-    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
     return context;

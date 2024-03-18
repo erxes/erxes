@@ -15,7 +15,6 @@ import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
 import * as permissions from './permissions';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import {
   updateContactsValidationStatus,
@@ -25,6 +24,7 @@ import exporter from './exporter';
 import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export default {
   name: 'contacts',
@@ -61,10 +61,9 @@ export default {
     notificationModules: NOTIFICATION_MODULES,
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
     context.models = await generateModels(subdomain);
-    context.subdomain = subdomain;
   },
 
   onServerInit: async () => {
@@ -73,7 +72,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
         const { segment } = query;
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(models, subdomain, query);
@@ -100,7 +99,7 @@ export default {
       `/verifier/webhook`,
       routeErrorHandling(async (req, res) => {
         const { emails, phones, email, phone } = req.body;
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomainHeader(req);
         const models = await generateModels(subdomain);
 
         if (email) {
@@ -126,7 +125,7 @@ export default {
 
       const { email, customerId } = data;
 
-      const subdomain = getSubdomain(req);
+      const subdomain = getSubdomainHeader(req);
       const models = await generateModels(subdomain);
 
       const customer = await models.Customers.findOne({ _id: customerId });

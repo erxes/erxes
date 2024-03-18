@@ -37,7 +37,7 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const { query } = req;
 
-    const subdomain = getSubdomain(req);
+    const subdomain = getSubdomainHeader(req);
 
     const { name, response } = await generateErrors(query, subdomain);
 

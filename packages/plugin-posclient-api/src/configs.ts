@@ -3,7 +3,6 @@ import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
@@ -35,7 +34,7 @@ export default {
   ],
 
   apolloServerContext: async (context, req, res) => {
-    const subdomain = getSubdomain(req);
+    const { subdomain } = context;
 
     const requestInfo = {
       secure: req.secure,
@@ -45,7 +44,6 @@ export default {
 
     const models = await generateModels(subdomain);
 
-    context.subdomain = subdomain;
     context.models = models;
 
     context.requestInfo = requestInfo;
