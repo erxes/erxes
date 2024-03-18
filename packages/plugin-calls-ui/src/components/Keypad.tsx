@@ -58,6 +58,7 @@ type Props = {
   disconnectCall: () => void;
   phoneNumber: string;
 };
+
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
@@ -382,6 +383,11 @@ const KeyPad = (props: Props, context) => {
     addNote(conversationDetail?._id, noteContent);
   };
 
+  const isConnected =
+    !Sip.call ||
+    Sip.sip?.status === SIP_STATUS_ERROR ||
+    Sip.sip?.status === SIP_STATUS_DISCONNECTED;
+
   return (
     <>
       {Sip.call?.status === CALL_STATUS_ACTIVE && (
@@ -427,8 +433,11 @@ const KeyPad = (props: Props, context) => {
         <NumberInput>
           <KeypadHeader>
             <HeaderItem>
-              <Icon className="online" icon="signal-alt-3" />
-              Online
+              <Icon
+                className={isConnected ? 'off' : 'on'}
+                icon="signal-alt-3"
+              />
+              {isConnected ? __('Offline') : __('Online')}
             </HeaderItem>
             <HeaderItem>
               <Icon className="reload" icon="reload" />
@@ -438,9 +447,17 @@ const KeyPad = (props: Props, context) => {
               <Icon className="pause" size={14} icon="pause-circle" />
               Pause
             </HeaderItem>
-            <HeaderItem>
-              <Icon className="off" size={13} icon="pause-1" />
-              Turn off
+            <HeaderItem
+              onClick={() =>
+                isConnected ? handleCallConnect() : handleCallDisConnect()
+              }
+            >
+              <Icon
+                className={isConnected ? 'on' : 'off'}
+                size={13}
+                icon={isConnected ? 'power-button' : 'pause-1'}
+              />
+              {isConnected ? __('Turn on') : __('Turn off')}
             </HeaderItem>
           </KeypadHeader>
           <InputBar type="keypad">
@@ -454,7 +471,7 @@ const KeyPad = (props: Props, context) => {
             />
           </InputBar>
           {renderKeyPad(handNumPad)}
-          <p>Calling from your own phone number</p>
+          <p>{__('Calling from your own phone number')}</p>
           <Select
             placeholder={__('Choose phone number')}
             value={callFrom}
@@ -467,40 +484,15 @@ const KeyPad = (props: Props, context) => {
             {Sip.call?.status === CALL_STATUS_IDLE &&
               Sip.sip?.status === SIP_STATUS_REGISTERED && (
                 <>
-                  <Button icon="outgoing-call" onClick={handleCall}>
+                  <Button
+                    btnStyle="success"
+                    icon="outgoing-call"
+                    onClick={handleCall}
+                  >
                     Call
                   </Button>
-                  <DisconnectCall>
-                    <Button
-                      btnStyle="danger"
-                      icon="signal-slash"
-                      onClick={handleCallDisConnect}
-                    >
-                      Disconnect Call
-                    </Button>
-                  </DisconnectCall>
                 </>
               )}
-            {Sip.call && Sip.call?.status !== CALL_STATUS_IDLE && (
-              <Button
-                icon="phone-slash"
-                btnStyle="danger"
-                onClick={handleCallStop}
-              >
-                End Call
-              </Button>
-            )}
-            {(!Sip.call ||
-              Sip.sip?.status === SIP_STATUS_ERROR ||
-              Sip.sip?.status === SIP_STATUS_DISCONNECTED) && (
-              <Button
-                btnStyle="success"
-                icon="phone-call"
-                onClick={handleCallConnect}
-              >
-                Call
-              </Button>
-            )}
           </>
         </NumberInput>
       )}

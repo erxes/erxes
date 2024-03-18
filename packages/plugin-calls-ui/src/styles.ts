@@ -629,11 +629,3 @@ export const IncomingCalls = styled.div`
 export const ActiveCalls = styled.div`
   background: ${colors.colorWhite};
 `;
-
-export const IncomingCalls = styled.div`
-  display: flex;
-`;
-
-export const ActiveCalls = styled.div`
-  background: ${colors.colorWhite};
-`;

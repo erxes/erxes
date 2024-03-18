@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-
-import { mutations, queries } from '../graphql';
 import { gql, useMutation } from '@apollo/client';
-import client from '@erxes/ui/src/apolloClient';
-import { Alert } from '@erxes/ui/src/utils';
+import { mutations, queries } from '../graphql';
 
-import KeyPad from '../components/Keypad';
+import { Alert } from '@erxes/ui/src/utils';
 import { ICallConversation } from '../types';
+import KeyPad from '../components/Keypad';
+import client from '@erxes/ui/src/apolloClient';
 
 type IProps = {
   callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
 };
+
 const KeyPadContainer = (props: IProps) => {
   const { callUserIntegrations, setConfig, phoneNumber } = props;
 

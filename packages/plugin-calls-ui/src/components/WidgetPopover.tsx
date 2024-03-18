@@ -1,12 +1,5 @@
-import {
-  ActiveCalls,
-  IncomingCalls,
-  KeypadHeader,
-  Tab,
-  TabContent,
-  TabsContainer,
-} from '../styles';
 import React, { useState } from 'react';
+import { Tab, TabContent, TabsContainer } from '../styles';
 
 import ContactsContainer from '../containers/Contacts';
 import HistoryContainer from '../containers/History';
@@ -51,11 +44,6 @@ const WidgetPopover = ({
 
   return (
     <>
-      {/* <IncomingCalls> */}
-      {/* <ActiveCalls>
-        <KeypadHeader>{__("Incoming calls")} (10)</KeypadHeader>
-        hi
-      </ActiveCalls> */}
       <TabContent show={currentTab === 'History'}>
         <HistoryContainer changeMainTab={changeTab} />
       </TabContent>
@@ -92,7 +80,6 @@ const WidgetPopover = ({
           {__('Contact')}
         </Tab>
       </TabsContainer>
-      {/* </IncomingCalls> */}
     </>
   );
 };
