@@ -177,39 +177,9 @@ const KeyPad = (props: Props, context) => {
     }
   };
 
-  const handleCallConnect = () => {
-    const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === callFrom,
-    );
-    localStorage.setItem(
-      'config:call_integrations',
-      JSON.stringify({
-        inboxId: integration?.inboxId,
-        phone: integration?.phone,
-        wsServer: integration?.wsServer,
-        token: integration?.token,
-        operators: integration?.operators,
-        isAvailable: true,
-      }),
-    );
-    setConfig({
-      inboxId: integration?.inboxId,
-      phone: integration?.phone,
-      wsServer: integration?.wsServer,
-      token: integration?.token,
-      operators: integration?.operators,
-      isAvailable: true,
-    });
-    localStorage.setItem('isConnectCallRequested', 'true');
-    localStorage.setItem(
-      'callInfo',
-      JSON.stringify({
-        isUnRegistered: false,
-      }),
-    );
-  };
+  const handleCallConnect = (status: string) => {
+    const isConnected = status === 'connect';
 
-  const handleCallDisConnect = () => {
     const integration = callUserIntegrations?.find(
       (userIntegration) => userIntegration.phone === callFrom,
     );
@@ -221,7 +191,7 @@ const KeyPad = (props: Props, context) => {
         wsServer: integration?.wsServer,
         token: integration?.token,
         operators: integration?.operators,
-        isAvailable: false,
+        isAvailable: isConnected ? true : false,
       }),
     );
     setConfig({
@@ -230,8 +200,19 @@ const KeyPad = (props: Props, context) => {
       wsServer: integration?.wsServer,
       token: integration?.token,
       operators: integration?.operators,
-      isAvailable: false,
+      isAvailable: isConnected ? true : false,
     });
+
+    localStorage.setItem(
+      'isConnectCallRequested',
+      isConnected ? 'true' : 'false',
+    ),
+      localStorage.setItem(
+        'callInfo',
+        JSON.stringify({
+          isUnRegistered: isConnected ? true : false,
+        }),
+      );
   };
 
   const handNumPad = (e) => {
@@ -449,7 +430,9 @@ const KeyPad = (props: Props, context) => {
             </HeaderItem>
             <HeaderItem
               onClick={() =>
-                isConnected ? handleCallConnect() : handleCallDisConnect()
+                isConnected
+                  ? handleCallConnect('connect')
+                  : handleCallConnect('disconnect')
               }
             >
               <Icon
