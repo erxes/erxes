@@ -58,13 +58,13 @@ const generateFilter = (params) => {
   return query;
 };
 
-const erkhetQueries = {
-  async syncHistories(_root, params, { models }: IContext) {
+const polarisQueries = {
+  async syncHistoriesPolaris(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
     return paginate(models.SyncLogs.find(selector), params);
   },
 
-  async syncHistoriesCount(_root, params, { models }: IContext) {
+  async syncHistoriesCountPolaris(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
     return models.SyncLogs.find(selector).count();
   },
@@ -89,4 +89,4 @@ const erkhetQueries = {
   },
 };
 
-export default erkhetQueries;
+export default polarisQueries;
