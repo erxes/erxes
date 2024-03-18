@@ -130,7 +130,7 @@ class PutResponsesByDate extends React.Component<IProps, State> {
       isFiltered,
       clearFilter,
       queryParams,
-      showMenu: errorMsg ? true : false
+      showMenu: !!errorMsg
     };
 
     const actionBarRight = (

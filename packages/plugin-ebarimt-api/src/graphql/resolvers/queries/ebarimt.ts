@@ -160,6 +160,32 @@ export const sortBuilder = params => {
   return { createdAt: 1 };
 };
 
+const genDuplicatedFilter = async (params) => {
+  const {
+    startDate,
+    endDate,
+    billType,
+  } = params;
+
+  const filter: any = {};
+  const createdQry: any = {};
+  if (params.startDate) {
+    createdQry.$gte = new Date(startDate);
+  }
+  if (endDate) {
+    createdQry.$lte = new Date(endDate);
+  }
+  if (Object.keys(createdQry).length) {
+    filter.createdAt = createdQry;
+  }
+
+  if (billType) {
+    filter.billType = billType
+  }
+
+  return filter;
+}
+
 const queries = {
   putResponses: async (
     _root,
@@ -274,27 +300,7 @@ const queries = {
   },
 
   putResponsesDuplicated: async (_root, params, { models }) => {
-    const {
-      startDate,
-      endDate,
-      billType,
-    } = params;
-
-    const filter: any = {};
-    const createdQry: any = {};
-    if (params.startDate) {
-      createdQry.$gte = new Date(startDate);
-    }
-    if (endDate) {
-      createdQry.$lte = new Date(endDate);
-    }
-    if (Object.keys(createdQry).length) {
-      filter.createdAt = createdQry;
-    }
-
-    if (billType) {
-      filter.billType = billType
-    }
+    const filter = await genDuplicatedFilter(params);
 
     const { perPage = 20, page = 1 } = params;
 
@@ -321,27 +327,7 @@ const queries = {
   },
 
   putResponsesDuplicatedCount: async (_root, params, { models }) => {
-    const {
-      startDate,
-      endDate,
-      billType,
-    } = params;
-
-    const filter: any = {};
-    const createdQry: any = {};
-    if (params.startDate) {
-      createdQry.$gte = new Date(startDate);
-    }
-    if (endDate) {
-      createdQry.$lte = new Date(endDate);
-    }
-    if (Object.keys(createdQry).length) {
-      filter.createdAt = createdQry;
-    }
-
-    if (billType) {
-      filter.billType = billType
-    }
+    const filter = await genDuplicatedFilter(params);
 
     const res = await models.PutResponses.aggregate([
       {

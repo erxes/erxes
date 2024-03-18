@@ -67,7 +67,7 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   onChangeInput = e => {
-    const target = e.target;
+    const { target } = e;
     const name = target.name;
     const value = target.value;
 
