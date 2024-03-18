@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 
 import {
   types as ebarimtTypes,
-  queries as ebarimtQueries
+  queries as ebarimtQueries,
+  mutations as ebarimtMutations
 } from './schema/ebarimt';
 
 const typeDefs = async () => {
@@ -14,6 +15,10 @@ const typeDefs = async () => {
     
     extend type Query {
       ${ebarimtQueries}
+    }
+
+    extend type Mutation {
+      ${ebarimtMutations}
     }
 
   `;

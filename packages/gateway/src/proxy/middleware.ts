@@ -1,4 +1,4 @@
-import { RequestHandler, createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
 import * as dotenv from 'dotenv';
 import { apolloRouterPort } from '../apollo-router';
@@ -13,58 +13,52 @@ const onProxyReq = (proxyReq, req: any) => {
 };
 
 const forbid = (_req, res) => {
-  res.status(403).end();
+  res.status(403).send();
 };
 
-export function applyProxies(
+export async function applyProxiesCoreless(
   app: Express,
   targets: ErxesProxyTarget[],
-): RequestHandler {
-  app.use('/rpc', forbid);
-
-  const router = {
-    '/graphql': `http://127.0.0.1:${apolloRouterPort}`,
-  };
-  const pathRewrite = {
-    '/graphql': '',
-  };
+) {
+  app.use(
+    '^/graphql',
+    createProxyMiddleware({
+      pathRewrite: { '^/graphql': '/' },
+      target: `http://127.0.0.1:${apolloRouterPort}`,
+      onProxyReq,
+    }),
+  );
 
   for (const target of targets) {
-    const path1 = `/pl-${target.name}`;
-    const path2 = `/pl:${target.name}`;
+    const path = `^/pl(-|:)${target.name}`;
 
-    app.use(`${path1}/rpc`, forbid);
-    app.use(`${path2}/rpc`, forbid);
+    app.use(`${path}/rpc`, forbid);
 
-    router[path1] = target.address;
-    router[path2] = target.address;
-    pathRewrite[path1] = '';
-    pathRewrite[path2] = '';
+    app.use(
+      path,
+      createProxyMiddleware({
+        pathRewrite: { [path]: '/' },
+        target: target.address,
+        onProxyReq,
+      }),
+    );
   }
+}
 
+// this has to be applied last, just like 404 route handlers are applied last
+export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
   const core = targets.find((t) => t.name === 'core');
+
   if (!core) {
     throw new Error('core service not found');
   }
-  router['/'] = core.address;
-
-  const proxyMiddleware = createProxyMiddleware(
-    function filter(pathname, req): boolean {
-      const isHttp = req.protocol === 'http' || req.protocol === 'https';
-      const isGraphql = pathname.startsWith('/graphql');
-      const isSubscription = !isHttp && isGraphql;
-      // Graphql subscriptions are handled by gateway itself. Do not proxy them.
-      return !isSubscription;
-    },
-    {
-      router,
-      pathRewrite,
-      ws: true,
+  app.use('/rpc', forbid);
+  app.use(
+    '/',
+    createProxyMiddleware({
+      target:
+        NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
       onProxyReq,
-      logLevel: NODE_ENV === 'production' ? 'error' : 'warn',
-    },
+    }),
   );
-
-  app.use(proxyMiddleware);
-  return proxyMiddleware;
 }

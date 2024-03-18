@@ -82,9 +82,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
         prePutResponse.stocks &&
         prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
-          (this.transactionInfo.taxType || '1') &&
+        (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
-          (this.transactionInfo.billType || '1')
+        (this.transactionInfo.billType || '1')
       ) {
         return this.models.PutResponses.findOne({
           billId: prePutResponse.billId,
@@ -92,10 +92,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
       }
 
       this.transactionInfo.returnBillId = prePutResponse.billId;
-      await this.models.PutResponses.updateOne(
-        { _id: prePutResponse._id },
-        { $set: { status: 'inactive' } },
-      );
     }
 
     const resObj = await this.models.PutResponses.createPutResponse({
@@ -128,6 +124,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
           `${url}/getInformation?lib=${rd}`,
         ).then((r) => r.text());
       }
+    }
+
+    if (prePutResponse && ['true', true].includes(response.success)) {
+      await this.models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } },
+      );
     }
 
     await this.models.PutResponses.updatePutResponse(resObj._id, {
@@ -258,11 +261,6 @@ export const returnBill = async (
       date: date,
     };
 
-    await models.PutResponses.updateOne(
-      { _id: prePutResponse._id },
-      { $set: { status: 'inactive' } },
-    );
-
     const resObj = await models.PutResponses.createPutResponse({
       sendInfo: { ...data },
       contentId,
@@ -278,6 +276,13 @@ export const returnBill = async (
         'Content-Type': 'application/json',
       },
     }).then((r) => r.json());
+
+    if (['true', true].includes(response.success)) {
+      await models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } },
+      );
+    }
 
     await models.PutResponses.updatePutResponse(resObj._id, {
       ...response,
