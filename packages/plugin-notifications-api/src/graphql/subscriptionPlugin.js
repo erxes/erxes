@@ -3,7 +3,7 @@ var { withFilter } = require('graphql-subscriptions');
 module.exports = {
   name: 'notifications',
   typeDefs: `
-        notificationInserted(userId: String): Notification
+        notificationInserted(subdomain: String!, userId: String): Notification
         notificationRead(userId: String): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -16,7 +16,7 @@ module.exports = {
           payload,
           _params,
           { dataSources: { gatewayDataSource } },
-          info
+          info,
         ) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
@@ -31,8 +31,16 @@ module.exports = {
           `,
           });
         },
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`notificationInserted:${userId}`),
+        subscribe: (_, { userId, subdomain }, context) => {
+          if (subdomain !== context?.subdomain) {
+            console.error(
+              `notificationInserted subscribe error: Parameter subdomain ${subdomain} and context subdomain ${context.subdomain} doesn't match`,
+            );
+          }
+          return graphqlPubsub.asyncIterator(
+            `notificationInserted:${subdomain}:${userId}`,
+          );
+        },
       },
 
       notificationRead: {

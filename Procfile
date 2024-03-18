@@ -1,1 +1,0 @@
-web: ui/bin/boot

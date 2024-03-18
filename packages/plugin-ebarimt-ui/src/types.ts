@@ -75,11 +75,40 @@ export type PutResponsesAmountQueryResponse = {
 export type ListQueryVariables = {
   page?: number;
   perPage?: number;
-  segment?: string;
-  tag?: string;
-  brand?: string;
   ids?: string[];
   searchValue?: string;
   sortField?: string;
   sortDirection?: number;
+};
+
+export type ListDuplicatedQueryVariables = {
+  page?: number;
+  perPage?: number;
+  billType?: string;
+  startDate?: Date;
+  endDate?: Date;
+};
+
+export type PutResponsesDuplicatedQueryResponse = {
+  putResponsesDuplicated: any[];
+  loading: boolean;
+  error?: Error;
+};
+
+export type PutResponsesDuplicatedCountQueryResponse = {
+  putResponsesDuplicatedCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PutResponsesDuplicatedDetailQueryResponse = {
+  putResponsesDuplicatedDetail: IPutResponse[];
+  loading: boolean;
+  error?: Error;
+};
+
+export type PutResponseReturnBillMutationResponse = {
+  putResponseReturnBill: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };

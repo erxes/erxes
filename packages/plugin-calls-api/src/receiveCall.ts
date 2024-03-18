@@ -117,17 +117,20 @@ const receiveCall = async (
 
   for (const channel of channels) {
     for (const userId of channel.memberIds || []) {
-      graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
-        conversationClientMessageInserted: {
-          _id: Math.random().toString(),
-          content: 'new grandstream message',
-          createdAt: new Date(),
-          customerId: customer.erxesApiId,
-          conversationId: conversation.erxesApiId,
+      graphqlPubsub.publish(
+        `conversationClientMessageInserted:${subdomain}:${userId}`,
+        {
+          conversationClientMessageInserted: {
+            _id: Math.random().toString(),
+            content: 'new grandstream message',
+            createdAt: new Date(),
+            customerId: customer.erxesApiId,
+            conversationId: conversation.erxesApiId,
+          },
+          conversation,
+          integration: inboxIntegration,
         },
-        conversation,
-        integration: inboxIntegration,
-      });
+      );
     }
   }
 

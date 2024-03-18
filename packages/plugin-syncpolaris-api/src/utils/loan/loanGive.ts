@@ -1,9 +1,9 @@
 import {
   customFieldToObject,
   fetchPolaris,
+  getContract,
   getCustomer,
   getDepositAccount,
-  getLoanContract,
 } from '../utils';
 import { IPolarisLoanGive } from './types';
 
@@ -21,7 +21,11 @@ export const createLoanGive = async (subdomain, transaction) => {
     transaction.customerId,
   );
 
-  const loanContract = await getLoanContract(subdomain, transaction.contractId);
+  const loanContract = await getContract(
+    subdomain,
+    transaction.contractId,
+    'loans',
+  );
 
   const loanGive: IPolarisLoanGive = {
     txnAcntCode: loanContract.number,

@@ -1,7 +1,7 @@
-var { withFilter } = require("graphql-subscriptions");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "inbox",
+  name: 'inbox',
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
@@ -26,16 +26,22 @@ module.exports = {
        */
       conversationMessageInserted: {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          if(!payload) {
-            console.error(`Subscription resolver error: conversationMessageInserted: payload is ${payload}`);
+          if (!payload) {
+            console.error(
+              `Subscription resolver error: conversationMessageInserted: payload is ${payload}`,
+            );
             return;
           }
-          if(!payload.conversationMessageInserted) {
-            console.error(`Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`);
+          if (!payload.conversationMessageInserted) {
+            console.error(
+              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`,
+            );
             return;
           }
-          if(!payload.conversationMessageInserted._id) {
-            console.error(`Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`);
+          if (!payload.conversationMessageInserted._id) {
+            console.error(
+              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`,
+            );
             return;
           }
           return gatewayDataSource.queryAndMergeMissingData({
@@ -69,7 +75,7 @@ module.exports = {
       conversationClientTypingStatusChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(
-            `conversationClientTypingStatusChanged:${_id}`
+            `conversationClientTypingStatusChanged:${_id}`,
           ),
       },
 
@@ -78,22 +84,30 @@ module.exports = {
        */
       conversationClientMessageInserted: {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
-          if(!payload) {
-            console.error(`Subscription resolver error: conversationClientMessageInserted: payload is ${payload}`);
+          if (!payload) {
+            console.error(
+              `Subscription resolver error: conversationClientMessageInserted: payload is ${payload}`,
+            );
             return;
           }
-          if(!payload.conversationClientMessageInserted) {
-            console.error(`Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted is ${payload.conversationClientMessageInserted}`);
+          if (!payload.conversationClientMessageInserted) {
+            console.error(
+              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted is ${payload.conversationClientMessageInserted}`,
+            );
             return;
           }
-          if(!payload.conversationClientMessageInserted._id) {
-            console.error(`Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted._id is ${payload.conversationClientMessageInserted._id}`);
+          if (!payload.conversationClientMessageInserted._id) {
+            console.error(
+              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted._id is ${payload.conversationClientMessageInserted._id}`,
+            );
             return;
           }
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.conversationClientMessageInserted._id },
+            queryVariables: {
+              _id: payload.conversationClientMessageInserted._id,
+            },
             buildQueryUsingSelections: (selections) => `
                   query Subscription_GetMessage($_id: String!) {
                     conversationMessage(_id: $_id) {
@@ -104,8 +118,16 @@ module.exports = {
           });
         },
         subscribe: withFilter(
-          (_, { userId }) =>
-            graphqlPubsub.asyncIterator(`conversationClientMessageInserted:${userId}`),
+          (_, { userId, subdomain }, context) => {
+            if (subdomain !== context?.subdomain) {
+              console.error(
+                `conversationClientMessageInserted subscribe error: Parameter subdomain ${subdomain} and context subdomain ${context.subdomain} doesn't match`,
+              );
+            }
+            return graphqlPubsub.asyncIterator(
+              `conversationClientMessageInserted:${subdomain}:${userId}`,
+            );
+          },
           async (payload, variables) => {
             const { conversation, integration } = payload;
 
@@ -118,7 +140,7 @@ module.exports = {
             }
 
             return true;
-          }
+          },
         ),
       },
 
@@ -126,7 +148,10 @@ module.exports = {
        * Widget is listening for this subscription to show unread notification
        */
       conversationAdminMessageInserted: {
-        subscribe: (_, { customerId }) => graphqlPubsub.asyncIterator(`conversationAdminMessageInserted:${customerId}`),
+        subscribe: (_, { customerId }) =>
+          graphqlPubsub.asyncIterator(
+            `conversationAdminMessageInserted:${customerId}`,
+          ),
       },
 
       /*
@@ -135,7 +160,7 @@ module.exports = {
       conversationExternalIntegrationMessageInserted: {
         subscribe: () =>
           graphqlPubsub.asyncIterator(
-            "conversationExternalIntegrationMessageInserted"
+            'conversationExternalIntegrationMessageInserted',
           ),
       },
     };

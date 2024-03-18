@@ -13,9 +13,9 @@ const callsIntegrationDetail: string = `
   }
 `;
 
-const callIntegrationsOfUser: any = `
-  query callIntegrationsOfUser {
-    callIntegrationsOfUser {
+const callUserIntegrations: any = `
+  query callUserIntegrations {
+    callUserIntegrations {
       _id
       inboxId
       operators
@@ -157,7 +157,7 @@ const callHistories = `
 
 export default {
   callsIntegrationDetail,
-  callIntegrationsOfUser,
+  callUserIntegrations,
   callCustomerDetail,
   customers,
   activeSession,

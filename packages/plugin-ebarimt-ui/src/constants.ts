@@ -1,6 +1,7 @@
 export const SUB_MENUS = [
   { title: 'Put Response', link: '/put-responses' },
-  { title: 'By Date', link: '/put-responses-by-date' }
+  { title: 'By Date', link: '/put-responses-by-date' },
+  { title: 'Duplicated', link: '/put-responses-duplicated' }
 ];
 
 export const KEY_LABELS = {

@@ -160,6 +160,32 @@ export const sortBuilder = params => {
   return { createdAt: 1 };
 };
 
+const genDuplicatedFilter = async (params) => {
+  const {
+    startDate,
+    endDate,
+    billType,
+  } = params;
+
+  const filter: any = {};
+  const createdQry: any = {};
+  if (params.startDate) {
+    createdQry.$gte = new Date(startDate);
+  }
+  if (endDate) {
+    createdQry.$lte = new Date(endDate);
+  }
+  if (Object.keys(createdQry).length) {
+    filter.createdAt = createdQry;
+  }
+
+  if (billType) {
+    filter.billType = billType
+  }
+
+  return filter;
+}
+
 const queries = {
   putResponses: async (
     _root,
@@ -221,7 +247,7 @@ const queries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-        (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');
@@ -271,6 +297,63 @@ const queries = {
     { subdomain }
   ) => {
     return getCompany(subdomain, companyRD);
+  },
+
+  putResponsesDuplicated: async (_root, params, { models }) => {
+    const filter = await genDuplicatedFilter(params);
+
+    const { perPage = 20, page = 1 } = params;
+
+    return await models.PutResponses.aggregate([
+      {
+        $match: {
+          ...filter,
+          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
+          status: { $ne: 'inactive' }
+        }
+      },
+      {
+        $group: {
+          _id: { contentId: '$contentId', taxType: '$taxType' },
+          count: { $sum: 1 },
+          number: { $first: '$number' },
+          date: { $first: { $substr: ['$date', 0, 10] } }
+        }
+      },
+      { $match: { count: { $gt: 1 } } },
+      { $skip: perPage * (page - 1) },
+      { $limit: perPage }
+    ]);
+  },
+
+  putResponsesDuplicatedCount: async (_root, params, { models }) => {
+    const filter = await genDuplicatedFilter(params);
+
+    const res = await models.PutResponses.aggregate([
+      {
+        $match: {
+          ...filter,
+          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
+          status: { $ne: 'inactive' }
+        }
+      },
+      {
+        $group: {
+          _id: { contentId: '$contentId', taxType: '$taxType' },
+          count: { $sum: 1 },
+          number: { $first: '$number' },
+          date: { $first: { $substr: ['$date', 0, 10] } }
+        }
+      },
+      { $match: { count: { $gt: 1 } } },
+      { $group: { _id: null, count: { $sum: 1 } } }
+    ]);
+
+    return res.length && res[0].count || 0;
+  },
+
+  putResponsesDuplicatedDetail: async (_root, { contentId, taxType }, { models }) => {
+    return models.PutResponses.find({ contentId, taxType }).lean();
   }
 };
 
