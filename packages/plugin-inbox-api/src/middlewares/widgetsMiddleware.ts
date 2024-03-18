@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import * as dotenv from 'dotenv';
 dotenv.config();
 

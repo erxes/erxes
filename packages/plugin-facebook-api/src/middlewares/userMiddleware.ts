@@ -1,5 +1,5 @@
 import { sendInboxMessage } from '../messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export let userIds: string[] = [];
 

@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 import { monpayCallbackHandler } from './api/monpay/api';
 import { paypalCallbackHandler } from './api/paypal/api';

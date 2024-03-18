@@ -1,4 +1,4 @@
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv } from '@erxes/api-utils/src/core';
 import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 // import { Customers, Messages } from '../../plugin-zalo-ui/models';
 import * as dotenv from 'dotenv';
@@ -8,6 +8,7 @@ import fetch from 'node-fetch';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { getOrCreateCustomer } from './helpers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 dotenv.config();
 

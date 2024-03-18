@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import messageListen from './messageListen';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const webhookListen = async (req: Request, res: Response): Promise<void> => {
   const subdomain: string = getSubdomainHeader(req);

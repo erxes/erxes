@@ -12,7 +12,7 @@ import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {

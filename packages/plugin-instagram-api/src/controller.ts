@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';

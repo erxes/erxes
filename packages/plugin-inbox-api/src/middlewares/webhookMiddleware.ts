@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { NodeVM } from 'vm2';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { generateModels } from '../connectionResolver';

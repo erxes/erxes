@@ -1,6 +1,6 @@
 import * as graph from 'fbgraph';
 
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { generateModels } from '../connectionResolver';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import { repairIntegrations } from '../helpers';

@@ -1,5 +1,5 @@
 import { sendInboxMessage } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const EXCLUDE_PATH = [
   '/nylas/webhook',

@@ -1,5 +1,6 @@
-import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 export const posInitialSetup = async (req, res) => {
   const subdomain = getSubdomainHeader(req);

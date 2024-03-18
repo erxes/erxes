@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 import { debugError, debugFacebook } from './debuggers';
 import { getConfig } from './commonUtils';

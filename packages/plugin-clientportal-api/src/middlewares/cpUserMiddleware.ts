@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';

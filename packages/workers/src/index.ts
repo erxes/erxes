@@ -7,7 +7,7 @@ import { initApolloServer } from './apolloClient';
 import { join, leave } from './serviceDiscovery';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { readFileRequest } from './worker/export/utils';
 import app from '@erxes/api-utils/src/app';
 import { disconnect } from '@erxes/api-utils/src/mongo-connection';

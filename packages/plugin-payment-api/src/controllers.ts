@@ -1,4 +1,4 @@
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { Router } from 'express';
 
@@ -11,6 +11,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 
 const router = Router();
 

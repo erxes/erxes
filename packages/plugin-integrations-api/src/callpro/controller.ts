@@ -3,7 +3,7 @@ import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 export const callproCreateIntegration = async (

@@ -2,7 +2,7 @@ import * as xlsxPopulate from 'xlsx-populate';
 import * as moment from 'moment';
 import { IColumnLabel } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import {
   posOrderRecordsCountQuery,
   posOrderRecordsQuery,

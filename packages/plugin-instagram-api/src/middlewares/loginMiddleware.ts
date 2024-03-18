@@ -1,5 +1,5 @@
 import * as graph from 'fbgraph';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { generateModels } from '../connectionResolver';
 import { getConfig, getEnv } from '../commonUtils';
 import { graphRequest } from '../utils';

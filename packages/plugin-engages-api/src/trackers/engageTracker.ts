@@ -5,7 +5,7 @@ import { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 import { generateModels, IModels } from '../connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {

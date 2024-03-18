@@ -2,7 +2,7 @@ import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { generateModels } from './connectionResolvers';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';

@@ -1,6 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import { getChildCategories, getConfig } from './utils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,

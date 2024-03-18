@@ -1,7 +1,7 @@
 import { generateModels, IModels } from '../../models';
 import { sendInboxMessage } from '../brokers';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomainHeader } from '@erxes/api-utils/src/headers';
 import {
   convertAttachment,
   getMessageOAID,
