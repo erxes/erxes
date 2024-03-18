@@ -9,7 +9,6 @@ import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import fetch from 'node-fetch';
 import {
   getSubdomainHeader,
-  sanitizeHeaders,
   setUserHeader,
 } from '@erxes/api-utils/src/headers';
 
@@ -18,7 +17,6 @@ export default async function userMiddleware(
   _res: Response,
   next: NextFunction,
 ) {
-  sanitizeHeaders(req.headers);
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
