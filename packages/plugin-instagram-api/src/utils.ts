@@ -10,7 +10,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('7.0');
+    graph.setVersion('12.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -116,19 +116,22 @@ export const getPageList = async (
   accessToken?: string,
   kind?: string,
 ) => {
-  const response: any = await graphRequest.get(
-    '/me/accounts?fields=instagram_business_account, access_token,id,name',
-    accessToken,
-  );
+  let response = {} as any;
+  try {
+    response = await graphRequest.get(
+      '/me/accounts?fields=instagram_business_account, access_token,id,name',
+      accessToken,
+    );
+  } catch (e) {
+    throw e;
+  }
+
+  console.log(response);
 
   const pages: any[] = [];
 
+  // console.log(response.data, 'page');
   for (const page of response.data) {
-    console.log(
-      page.instagram_business_account,
-      'page.instagram_business_accoun',
-    );
-
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
       const accounInfo: any = await graphRequest.get(
