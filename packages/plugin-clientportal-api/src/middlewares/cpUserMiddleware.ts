@@ -10,8 +10,10 @@ export default async function cpUserMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  if (req.path === '/subscriptionPlugin.js') {
+    return next();
+  }
+
   const { body } = req;
 
   const operationName = body.operationName && body.operationName.split('__')[0];
@@ -35,10 +37,15 @@ export default async function cpUserMiddleware(
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
       'clientPortalKnowledgeBaseTopicDetail',
+      'IntrospectionQuery',
+      'SubgraphIntrospectQuery',
     ].includes(operationName)
   ) {
     return next();
   }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
 
   const token = extractClientportalToken(req);
 
