@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config()
 
 
-import { generateModels } from "../connectionResolver";
+import { IModels, generateModels } from "../connectionResolver";
 
 const widgetsMiddleware = async (req, res) => {
   const { WIDGETS_DOMAIN } = process.env;
@@ -11,7 +11,12 @@ const widgetsMiddleware = async (req, res) => {
   const domain = WIDGETS_DOMAIN || 'http://localhost:3200'
 
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
 
   const script = await models.Scripts.findOne({ _id: req.query.id });
 
