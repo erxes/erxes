@@ -225,8 +225,10 @@ export const instagramCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind },
 ): Promise<RPSuccess> => {
-  const instagramPageId = JSON.parse(data).pageId;
-
+  console.log(data, 'data');
+  // const instagramPageId = JSON.parse(data).pageId;
+  const instagramPageId = JSON.parse(data).pageIds;
+  console.log(instagramPageId, 'instagramPageId');
   const account = await models.Accounts.getAccount({ _id: accountId });
   const facebookPageId = await getFacebookPageIdsForInsta(
     account.token,
