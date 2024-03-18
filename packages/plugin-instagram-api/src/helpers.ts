@@ -12,6 +12,7 @@ import fetch from 'node-fetch';
 import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
 
 export const removeIntegration = async (
+  subdomain,
   models: IModels,
   integrationErxesApiId: string,
 ): Promise<string> => {
@@ -78,7 +79,7 @@ export const removeIntegration = async (
 
   // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   if (ENDPOINT_URL) {
     // send domain to core endpoints
@@ -102,6 +103,7 @@ export const removeIntegration = async (
 };
 
 export const removeAccount = async (
+  subdomain,
   models: IModels,
   _id: string,
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
@@ -121,6 +123,7 @@ export const removeAccount = async (
     for (const integration of integrations) {
       try {
         const response = await removeIntegration(
+          subdomain,
           models,
           integration.erxesApiId,
         );
@@ -137,6 +140,7 @@ export const removeAccount = async (
 };
 
 export const repairIntegrations = async (
+  subdomain: string,
   models: IModels,
   integrationId: string,
 ): Promise<true | Error> => {
@@ -168,7 +172,7 @@ export const repairIntegrations = async (
   const ENDPOINT_URL = getEnv({
     name: 'ENDPOINT_URL',
   });
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   if (ENDPOINT_URL) {
     // send domain to core endpoints
@@ -222,6 +226,7 @@ export const updateConfigs = async (
 };
 
 export const instagramCreateIntegration = async (
+  subdomain: string,
   models: IModels,
   { accountId, integrationId, data, kind },
 ): Promise<RPSuccess> => {
@@ -246,7 +251,7 @@ export const instagramCreateIntegration = async (
   }
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   let domain = `${DOMAIN}/gateway/pl:instagram`;
 

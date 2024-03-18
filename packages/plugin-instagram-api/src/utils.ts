@@ -126,11 +126,8 @@ export const getPageList = async (
     throw e;
   }
 
-  console.log(response);
-
   const pages: any[] = [];
 
-  // console.log(response.data, 'page');
   for (const page of response.data) {
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
@@ -243,7 +240,10 @@ export const sendReply = async (
   }
 };
 
-export const generateAttachmentMessages = (attachments: IAttachment[]) => {
+export const generateAttachmentMessages = (
+  subdomain: string,
+  attachments: IAttachment[],
+) => {
   const messages: IAttachmentMessage[] = [];
   for (const attachment of attachments || []) {
     let type = 'file';
@@ -251,7 +251,7 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
     if (attachment.type.startsWith('image')) {
       type = 'image';
     }
-    const url = generateAttachmentUrl(attachment.url);
+    const url = generateAttachmentUrl(subdomain, attachment.url);
     messages.push({
       attachment: {
         type,

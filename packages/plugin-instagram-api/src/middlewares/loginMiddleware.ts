@@ -103,7 +103,7 @@ const loginMiddleware = async (req, res) => {
       });
 
       for (const integration of integrations) {
-        await repairIntegrations(models, integration.erxesApiId);
+        await repairIntegrations(subdomain, models, integration.erxesApiId);
       }
     } else {
       await models.Accounts.create({
