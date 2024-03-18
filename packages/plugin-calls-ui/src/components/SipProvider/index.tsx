@@ -33,6 +33,7 @@ import {
   iceServersPropType,
   sipPropType,
 } from '../../lib/types';
+import { ICallConfigDoc } from '../../types';
 import { setLocalStorage } from '../../utils';
 
 export default class SipProvider extends React.Component<
@@ -50,6 +51,7 @@ export default class SipProvider extends React.Component<
     iceServers: IceServers;
     debug: boolean;
     children: any;
+    callUserIntegration: ICallConfigDoc;
     createSession: () => void;
     updateHistory: (
       callId: string,
@@ -227,6 +229,28 @@ export default class SipProvider extends React.Component<
       this.props.autoRegister !== prevProps.autoRegister
     ) {
       this.reinitializeJsSIP();
+    }
+    const { callUserIntegration } = this.props;
+    const { inboxId, phone, wsServer, token, operators } =
+      callUserIntegration || {};
+    if (
+      inboxId !== callConfig.inboxId ||
+      phone !== callConfig.phone ||
+      wsServer !== callConfig.wsServer ||
+      token !== callConfig.token ||
+      operators !== callConfig.operators
+    ) {
+      localStorage.setItem(
+        'config:call_integrations',
+        JSON.stringify({
+          inboxId: inboxId,
+          phone: phone,
+          wsServer: wsServer,
+          token: token,
+          operators: operators,
+          isAvailable: callConfig.isAvailable,
+        }),
+      );
     }
   }
 

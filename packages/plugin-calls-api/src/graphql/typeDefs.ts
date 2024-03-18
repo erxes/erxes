@@ -59,7 +59,7 @@ const types = `
   }
 `;
 
-export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
+export const subscriptions = `sessionTerminateRequested(subdomain: String!, userId: String): JSON`;
 
 const commonHistoryFields = `
   receiverNumber: String
@@ -90,7 +90,7 @@ const filterParams = `
 
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
-  callIntegrationsOfUser: [CallsIntegrationDetailResponse]
+  callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(callerNumber: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]

@@ -17,7 +17,7 @@ const callsQueries = {
     return models.Integrations.findOne({ inboxId: integrationId });
   },
 
-  async callIntegrationsOfUser(_root, _args, { models, user }: IContext) {
+  async callUserIntegrations(_root, _args, { models, user }: IContext) {
     const res = models.Integrations.getIntegrations(user._id);
 
     return res;
