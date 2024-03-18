@@ -10,6 +10,14 @@ export default async function cpUserMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  if (
+    req.path === '/subscriptionPlugin.js' ||
+    req.body?.operationName === 'SubgraphIntrospectQuery' ||
+    req.body?.operationName === 'IntrospectionQuery'
+  ) {
+    return next();
+  }
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const { body } = req;

@@ -1,3 +1,18 @@
+### [1.6.3-rc.4](https://github.com/erxes/erxes/compare/1.6.3-rc.3...1.6.3-rc.4) (2024-03-18)
+
+
+### Bug Fixes
+
+* instagram-plugin login redirect url fix ([c17694e](https://github.com/erxes/erxes/commit/c17694e2750c9aef337cda68fb77d13af129214d))
+
+### [1.6.3-rc.3](https://github.com/erxes/erxes/compare/1.6.3-rc.2...1.6.3-rc.3) (2024-03-18)
+
+
+### Performance Improvements
+
+* **calls:** improving calls ui & code refactor ([f052833](https://github.com/erxes/erxes/commit/f05283309004854dbdba93c55e3efe9dc7a769a4))
+* **calls:** improving incoming call ui and code refactor  ([6e5af5f](https://github.com/erxes/erxes/commit/6e5af5f6a8c5f002b1dbeb61463113f48a67ebdf))
+
 
 
 
