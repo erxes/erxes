@@ -59,7 +59,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
 
     return (
       <ModalTrigger
-        key={Math.random()}
+        key={_id}
         title={`Order detail`}
         trigger={trigger}
         autoOpenKey="showProductModal"
