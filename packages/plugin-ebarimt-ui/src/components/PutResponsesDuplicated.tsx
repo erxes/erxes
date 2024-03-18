@@ -49,7 +49,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
     };
 
     const trigger = (
-      <tr key={Math.random()}>
+      <tr>
         <td>{index + 1} </td>
         <td>{date} </td>
         <td>{number} </td>
