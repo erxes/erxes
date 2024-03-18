@@ -12,6 +12,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendDealsMessage,
+  sendGrowthHacksMessage,
   sendProductsMessage,
   sendPurchasesMessage,
   sendTasksMessage,
@@ -113,7 +114,7 @@ const findContentItemName = async (
     }
   }
   if (type === MODULE_NAMES.GROWTH_HACK) {
-    const cardItem = await sendTicketsMessage({
+    const cardItem = await sendGrowthHacksMessage({
       subdomain,
       action: 'findItem',
       data: {
