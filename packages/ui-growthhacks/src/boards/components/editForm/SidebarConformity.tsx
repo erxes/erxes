@@ -3,7 +3,6 @@ import TaskTimer, { STATUS_TYPES } from '@erxes/ui/src/components/Timer';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
-import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 import CustomerSection from '@erxes/ui-contacts/src/customers/components/CustomerSection';
 import React from 'react';
 import { RightContent } from '../../styles/item';
@@ -18,7 +17,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent
+      timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -37,7 +36,7 @@ class SidebarConformity extends React.Component<Props> {
 
     const timeTrack = item.timeTrack || {
       timeSpent: 0,
-      status: STATUS_TYPES.STOPPED
+      status: STATUS_TYPES.STOPPED,
     };
 
     return (
@@ -62,8 +61,6 @@ class SidebarConformity extends React.Component<Props> {
         />
 
         {renderItems()}
-
-        <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
   }

@@ -8,7 +8,6 @@ module.exports = {
     './routes': './src/routes.tsx',
     './settings': './src/Settings.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
-    './selectRelation': './src/common/SelectRelation.tsx',
   },
   routes: {
     url: 'http://localhost:3055/remoteEntry.js',
@@ -16,7 +15,6 @@ module.exports = {
     module: './routes',
   },
   activityLog: './activityLog',
-  selectRelation: './selectRelation',
   menus: [
     {
       text: 'Growth Hacking',
