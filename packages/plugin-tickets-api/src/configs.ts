@@ -19,6 +19,7 @@ import imports from './imports';
 import internalNotes from './internalNotes';
 import exporter from './exporter';
 import webhooks from './webhooks';
+import reports from './reports';
 
 export default {
   name: 'tickets',
@@ -39,6 +40,7 @@ export default {
   meta: {
     cronjobs,
     forms,
+    reports,
     search,
     webhooks,
     tags,
