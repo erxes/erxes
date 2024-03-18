@@ -8,11 +8,15 @@ const instagramMutations = {
     return { status: 'ok' };
   },
 
-  async instagramRepair(_root, { _id }: { _id: string }, { models }: IContext) {
-    await repairIntegrations(models, _id);
+  async instagramRepair(
+    _root,
+    { _id }: { _id: string },
+    { subdomain, models }: IContext,
+  ) {
+    await repairIntegrations(subdomain, models, _id);
 
     return 'success';
-  }
+  },
 };
 
 export default instagramMutations;
