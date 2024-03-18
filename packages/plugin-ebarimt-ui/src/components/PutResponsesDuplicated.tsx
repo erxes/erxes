@@ -1,5 +1,5 @@
-import { DataWithLoader, ModalTrigger, Pagination, Table, WithPermission } from '@erxes/ui/src/components';
-import { router, __ } from '@erxes/ui/src/utils';
+import { DataWithLoader, ModalTrigger, Pagination, Table } from '@erxes/ui/src/components';
+import { __ } from '@erxes/ui/src/utils';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
@@ -23,7 +23,6 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
 
-  onSearch: (search: string, key?: string) => void;
   onFilter: (filterParams: IQueryParams) => void;
   isFiltered: boolean;
   clearFilter: () => void;
@@ -34,12 +33,6 @@ type State = {
 
 class PutResponsesDuplicated extends React.Component<IProps, State> {
   private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-  }
-
-
 
   renderRow(putResponse, index) {
     const { _id, date, number, count } = putResponse;
@@ -77,7 +70,6 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
       sumAmount,
       queryParams,
       errorMsg,
-      onSearch,
       onFilter,
       isFiltered,
       clearFilter
@@ -111,7 +103,6 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
 
     const rightMenuProps = {
       onFilter,
-      onSearch,
       isFiltered,
       clearFilter,
       queryParams,

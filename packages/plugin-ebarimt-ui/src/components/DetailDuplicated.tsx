@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import dayjs from 'dayjs';
 import {
   Button,
@@ -20,9 +21,6 @@ export const displayValue = (putResponse, name) => {
 
 interface IProps extends IRouterProps {
   putResponses: IPutResponse[];
-  loading: boolean;
-  history: any;
-  queryParams: any;
   onReturnBill: (_id: string) => void;
 }
 

@@ -349,7 +349,7 @@ const queries = {
       { $group: { _id: null, count: { $sum: 1 } } }
     ]);
 
-    return res && res.length && res[0].count || 0;
+    return res.length && res[0].count || 0;
   },
 
   putResponsesDuplicatedDetail: async (_root, { contentId, taxType }, { models }) => {

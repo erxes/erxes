@@ -6,8 +6,7 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup,
-  Icon
+  FormGroup
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import {
@@ -20,7 +19,6 @@ import {
 import { IQueryParams } from '@erxes/ui/src/types';
 
 type Props = {
-  onSearch: (search: string, key?: string) => void;
   onFilter: (filterParams: IQueryParams) => void;
   queryParams: any;
   isFiltered: boolean;
