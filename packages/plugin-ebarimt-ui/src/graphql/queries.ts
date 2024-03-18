@@ -50,7 +50,7 @@ const listParamsValue = `
   paidDate: $paidDate
 `;
 
-export const responseFields = `
+const responseFields = `
   _id
   createdAt
   modifiedAt
@@ -112,8 +112,8 @@ const putResponsesDuplicatedDetail = `
 `;
 
 const putResponsesDuplicatedCount = `
-  query putResponsesDuplicatedCount($billType: String, $startDate: Date, $endDate: Date, $page: Int, $perPage: Int) {
-    putResponsesDuplicatedCount(billType: $billType, startDate: $startDate, endDate: $endDate, page: $page, perPage: $perPage)
+  query putResponsesDuplicatedCount($billType: String, $startDate: Date, $endDate: Date) {
+    putResponsesDuplicatedCount(billType: $billType, startDate: $startDate, endDate: $endDate)
   }
 `;
 

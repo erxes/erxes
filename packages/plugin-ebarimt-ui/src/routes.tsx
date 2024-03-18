@@ -31,7 +31,7 @@ const PutResponsesByDate = asyncComponent(() =>
 
 const PutResponsesDuplicated = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './containers/PutResponsesDuplicated'
+    /* webpackChunkName: "PutResponsesDuplicated" */ './containers/PutResponsesDuplicated'
   )
 );
 

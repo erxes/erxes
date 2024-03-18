@@ -86,7 +86,7 @@ export type ListDuplicatedQueryVariables = {
   perPage?: number;
   billType?: string;
   startDate?: Date;
-  dendDate?: Date;
+  endDate?: Date;
 };
 
 export type PutResponsesDuplicatedQueryResponse = {
