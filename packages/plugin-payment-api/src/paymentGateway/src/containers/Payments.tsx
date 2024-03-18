@@ -69,12 +69,10 @@ const Payments = (props: Props) => {
         } else {
           window.alert('Payment has been successfully processed. Thank you! ');
           postMessage();
-          // if paid and if its rendered in iframe, close the iframe
         }
       });
   };
 
-  // subscription
   const subscription = useSubscription(SUBSCRIPTION, {
     variables: { invoiceId },
   });
@@ -95,7 +93,6 @@ const Payments = (props: Props) => {
   }, [subscription.data]);
 
   if (loading || invoiceDetailQuery.loading) {
-    console.log('loading');
     return <Spinner />;
   }
 
