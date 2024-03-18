@@ -3,7 +3,7 @@ import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 import redis from '@erxes/api-utils/src/redis';
-import { generateModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import fetch from 'node-fetch';
@@ -18,7 +18,7 @@ const generateBase64 = (req) => {
 
 export default async function userMiddleware(
   req: Request & { user?: any },
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ) {
   // this is important for security reasons
@@ -27,7 +27,7 @@ export default async function userMiddleware(
   const erxesCoreToken = req.headers['erxes-core-token'];
 
   if (Array.isArray(erxesCoreToken)) {
-    throw new Error(`Multiple erxes-core-tokens found`);
+    return res.status(400).json({ error: `Multiple erxes-core-tokens found` });
   }
 
   if (erxesCoreToken && url) {
@@ -74,7 +74,13 @@ export default async function userMiddleware(
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
 
   if (appToken) {
     try {
