@@ -82,9 +82,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
         prePutResponse.stocks &&
         prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
-          (this.transactionInfo.taxType || '1') &&
+        (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
-          (this.transactionInfo.billType || '1')
+        (this.transactionInfo.billType || '1')
       ) {
         return this.models.PutResponses.findOne({
           billId: prePutResponse.billId,
@@ -258,11 +258,6 @@ export const returnBill = async (
       date: date,
     };
 
-    await models.PutResponses.updateOne(
-      { _id: prePutResponse._id },
-      { $set: { status: 'inactive' } },
-    );
-
     const resObj = await models.PutResponses.createPutResponse({
       sendInfo: { ...data },
       contentId,
@@ -278,6 +273,13 @@ export const returnBill = async (
         'Content-Type': 'application/json',
       },
     }).then((r) => r.json());
+
+    if (response.success === 'true') {
+      await models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } },
+      );
+    }
 
     await models.PutResponses.updatePutResponse(resObj._id, {
       ...response,
