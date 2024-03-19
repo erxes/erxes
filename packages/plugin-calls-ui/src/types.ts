@@ -61,3 +61,15 @@ export interface IHistory extends IHistoryDoc {
   _id: string;
   customer: ICustomer;
 }
+
+export interface ICallConfig {
+  _id: string;
+  inboxId: string;
+  phone: string;
+  wsServer: string;
+  operators: JSON;
+  token: string;
+}
+export interface ICallConfigDoc extends ICallConfig {
+  isAvailable: boolean;
+}

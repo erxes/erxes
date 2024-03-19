@@ -64,15 +64,15 @@ const generateFilter = async (
   }
 
   if (categoryId) {
-    const category = await models.ProductCategories.getProductCategory({
-      _id: categoryId,
-      status: { $in: [null, 'active'] },
-    });
+    const category = await models.ProductCategories.findOne({
+      _id: categoryId
+    }).lean();
 
-    const productCategoryIds = await models.ProductCategories.find(
+    const productCategoryIds = category ? await models.ProductCategories.find(
       { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
       { _id: 1 },
-    );
+    ) : [];
+
     filter.categoryId = { $in: productCategoryIds };
   } else {
     const notActiveCategories = await models.ProductCategories.find({
@@ -327,7 +327,7 @@ const productQueries = {
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)
             .filter((sgf) => customFieldIds.includes(sgf)).length ===
-            (similarityGroups[cm].rules || []).length,
+          (similarityGroups[cm].rules || []).length,
       );
 
       if (!matchedMasks.length) {

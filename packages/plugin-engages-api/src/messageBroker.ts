@@ -206,6 +206,13 @@ export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   });
 };
 
+export const sendImapMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'imap',
+    ...args,
+  });
+};
+
 export const sendNotificationsMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {

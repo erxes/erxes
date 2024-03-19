@@ -9,7 +9,7 @@ import TimeclockList from '../../components/timeclock/TimeclockList2';
 import { queries, mutations } from '../../graphql';
 import {
   ReportByUsersQueryResponse,
-  TimeClockMutationResponse
+  TimeClockMutationResponse,
 } from '../../types';
 import { generateParams } from '../../utils';
 import { Alert } from '@erxes/ui/src/utils';
@@ -41,7 +41,7 @@ const TimeclockContainer = (props: FinalProps) => {
     getActionBar,
     showSideBar,
     queryParams,
-    currentUser
+    currentUser,
   } = props;
 
   if (listReportByUsersQuery.loading) {
@@ -51,7 +51,7 @@ const TimeclockContainer = (props: FinalProps) => {
   const timeclockEdit = (variables: any) => {
     timeclockEditMutation({ variables })
       .then(() => Alert.success('Successfully edited timeclock'))
-      .catch(err => Alert.error(err.message));
+      .catch((err) => Alert.error(err.message));
   };
 
   const { list = [], totalCount } =
@@ -80,15 +80,15 @@ export default withProps<Props>(
       options: ({ queryParams, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
-          isCurrentUserAdmin
-        }
-      })
+          isCurrentUserAdmin,
+        },
+      }),
     }),
     graphql<Props>(gql(mutations.timeclockEdit), {
       name: 'timeclockEditMutation',
       options: {
-        refetchQueries: ['timeclocksMain', 'timeclockReportByUsers']
-      }
-    })
-  )(TimeclockContainer)
+        refetchQueries: ['timeclocksMain', 'timeclockReportByUsers'],
+      },
+    }),
+  )(TimeclockContainer),
 );

@@ -93,7 +93,7 @@ class List extends React.Component<IProps> {
   };
 
   renderContent() {
-    const { productCategories, loading, queryParams } = this.props;
+    const { productCategories, loading, queryParams, history } = this.props;
 
     return (
       <CollapsibleList
@@ -104,7 +104,7 @@ class List extends React.Component<IProps> {
         loading={loading}
         onClick={this.onClick}
         queryParams={queryParams}
-        treeView={true}
+        treeView={!['disabled', 'archived'].includes(router.getParam(history, ['status']))}
         keyCount="productCount"
       />
     );
