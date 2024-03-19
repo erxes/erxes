@@ -1,4 +1,9 @@
-import { DataWithLoader, ModalTrigger, Pagination, Table } from '@erxes/ui/src/components';
+import {
+  DataWithLoader,
+  ModalTrigger,
+  Pagination,
+  Table,
+} from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
@@ -28,15 +33,16 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-type State = {
-};
+type State = {};
 
 class PutResponsesDuplicated extends React.Component<IProps, State> {
   renderRow(putResponse, index) {
     const { _id, date, number, count } = putResponse;
 
-    const modalContent = _props => {
-      return <DetailDuplicated contentId={_id.contentId} taxType={_id.taxType} />;
+    const modalContent = (_props) => {
+      return (
+        <DetailDuplicated contentId={_id.contentId} taxType={_id.taxType} />
+      );
     };
 
     const trigger = (
@@ -70,16 +76,10 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
       errorMsg,
       onFilter,
       isFiltered,
-      clearFilter
+      clearFilter,
     } = this.props;
 
-    const mainContent = errorMsg ? (
-      <EmptyState
-        text={errorMsg.replace('GraphQL error: ', '')}
-        size="full"
-        image={'/images/actions/11.svg'}
-      />
-    ) : (
+    const mainContent = (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -92,7 +92,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
           </thead>
           <tbody id="putResponses">
             {(putResponsesDuplicated || []).map((putResponse, index) =>
-              this.renderRow(putResponse, index)
+              this.renderRow(putResponse, index),
             )}
           </tbody>
         </Table>
@@ -104,7 +104,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
       isFiltered,
       clearFilter,
       queryParams,
-      showMenu: !!errorMsg
+      showMenu: !!errorMsg,
     };
 
     const actionBarRight = (
@@ -123,7 +123,6 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
     );
 
     return (
-
       <Wrapper
         header={
           <Wrapper.Header
@@ -139,13 +138,14 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
             data={mainContent}
             loading={loading}
             count={totalCount}
-            emptyText="Add in your first putResponse!"
+            emptyText={
+              errorMsg.replace('GraphQL error: ', '') ||
+              'not found duplicated putResponse!'
+            }
             emptyImage="/images/actions/1.svg"
           />
         }
       />
-
-
     );
   }
 }
