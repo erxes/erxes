@@ -10,7 +10,7 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot,
-  StageTitle
+  StageTitle,
 } from '../../styles/stage';
 import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions, IStage } from '../../types';
@@ -20,7 +20,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ItemList from '../stage/ItemList';
-import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __, isEnabled } from '@erxes/ui/src/utils/core';
@@ -59,7 +58,7 @@ export default class Stage extends React.Component<Props, State> {
     this.state = {
       showSortOptions: false,
       renderModal: false,
-      items: []
+      items: [],
     };
   }
 
@@ -131,8 +130,8 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   toggleModal = () => {
-    this.setState(prevState => ({
-      renderModal: !prevState.renderModal
+    this.setState((prevState) => ({
+      renderModal: !prevState.renderModal,
     }));
     this.onClosePopover();
   };
@@ -188,7 +187,7 @@ export default class Stage extends React.Component<Props, State> {
   renderCtrl() {
     return (
       <OverlayTrigger
-        ref={overlayTrigger => {
+        ref={(overlayTrigger) => {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
@@ -314,10 +313,10 @@ export default class Stage extends React.Component<Props, State> {
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
       pipelineId: stage.pipelineId,
-      aboveItemId: ''
+      aboveItemId: '',
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -375,20 +374,6 @@ export default class Stage extends React.Component<Props, State> {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
-    const renderDetail = () => {
-      if (window.location.pathname.includes('deal')) {
-        return (
-          <ItemProductProbabilities
-            totalAmount={stage.amount}
-            unusedTotalAmount={stage.unUsedAmount}
-            probability={stage.probability}
-          />
-        );
-      }
-
-      return null;
-    };
-
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
@@ -402,7 +387,6 @@ export default class Stage extends React.Component<Props, State> {
                   </div>
                   {this.renderCtrl()}
                 </StageTitle>
-                {renderDetail()}
 
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
