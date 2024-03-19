@@ -1,17 +1,18 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   ICommonFormProps,
-  ICommonListProps
-} from '@erxes/ui-settings/src/common/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { commonListComposer } from '@erxes/ui/src/utils';
-import UserList from '../components/UserList';
-import { mutations, queries } from '@erxes/ui/src/team/graphql';
+  ICommonListProps,
+} from "@erxes/ui-settings/src/common/types";
+import { mutations, queries } from "@erxes/ui/src/team/graphql";
+
+import { Alert } from "@erxes/ui/src/utils";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import UserList from "../components/UserList";
+import client from "@erxes/ui/src/apolloClient";
+import { commonListComposer } from "@erxes/ui/src/utils";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = ICommonListProps &
   ICommonFormProps & {
@@ -26,12 +27,12 @@ class UserListContainer extends React.Component<Props> {
     const { statusChangedMutation, listQuery } = this.props;
 
     statusChangedMutation({
-      variables: { _id: id }
+      variables: { _id: id },
     })
       .then(() => {
         listQuery.refetch();
 
-        Alert.success('Congrats, Successfully updated.');
+        Alert.success("Congrats, Successfully updated.");
       })
       .catch((error: Error) => {
         Alert.error(error.message);
@@ -42,12 +43,12 @@ class UserListContainer extends React.Component<Props> {
     client
       .mutate({
         mutation: gql(mutations.usersResendInvitation),
-        variables: { email }
+        variables: { email },
       })
       .then(() => {
-        Alert.success('Successfully resent the invitation');
+        Alert.success("Successfully resent the invitation");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   }
@@ -71,54 +72,55 @@ export const options = ({ queryParams }: { queryParams: any }): any => {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
-      isActive: queryParams.isActive === 'false' ? false : true,
+      isActive: queryParams.isActive === "false" ? false : true,
       brandIds: queryParams.brandIds,
       departmentId: queryParams.departmentId,
       unitId: queryParams.unitId,
       branchId: queryParams.branchId,
       segment: queryParams.segment,
-      segmentData: queryParams.segmentData
+      segmentData: queryParams.segmentData,
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   };
 };
 
 export default commonListComposer<{ queryParams: any; history: any }>({
-  text: 'team member',
-  label: 'users',
+  text: "team member",
+  label: "users",
   stringAddMutation: mutations.usersInvite,
   stringEditMutation: mutations.usersEdit,
+  confirmProps: { options: { hasDeleteConfirm: true } },
 
   gqlListQuery: graphql(gql(queries.users), {
-    name: 'listQuery',
-    options
+    name: "listQuery",
+    options,
   }),
   gqlAddMutation: graphql(gql(mutations.usersInvite), {
-    name: 'addMutation'
+    name: "addMutation",
   }),
   gqlEditMutation: graphql(gql(mutations.usersEdit), {
-    name: 'editMutation'
+    name: "editMutation",
   }),
   gqlRemoveMutation: graphql<{ queryParams: any }>(
     gql(mutations.usersSetActiveStatus),
     {
-      name: 'statusChangedMutation',
+      name: "statusChangedMutation",
       options: ({ queryParams }) => ({
         refetchQueries: [
           {
             query: gql(queries.users),
             variables: {
               ...generatePaginationParams(queryParams),
-              isActive: !(queryParams.isActive === 'false' ? false : true)
-            }
-          }
-        ]
-      })
+              isActive: !(queryParams.isActive === "false" ? false : true),
+            },
+          },
+        ],
+      }),
     }
   ),
   gqlTotalCountQuery: graphql(gql(queries.usersTotalCount), {
-    name: 'totalCountQuery',
-    options
+    name: "totalCountQuery",
+    options,
   }),
-  ListComponent: UserListContainer
+  ListComponent: UserListContainer,
 });
