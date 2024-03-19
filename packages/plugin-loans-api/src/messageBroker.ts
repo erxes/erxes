@@ -3,14 +3,63 @@ import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { getCloseInfo } from './models/utils/closeUtils';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
       data: await models.Contracts.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { selector, modifier } = data;
+
+    const result = await models.Contracts.updateOne(selector, modifier);
+    return {
+      status: 'success',
+      data: result,
+    };
+  });
+
+  consumeRPCQueue(
+    'loans:contracts.getCloseInfo',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contract = await models.Contracts.getContract({
+        _id: data.contractId,
+      });
+      const closeInfo = await getCloseInfo(
+        models,
+        subdomain,
+        contract,
+        data.closeDate,
+      );
+      return {
+        status: 'success',
+        data: closeInfo,
+      };
+    },
+  );
+
+  consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.ContractTypes.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('loans:contractType.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ContractTypes.find(data).lean(),
     };
   });
 
@@ -56,7 +105,8 @@ export const sendMessageBroker = async (
     | 'forms'
     | 'clientportal'
     | 'syncerkhet'
-    | 'ebarimt',
+    | 'ebarimt'
+    | 'syncpolaris',
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

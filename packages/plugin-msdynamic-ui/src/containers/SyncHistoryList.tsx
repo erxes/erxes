@@ -5,7 +5,7 @@ import { router, withProps } from '@erxes/ui/src/utils';
 import SyncHistoryList from '../components/SyncHistoryList';
 import {
   SyncHistoriesCountQueryResponse,
-  SyncHistoriesQueryResponse
+  SyncHistoriesQueryResponse,
 } from '../types';
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -17,25 +17,26 @@ type Props = {
 };
 
 type FinalProps = {
-  syncHistoriesQuery: SyncHistoriesQueryResponse;
-  syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
+  syncMsdHistoriesQuery: SyncHistoriesQueryResponse;
+  syncMsdHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props;
 
 const SyncHistoryListContainer = (props: FinalProps) => {
-  const { syncHistoriesQuery, syncHistoriesCountQuery } = props;
+  const { syncMsdHistoriesQuery, syncMsdHistoriesCountQuery } = props;
 
-  if (syncHistoriesQuery.loading) {
+  if (syncMsdHistoriesQuery.loading) {
     return <Spinner />;
   }
 
-  const syncHistories = syncHistoriesQuery.syncHistories || [];
-  const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
+  const syncHistories = syncMsdHistoriesQuery.syncMsdHistories || [];
+  const totalCount = syncMsdHistoriesCountQuery.syncMsdHistoriesCount || 0;
 
   const updatedProps = {
     ...props,
     syncHistories,
     totalCount,
-    loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading
+    loading:
+      syncMsdHistoriesQuery.loading || syncMsdHistoriesCountQuery.loading,
   };
   return <SyncHistoryList {...updatedProps} />;
 };
@@ -56,28 +57,31 @@ const generateParams = ({ queryParams }) => {
     searchConsume: queryParams.searchConsume,
     searchSend: queryParams.searchSend,
     searchResponse: queryParams.searchResponse,
-    searchError: queryParams.searchError
+    searchError: queryParams.searchError,
   };
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistories), {
-      name: 'syncHistoriesQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, SyncHistoriesCountQueryResponse, {}>(
-      gql(queries.syncHistoriesCount),
+    graphql<Props, SyncHistoriesQueryResponse, {}>(
+      gql(queries.syncMsdHistories),
       {
-        name: 'syncHistoriesCountQuery',
+        name: 'syncMsdHistoriesQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(SyncHistoryListContainer)
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+    graphql<Props, SyncHistoriesCountQueryResponse, {}>(
+      gql(queries.syncMsdHistoriesCount),
+      {
+        name: 'syncMsdHistoriesCountQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(SyncHistoryListContainer),
 );

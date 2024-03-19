@@ -30,11 +30,11 @@ const commonHistoryParamDefs = `
   searchError: $searchError,
 `;
 
-const syncHistories = `
-  query syncHistories(
+const syncMsdHistories = `
+  query syncMsdHistories(
     ${commonHistoryParams}
   ) {
-    syncHistories (
+    syncMsdHistories (
       ${commonHistoryParamDefs}
     ) {
       _id
@@ -57,11 +57,11 @@ const syncHistories = `
   }
 `;
 
-const syncHistoriesCount = `
-  query syncHistoriesCount(
+const syncMsdHistoriesCount = `
+  query syncMsdHistoriesCount(
     ${commonHistoryParams}
   ) {
-    syncHistoriesCount (
+    syncMsdHistoriesCount (
       ${commonHistoryParamDefs}
     )
   }
@@ -85,8 +85,8 @@ const configs = `
 `;
 
 export default {
-  syncHistories,
-  syncHistoriesCount,
+  syncMsdHistories,
+  syncMsdHistoriesCount,
   dynamicConfigs,
-  configs
+  configs,
 };

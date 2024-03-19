@@ -1,2 +1,2 @@
-packages/api-plugin-templ
-packages/ui-plugin-template
+packages/template.plugin.api
+packages/template.plugin.ui

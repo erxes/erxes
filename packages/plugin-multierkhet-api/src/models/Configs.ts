@@ -7,7 +7,7 @@ export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
 }
 
-export const loadConfigClass = (models: IModels) => {
+export const loadConfigClass = (models: IModels, _subdomain) => {
   class Config {
     /*
      * Get a Config
@@ -27,7 +27,7 @@ export const loadConfigClass = (models: IModels) => {
      */
     public static async createOrUpdateConfig({
       code,
-      value
+      value,
     }: {
       code: string;
       value: string[];

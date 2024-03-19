@@ -17,7 +17,6 @@ export const CAR_INFO = {
   color: 'Color',
   fuelType: 'Fuel type',
   vintageYear: 'Vintage year',
-  importYear: 'Import year',
 
   ALL: [
     { field: 'plateNumber', label: 'Plate number' },
@@ -26,7 +25,6 @@ export const CAR_INFO = {
 
     { field: 'fuelType', label: 'Fuel type' },
     { field: 'vintageYear', label: 'Vintage year' },
-    { field: 'importYear', label: 'Import year' },
     { field: 'description', label: 'Description' }
   ]
 };
@@ -374,7 +372,6 @@ export const FILTER_PARAMS = [
   'plateNumber',
   'vinNumber',
   'vintageYear',
-  'importYear',
   'diagnosisDate',
   'taxDate',
   'drivingClassification',

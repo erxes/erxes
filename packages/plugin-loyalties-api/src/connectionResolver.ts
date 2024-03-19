@@ -3,13 +3,13 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IDonateCampaignDocument } from './models/definitions/donateCampaigns';
 import {
   IDonateCampaignModel,
-  loadDonateCampaignClass
+  loadDonateCampaignClass,
 } from './models/DonateCampaigns';
 import { IDonateDocument } from './models/definitions/donates';
 import { IDonateModel, loadDonateClass } from './models/Donates';
 import {
   IAssignmentCampaignModel,
-  loadAssignmentCampaignClass
+  loadAssignmentCampaignClass,
 } from './models/AssignmentCampaigns';
 import { IAssignmentModel, loadAssignmentClass } from './models/Assignments';
 import { IAssignmentCampaignDocument } from './models/definitions/assignmentCampaigns';
@@ -17,7 +17,7 @@ import { IAssignmentDocument } from './models/definitions/assignments';
 import { ILotteryCampaignDocument } from './models/definitions/lotteryCampaigns';
 import {
   ILotteryCampaignModel,
-  loadLotteryCampaignClass
+  loadLotteryCampaignClass,
 } from './models/LotteryCampaigns';
 import { ILotteryDocument } from './models/definitions/lotteries';
 import { ILotteryModel, loadLotteryClass } from './models/Lotteries';
@@ -26,14 +26,14 @@ import { ILoyaltyConfigModel, loadLoyaltyConfigClass } from './models/Configs';
 import { ISpinCampaignDocument } from './models/definitions/spinCampaigns';
 import {
   ISpinCampaignModel,
-  loadSpinCampaignClass
+  loadSpinCampaignClass,
 } from './models/SpinCampaigns';
 import { ISpinDocument } from './models/definitions/spins';
 import { ISpinModel, loadSpinClass } from './models/Spins';
 import { IVoucherCampaignDocument } from './models/definitions/voucherCampaigns';
 import {
   IVoucherCampaignModel,
-  loadVoucherCampaignClass
+  loadVoucherCampaignClass,
 } from './models/VoucherCampaigns';
 import { IVoucherDocument } from './models/definitions/vouchers';
 import { IVoucherModel, loadVoucherClass } from './models/Vouchers';
@@ -60,17 +60,15 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.LoyaltyConfigs = db.model<ILoyaltyConfigDocument, ILoyaltyConfigModel>(
     'loyalty_configs',
-    loadLoyaltyConfigClass(models, subdomain)
+    loadLoyaltyConfigClass(models, subdomain),
   );
   models.DonateCampaigns = db.model<
     IDonateCampaignDocument,
@@ -78,15 +76,15 @@ export const loadClasses = (
   >('donate_campaigns', loadDonateCampaignClass(models, subdomain));
   models.Donates = db.model<IDonateDocument, IDonateModel>(
     'donates',
-    loadDonateClass(models, subdomain)
+    loadDonateClass(models, subdomain),
   );
   models.SpinCampaigns = db.model<ISpinCampaignDocument, ISpinCampaignModel>(
     'spin_campaigns',
-    loadSpinCampaignClass(models, subdomain)
+    loadSpinCampaignClass(models, subdomain),
   );
   models.Spins = db.model<ISpinDocument, ISpinModel>(
     'spins',
-    loadSpinClass(models, subdomain)
+    loadSpinClass(models, subdomain),
   );
   models.LotteryCampaigns = db.model<
     ILotteryCampaignDocument,
@@ -94,7 +92,7 @@ export const loadClasses = (
   >('lottery_campaigns', loadLotteryCampaignClass(models, subdomain));
   models.Lotteries = db.model<ILotteryDocument, ILotteryModel>(
     'lotteries',
-    loadLotteryClass(models, subdomain)
+    loadLotteryClass(models, subdomain),
   );
   models.VoucherCampaigns = db.model<
     IVoucherCampaignDocument,
@@ -102,7 +100,7 @@ export const loadClasses = (
   >('voucher_campaigns', loadVoucherCampaignClass(models, subdomain));
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>(
     'vouchers',
-    loadVoucherClass(models, subdomain)
+    loadVoucherClass(models, subdomain),
   );
   models.AssignmentCampaigns = db.model<
     IAssignmentCampaignDocument,
@@ -110,17 +108,14 @@ export const loadClasses = (
   >('assignment_campaigns', loadAssignmentCampaignClass(models, subdomain));
   models.Assignments = db.model<IAssignmentDocument, IAssignmentModel>(
     'assignments',
-    loadAssignmentClass(models, subdomain)
+    loadAssignmentClass(models, subdomain),
   );
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
     'score_logs',
-    loadScoreLogClass(models, subdomain)
+    loadScoreLogClass(models, subdomain),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -5,7 +5,7 @@ import styledTS from 'styled-components-ts';
 import styled from 'styled-components';
 
 export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
-  styled.div
+  styled.div,
 )`
   max-width: 300px;
   padding: 3px;
@@ -23,7 +23,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
   }
 
   .header {
-    background: ${props =>
+    background: ${(props) =>
       props.type === 'trigger'
         ? rgba(colors.colorPrimary, 0.12)
         : rgba(colors.colorCoreOrange, 0.12)};
@@ -50,7 +50,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
         flex-shrink: 0;
         margin-right: ${dimensions.unitSpacing}px;
         background: ${colors.colorWhite};
-        color: ${props =>
+        color: ${(props) =>
           props.type === 'trigger'
             ? colors.colorSecondary
             : `${colors.colorCoreOrange} !important`};
@@ -102,7 +102,7 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
   }
 
   .optional-connects {
-    background-color:${props =>
+    background-color:${(props) =>
       props.type === 'trigger'
         ? rgba(colors.colorPrimary, 0.12)
         : rgba(colors.colorCoreOrange, 0.12)};
@@ -112,17 +112,31 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
     margin-top: 5px;
 
 
-      > li {
+      .optional-connect {
         position: relative;
         list-style-type: none;
-        background-color:#f5f5f5
+        background-color:#FFF;
+        box-shadow:1px 1px 3px 1px rgb(0 0 0 / 2%);
+        font-size:x-small;
+        font-weight:500;
         
         border-radius: 5px;
         margin:5px;
         padding: 5px;
-        color: ${colors.colorCoreGray};
       }
   }
+
+  .triggerContent:empty {
+    display: none;
+  }
+
+  .triggerContent {
+    background-color:${rgba(colors.colorPrimary, 0.12)};
+    border-radius: 5px;
+
+    padding: 5px;
+    margin-top: 5px;
+   }
 `;
 
 export const ScratchNode = styled.div`

@@ -1,15 +1,13 @@
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
 import fetch from 'node-fetch';
 
 export const customerToErkhet = async (
-  subdomain,
   models,
+  mainConfig,
   syncLog,
   params,
   action,
 ) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
-
   const customer = params.updatedDocument || params.object;
   const oldCustomer = params.object;
   let sendData = {};
@@ -24,7 +22,7 @@ export const customerToErkhet = async (
     name && customer.lastName
       ? name.concat(' - ').concat(customer.lastName || '')
       : name || customer.lastName || '';
-  name = name ? name : config.customerDefaultName;
+  name = name ? name : mainConfig.customerDefaultName;
 
   sendData = {
     action,
@@ -32,13 +30,13 @@ export const customerToErkhet = async (
     object: {
       code: customer.code || '',
       name,
-      defaultCategory: (config.customerCategoryCode || '').toString(),
+      defaultCategory: (mainConfig.customerCategoryCode || '').toString(),
       email: customer.primaryEmail || '',
       phone: customer.primaryPhone || '',
     },
   };
 
-  toErkhet(models, syncLog, config, sendData, 'customer-change');
+  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
 };
 
 export const validCompanyCode = async (config, companyCode) => {
@@ -68,14 +66,12 @@ export const validCompanyCode = async (config, companyCode) => {
 };
 
 export const companyToErkhet = async (
-  subdomain,
   models,
+  mainConfig,
   syncLog,
   params,
   action,
-  user,
 ) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
 
   const oldCompany = params.object;
@@ -86,11 +82,11 @@ export const companyToErkhet = async (
     object: {
       code: company.code || '',
       name: company.primaryName,
-      defaultCategory: config.companyCategoryCode,
+      defaultCategory: mainConfig.companyCategoryCode,
       email: company.primaryEmail || '',
       phone: company.primaryPhone || '',
     },
   };
 
-  toErkhet(models, syncLog, config, sendData, 'customer-change');
+  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
 };

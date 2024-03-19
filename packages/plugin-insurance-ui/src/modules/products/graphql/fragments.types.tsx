@@ -17,6 +17,7 @@ export type ProductCoreFieldsFragment = {
   price?: number | null;
   description?: string | null;
   updatedAt?: any | null;
+  customFieldsData?: any | null;
   categoryId?: string | null;
   companyProductConfigs?: Array<{
     __typename?: 'CompanyProductConfig';
@@ -39,6 +40,11 @@ export type ProductCoreFieldsFragment = {
       name?: string | null;
     } | null> | null;
   } | null;
+  travelProductConfigs?: Array<{
+    __typename?: 'TravelProductConfig';
+    duration?: number | null;
+    prices?: any | null;
+  } | null> | null;
 };
 
 export type TeamMemberFieldsFragment = {

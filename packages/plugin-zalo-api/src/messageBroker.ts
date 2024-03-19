@@ -16,7 +16,7 @@ import { RPResult, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'zalo:createIntegration',
     async ({ subdomain, data: { doc, kind } }): Promise<RPResult> => {

@@ -203,6 +203,10 @@ async function onPaymentClick(payment, invoiceData, prefix) {
 
     window.location.href = apiResponse.deeplink;
     window.open(apiResponse.deeplink, 'blank');
+
+    if (paymentObj.kind === 'socialpay') {
+      window.location.href = apiResponse.deeplink;
+    }
   }
 
   if (['qpay', 'qpayQuickqr'].includes(data.invoice.paymentKind) && isMobile) {

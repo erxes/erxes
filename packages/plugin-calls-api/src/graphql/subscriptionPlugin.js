@@ -3,28 +3,22 @@ var { withFilter } = require('graphql-subscriptions');
 module.exports = {
   name: 'calls',
   typeDefs: `
-      phoneCallReceived(userId: String): JSON
-      sessionTerminateRequested(userId: String): JSON
+      phoneCallReceived(subdomain: String!, userId: String): JSON
+      sessionTerminateRequested(subdomain: String!, userId: String): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       phoneCallReceived: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('phoneCallReceived'),
-          async (payload, variables) => {
-            const operatorIds = payload.phoneCallReceived.integration.operatorIds || [];
-
-            return operatorIds.includes(variables.userId);
-          }
-        ),
+        subscribe: (_, { subdomain, userId }) =>
+          graphqlPubsub.asyncIterator(
+            `phoneCallReceived:${subdomain}:${userId}`,
+          ),
       },
       sessionTerminateRequested: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('sessionTerminateRequested'),
-          (payload, variables) => {
-            return payload.userId === variables.userId
-          }
-        )
+        subscribe: (_, { subdomain, userId }) =>
+          graphqlPubsub.asyncIterator(
+            `sessionTerminateRequested:${subdomain}:${userId}`,
+          ),
       },
     };
   },

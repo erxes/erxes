@@ -38,7 +38,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      */
 
     public static async getProduct(selector: any) {
-      const product = await models.Products.findOne(selector);
+      const product = await models.Products.findOne(selector).lean();
 
       if (!product) {
         throw new Error('Product not found');
@@ -124,7 +124,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         throw new Error('Code is not validate of category mask');
       }
 
-      doc.sameMasks = await checkSameMaskConfig(models, doc);
+      doc.sameMasks = await checkSameMaskConfig(models, subdomain, doc);
 
       doc.uom = await models.Uoms.checkUOM(doc);
 
@@ -161,8 +161,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         if (!(await checkCodeMask(category, doc.code))) {
           throw new Error('Code is not validate of category mask');
         }
-
-        doc.sameMasks = await checkSameMaskConfig(models, doc);
       }
 
       doc.customFieldsData = await initCustomField(
@@ -172,14 +170,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         product.customFieldsData,
         doc.customFieldsData,
       );
-
-      doc.customFieldsData = await initCustomField(
-        subdomain,
-        category,
-        doc.code || product.code,
-        product.customFieldsData,
-        doc.customFieldsData,
-      );
+      doc.sameMasks = await checkSameMaskConfig(models, subdomain, {
+        ...product,
+        ...doc,
+      });
 
       await models.Products.updateOne({ _id }, { $set: doc });
 

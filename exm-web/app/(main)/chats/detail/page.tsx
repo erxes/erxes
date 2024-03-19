@@ -13,11 +13,15 @@ export default function Detail() {
 
   return (
     <>
-      <div className="w-message border-r shrink-0">
-        <Messages setShowSidebar={handleToggle} showSidebar={showSidebar} />
+      <div
+        className={`${
+          showSidebar ? "w-[calc(60%-230px)]" : "w-[calc(80%-230px)]"
+        } border-r shrink-0`}
+      >
+        <Messages setShowSidebar={handleToggle} />
       </div>
       {showSidebar && (
-        <div className="flex h-full w-1/4 flex-col">
+        <div className="flex w-1/5 flex-col">
           <RightSideBar
             setShowSidebar={handleToggle}
             showSidebar={showSidebar}

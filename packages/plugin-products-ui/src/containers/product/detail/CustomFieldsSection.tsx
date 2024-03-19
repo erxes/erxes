@@ -40,12 +40,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -53,16 +53,17 @@ const CustomFieldsSection = (props: FinalProps) => {
   const updatedProps = {
     save,
     loading,
+    object: product,
     customFieldsData: product.customFieldsData,
     fieldsGroups: (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [],
-    isDetail: true
+    isDetail: true,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
 const options = () => ({
-  refetchQueries: ['productDetail']
+  refetchQueries: ['productDetail'],
 });
 
 export default withProps<Props>(
@@ -77,14 +78,14 @@ export default withProps<Props>(
         variables: {
           contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
           isDefinedByErxes: false,
-          config: { categoryId: product.categoryId }
-        }
+          config: { categoryId: product.categoryId },
+        },
       }),
-      skip: !isEnabled('forms')
+      skip: !isEnabled('forms'),
     }),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
       name: 'editMutation',
-      options
-    })
-  )(CustomFieldsSection)
+      options,
+    }),
+  )(CustomFieldsSection),
 );

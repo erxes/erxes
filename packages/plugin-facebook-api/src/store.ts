@@ -13,7 +13,7 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-
+import { getPostDetails } from './utils';
 interface IDoc {
   postId?: string;
   commentId?: string;
@@ -162,6 +162,7 @@ const generateCommentDoc = (
 
 export const getOrCreatePostConversation = async (
   models: IModels,
+  pageId: string,
   subdomain: string,
   postId: string,
   integration: IIntegrationDocument,
@@ -172,7 +173,31 @@ export const getOrCreatePostConversation = async (
     postId,
   });
   if (!postConversation) {
-    throw new Error('Post not founds');
+    const integration = await models.Integrations.findOne({
+      $and: [
+        { facebookPageIds: { $in: pageId } },
+        { kind: INTEGRATION_KINDS.POST },
+      ],
+    });
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+    const { facebookPageTokensMap = {} } = integration;
+    const getPostDetail = await getPostDetails(
+      pageId,
+      facebookPageTokensMap,
+      params.post_id || '',
+    );
+
+    const facebookPost = {
+      postId: params.post_id,
+      content: params.message,
+      recipientId: pageId,
+      senderId: pageId,
+      permalink_url: getPostDetail.permalink_url,
+      timestamp: getPostDetail.created_time,
+    };
+    postConversation = await models.PostConversations.create(facebookPost);
   }
 
   return postConversation;
@@ -213,9 +238,7 @@ export const getOrCreatePost = async (
     facebookPageTokensMap,
     postParams.post_id || '',
   );
-
   const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
-
   if (!doc.attachments && doc.content === '...') {
     throw new Error();
   }
@@ -237,17 +260,22 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
 ) => {
-  const commentConversations = await models.CommentConversation.find({
+  const mainConversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.comment_id,
+  });
+  const parentConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
-  const commentConversation = commentConversations[0];
-  let comment;
-  const _id: string[] = [];
+  const replyConversation = await models.CommentConversationReply.findOne({
+    comment_id: commentParams.comment_id,
+  });
+  if (mainConversation || replyConversation) {
+    return;
+  }
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id,
   });
-
-  let attachment;
+  let attachment: any[] = [];
   if (commentParams.photo) {
     attachment = [
       {
@@ -257,46 +285,39 @@ export const getOrCreateComment = async (
         // You may want to include other properties like size, duration if applicable
       },
     ];
-  } else {
-    attachment = [];
   }
-
-  if (commentConversations.length > 0 && post) {
-    if (commentConversation.erxesApiId) {
-      _id.push(commentConversation.erxesApiId);
-    }
-
-    comment = await models.CommentConversationReply.create({
-      attachments: attachment,
-      customerId: customer.erxesApiId,
-      recipientId: pageId,
-      senderId: userId,
-      createdAt: commentParams.post.updated_time,
-      comment_id: commentParams.comment_id,
-      content: commentParams.message,
-      parent_id: commentParams.parent_id,
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const doc = {
+    attachments: attachment,
+    recipientId: pageId,
+    senderId: userId,
+    createdAt: commentParams.post.updated_time,
+    postId: commentParams.post_id,
+    comment_id: commentParams.comment_id,
+    content: commentParams.message,
+    customerId: customer.erxesApiId,
+    parentId: commentParams.parent_id,
+  };
+  if (parentConversation) {
+    await models.CommentConversationReply.create({
+      ...doc,
     });
   } else {
-    if (postConversation.erxesApiId) {
-      _id.push(postConversation.erxesApiId);
-    }
-
-    if (post) {
-      comment = await models.CommentConversation.create({
-        attachments: attachment,
-        recipientId: pageId,
-        senderId: userId,
-        createdAt: commentParams.post.updated_time,
-        postId: commentParams.post_id,
-        comment_id: commentParams.comment_id,
-        content: commentParams.message,
-        customerId: customer.erxesApiId,
-        parentId: commentParams.parent_id,
-      });
-    }
+    await models.CommentConversation.create({
+      ...doc,
+    });
   }
-
-  const resultString = _id[0];
+  let conversation;
+  conversation = await models.CommentConversation.findOne({
+    comment_id: commentParams.comment_id,
+  });
+  if (conversation === null) {
+    conversation = await models.CommentConversation.findOne({
+      comment_id: commentParams.parent_id,
+    });
+  }
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -308,74 +329,41 @@ export const getOrCreateComment = async (
           integrationId: integration.erxesApiId,
           content: commentParams.message,
           attachments: attachment,
-          conversationId: resultString,
+          conversationId: conversation.erxesApiId,
         }),
       },
       isRPC: true,
     });
-
-    const erxesApiId = (postConversation.erxesApiId =
-      apiConversationResponse._id);
-    let comment_conversations = await models.CommentConversation.findOne({
-      comment_id: commentParams.comment_id,
-    });
-    let comment_conversations_reply =
-      await models.CommentConversationReply.findOne({
-        comment_id: commentParams.comment_id,
-      });
-
-    if (comment_conversations || comment_conversations_reply) {
-      if (comment_conversations) {
-        await models.CommentConversation.updateOne(
-          { comment_id: comment_conversations.comment_id },
-          { $set: { erxesApiId: erxesApiId } },
-        );
-      }
-      if (comment_conversations_reply) {
-        await models.CommentConversationReply.updateOne(
-          { comment_id: comment_conversations_reply.comment_id },
-          { $set: { erxesApiId: erxesApiId } },
-        );
-      }
-      try {
-        if (erxesApiId) {
-          const inboxIntegration = await sendInboxMessage({
-            subdomain,
-            action: 'conversationClientMessageInserted',
-            data: {
-              integrationId: integration.erxesApiId,
-              conversationId: erxesApiId,
-            },
-          });
-          graphqlPubsub.publish(`conversationMessageInserted:${erxesApiId}`, {
-            conversationMessageInserted: {
-              _id: comment._id,
-              content: commentParams.message,
-              createdAt: new Date(),
-              customerId: customer.erxesApiId,
-              conversationId: erxesApiId,
-            },
-            comment,
-            integration: inboxIntegration,
-          });
-        } else {
-          console.log('Warning: The comment is undefined.');
-        }
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation message duplication'
-            : e,
-        );
-      }
-    } else {
-      console.log('No matching documents found.');
-    }
-  } catch (e) {
+    conversation.erxesApiId = apiConversationResponse?._id;
+    await conversation.save();
+  } catch (error) {
     await models.CommentConversation.deleteOne({
-      _id: commentConversation,
+      _id: conversation?._id,
     });
-    throw new Error(e);
+    throw new Error(error.message);
+  }
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        ...conversation?.toObject(),
+        conversationId: conversation.erxesApiId,
+      },
+    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...conversation?.toObject(),
+          conversationId: conversation.erxesApiId,
+        },
+      },
+    );
+  } catch {
+    throw new Error(
+      `Failed to update the database with the Erxes API response for this conversation.`,
+    );
   }
 };
 

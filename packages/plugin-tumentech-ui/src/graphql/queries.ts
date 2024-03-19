@@ -107,7 +107,6 @@ export const carFields = `
   engineChange
   valve
   vintageYear
-  importYear
   taxDate
   barrelWarranty
   diagnosisDate
@@ -167,6 +166,29 @@ export const carFields = `
   forceCapacityValue
   forceValue
 
+  xyp_archiveFirstNumber
+  xyp_archiveNumber
+  xyp_axleCount
+  xyp_capacity
+  xyp_certificateNumber
+  xyp_className
+  xyp_countryName
+  xyp_fueltype
+  xyp_height
+  xyp_importDate
+  xyp_length
+  xyp_manCount
+  xyp_mass
+  xyp_ownerCountry
+  xyp_ownerFirstname
+  xyp_ownerHandphone
+  xyp_ownerLastname
+  xyp_ownerRegnum
+  xyp_ownerType
+  xyp_type
+  xyp_wheelPosition
+  xyp_width
+
 `;
 
 const listParamsDef = `
@@ -182,7 +204,6 @@ const listParamsDef = `
   $plateNumber: String
   $vinNumber: String
   $vintageYear: Int
-  $importYear: Int
   $diagnosisDate: Date
   $taxDate: Date
   $drivingClassification: String
@@ -210,7 +231,6 @@ const listParamsValue = `
   plateNumber: $plateNumber
   vinNumber: $vinNumber
   vintageYear: $vintageYear
-  importYear: $importYear
   diagnosisDate: $diagnosisDate
   taxDate: $taxDate
   drivingClassification: $drivingClassification
@@ -800,6 +820,29 @@ query tumentechCategoryIcons {
 }
 `;
 
+const xypDetail = `
+query xypDataDetail($id: String, $contentType: String, $contentTypeId: String) {
+  xypDataDetail(
+    _id: $id
+    contentType: $contentType
+    contentTypeId: $contentTypeId
+  ) {
+    _id
+    contentType
+    contentTypeId
+    createdAt
+    data
+    updatedAt
+    __typename
+  }
+}
+`;
+
+const xypRequest = `
+query xypRequest($params: JSON, $wsOperationName: String!) {
+  xypRequest(params: $params, wsOperationName: $wsOperationName)
+}`;
+
 export default {
   cars,
   carsMain,
@@ -840,5 +883,7 @@ export default {
   customerAccountQry,
   accountsQuery,
 
-  categoryIcons
+  categoryIcons,
+  xypDetail,
+  xypRequest
 };

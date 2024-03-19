@@ -22,7 +22,7 @@ const notificationMutations = {
       throw new Error('You are not logged in');
     }
 
-    graphqlPubsub.publish('clientPortalNotificationRead', {
+    graphqlPubsub.publish(`clientPortalNotificationRead:${cpUser._id}`, {
       clientPortalNotificationRead: { userId: cpUser._id },
     });
 

@@ -20,11 +20,12 @@ import DetailInfo from './DetailInfo';
 type Props = {
   car: ICar;
   remove: () => void;
+  sync: () => void;
 };
 
 class BasicInfoSection extends React.Component<Props> {
   renderAction() {
-    const { remove } = this.props;
+    const { remove, sync } = this.props;
 
     const onDelete = () =>
       confirm()
@@ -46,6 +47,11 @@ class BasicInfoSection extends React.Component<Props> {
             <li>
               <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
+              </a>
+            </li>
+            <li>
+              <a href="#convert" onClick={sync}>
+                {__('Sync XYP')}
               </a>
             </li>
           </Dropdown.Menu>

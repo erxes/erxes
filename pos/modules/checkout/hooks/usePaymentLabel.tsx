@@ -14,6 +14,7 @@ const usePaymentLabel = () => {
     if (type === BANK_CARD_TYPES.KHANBANK) return "Хаан банк"
     if (type === BANK_CARD_TYPES.GOLOMT) return "Голомт банк"
     if (type === BANK_CARD_TYPES.TDB) return "ХXБанк"
+    if (type === BANK_CARD_TYPES.CAPITRON) return "Капитрон банк"
     return paymentTypes?.find((i) => i.type === type)?.title || type
   }
   return { getLabel }

@@ -126,6 +126,7 @@ export const engageDetailFields = `
   lastRunAt
   smsStats
   stats
+  notificationStats
 
   scheduleDate {
     type

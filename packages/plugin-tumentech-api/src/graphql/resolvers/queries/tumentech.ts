@@ -83,10 +83,6 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     filter.vintageYear = params.vintageYear;
   }
 
-  if (params.importYear) {
-    filter.importYear = params.importYear;
-  }
-
   if (params.drivingClassification) {
     filter.drivingClassification = params.drivingClassification;
   }

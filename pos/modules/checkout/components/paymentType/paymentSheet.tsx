@@ -35,6 +35,7 @@ const PaymentSheet = () => {
           {type === "mobile" && <MobileSheet />}
           {type === BANK_CARD_TYPES.KHANBANK && <KhanSheet />}
           {type === BANK_CARD_TYPES.TDB && <TDBSheet />}
+          {type === BANK_CARD_TYPES.CAPITRON && <CapitronSheet />}
           {type === BANK_CARD_TYPES.GOLOMT && <GolomtSheet />}
         </SheetContent>
       </Sheet>
@@ -60,7 +61,10 @@ const KhanSheet = dynamic(() => import("../paymentTypes/khanCardSheet"), {
 const TDBSheet = dynamic(() => import("../paymentTypes/TDBCardSheet"), {
   loading: Loading,
 })
+const CapitronSheet = dynamic(() => import("../paymentTypes/capitronSheet"), {
+  loading: Loading,
+})
 
 const GolomtSheet = dynamic(() => import("../paymentTypes/golomtSheet"), {
   loading: Loading,
-}) 
+})

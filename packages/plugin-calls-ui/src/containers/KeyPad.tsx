@@ -9,16 +9,16 @@ import KeyPad from '../components/Keypad';
 import { ICallConversation } from '../types';
 
 type IProps = {
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
+  phoneNumber: any;
 };
 const KeyPadContainer = (props: IProps) => {
-  const { callIntegrationsOfUser, setConfig } = props;
+  const { callUserIntegrations, setConfig, phoneNumber } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
-  const [conversation, setConversation] = useState<ICallConversation>(
-    undefined
-  );
+  const [conversation, setConversation] =
+    useState<ICallConversation>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
@@ -32,14 +32,14 @@ const KeyPadContainer = (props: IProps) => {
       .query({
         query: gql(queries.callCustomerDetail),
         fetchPolicy: 'network-only',
-        variables: { callerNumber: phoneNumber }
+        variables: { callerNumber: phoneNumber },
       })
       .then(({ data }: { data: any }) => {
         if (data && data.callsCustomerDetail) {
           setCustomer(data.callsCustomerDetail);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
 
@@ -51,13 +51,13 @@ const KeyPadContainer = (props: IProps) => {
       variables: {
         content,
         conversationId,
-        internal: true
-      }
+        internal: true,
+      },
     })
       .then(() => {
         Alert.success('Successfully added note');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -65,21 +65,21 @@ const KeyPadContainer = (props: IProps) => {
   const createCustomer = (
     inboxIntegrationId: string,
     primaryPhone: string,
-    callID: string
+    callID: string,
   ) => {
     createCustomerMutation({
       variables: {
         inboxIntegrationId,
         primaryPhone,
         direction: 'outgoing',
-        callID
-      }
+        callID,
+      },
     })
       .then(({ data }: any) => {
         setCustomer(data.callAddCustomer?.customer);
         setConversation(data.callAddCustomer?.conversation);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -92,15 +92,15 @@ const KeyPadContainer = (props: IProps) => {
     {
       query: gql(queries.callCustomerDetail),
       variables: { callerNumber: customer?.primaryPhone },
-      skip: !customer?.primaryPhone
-    }
+      skip: !customer?.primaryPhone,
+    },
   ];
 
   return (
     <KeyPad
       addCustomer={createCustomer}
       key={1}
-      callIntegrationsOfUser={callIntegrationsOfUser}
+      callUserIntegrations={callUserIntegrations}
       setConfig={setConfig}
       customer={customer}
       toggleSectionWithPhone={toggleSection}
@@ -108,6 +108,7 @@ const KeyPadContainer = (props: IProps) => {
       conversation={conversation}
       addNote={addNote}
       disconnectCall={disconnectCall}
+      phoneNumber={phoneNumber || ''}
     />
   );
 };

@@ -9,12 +9,12 @@ import { repairIntegrations } from '../helpers';
 const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
-  const FACEBOOK_PERMISSIONS = await getConfig(
+  const INSTAGRAM_APP_ID = await getConfig(models, 'INSTAGRAM_APP_ID');
+  const INSTAGRAM_APP_SECRET = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+  const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
-    'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'INSTAGRAM_PERMISSIONS',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,instagram_basic,instagram_manage_messages',
   );
 
   const MAIN_APP_DOMAIN = getEnv({
@@ -25,13 +25,18 @@ const loginMiddleware = async (req, res) => {
     name: 'DOMAIN',
   });
 
-  const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
-    scope: `${FACEBOOK_PERMISSIONS},instagram_basic,instagram_manage_messages`,
-    redirect_uri: `${DOMAIN}/gateway/pl:instagram/instagram/login`,
-  };
+  const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
+    models,
+    'INSTAGRAM_LOGIN_REDIRECT_URL',
+    `${DOMAIN}/gateway/pl:instagram/instagram/login`,
+  );
 
+  const conf = {
+    client_id: INSTAGRAM_APP_ID,
+    client_secret: INSTAGRAM_APP_SECRET,
+    scope: INSTAGRAM_PERMISSIONS,
+    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
+  };
   debugRequest(debugFacebook, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
@@ -40,6 +45,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
+      state: DOMAIN,
     });
 
     // checks whether a user denied the app facebook login/permissions

@@ -5,14 +5,11 @@ import { generateModels } from './connectionResolver';
 import documents from './documents';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import internalNotes from './internalNotes';
 import aftermutations from './aftermutations';
 import forms from './forms';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'mobinet',
@@ -39,11 +36,6 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

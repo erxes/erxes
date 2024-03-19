@@ -1,6 +1,8 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
 import { parse } from 'url';
+import { getOrganizationIdBySubdomain } from './saas/saas';
+import { getEnv } from './core';
 
 export interface IFetchEsArgs {
   subdomain: string;
@@ -20,7 +22,7 @@ export const doSearch = async ({
   subdomain,
   index,
   value,
-  fields
+  fields,
 }: {
   subdomain: string;
   index: string;
@@ -30,15 +32,15 @@ export const doSearch = async ({
 }) => {
   const highlightFields = {};
 
-  fields.forEach(field => {
+  fields.forEach((field) => {
     highlightFields[field] = {};
   });
 
   const match = {
     multi_match: {
       query: value,
-      fields
-    }
+      fields,
+    },
   };
 
   let query: any = match;
@@ -54,24 +56,24 @@ export const doSearch = async ({
     body: {
       query: {
         bool: {
-          must: [query]
-        }
+          must: [query],
+        },
       },
       size: 10,
       highlight: {
-        fields: highlightFields
-      }
+        fields: highlightFields,
+      },
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   });
 
-  const results = fetchResults.hits.hits.map(result => {
+  const results = fetchResults.hits.hits.map((result) => {
     return {
       source: {
-        _id: result._id,
-        ...result._source
+        _id: getRealIdFromElk(result._id),
+        ...result._source,
       },
-      highlight: result.highlight
+      highlight: result.highlight,
     };
   });
 
@@ -79,6 +81,7 @@ export const doSearch = async ({
 };
 
 export const fetchEs = async ({
+  subdomain,
   action,
   index,
   body,
@@ -87,19 +90,50 @@ export const fetchEs = async ({
   scroll,
   size,
   ignoreError = false,
-  connectionString
+  connectionString,
 }: IFetchEsArgs) => {
   try {
+    const VERSION = getEnv({ name: 'VERSION' });
+    let organizationId = '';
+
+    if (VERSION && VERSION === 'saas') {
+      organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+      if (body && body.query) {
+        if (body.query.bool) {
+          if (body.query.bool.must) {
+            const extraQuery = {
+              term: {
+                organizationId,
+              },
+            };
+
+            if (body.query.bool.must.push) {
+              body.query.bool.must.push(extraQuery);
+            } else {
+              body.query.bool.must = [body.query.bool.must, extraQuery];
+            }
+          }
+        }
+      }
+
+      if (body && Object.keys(body).length === 0) {
+        body = { query: { match: { organizationId } } };
+      }
+    }
+
     const params: any = {
       index: `${getIndexPrefix(connectionString)}${index}`,
-      body
+      body,
     };
 
     if (action === 'search' && body && !body.size) {
       body.size = 10000;
     }
 
-    if (_id) {
+    if (_id && organizationId) {
+      params.id = `${organizationId}__${_id}`;
+    } else if (_id && !organizationId) {
       params.id = _id;
     }
 
@@ -115,7 +149,7 @@ export const fetchEs = async ({
   } catch (e) {
     if (!ignoreError) {
       debugError(
-        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`,
       );
     }
 
@@ -130,7 +164,7 @@ export const fetchEs = async ({
 const { ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
 
 export const client = new elasticsearch.Client({
-  hosts: [ELASTICSEARCH_URL]
+  hosts: [ELASTICSEARCH_URL],
 });
 
 export const getMappings = async (index: string) => {
@@ -176,7 +210,7 @@ export const fetchByQueryWithScroll = async ({
   index,
   positiveQuery,
   negativeQuery,
-  _source = '_id'
+  _source = '_id',
 }: {
   subdomain: string;
   index: string;
@@ -195,19 +229,19 @@ export const fetchByQueryWithScroll = async ({
       query: {
         bool: {
           must: positiveQuery,
-          must_not: negativeQuery
-        }
-      }
+          must_not: negativeQuery,
+        },
+      },
     },
-    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } }
+    defaultValue: { _scroll_id: '', hits: { total: { value: 0 }, hits: [] } },
   });
 
   const totalCount = response.hits.total.value;
   const scrollId = response._scroll_id;
 
   let ids = response.hits.hits
-    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
-    .filter(r => r);
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
 
   if (totalCount < 10000) {
     return ids;
@@ -220,7 +254,7 @@ export const fetchByQueryWithScroll = async ({
       break;
     }
 
-    ids = ids.concat(scrollResponse.hits.hits.map(hit => hit._id));
+    ids = ids.concat(scrollResponse.hits.hits.map((hit) => hit._id));
   }
 
   return ids;
@@ -231,7 +265,7 @@ export const fetchByQuery = async ({
   index,
   positiveQuery,
   negativeQuery,
-  _source = '_id'
+  _source = '_id',
 }: {
   subdomain: string;
   index: string;
@@ -248,14 +282,46 @@ export const fetchByQuery = async ({
       query: {
         bool: {
           must: positiveQuery,
-          must_not: negativeQuery
-        }
-      }
+          must_not: negativeQuery,
+        },
+      },
     },
-    defaultValue: { hits: { hits: [] } }
+    defaultValue: { hits: { hits: [] } },
   });
 
   return response.hits.hits
-    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
-    .filter(r => r);
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
+};
+
+export const getRealIdFromElk = (_id: string) => {
+  const arr = _id.split('__');
+
+  return arr.length === 2 ? arr[1] : arr[0];
+};
+
+export const generateElkIds = async (ids: string[], subdomain: string) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    if (ids && ids.length) {
+      const organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+      return ids.map((_id) => `${organizationId}__${_id}`);
+    }
+    return [];
+  }
+
+  return ids;
+};
+
+export const generateElkId = async (id: string, subdomain: string) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    const organizationId = await getOrganizationIdBySubdomain(subdomain);
+
+    return `${organizationId}__${id}`;
+  }
+  return id;
 };

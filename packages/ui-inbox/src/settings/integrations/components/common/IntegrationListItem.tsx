@@ -334,6 +334,7 @@ class IntegrationListItem extends React.Component<Props, State> {
             externalData: data.integrationsGetIntegrationDetail,
           });
           this.props.showExternalInfoColumn();
+          Alert.success('success');
         })
         .catch((e) => {
           Alert.error(e.message);

@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps, confirm } from 'modules/common/utils';
 import UserDetailForm from '@erxes/ui/src/team/containers/UserDetailForm';
 import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import React from 'react';
@@ -15,19 +15,23 @@ type Props = {
 };
 
 const Profile = (
-  props: Props & EditProfileMutationResponse & { currentUser: IUser }
+  props: Props & EditProfileMutationResponse & { currentUser: IUser },
 ) => {
   const { currentUser, usersEditProfile, queryParams } = props;
 
   const save = (variables: IUserDoc, callback: () => void) => {
-    usersEditProfile({ variables })
-      .then(() => {
-        Alert.success(`You've successfully updated this profile`);
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    confirm('This will permanently update are you absolutely sure?', {
+      hasUpdateConfirm: true,
+    }).then(() => {
+      usersEditProfile({ variables })
+        .then(() => {
+          Alert.success(`You've successfully updated this profile`);
+          callback();
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    });
   };
 
   const editForm = ({ user, closeModal }) => (
@@ -52,13 +56,13 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
           {
             query: gql(queries.userDetail),
             variables: {
-              _id: currentUser._id
-            }
-          }
-        ]
-      })
-    })
-  )(Profile)
+              _id: currentUser._id,
+            },
+          },
+        ],
+      }),
+    }),
+  )(Profile),
 );
 
 const WithConsumer = (props: Props) => {

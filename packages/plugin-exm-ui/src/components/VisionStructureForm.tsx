@@ -1,10 +1,10 @@
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
 
 type Props = {
   object?: any;
@@ -23,15 +23,15 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     this.state = {
       structure: (props.object && props.object.structure) || '',
-      vision: (props.object && props.object.vision) || ''
+      vision: (props.object && props.object.vision) || '',
     };
   }
 
-  onEditorChange = e => {
+  onEditorChange = (content: string) => {
     if (this.props.type === 'vision') {
-      this.setState({ vision: e.editor.getData() });
+      this.setState({ vision: content });
     } else {
-      this.setState({ structure: e.editor.getData() });
+      this.setState({ structure: content });
     }
   };
 
@@ -46,7 +46,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       structure: this.state.structure,
-      vision: this.state.vision
+      vision: this.state.vision,
     };
   };
 
@@ -55,7 +55,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return (
       <FormGroup>
-        <EditorCK
+        <RichTextEditor
           content={
             this.props.type === 'vision'
               ? this.state.vision
@@ -77,7 +77,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        renderButton={this.props.renderButton}
         name="exm"
         renderButton={this.props.renderButton}
         renderContent={this.renderContent}

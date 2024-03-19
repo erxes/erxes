@@ -18,6 +18,8 @@ export interface IInsuranceItem {
 
   feePercent?: number;
   totalFee?: number;
+
+  customerIds?: string[];
 }
 
 export interface IInsuranceItemDocument extends IInsuranceItem, Document {
@@ -39,12 +41,13 @@ const searchShema = {
 
   itemPrice: field({ type: Number }),
   itemFeePercent: field({ type: Number }),
-  itemTotalFee: field({ type: Number })
+  itemTotalFee: field({ type: Number }),
 };
 
 export const itemSchema = new Schema({
   _id: field({ pkey: true }),
   customerId: field({ type: String }),
+  customerIds: field({ type: [String] }),
   companyId: field({ type: String }),
   vendorUserId: field({ type: String, required: true }),
   productId: field({ type: String, required: true }),
@@ -57,5 +60,5 @@ export const itemSchema = new Schema({
   totalFee: field({ type: Number }),
   createdAt: field({ type: Date, default: Date.now }),
 
-  searchDictionary: field({ type: searchShema })
+  searchDictionary: field({ type: searchShema }),
 });

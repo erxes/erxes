@@ -6,7 +6,7 @@ const InsuranceItem = {
     return (
       item.dealId && {
         __typename: 'Deal',
-        _id: item.dealId
+        _id: item.dealId,
       }
     );
   },
@@ -15,7 +15,7 @@ const InsuranceItem = {
     return (
       item.vendorUserId && {
         __typename: 'ClientPortalUser',
-        _id: item.vendorUserId
+        _id: item.vendorUserId,
       }
     );
   },
@@ -36,7 +36,20 @@ const InsuranceItem = {
     if (item.companyId) {
       return { __typename: 'Company', _id: item.companyId };
     }
-  }
+  },
+
+  async categoryCode(item: IInsuranceItem, _params, { models }: IContext) {
+    const product = await models.Products.findOne({ _id: item.productId });
+    if (!product) {
+      return null;
+    }
+
+    const category = await models.Categories.findOne({
+      _id: product.categoryId,
+    });
+
+    return category && category.code;
+  },
 };
 
 export { InsuranceItem };

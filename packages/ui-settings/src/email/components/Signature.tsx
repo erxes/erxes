@@ -2,10 +2,10 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { IEmailSignatureWithBrand } from '../types';
 import Info from '@erxes/ui/src/components/Info';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
@@ -33,12 +33,11 @@ class Signature extends React.Component<Props, State> {
       signatures: props.signatures,
       currentId: undefined,
       content: '',
-      isSaved: false
+      isSaved: false,
     };
   }
 
-  onChangeContent = e => {
-    const content = e.editor.getData();
+  onChangeContent = (content: string) => {
     this.setState({ content });
 
     const current = this.getCurrent(this.state.currentId);
@@ -56,11 +55,11 @@ class Signature extends React.Component<Props, State> {
     }
 
     return this.state.signatures.find(
-      signature => (signature.brandId || '').toString() === currentId
+      (signature) => (signature.brandId || '').toString() === currentId,
     );
   };
 
-  changeCurrent = e => {
+  changeCurrent = (e) => {
     const currentId = e.target.value;
 
     this.setState({ currentId });
@@ -70,7 +69,7 @@ class Signature extends React.Component<Props, State> {
     return this.setState({ content: (current && current.signature) || '' });
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     const { save } = this.props;
@@ -100,11 +99,11 @@ class Signature extends React.Component<Props, State> {
         <ControlLabel>Signature</ControlLabel>
         <p>
           {__(
-            'An email signature is an opportunity to share information that helps build recognition and trust.'
+            'An email signature is an opportunity to share information that helps build recognition and trust.',
           )}
         </p>
 
-        <EditorCK
+        <RichTextEditor
           content={this.state.content}
           toolbar={MAIL_TOOLBARS_CONFIG}
           autoFocus={true}
@@ -130,7 +129,7 @@ class Signature extends React.Component<Props, State> {
             <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option value="">------------</option>
 
-              {this.props.signatures.map(signature => (
+              {this.props.signatures.map((signature) => (
                 <option key={signature.brandId} value={signature.brandId}>
                   {signature.brandName}
                 </option>

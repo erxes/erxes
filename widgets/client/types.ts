@@ -217,3 +217,10 @@ export interface IProduct {
   attachmentMore?: any[];
   category: IProductCategory;
 }
+
+export interface ICountry {
+  code: string;
+  name: string;
+  dialCode: string;
+  emoji: string;
+};

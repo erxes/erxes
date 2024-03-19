@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { CUSTOMER_STATUSES } from '../../common/constants';
+import { CONTACT_STATUSES } from '../../common/constants';
 
 export interface ISync {
   name: string;
@@ -26,15 +26,16 @@ export interface ISyncDocument extends ISync, Document {
   _id: string;
 }
 
-export interface ISyncedCustomers {
+export interface ISyncedContacts {
   syncId: string;
-  customerId: string;
-  syncedCustomerId: string;
+  contactType: string;
+  contactTypeId: string;
+  syncedContactTypeId: string;
   createdAt: string;
   status: string;
 }
 
-export interface ISyncedCustomersDocument extends ISyncedCustomers, Document {
+export interface ISyncedContactsDocument extends ISyncedContacts, Document {
   _id: string;
 }
 
@@ -48,7 +49,7 @@ export const syncSaasCategories = new Schema({
   parentId: field({ typ: String }),
   description: field({ type: String, label: 'Description' }),
   code: field({ type: String, label: 'Code' }),
-  order: field({ type: String, label: 'Order' })
+  order: field({ type: String, label: 'Order' }),
 });
 
 export const syncSaasSchema = new Schema({
@@ -60,13 +61,13 @@ export const syncSaasSchema = new Schema({
     type: String,
     label: 'Name',
     require: true,
-    unique: true
+    unique: true,
   }),
   appToken: field({
     type: String,
     label: 'Name',
     require: true,
-    unique: true
+    unique: true,
   }),
   startDate: field({ type: Date, label: 'Start Date', require: true }),
   expireDate: field({ type: Date, label: 'End Date', require: true }),
@@ -76,24 +77,31 @@ export const syncSaasSchema = new Schema({
   checkApproved: field({
     type: Boolean,
     label: 'Check Approved',
-    optional: true
-  })
+    optional: true,
+  }),
 });
 
-export const syncedCustomersSaas = new Schema({
+export const syncedContactsSaas = new Schema({
   _id: field({ pkey: true }),
   syncId: field({ type: String, label: 'Sync Id' }),
-  customerId: field({ type: String, label: 'Customer Id' }),
-  syncedCustomerId: field({ type: String, label: 'Customer Id' }),
+  contactType: field({ type: String, label: 'Content Type' }),
+  contactTypeId: field({
+    type: String,
+    label: 'Content Type Id',
+  }),
+  syncedContactTypeId: field({
+    type: String,
+    label: 'Synced Content Type Id',
+  }),
   status: field({
     type: String,
     label: 'status',
-    enum: CUSTOMER_STATUSES.ALL,
-    optional: true
+    enum: CONTACT_STATUSES.ALL,
+    optional: true,
   }),
   createdAt: field({
     type: Date,
     label: 'Created Date',
-    default: Date.now
-  })
+    default: Date.now,
+  }),
 });

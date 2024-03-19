@@ -19,14 +19,6 @@ module.exports = {
       "location":"mainNavigation"
     },
     {
-      "text":"Dictionary",
-      "url":"/plugin-zms/dictionary",
-      "icon":"icon-star",
-      "dictionary": 'mainConfig',
-      "scope": 'zms',
-      "location":"mainNavigation"
-    },
-    {
       text: 'Main config',
       image: '/images/icons/erxes-16.svg',
       to: '/plugin-zms/settings',

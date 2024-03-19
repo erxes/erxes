@@ -39,12 +39,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -53,9 +53,10 @@ const CustomFieldsSection = (props: FinalProps) => {
     save,
     loading,
     isDetail: false,
+    object: item,
     customFieldsData: item.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
-    doc: item
+    doc: item,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -78,18 +79,18 @@ export default (props: Props) => {
             contentType: `cards:${options.type}`,
             config: {
               boardId: item.boardId || '',
-              pipelineId: item.pipeline._id || ''
-            }
-          }
+              pipelineId: item.pipeline._id || '',
+            },
+          },
         }),
-        skip: !isEnabled('forms') ? true : false
+        skip: !isEnabled('forms') ? true : false,
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation'
-        }
-      )
-    )(CustomFieldsSection)
+          name: 'editMutation',
+        },
+      ),
+    )(CustomFieldsSection),
   );
 };

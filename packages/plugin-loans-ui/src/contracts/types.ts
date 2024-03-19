@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
+  IActivityLogForMonth,
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
@@ -80,6 +80,7 @@ export interface IContract {
   currency: string;
   expiredDays?: number;
   endDate?: number;
+  customFieldsData?: any;
 }
 
 export interface IContractGql {

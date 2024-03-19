@@ -1,5 +1,4 @@
-import { sendMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
 
@@ -7,9 +6,12 @@ import { generateModels } from './connectionResolver';
 import { sendRPCMessage } from './messageBrokerErkhet';
 import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
 import { getPostData, orderDeleteToErkhet } from './utils/orders';
-import { consumeQueue, consumeRPCQueue } from './messageBrokerErkhetHelper';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('multierkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;

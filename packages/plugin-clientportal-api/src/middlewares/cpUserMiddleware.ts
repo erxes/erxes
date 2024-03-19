@@ -2,13 +2,13 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-
+import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
 import { generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -28,22 +28,19 @@ export default async function cpUserMiddleware(
       'clientPortalLogin',
       'clientPortalLogout',
       'clientPortalLoginWithPhone',
+      'clientPortalLoginWithMailOTP',
       'clientPortalLoginWithSocialPay',
       'clientPortalRegister',
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail'
+      'clientPortalKnowledgeBaseTopicDetail',
     ].includes(operationName)
   ) {
     return next();
   }
 
-  const authHeader = req.headers.authorization;
-
-  const token = req.cookies['client-auth-token']
-    ? req.cookies['client-auth-token']
-    : authHeader && authHeader.split(' ')[1];
+  const token = extractClientportalToken(req);
 
   if (!token) {
     return next();
@@ -53,7 +50,7 @@ export default async function cpUserMiddleware(
     // verify user token and retrieve stored user information
     const verifyResult: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || ''
+      process.env.JWT_TOKEN_SECRET || '',
     );
 
     const { userId } = verifyResult;

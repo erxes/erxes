@@ -29,6 +29,7 @@ type Props = {
   clientPortalGetConfigs?: ClientPortalConfig[];
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
+  selectedCpId?: string;
 };
 
 type State = {
@@ -78,6 +79,7 @@ class MessageTypeStep extends React.Component<Props, State> {
           <FormControl
             id="businessPortalKind"
             componentClass="select"
+            defaultValue={this.props.businessPortalKind || ''}
             options={[
               { value: '', label: 'Select a business portal' },
               ...BUSINESS_PORTAL_KINDS.ALL.map((item) => ({
@@ -120,6 +122,7 @@ class MessageTypeStep extends React.Component<Props, State> {
           <FormControl
             id="cpId"
             value={this.state.cpId}
+            defaultValue={this.props.selectedCpId || ''}
             componentClass="select"
             options={[
               { value: '', label: `Select a ${businessPortalKind} portal` },

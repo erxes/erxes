@@ -13,7 +13,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'xyp:fetch',
     async ({ subdomain, data }: InterMessage): Promise<RPResult> => {

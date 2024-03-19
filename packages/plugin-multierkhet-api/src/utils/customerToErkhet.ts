@@ -29,6 +29,10 @@ export const customerToErkhet = async (models, params, action) => {
     const config = configs[brandId];
     name = name ? name : config.customerDefaultName;
 
+    if (!(config.apiKey && config.apiSecret && config.apiToken)) {
+      continue;
+    }
+
     const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
     try {
       sendData = {
@@ -94,6 +98,9 @@ export const companyToErkhet = async (models, params, action) => {
 
   for (const brandId of configBrandIds) {
     const config = configs[brandId];
+    if (!(config.apiKey && config.apiSecret && config.apiToken)) {
+      continue;
+    }
 
     const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
     try {

@@ -4,41 +4,41 @@ import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import {
   IRiskAssessmentsConfigModel,
-  loadRiskAssessmentsConfig
+  loadRiskAssessmentsConfig,
 } from './models/Configs';
 import {
   IRiskFormSubmissionModel,
-  loadRiskFormSubmissions
+  loadRiskFormSubmissions,
 } from './models/FormSubmissions';
 import { IOperationsModel, loadOperations } from './models/Operations';
 import { IPlansModel, loadPlans } from './models/Plans';
 import {
   IRiskAssessmentsModel,
-  loadRiskAssessments
+  loadRiskAssessments,
 } from './models/RiskAssessment';
 import {
   IIndicatorsGroupsModel,
   IRiskIndicatorsModel,
   loadIndicatorsGroups,
-  loadRiskIndicators
+  loadRiskIndicators,
 } from './models/RiskIndicator';
 import { IRiskFormSubmissionDocument } from './models/definitions/confimity';
 import {
   IIndicatorsGroupsDocument,
   IRiskAssessmentsConfigsDocument,
-  IRiskIndicatorsDocument
+  IRiskIndicatorsDocument,
 } from './models/definitions/indicator';
 import { IOperationsDocument } from './models/definitions/operations';
 import {
   IPlansDocument,
   ISchedulesDocument,
-  schedulesSchema
+  schedulesSchema,
 } from './models/definitions/plan';
 import {
   IRiskAssessmentIndicatorsDocument,
   IRiskAssessmentsDocument,
   riskAssessmentIndicatorsGroupsSchema,
-  riskAssessmentIndicatorsSchema
+  riskAssessmentIndicatorsSchema,
 } from './models/definitions/riskassessment';
 
 export interface IModels {
@@ -59,13 +59,11 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.RiskIndicators = db.model<
     IRiskIndicatorsDocument,
@@ -83,7 +81,7 @@ export const loadClasses = (
   >('risk_assessment_indicators', riskAssessmentIndicatorsSchema);
   models.RiskAssessmentGroups = db.model<any, any>(
     'risk_assessment_groups',
-    riskAssessmentIndicatorsGroupsSchema
+    riskAssessmentIndicatorsGroupsSchema,
   );
 
   models.RiskFormSubmissions = db.model<
@@ -103,22 +101,19 @@ export const loadClasses = (
 
   models.Operations = db.model<IOperationsDocument, IOperationsModel>(
     'operations',
-    loadOperations(models, subdomain)
+    loadOperations(models, subdomain),
   );
 
   models.Plans = db.model<IPlansDocument, IPlansModel>(
     'risk_assessments_plan',
-    loadPlans(models, subdomain)
+    loadPlans(models, subdomain),
   );
   models.Schedules = db.model<ISchedulesDocument, any>(
     'risk_assessments_schedules',
-    schedulesSchema
+    schedulesSchema,
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -1,8 +1,4 @@
-import {
-  MessageArgs,
-  MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
+import { MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { afterQueryHandlers } from './afterQueries';
 
@@ -15,7 +11,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;

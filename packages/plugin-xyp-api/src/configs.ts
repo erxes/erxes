@@ -3,14 +3,11 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import exporter from './exporter';
 import segments from './segment';
 import forms from './forms';
-
-export let mainDb;
-export let debug;
 
 export default {
   name: 'xyp',
@@ -33,13 +30,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     exporter,
     forms,

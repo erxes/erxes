@@ -13,8 +13,6 @@ const commonFields = `
   $listChange: String,
 
   $vintageYear: Float,
-  $importYear: Float,
-
   $diagnosisDate: Date
   $taxDate: Date
   $barrelWarranty: Date
@@ -96,7 +94,6 @@ const commonVariables = `
   listChange: $listChange,
 
   vintageYear: $vintageYear,
-  importYear: $importYear,
 
   taxDate: $taxDate,
   barrelWarranty: $barrelWarranty,
@@ -408,7 +405,18 @@ mutation ManualTopup($amount: Float!, $customerId: String!) {
   manualTopup(amount: $amount, customerId: $customerId)
 }
 `;
-
+const carLoadXyp = `
+mutation($_id: String!){
+  carLoadXyp(_id: $_id) {
+    _id
+  }
+}`;
+const xypDataCreateOrUpdate = `
+mutation XypDataCreateOrUpdate($contentType: String, $contentTypeId: String, $data: JSON) {
+  xypDataCreateOrUpdate(contentType: $contentType, contentTypeId: $contentTypeId, data: $data) {
+    _id
+  }
+}`;
 export default {
   carsAdd,
   carsEdit,
@@ -443,5 +451,7 @@ export default {
   editRoute,
   removeRoute,
 
-  manualTopup
+  manualTopup,
+  carLoadXyp,
+  xypDataCreateOrUpdate
 };

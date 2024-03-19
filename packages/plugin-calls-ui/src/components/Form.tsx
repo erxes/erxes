@@ -3,7 +3,7 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IFormProps } from '@erxes/ui/src/types';
@@ -21,7 +21,7 @@ const renderInput = (
   name: string,
   label: string,
   defaultValue: string,
-  formProps: any
+  formProps: any,
 ) => {
   return (
     <FormGroup>
@@ -40,7 +40,7 @@ const CallIntegrationForm = (props: IProps) => {
   const { closeModal, data = {}, setConfig } = props;
   const [selectedIntegrationId, setSelectedIntegrationId] = useState('');
   const integration = selectedIntegrationId
-    ? data?.find(d => d._id === selectedIntegrationId)
+    ? data?.find((d) => d._id === selectedIntegrationId)
     : data?.[0];
 
   const saveCallConfig = () => {
@@ -54,8 +54,8 @@ const CallIntegrationForm = (props: IProps) => {
           wsServer: integration?.wsServer,
           token: integration?.token,
           operators: integration?.operators,
-          isAvailable: true
-        })
+          isAvailable: true,
+        }),
       );
     // tslint:disable-next-line:no-unused-expression
     integration &&
@@ -65,7 +65,7 @@ const CallIntegrationForm = (props: IProps) => {
         wsServer: integration.wsServer,
         token: integration.token,
         operators: integration.operators,
-        isAvailable: true
+        isAvailable: true,
       });
     closeModal();
   };
@@ -81,8 +81,8 @@ const CallIntegrationForm = (props: IProps) => {
           wsServer: integration?.wsServer,
           token: integration?.token,
           operators: integration?.operators,
-          isAvailable: false
-        })
+          isAvailable: false,
+        }),
       );
     // tslint:disable-next-line:no-unused-expression
     integration &&
@@ -92,12 +92,12 @@ const CallIntegrationForm = (props: IProps) => {
         wsServer: integration.wsServer,
         token: integration.token,
         operators: integration.operators,
-        isAvailable: false
+        isAvailable: false,
       });
     closeModal();
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     setSelectedIntegrationId(e.target.value);
   };
 
@@ -114,7 +114,7 @@ const CallIntegrationForm = (props: IProps) => {
             onChange={onChange}
             required={true}
           >
-            {data?.map(int => (
+            {data?.map((int) => (
               <option key={int._id} value={int._id}>
                 {int.phone}
               </option>
@@ -125,27 +125,27 @@ const CallIntegrationForm = (props: IProps) => {
           'wsServer',
           'Web socket server',
           integration?.wsServer,
-          formProps
+          formProps,
         )}
 
         {integration?.operators.map((operator: any, index: number) => {
           return (
-            <>
+            <div key={index}>
               <ControlLabel>Operator {index + 1}</ControlLabel>
               {renderInput('userId', 'user id', operator.userId, formProps)}
               {renderInput(
                 'gsUsername',
                 'grandstream username',
                 operator.gsUsername,
-                formProps
+                formProps,
               )}
               {renderInput(
                 'gsPassword',
                 'grandstream password',
                 operator.gsPassword,
-                formProps
+                formProps,
               )}
-            </>
+            </div>
           );
         })}
 

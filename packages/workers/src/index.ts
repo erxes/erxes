@@ -3,35 +3,15 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { createServer } from 'http';
 import { filterXSS } from 'xss';
-import { connect } from './db/connection';
-
 import { initApolloServer } from './apolloClient';
-import { initBroker } from './messageBroker';
-import { join, leave, redis } from './serviceDiscovery';
-import * as mongoose from 'mongoose';
+import { join, leave } from './serviceDiscovery';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { generateErrors } from './data/modules/import/generateErrors';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { readFileRequest } from './worker/export/utils';
 import app from '@erxes/api-utils/src/app';
-
-async function closeMongooose() {
-  try {
-    await mongoose.connection.close();
-    console.log('Mongoose connection disconnected');
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function leaveServiceDiscovery() {
-  try {
-    await leave('worker', PORT);
-    console.log('Left from service discovery');
-  } catch (e) {
-    console.error(e);
-  }
-}
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+import { initBroker } from './messageBroker';
 
 async function closeHttpServer() {
   try {
@@ -51,9 +31,6 @@ async function closeHttpServer() {
 
 // load environment variables
 dotenv.config();
-
-// connect to mongo database
-connect();
 
 app.get(
   '/download-import-error',
@@ -98,48 +75,29 @@ app.use((error, _req, res, _next) => {
 
 const httpServer = createServer(app);
 
-const {
-  NODE_ENV,
-  PORT = '3700',
-  MONGO_URL = 'mongodb://localhost/erxes',
-  RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX,
-  TEST_MONGO_URL = 'mongodb://localhost/erxes-test',
-} = process.env;
+const { PORT = '3700' } = process.env;
 
 httpServer.listen(PORT, async () => {
-  let mongoUrl = MONGO_URL;
-
-  if (NODE_ENV === 'test') {
-    mongoUrl = TEST_MONGO_URL;
-  }
-
   await initApolloServer(app, httpServer);
-
-  // connect to mongo database
-  connect(mongoUrl).then(async () => {
-    initBroker().catch((e) => {
-      console.log(`Error ocurred during message broker init ${e.message}`);
-    });
-  });
 
   await join({
     name: 'workers',
     port: PORT,
-    dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
     meta: {},
   });
 
-  console.log(`GraphQL Server is now running on1 ${PORT}`);
+  await initBroker();
+
+  console.log(`GraphQL Server is now running on ${PORT}`);
 });
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     await closeHttpServer();
-    await closeMongooose();
-    await leaveServiceDiscovery();
+    await leave('worker', PORT);
+    await disconnect();
     process.exit(0);
   });
 });

@@ -10,16 +10,13 @@ import exporter from './exporter';
 import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import segments from './segments';
 import { getTransportData, updateTrackingData } from './utils';
 import payment from './payment';
 import app from '@erxes/api-utils/src/app';
-
-export let debug;
-export let mainDb;
 
 export default {
   name: 'tumentech',
@@ -78,6 +75,7 @@ export default {
   meta: {
     segments,
     forms,
+    permissions,
     afterMutations,
     exporter,
     dashboards,
@@ -97,13 +95,8 @@ export default {
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware],
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
-    initBroker();
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     app.use('/static', express.static(path.join(__dirname, '/public')));
   },
+  setupMessageConsumers,
 };

@@ -8,7 +8,7 @@ import {
   BoxContainer,
   FlexColumn,
   FormContentWrapper,
-  ReportsTemplatesSection
+  ReportsTemplatesSection,
 } from '../../styles';
 
 type Props = {
@@ -30,9 +30,8 @@ const ReportForm = (props: Props) => {
   const [serviceName, setServiceName] = useState('');
   const [reportName, setReportName] = useState('');
   const [reportTemplateType, setReportTemplateType] = useState(null);
-  const [reportTemplateDescription, setReportTemplateDescription] = useState(
-    ''
-  );
+  const [reportTemplateDescription, setReportTemplateDescription] =
+    useState('');
 
   const onModalTrigger = (template: any) => {
     setShowModal(true);
@@ -48,7 +47,7 @@ const ReportForm = (props: Props) => {
       <Wrapper.Header
         breadcrumb={[
           { title: __('Reports'), link: '/reports' },
-          { title: __('Create a report') }
+          { title: __('Create a report') },
         ]}
         title={__('Create a report')}
       />

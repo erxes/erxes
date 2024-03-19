@@ -7,6 +7,7 @@ import tumentechQuery from './tumentech';
 import topupsQuery from './topups';
 import accountsQuery from './accounts';
 import tumentechDealsQuery from './tumentechDeal';
+import advertisementQuery from './advertisement';
 
 export default {
   ...tumentechQuery,
@@ -17,5 +18,6 @@ export default {
   ...tripsQuery,
   ...topupsQuery,
   ...accountsQuery,
-  ...tumentechDealsQuery
+  ...tumentechDealsQuery,
+  ...advertisementQuery,
 };

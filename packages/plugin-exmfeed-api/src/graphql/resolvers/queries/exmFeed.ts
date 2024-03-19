@@ -1,19 +1,20 @@
 import { checkPermission, requireLogin } from '@erxes/api-utils/src';
 import * as moment from 'moment';
 import { sendCoreMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
 
 const getDateRange = (filterType: string) => {
   return {
     $gte: new Date(
       moment()
         .add(filterType === 'today' ? 0 : 1, 'days')
-        .format('YYYY-MM-DD')
+        .format('YYYY-MM-DD'),
     ),
     $lt: new Date(
       moment()
         .add(filterType === 'today' ? 1 : 8, 'days')
-        .format('YYYY-MM-DD')
-    )
+        .format('YYYY-MM-DD'),
+    ),
   };
 };
 
@@ -27,7 +28,7 @@ const exmFeedQueries = {
       'ceremonyData.willDate': any;
       contentType?: string;
     } = {
-      'ceremonyData.willDate': getDateRange(filterType)
+      'ceremonyData.willDate': getDateRange(filterType),
     };
 
     if (contentType) {
@@ -36,7 +37,7 @@ const exmFeedQueries = {
 
     return {
       list: await models.ExmFeed.find(filter),
-      totalCount: await models.ExmFeed.find(filter).countDocuments()
+      totalCount: await models.ExmFeed.find(filter).countDocuments(),
     };
   },
 
@@ -53,9 +54,9 @@ const exmFeedQueries = {
       startDate,
       endDate,
       bravoType,
-      category
+      category,
     },
-    { models, user, subdomain }
+    { models, user, subdomain },
   ) => {
     const departmentIds = user.departmentIds || [];
 
@@ -63,7 +64,7 @@ const exmFeedQueries = {
       subdomain,
       action: 'users.findOne',
       data: { _id: user._id },
-      isRPC: true
+      isRPC: true,
     });
 
     const branchIds = currentUser.branchIds || [];
@@ -72,33 +73,33 @@ const exmFeedQueries = {
       subdomain,
       action: 'units.find',
       data: {
-        userIds: user._id
+        userIds: user._id,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const unitIds = units.map(unit => unit._id) || [];
+    const unitIds = units.map((unit) => unit._id) || [];
 
     const unitCondition = [
       { unitId: { $exists: false } },
       { unitId: null },
-      { unitId: '' }
+      { unitId: '' },
     ];
 
     const branchCondition = [
       { branchIds: { $eq: [] } },
-      { branchIds: { $size: 0 } }
+      { branchIds: { $size: 0 } },
     ];
 
     const departmentCondition = [
       { departmentIds: { $eq: [] } },
-      { departmentIds: { $size: 0 } }
+      { departmentIds: { $size: 0 } },
     ];
 
     const recipientCondition = [
       { recipientIds: { $eq: [] } },
-      { recipientIds: { $size: 0 } }
+      { recipientIds: { $size: 0 } },
     ];
 
     const filter: any = {
@@ -107,8 +108,8 @@ const exmFeedQueries = {
           $and: [
             { branchIds: { $in: branchIds } },
             { unitId: { $in: unitIds } },
-            { departmentIds: { $in: departmentIds } }
-          ]
+            { departmentIds: { $in: departmentIds } },
+          ],
         },
         {
           $and: [
@@ -116,65 +117,65 @@ const exmFeedQueries = {
               $or: [
                 { branchIds: { $in: branchIds } },
                 { unitId: { $in: unitIds } },
-                { departmentIds: { $in: departmentIds } }
-              ]
-            }
-          ]
+                { departmentIds: { $in: departmentIds } },
+              ],
+            },
+          ],
         },
         {
           $and: [
             { branchIds: { $in: branchIds } },
-            { unitId: { $in: unitIds } }
-          ]
+            { unitId: { $in: unitIds } },
+          ],
         },
         {
           $and: [
             { branchIds: { $in: branchIds } },
-            { departmentIds: { $in: departmentIds } }
-          ]
+            { departmentIds: { $in: departmentIds } },
+          ],
         },
         {
           $and: [
             { unitId: { $in: unitIds } },
-            { departmentIds: { $in: departmentIds } }
-          ]
+            { departmentIds: { $in: departmentIds } },
+          ],
         },
         {
-          $and: [{ recipientIds: { $in: [user._id] } }]
+          $and: [{ recipientIds: { $in: [user._id] } }],
         },
         {
-          $and: [{ branchIds: { $in: branchIds } }]
+          $and: [{ branchIds: { $in: branchIds } }],
         },
         {
-          $and: [{ unitId: { $in: unitIds } }]
+          $and: [{ unitId: { $in: unitIds } }],
         },
         {
-          $and: [{ departmentIds: { $in: departmentIds } }]
+          $and: [{ departmentIds: { $in: departmentIds } }],
         },
         {
           $and: [
             {
-              $or: branchCondition
+              $or: branchCondition,
             },
             {
-              $or: unitCondition
+              $or: unitCondition,
             },
             {
-              $or: departmentCondition
+              $or: departmentCondition,
             },
             {
-              $or: recipientCondition
-            }
-          ]
+              $or: recipientCondition,
+            },
+          ],
         },
-        { createdBy: user._id }
-      ]
+        { createdBy: user._id },
+      ],
     };
 
     if (startDate && endDate) {
       filter.createdAt = {
         $gte: startDate,
-        $lt: endDate
+        $lt: endDate,
       };
     }
 
@@ -206,7 +207,7 @@ const exmFeedQueries = {
       } else {
         filter.$or.push(
           { recipientIds: { $in: [user._id] } },
-          { createdBy: user._id }
+          { createdBy: user._id },
         );
       }
     }
@@ -236,9 +237,9 @@ const exmFeedQueries = {
             { _id },
             {
               $set: {
-                isPinned: false
-              }
-            }
+                isPinned: false,
+              },
+            },
           );
         }
       }
@@ -246,11 +247,11 @@ const exmFeedQueries = {
       return {
         list: await models.ExmFeed.find(filter)
           .sort({
-            'ExmEventData.startDate': -1
+            'ExmEventData.startDate': -1,
           })
           .skip(skip || 0)
           .limit(limit || 20),
-        totalCount: await models.ExmFeed.find(filter).countDocuments()
+        totalCount: await models.ExmFeed.find(filter).countDocuments(),
       };
     }
 
@@ -259,9 +260,28 @@ const exmFeedQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 20),
-      totalCount: await models.ExmFeed.find(filter).countDocuments()
+      totalCount: await models.ExmFeed.find(filter).countDocuments(),
     };
-  }
+  },
+  exmFeedEventsByUser: async (
+    _root,
+    { userId },
+    { models, user, subdomain }: IContext,
+  ) => {
+    const getUserId = userId || user._id;
+
+    const goingEvents = await models.ExmFeed.find({
+      contentType: /event/gi,
+      'eventData.goingUserIds': getUserId,
+    });
+
+    const interestedEvents = await models.ExmFeed.find({
+      contentType: /event/gi,
+      'eventData.interestedUserIds': getUserId,
+    });
+
+    return { goingEvents, interestedEvents };
+  },
 };
 
 // checkPermission(exmFeedQueries, "exmFeedDetail", "showExmActivityFeed");

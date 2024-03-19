@@ -6,7 +6,6 @@
     "build" : "tsc"
   },
   "dependencies": {
-    "@erxes/api-utils" : "*",
-    "jsonwebtoken": "^8.5.1"
+    "@erxes/api-utils" : "*"
   }
 }

@@ -1,3 +1,166 @@
+
+
+
+
+### [1.6.3-rc.2](https://github.com/erxes/erxes/compare/1.6.3-rc.1...1.6.3-rc.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix time clock list ui  ([67196c9](https://github.com/erxes/erxes/commit/67196c9efe1f10ed7c60c2d3bea98619d54083fe))
+
+### [1.6.3-rc.1](https://github.com/erxes/erxes/compare/1.6.3-rc.0...1.6.3-rc.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* clean apolloClient timeout ([458ff06](https://github.com/erxes/erxes/commit/458ff06ce0470f581d4027e671a979c165f00d6c))
+
+### [1.6.3-rc.0](https://github.com/erxes/erxes/compare/1.6.2...1.6.3-rc.0) (2024-03-06)
+
+
+### Features
+
+* **calls:** as widgets and solved connection ([030670f](https://github.com/erxes/erxes/commit/030670fba8bca7fa2baf1ee402cf356554b43d1f))
+* **verifier:** Replace truemail with SendGrid Mail Verifier API ([d9d9cca](https://github.com/erxes/erxes/commit/d9d9cca852f400e271484e5d757670118b14810a))
+
+
+### Bug Fixes
+
+* (pos) posclient orders subscription update with subtoken ([7ad9ae8](https://github.com/erxes/erxes/commit/7ad9ae8708427d788f4f6a829a5a2073bc1b8252))
+* **forms:** fix custom properties on contacts list ([#5046](https://github.com/erxes/erxes/issues/5046)) ([f63646e](https://github.com/erxes/erxes/commit/f63646ec7332578195f8c7b8cad87bc87e35aaa5))
+* issue with the engage tag ([#5033](https://github.com/erxes/erxes/issues/5033)) ([e97e4d4](https://github.com/erxes/erxes/commit/e97e4d4b43cf81969c0767927107d566aa44bbe6))
+* offline pos message uncheck queuename ([251bd41](https://github.com/erxes/erxes/commit/251bd415fa5ede6da1a4ae6531bac9227a139716))
+* **payment:** Qpay quick qr credentials ([5def2ca](https://github.com/erxes/erxes/commit/5def2cab1688b4de9957b2a7ae4e2d01d978aa20))
+* **saas:** case where db is shared between tenants ([85eeef1](https://github.com/erxes/erxes/commit/85eeef1bbebc4b95c32d024274cf7f8ea85e356a))
+
+
+### Performance Improvements
+
+* (pos) show items sum amount on market theme  ([#5048](https://github.com/erxes/erxes/issues/5048)) ([f33340c](https://github.com/erxes/erxes/commit/f33340c0dd3ae143fd95bc28de0ffbcb750dd4ea))
+* **engage:** updated manual engage, added engage notification count ([4a84007](https://github.com/erxes/erxes/commit/4a84007947ab3887705f2d3d6feaaa8ec4216263))
+* product filter on the selected car deal depends on the car category ([#5037](https://github.com/erxes/erxes/issues/5037)) ([b42256d](https://github.com/erxes/erxes/commit/b42256de312f465ede0156094192a7c85089a4b5))
+
+### [1.6.2](https://github.com/erxes/erxes/compare/1.6.2-rc.5...1.6.2) (2024-03-06)
+
+### [1.6.2-rc.5](https://github.com/erxes/erxes/compare/1.6.2-rc.4...1.6.2-rc.5) (2024-03-05)
+
+
+### Bug Fixes
+
+* fix exmfeed,exm, chats plugins permssions not showing ([81318b5](https://github.com/erxes/erxes/commit/81318b5d2cf9c84f6a00f1b60434cb8b65c8ef0f))
+* fix facebook get env function ([83dcb7a](https://github.com/erxes/erxes/commit/83dcb7a3dd92246d532d831b3c834853449d4aef))
+* fix getEnv function for get domain ([b0c4f63](https://github.com/erxes/erxes/commit/b0c4f63a12ac75fb2e88cd459c371daf70f7c827))
+* fix saas transaction emails ([e746ce8](https://github.com/erxes/erxes/commit/e746ce8f6c8e5cd2f551ef7a7f31e331b6de5e90))
+
+
+### Performance Improvements
+
+* **cards:** add assigneduserIds field in cards schema ([e7e1770](https://github.com/erxes/erxes/commit/e7e1770860277be73fcc90d7d1b6e97b73c62969))
+
+## [1.6.2-rc.4](https://github.com/erxes/erxes/compare/1.6.2-rc.3...1.6.2-rc.4) (2024-02-29)
+
+
+### Performance Improvements
+
+* **respond box:** rich text editor performance  ([b5848d6](https://github.com/erxes/erxes/commit/b5848d6a4836c0cc96f843df65092a7b7fc08679))
+
+## [1.6.2-rc.3](https://github.com/erxes/erxes/compare/1.6.2-rc.2...1.6.2-rc.3) (2024-02-26)
+
+
+### Bug Fixes
+
+* **contacts:** add missing db index ([77c94a2](https://github.com/erxes/erxes/commit/77c94a2662544a5cfaa073bbd2c5378367399a7c))
+
+## [1.6.2-rc.2](https://github.com/erxes/erxes/compare/1.6.2-rc.1...1.6.2-rc.2) (2024-02-24)
+
+
+### Bug Fixes
+
+* **facebook:** check comment id ([a8fc2e0](https://github.com/erxes/erxes/commit/a8fc2e003551a2cafebcdbb38c672ff11961abb7))
+* **facebook:** check facebook comment id ([6675336](https://github.com/erxes/erxes/commit/6675336a34d74ab4782ce86ed51ec05dc0fb5017))
+* **facebook:** debug Facebook ([f142462](https://github.com/erxes/erxes/commit/f142462d00cd960e82dd0e6189116fde54432b20))
+* **facebook:** debug Facebook post ([2eca3a4](https://github.com/erxes/erxes/commit/2eca3a485d752a6e34e0c9471286e5b9576c6af9))
+* **Facebook:** refactor Facebook ([5df6447](https://github.com/erxes/erxes/commit/5df6447deb87fbd7f88c8abfc391e1e89609c2ae))
+* **facebook:** remove logs and refactor code ([df864b6](https://github.com/erxes/erxes/commit/df864b6f8b298270895bf2638ccacbb67f43132b))
+
+## [1.6.2-rc.1](https://github.com/erxes/erxes/compare/1.6.2-rc.0...1.6.2-rc.1) (2024-02-23)
+
+## [1.6.2-rc.0](https://github.com/erxes/erxes/compare/1.6.1...1.6.2-rc.0) (2024-02-22)
+
+
+### Bug Fixes
+
+* **exm:** Update feed ([#4967](https://github.com/erxes/erxes/issues/4967)) ([c25b5e5](https://github.com/erxes/erxes/commit/c25b5e511928a633309dabdfeeec424666adb80e))
+* syncpolaris ([fc12fff](https://github.com/erxes/erxes/commit/fc12fff071c64669b7a9c1d1413b961869b5d2ae))
+* **welcome:** Tutorial link ([#4960](https://github.com/erxes/erxes/issues/4960)) ([0ac29e9](https://github.com/erxes/erxes/commit/0ac29e90bc4c786ad78f1b26e3fadbcdb4d3fa72))
+
+
+### Features
+
+* **core:** merge saas with os ([202405a](https://github.com/erxes/erxes/commit/202405a505961811a97f6f26d48b34712325acbc))
+
+
+### Performance Improvements
+
+* **exm:** Update chat and feeds ([#4973](https://github.com/erxes/erxes/issues/4973)) ([58be121](https://github.com/erxes/erxes/commit/58be121d193708447967bbba09092b20775fe4e8))
+
+## [1.6.1](https://github.com/erxes/erxes/compare/1.6.1-rc.2...1.6.1) (2024-02-22)
+
+## [1.6.1-rc.2](https://github.com/erxes/erxes/compare/1.6.1-rc.1...1.6.1-rc.2) (2024-02-19)
+
+
+### Reverts
+
+* Revert "fix" ([d3603c4](https://github.com/erxes/erxes/commit/d3603c408a4faa51d34cd4c794ba46902489449f))
+* Revert "fix" ([b186a6a](https://github.com/erxes/erxes/commit/b186a6ac18782613afd2d5b8a060165c192933a6))
+
+## [1.6.1-rc.1](https://github.com/erxes/erxes/compare/1.6.1-rc.0...1.6.1-rc.1) (2024-02-08)
+
+## [1.6.1-rc.0](https://github.com/erxes/erxes/compare/1.6.0...1.6.1-rc.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* add index on logs ([0cf5818](https://github.com/erxes/erxes/commit/0cf5818f9fda4fba152c194016b3e22da9dfd08a))
+* **clientportal:** fix sendSms function ([686c3fa](https://github.com/erxes/erxes/commit/686c3fa98d1a654843fb5e51c8f2e5c538394e78))
+* **payment:** fix qpay quick qr api response & return qr_image instead of generate qrData from string ([c8377d0](https://github.com/erxes/erxes/commit/c8377d05f53e784db73ca8d317e5f8dd704ca7a2))
+
+
+### Features
+
+* add labelSelect customProperty with value and label selector ([64e27ee](https://github.com/erxes/erxes/commit/64e27ee31963b3aa62bd71bc46d14c6f4c7dc42e))
+* add syncpolaris plugin ([#4941](https://github.com/erxes/erxes/issues/4941)) ([5ed2da9](https://github.com/erxes/erxes/commit/5ed2da99be80b001362ee08e73a7bbfcbe7313e0))
+* auto fill deals bank amount when cards:deal invoices status change to paid ([2b5e47b](https://github.com/erxes/erxes/commit/2b5e47b7d8e9252119fd2a9dcbf94e775cf4154e))
+* **clientportal:** send otp code via mail ([#4931](https://github.com/erxes/erxes/issues/4931)) ([975560f](https://github.com/erxes/erxes/commit/975560fa65113f388f4ebfffdf038a18fcb81b4c))
+
+
+### Performance Improvements
+
+* **editor:** Added toolbar control config props to editor component ([#4899](https://github.com/erxes/erxes/issues/4899)) ([56e4f65](https://github.com/erxes/erxes/commit/56e4f650dc85cdab061b4911410322fb52023e0a))
+
+# [1.6.0](https://github.com/erxes/erxes/compare/1.6.0-rc.8...1.6.0) (2024-02-08)
+
+# [1.6.0-rc.8](https://github.com/erxes/erxes/compare/1.6.0-rc.7...1.6.0-rc.8) (2024-02-05)
+
+# [1.6.0-rc.7](https://github.com/erxes/erxes/compare/1.6.0-rc.6...1.6.0-rc.7) (2024-02-02)
+
+# [1.6.0-rc.6](https://github.com/erxes/erxes/compare/1.6.0-rc.5...1.6.0-rc.6) (2024-02-02)
+
+# [1.6.0-rc.5](https://github.com/erxes/erxes/compare/1.6.0-rc.4...1.6.0-rc.5) (2024-02-01)
+
+# [1.6.0-rc.4](https://github.com/erxes/erxes/compare/1.6.0-rc.3...1.6.0-rc.4) (2024-02-01)
+
+
+
+# [1.6.0-rc.2](https://github.com/erxes/erxes/compare/1.6.0-rc.1...1.6.0-rc.2) (2024-01-31)
+
+
+
+
+
+# [1.6.0-rc.1](https://github.com/erxes/erxes/compare/1.6.0-rc.0...1.6.0-rc.1) (2024-01-29)
+
 # [1.6.0-rc.0](https://github.com/erxes/erxes/compare/1.5.10...1.6.0-rc.0) (2024-01-25)
 
 

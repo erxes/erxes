@@ -7,13 +7,50 @@ import {
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('savings:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
       data: await models.Contracts.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('savings:contract.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'savings:contracts.getDepositAccount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const contractType = await models.ContractTypes.findOne({
+        isDeposit: true,
+      });
+      return {
+        status: 'success',
+        data: await models.Contracts.findOne({
+          contractTypeId: contractType?._id,
+          customerId: data.customerId,
+        }).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue('savings:contracts.update', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { selector, modifier } = data;
+    const result = await models.Contracts.updateOne(selector, modifier);
+
+    return {
+      status: 'success',
+      data: result,
     };
   });
 
@@ -25,6 +62,17 @@ export const initBroker = async () => {
       data: await models.Transactions.find(data).lean(),
     };
   });
+
+  consumeRPCQueue(
+    'savings:contractType.findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.ContractTypes.findOne(data).lean(),
+      };
+    },
+  );
 
   consumeRPCQueue(
     'savings:transactions.findAtContracts',

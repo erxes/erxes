@@ -5,9 +5,15 @@ import s from 'underscore.string';
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
-  SMS_DELIVERY_STATUSES
+  SMS_DELIVERY_STATUSES,
+  NOTIFICATION_DELIVERY_STATUSES,
 } from '@erxes/ui-engage/src/constants';
-import { Box, BoxContent, BoxHeader, IconContainer } from '@erxes/ui-engage/src/styles';
+import {
+  Box,
+  BoxContent,
+  BoxHeader,
+  IconContainer,
+} from '@erxes/ui-engage/src/styles';
 
 type Props = {
   count: number;
@@ -20,7 +26,7 @@ export default function EngageStatItem({
   count,
   kind,
   method,
-  totalCount
+  totalCount,
 }: Props) {
   let percent = 0;
 
@@ -40,8 +46,11 @@ export default function EngageStatItem({
   if (method === METHODS.SMS) {
     options = SMS_DELIVERY_STATUSES.OPTIONS;
   }
+  if (method === METHODS.NOTIFICATION) {
+    options = NOTIFICATION_DELIVERY_STATUSES.OPTIONS;
+  }
 
-  const option = options.find(opt => opt.value === kind);
+  const option = options.find((opt) => opt.value === kind);
   let icon = 'cube-2';
   let label = 'Total';
   let description = 'Total count';

@@ -2,11 +2,11 @@ import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  FacebookButton
+  FacebookButton,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IAccount,
-  IntegrationTypes
+  IntegrationTypes,
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { __, confirm } from 'coreui/utils';
 
@@ -18,13 +18,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 
 type Props = {
-  onSelect: (accountId?: string) => void;
+  onSelect: (accountId?: string, account?: IAccount) => void;
   accounts: IAccount[];
   formProps?: IFormProps;
   onAdd: () => void;
   kind: IntegrationTypes;
   renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
+  selectedAccountId?: string;
 };
 
 class Accounts extends React.Component<Props, { accountId?: string }> {
@@ -38,12 +39,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const accounts = this.props.accounts;
 
     if (accounts && accounts.length > 0) {
-      this.onSelectAccount(accounts[0]._id);
+      this.onSelectAccount(accounts[0]._id, accounts[0]);
+    }
+
+    if (this.props?.selectedAccountId) {
+      const account = (accounts || []).find(
+        (account) => account._id === this.props.selectedAccountId,
+      );
+      this.onSelectAccount(this.props.selectedAccountId, account);
     }
   };
 
-  onSelectAccount = (accountId: string) => {
-    this.props.onSelect(accountId);
+  onSelectAccount = (accountId: string, account?: IAccount) => {
+    this.props.onSelect(accountId, account);
 
     this.setState({ accountId: accountId || '' });
   };
@@ -96,13 +104,13 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       );
     }
 
-    return accounts.map(account => (
+    return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>{account.name}</span>
 
         <div>
           <Button
-            onClick={this.onSelectAccount.bind(this, account._id)}
+            onClick={this.onSelectAccount.bind(this, account._id, account)}
             btnStyle={
               this.state.accountId === account._id ? 'primary' : 'simple'
             }

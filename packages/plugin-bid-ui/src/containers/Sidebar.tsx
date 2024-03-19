@@ -7,7 +7,6 @@ import Alert from '@erxes/ui/src/utils/Alert';
 const GET_DATA = gql`
   query PolarisGetData($customerId: String!) {
     bidGetPolarisData(customerId: $customerId) {
-      _id
       createdAt
       customerId
       updatedAt
@@ -45,8 +44,9 @@ function AccoutSectionContainer(props: Props) {
   if (loading) {
     return <Spinner />;
   }
+  
 
-  let polarisData: any = data.bidGetPolarisData;
+  let polarisData: any = data ? data.bidGetPolarisData : null;
 
   const updateData = () => {
     updateMutation({ variables: { customerId } })

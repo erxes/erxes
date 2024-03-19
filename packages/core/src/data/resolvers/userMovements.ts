@@ -9,7 +9,7 @@ export default {
   async createdByDetail(
     userMovement: IUserMovementDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Users.findOne({ _id: userMovement.createdBy });
   },
@@ -17,7 +17,7 @@ export default {
   async userDetail(
     userMovement: IUserMovementDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Users.findOne({ _id: userMovement.userId });
   },
@@ -25,19 +25,23 @@ export default {
   async contentTypeDetail(
     userMovement: IUserMovementDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
     switch (userMovement.contentType) {
       case 'branch':
         return await models.Branches.findOne({
-          _id: userMovement.contentTypeId
+          _id: userMovement.contentTypeId,
         });
       case 'department':
         return await models.Departments.findOne({
-          _id: userMovement.contentTypeId
+          _id: userMovement.contentTypeId,
+        });
+      case 'position':
+        return await models.Positions.findOne({
+          _id: userMovement.contentTypeId,
         });
       default:
         return null;
     }
-  }
+  },
 };

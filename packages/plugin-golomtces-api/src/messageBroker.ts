@@ -7,7 +7,7 @@ import {
 
 dotenv.config();
 
-export const initBroker = async () => {};
+export const setupMessageConsumers = async () => {};
 
 export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({

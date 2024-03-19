@@ -1,6 +1,63 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
 const tagsAvailable = isEnabled('tags') ? true : false;
 
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
+const genericFields = `
+  _id
+  description
+  code
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
+  canHide
+  validation
+  options
+  isVisibleToCreate
+  locationOptions{
+    lat
+    lng
+    description
+  }
+  objectListConfigs{
+    key
+    label
+    type
+  }
+  groupId
+  searchable
+  showInCard
+  isRequired
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
 const userFields = `
   _id
   username
@@ -178,7 +235,7 @@ query reportServicesList{
   reportServicesList
 }`;
 
-const brands = `
+const allBrands = `
   query allBrands{
     allBrands{
       _id
@@ -196,9 +253,99 @@ const integrations = `
   }
 `;
 
+const tags = `  
+  query tags($type: String, $perPage:Int ) {
+    tags(type: $type, perPage: $perPage) {
+      _id
+      name
+      colorCode
+    }
+  }
+`;
+
+const boards = `
+  query boards($type: String!) {
+    boards(type: $type) {
+      _id
+      name
+
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+`;
+const stages = `
+  query stages($pipelineId: String!, $isAll: Boolean) {
+    stages(pipelineId: $pipelineId, isAll: $isAll) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
+const pipelines = `
+  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+      _id
+      name
+      boardId
+      state
+      startDate
+      endDate
+      itemsTotalCount
+    }
+  }
+`;
+
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
+
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
+      name
+      ${genericFields}
+      isMultiple
+      parentId
+      config
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      lastUpdatedUser {
+        details {
+          fullName
+        }
+      }
+      fields  {
+        ${commonFields}
+      }
+    }
+  }
+`;
 export default {
   reportsList,
-  brands,
+  allBrands,
   integrations,
   reportTemplatesList,
   reportChartTemplatesList,
@@ -207,4 +354,10 @@ export default {
 
   reportChartGetResult,
   reportServicesList,
+  tags,
+  boards,
+  pipelines,
+  pipelineLabels,
+  stages,
+  fieldsGroups,
 };

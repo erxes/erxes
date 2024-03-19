@@ -2,7 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../messageBroker';
 
-const generateFilter = params => {
+const generateFilter = (params) => {
   const {
     userId,
     startDate,
@@ -12,7 +12,7 @@ const generateFilter = params => {
     searchConsume,
     searchSend,
     searchResponse,
-    searchError
+    searchError,
   } = params;
 
   const query: any = {};
@@ -54,15 +54,15 @@ const generateFilter = params => {
 };
 
 const msdynamicQueries = {
-  async syncHistories(_root, params, { models }: IContext) {
+  async syncMsdHistories(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
     return paginate(models.SyncLogs.find(selector), params);
   },
 
-  async syncHistoriesCount(_root, params, { models }: IContext) {
+  async syncMsdHistoriesCount(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
     return models.SyncLogs.find(selector).count();
-  }
+  },
 };
 
 export default msdynamicQueries;

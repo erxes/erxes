@@ -30,6 +30,7 @@ export const automationFields = `
     label
     description
     position
+    isCustom
     count
   }
   actions {
@@ -220,5 +221,5 @@ export default {
   automationHistories,
   automationsTotalCount,
   automationConfigPrievewCount,
-  automationConstants
+  automationConstants,
 };

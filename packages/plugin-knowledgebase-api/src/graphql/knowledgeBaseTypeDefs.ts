@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
@@ -31,6 +31,7 @@ export const types = `
     summary: String
     content: String
     status: String
+    isPrivate: Boolean
     reactionChoices: [String]
     reactionCounts: JSON
     createdBy: String
@@ -52,6 +53,7 @@ export const types = `
     summary: String
     content: String!
     status: String!
+    isPrivate: Boolean
     reactionChoices: [String]
     categoryIds: [String]
     topicId: String
@@ -152,7 +154,7 @@ export const queries = `
   knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int

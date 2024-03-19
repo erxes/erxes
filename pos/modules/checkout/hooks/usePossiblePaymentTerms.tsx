@@ -5,6 +5,7 @@ import { coverConfigAtom } from "@/store/config.store"
 import { unPaidAmountAtom } from "@/store/order.store"
 import { useAtomValue } from "jotai"
 
+import useCapitron from "./useCapitron"
 import { useCheckNotSplit } from "./usePaymentType"
 
 const usePossiblePaymentTerms = () => {
@@ -13,6 +14,7 @@ const usePossiblePaymentTerms = () => {
   const { paymentIds } = config || {}
   const { loading: loadingKhan, isAlive: khan } = useKhanCard()
   const { paymentType: tdb } = useTDB()
+  const { paymentType: capitron } = useCapitron()
   const { isIncluded: golomt } = useGolomt()
   const { mappedPts, paidNotSplit } = useCheckNotSplit()
 
@@ -24,6 +26,7 @@ const usePossiblePaymentTerms = () => {
     paymentIds,
     khan,
     tdb,
+    capitron,
     golomt,
     mappedPts,
     notPaidAmount,

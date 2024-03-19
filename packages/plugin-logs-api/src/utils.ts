@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { IModels } from './connectionResolver';
 
@@ -243,7 +243,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
 };
 
 export const receivePutLogCommand = async (models: IModels, params) => {
-  debug.info(params);
+  debugInfo(params);
 
   const {
     createdBy,
@@ -336,18 +336,22 @@ export const fetchLogs = async (models: IModels, params) => {
     filter.createdAt = { $lte: new Date(end) };
   }
 
-  if (userId) {
-    filter.createdBy = userId;
-  }
-  if (action) {
-    filter.action = action;
-  }
   if (type) {
     filter.type = type;
   }
+
+  if (action) {
+    filter.action = action;
+  }
+
+  if (userId) {
+    filter.createdBy = userId;
+  }
+
   if (desc) {
     filter.description = { $regex: desc, $options: '$i' };
   }
+
   if (objectId) {
     filter.objectId = objectId;
   }

@@ -9,7 +9,7 @@ const mutations = {
   vendorAddInsuranceItem: async (
     _root,
     { doc },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -17,19 +17,19 @@ const mutations = {
 
     const { company, clientportal } = await verifyVendor({
       subdomain,
-      cpUser
+      cpUser,
     });
 
-    const { companyId, customerId } = doc;
+    const { companyId, customerId, customerIds } = doc;
 
-    if (!companyId && !customerId) {
+    if (!companyId && !customerId && (!customerIds || !customerIds.length)) {
       throw new Error('Customer or Company is required');
     }
 
     const itemDoc = {
       ...doc,
       vendorUserId: cpUser.userId,
-      status: 'active'
+      status: 'active',
     };
 
     const subject = `Даатгалын гэрээ - ${company.primaryName}`;
@@ -43,8 +43,8 @@ const mutations = {
         startDate: doc.startDate,
         customerId: doc.customerId,
         companyId: doc.companyId,
-        stageId: clientportal.dealStageId
-      }
+        stageId: clientportal.dealStageId,
+      },
     };
 
     const deal = await sendCommonMessage({
@@ -52,18 +52,34 @@ const mutations = {
       action: 'createCard',
       serviceName: 'clientportal',
       isRPC: true,
-      data: dealDoc
+      data: dealDoc,
     });
 
     if (!deal) {
       throw new Error('Deal not created');
     }
 
+    if (customerIds && customerIds.length) {
+      const conformities = customerIds.map((customerId) => ({
+        mainType: 'deal',
+        mainTypeId: deal._id,
+        relType: 'customer',
+        relTypeId: customerId,
+      }));
+
+      await sendCommonMessage({
+        serviceName: 'core',
+        subdomain,
+        action: 'conformities.addConformities',
+        data: conformities,
+      });
+    }
+
     itemDoc.dealId = deal._id;
     itemDoc.feePercent = 0;
 
     const product = await models.Products.findOne({
-      _id: itemDoc.productId
+      _id: itemDoc.productId,
     });
 
     if (!product) {
@@ -73,7 +89,7 @@ const mutations = {
     const companyProductConfigs = product.companyProductConfigs || [];
 
     const companyProductConfig = companyProductConfigs.find(
-      config => config.companyId === company._id
+      (config) => config.companyId === company._id,
     );
 
     if (!companyProductConfig) {
@@ -89,7 +105,8 @@ const mutations = {
       action: 'customers.findOne',
       serviceName: 'contacts',
       isRPC: true,
-      data: { _id: itemDoc.customerId }
+      data: { _id: itemDoc.customerId },
+      defaultValue: null,
     });
 
     const searchDictionary = {
@@ -98,13 +115,13 @@ const mutations = {
       dealCloseDate: new Date(deal.closeDate),
       dealStartDate: new Date(deal.startDate),
 
-      customerRegister: customer.code || '',
-      customerFirstName: customer.firstName || '',
-      customerLastName: customer.lastName || '',
+      customerRegister: (customer && customer.code) || '',
+      customerFirstName: (customer && customer.firstName) || '',
+      customerLastName: (customer && customer.lastName) || '',
 
       itemPrice: itemDoc.price,
       itemFeePercent: itemDoc.feePercent,
-      itemTotalFee: itemDoc.totalFee
+      itemTotalFee: itemDoc.totalFee,
     };
 
     itemDoc.searchDictionary = searchDictionary;
@@ -121,7 +138,7 @@ const mutations = {
   vendorEditInsuranceItem: async (
     _root,
     { _id, firstName, lastName, customFieldsData },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -129,7 +146,7 @@ const mutations = {
 
     await verifyVendor({
       subdomain,
-      cpUser
+      cpUser,
     });
 
     const item: any = await models.Items.findOne({ _id });
@@ -145,7 +162,7 @@ const mutations = {
         serviceName: 'contacts',
         isRPC: true,
         data: { _id: item.customerId },
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!customer) {
@@ -169,15 +186,15 @@ const mutations = {
         isRPC: true,
         data: {
           selector: { _id: item.customerId },
-          modifier
-        }
+          modifier,
+        },
       });
     }
 
     const doc: any = {
       _id: item._id,
       searchDictionary: item.searchDictionary || {},
-      ...customFieldsData
+      ...customFieldsData,
     };
 
     if (firstName) {
@@ -189,7 +206,7 @@ const mutations = {
     }
 
     return models.Items.updateInsuranceItem(doc, cpUser.userId);
-  }
+  },
 };
 
 export default mutations;

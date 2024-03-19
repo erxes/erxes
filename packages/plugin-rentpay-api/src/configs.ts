@@ -1,28 +1,19 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
-
-export let debug;
-export let mainDb;
-
-
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: 'rentpay',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
-  apolloServerContext: async context => {
+  apolloServerContext: async (context) => {
     return context;
   },
-  onServerInit: async options => {
-    initBroker();
-
-    mainDb = options.db;
-    debug = options.debug;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

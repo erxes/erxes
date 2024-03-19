@@ -36,6 +36,7 @@ const pipelines = `
       startDate
       endDate
       metric
+      isCheckDate
       isCheckUser
       isCheckDepartment
       excludeCheckUserIds
@@ -102,5 +103,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  expenses
+  expenses,
 };

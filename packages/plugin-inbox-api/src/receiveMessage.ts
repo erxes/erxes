@@ -175,9 +175,10 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
       conversationDoc,
     );
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
-    });
+    // FIXME: Find userId and `conversationClientMessageInserted:${userId}`
+    // graphqlPubsub.publish('conversationClientMessageInserted', {
+    //   conversationClientMessageInserted: message,
+    // });
 
     graphqlPubsub.publish(
       `conversationMessageInserted:${message.conversationId}`,
@@ -227,9 +228,10 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
 
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
-      await pConversationClientMessageInserted(models, subdomain, {
-        conversationId,
-      });
+      // FIXME: It must have _id
+      // await pConversationClientMessageInserted(models, subdomain, {
+      //   conversationId,
+      // });
     }
 
     return sendSuccess({ status: 'ok' });

@@ -3,6 +3,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IOTPConfig {
+  emailSubject?: any;
   content: string;
   codeLength: number;
   smsTransporterType: string;
