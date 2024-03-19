@@ -50,13 +50,13 @@ class CustomerContainer extends React.Component<FinalProps, State> {
     } = this.props;
     const { items } = this.state;
 
-    const toCheck = (type: string) => {
+    const toCheckPolaris = (type: string) => {
       this.setState({ loading: true });
       this.props
-        .toCheck({ variables: { type } })
+        .toCheckPolaris({ variables: { type } })
         .then((response) => {
           this.setState({
-            items: response.data.toCheck.results.items || [],
+            items: response.data.toCheckPolaris.results.items || [],
           });
           this.setState({ loading: false });
         })
@@ -66,10 +66,10 @@ class CustomerContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSync = (type: string, items: any[]) => {
+    const toSyncPolaris = (type: string, items: any[]) => {
       this.setState({ loading: true });
       this.props
-        .toSync({
+        .toSyncPolaris({
           variables: {
             type,
             items,
@@ -85,14 +85,14 @@ class CustomerContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const syncHistories = syncHistoriesQuery.syncHistories || [];
-    const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
+    const syncHistoriesPolaris = syncHistoriesQuery.syncHistoriesPolaris || [];
+    const totalCount = syncHistoriesCountQuery.syncHistoriesCountPolaris || 0;
     const updatedProps = {
       ...this.props,
       queryParams,
-      toCheck,
-      toSync,
-      syncHistories,
+      toCheckPolaris,
+      toSyncPolaris,
+      syncHistoriesPolaris,
       totalCount,
       items,
       contentType,
@@ -123,7 +123,7 @@ const generateParams = ({ queryParams }, { contentType }) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistories), {
+    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistoriesPolaris), {
       name: 'syncHistoriesQuery',
       options: ({ queryParams, contentType }) => ({
         variables: generateParams({ queryParams }, { contentType }),
@@ -131,7 +131,7 @@ export default withProps<Props>(
       }),
     }),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
-      gql(queries.syncHistoriesCount),
+      gql(queries.syncHistoriesCountPolaris),
       {
         name: 'syncHistoriesCountQuery',
         options: ({ queryParams, contentType }) => ({
@@ -140,11 +140,11 @@ export default withProps<Props>(
         }),
       },
     ),
-    graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheck), {
-      name: 'toCheck',
+    graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheckPolaris), {
+      name: 'toCheckPolaris',
     }),
-    graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSync), {
-      name: 'toSync',
+    graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSyncPolaris), {
+      name: 'toSyncPolaris',
     }),
   )(CustomerContainer),
 );

@@ -26,7 +26,7 @@ export const types = `
     syncedCustomer: String
   }
 
-  type erkhetRemainder {
+  type polarisRemainder {
     _id: String!
     remainder: Int
     remainders: [JSON]

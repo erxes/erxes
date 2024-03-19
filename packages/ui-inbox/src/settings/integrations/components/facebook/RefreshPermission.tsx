@@ -76,7 +76,7 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
   renderInstagramContent = () => {
     const onClick = () => {
       const { REACT_APP_API_URL } = getEnv();
-      const url = `${REACT_APP_API_URL}/pl:instagram/instagram/login?kind=instagram`;
+      const url = `${REACT_APP_API_URL}/pl:instagram/iglogin?kind=instagram`;
 
       this.popupWindow(url, 'Integration', window, 660, 750);
     };
