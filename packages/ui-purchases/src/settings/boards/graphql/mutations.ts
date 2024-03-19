@@ -9,24 +9,24 @@ const commonParams = `
 `;
 
 const boardAdd = `
-  mutation boardsAdd(${commonParamsDef}) {
-    boardsAdd(${commonParams}) {
+  mutation purchaseBoardsAdd(${commonParamsDef}) {
+    purchaseBoardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
-    boardsEdit(_id: $_id, ${commonParams}) {
+  mutation purchaseBoardsEdit($_id: String!, ${commonParamsDef}) {
+    purchaseBoardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation boardsRemove($_id: String!) {
-    boardsRemove(_id: $_id)
+  mutation purchaseBoardsRemove($_id: String!) {
+    purchaseBoardsRemove(_id: $_id)
   }
 `;
 
@@ -77,40 +77,40 @@ const commonPipelineParams = `
 `;
 
 const pipelineAdd = `
-  mutation pipelinesAdd(${commonPipelineParamsDef}) {
-    pipelinesAdd(${commonPipelineParams}) {
+  mutation purchasePipelinesAdd(${commonPipelineParamsDef}) {
+    purchasePipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation purchasePipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    purchasePipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation pipelinesRemove($_id: String!) {
-    pipelinesRemove(_id: $_id)
+  mutation purchasePipelinesRemove($_id: String!) {
+    purchasePipelinesRemove(_id: $_id)
   }
 `;
 const pipelinesArchive = `
-  mutation pipelinesArchive($_id: String!) {
-    pipelinesArchive(_id: $_id)
+  mutation purchasePipelinesArchive($_id: String!) {
+    purchasePipelinesArchive(_id: $_id)
   }
 `;
 
 const pipelinesCopied = `
-  mutation pipelinesCopied($_id: String!) {
-    pipelinesCopied(_id: $_id)
+  mutation purchasePipelinesCopied($_id: String!) {
+    purchasePipelinesCopied(_id: $_id)
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
-    pipelinesUpdateOrder(orders: $orders) {
+  mutation purchasePipelinesUpdateOrder($orders: [OrderItem]) {
+    purchasePipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }

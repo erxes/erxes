@@ -33,7 +33,7 @@ const purchaseMutations = {
   async manageExpenses(
     _root,
     doc: { expenseDocs: IExpense[] },
-    { user, models }: IContext,
+    { user, models }: IContext
   ) {
     await models.Expenses.updateMany({}, { $set: { status: 'deleted' } });
 
@@ -76,7 +76,7 @@ const purchaseMutations = {
   async purchasesAdd(
     _root,
     doc: IPurchase & { proccessId: string; aboveItemId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
@@ -84,7 +84,7 @@ const purchaseMutations = {
       doc,
       'purchase',
       models.Purchases.createPurchase,
-      user,
+      user
     );
   },
 
@@ -94,24 +94,24 @@ const purchaseMutations = {
   async purchasesEdit(
     _root,
     { _id, proccessId, ...doc }: IPurchaseEdit & { proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const oldpurchase = await models.Purchases.getPurchase(_id);
 
     if (doc.assignedUserIds) {
       const { removedUserIds } = checkUserIds(
         oldpurchase.assignedUserIds,
-        doc.assignedUserIds,
+        doc.assignedUserIds
       );
       const oldAssignedUserPdata = (oldpurchase.productsData || [])
         .filter((pdata) => pdata.assignUserId)
         .map((pdata) => pdata.assignUserId || '');
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
-        oldAssignedUserPdata.includes(userId),
+        oldAssignedUserPdata.includes(userId)
       );
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
-          'Cannot remove the team member, it is assigned in the product / service section',
+          'Cannot remove the team member, it is assigned in the product / service section'
         );
       }
     }
@@ -127,7 +127,7 @@ const purchaseMutations = {
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
-        assignedUsersPdata,
+        assignedUsersPdata
       );
 
       if (addedUserIds.length > 0 || removedUserIds.length > 0) {
@@ -135,7 +135,7 @@ const purchaseMutations = {
           doc.assignedUserIds || oldpurchase.assignedUserIds || [];
         assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
         assignedUserIds = assignedUserIds.filter(
-          (userId) => !removedUserIds.includes(userId),
+          (userId) => !removedUserIds.includes(userId)
         );
         doc.assignedUserIds = assignedUserIds;
       }
@@ -148,10 +148,10 @@ const purchaseMutations = {
       doc.productsData.length
     ) {
       const dataOfQuantity = doc.expensesData.filter(
-        (ed) => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY,
+        (ed) => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY
       );
       const dataOfAmount = doc.expensesData.filter(
-        (ed) => ed.type === EXPENSE_DIVIDE_TYPES.AMOUNT,
+        (ed) => ed.type === EXPENSE_DIVIDE_TYPES.AMOUNT
       );
 
       for (const pdata of doc.productsData) {
@@ -200,7 +200,7 @@ const purchaseMutations = {
       doc,
       proccessId,
       user,
-      models.Purchases.updatePurchase,
+      models.Purchases.updatePurchase
     );
   },
 
@@ -210,7 +210,7 @@ const purchaseMutations = {
   async purchasesChange(
     _root,
     doc: IItemDragCommonFields,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsChange(
       models,
@@ -218,7 +218,7 @@ const purchaseMutations = {
       doc,
       'purchase',
       user,
-      models.Purchases.updatePurchase,
+      models.Purchases.updatePurchase
     );
   },
 
@@ -228,7 +228,7 @@ const purchaseMutations = {
   async purchasesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsRemove(models, subdomain, _id, 'purchase', user);
   },
@@ -239,7 +239,7 @@ const purchaseMutations = {
   async purchasesWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user, models }: IContext,
+    { user, models }: IContext
   ) {
     return models.Purchases.watchPurchase(_id, isAdd, user._id);
   },
@@ -247,7 +247,7 @@ const purchaseMutations = {
   async purchasesCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsCopy(
       models,
@@ -257,14 +257,14 @@ const purchaseMutations = {
       'purchase',
       user,
       ['productsData', 'paymentsData', 'expensesData'],
-      models.Purchases.createPurchase,
+      models.Purchases.createPurchase
     );
   },
 
   async purchasesArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsArchive(
       models,
@@ -272,7 +272,7 @@ const purchaseMutations = {
       stageId,
       'purchase',
       proccessId,
-      user,
+      user
     );
   },
 
@@ -287,7 +287,7 @@ const purchaseMutations = {
       purchaseId: string;
       docs: IProductPurchaseData[];
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const purchase = await models.Purchases.getPurchase(purchaseId);
     const oldDataIds = (purchase.productsData || []).map((pd) => pd._id);
@@ -295,7 +295,7 @@ const purchaseMutations = {
     for (const doc of docs) {
       if (doc._id) {
         const checkDup = (purchase.productsData || []).find(
-          (pd) => pd._id === doc._id,
+          (pd) => pd._id === doc._id
         );
         if (checkDup) {
           throw new Error('Purchases productData duplicated');
@@ -306,15 +306,15 @@ const purchaseMutations = {
     const productsData = (purchase.productsData || []).concat(docs);
     await models.Purchases.updateOne(
       { _id: purchaseId },
-      { $set: { productsData } },
+      { $set: { productsData } }
     );
 
     const stage = await models.Stages.getStage(purchase.stageId);
     const updatedItem =
       (await models.Purchases.findOne({ _id: purchaseId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`purchasesPipelinesChanged:${stage.pipelineId}`, {
+      purchasesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -326,7 +326,7 @@ const purchaseMutations = {
               subdomain,
               user,
               'purchase',
-              updatedItem,
+              updatedItem
             )),
           },
         },
@@ -337,8 +337,8 @@ const purchaseMutations = {
       .filter((pd) => !oldDataIds.includes(pd._id))
       .map((pd) => pd._id);
 
-    graphqlPubsub.publish(`productsDataChanged:${purchaseId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`purchasesProductsDataChanged:${purchaseId}`, {
+      purchasesProductsDataChanged: {
         _id: purchaseId,
         proccessId,
         action: 'create',
@@ -369,11 +369,11 @@ const purchaseMutations = {
       dataId: string;
       doc: IProductPurchaseData;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const purchase = await models.Purchases.getPurchase(purchaseId);
     const oldPData = (purchase.productsData || []).find(
-      (pdata) => pdata.id === dataId,
+      (pdata) => pdata.id === dataId
     );
 
     if (!oldPData) {
@@ -381,20 +381,20 @@ const purchaseMutations = {
     }
 
     const productsData = (purchase.productsData || []).map((data) =>
-      data.id === dataId ? { ...doc } : data,
+      data.id === dataId ? { ...doc } : data
     );
 
     await models.Purchases.updateOne(
       { _id: purchaseId },
-      { $set: { productsData } },
+      { $set: { productsData } }
     );
 
     const stage = await models.Stages.getStage(purchase.stageId);
     const updatedItem =
       (await models.Purchases.findOne({ _id: purchaseId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`purchasesPipelinesChanged:${stage.pipelineId}`, {
+      purchasesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -406,15 +406,15 @@ const purchaseMutations = {
               subdomain,
               user,
               'purchase',
-              updatedItem,
+              updatedItem
             )),
           },
         },
       },
     });
 
-    graphqlPubsub.publish(`productsDataChanged:${purchaseId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`purchasesProductsDataChanged:${purchaseId}`, {
+      purchasesProductsDataChanged: {
         _id: purchaseId,
         proccessId,
         action: 'edit',
@@ -443,12 +443,12 @@ const purchaseMutations = {
       purchaseId: string;
       dataId: string;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const purchase = await models.Purchases.getPurchase(purchaseId);
 
     const oldPData = (purchase.productsData || []).find(
-      (pdata) => pdata.id === dataId,
+      (pdata) => pdata.id === dataId
     );
 
     if (!oldPData) {
@@ -456,20 +456,20 @@ const purchaseMutations = {
     }
 
     const productsData = (purchase.productsData || []).filter(
-      (data) => data.id !== dataId,
+      (data) => data.id !== dataId
     );
 
     await models.Purchases.updateOne(
       { _id: purchaseId },
-      { $set: { productsData } },
+      { $set: { productsData } }
     );
 
     const stage = await models.Stages.getStage(purchase.stageId);
     const updatedItem =
       (await models.Purchases.findOne({ _id: purchaseId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`purchasesPipelinesChanged:${stage.pipelineId}`, {
+      purchasesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -481,15 +481,15 @@ const purchaseMutations = {
               subdomain,
               user,
               'purchase',
-              updatedItem,
+              updatedItem
             )),
           },
         },
       },
     });
 
-    graphqlPubsub.publish(`productsDataChanged:${purchaseId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`purchasesProductsDataChanged:${purchaseId}`, {
+      purchasesProductsDataChanged: {
         _id: purchaseId,
         proccessId,
         action: 'delete',
@@ -512,13 +512,13 @@ checkPermission(purchaseMutations, 'purchasesEdit', 'purchasesEdit');
 checkPermission(
   purchaseMutations,
   'purchasesCreateProductsData',
-  'purchasesEdit',
+  'purchasesEdit'
 );
 checkPermission(purchaseMutations, 'purchasesEditProductData', 'purchasesEdit');
 checkPermission(
   purchaseMutations,
   'purchasesDeleteProductData',
-  'purchasesEdit',
+  'purchasesEdit'
 );
 checkPermission(purchaseMutations, 'purchasesRemove', 'purchasesRemove');
 checkPermission(purchaseMutations, 'purchasesWatch', 'purchasesWatch');

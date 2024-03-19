@@ -19,11 +19,6 @@ import {
   queries as plQueries,
   mutations as plMutations,
 } from './schema/pipelineLabel';
-import {
-  types as ptTypes,
-  queries as ptQueries,
-  mutations as ptMutations,
-} from './schema/pipelineTemplate';
 import { types as CommonTypes } from './schema/common';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -82,7 +77,6 @@ const typeDefs = async () => {
     ${purchaseTypes(isEnabledTable)}
 
     ${plTypes}
-    ${ptTypes}
     ${CommonTypes}
     ${checkListTypes}
     
@@ -91,7 +85,6 @@ const typeDefs = async () => {
       ${purchaseQueries}
 
       ${plQueries}
-      ${ptQueries}
       ${checkListQueries}
     }
     
@@ -99,7 +92,6 @@ const typeDefs = async () => {
       ${boardMutations}
       ${purchaseMutations}
       ${plMutations}
-      ${ptMutations}
       ${checkListMutations}
     }
   `;

@@ -15,22 +15,22 @@ interface IChecklistItemsEdit extends IChecklistItem {
   _id: string;
 }
 
-const checklistsChanged = (checklist: IChecklistsEdit) => {
+const purchasesChecklistsChanged = (checklist: IChecklistsEdit) => {
   graphqlPubsub.publish(
-    `checklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
+    `purchasesChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
     {
-      checklistsChanged: {
+      purchasesChecklistsChanged: {
         _id: checklist._id,
         contentType: checklist.contentType,
         contentTypeId: checklist.contentTypeId,
       },
-    },
+    }
   );
 };
 
-const checklistDetailChanged = (_id: string) => {
-  graphqlPubsub.publish(`checklistDetailChanged:${_id}`, {
-    checklistDetailChanged: {
+const purchasesChecklistDetailChanged = (_id: string) => {
+  graphqlPubsub.publish(`purchasesChecklistDetailChanged:${_id}`, {
+    purchasesChecklistDetailChanged: {
       _id,
     },
   });
@@ -40,10 +40,10 @@ const checklistMutations = {
   /**
    * Adds checklist object and also adds an activity log
    */
-  async checklistsAdd(
+  async purchaseChecklistsAdd(
     _root,
     args: IChecklist,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain }: IContext
   ) {
     const checklist = await models.Checklists.createChecklist(args, user);
 
@@ -55,10 +55,10 @@ const checklistMutations = {
         newData: args,
         object: checklist,
       },
-      user,
+      user
     );
 
-    checklistsChanged(checklist);
+    purchasesChecklistsChanged(checklist);
 
     return checklist;
   },
@@ -66,10 +66,10 @@ const checklistMutations = {
   /**
    * Updates checklist object
    */
-  async checklistsEdit(
+  async purchaseChecklistsEdit(
     _root,
     { _id, ...doc }: IChecklistsEdit,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const checklist = await models.Checklists.getChecklist(_id);
     const updated = await models.Checklists.updateChecklist(_id, doc);
@@ -83,10 +83,10 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated,
       },
-      user,
+      user
     );
 
-    checklistDetailChanged(_id);
+    purchasesChecklistDetailChanged(_id);
 
     return updated;
   },
@@ -94,10 +94,10 @@ const checklistMutations = {
   /**
    * Removes a checklist
    */
-  async checklistsRemove(
+  async purchaseChecklistsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const checklist = await models.Checklists.getChecklist(_id);
     const removed = await models.Checklists.removeChecklist(_id);
@@ -106,10 +106,10 @@ const checklistMutations = {
       models,
       subdomain,
       { type: 'checklist', object: checklist },
-      user,
+      user
     );
 
-    checklistsChanged(checklist);
+    purchasesChecklistsChanged(checklist);
 
     return removed;
   },
@@ -117,14 +117,14 @@ const checklistMutations = {
   /**
    * Adds a checklist item and also adds an activity log
    */
-  async checklistItemsAdd(
+  async purchaseChecklistItemsAdd(
     _root,
     args: IChecklistItem,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const checklistItem = await models.ChecklistItems.createChecklistItem(
       args,
-      user,
+      user
     );
 
     await putCreateLog(
@@ -135,10 +135,10 @@ const checklistMutations = {
         newData: args,
         object: checklistItem,
       },
-      user,
+      user
     );
 
-    checklistDetailChanged(checklistItem.checklistId);
+    purchasesChecklistDetailChanged(checklistItem.checklistId);
 
     return checklistItem;
   },
@@ -146,10 +146,10 @@ const checklistMutations = {
   /**
    * Updates a checklist item
    */
-  async checklistItemsEdit(
+  async purchaseChecklistItemsEdit(
     _root,
     { _id, ...doc }: IChecklistItemsEdit,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const updated = await models.ChecklistItems.updateChecklistItem(_id, doc);
@@ -163,10 +163,10 @@ const checklistMutations = {
         newData: doc,
         updatedDocument: updated,
       },
-      user,
+      user
     );
 
-    checklistDetailChanged(updated.checklistId);
+    purchasesChecklistDetailChanged(updated.checklistId);
 
     return updated;
   },
@@ -174,10 +174,10 @@ const checklistMutations = {
   /**
    * Removes a checklist item
    */
-  async checklistItemsRemove(
+  async purchaseChecklistItemsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const removed = await models.ChecklistItems.removeChecklistItem(_id);
@@ -186,18 +186,18 @@ const checklistMutations = {
       models,
       subdomain,
       { type: 'checkListItem', object: checklistItem },
-      user,
+      user
     );
 
-    checklistDetailChanged(checklistItem.checklistId);
+    purchasesChecklistDetailChanged(checklistItem.checklistId);
 
     return removed;
   },
 
-  async checklistItemsOrder(
+  async purchaseChecklistItemsOrder(
     _root,
     { _id, destinationIndex }: { _id: string; destinationIndex: number },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },

@@ -413,10 +413,10 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    'purchases:pipelinesChanged',
+    'purchases:purchasesPipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
+      graphqlPubsub.publish('purchasesPipelinesChanged', {
+        purchasesPipelinesChanged: {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
@@ -431,13 +431,13 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    'purchases:productsDataChanged',
+    'purchases:purchasesProductsDataChanged',
     async ({
       subdomain,
       data: { dealId, action, dataId, doc, productsData },
     }) => {
-      graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
-        productsDataChanged: {
+      graphqlPubsub.publish(`purchasesProductsDataChanged:${dealId}`, {
+        purchasesProductsDataChanged: {
           _id: dealId,
           proccessId: Math.random(),
           action,
