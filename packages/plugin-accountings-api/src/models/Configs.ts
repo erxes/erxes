@@ -4,7 +4,7 @@ import {
   accountingsConfigSchema,
   IAccountingsConfig,
   IAccountingsConfigDocument,
-} from './definitions/configs';
+} from './definitions/config';
 
 export interface IAccountingsConfigModel
   extends Model<IAccountingsConfigDocument> {

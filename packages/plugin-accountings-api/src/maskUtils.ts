@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { IAccountCategory } from './models/definitions/accounts';
+import { IAccountCategory } from './models/definitions/accountCategory';
 
 export const checkCodeMask = async (
   category?: IAccountCategory,

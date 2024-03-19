@@ -12,8 +12,8 @@ import { IModels } from './connectionResolver';
 import {
   IAccountDocument,
   accountSchema,
-  accountCategorySchema,
-} from './models/definitions/accounts';
+} from './models/definitions/account';
+import { accountCategorySchema } from './models/definitions/accountCategory';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',

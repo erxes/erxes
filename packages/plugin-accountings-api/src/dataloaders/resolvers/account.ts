@@ -1,6 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { IAccountDocument } from '../../models/definitions/accounts';
-import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
+import { IAccountDocument } from '../../models/definitions/account';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

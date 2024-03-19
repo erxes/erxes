@@ -3,11 +3,13 @@ import Account from './account';
 import AccountCategory from './accountCategory';
 import {
   AccountingsConfigs as MutationsAccountingsConfig,
-  Accounts as Mutations,
+  AccountCategories as MutationsAccountCategory,
+  Accounts as MutationsAccount,
 } from './mutations';
 import {
   AccountingsConfigs as QueriesAccountingsConfig,
-  Accounts as Queries,
+  AccountCategories as QueriesAccountCategory,
+  Accounts as QueriesAccount,
 } from './queries';
 
 const resolvers: any = {
@@ -15,11 +17,13 @@ const resolvers: any = {
   Account,
   AccountCategory,
   Mutation: {
-    ...Mutations,
+    ...MutationsAccountCategory,
+    ...MutationsAccount,
     ...MutationsAccountingsConfig,
   },
   Query: {
-    ...Queries,
+    ...QueriesAccount,
+    ...QueriesAccountCategory,
     ...QueriesAccountingsConfig,
   },
 };

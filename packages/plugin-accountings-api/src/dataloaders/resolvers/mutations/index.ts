@@ -1,4 +1,5 @@
 import Accounts from './accounts';
+import AccountCategories from './accountCategories';
 import AccountingsConfigs from './configs';
 
-export { Accounts, AccountingsConfigs };
+export { Accounts, AccountCategories, AccountingsConfigs };

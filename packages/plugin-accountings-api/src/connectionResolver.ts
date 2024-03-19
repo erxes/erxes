@@ -1,16 +1,20 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
-  IAccountCategoryModel,
   IAccountModel,
-  loadAccountCategoryClass,
   loadAccountClass,
 } from './models/Accounts';
 import {
-  IAccountCategoryDocument,
+  IAccountCategoryModel,
+  loadAccountCategoryClass,
+} from './models/AccountCategories';
+import {
   IAccountDocument,
-} from './models/definitions/accounts';
-import { IAccountingsConfigDocument } from './models/definitions/configs';
+} from './models/definitions/account';
+import {
+  IAccountCategoryDocument,
+} from './models/definitions/accountCategory';
+import { IAccountingsConfigDocument } from './models/definitions/config';
 import {
   IAccountingsConfigModel,
   loadAccountingsConfigClass,
