@@ -131,8 +131,8 @@ class PutResponsesDuplicatedContainer extends React.Component<
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   billType: queryParams.billType,
-  startDate: queryParams.createdStartDate,
-  endDate: queryParams.createdEndDate,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
 });
 
 export default withProps<Props>(
