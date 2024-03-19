@@ -67,7 +67,14 @@ enum NetworkType {
     productId: String
     price: Float
   }
-
+  type DrawnPoints {
+    lat: Float
+    lng: Float
+  }
+  input DrawnPointsInput {
+    lat: Float
+    lng: Float
+  }
 
   type Building @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String
@@ -104,6 +111,7 @@ enum NetworkType {
     suh: Company
 
     productPriceConfigs: [ProductPriceConfig]
+    drawnPoints: [DrawnPoints]
 
     customersCount: Int
     companiesCount: Int
@@ -158,6 +166,7 @@ const mutationParams = `
     networkType: NetworkType
     suhId: String
     customFieldsData: JSON
+    drawnPoints: [DrawnPointsInput]
 `;
 
 export const mutations = `

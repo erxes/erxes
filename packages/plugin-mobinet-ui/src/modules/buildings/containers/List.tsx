@@ -95,7 +95,7 @@ export default function BuildingContainer(props: Props) {
 
   let buildings = (data && data.buildingList.list) || [];
 
-  if (props.viewType === '3d') {
+  if (props.viewType === '3d' || props.viewType === '2d') {
     buildings =
       (buildingsByBoundsData && buildingsByBoundsData.buildingsByBounds) || [];
   }

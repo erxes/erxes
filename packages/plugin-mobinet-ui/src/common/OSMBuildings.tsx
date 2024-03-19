@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ICoordinates } from '../types';
+import { IBuilding } from '../modules/buildings/types';
 
 type Props = {
   id: string;
@@ -7,7 +8,7 @@ type Props = {
   // height?: string;
   style?: any;
   center?: ICoordinates;
-
+  buildings: IBuilding[];
   onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
   onChange: (data: any) => void;
   onload?: (bounds: ICoordinates[], mapRef: any) => void;
