@@ -1,4 +1,3 @@
-import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
@@ -6,14 +5,13 @@ import redisUtils from '../redisUtils';
 import {
   IInvoice,
   IInvoiceDocument,
-  invoiceSchema
+  invoiceSchema,
 } from './definitions/invoices';
-import ErxesPayment from '../api/ErxesPayment';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { PAYMENT_STATUS } from '../api/constants';
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(doc: any, leanObject?: boolean): IInvoiceDocument;
-  createInvoice(doc: IInvoice & { domain: string }): Promise<IInvoiceDocument>;
+  createInvoice(doc: IInvoice): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string): Promise<string>;
@@ -34,196 +32,42 @@ export const loadInvoiceClass = (models: IModels) => {
       return invoice;
     }
 
-    public static async createInvoice(doc: IInvoice & { domain: string }) {
+    public static async createInvoice(doc: IInvoice) {
       if (!doc.amount && doc.amount === 0) {
         throw new Error('Amount is required');
       }
 
-      const payment = await models.Payments.getPayment(doc.selectedPaymentId);
-
-      const invoice = await models.Invoices.create({
-        ...doc,
-        identifier: doc.identifier || randomAlphanumeric(32)
-      });
-
-      if (!doc.selectedPaymentId) {
-        return invoice;
-      }
-
-      const api = new ErxesPayment(payment, doc.domain);
-
-      try {
-        const apiResponse = await api.createInvoice(invoice);
-        invoice.apiResponse = apiResponse;
-        invoice.selectedPaymentId = payment._id;
-        invoice.paymentKind = payment.kind;
-
-        await invoice.save();
-
-        return invoice;
-      } catch (e) {
-        await models.Invoices.deleteOne({ _id: invoice._id });
-
-        debugError(
-          `Failed to create invoice with type ${invoice.paymentKind}. Error message: ${e.message}`
-        );
-        throw new Error(e.message);
-      }
+      return models.Invoices.create(doc);
     }
 
     public static async updateInvoice(_id: string, doc: any) {
-      const invoice = await models.Invoices.getInvoice({ _id });
+      const result = await models.Invoices.updateOne({ _id }, { $set: doc });
 
-      if (doc.phone) {
-        invoice.phone = doc.phone;
+      if (result.n === 0) {
+        throw new Error('Invoice not found');
       }
 
-      if (invoice.status !== 'pending') {
-        throw new Error('Already settled');
-      }
-
-      if (!invoice.selectedPaymentId && !invoice.apiResponse) {
-        try {
-          const payment = await models.Payments.getPayment(
-            doc.selectedPaymentId
-          );
-
-          const api = new ErxesPayment(payment, doc.domain);
-          invoice.identifier = doc.identifier || randomAlphanumeric(32);
-
-          const apiResponse = await api.createInvoice(invoice);
-
-          await models.Invoices.updateOne(
-            { _id },
-            {
-              $set: {
-                apiResponse,
-                paymentKind: payment.kind,
-                selectedPaymentId: payment._id,
-                createdAt: new Date(),
-              }
-            }
-          );
-
-          return models.Invoices.getInvoice({ _id });
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      }
-
-      if (!invoice.apiResponse) {
-        await models.Invoices.updateOne({ _id }, { $set: doc });
-        try {
-          const payment = await models.Payments.getPayment(
-            doc.selectedPaymentId
-          );
-
-          const api = new ErxesPayment(payment, doc.domain);
-          invoice.identifier = doc.identifier || randomAlphanumeric(32);
-
-          const apiResponse = await api.createInvoice(invoice);
-
-          await models.Invoices.updateOne(
-            { _id },
-            {
-              $set: {
-                apiResponse,
-                paymentKind: payment.kind,
-                selectedPaymentId: payment._id,
-                createdAt: new Date(),
-                identifier: invoice.identifier
-              }
-            }
-          );
-
-          return models.Invoices.getInvoice({ _id });
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      }
-
-      if (invoice.selectedPaymentId === doc.selectedPaymentId) {
-        await models.Invoices.updateOne({ _id }, { $set: doc });
-
-        if (doc.paymentKind === 'storepay') {
-          const payment = await models.Payments.getPayment(
-            doc.selectedPaymentId
-          );
-          const apiResponse = await new ErxesPayment(
-            payment,
-            doc.domain
-          ).createInvoice(invoice);
-
-          await models.Invoices.updateOne(
-            { _id },
-            {
-              $set: {
-                apiResponse,
-                paymentKind: payment.kind,
-                selectedPaymentId: payment._id,
-                createdAt: new Date()
-              }
-            }
-          );
-        }
-
-        return models.Invoices.getInvoice({ _id });
-      }
-
-      const prevPayment = await models.Payments.getPayment(
-        invoice.selectedPaymentId
-      );
-      const newPayment = await models.Payments.getPayment(
-        doc.selectedPaymentId
-      );
-
-      new ErxesPayment(prevPayment).cancelInvoice(invoice);
-
-      try {
-        invoice.identifier = doc.identifier || randomAlphanumeric(32);
-        const apiResponse = await new ErxesPayment(
-          newPayment,
-          doc.domain
-        ).createInvoice(invoice);
-
-        await models.Invoices.updateOne(
-          { _id },
-          {
-            $set: {
-              identifier: invoice.identifier,
-              apiResponse,
-              paymentKind: newPayment.kind,
-              selectedPaymentId: newPayment._id,
-              createdAt: new Date()
-            }
-          }
-        );
-
-        return models.Invoices.getInvoice({ _id });
-      } catch (e) {
-        await models.Invoices.deleteOne({ _id: invoice._id });
-        throw new Error(e.message);
-      }
+      return models.Invoices.getInvoice({ _id });
     }
 
     public static async cancelInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      if (invoice.status !== 'pending') {
-        throw new Error('Already settled');
-      }
+      // if (invoice.status !== 'pending') {
+      //   throw new Error('Already settled');
+      // }
 
-      const payment = await models.Payments.getPayment(
-        invoice.selectedPaymentId
-      );
+      // const payment = await models.PaymentMethods.getPayment(
+      //   invoice.selectedPaymentId
+      // );
 
-      const api = new ErxesPayment(payment);
+      // const api = new ErxesPayment(payment);
 
-      api.cancelInvoice(invoice);
+      // api.cancelInvoice(invoice);
 
-      await models.Invoices.deleteOne({ _id });
+      // await models.Invoices.deleteOne({ _id });
 
-      redisUtils.removeInvoice(_id);
+      // redisUtils.removeInvoice(_id);
 
       return 'success';
     }
@@ -231,32 +75,51 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async checkInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      if (!invoice.selectedPaymentId || !invoice.selectedPaymentId.length) {
-        return 'pending';
+      const totalAmount = await models.Transactions.aggregate([
+        {
+          $match: {
+            invoiceId: _id,
+            status: 'paid',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$amount' },
+          },
+        },
+      ]);
+
+      if (totalAmount.length === 0) {
+        return PAYMENT_STATUS.PENDING;
       }
 
-      const payment = await models.Payments.getPayment(
-        invoice.selectedPaymentId
+      if (totalAmount[0].total < invoice.amount) {
+        return PAYMENT_STATUS.PENDING;
+      }
+
+      await models.Invoices.updateOne(
+        { _id },
+        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
       );
 
-      const api = new ErxesPayment(payment);
 
-      const status = await api.manualCheck(invoice);
-      // const status = 'paid'
 
-      if (status === 'paid') {
-        invoice.status = status;
-        await invoice.save();
-      }
-
-      return status;
+      return PAYMENT_STATUS.PAID;
     }
 
     public static async removeInvoices(_ids: string[]) {
       const invoiceIds = await models.Invoices.find({
         _id: { $in: _ids },
-        status: { $ne: 'paid' }
+        status: { $ne: 'paid' },
       }).distinct('_id');
+
+      const transactions = await models.Transactions.find({
+        invoiceId: { $in: invoiceIds },
+        status: { $ne: 'paid'}
+      }).distinct('_id');
+
+      await models.Transactions.deleteMany({ _id: { $in: transactions } });
 
       await models.Invoices.deleteMany({ _id: { $in: invoiceIds } });
 
@@ -265,6 +128,7 @@ export const loadInvoiceClass = (models: IModels) => {
       return 'removed';
     }
   }
+
   invoiceSchema.loadClass(Invoices);
   return invoiceSchema;
 };

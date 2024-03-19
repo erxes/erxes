@@ -26,56 +26,56 @@ export const callbackHandler = async (req, res) => {
     return res.status(400).send('kind is required');
   }
 
-  let invoiceDoc: any;
+  let transaction: any;
 
   const data = { ...body, ...query };
 
   try {
     switch (kind) {
-      case PAYMENTS.storepay.kind:
-        invoiceDoc = await storepayCallbackHandler(models, data);
-        break;
       case PAYMENTS.socialpay.kind:
-        invoiceDoc = await socialpayCallbackHandler(models, data);
+        transaction = await socialpayCallbackHandler(models, data);
         break;
       case PAYMENTS.qpay.kind:
-        invoiceDoc = await qpayCallbackHandler(models, data);
+        transaction = await qpayCallbackHandler(models, data);
         break;
       case PAYMENTS.monpay.kind:
-        invoiceDoc = await monpayCallbackHandler(models, data);
+        transaction = await monpayCallbackHandler(models, data);
         break;
       case PAYMENTS.paypal.kind:
-        invoiceDoc = await paypalCallbackHandler(models, data);
+        transaction = await paypalCallbackHandler(models, data);
         break;
       case PAYMENTS.qpayQuickqr.kind:
-        invoiceDoc = await quickQrCallbackHandler(models, data);
+        transaction = await quickQrCallbackHandler(models, data);
         break;
       case PAYMENTS.pocket.kind:
-        invoiceDoc = await pocketCallbackHandler(models, data);
+        transaction = await pocketCallbackHandler(models, data);
+        break;
+      case PAYMENTS.storepay.kind:
+        transaction = await storepayCallbackHandler(models, data);
         break;
       default:
         return res.status(400).send('Invalid kind');
     }
 
-    if (invoiceDoc.status === PAYMENT_STATUS.PAID) {
-      delete invoiceDoc.apiResponse;
+    if (transaction.status === PAYMENT_STATUS.PAID) {
+      delete transaction.apiResponse;
 
-      graphqlPubsub.publish(`invoiceUpdated:${invoiceDoc._id}`, {
+      graphqlPubsub.publish(`invoiceUpdated:${transaction._id}`, {
         invoiceUpdated: {
-          _id: invoiceDoc._id,
+          _id: transaction._id,
           status: 'paid',
         },
       });
 
-      redisUtils.updateInvoiceStatus(invoiceDoc._id, 'paid');
+      redisUtils.updateInvoiceStatus(transaction._id, 'paid');
 
-      const [serviceName] = invoiceDoc.contentType.split(':');
+      const [serviceName] = transaction.contentType.split(':');
 
       if (await isEnabled(serviceName)) {
         sendMessage(`${serviceName}:paymentCallback`, {
           subdomain,
           data: {
-            ...invoiceDoc,
+            ...transaction,
             apiResponse: 'success',
           },
         });

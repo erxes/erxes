@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Modal from '../containers/PaymentModal';
+import Modal from './PaymentModal';
 
 import '../common/styles.css';
 
@@ -7,30 +7,69 @@ type Props = {
   invoiceDetail: any;
   payments: any;
   apiDomain: string;
-  // onClickPayment: (paymentId: string) => void;
+  newTransaction: any;
+  transactionLoading?: boolean;
+  onClickPayment: (paymentId: string) => void;
   checkInvoiceHandler: (id: string) => void;
 };
 
 const PaymentGateway = (props: Props) => {
-  const [invoice, setInvoice] = useState(props.invoiceDetail);
-  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const { invoiceDetail } = props;
+  const transactions = invoiceDetail.transactions || [];
+
+  const [currentTransaction, setCurrentTransaction] = useState<any>(
+    props.newTransaction
+  );
+
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const openModal = (payment) => {
-    setSelectedPayment(payment);
-    setModalIsOpen(true);
+    setCurrentTransaction(null);
+    const pendingTransaction = transactions.find(
+      (t) => t.paymentId === payment._id && t.status === 'pending'
+    );
 
-    // props.onClickPayment(payment._id);
+    if (pendingTransaction) {
+      setCurrentTransaction(pendingTransaction);
+    } else {
+      props.onClickPayment(payment._id);
+    }
+
+    setModalIsOpen(true);
   };
 
   const closeModal = () => {
-    setSelectedPayment(null);
     setModalIsOpen(false);
   };
 
   const { payments } = props;
 
-  React.useEffect(() => {}, [props.invoiceDetail.apiResponse]);
+  React.useEffect(() => {
+    if (props.newTransaction) {
+      setCurrentTransaction(props.newTransaction);
+    }
+  }, [transactions, props.newTransaction]);
+
+  const renderPayment = (payment) => {
+    return (
+      <button
+        key={payment._id}
+        className="button"
+        type="button"
+        onClick={() => {
+          openModal(payment);
+        }}
+      >
+        <img
+          src={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
+          alt={payment.kind}
+        />
+        <div className="payment-name">
+          <p>{`${payment.kind} - ${payment.name}`}</p>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <div id="root">
@@ -42,29 +81,12 @@ const PaymentGateway = (props: Props) => {
           </h1>
         </div>
         <div className="paymentContainer">
-          {payments.map((payment) => (
-            <button
-              key={payment._id}
-              className="button"
-              type="button"
-              onClick={() => {
-                openModal(payment);
-              }}
-            >
-              <img
-                src={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
-                alt={payment.kind}
-              />
-              <div className="payment-name">
-                <p>{`${payment.kind} - ${payment.name}`}</p>
-              </div>
-            </button>
-          ))}
+          {payments.map((payment) => renderPayment(payment))}
         </div>
         <div className="block amount">
           <h4>Payment amount</h4>
           <h2 className="amount-total" id="payment-amount">
-            {invoice.amount} ₮
+            {invoiceDetail.amount} ₮
           </h2>
         </div>
       </div>
@@ -72,8 +94,7 @@ const PaymentGateway = (props: Props) => {
         {...props}
         isOpen={modalIsOpen}
         onClose={closeModal}
-        invoiceId={invoice._id}
-        paymentId={selectedPayment && selectedPayment._id}
+        transaction={currentTransaction}
       />
     </div>
   );

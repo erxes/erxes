@@ -13,7 +13,6 @@ const NEXT_PUBLIC_ERXES_APP_TOKEN =
 const MUTATION = gql`
   mutation InvoiceCreate(
     $amount: Float!
-    $selectedPaymentId: String
     $phone: String
     $email: String
     $description: String
@@ -21,13 +20,10 @@ const MUTATION = gql`
     $customerType: String
     $contentType: String
     $contentTypeId: String
-    $couponCode: String
-    $couponAmount: Int
     $data: JSON
   ) {
     invoiceCreate(
       amount: $amount
-      selectedPaymentId: $selectedPaymentId
       phone: $phone
       email: $email
       description: $description
@@ -35,15 +31,10 @@ const MUTATION = gql`
       customerType: $customerType
       contentType: $contentType
       contentTypeId: $contentTypeId
-      couponCode: $couponCode
-      couponAmount: $couponAmount
+
       data: $data
     ) {
       _id
-      apiResponse
-      idOfProvider
-      errorDescription
-      paymentKind
       status
       amount
     }
@@ -71,6 +62,61 @@ function CategoriesContainer() {
     return <CategoryList {...props} />;
   };
 
+  const createInvoice = () => {
+    const contentTypeId = 'UcP4JRIJtbDDpjQvNzmgP';
+    const pendingInvoices = sessionStorage.getItem('pendingInvoices')
+
+    const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
+
+    const previousInvoice = parsed.find(
+      (p) => p.contentTypeId === contentTypeId
+    );
+
+    if (previousInvoice) {
+      const url = `http://localhost:4000/pl:payment/invoice/${previousInvoice._id}`;
+      const iframe: any = document.getElementById('docIframe');
+      iframe.src = url;
+      return;
+    }
+
+    invoiceCreate({
+      variables: {
+        amount: 1000,
+        phone: '12345678',
+        contentType: 'cards:deal',
+        contentTypeId,
+      },
+    }).then((res) => {
+      const inv = res.data.invoiceCreate;
+
+      const url = `http://localhost:4000/pl:payment/invoice/${inv._id}`;
+
+      const pendingInvoice = {
+        _id: inv._id,
+        amount: inv.amount,
+        status: inv.status,
+        contentTypeId,
+        contentType: 'cards:deal',
+      };
+
+      if (pendingInvoices) {
+        parsed.push(pendingInvoice);
+
+        sessionStorage.setItem('pendingInvoices', JSON.stringify(parsed));
+      } else {
+        sessionStorage.setItem(
+          'pendingInvoices',
+          JSON.stringify([pendingInvoice])
+        );
+      }
+
+      console.log('url', url);
+
+      const iframe: any = document.getElementById('docIframe');
+      iframe.src = url;
+    });
+  };
+
   return (
     <>
       {/* <Layout
@@ -82,46 +128,13 @@ function CategoriesContainer() {
 
       <button
         onClick={() => {
-          invoiceCreate({
-            variables: {
-              amount: 1000,
-              phone: '12345678',
-            },
-          }).then((res) => {
-            const inv = res.data.invoiceCreate;
-
-            console.log('inv', inv);
-            // load payment url in iframe
-
-            const headers = {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              'erxes-app-token': NEXT_PUBLIC_ERXES_APP_TOKEN,
-            };
-
-            const url = `http://localhost:4000/pl:payment/invoice/${inv._id}`;
-
-            console.log('url', url);
-
-            // node-fetch
-            fetch(url, {
-              headers,
-            })
-              .then((ress) => ress.blob())
-              .then((data) => {
-                console.log('data', data);
-                const iframe: any = document.getElementById('docIframe');
-                const dataUrl = URL.createObjectURL(data);
-
-                iframe.src = dataUrl;
-              });
-          });
+          createInvoice();
         }}
       >
         Click me
       </button>
 
-      <iframe id="docIframe" width='100%' height={'1000px'} />
+      <iframe id="docIframe" width="100%" height={'1000px'} />
     </>
   );
 }

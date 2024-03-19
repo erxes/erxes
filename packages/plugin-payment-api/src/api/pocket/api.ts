@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import * as QRCode from 'qrcode';
 import { IModels } from '../../connectionResolver';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 import redis from '../../redis';
 import { BaseAPI } from '../base';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
@@ -14,21 +14,20 @@ export const pocketCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Payment id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
+  const transaction = await models.Transactions.getTransaction(
     {
-      'apiResponse.invoiceId': invoiceId,
-      selectedPaymentId: paymentId,
-    },
-    true,
+      'response.invoiceId': invoiceId,
+       paymentId,
+    }
   );
 
-  const apiResponse: any = invoice.apiResponse;
+  const response: any = transaction.response || {};
 
   for (const key of Object.keys(data)) {
-    apiResponse[key] = data[key];
+    response[key] = data[key];
   }
 
-  const payment = await models.Payments.getPayment(paymentId);
+  const payment = await models.PaymentMethods.getPayment(paymentId);
 
   if (payment.kind !== 'pocket') {
     throw new Error('Payment config type is mismatched');
@@ -36,26 +35,17 @@ export const pocketCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new PocketAPI(payment.config);
-    const status = await api.checkInvoice(invoice);
+    const status = await api.checkInvoice(transaction) 
 
     if (status !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      {
-        $set: {
-          status,
-          apiResponse,
-          resolvedAt: new Date(),
-        },
-      },
-    );
+    transaction.status = status;
+    transaction.updatedAt = new Date();
+    await transaction.save();
 
-    invoice.status = status;
-
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -133,11 +123,11 @@ export class PocketAPI extends BaseAPI {
     }
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(transaction: ITransactionDocument) {
     try {
       const data: IPocketInvoice = {
-        amount: invoice.amount,
-        info: invoice.description || invoice.contentTypeId,
+        amount: transaction.amount,
+        info: transaction.description || ''
       };
 
       const res = await this.request({
@@ -157,12 +147,12 @@ export class PocketAPI extends BaseAPI {
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  async checkInvoice(transaction: ITransactionDocument) {
     // return PAYMENT_STATUS.PAID;
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.invoiceId}`,
+        path: `${PAYMENTS.pocket.actions.checkInvoice}/${transaction.response.invoiceId}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
@@ -180,11 +170,11 @@ export class PocketAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.apiResponse.id}`,
+        path: `${PAYMENTS.pocket.actions.checkInvoice}/${invoice.response.id}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 

@@ -4,25 +4,26 @@ import { IModels } from '../../connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IInvoice, IInvoiceDocument } from '../../models/definitions/invoices';
 import redis from '../../redis';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 
 export const storepayCallbackHandler = async (
   models: IModels,
-  data: any,
-): Promise<IInvoiceDocument> => {
+  data: any
+): Promise<ITransactionDocument> => {
   const { id } = data;
 
   if (!id) {
     throw new Error('id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
+  const transaction = await models.Transactions.getTransaction(
     {
-      'apiResponse.value': id,
+      'response.value': id,
     },
-    true,
+    true
   );
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'storepay') {
     throw new Error('Payment config type is mismatched');
@@ -33,17 +34,14 @@ export const storepayCallbackHandler = async (
     const invoiceStatus = await api.checkInvoice(id);
 
     if (invoiceStatus !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      { $set: { status: invoiceStatus, resolvedAt: new Date() } },
-    );
+    transaction.status = invoiceStatus;
+    transaction.updatedAt = new Date();
+    await transaction.save();
 
-    invoice.status = invoiceStatus;
-
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -113,7 +111,7 @@ export class StorePayAPI extends BaseAPI {
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`,
+            `${app_username}:${app_password}`
           ).toString('base64')}`,
           'Content-Type': 'application/json',
         },
@@ -127,14 +125,14 @@ export class StorePayAPI extends BaseAPI {
             username,
             password,
           }),
-        requestOptions,
+        requestOptions
       ).then((res) => res.json());
 
       await redis.set(
         `storepay_token_${store_id}`,
         res.access_token,
         'EX',
-        res.expires_in - 60,
+        res.expires_in - 60
       );
 
       return {
@@ -154,7 +152,7 @@ export class StorePayAPI extends BaseAPI {
    * @return {[object]} - Returns invoice object
    * TODO: update return type
    */
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument & { phone: string }) {
     try {
       const data = {
         amount: invoice.amount,
@@ -194,7 +192,7 @@ export class StorePayAPI extends BaseAPI {
 
   /**
    * check invoice status
-   * @param {string} uuid - unique identifier of monpay invoice
+   * @param {string} uuid - unique identifier of storepay invoice
    * @return {string} - Returns invoice status
    */
   async checkInvoice(invoiceNumber: string) {
@@ -215,16 +213,16 @@ export class StorePayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
-    if (invoice.apiResponse.error) {
-      return invoice.apiResponse.error;
-    }
+  async manualCheck(invoice: ITransactionDocument) {
+    // if (invoice.apiResponse.error) {
+    //   return invoice.apiResponse.error;
+    // }
 
     try {
       const res = await this.request({
         headers: await this.getHeaders(),
         method: 'GET',
-        path: `merchant/loan/check/${invoice.apiResponse.value}`,
+        path: `merchant/loan/check/${invoice.response.value}`,
       }).then((res) => res.json());
 
       if (!res.value) {

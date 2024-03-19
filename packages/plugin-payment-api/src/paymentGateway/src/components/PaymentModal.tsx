@@ -8,17 +8,20 @@ const capitalizeFirstLetter = (str) => {
 
 type Props = {
   isOpen: boolean;
+
+  transactionLoading?: boolean;
+  transaction?: any;
+
   onClose: () => void;
   checkInvoiceHandler: (id: string) => void;
-  invoice: any;
-  loading?: boolean;
 };
 
 const PaymentModal = (props: Props) => {
-  const { isOpen, onClose, invoice } = props;
+  const { isOpen, onClose, transaction } = props;
 
-  let kind = (invoice && invoice.payment && invoice.payment.kind) || 'default';
-  const apiResponse = invoice && invoice.apiResponse;
+  let kind = (transaction && transaction.paymentKind) || 'default';
+  const apiResponse = transaction && transaction.response;
+
   if (kind.includes('qpay')) {
     kind = 'qpay';
   }
@@ -36,21 +39,21 @@ const PaymentModal = (props: Props) => {
         }}
       >
         <Spinner />
-        <p style={{color:"black"}}>Loading, please wait...</p>
+        <p style={{ color: 'black' }}>Loading, please wait...</p>
       </div>
     );
   };
 
   const renderContent = () => {
-    if (!invoice) {
+    if (!transaction) {
       return null;
     }
-
+    
     return (
       <div
-      className={`modal-content ${kind}-modal`}
-      style={{ borderColor: 'red', borderWidth: '1px' }}
-    >
+        className={`modal-content ${kind}-modal`}
+        style={{ borderColor: 'red', borderWidth: '1px' }}
+      >
         <div className="modal-header">
           <button
             style={{
@@ -79,7 +82,6 @@ const PaymentModal = (props: Props) => {
           </h4>
         </div>
         <div className="modal-body">
-          {props.loading && <Spinner />}
           <img
             className="qr"
             src={apiResponse.qrData}
@@ -89,13 +91,13 @@ const PaymentModal = (props: Props) => {
           />
 
           <br />
-          <h2 id="amount">{invoice.amount} ₮</h2>
+          <h2 id="amount">{transaction.amount} ₮</h2>
 
           <button
             className="btn btn-primary"
             id="checkButton"
             type="button"
-            onClick={() => props.checkInvoiceHandler(invoice._id)}
+            onClick={() => props.checkInvoiceHandler(transaction._id)}
             style={{
               display: 'block',
               margin: 'auto',
@@ -132,7 +134,7 @@ const PaymentModal = (props: Props) => {
         },
       }}
     >
-      {props.loading ? renderLoading() : renderContent()}
+      {props.transactionLoading ? renderLoading() : renderContent()}
     </Modal>
   );
 };

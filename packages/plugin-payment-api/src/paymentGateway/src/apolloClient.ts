@@ -5,12 +5,7 @@ import { createClient } from 'graphql-ws';
 import { ApolloLink, split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-type Definintion = {
-  kind: string;
-  operation?: string;
-};
-
-const { appToken, apiDomain } = window as any;
+const { apiDomain } = window as any;
 
 const wsUri = apiDomain.replace('http', 'ws');
 
@@ -30,14 +25,14 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const authLink = new ApolloLink((operation, forward) => {
-  operation.setContext({
-    headers: {
-      'erxes-app-token': appToken,
-    },
-  });
-  return forward(operation);
-});
+// const authLink = new ApolloLink((operation, forward) => {
+//   operation.setContext({
+//     headers: {
+//       'erxes-app-token': appToken,
+//     },
+//   });
+//   return forward(operation);
+// });
 
 const wsLink = new GraphQLWsLink(
   createClient({
@@ -58,6 +53,6 @@ const splitLink = split(
 );
 
 export const client = new ApolloClient({
-  link: ApolloLink.from([errorLink, authLink, splitLink]),
+  link: ApolloLink.from([errorLink, splitLink]),
   cache: new InMemoryCache(),
 });

@@ -17,12 +17,6 @@ const router = Router();
 router.get('/invoice/:invoiceId', async (req, res) => {
   const { invoiceId } = req.params;
 
-  const appToken = req.headers['erxes-app-token'] as string;
-
-  if (!appToken) {
-    return res.status(401).render('unauthorized');
-  }
-
   if (!invoiceId) {
     return res.status(404).render('notFound');
   }
@@ -43,7 +37,6 @@ router.get('/invoice/:invoiceId', async (req, res) => {
   return res.render('index', {
     title: 'Payment gateway',
     apiDomain,
-    appToken,
     invoiceId,
   });
 });
@@ -147,7 +140,7 @@ router.post('/gateway/storepay', async (req, res) => {
     await models.Invoices.updateOne({ _id: invoice._id }, { $set: { phone } });
   }
 
-  const payment = await models.Payments.getPayment(selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(selectedPaymentId);
 
   const api = new StorePayAPI(payment.config, domain);
 
@@ -184,8 +177,8 @@ router.post('/gateway/updateInvoice', async (req, res) => {
 
   if (
     invoice &&
-    invoice.status !== 'paid' &&
-    invoice.selectedPaymentId !== selectedPaymentId
+    invoice.status !== 'paid' 
+    // invoice.selectedPaymentId !== selectedPaymentId
   ) {
     const doc: any = {
       selectedPaymentId,
@@ -194,9 +187,6 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       domain,
     };
 
-    if (!invoice.selectedPaymentId) {
-      doc.identifier = randomAlphanumeric(32);
-    }
 
     await models.Invoices.updateInvoice(invoice._id, doc);
   }
@@ -207,7 +197,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       phone,
       domain,
-      identifier: randomAlphanumeric(32),
+      
     });
   }
 
@@ -247,7 +237,7 @@ router.get('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const paymentsFound = await models.Payments.find(filter)
+  const paymentsFound = await models.PaymentMethods.find(filter)
     .sort({
       type: 1,
     })
@@ -308,7 +298,7 @@ router.post('/gateway', async (req, res, next) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const paymentsFound = await models.Payments.find(filter)
+  const paymentsFound = await models.PaymentMethods.find(filter)
     .sort({
       type: 1,
     })
@@ -384,8 +374,8 @@ router.post('/gateway', async (req, res, next) => {
 
   if (
     invoice &&
-    invoice.status !== 'paid' &&
-    invoice.selectedPaymentId !== selectedPaymentId
+    invoice.status !== 'paid' 
+    // invoice.selectedPaymentId !== selectedPaymentId
   ) {
     await models.Invoices.updateInvoice(invoice._id, {
       selectedPaymentId,

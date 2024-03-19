@@ -1,5 +1,5 @@
 import { IModels } from '../../connectionResolver';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { VendorBaseAPI } from './vendorBase';
 
@@ -37,20 +37,19 @@ export const meta = {
 };
 
 export const quickQrCallbackHandler = async (models: IModels, data: any) => {
-  const { identifier } = data;
+  const { _id } = data;
 
-  if (!identifier) {
+  if (!_id) {
     throw new Error('Invoice id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
+  const transaction = await models.Transactions.getTransaction(
     {
-      identifier,
-    },
-    true,
+      _id,
+    }
   );
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== PAYMENTS.qpayQuickqr.kind) {
     throw new Error('Payment config type is mismatched');
@@ -58,25 +57,18 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new QPayQuickQrAPI(payment.config);
-    const status = await api.checkInvoice(invoice);
+    const status = await api.checkInvoice(transaction);
 
     if (status !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      {
-        $set: {
-          status,
-          resolvedAt: new Date(),
-        },
-      },
-    );
+    transaction.status = status;
+    transaction.updatedAt = new Date();
 
-    invoice.status = status;
+    await transaction.save();
 
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -208,7 +200,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     }
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument) {
     const res = await this.makeRequest({
       method: 'POST',
       path: meta.paths.invoice,
@@ -218,7 +210,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         currency: 'MNT',
         // customer_name: 'erxes',
         // customer_logo: 'https://erxes.io/static/images/logo/icon.png',
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`,
         description: invoice.description || 'Гүйлгээ',
         mcc_code: this.config.mccCode,
         bank_accounts: [
@@ -233,7 +225,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       },
     });
 
-    console.log('callback url', `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`)
+    console.log('callback url', `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`)
 
     return {
       ...res,
@@ -241,15 +233,15 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     };
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
-    return 'paid'
+  async checkInvoice(invoice: ITransactionDocument) {
+    // return 'paid'
 
     try {
       const res = await this.makeRequest({
         method: 'POST',
         path: meta.paths.checkInvoice,
         data: {
-          invoice_id: invoice.apiResponse.id,
+          invoice_id: invoice.response.id,
         },
       });
 
@@ -263,13 +255,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
+    // return ""
     try {
       const res = await this.makeRequest({
         method: 'POST',
         path: meta.paths.checkInvoice,
         data: {
-          invoice_id: invoice.apiResponse.id,
+          invoice_id: invoice.response.id,
         },
       });
 

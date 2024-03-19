@@ -1,4 +1,3 @@
-import { IInvoiceDocument } from '../models/definitions/invoices';
 import { IPaymentDocument } from '../models/definitions/payments';
 import { MonpayAPI } from './monpay/api';
 import { PaypalAPI } from './paypal/api';
@@ -8,6 +7,7 @@ import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
+import { ITransactionDocument } from '../models/definitions/transactions';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -35,27 +35,27 @@ class ErxesPayment {
     this.pocket = new PocketAPI(payment.config, domain);
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(transaction: ITransactionDocument & { phone?: string }) {
     const { payment } = this;
 
     // return { qrData: await QRCode.toDataURL('test') };
 
     const api = this[payment.kind];
 
-    if (invoice.couponAmount) {
-      const amount = invoice.amount - invoice.couponAmount;
+    if (transaction.monpayCoupon) {
+      const amount = transaction.amount - transaction.monpayCoupon;
 
-      invoice.amount = amount > 0 ? amount : 0;
+      transaction.amount = amount > 0 ? amount : 0;
     }
 
     try {
-      return await api.createInvoice(invoice, payment);
+      return await api.createInvoice(transaction, payment);
     } catch (e) {
       return { error: e.message };
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  async checkInvoice(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];
@@ -67,7 +67,7 @@ class ErxesPayment {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];
@@ -79,7 +79,7 @@ class ErxesPayment {
     }
   }
 
-  async cancelInvoice(invoice: IInvoiceDocument) {
+  async cancelInvoice(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];

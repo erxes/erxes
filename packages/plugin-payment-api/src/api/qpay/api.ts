@@ -1,25 +1,22 @@
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
-import redis from '../../redis';
+import { ITransactionDocument } from '../../models/definitions/transactions';
+import redis from '@erxes/api-utils/src/redis';
 import { BaseAPI } from '../base';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IQpayInvoice } from '../types';
 
 export const qpayCallbackHandler = async (models: IModels, data: any) => {
-  const { identifier } = data;
+  const { _id } = data;
 
-  if (!identifier) {
-    throw new Error('Invoice id is required');
+  if (!_id) {
+    throw new Error('Transaction id is required');
   }
 
-  const invoice = await models.Invoices.getInvoice(
-    {
-      identifier,
-    },
-    true,
-  );
+  const transaction = await models.Transactions.getTransaction({
+    _id,
+  });
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'qpay') {
     throw new Error('Payment config type is mismatched');
@@ -27,25 +24,18 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new QpayAPI(payment.config);
-    const status = await api.checkInvoice(invoice);
+    const status = await api.checkInvoice(transaction);
 
     if (status !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      {
-        $set: {
-          status,
-          resolvedAt: new Date(),
-        },
-      },
-    );
+    transaction.status = status;
+    transaction.updatedAt = new Date();
 
-    invoice.status = status;
+    await transaction.save();
 
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -77,42 +67,47 @@ export class QpayAPI extends BaseAPI {
     const token = await redis.get(`qpay_token_${this.qpayMerchantUser}`);
 
     if (token) {
+      console.log('returning token from cache', token);
       return {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json',
       };
     }
 
+    console.log('getting token from api');
+
     try {
-      const { access_token } = await this.request({
+      const res = await this.request({
         method: 'POST',
         path: PAYMENTS.qpay.actions.getToken,
         headers: {
           Authorization:
             'Basic ' +
             Buffer.from(
-              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`,
+              `${this.qpayMerchantUser}:${this.qpayMerchantPassword}`
             ).toString('base64'),
         },
       }).then((r) => r.json());
 
       await redis.set(
         `qpay_token_${this.qpayMerchantUser}`,
-        access_token,
+        res.access_token,
         'EX',
-        3600,
+        3600
       );
 
+
       return {
-        Authorization: 'Bearer ' + access_token,
+        Authorization: 'Bearer ' + res.access_token,
         'Content-Type': 'application/json',
       };
     } catch (e) {
+      console.log('error', e);
       throw new Error(e.message);
     }
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument) {
     const { qpayInvoiceCode } = this;
 
     try {
@@ -122,8 +117,10 @@ export class QpayAPI extends BaseAPI {
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`,
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${invoice._id}`,
       };
+
+      console.log('data', data);
 
       const res = await this.request({
         method: 'POST',
@@ -141,12 +138,12 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
-    // return PAYMENT_STATUS.PAID;
+  async checkInvoice(invoice: ITransactionDocument) {
+    // // return PAYMENT_STATUS.PAID;
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
@@ -160,11 +157,11 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
@@ -178,11 +175,11 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async cancelInvoice(invoice: IInvoiceDocument) {
+  async cancelInvoice(invoice: ITransactionDocument) {
     try {
       await this.request({
         method: 'DELETE',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
         headers: await this.getHeaders(),
       });
     } catch (e) {

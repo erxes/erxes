@@ -23,18 +23,44 @@ const INVOICE = gql`
   query InvoiceDetail($id: String!) {
     invoiceDetail(_id: $id) {
       _id
+      invoiceNumber
       amount
-      apiResponse
-      customerId
-      data
       description
-      errorDescription
-      idOfProvider
+      phone
+      paymentIds
+      email
+      redirectUri
+      status
+      transactions {
+        _id
+        amount
+        paymentId
+        paymentKind
+        response
+        status
+      }
+    }
+  }
+`;
+
+const ADD_TRANSACTION = gql`
+  mutation TransactionsAdd(
+    $invoiceId: String!
+    $paymentId: String!
+    $amount: Float!
+  ) {
+    transactionsAdd(
+      invoiceId: $invoiceId
+      paymentId: $paymentId
+      amount: $amount
+    ) {
+      _id
+      amount
+      invoiceId
       paymentId
       paymentKind
       status
-      contentType
-      contentTypeId
+      response
     }
   }
 `;
@@ -57,21 +83,7 @@ const Payments = (props: Props) => {
 
   const [checkInvoice] = useMutation(CHECK_INVOICE);
 
-  const checkInvoiceHandler = (id: string) => {
-    checkInvoice({ variables: { id } })
-      .catch((e) => {
-        console.log(e);
-      })
-      .then((res: any) => {
-        const status = res.data && res.data.invoicesCheck;
-        if (status !== 'paid') {
-          window.alert('Not paid yet!, Please try again later.');
-        } else {
-          window.alert('Payment has been successfully processed. Thank you! ');
-          postMessage();
-        }
-      });
-  };
+  const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
 
   const subscription = useSubscription(SUBSCRIPTION, {
     variables: { invoiceId },
@@ -104,6 +116,34 @@ const Payments = (props: Props) => {
     ? invoiceDetailQuery.data.invoiceDetail
     : null;
 
+  const onClickPayment = (paymentId: string) => {
+    addTransaction({
+      variables: {
+        invoiceId,
+        paymentId,
+        amount: invoiceDetail.amount,
+      },
+    }).then(() => {
+      invoiceDetailQuery.refetch();
+    });
+  };
+
+  const checkInvoiceHandler = (id: string) => {
+    checkInvoice({ variables: { id } })
+      .catch((e) => {
+        console.log(e);
+      })
+      .then((res: any) => {
+        const status = res.data && res.data.invoicesCheck;
+        if (status !== 'paid') {
+          window.alert('Not paid yet!, Please try again later.');
+        } else {
+          window.alert('Payment has been successfully processed. Thank you! ');
+          postMessage();
+        }
+      });
+  };
+
   const postMessage = () => {
     const message = {
       fromPayment: true,
@@ -122,11 +162,16 @@ const Payments = (props: Props) => {
     }
   };
 
+  const newTransaction = addTransactionResponse.data && addTransactionResponse.data.transactionsAdd;
+
   const updatedProps = {
     ...props,
     invoiceDetail,
     payments: data.payments,
+    newTransaction,
+    onClickPayment,
     checkInvoiceHandler,
+    transactionLoading: addTransactionResponse.loading,
   };
 
   return <Component {...updatedProps} />;

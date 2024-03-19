@@ -4,7 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { PAYMENTS } from '../../../api/constants';
-import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
+// import { QPayQuickQrAPI } from '../../../api/qpayQuickqr/api';
 import { IContext } from '../../../connectionResolver';
 
 interface IParam {
@@ -41,7 +41,7 @@ const queries = {
       filter.status = args.status;
     }
 
-    return models.Payments.find(filter)
+    return models.PaymentMethods.find(filter)
       .sort({ type: 1 })
       .lean();
   },
@@ -66,7 +66,7 @@ const queries = {
     };
 
     const count = async query => {
-      return models.Payments.find(query).countDocuments();
+      return models.PaymentMethods.find(query).countDocuments();
     };
 
     for (const kind of PAYMENTS.ALL) {
@@ -95,12 +95,12 @@ const queries = {
   },
 
   async qpayGetMerchant(_root, args, { models }: IContext) {
-    const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || ''
-    });
+    // const api = new QPayQuickQrAPI({
+    //   username: process.env.QUICK_QR_USERNAME || '',
+    //   password: process.env.QUICK_QR_PASSWORD || ''
+    // });
 
-    return api.get(args._id);
+    // return api.get(args._id);
   }
 };
 

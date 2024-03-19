@@ -60,7 +60,6 @@ const mutations = {
     const invoice = await models.Invoices.create({
       ...params,
       data,
-      identifier: randomAlphanumeric(32),
     });
 
     const base64 = Buffer.from(
@@ -101,7 +100,6 @@ const mutations = {
 
     const invoice = await models.Invoices.createInvoice({
       ...params,
-      domain,
     });
     return invoice;
   },
@@ -118,7 +116,7 @@ const mutations = {
     return models.Invoices.removeInvoices(_ids);
   },
 
-  async invoiceSelectPayment(
+  async invoiceUpdate(
     _root,
     { _id, paymentId }: { _id: string; paymentId: string },
     { models, subdomain }: IContext
@@ -128,7 +126,10 @@ const mutations = {
       : 'http://localhost:4000';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
-    return models.Invoices.updateInvoice(_id, { selectedPaymentId: paymentId, domain });
+    return models.Invoices.updateInvoice(_id, {
+      selectedPaymentId: paymentId,
+      domain,
+    });
   },
 };
 

@@ -13,27 +13,28 @@ export const types = `
 
   type Invoice @key(fields: "_id") {
     _id: String
-    paymentId: String
+    invoiceNumber: String
+
     amount: Float
     phone: String
     email: String
     description: String
     status: String
-    customerType: CustomerType
+    customerType: String
     customerId: String
+    customer: JSON
+
     contentType: String
     contentTypeId: String
+
     createdAt: Date
     resolvedAt: Date
-    payment: Payment
-    paymentKind: String
-    apiResponse: JSON
-
-    customer: JSON
-    idOfProvider: String
-    errorDescription: String
-    pluginData: JSON
+    redirectUri: String
+    paymentIds: [String]
+    
     data: JSON
+
+    transactions: [PaymentTransaction]
   }
 `;
 
@@ -48,7 +49,6 @@ const mutationParams = `
   contentTypeId: String
   redirectUri: String
   paymentIds: [String]
-  warningText: String
   data: JSON
 `;
 
@@ -63,11 +63,12 @@ const invoiceCreateMutationParams = `
 
 export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
-  invoiceCreate(${invoiceCreateMutationParams}): Invoice
-  invoicesCheck(_id:String!): String
+  invoiceCreate(${mutationParams}): Invoice
+  invoiceUpdate(_id: String!, ${mutationParams}): Invoice
+  invoiceCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
 
-  invoiceSelectPayment(_id: String!, paymentId: String!): Invoice
+  
 `;
 
 export const queries = `
