@@ -163,6 +163,20 @@ export const sortBuilder = (params) => {
 const genDuplicatedFilter = async (params) => {
   const { startDate, endDate, billType } = params;
 
+  if (!(startDate && endDate)) {
+    throw new Error('Please, Must choose date filters');
+  }
+
+  const csd = new Date(startDate);
+  const ced = new Date(endDate);
+  if (
+    ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
+      (1000 * 60 * 60 * 24) >
+    32
+  ) {
+    throw new Error('The date range exceeds one month');
+  }
+
   const filter: any = {};
   const createdQry: any = {};
   if (params.startDate) {
