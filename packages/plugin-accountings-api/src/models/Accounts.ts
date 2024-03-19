@@ -11,6 +11,10 @@ import {
   checkCodeMask,
 } from '../maskUtils';
 
+const checkUsedInTr = (ids: string[]) => {
+  
+}
+
 export interface IAccountModel extends Model<IAccountDocument> {
   getAccount(selector: any): Promise<IAccountDocument>;
   createAccount(doc: IAccount): Promise<IAccountDocument>;
@@ -30,7 +34,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
      */
 
     public static async getAccount(selector: any) {
-      const accounting = await models.Accounts.findOne(selector);
+      const accounting = await models.Accounts.findOne(selector).lean();
 
       if (!accounting) {
         throw new Error('Accounting not found');
@@ -64,6 +68,19 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
         _id: doc.categoryId,
       });
 
+      if (doc.parentId) {
+        const parentAccount = await models.Accounts.getAccount({ _id: doc.parentId })
+
+        if (!doc.code.match(`^${parentAccount.code}.*`)) {
+          throw new Error('Code is not validate of parent account');
+        }
+        doc.categoryId = parentAccount.categoryId;
+        doc.currency = parentAccount.currency;
+        doc.kind = parentAccount.kind;
+        doc.journal = parentAccount.journal;
+        doc.status = parentAccount.status;
+      }
+
       if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
@@ -75,6 +92,9 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
      * Update Accounting
      */
     public static async updateAccount(_id: string, doc: IAccount) {
+      const oldAccount = await models.Accounts.getAccount({ _id });
+
+
       doc.code = doc.code
         .replace(/\*/g, '')
         .replace(/_/g, '')
@@ -141,7 +161,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       const kind: string = accountingFields.kind || '';
       const description: string = accountingFields.description || '';
       const categoryId: string = accountingFields.categoryId || '';
-      
+
       for (const accountingId of accountingIds) {
         const accountingObj = await models.Accounts.getAccount({
           _id: accountingId,
