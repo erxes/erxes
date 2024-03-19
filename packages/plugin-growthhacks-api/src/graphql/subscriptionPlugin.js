@@ -7,7 +7,6 @@ module.exports = {
 
       growthhacksChecklistsChanged(contentType: String!, contentTypeId: String!): Checklist
       growthhacksChecklistDetailChanged(_id: String!): Checklist
-      growthhacksProductsDataChanged(_id: String!): ProductsDataChangeResponse
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -57,11 +56,6 @@ module.exports = {
           graphqlPubsub.asyncIterator(
             `growthhacksChecklistDetailChanged:${_id}`
           ),
-      },
-
-      growthhacksProductsDataChanged: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`growthhacksProductsDataChanged:${_id}`),
       },
     };
   },

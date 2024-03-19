@@ -1,20 +1,20 @@
-const checklistsChanged = `
-  subscription checklistsChanged($contentType: String!, $contentTypeId: String!) {
-    checklistsChanged(contentType: $contentType, contentTypeId: $contentTypeId) {
+const growthhacksChecklistsChanged = `
+  subscription growthhacksChecklistsChanged($contentType: String!, $contentTypeId: String!) {
+    growthhacksChecklistsChanged(contentType: $contentType, contentTypeId: $contentTypeId) {
       _id
     }
   }
 `;
 
-const checklistDetailChanged = `
-  subscription checklistDetailChanged($_id: String!) {
-    checklistDetailChanged(_id: $_id) {
+const growthhacksChecklistDetailChanged = `
+  subscription growthhacksChecklistDetailChanged($_id: String!) {
+    growthhacksChecklistDetailChanged(_id: $_id) {
       _id
     }
   }
 `;
 
 export default {
-  checklistsChanged,
-  checklistDetailChanged
+  growthhacksChecklistsChanged,
+  growthhacksChecklistDetailChanged,
 };

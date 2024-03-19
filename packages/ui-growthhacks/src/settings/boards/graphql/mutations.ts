@@ -9,24 +9,24 @@ const commonParams = `
 `;
 
 const boardAdd = `
-  mutation boardsAdd(${commonParamsDef}) {
-    boardsAdd(${commonParams}) {
+  mutation ghBoardsAdd(${commonParamsDef}) {
+    ghBoardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
-    boardsEdit(_id: $_id, ${commonParams}) {
+  mutation ghBoardsEdit($_id: String!, ${commonParamsDef}) {
+    ghBoardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation boardsRemove($_id: String!) {
-    boardsRemove(_id: $_id)
+  mutation ghBoardsRemove($_id: String!) {
+    ghBoardsRemove(_id: $_id)
   }
 `;
 
@@ -77,40 +77,40 @@ const commonPipelineParams = `
 `;
 
 const pipelineAdd = `
-  mutation pipelinesAdd(${commonPipelineParamsDef}) {
-    pipelinesAdd(${commonPipelineParams}) {
+  mutation ghPipelinesAdd(${commonPipelineParamsDef}) {
+    ghPipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation ghPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    ghPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation pipelinesRemove($_id: String!) {
-    pipelinesRemove(_id: $_id)
+  mutation ghPipelinesRemove($_id: String!) {
+    ghPipelinesRemove(_id: $_id)
   }
 `;
 const pipelinesArchive = `
-  mutation pipelinesArchive($_id: String!) {
-    pipelinesArchive(_id: $_id)
+  mutation ghPipelinesArchive($_id: String!) {
+    ghPipelinesArchive(_id: $_id)
   }
 `;
 
 const pipelinesCopied = `
-  mutation pipelinesCopied($_id: String!) {
-    pipelinesCopied(_id: $_id)
+  mutation ghPipelinesCopied($_id: String!) {
+    ghPipelinesCopied(_id: $_id)
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
-    pipelinesUpdateOrder(orders: $orders) {
+  mutation ghPipelinesUpdateOrder($orders: [OrderItem]) {
+    ghPipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }

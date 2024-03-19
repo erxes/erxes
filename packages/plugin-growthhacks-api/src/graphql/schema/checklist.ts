@@ -26,12 +26,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  checklistsAdd(contentType: String, contentTypeId: String, title: String): Checklist
-  checklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): Checklist
-  checklistsRemove(_id: String!): Checklist
-  checklistItemsOrder(_id: String!, destinationIndex: Int): ChecklistItem
+  ghChecklistsAdd(contentType: String, contentTypeId: String, title: String): Checklist
+  ghChecklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): Checklist
+  ghChecklistsRemove(_id: String!): Checklist
+  ghChecklistItemsOrder(_id: String!, destinationIndex: Int): ChecklistItem
 
-  checklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsRemove(_id: String!): ChecklistItem
+  ghChecklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): ChecklistItem
+  ghChecklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): ChecklistItem
+  ghChecklistItemsRemove(_id: String!): ChecklistItem
 `;

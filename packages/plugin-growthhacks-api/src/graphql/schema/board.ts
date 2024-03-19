@@ -193,22 +193,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  boardsAdd(${commonParams}): Board
-  boardsEdit(_id: String!, ${commonParams}): Board
-  boardsRemove(_id: String!): JSON
-  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  ghBoardsAdd(${commonParams}): Board
+  ghBoardsEdit(_id: String!, ${commonParams}): Board
+  ghBoardsRemove(_id: String!): JSON
+  ghBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  ghBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
-  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
-  pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON
-  pipelinesCopied(_id: String!): JSON
+  ghPipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
+  ghPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
+  ghPipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
+  ghPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
+  ghPipelinesRemove(_id: String!): JSON
+  ghPipelinesArchive(_id: String!): JSON
+  ghPipelinesCopied(_id: String!): JSON
 
-  stagesUpdateOrder(orders: [OrderItem]): [Stage]
-  stagesRemove(_id: String!): JSON
-  stagesEdit(_id: String!, type: String, name: String, status: String): Stage
-  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  ghStagesUpdateOrder(orders: [OrderItem]): [Stage]
+  ghStagesRemove(_id: String!): JSON
+  ghStagesEdit(_id: String!, type: String, name: String, status: String): Stage
+  ghStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

@@ -20,27 +20,22 @@ type FinalProps = {
 } & IProps;
 
 function ChecklistsContainer(props: FinalProps) {
-  const {
-    checklistsQuery,
-    stageId,
-    addItem,
-    contentType,
-    contentTypeId
-  } = props;
+  const { checklistsQuery, stageId, addItem, contentType, contentTypeId } =
+    props;
 
   useEffect(() => {
     return checklistsQuery.subscribeToMore({
-      document: gql(subscriptions.checklistsChanged),
+      document: gql(subscriptions.growthhacksChecklistsChanged),
       variables: { contentType, contentTypeId },
       updateQuery: () => {
         checklistsQuery.refetch();
-      }
+      },
     });
   });
 
   const checklists = checklistsQuery.checklists || [];
 
-  return checklists.map(list => (
+  return checklists.map((list) => (
     <List
       key={list._id}
       listId={list._id}
@@ -59,10 +54,10 @@ export default withProps<IProps>(
         options: ({ contentType, contentTypeId }) => ({
           variables: {
             contentType,
-            contentTypeId
+            contentTypeId,
           },
-          refetchQueries: ['checklists']
-        })
+          refetchQueries: ['checklists'],
+        }),
       }
     )
   )(ChecklistsContainer)
