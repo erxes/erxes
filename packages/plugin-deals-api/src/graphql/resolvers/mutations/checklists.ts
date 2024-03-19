@@ -40,7 +40,7 @@ const checklistMutations = {
   /**
    * Adds checklist object and also adds an activity log
    */
-  async checklistsAdd(
+  async dealChecklistsAdd(
     _root,
     args: IChecklist,
     { models, user, subdomain }: IContext
@@ -66,7 +66,7 @@ const checklistMutations = {
   /**
    * Updates checklist object
    */
-  async checklistsEdit(
+  async dealChecklistsEdit(
     _root,
     { _id, ...doc }: IChecklistsEdit,
     { user, models, subdomain }: IContext
@@ -94,7 +94,7 @@ const checklistMutations = {
   /**
    * Removes a checklist
    */
-  async checklistsRemove(
+  async dealChecklistsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -117,7 +117,7 @@ const checklistMutations = {
   /**
    * Adds a checklist item and also adds an activity log
    */
-  async checklistItemsAdd(
+  async dealChecklistItemsAdd(
     _root,
     args: IChecklistItem,
     { user, models, subdomain }: IContext
@@ -146,7 +146,7 @@ const checklistMutations = {
   /**
    * Updates a checklist item
    */
-  async checklistItemsEdit(
+  async dealChecklistItemsEdit(
     _root,
     { _id, ...doc }: IChecklistItemsEdit,
     { user, models, subdomain }: IContext
@@ -174,7 +174,7 @@ const checklistMutations = {
   /**
    * Removes a checklist item
    */
-  async checklistItemsRemove(
+  async dealChecklistItemsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -194,7 +194,7 @@ const checklistMutations = {
     return removed;
   },
 
-  async checklistItemsOrder(
+  async dealChecklistItemsOrder(
     _root,
     { _id, destinationIndex }: { _id: string; destinationIndex: number },
     { models }: IContext

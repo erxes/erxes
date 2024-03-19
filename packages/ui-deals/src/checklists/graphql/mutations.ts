@@ -13,10 +13,10 @@ export const commonParams = `
 `;
 
 const checklistsAdd = `
-  mutation checklistsAdd(
+  mutation dealChecklistsAdd(
     ${commonVariables}
   ) {
-    checklistsAdd(
+    dealChecklistsAdd(
       ${commonParams}
     ) {
       ${checklistFields}
@@ -25,11 +25,11 @@ const checklistsAdd = `
 `;
 
 const checklistsEdit = `
-  mutation checklistsEdit(
+  mutation dealChecklistsEdit(
     $_id: String!,
     ${commonVariables}
   ) {
-    checklistsEdit(
+    dealChecklistsEdit(
       _id: $_id,
       ${commonParams}
     ) {
@@ -39,8 +39,8 @@ const checklistsEdit = `
 `;
 
 const checklistsRemove = `
-  mutation checklistsRemove($_id: String!) {
-    checklistsRemove(_id: $_id) {
+  mutation dealChecklistsRemove($_id: String!) {
+    dealChecklistsRemove(_id: $_id) {
       _id
     }
   }
@@ -61,10 +61,10 @@ const commonItemParams = `
 `;
 
 const checklistItemsAdd = `
-  mutation checklistItemsAdd(
+  mutation dealChecklistItemsAdd(
     ${commonItemVariables}
   ) {
-    checklistItemsAdd(
+    dealChecklistItemsAdd(
       ${commonItemParams}
     ) {
       _id
@@ -75,11 +75,11 @@ const checklistItemsAdd = `
 `;
 
 const checklistItemsEdit = `
-  mutation checklistItemsEdit(
+  mutation dealChecklistItemsEdit(
     $_id: String!,
     ${commonItemVariables}
   ) {
-    checklistItemsEdit(
+    dealChecklistItemsEdit(
       _id: $_id,
       ${commonItemParams}
     ) {
@@ -91,16 +91,16 @@ const checklistItemsEdit = `
 `;
 
 const checklistItemsRemove = `
-  mutation checklistItemsRemove($_id: String!) {
-    checklistItemsRemove(_id: $_id) {
+  mutation dealChecklistItemsRemove($_id: String!) {
+    dealChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
 `;
 
 const checklistItemsOrder = `
-  mutation checklistItemsOrder($_id: String!, $destinationIndex: Int) {
-    checklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+  mutation dealChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
+    dealChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
       _id
     }
   }
@@ -113,5 +113,5 @@ export default {
   checklistItemsAdd,
   checklistItemsEdit,
   checklistItemsOrder,
-  checklistItemsRemove
+  checklistItemsRemove,
 };

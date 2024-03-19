@@ -56,7 +56,7 @@ const boardMutations = {
   /**
    * Create new board
    */
-  async boardsAdd(
+  async dealBoardsAdd(
     _root,
     doc: IBoard,
     { user, models, subdomain, docModifier }: IContext
@@ -84,7 +84,7 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(
+  async dealBoardsEdit(
     _root,
     { _id, ...doc }: IBoardsEdit,
     { user, models, subdomain }: IContext
@@ -112,7 +112,7 @@ const boardMutations = {
   /**
    * Remove board
    */
-  async boardsRemove(
+  async dealBoardsRemove(
     _root,
     { _id }: { _id: string },
     { models, subdomain, user }: IContext
@@ -159,7 +159,7 @@ const boardMutations = {
   /**
    * Create new pipeline
    */
-  async pipelinesAdd(
+  async dealPipelinesAdd(
     _root,
     { stages, ...doc }: IPipelinesAdd,
     { user, models, subdomain }: IContext
@@ -192,7 +192,7 @@ const boardMutations = {
   /**
    * Edit pipeline
    */
-  async pipelinesEdit(
+  async dealPipelinesEdit(
     _root,
     { _id, stages, ...doc }: IPipelinesEdit,
     { user, models, subdomain }: IContext
@@ -225,7 +225,7 @@ const boardMutations = {
   /**
    * Update pipeline orders
    */
-  async pipelinesUpdateOrder(
+  async dealPipelinesUpdateOrder(
     _root,
     { orders }: { orders: IOrderInput[] },
     { models }: IContext
@@ -236,7 +236,7 @@ const boardMutations = {
   /**
    * Watch pipeline
    */
-  async pipelinesWatch(
+  async dealPipelinesWatch(
     _root,
     { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
     { user, subdomain, models }: IContext
@@ -249,7 +249,7 @@ const boardMutations = {
   /**
    * Remove pipeline
    */
-  async pipelinesRemove(
+  async dealPipelinesRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -305,7 +305,7 @@ const boardMutations = {
   /**
    * Archive pipeline
    */
-  async pipelinesArchive(
+  async dealPipelinesArchive(
     _root,
     { _id, status }: { _id; status: string },
     { user, models, subdomain }: IContext
@@ -345,7 +345,7 @@ const boardMutations = {
   /**
    * Duplicate pipeline
    */
-  async pipelinesCopied(
+  async dealPipelinesCopied(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -393,7 +393,7 @@ const boardMutations = {
   /**
    * Update stage orders
    */
-  stagesUpdateOrder(
+  dealStagesUpdateOrder(
     _root,
     { orders }: { orders: IOrderInput[] },
     { models }: IContext
@@ -404,7 +404,7 @@ const boardMutations = {
   /**
    * Edit stage
    */
-  async stagesEdit(
+  async dealStagesEdit(
     _root,
     { _id, ...doc }: IStageEdit,
     { user, models, subdomain }: IContext
@@ -432,7 +432,7 @@ const boardMutations = {
   /**
    * Remove stage
    */
-  async stagesRemove(
+  async dealStagesRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -453,7 +453,7 @@ const boardMutations = {
     return removed;
   },
 
-  async stagesSortItems(
+  async dealStagesSortItems(
     _root,
     {
       stageId,
@@ -521,7 +521,7 @@ const boardMutations = {
     return 'ok';
   },
 
-  async boardItemUpdateTimeTracking(
+  async dealBoardItemUpdateTimeTracking(
     _root,
     {
       _id,
@@ -549,7 +549,7 @@ const boardMutations = {
     );
   },
 
-  async boardItemsSaveForGanttTimeline(
+  async dealBoardItemsSaveForGanttTimeline(
     _root,
     { items, links, type }: { items: any[]; links: any[]; type: string },
     { models }: IContext

@@ -10,7 +10,6 @@ import {
 import {
   Board as BoardMutations,
   Deal as DealMutations,
-  PipelineTemplate as PipelineTemplateMutations,
   PipelineLabel as PipelineLabelMutations,
   Checklists as ChecklistMutations,
 } from './mutations';
@@ -18,7 +17,6 @@ import {
 import {
   Board as BoardQueries,
   Deal as DealQueries,
-  PipelineTemplate as PipelineTemplateQueries,
   PipelineLabel as PipelineLabelQueries,
   CheckLists as ChecklistQueries,
 } from './queries';
@@ -34,14 +32,12 @@ const resolvers: any = {
   Mutation: {
     ...BoardMutations,
     ...DealMutations,
-    ...PipelineTemplateMutations,
     ...PipelineLabelMutations,
     ...ChecklistMutations,
   },
   Query: {
     ...BoardQueries,
     ...DealQueries,
-    ...PipelineTemplateQueries,
     ...PipelineLabelQueries,
     ...ChecklistQueries,
   },
