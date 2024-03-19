@@ -1,38 +1,38 @@
 module.exports = {
   srcDir: __dirname,
-  name: 'multierkhet',
+  name: "multierkhet",
   port: 3030,
   exposes: {
-    './routes': './src/routes.tsx',
-    "./response": "./src/response.tsx"
+    "./routes": "./src/routes.tsx",
+    "./response": "./src/response.tsx",
   },
   routes: {
-    url: 'http://localhost:3030/remoteEntry.js',
-    scope: 'multierkhet',
-    module: './routes'
+    url: "http://localhost:3030/remoteEntry.js",
+    scope: "multierkhet",
+    module: "./routes",
   },
   menus: [
     {
-      text: 'Sync Multi Erkhet',
-      to: '/erxes-plugin-multi-erkhet/settings/general',
-      image: '/images/icons/erxes-04.svg',
+      text: "Sync Multi Erkhet",
+      to: "/erxes-plugin-multi-erkhet/settings/general",
+      image: "/images/icons/erxes-04.svg",
       location: "settings",
       scope: "multierkhet",
-      action: 'multiErkhetConfig',
+      action: "multiErkhetConfig",
       permission: "multiErkhetConfig",
     },
     {
-      text: 'Sync Multi Erkhet',
-      url: '/multi-erkhet-history',
-      icon: 'icon-file-check-alt',
+      text: "Multi Erkhet Sync",
+      url: "/multi-erkhet-history",
+      icon: "book-alt",
       location: "mainNavigation",
-      scope: 'multierkhet',
-      permission: 'multiErkhetConfig',
+      scope: "multierkhet",
+      permission: "multiErkhetConfig",
     },
   ],
   layout: {
     url: "http://localhost:3030/remoteEntry.js",
     scope: "multierkhet",
-    module: "./response"
-  }
+    module: "./response",
+  },
 };
