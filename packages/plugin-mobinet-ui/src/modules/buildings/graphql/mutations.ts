@@ -11,6 +11,7 @@ const variables = `
     $suhId: String
     $networkType: NetworkType
     $customFieldsData: JSON
+    $drawnPoints: [DrawnPointsInput]
 `;
 
 const fields = `
@@ -26,6 +27,7 @@ const fields = `
     suhId: $suhId
     networkType: $networkType
     customFieldsData: $customFieldsData
+    drawnPoints: $drawnPoints
 `;
 
 const addMutation = `
