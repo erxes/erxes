@@ -11,10 +11,14 @@ import {
   DisconnectCall,
   HeaderItem,
   InCall,
+  IncomingCallNav,
   IncomingCalls,
+  IncomingContainer,
+  IncomingContent,
   InputBar,
   Keypad,
   KeypadHeader,
+  NameCardContainer,
   NumberInput,
   PhoneNumber,
 } from '../styles';
@@ -22,6 +26,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import { Button, Icon } from '@erxes/ui/src/components';
 import {
   CALL_DIRECTION_INCOMING,
+  CALL_DIRECTION_OUTGOING,
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
@@ -369,47 +374,62 @@ const KeyPad = (props: Props, context) => {
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
 
+  if (
+    Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
+    Sip.call?.status === CALL_STATUS_STARTING
+  ) {
+    return (
+      <IncomingCallNav type="outgoing">
+        <IncomingContainer>
+          <IncomingContent>
+            <NameCardContainer>
+              <h5>
+                {' '}
+                <Icon icon="calling" />
+                {__('Calling')}
+              </h5>
+              <PhoneNumber>{number}</PhoneNumber>
+            </NameCardContainer>
+            {callActions(
+              isMuted,
+              handleAudioToggle,
+              isHolded,
+              handleHold,
+              handleCallStop,
+            )}
+          </IncomingContent>
+        </IncomingContainer>
+      </IncomingCallNav>
+    );
+  }
+
+  if (Sip.call?.status === CALL_STATUS_ACTIVE) {
+    return (
+      <IncomingCallNav type="outgoing">
+        <IncomingContainer>
+          <IncomingContent>
+            <NameCardContainer>
+              <h5>{__('In Call')}</h5>
+              {renderCallerInfo()}
+            </NameCardContainer>
+            <p>
+              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+            </p>
+            {callActions(
+              isMuted,
+              handleAudioToggle,
+              isHolded,
+              handleHold,
+              handleCallStop,
+            )}
+          </IncomingContent>
+        </IncomingContainer>
+      </IncomingCallNav>
+    );
+  }
+
   return (
     <>
-      {Sip.call?.status === CALL_STATUS_ACTIVE && (
-        <Popover id="call-popover" className="call-popover">
-          <InCall>
-            <CallInfo shrink={shrink}>
-              <p>
-                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-              </p>
-              <div>{renderCallerInfo()}</div>
-              {callActions(isMuted, handleAudioToggle, isHolded, handleHold)}
-            </CallInfo>
-            <ContactItem>
-              <CallTabsContainer full={true}>
-                {inCallTabs.map((tab) => (
-                  <CallTab
-                    key={tab}
-                    className={currentTab === tab ? 'active' : ''}
-                    onClick={() => onTabClick(tab)}
-                  >
-                    {__(tab)}
-                  </CallTab>
-                ))}
-              </CallTabsContainer>
-            </ContactItem>
-            {renderFooter(
-              shrink,
-              handleCallStop,
-              currentTab,
-              onChangeText,
-              sendMessage,
-              customer,
-              taggerRefetchQueries,
-              toggleSection,
-              conversationDetail,
-              handNumPad,
-              true,
-            )}
-          </InCall>
-        </Popover>
-      )}
       {Sip.call?.direction !== CALL_DIRECTION_INCOMING && (
         <NumberInput>
           <KeypadHeader>
@@ -464,18 +484,21 @@ const KeyPad = (props: Props, context) => {
             scrollMenuIntoView={true}
           />
           <>
-            {Sip.call?.status === CALL_STATUS_IDLE &&
-              Sip.sip?.status === SIP_STATUS_REGISTERED && (
-                <>
-                  <Button
-                    btnStyle="success"
-                    icon="outgoing-call"
-                    onClick={handleCall}
-                  >
-                    Call
-                  </Button>
-                </>
-              )}
+            {Sip.sip?.status === SIP_STATUS_REGISTERED && (
+              <>
+                <Button
+                  btnStyle="success"
+                  icon="outgoing-call"
+                  onClick={handleCall}
+                >
+                  {Sip.call?.status === CALL_STATUS_IDLE
+                    ? 'Call'
+                    : Sip.call?.status === CALL_STATUS_STARTING
+                      ? 'Calling'
+                      : 'aa'}
+                </Button>
+              </>
+            )}
           </>
         </NumberInput>
       )}
