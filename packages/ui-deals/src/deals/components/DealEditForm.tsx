@@ -8,6 +8,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import Left from '../../boards/components/editForm/Left';
 import PortableTickets from '@erxes/ui-tickets/src/tickets/components/PortableTickets';
 import PortableTasks from '@erxes/ui-tasks/src/tasks/components/PortableTasks';
+import PortablePurchases from '@erxes/ui-purchases/src/purchases/components/PortablePurchases';
 import ProductSection from './ProductSection';
 import React from 'react';
 import Sidebar from '../../boards/components/editForm/Sidebar';
@@ -238,7 +239,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {/* <PortablePurchase mainType="deal" mainTypeId={item._id} /> */}
+        <PortablePurchases mainType="deal" mainTypeId={item._id} />
         {pluginsOfItemSidebar(item, 'deal')}
       </>
     );

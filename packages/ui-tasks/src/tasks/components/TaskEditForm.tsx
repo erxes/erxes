@@ -10,7 +10,7 @@ import {
   IOptions,
 } from '../../boards/types';
 import PortableDeals from '@erxes/ui-deals/src/deals/components/PortableDeals';
-// import PortablePurchases from '../../purchases/components/PortablePurchases';
+import PortablePurchase from '@erxes/ui-purchases/src/purchases/components/PortablePurchases';
 import PortableTickets from '@erxes/ui-tickets/src/tickets/components/PortableTickets';
 
 import React from 'react';
@@ -64,7 +64,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       <>
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
-        {/* <PortablePurchases mainType="task" mainTypeId={this.props.item._id} /> */}
+        <PortablePurchase mainType="task" mainTypeId={this.props.item._id} />
         {pluginsOfItemSidebar(this.props.item, 'task')}
       </>
     );

@@ -17,6 +17,9 @@ import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import queryString from 'query-string';
 import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
 import { IUser } from '@erxes/ui/src/auth/types';
+import PortableDeals from '@erxes/ui-deals/src/deals/components/PortableDeals';
+import PortableTasks from '@erxes/ui-tasks/src/tasks/components/PortableTasks';
+import PortablePurchases from '@erxes/ui-purchases/src/purchases/components/PortablePurchases';
 
 type Props = {
   options: IOptions;
@@ -92,9 +95,9 @@ export default function TicketEditForm(props: Props) {
   function renderItems() {
     return (
       <>
-        {/* <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
+        <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
-        <PortablePurchase mainType="ticket" mainTypeId={props.item._id} /> */}
+        <PortablePurchases mainType="ticket" mainTypeId={props.item._id} />
         {pluginsOfItemSidebar(props.item, 'ticket')}
       </>
     );
