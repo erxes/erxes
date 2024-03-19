@@ -11,16 +11,16 @@ module.exports = {
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
-      pipelinesChanged: {
+      purchasesPipelinesChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`purchasesPipelinesChanged:${_id}`),
       },
-      checklistsChanged: {
+      purchasesChecklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.checklistsChanged._id },
+            queryVariables: { _id: payload.purchasesChecklistsChanged._id },
             buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
@@ -32,16 +32,18 @@ module.exports = {
         },
         subscribe: (_, { contentType, contentTypeId }) =>
           graphqlPubsub.asyncIterator(
-            `checklistsChanged:${contentType}:${contentTypeId}`
+            `purchasesChecklistsChanged:${contentType}:${contentTypeId}`
           ),
       },
 
-      checklistDetailChanged: {
+      purchasesChecklistDetailChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
-            queryVariables: { _id: payload.checklistDetailChanged._id },
+            queryVariables: {
+              _id: payload.purchasesChecklistDetailChanged._id,
+            },
             buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
@@ -52,12 +54,12 @@ module.exports = {
           });
         },
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`purchasesChecklistDetailChanged:${_id}`),
       },
 
-      productsDataChanged: {
+      purchasesProductsDataChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`purchasesProductsDataChanged:${_id}`),
       },
     };
   },

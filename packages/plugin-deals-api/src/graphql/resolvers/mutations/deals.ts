@@ -27,7 +27,7 @@ const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
@@ -35,7 +35,7 @@ const dealMutations = {
       doc,
       'deal',
       models.Deals.createDeal,
-      user,
+      user
     );
   },
 
@@ -45,25 +45,25 @@ const dealMutations = {
   async dealsEdit(
     _root,
     { _id, proccessId, ...doc }: IDealsEdit & { proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const oldDeal = await models.Deals.getDeal(_id);
 
     if (doc.assignedUserIds) {
       const { removedUserIds } = checkUserIds(
         oldDeal.assignedUserIds,
-        doc.assignedUserIds,
+        doc.assignedUserIds
       );
       const oldAssignedUserPdata = (oldDeal.productsData || [])
         .filter((pdata) => pdata.assignUserId)
         .map((pdata) => pdata.assignUserId || '');
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
-        oldAssignedUserPdata.includes(userId),
+        oldAssignedUserPdata.includes(userId)
       );
 
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
-          'Cannot remove the team member, it is assigned in the product / service section',
+          'Cannot remove the team member, it is assigned in the product / service section'
         );
       }
     }
@@ -79,7 +79,7 @@ const dealMutations = {
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
-        assignedUsersPdata,
+        assignedUsersPdata
       );
 
       if (addedUserIds.length > 0 || removedUserIds.length > 0) {
@@ -87,7 +87,7 @@ const dealMutations = {
           doc.assignedUserIds || oldDeal.assignedUserIds || [];
         assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
         assignedUserIds = assignedUserIds.filter(
-          (userId) => !removedUserIds.includes(userId),
+          (userId) => !removedUserIds.includes(userId)
         );
         doc.assignedUserIds = assignedUserIds;
       }
@@ -102,7 +102,7 @@ const dealMutations = {
       doc,
       proccessId,
       user,
-      models.Deals.updateDeal,
+      models.Deals.updateDeal
     );
   },
 
@@ -112,7 +112,7 @@ const dealMutations = {
   async dealsChange(
     _root,
     doc: IItemDragCommonFields,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsChange(
       models,
@@ -120,7 +120,7 @@ const dealMutations = {
       doc,
       'deal',
       user,
-      models.Deals.updateDeal,
+      models.Deals.updateDeal
     );
   },
 
@@ -130,7 +130,7 @@ const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsRemove(models, subdomain, _id, 'deal', user);
   },
@@ -141,7 +141,7 @@ const dealMutations = {
   async dealsWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user, models }: IContext,
+    { user, models }: IContext
   ) {
     return models.Deals.watchDeal(_id, isAdd, user._id);
   },
@@ -149,7 +149,7 @@ const dealMutations = {
   async dealsCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsCopy(
       models,
@@ -159,14 +159,14 @@ const dealMutations = {
       'deal',
       user,
       ['productsData', 'paymentsData'],
-      models.Deals.createDeal,
+      models.Deals.createDeal
     );
   },
 
   async dealsArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
   },
@@ -182,7 +182,7 @@ const dealMutations = {
       dealId: string;
       docs: IProductData[];
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
     const stage = await models.Stages.getStage(deal.stageId);
@@ -192,7 +192,7 @@ const dealMutations = {
     for (const doc of docs) {
       if (doc._id) {
         const checkDup = (deal.productsData || []).find(
-          (pd) => pd._id === doc._id,
+          (pd) => pd._id === doc._id
         );
         if (checkDup) {
           throw new Error('Deals productData duplicated');
@@ -203,10 +203,10 @@ const dealMutations = {
     // undefenid or null then true
     const tickUsed = stage.defaultTick === false ? false : true;
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed }) as IProductData,
+      (doc) => ({ ...doc, tickUsed }) as IProductData
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
-      addDocs,
+      addDocs
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -214,8 +214,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`dealsPipelinesChanged:${stage.pipelineId}`, {
+      dealsPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -227,7 +227,7 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem,
+              updatedItem
             )),
           },
         },
@@ -238,8 +238,8 @@ const dealMutations = {
       .filter((pd) => !oldDataIds.includes(pd._id))
       .map((pd) => pd._id);
 
-    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`dealsProductsDataChanged:${dealId}`, {
+      dealsProductsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'create',
@@ -270,11 +270,11 @@ const dealMutations = {
       dataId: string;
       doc: IProductData;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
     const oldPData = (deal.productsData || []).find(
-      (pdata) => pdata.id === dataId,
+      (pdata) => pdata.id === dataId
     );
 
     if (!oldPData) {
@@ -282,7 +282,7 @@ const dealMutations = {
     }
 
     const productsData = (deal.productsData || []).map((data) =>
-      data.id === dataId ? { ...doc } : data,
+      data.id === dataId ? { ...doc } : data
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -291,8 +291,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`dealsPipelinesChanged:${stage.pipelineId}`, {
+      dealsPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -304,15 +304,15 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem,
+              updatedItem
             )),
           },
         },
       },
     });
 
-    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`dealsProductsDataChanged:${dealId}`, {
+      dealsProductsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'edit',
@@ -341,12 +341,12 @@ const dealMutations = {
       dealId: string;
       dataId: string;
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).find(
-      (pdata) => pdata.id === dataId,
+      (pdata) => pdata.id === dataId
     );
 
     if (!oldPData) {
@@ -354,7 +354,7 @@ const dealMutations = {
     }
 
     const productsData = (deal.productsData || []).filter(
-      (data) => data.id !== dataId,
+      (data) => data.id !== dataId
     );
 
     await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
@@ -363,8 +363,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`dealsPipelinesChanged:${stage.pipelineId}`, {
+      dealsPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
@@ -376,15 +376,15 @@ const dealMutations = {
               subdomain,
               user,
               'deal',
-              updatedItem,
+              updatedItem
             )),
           },
         },
       },
     });
 
-    graphqlPubsub.publish(`productsDataChanged:${dealId}`, {
-      productsDataChanged: {
+    graphqlPubsub.publish(`dealsProductsDataChanged:${dealId}`, {
+      dealsProductsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'delete',
