@@ -39,6 +39,37 @@ const MapComponent = (props: Props) => {
   const mapEvents = useMapEvents({
     zoomend: () => {
       props.onChangeZoom && props.onChangeZoom(mapEvents.getZoom());
+
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      timer = setTimeout(() => {
+        const bounds: ICoordinates[] = [];
+        bounds.push({
+          lat: map.getBounds().getNorthEast().lat,
+          lng: map.getBounds().getNorthEast().lng,
+        });
+        bounds.push({
+          lat: map.getBounds().getSouthEast().lat,
+          lng: map.getBounds().getSouthEast().lng,
+        });
+        bounds.push({
+          lat: map.getBounds().getSouthWest().lat,
+          lng: map.getBounds().getSouthWest().lng,
+        });
+        bounds.push({
+          lat: map.getBounds().getNorthWest().lat,
+          lng: map.getBounds().getNorthWest().lng,
+        });
+
+        props.onChangeCenter && props.onChangeCenter(map.getCenter(), bounds);
+        return;
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+      };
     },
     dragend: () => {
       {
@@ -54,16 +85,16 @@ const MapComponent = (props: Props) => {
             lng: map.getBounds().getNorthEast().lng,
           });
           bounds.push({
+            lat: map.getBounds().getSouthEast().lat,
+            lng: map.getBounds().getSouthEast().lng,
+          });
+          bounds.push({
             lat: map.getBounds().getSouthWest().lat,
             lng: map.getBounds().getSouthWest().lng,
           });
           bounds.push({
             lat: map.getBounds().getNorthWest().lat,
             lng: map.getBounds().getNorthWest().lng,
-          });
-          bounds.push({
-            lat: map.getBounds().getNorthEast().lat,
-            lng: map.getBounds().getNorthEast().lng,
           });
 
           props.onChangeCenter && props.onChangeCenter(map.getCenter(), bounds);
@@ -78,13 +109,12 @@ const MapComponent = (props: Props) => {
   });
 
   map.setView(props.center || [47.919481, 106.904299], props.zoom || 5);
-
   return null;
 };
 
 const Map = (props: Props) => {
-  const { id, zoom, width = '100%', height = '100%' } = props;
-
+  const { id, width = '100%', height = '100%' } = props;
+  const [zoom, setZoom] = useState(16);
   const [markers, setMarkers] = React.useState<any[]>(props.markers || []);
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
   const [dd, setDD] = useState<IBuilding[]>();
@@ -116,7 +146,7 @@ const Map = (props: Props) => {
   }, [props.id, center, zoom, setCenter]);
   useEffect(() => {
     const filter = props.buildings?.filter((d) => d.drawnPoints) || [];
-    console.log(filter);
+
     setDD(filter);
   }, [props.buildings]);
   const eventHandlers = {
@@ -149,12 +179,13 @@ const Map = (props: Props) => {
   return (
     <MapContainer
       center={center || [47.919481, 106.904299]}
-      zoom={zoom || 10}
+      // zoom={zoom || 10}
       zoomControl={true}
       style={{ height, width, zIndex: 0 }}
       id={id}
+      whenReady={() => {}}
     >
-      <MapComponent {...props} />
+      <MapComponent {...props} onChangeZoom={setZoom} zoom={zoom} />
 
       {markers.map((marker, index) => (
         <Marker

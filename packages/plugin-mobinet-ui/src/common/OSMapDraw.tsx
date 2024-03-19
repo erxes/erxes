@@ -1,11 +1,12 @@
 import 'leaflet/dist/leaflet.css';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'ol/ol.css';
 import { Map as MapFiber } from '@react-ol/fiber';
 import { Stroke, Fill } from 'ol/style';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, fromUserExtent, transform } from 'ol/proj';
 import { ICoordinates } from '../types';
+import { useMap, useMapEvents } from 'react-leaflet';
 
 type Props = {
   id: string;
@@ -14,7 +15,7 @@ type Props = {
     lng: number;
   };
 
-  onChangeCenter?: (position: any) => void;
+  onChangeCenter?: (position: ICoordinates, bounds: ICoordinates[]) => void;
   onPyloganDrawn: (coords: ICoordinates[]) => void;
 };
 
@@ -31,10 +32,31 @@ const circleFill = new Fill({
 
 const MapDraw = (props: Props) => {
   const [vectorSource, setVectorSource] = useState();
+  const viewRef = useRef();
 
   return (
     <MapFiber>
       <olView
+        ref={viewRef}
+        onChange_view={(d) => {
+          console.log('change view');
+          console.log(d);
+        }}
+        onChange={(d) => {
+          console.log('change normal');
+          console.log(d.target);
+          console.log('??');
+          const src = 'EPSG:3857';
+          const dest = 'EPSG:4326';
+          console.log(transform(d.target.targetCenter_, src, dest));
+          const d1 =
+            d.target.targetCenter_[0] - d.target.projection_.extent_[0];
+          const d2 =
+            d.target.targetCenter_[1] - d.target.projection_.extent_[1];
+          console.log('pisda');
+          console.log(transform([d1, d2], src, dest));
+          // d.target.targetCenter_.values_.zoom
+        }}
         initialCenter={fromLonLat([
           props.center?.lng || 0,
           props.center?.lat || 0,

@@ -274,12 +274,19 @@ const BuildingForm = (props: Props) => {
       style: { height: '300px', width: '100%' },
       selectedValues,
       onload,
-      buildings: buildingsByBounds,
+      buildings: buildingsByBounds || [],
     };
 
     return <OSMBuildings {...mapProps} />;
   };
 
+  console.log('form buildingsByBounds');
+  console.log(buildingsByBounds);
+  const onChangeCenter = (newCenter: ICoordinates, bounds: ICoordinates[]) => {
+    bounds.push(bounds[0]);
+    props.getBuildingsWithingBounds(bounds);
+    setCenter(newCenter);
+  };
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
@@ -413,6 +420,8 @@ const BuildingForm = (props: Props) => {
         ) : (
           <OSMapDraw
             id="test"
+            // buildings={buildingsByBounds}
+            onChangeCenter={onChangeCenter}
             center={center}
             onPyloganDrawn={(coords) => {
               const obj: any = buildingObject || {};
