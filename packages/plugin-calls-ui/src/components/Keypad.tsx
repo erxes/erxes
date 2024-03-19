@@ -384,8 +384,7 @@ const KeyPad = (props: Props, context) => {
           <IncomingContent>
             <NameCardContainer>
               <h5>
-                {' '}
-                <Icon icon="calling" />
+                <Icon icon="calling" size={16} />
                 {__('Calling')}
               </h5>
               <PhoneNumber>{number}</PhoneNumber>
