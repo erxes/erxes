@@ -446,5 +446,5 @@ export default {
 
   timeclockBranches,
   timeclockDepartments,
-  timeclockReportByUsers
+  timeclockReportByUsers,
 };

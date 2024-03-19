@@ -12,31 +12,31 @@ const COLORS = {
   activeTimeclock: 'rgba(255,88,87,0.2)',
   weekend: 'rgba(244,193,189,1.0)',
   white: '#ffffff',
-  blank: '#ffffff'
+  blank: '#ffffff',
 };
 
 const menuTimeClock = (searchFilter: string, isCurrentUserAdmin: boolean) => {
   const navigationMenu = [
-    { title: __('Timeclocks'), link: `/timeclocks${searchFilter}` }
+    { title: __('Timeclocks'), link: `/timeclocks${searchFilter}` },
   ];
 
   if (!isEnabled('bichil')) {
     navigationMenu.push({
       title: __('Time logs'),
-      link: `/timeclocks/logs${searchFilter}`
+      link: `/timeclocks/logs${searchFilter}`,
     });
   }
 
   navigationMenu.push(
     { title: __('Requests'), link: `/timeclocks/requests${searchFilter}` },
     { title: __('Schedule'), link: `/timeclocks/schedule${searchFilter}` },
-    { title: __('Report'), link: `/timeclocks/report${searchFilter}` }
+    { title: __('Report'), link: `/timeclocks/report${searchFilter}` },
   );
 
   if (isCurrentUserAdmin) {
     navigationMenu.push({
       title: __('Configuration'),
-      link: `/timeclocks/config${searchFilter}`
+      link: `/timeclocks/config${searchFilter}`,
     });
   }
 
@@ -58,5 +58,5 @@ export {
   dateDayFormat,
   dayOfTheWeekFormat,
   dateOfTheMonthFormat,
-  COLORS
+  COLORS,
 };

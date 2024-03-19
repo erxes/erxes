@@ -8,11 +8,11 @@ import {
   debugError,
   debugInstagram,
   debugRequest,
-  debugResponse
+  debugResponse,
 } from './debuggers';
 
-const init = async app => {
-  app.get('/instagram/login', loginMiddleware);
+const init = async (app) => {
+  app.get('/iglogin', loginMiddleware);
 
   app.get('/instagram/get-accounts', async (req, res, next) => {
     debugRequest(debugInstagram, req);
@@ -20,7 +20,7 @@ const init = async app => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const account = await models.Accounts.getAccount({
-      _id: req.query.accountId
+      _id: req.query.accountId,
     });
 
     const accessToken = account.token;
@@ -36,9 +36,9 @@ const init = async app => {
           {
             $set: {
               healthStatus: 'account-token',
-              error: `${e.message}`
-            }
-          }
+              error: `${e.message}`,
+            },
+          },
         );
       }
 
@@ -57,12 +57,12 @@ const init = async app => {
 
     const INSTAGRAM_VERIFY_TOKEN = await getConfig(
       models,
-      'INSTAGRAM_VERIFY_TOKEN'
+      'INSTAGRAM_VERIFY_TOKEN',
     );
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
-      if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
+      if (req.query['hub.verify_token'] === '477832793072863') {
         res.send(req.query['hub.challenge']);
       } else {
         res.send('OK');
