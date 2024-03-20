@@ -28,7 +28,7 @@ const PaymentModal = (props: Props) => {
     kind = 'qpay';
   }
 
-  console.log('haha')
+  console.log('yeaah')
 
   const renderLoading = () => {
     return (
