@@ -1,14 +1,17 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import { queries, mutations } from '@erxes/ui/src/team/graphql';
-import { UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
-import { EmptyState, Spinner } from '@erxes/ui/src';
-import MainListCompoenent from '../../components/unit/MainList';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import client from '@erxes/ui/src/apolloClient';
+import * as compose from "lodash.flowright";
+
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { EmptyState, Spinner } from "@erxes/ui/src";
+import { mutations, queries } from "@erxes/ui/src/team/graphql";
+
+import MainListCompoenent from "../../components/unit/MainList";
+import React from "react";
+import { UnitsMainQueryResponse } from "@erxes/ui/src/team/types";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils/core";
+
 type Props = {
   queryParams: any;
   history: any;
@@ -37,18 +40,20 @@ class MainList extends React.Component<FinalProps> {
     }
 
     const deleteUnits = (ids: string[], callback: () => void) => {
-      confirm().then(() => {
+      confirm("This will permanently delete are you absolutely sure?", {
+        hasDeleteConfirm: true,
+      }).then(() => {
         client
           .mutate({
             mutation: gql(mutations.unitsRemove),
             variables: { ids },
-            refetchQueries: ['unitsMain']
+            refetchQueries: ["unitsMain"],
           })
           .then(() => {
             callback();
-            Alert.success('Successfully deleted');
+            Alert.success("Successfully deleted");
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -60,12 +65,12 @@ class MainList extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.unitsMain), {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.searchValue
-        }
-      })
+          searchValue: queryParams.searchValue,
+        },
+      }),
     })
   )(MainList)
 );

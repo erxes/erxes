@@ -3,15 +3,15 @@ import { gql } from '@apollo/client';
 import PutResponseDuplicated from '../components/PutResponsesDuplicated';
 import queryString from 'query-string';
 import React from 'react';
-import { Spinner, WithPermission } from '@erxes/ui/src/components';
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
+import { Spinner } from '@erxes/ui/src/components';
+import { router, withProps } from '@erxes/ui/src/utils';
 import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
   ListDuplicatedQueryVariables,
   PutResponsesDuplicatedCountQueryResponse,
   PutResponsesDuplicatedDetailQueryResponse,
-  PutResponsesDuplicatedQueryResponse
+  PutResponsesDuplicatedQueryResponse,
 } from '../types';
 import { queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
@@ -37,12 +37,15 @@ const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
-class PutResponsesDuplicatedContainer extends React.Component<FinalProps, State> {
+class PutResponsesDuplicatedContainer extends React.Component<
+  FinalProps,
+  State
+> {
   constructor(props) {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -88,10 +91,8 @@ class PutResponsesDuplicatedContainer extends React.Component<FinalProps, State>
   };
 
   render() {
-    const {
-      PutResponsesDuplicatedQuery,
-      PutResponsesDuplicatedCountQuery
-    } = this.props;
+    const { PutResponsesDuplicatedQuery, PutResponsesDuplicatedCountQuery } =
+      this.props;
 
     if (
       PutResponsesDuplicatedQuery.loading ||
@@ -103,11 +104,12 @@ class PutResponsesDuplicatedContainer extends React.Component<FinalProps, State>
     let errorMsg: string = '';
     if (PutResponsesDuplicatedQuery.error) {
       errorMsg = PutResponsesDuplicatedQuery.error.message;
-      Alert.error(errorMsg);
     }
 
-    const putResponsesDuplicated = PutResponsesDuplicatedQuery.putResponsesDuplicated || [];
-    const putResponsesDuplicatedCount = PutResponsesDuplicatedCountQuery.putResponsesDuplicatedCount || 0;
+    const putResponsesDuplicated =
+      PutResponsesDuplicatedQuery.putResponsesDuplicated || [];
+    const putResponsesDuplicatedCount =
+      PutResponsesDuplicatedCountQuery.putResponsesDuplicatedCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -119,7 +121,7 @@ class PutResponsesDuplicatedContainer extends React.Component<FinalProps, State>
       onFilter: this.onFilter,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
     return <PutResponseDuplicated {...updatedProps} />;
@@ -129,8 +131,8 @@ class PutResponsesDuplicatedContainer extends React.Component<FinalProps, State>
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   billType: queryParams.billType,
-  startDate: queryParams.createdStartDate,
-  endDate: queryParams.createdEndDate,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
 });
 
 export default withProps<Props>(
@@ -143,8 +145,8 @@ export default withProps<Props>(
       name: 'PutResponsesDuplicatedQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<
       { queryParams: any },
@@ -154,8 +156,8 @@ export default withProps<Props>(
       name: 'PutResponsesDuplicatedCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
-  )(withRouter<IRouterProps>(PutResponsesDuplicatedContainer))
+  )(withRouter<IRouterProps>(PutResponsesDuplicatedContainer)),
 );
