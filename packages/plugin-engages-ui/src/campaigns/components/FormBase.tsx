@@ -76,22 +76,6 @@ class FormBase extends React.Component<Props> {
       }
     }
 
-    if (doc.scheduleDate) {
-      const { type, day, month } = doc.scheduleDate;
-
-      if (!type) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if ((type === 'year' || type === 'month') && !day) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if (type === 'year' && !month) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-    }
-
     if (docType === 'live') {
       return {
         status: 'ok',

@@ -220,7 +220,6 @@ class List extends React.Component<Props> {
             <th>{__('From')}</th>
             <th>{__('Created by')}</th>
             <th>{__('Created date')}</th>
-            <th>{__('Scheduled date')}</th>
             {isEnabled('tags') && <th>{__('Tags')}</th>}
             <th>{__('Actions')}</th>
           </tr>

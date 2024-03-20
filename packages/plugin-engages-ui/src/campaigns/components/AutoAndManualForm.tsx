@@ -23,7 +23,6 @@ import {
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
-  IEngageScheduleDate,
   IEngageSms,
   IEngageNotification,
   IEmailTemplate,
@@ -71,7 +70,6 @@ type State = {
   fromUserId: string;
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
-  scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   rules: IConditionsRule[];
   isSaved: boolean;
@@ -107,7 +105,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: message.fromUserId,
       messenger: message.messenger,
       email: message.email,
-      scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
       notification: message.notification,
       cpId: message.cpId,
@@ -138,7 +135,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate,
       shortMessage: this.state.shortMessage,
       notification: this.state.notification,
       cpId: this.state.cpId,
@@ -299,7 +295,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email,
       fromUserId,
       content,
-      scheduleDate,
       method,
       shortMessage,
       notification,
@@ -314,7 +309,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <SmsForm
             onChange={this.changeState}
             messageKind={kind}
-            scheduleDate={scheduleDate}
             shortMessage={shortMessage}
             fromUserId={fromUserId}
             smsConfig={smsConfig}
@@ -330,7 +324,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <NotificationForm
             onChange={this.changeState}
             messageKind={kind}
-            scheduleDate={scheduleDate}
             notification={notification}
           />
         </Step>
@@ -340,7 +333,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title="Compose your campaign"
+        title="Compose your broadcast"
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -355,7 +348,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           email={email}
           fromUserId={fromUserId}
           content={content}
-          scheduleDate={scheduleDate}
           isSaved={isSaved}
         />
       </Step>

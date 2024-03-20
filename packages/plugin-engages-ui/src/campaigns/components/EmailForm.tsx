@@ -5,11 +5,7 @@ import {
   VerifyCheck,
 } from '@erxes/ui-engage/src/styles';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import {
-  IEmailFormProps,
-  IEngageEmail,
-  IEngageScheduleDate,
-} from '@erxes/ui-engage/src/types';
+import { IEmailFormProps, IEngageEmail } from '@erxes/ui-engage/src/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -23,7 +19,6 @@ import { ISelectedOption } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Scheduler from './Scheduler';
 import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
@@ -47,7 +42,6 @@ type State = {
   fromUserId: string;
   content: string;
   email: IEngageEmail;
-  scheduleDate?: IEngageScheduleDate;
   testEmail?: string;
 };
 
@@ -65,7 +59,6 @@ class EmailForm extends React.Component<Props, State> {
       fromUserId: props.fromUserId,
       content: props.content,
       email: props.email,
-      scheduleDate: props.scheduleDate,
       testEmail: getEmail(props.users, props.fromUserId),
     };
   }
@@ -105,19 +98,6 @@ class EmailForm extends React.Component<Props, State> {
     return '';
   };
 
-  renderScheduler() {
-    if (this.props.kind === 'manual') {
-      return null;
-    }
-
-    return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
-        onChange={this.props.onChange}
-      />
-    );
-  }
-
   onEditorChange = (content: string) => {
     this.props.onChange('content', content);
   };
@@ -144,7 +124,7 @@ class EmailForm extends React.Component<Props, State> {
           value: user._id,
           label: user.email || user.username,
           disabled: !verifiedEmails.includes(user.email),
-        }),
+        })
       );
 
       return options;
@@ -315,7 +295,6 @@ class EmailForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          {this.renderScheduler()}
           {this.renderTestEmailSection()}
         </FlexPad>
 

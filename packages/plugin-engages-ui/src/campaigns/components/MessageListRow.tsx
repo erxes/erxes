@@ -56,11 +56,7 @@ class Row extends React.Component<Props> {
   onEdit = () => {
     const msg = this.props.message;
 
-    if (
-      msg.isLive &&
-      (msg.kind === MESSAGE_KINDS.AUTO ||
-        msg.kind === MESSAGE_KINDS.VISITOR_AUTO)
-    ) {
+    if (msg.isLive && msg.kind != MESSAGE_KINDS.MANUAL) {
       return Alert.info('Pause the Campaign first and try editing');
     }
 
@@ -73,10 +69,41 @@ class Row extends React.Component<Props> {
     return this.props.edit();
   };
 
+  renderStatus() {
+    const { message } = this.props;
+    const { kind, isLive, runCount, isDraft } = message;
+    let labelStyle = 'primary';
+    let labelText = 'Sending';
+
+    if (isDraft === true) {
+      return <Label lblStyle="simple">{__('Draft')}</Label>;
+    }
+
+    if (!isLive) {
+      labelStyle = 'simple';
+      labelText = 'Paused';
+    } else {
+      labelStyle = 'primary';
+      labelText = 'Sending';
+    }
+
+    if (kind === MESSAGE_KINDS.MANUAL) {
+      if (runCount > 0) {
+        labelStyle = 'success';
+        labelText = 'Sent';
+      } else {
+        labelStyle = 'danger';
+        labelText = 'Not Sent';
+      }
+    }
+
+    // scheduled auto campaign
+
+    return <Label lblStyle={labelStyle}>{labelText}</Label>;
+  }
   renderLinks() {
     const msg = this.props.message;
 
-    const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(
       'Set live',
@@ -112,6 +139,12 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveButton = (onClick) => {
+    const { message } = this.props;
+    const { runCount } = message;
+
+    if (runCount > 0) {
+      return null;
+    }
     return (
       <Tip text={__('Delete')} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
@@ -168,55 +201,6 @@ class Row extends React.Component<Props> {
     }
   };
 
-  renderStatus() {
-    const { message } = this.props;
-    const { kind, scheduleDate, isLive, runCount, isDraft, method } = message;
-    let labelStyle = 'primary';
-    let labelText = 'Sending';
-
-    if (isDraft === true) {
-      return <Label lblStyle="simple">{__('Draft')}</Label>;
-    }
-
-    if (!isLive) {
-      labelStyle = 'simple';
-      labelText = 'Paused';
-    } else {
-      labelStyle = 'primary';
-      labelText = 'Sending';
-    }
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      if (runCount > 0) {
-        labelStyle = 'success';
-        labelText = 'Sent';
-      } else {
-        labelStyle = 'danger';
-        labelText = 'Not Sent';
-      }
-    }
-
-    // scheduled auto campaign
-    if (scheduleDate && kind === MESSAGE_KINDS.AUTO) {
-      const scheduledDate = new Date(scheduleDate.dateTime);
-      const now = new Date();
-
-      if (
-        scheduleDate.type === 'pre' &&
-        scheduledDate.getTime() > now.getTime()
-      ) {
-        labelStyle = 'warning';
-        labelText = 'Scheduled';
-      }
-      if (scheduleDate.type === 'sent') {
-        labelStyle = 'success';
-        labelText = 'Sent';
-      }
-    }
-
-    return <Label lblStyle={labelStyle}>{labelText}</Label>;
-  }
-
   renderType(msg) {
     let icon: string = 'multiply';
     let label: string = 'Other type';
@@ -259,7 +243,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, message, remove } = this.props;
-    const { brand = { name: '' }, scheduleDate, totalCustomersCount } = message;
+    const { brand = { name: '' }, totalCustomersCount } = message;
     return (
       <tr key={message._id}>
         <td>
@@ -294,13 +278,6 @@ class Row extends React.Component<Props> {
         <td>
           <Icon icon="calender" />{' '}
           {dayjs(message.createdAt).format('DD MMM YYYY')}
-        </td>
-
-        <td>
-          <Icon icon="clock-eight" />{' '}
-          {scheduleDate && scheduleDate.dateTime
-            ? dayjs(scheduleDate.dateTime).format('DD MMM YYYY HH:mm')
-            : '-- --- ---- --:--'}
         </td>
 
         {isEnabled('tags') && (
