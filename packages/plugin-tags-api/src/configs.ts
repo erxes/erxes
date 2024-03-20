@@ -34,8 +34,7 @@ export default {
   },
   middlewares: [(serverTiming as any)()],
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 
   meta: { logs: { consumers: logs }, permissions, dashboards },

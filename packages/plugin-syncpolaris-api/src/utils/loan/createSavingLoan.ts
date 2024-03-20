@@ -1,13 +1,13 @@
 import {
   getBranch,
   getCustomer,
-  getLoanProduct,
   getUser,
   fetchPolaris,
-  updateLoanNumber,
   customFieldToObject,
-  getSavingContract,
   getDepositAccount,
+  updateContract,
+  getProduct,
+  getContract,
 } from '../utils';
 
 export const createSavingLoan = async (subdomain, params) => {
@@ -17,13 +17,14 @@ export const createSavingLoan = async (subdomain, params) => {
 
   const customer = await getCustomer(subdomain, loan.customerId);
 
-  const loanProduct = await getLoanProduct(subdomain, loan.contractTypeId);
+  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
 
   const depositAccount = await getDepositAccount(subdomain, loan.customerId);
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    loan.savingContractId,
+    { _id: loan.savingContractId },
+    'savings',
   );
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
@@ -135,7 +136,12 @@ export const createSavingLoan = async (subdomain, params) => {
   }).then((a) => JSON.parse(a));
 
   if (typeof result === 'string') {
-    await updateLoanNumber(subdomain, loan._id, result);
+    await updateContract(
+      subdomain,
+      { _id: loan._id },
+      { $set: { number: result } },
+      'loans',
+    );
   }
 
   return result;

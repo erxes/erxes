@@ -1,7 +1,7 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import BuildingForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 import { queries as cityQueries } from '../../cities/graphql';
@@ -9,6 +9,7 @@ import { queries as districtQueries } from '../../districts/graphql';
 import { queries as buildingtQueries } from '../../buildings/graphql';
 import { IBuilding } from '../types';
 import { CityByCoordinateQueryResponse } from '../../cities/types';
+import { BuildingsByBoundsQueryResponse } from '../../buildings/types';
 import { ICoordinates } from '../../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
@@ -22,6 +23,11 @@ type Props = {
 };
 
 const BuildingFormContainer = (props: Props) => {
+  const [fetchBuildingsWithinBounds, { data: buildingsByBoundsData }] =
+    useLazyQuery<BuildingsByBoundsQueryResponse>(
+      gql(buildingtQueries.buildingsByBoundsQuery),
+    );
+
   const districtsByCoordinates = useQuery(
     gql(districtQueries.districtByCoordinatesQuery),
     {
@@ -32,6 +38,14 @@ const BuildingFormContainer = (props: Props) => {
       fetchPolicy: 'network-only',
     },
   );
+
+  const getBuildingsWithingBounds = (bounds: ICoordinates[]) => {
+    fetchBuildingsWithinBounds({
+      variables: {
+        bounds: bounds.map((b) => [b.lng, b.lat]),
+      },
+    });
+  };
 
   const configsQuery = useQuery(gql(queries.configs), {
     variables: {
@@ -81,6 +95,9 @@ const BuildingFormContainer = (props: Props) => {
     );
   };
 
+  let buildingsByBounds =
+    (buildingsByBoundsData && buildingsByBoundsData.buildingsByBounds) || [];
+
   const updatedProps = {
     ...props,
     city: data && data.cityByCoordinates,
@@ -89,6 +106,8 @@ const BuildingFormContainer = (props: Props) => {
       districtsByCoordinates.data.districtByCoordinates,
     suhTagId: configsQuery.data?.configsGetValue?.value?.suhTagId || '',
     renderButton,
+    getBuildingsWithingBounds,
+    buildingsByBounds,
   };
 
   return <BuildingForm {...updatedProps} />;

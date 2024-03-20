@@ -119,7 +119,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
 
         if (ebarimtResponses.length) {
-          await graphqlPubsub.publish('multierkhetResponded', {
+          await graphqlPubsub.publish(`multierkhetResponded:${user._id}`, {
             multierkhetResponded: {
               userId: user._id,
               responseId: ebarimtResponses.map((er) => er._id).join('-'),
@@ -201,7 +201,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
 
         if (ebarimtResponses.length) {
-          await graphqlPubsub.publish('multierkhetResponded', {
+          await graphqlPubsub.publish(`multierkhetResponded:${user._id}`, {
             multierkhetResponded: {
               userId: user._id,
               responseId: ebarimtResponses.map((er) => er._id).join('-'),

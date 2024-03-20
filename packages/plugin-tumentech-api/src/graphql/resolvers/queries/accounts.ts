@@ -4,14 +4,14 @@ import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
 } from '../../../messageBroker';
 
 const queries = {
   customerAccount: async (
     _root,
     args: { customerId: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const { customerId } = args;
 
@@ -20,10 +20,10 @@ const queries = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: customerId
+        _id: customerId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!customer) {
@@ -38,13 +38,13 @@ const queries = {
     }
 
     let account = await models.CustomerAccounts.findOne({
-      customerId
+      customerId,
     });
 
     if (!account) {
       account = await models.CustomerAccounts.create({
         customerId,
-        balance: 200000
+        balance: 200000,
       });
     }
 
@@ -60,10 +60,10 @@ const queries = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser.userId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!user) {
@@ -71,13 +71,13 @@ const queries = {
     }
 
     let account = await models.CustomerAccounts.findOne({
-      customerId: user.erxesCustomerId
+      customerId: user.erxesCustomerId,
     });
 
     if (!account) {
       account = await models.CustomerAccounts.create({
         customerId: user.erxesCustomerId,
-        balance: 200000
+        balance: 200000,
       });
     }
 
@@ -87,7 +87,7 @@ const queries = {
   getEbarimt: async (
     _root,
     { topupId, companyRegNumber, companyName },
-    { models, cpUser, subdomain }: IContext
+    { models, cpUser, subdomain }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -97,10 +97,10 @@ const queries = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser.userId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!user) {
@@ -108,13 +108,13 @@ const queries = {
     }
 
     let account = await models.CustomerAccounts.findOne({
-      customerId: user.erxesCustomerId
+      customerId: user.erxesCustomerId,
     });
 
     if (!account) {
       account = await models.CustomerAccounts.create({
         customerId: user.erxesCustomerId,
-        balance: 200000
+        balance: 200000,
       });
     }
 
@@ -133,10 +133,10 @@ const queries = {
       subdomain,
       action: 'findOne',
       data: {
-        code: 'TT0001'
+        code: 'TT0001',
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!product) {
@@ -164,9 +164,9 @@ const queries = {
           amount: topup.amount,
           count: 1,
           inventoryCode: product.code,
-          discount: 0
-        }
-      ]
+          discount: 0,
+        },
+      ],
     };
 
     const productsById: any = {};
@@ -178,7 +178,7 @@ const queries = {
       vatPercent: 10,
       cityTaxPercent: 0,
       defaultGSCode: '6601200',
-      companyRD: '6906192' // production companyRD
+      companyRD: '6906192', // production companyRD
       // companyRD: '0000038' // test companyRD
     };
 
@@ -191,10 +191,10 @@ const queries = {
         productsById,
         contentType: 'tumentech_topups',
         contentId: topup._id,
-        config
+        config,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!ebarimtData) {
@@ -203,7 +203,7 @@ const queries = {
 
     await models.Topups.updateOne(
       { _id: topup._id },
-      { $set: { ebarimtData: JSON.stringify(ebarimtData) } }
+      { $set: { ebarimtData: JSON.stringify(ebarimtData) } },
     );
 
     return ebarimtData;
@@ -212,21 +212,21 @@ const queries = {
   customerAccountsList: async (
     _root,
     { page, perPage },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     return {
       totalCount: await models.CustomerAccounts.find().countDocuments(),
       list: paginate(models.CustomerAccounts.find({}).lean(), {
         page: page || 1,
-        perPage: perPage || 20
-      })
+        perPage: perPage || 20,
+      }),
     };
   },
 
   searchDriver: async (
     _root,
     args: any,
-    { models, subdomain, cpUser }: IContext
+    { models, subdomain, cpUser }: IContext,
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -247,10 +247,10 @@ const queries = {
         data: {
           mainType: 'car',
           mainTypeIds: [car._id],
-          relTypes: ['customer']
+          relTypes: ['customer'],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (!conformities.length) {
@@ -269,10 +269,10 @@ const queries = {
         subdomain,
         action: 'customers.find',
         data: {
-          _id: { $in: possibleCustomerIds }
+          _id: { $in: possibleCustomerIds },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (!customers.length) {
@@ -294,10 +294,10 @@ const queries = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        primaryPhone: value
+        primaryPhone: value,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!possibleCustomer) {
@@ -311,10 +311,10 @@ const queries = {
       data: {
         mainType: 'customer',
         mainTypeIds: [possibleCustomer._id],
-        relTypes: ['car']
+        relTypes: ['car'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const possibleCarIds = confs.map((c: any) => {
@@ -330,7 +330,45 @@ const queries = {
     }
 
     return { success: 'driver found', foundDriver: possibleCustomer, foundCar };
-  }
+  },
+  tumentechPurchaseHistory: async (
+    _root,
+    {
+      page,
+      perPage,
+      adsId,
+      driverId,
+      cpUserId,
+    }: {
+      page?: number;
+      perPage?: number;
+      adsId: string;
+      driverId: string;
+      cpUserId: string;
+    },
+    { models }: IContext,
+  ) => {
+    const filter: any = {};
+
+    if (adsId) {
+      filter.adsId = adsId;
+    }
+    if (driverId) {
+      filter.driverId = driverId;
+    }
+    if (cpUserId) {
+      filter.cpUserId = cpUserId;
+    }
+    const bb = await models.PurchaseHistories.find(filter).lean();
+
+    return {
+      list: paginate(models.PurchaseHistories.find(filter).lean(), {
+        page: page || 1,
+        perPage: perPage || 20,
+      }),
+      totalCount: models.PurchaseHistories.find(filter).count(),
+    };
+  },
 };
 
 export default queries;

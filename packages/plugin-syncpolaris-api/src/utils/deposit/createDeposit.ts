@@ -3,8 +3,8 @@ import {
   fetchPolaris,
   getBranch,
   getCustomer,
-  getSavingProduct,
-  updateSavingNumber,
+  getProduct,
+  updateContract,
 } from '../utils';
 import { IPolarisDeposit } from './types';
 import { validateDepositObject } from './validator';
@@ -17,9 +17,10 @@ export const createDeposit = async (subdomain: string, params) => {
     'savings:contract',
     deposit,
   );
-  const savingProduct = await getSavingProduct(
+  const savingProduct = await getProduct(
     subdomain,
     deposit.contractTypeId,
+    'savings',
   );
 
   const branch = await getBranch(subdomain, deposit.branchId);
@@ -58,7 +59,12 @@ export const createDeposit = async (subdomain: string, params) => {
   });
 
   if (typeof depositCode === 'string') {
-    await updateSavingNumber(subdomain, deposit._id, JSON.parse(depositCode));
+    await updateContract(
+      subdomain,
+      { _id: deposit._id },
+      { $set: { number: JSON.parse(depositCode) } },
+      'savings',
+    );
   }
 
   return depositCode;

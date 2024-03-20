@@ -27,7 +27,6 @@ export default {
   meta: {},
   postHandlers: [{ path: `/handleSync`, method: postHandler }],
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

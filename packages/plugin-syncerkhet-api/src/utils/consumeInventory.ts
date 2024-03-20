@@ -33,7 +33,6 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       categoryCode: productCategory
         ? productCategory.code
         : product.categoryCode,
-      description: eval('`' + config.consumeDescription + '`'),
       status: 'active',
       taxType: doc.vat_type || '',
       taxCode: doc.vat_type_code || '',
@@ -79,6 +78,9 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       });
 
       document.subUoms = subUoms;
+    }
+    if (config.consumeDescription) {
+      doc.description = eval('`' + config.consumeDescription + '`');
     }
 
     if (product) {

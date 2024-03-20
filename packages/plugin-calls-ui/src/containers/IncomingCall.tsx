@@ -12,7 +12,7 @@ import queries from '../graphql/queries';
 
 interface IProps {
   closeModal?: () => void;
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
@@ -21,20 +21,20 @@ const IncomingCallContainer = (props: IProps, context) => {
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
-  const { callIntegrationsOfUser } = props;
+  const { callUserIntegrations } = props;
   const { call } = context;
 
   const phoneNumber = context?.call?.counterpart?.slice(
     context.call.counterpart.indexOf(':') + 1,
-    context.call.counterpart.indexOf('@')
+    context.call.counterpart.indexOf('@'),
   );
 
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations'
+    'config:call_integrations',
   );
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
-    callIntegrationsOfUser?.[0]?.inboxId;
+    callUserIntegrations?.[0]?.inboxId;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
@@ -45,7 +45,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       .then(() => {
         setHasMicrophone(true);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error accessing microphone:', error);
         const errorMessage = error
           ?.toString()
@@ -62,14 +62,14 @@ const IncomingCallContainer = (props: IProps, context) => {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
           direction: 'incoming',
-          callID: call.id
-        }
+          callID: call.id,
+        },
       })
         .then(({ data }: any) => {
           setCustomer(data.callAddCustomer?.customer);
           setConversation(data.callAddCustomer?.conversation);
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     }
@@ -80,13 +80,13 @@ const IncomingCallContainer = (props: IProps, context) => {
       variables: {
         content,
         conversationId,
-        internal: true
-      }
+        internal: true,
+      },
     })
       .then(() => {
         Alert.success('Successfully added note');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -100,14 +100,14 @@ const IncomingCallContainer = (props: IProps, context) => {
       .query({
         query: gql(queries.callCustomerDetail),
         fetchPolicy: 'network-only',
-        variables: { callerNumber: phone }
+        variables: { callerNumber: phone },
       })
       .then(({ data }: { data: any }) => {
         if (data && data.callsCustomerDetail) {
           setCustomer(data.callsCustomerDetail);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
 
@@ -122,8 +122,8 @@ const IncomingCallContainer = (props: IProps, context) => {
     {
       query: gql(queries.callCustomerDetail),
       variables: { callerNumber: customer?.primaryPhone },
-      skip: !customer?.primaryPhone
-    }
+      skip: !customer?.primaryPhone,
+    },
   ];
 
   return (
@@ -139,7 +139,7 @@ const IncomingCallContainer = (props: IProps, context) => {
 };
 
 IncomingCallContainer.contextTypes = {
-  call: callPropType
+  call: callPropType,
 };
 
 export default IncomingCallContainer;

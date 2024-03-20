@@ -50,8 +50,20 @@ const types = `
   }
 `;
 
+const queryParams = `
+  page: Int
+  perPage: Int
+  employeeId: String
+  startDate: Date 
+  endDate: Date
+  userIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
+  dateFilter: Boolean
+`;
+
 const queries = `
-  salaryReport(page: Int, perPage: Int, employeeId: String): SalaryReportsListResponse
+  salaryReport(${queryParams}): SalaryReportsListResponse
   salaryByEmployee(password: String!): SalaryReportsListResponse
 
   salaryLabels: JSON

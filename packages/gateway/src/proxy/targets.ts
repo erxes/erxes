@@ -47,22 +47,33 @@ async function ensureGraphqlEndpointIsUp({
 
   const endponit = `${address}/graphql`;
 
+  /*
+    query: 'query SubgraphIntrospectQuery {\n' +
+      '    # eslint-disable-next-line\n' +
+      '    _service {\n' +
+      '        sdl\n' +
+      '    }\n' +
+      '}',
+
+  */
   const res = await fetch(endponit, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      variables: null,
       query: `
-          query _ErxesGatewaySubgraphCheck_ {
+          query SubgraphIntrospectQuery {
             _service {
               sdl
             }
           }
           `,
+      operationName: 'SubgraphIntrospectQuery',
     }),
   });
-  if (res.status === 200) {
+  if (res.ok) {
     return;
   }
 

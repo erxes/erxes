@@ -213,7 +213,6 @@ export const engageMessageSchema = schemaWrapper(
       type: [String],
       label: 'Received customers',
     }),
-
     email: field({ type: emailSchema, label: 'Email' }),
     scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
     messenger: field({ type: messengerSchema, label: 'Messenger' }),

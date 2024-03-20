@@ -10,23 +10,31 @@ export default {
   },
 
   async page({ token, pageId }: IBotDocument, _args, { models }: IContext) {
-    const response: any = await graphRequest.get(
-      `/${pageId}?fields=name`,
-      token,
-    );
-    return response ? response : null;
+    try {
+      const response: any = await graphRequest.get(
+        `/${pageId}?fields=name`,
+        token,
+      );
+      return response ? response : null;
+    } catch (error) {
+      return null;
+    }
   },
 
   async profileUrl({ pageId, token }: IBotDocument) {
-    const response: any = await graphRequest.get(
-      `/${pageId}/picture?height=600`,
-      token,
-    );
+    try {
+      const response: any = await graphRequest.get(
+        `/${pageId}/picture?height=600`,
+        token,
+      );
 
-    if (!response) {
+      if (!response) {
+        return null;
+      }
+
+      return response?.location || null;
+    } catch (err) {
       return null;
     }
-
-    return response?.location || null;
   },
 };

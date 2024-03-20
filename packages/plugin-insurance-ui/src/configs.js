@@ -6,6 +6,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './cardDetailAction': './src/modules/items/ContractButton.tsx',
+    './insuranceItemSection': './src/modules/items/ItemSection.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -21,5 +22,12 @@ module.exports = {
       icon: 'icon-umbrella',
       location: 'mainNavigation',
     }
+  ],
+  dealRightSidebarSection: [
+    {
+      text: 'insuranceItem',
+      component: './insuranceItemSection',
+      scope: 'insurance',
+    },
   ],
 };

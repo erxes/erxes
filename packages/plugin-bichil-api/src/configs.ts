@@ -17,8 +17,6 @@ import { removeAndUpdateTimeclocks } from './updateTimeclocks';
 import { findAndUpdateTimeclockScheduleShifts } from './updateTimeclockScheduleShifts';
 import app from '@erxes/api-utils/src/app';
 
-
-
 export default {
   name: 'bichil',
   permissions,

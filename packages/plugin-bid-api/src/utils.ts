@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
-import { Polarissyncs } from './models';
 
 import { nanoid } from 'nanoid';
+import { IModels, generateModels } from './connectionResolver';
 
 /*
  * Mongoose field options wrapper
@@ -33,7 +33,11 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
   return schemaWrapper(schema);
 };
 
-export const fetchPolarisData = async (subdomain: string, doc: any) => {
+export const fetchPolarisData = async (
+  models: IModels,
+  subdomain: string,
+  doc: any
+) => {
   const customerId = doc.customerId;
 
   const customer = await sendCommonMessage({
@@ -49,28 +53,24 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     throw new Error('Customer not found');
   }
 
-  const configs = await sendCommonMessage({
-    subdomain,
-    serviceName: 'core',
-    action: 'configs.findOne',
-    data: {
-      query: {
-        code: 'POLARIS_API_URL',
-      },
-    },
-    isRPC: true,
-    defaultValue: null,
-  });
+  // const configs = await sendCommonMessage({
+  //   subdomain,
+  //   serviceName: 'core',
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'POLARIS_API_URL',
+  //     },
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null,
+  // });
 
-  if (!configs) {
-    throw new Error('Config not found');
-  }
+  // if (!configs) {
+  //   throw new Error('Config not found');
+  // }
 
-  const body: any = {
-    customer_code: '',
-    phone_number: '',
-    register_number: '',
-  };
+  const body: any = {};
 
   if (customer.primaryPhone) {
     body.phone_number = customer.primaryPhone;
@@ -86,8 +86,12 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
     }
   }
 
+  if (!body.phone_number && !body.register_number && !body.customer_code) {
+    return;
+  }
+
   try {
-    const url = `${configs.value}/user/info`;
+    const url = 'https://crm-api.bid.mn/api/v1/user/info';
 
     const response = await fetch(url, {
       method: 'POST',
@@ -150,7 +154,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
 
     for (const f of fields) {
       const existingIndex = customFieldsData.findIndex(
-        (c) => c.field === f._id,
+        (c) => c.field === f._id
       );
 
       if (data[f.code]) {
@@ -205,7 +209,7 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       const groupValue = prepareGroupValue(g.code, g.prefix);
       if (groupValue) {
         const existingIndex = customFieldsData.findIndex(
-          (c) => c.field === groupValue.field,
+          (c) => c.field === groupValue.field
         );
 
         if (existingIndex !== -1) {
@@ -237,12 +241,12 @@ export const fetchPolarisData = async (subdomain: string, doc: any) => {
       subdomain,
     });
 
-    return Polarissyncs.createOrUpdate({
+    return models.Polarissyncs.createOrUpdate({
       customerId,
       data: res.data || null,
     });
   } catch (e) {
-    console.error('error ', e);
+    console.error('********** ERROR *********** ', e);
     throw new Error(e);
   }
 };
@@ -255,22 +259,24 @@ export const addCustomer = async (req, res, subdomain) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const configs = await sendCommonMessage({
-    subdomain,
-    serviceName: 'core',
-    action: 'configs.findOne',
-    data: {
-      query: {
-        code: 'POLARIS_API_URL',
-      },
-    },
-    isRPC: true,
-    defaultValue: null,
-  });
+  const models = await generateModels(subdomain);
 
-  if (!configs) {
-    return res.status(200).json({ error: 'Config not found' });
-  }
+  // const configs = await sendCommonMessage({
+  //   subdomain,
+  //   serviceName: 'core',
+  //   action: 'configs.findOne',
+  //   data: {
+  //     query: {
+  //       code: 'POLARIS_API_URL',
+  //     },
+  //   },
+  //   isRPC: true,
+  //   defaultValue: null,
+  // });
+
+  // if (!configs) {
+  //   return res.status(200).json({ error: 'Config not found' });
+  // }
 
   const body: any = {
     customer_code: '',
@@ -291,7 +297,7 @@ export const addCustomer = async (req, res, subdomain) => {
   }
 
   try {
-    const url = `${configs.value}/user/info`;
+    const url = 'https://crm-api.bid.mn/api/v1/user/info';
 
     const response = await fetch(url, {
       method: 'POST',
@@ -362,14 +368,14 @@ export const addCustomer = async (req, res, subdomain) => {
       });
     }
 
-    await Polarissyncs.createOrUpdate({
+    await models.Polarissyncs.createOrUpdate({
       customerId: customer._id,
       data: resJson.data || null,
     });
 
     return res.status(200).json({ data: customer });
   } catch (e) {
-    console.error('error ', e);
+    console.error('############ ERROR ############ ', e);
     return res.status(200).json({ error: e.message });
   }
 };

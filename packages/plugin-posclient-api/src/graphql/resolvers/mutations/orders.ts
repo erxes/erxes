@@ -13,6 +13,7 @@ import {
   BILL_TYPES,
   ORDER_ITEM_STATUSES,
   ORDER_STATUSES,
+  ORDER_SALE_STATUS,
   ORDER_TYPES,
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
@@ -124,6 +125,16 @@ export const getStatus = (config, buttonType, doc, order?) => {
   return ORDER_STATUSES.NEW;
 };
 
+export const getSaleStatus = (config, doc, order) => {
+  if (order.saleStatus) {
+    if (order.saleStatus === ORDER_SALE_STATUS.CONFIRMED) {
+      return ORDER_SALE_STATUS.CONFIRMED;
+    }
+    return ORDER_SALE_STATUS.CART;
+  }
+  return ORDER_SALE_STATUS.CART;
+};
+
 const orderAdd = async (models: IModels, lastDoc, config) => {
   try {
     const number = await generateOrderNumber(models, config);
@@ -191,6 +202,7 @@ const ordersAdd = async (
     );
 
     const status = getStatus(config, doc.buttonType, doc);
+    const saleStatus = getSaleStatus(config, doc, preparedDoc);
 
     const lastDoc = {
       ...doc,
@@ -202,6 +214,7 @@ const ordersAdd = async (
       departmentId: config.departmentId,
       taxInfo: getTaxInfo(config),
       status,
+      saleStatus,
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -304,6 +317,7 @@ const ordersEdit = async (
   await updateOrderItems(doc._id, preparedDoc.items, models);
 
   let status = getStatus(config, doc.buttonType, doc, order);
+  let saleStatus = getSaleStatus(config, doc, preparedDoc);
 
   // dont change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
@@ -325,6 +339,7 @@ const ordersEdit = async (
     dueDate: doc.dueDate,
     description: doc.description,
     status,
+    saleStatus,
   });
 
   await graphqlPubsub.publish('ordersOrdered', {
@@ -424,6 +439,22 @@ const orderMutations = {
         });
       } catch (e) {}
     }
+    return await models.Orders.getOrder(_id);
+  },
+
+  async orderChangeSaleStatus(
+    _root,
+    { _id, saleStatus }: { _id: string; saleStatus: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const oldOrder = await models.Orders.getOrder(_id);
+
+    await models.Orders.updateOrder(_id, {
+      ...oldOrder,
+      saleStatus,
+      modifiedAt: new Date(),
+    });
+
     return await models.Orders.getOrder(_id);
   },
 
@@ -646,6 +677,7 @@ const orderMutations = {
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
+        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
       },
     };
 

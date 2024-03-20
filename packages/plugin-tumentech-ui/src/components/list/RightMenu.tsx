@@ -246,7 +246,7 @@ export default class RightMenu extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
+        {/* <FormGroup>
           <ControlLabel>{`Импортолсон он`}</ControlLabel>
           <FormControl
             name={'importYear'}
@@ -257,7 +257,7 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
             min={1950}
           />
-        </FormGroup>
+        </FormGroup> */}
 
         <FormGroup>
           <ControlLabel>{`Оношлогоо огноо`}</ControlLabel>

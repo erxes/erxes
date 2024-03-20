@@ -40,7 +40,7 @@ import {
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
-}
+};
 
 export const setupMessageConsumers = async (): Promise<void> => {
   consumeQueue(

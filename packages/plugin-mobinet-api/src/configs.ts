@@ -11,8 +11,6 @@ import internalNotes from './internalNotes';
 import aftermutations from './aftermutations';
 import forms from './forms';
 
-
-
 export default {
   name: 'mobinet',
   meta: {
@@ -38,7 +36,6 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async () => {
-  },
-  setupMessageConsumers
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

@@ -18,7 +18,7 @@ const FilterWrapper = styled.div`
 `;
 
 export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
-  styled.div
+  styled.div,
 )`
   cursor: pointer;
   display: flex;
@@ -80,8 +80,8 @@ const SidebarHeader = styledTS<{
   bold?: boolean;
 }>(styled.div)`
   height: ${dimensions.headerSpacing}px;
-  text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => (props.bold ? 'bold' : '500')};
+  text-transform: ${(props) => props.uppercase && 'uppercase'};
+  font-weight: ${(props) => (props.bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: column;
@@ -92,7 +92,7 @@ const CustomWidth = styledTS<{
   widthPercent: number;
 }>(styled.div)`
 
-width: ${props => props.widthPercent}%;
+width: ${(props) => props.widthPercent}%;
 margin-top: 10px;
   margin-bottom: 10px;
   display: flex;
@@ -141,7 +141,7 @@ const CustomRangeContainer = styled.div`
 const CustomRow = styledTS<{
   marginNum: number;
 }>(styled.div)`
-  margin: ${props => props.marginNum}px 0
+  margin: ${(props) => props.marginNum}px 0
 `;
 
 const Input = styledTS<{
@@ -155,16 +155,16 @@ const Input = styledTS<{
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
   border-bottom: 1px solid;
-  border-color:${props =>
+  border-color:${(props) =>
     props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
-  type: ${props => {
+  type: ${(props) => {
     if (props.type) {
       return props.type;
     }
   }}
-  ${props => {
+  ${(props) => {
     if (props.round) {
       return `
         font-size: 13px;
@@ -177,7 +177,7 @@ const Input = styledTS<{
     return '';
   }};
 
-  ${props => {
+  ${(props) => {
     if (props.align) {
       return `
         text-align: ${props.align};
@@ -273,7 +273,7 @@ const InlineBlock = styled.div`
 `;
 
 const CustomLabel = styledTS<{ uppercase?: boolean }>(styled.label)`
-  text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
+  text-transform: ${(props) => (props.uppercase ? 'uppercase' : 'none')};
   display: inline-block;
   margin: 10px 0;
   font-weight: ${typography.fontWeightRegular};
@@ -307,7 +307,7 @@ const FlexColumn = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap:${props => props.marginNum}px;
+  gap:${(props) => props.marginNum}px;
 `;
 
 const FlexColumnMargined = styledTS<{
@@ -315,8 +315,8 @@ const FlexColumnMargined = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.marginNum}px
-  margin-top:${props => props.marginNum * 2}px;
+  gap: ${(props) => props.marginNum}px
+  margin-top:${(props) => props.marginNum * 2}px;
 `;
 
 const FlexColumnCustom = styledTS<{
@@ -324,7 +324,7 @@ const FlexColumnCustom = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.marginNum}px
+  gap: ${(props) => props.marginNum}px
   margin: 20px 20px
 
   div:first-child {
@@ -336,7 +336,7 @@ const FlexColumnCustom = styledTS<{
 const CustomWidthDiv = styledTS<{
   width: number;
 }>(styled.div)`
-    width: ${props => props.width}px
+    width: ${(props) => props.width}px
     justify-content: right;
   `;
 
@@ -351,7 +351,7 @@ const TextAlignRight = styled.div`
 const ToggleDisplay = styledTS<{
   display: boolean;
 }>(styled.div)`
-  display: ${props => (props.display ? 'inline' : 'none')};
+  display: ${(props) => (props.display ? 'inline' : 'none')};
 `;
 
 const DateName = styled.div`
@@ -361,11 +361,11 @@ const DateName = styled.div`
 `;
 
 const MarginX = styledTS<{ margin: number }>(styled.div)`
-  margin: 0 ${props => props.margin}px;
+  margin: 0 ${(props) => props.margin}px;
 `;
 
 const MarginY = styledTS<{ margin: number }>(styled.div)`
-  margin: ${props => props.margin}px 0;
+  margin: ${(props) => props.margin}px 0;
 `;
 
 const RowField = styled.div`
@@ -389,7 +389,7 @@ const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   overflow: hidden;
   justify-content: space-between;
   align-items: center;
-  padding: ${props =>
+  padding: ${(props) =>
     props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
   margin: 0px;
   background: ${colors.colorWhite};
@@ -419,12 +419,12 @@ const SortItem = styledTS<{
   display: flex;
   justify-content: space-between;
   border-left: 2px solid transparent; 
-  border-top: ${props =>
+  border-top: ${(props) =>
     !props.isDragging ? `1px solid ${colors.borderPrimary}` : 'none'};
   border-radius: 4px;
-  box-shadow: ${props =>
+  box-shadow: ${(props) =>
     props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
-  left: ${props =>
+  left: ${(props) =>
     props.isDragging && props.isModal ? '40px!important' : 'auto'};
   &:last-child {
     margin-bottom: 0;
@@ -435,7 +435,7 @@ const SortItem = styledTS<{
     border-color: ${colors.colorSecondary};
     border-top: none;
   }
-  ${props =>
+  ${(props) =>
     props.column &&
     css`
       width: ${100 / props.column}%;
@@ -456,7 +456,7 @@ const CustomBoxWrapper = styled.div`
 `;
 
 const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
-  background: ${props => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
+  background: ${(props) => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
   border-radius: 50%;
   border: 1px solid ${colors.borderPrimary};
   width: ${dimensions.coreSpacing}px;
@@ -469,7 +469,7 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   top: -5px;
 
   i {
-    filter: ${props => !props.pinned && 'brightness(30%)'};
+    filter: ${(props) => !props.pinned && 'brightness(30%)'};
   }
 
   &:hover {
@@ -509,8 +509,8 @@ const SearchInput = styledTS<{ isInPopover: boolean }>(styled.div)`
     border: 1px solid ${colors.borderPrimary};
     padding: 20px 20px 20px 30px;
     border-radius: 20px;
-    width: ${props => (props.isInPopover ? '250px' : '350px')};
-    margin:  ${props => props.isInPopover && '5px 5px 0'};
+    width: ${(props) => (props.isInPopover ? '250px' : '350px')};
+    margin:  ${(props) => props.isInPopover && '5px 5px 0'};
     background: ${colors.colorWhite};
 
     @media (max-width: 1300px) {
@@ -545,6 +545,72 @@ const SchedulesTableWrapper = styled.div`
 
   th {
     border: 1px solid #eee !important;
+  }
+`;
+
+const BorderedTd = styled.td`
+  background-color: white;
+  border: 2px solid #eeeeee;
+  text-align: center;
+`;
+
+const RequestInfo = styledTS<{
+  backgroundColor: string;
+  borderColor?: string;
+  textColor?: string;
+  hoverContent?: string;
+}>(styled.div)`
+  width: 92px;
+  overflow:hidden; 
+  white-space:nowrap; 
+  text-overflow: ellipsis;
+  border: 2px solid ${(props) =>
+    props.borderColor ? props.borderColor : props.backgroundColor};
+  border-radius: 20px;
+  padding: 6px;
+  margin: 5px auto;
+  background-color:${(props) => props.backgroundColor};
+  color: white;
+`;
+
+const TimeclockInfo = styledTS<{
+  activeShift?: boolean;
+  color?: string;
+  disabled?: boolean;
+}>(styled.div)`
+  width: ${(props) => (props.activeShift ? '92px' : 'max-content')};
+  border: 2px solid ${(props) =>
+    props.activeShift ? 'rgba(255,88,87,0.2)' : 'rgba(0, 177, 78, 0.1)'};
+  border-radius: 20px;
+  padding: 6px;
+  margin: 5px auto;
+  background-color: ${(props) =>
+    props.color
+      ? props.color
+      : props.activeShift
+        ? 'rgba(255,88,87,0.2)'
+        : 'rgba(0, 177, 78, 0.1)'};
+
+  pointer-events: ${(props) => (props.disabled ? 'none' : '')}
+  opacity: ${(props) => (props.disabled ? '0.7' : '1')};
+  cursor: pointer;
+`;
+
+const TimeclockTableWrapper = styled.div`
+  .fixed-column {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 99;
+  }
+`;
+
+const ColoredSquare = styledTS<{ color: string }>(styled.div)`
+  width: 10px; /* Adjust the size of the colored corner */
+  max-width:10px;
+  height: 10px; /* Adjust the size of the colored corner */
+  max-height:10px;
+  background-color: ${(props) => props.color}; 
   }
 `;
 
@@ -586,5 +652,10 @@ export {
   TextAlignCenter,
   TextAlignRight,
   ToggleButton,
-  ToggleDisplay
+  ToggleDisplay,
+  BorderedTd,
+  RequestInfo,
+  TimeclockInfo,
+  TimeclockTableWrapper,
+  ColoredSquare,
 };

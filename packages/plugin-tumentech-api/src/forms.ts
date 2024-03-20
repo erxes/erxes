@@ -17,7 +17,7 @@ export default {
       { name: 'plateNumber', label: 'Plate number', order: 5 },
       { name: 'vinNumber', label: 'Vin number', order: 6 },
       { name: 'vintageYear', label: 'Vintage year', order: 7 },
-      { name: 'importYear', label: 'Import year', order: 8 },
+      // { name: 'importYear', label: 'Import year', order: 8 },
       { name: 'description', label: 'Description', order: 9 }
     ]
   }

@@ -168,6 +168,7 @@ const List = (props: Props) => {
       onChangeCenter,
       onload,
       center,
+      buildings,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -175,18 +176,27 @@ const List = (props: Props) => {
 
   const render2dMap = () => {
     if (viewType !== '2d') {
+      console.log('rerender');
       return null;
     }
+    const onload = (bounds: ICoordinates[], mapRef) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+
+      setMap(mapRef.current);
+    };
 
     return (
       <OSMap
         id={Math.random().toString(10)}
         width={'100%'}
         height={'100%'}
+        onChangeCenter={onChangeCenter}
+        onload={onload}
         center={center}
+        buildings={buildings}
         zoom={16}
         addMarkerOnCenter={false}
-        // onChangeCenter={onChangeCenter}
       />
     );
   };

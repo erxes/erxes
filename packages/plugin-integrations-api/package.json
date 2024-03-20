@@ -20,7 +20,7 @@
     "sinon": "^7.5.0",
     "smooch-core": "^8.8.0",
     "telnyx": "^1.7.2",
-    "ts-node": "8.0.3",
+    "ts-node": "~10.9.2",
     "underscore": "^1.10.2",
     "uuid": "^3.3.3"
   },

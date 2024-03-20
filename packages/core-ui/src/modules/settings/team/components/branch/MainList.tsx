@@ -3,7 +3,7 @@ import {
   FilterContainer,
   InputBar,
   LeftActionBar,
-  Title
+  Title,
 } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
@@ -47,7 +47,7 @@ class MainList extends React.Component<Props, State> {
 
     this.state = {
       selectedItems: [],
-      searchValue: props.queryParams.searchValue || ''
+      searchValue: props.queryParams.searchValue || '',
     };
   }
 
@@ -57,19 +57,19 @@ class MainList extends React.Component<Props, State> {
       variables: {
         withoutUserFilter: true,
         searchValue: undefined,
-        ...generatePaginationParams(this.props.queryParams || {})
-      }
-    }
+        ...generatePaginationParams(this.props.queryParams || {}),
+      },
+    },
   ];
 
   remove = (_id?: string) => {
     if (_id) {
       this.props.deleteBranches([_id], () =>
-        this.setState({ selectedItems: [] })
+        this.setState({ selectedItems: [] }),
       );
     } else {
       this.props.deleteBranches(this.state.selectedItems, () =>
-        this.setState({ selectedItems: [] })
+        this.setState({ selectedItems: [] }),
       );
     }
   };
@@ -95,7 +95,7 @@ class MainList extends React.Component<Props, State> {
   }
 
   renderSearch() {
-    const search = e => {
+    const search = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -111,7 +111,7 @@ class MainList extends React.Component<Props, State> {
       }, 500);
     };
 
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
       e.target.value = '';
@@ -141,14 +141,14 @@ class MainList extends React.Component<Props, State> {
     const handleSelect = () => {
       if (selectedItems.includes(branch._id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== branch._id
+          (selectItem) => selectItem !== branch._id,
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
       this.setState({ selectedItems: [...selectedItems, branch._id] });
     };
 
-    const onclick = e => {
+    const onclick = (e) => {
       e.stopPropagation();
     };
 
@@ -210,7 +210,7 @@ class MainList extends React.Component<Props, State> {
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = branches.map(branch => branch._id);
+        const branchIds = branches.map((branch) => branch._id);
         return this.setState({ selectedItems: branchIds });
       }
 
@@ -231,17 +231,16 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Code')}</th>
             <th>{__('Title')}</th>
             <th>{__('Parent')}</th>
-            <th>{__('Address')}</th>
             <th>{__('Team member count')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>
           {generateTree(branches, null, (branch, level) =>
-            this.renderRow(branch, level)
+            this.renderRow(branch, level),
           )}
           {generateTree(branches, '', (branch, level) =>
-            this.renderRow(branch, level)
+            this.renderRow(branch, level),
           )}
         </tbody>
       </Table>
@@ -280,7 +279,7 @@ class MainList extends React.Component<Props, State> {
             title="Branches"
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: __('Branches') }
+              { title: __('Branches') },
             ]}
           />
         }

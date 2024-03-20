@@ -27,8 +27,7 @@ export default {
 
     return context;
   },
-  onServerInit: async (options: any) => {
-  },
+  onServerInit: async (options: any) => {},
   setupMessageConsumers,
   meta: {
     permissions,

@@ -28,7 +28,6 @@ export default {
     afterMutations,
   },
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

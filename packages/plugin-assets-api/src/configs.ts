@@ -41,7 +41,6 @@ export default {
     forms,
   },
 
-  onServerInit: async () => {
-  },
+  onServerInit: async () => {},
   setupMessageConsumers,
 };

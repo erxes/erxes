@@ -9,13 +9,15 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useEffect, useState } from 'react';
 import OSMBuildings from '../../../common/OSMBuildings';
 import { ICoordinates } from '../../../types';
-import { findCenter, getBuildingColor } from '../../../utils';
+import { findCenter } from '../../../utils';
 import SelectCity from '../../cities/containers/SelectCity';
 import { ICity } from '../../cities/types';
 import SelectDistrict from '../../districts/containers/SelectDistrict';
 import { IDistrict } from '../../districts/types';
 import SelectQuarter from '../../quarters/containers/SelectQuarter';
 import { IBuilding, IOSMBuilding } from '../types';
+import OSMapDraw from '../../../common/OSMapDraw';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 type Props = {
   osmBuilding?: IOSMBuilding;
@@ -25,12 +27,12 @@ type Props = {
   suhTagId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  buildings?: IBuilding[];
+  getBuildingsWithingBounds: (bounds: ICoordinates[]) => void;
+  buildingsByBounds?: IBuilding[];
 };
 
 const BuildingForm = (props: Props) => {
-  const { building, buildings } = props;
-
+  const { building, buildingsByBounds } = props;
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>(
     (building && building.quarterId) || '',
@@ -39,6 +41,7 @@ const BuildingForm = (props: Props) => {
     (building && building.quarter.districtId) || '',
   );
   const [name, setName] = useState<string>(props.building?.name || '');
+  const [mapType, setMapType] = useState('Сонгох');
   const [cityId, setCityId] = useState<string | undefined>(
     (props.city && props.city._id) ||
       (building &&
@@ -84,15 +87,18 @@ const BuildingForm = (props: Props) => {
       setDistrictId(props.district._id);
       setCenter(props.district.center);
     }
+  }, [props.city, cityId, props.district, districtId]);
 
+  useEffect(() => {
     if (osmBuilding) {
-      const obj: any = buildingObject || {};
+      setBuildingObject((prevObject) => {
+        const obj: any = prevObject || {};
 
-      obj.osmbId = osmBuilding.id;
-      obj.code = osmBuilding.id;
-      obj.name = osmBuilding.properties.name;
-
-      setBuildingObject(obj);
+        obj.osmbId = osmBuilding.id;
+        obj.code = osmBuilding.id;
+        obj.name = osmBuilding.properties.name;
+        return obj;
+      });
       setName(osmBuilding.properties.name || '');
       setCenter(findCenter(generateCoordinates(osmBuilding.properties.bounds)));
     }
@@ -104,10 +110,11 @@ const BuildingForm = (props: Props) => {
         }
       });
     }
-    console.log('buildingObject', buildingObject);
-    if (buildings && buildings.length > 0 && map) {
+    if (buildingsByBounds && buildingsByBounds.length > 0 && map) {
       map.highlight((feature: { id: string | undefined }) => {
-        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
+        const foundBuilding = buildingsByBounds.find(
+          (b) => b.osmbId === feature.id,
+        );
         const isCurrent = osmBuilding?.id === feature.id;
 
         if (foundBuilding) {
@@ -129,15 +136,7 @@ const BuildingForm = (props: Props) => {
         }
       });
     }
-  }, [
-    props.city,
-    cityId,
-    props.district,
-    districtId,
-    osmBuilding,
-    buildingObject,
-    map,
-  ]);
+  }, [osmBuilding, buildingObject, map, buildingsByBounds]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -151,13 +150,21 @@ const BuildingForm = (props: Props) => {
       // finalValues.code = buildingObject.code;
       finalValues.quarterId = quarterId;
       finalValues.osmbId = osmBuilding && osmBuilding.id;
-      finalValues.location =
-        osmBuilding &&
-        findCenter(generateCoordinates(osmBuilding.properties.bounds));
+      if (mapType === 'Сонгох')
+        finalValues.location =
+          osmBuilding &&
+          findCenter(generateCoordinates(osmBuilding.properties.bounds));
+      else
+        finalValues.location =
+          buildingObject?.drawnPoints?.length > 0
+            ? buildingObject?.drawnPoints[0]
+            : {};
       finalValues.suhId = buildingObject.suhId;
 
       finalValues.serviceStatus = buildingObject.serviceStatus;
       finalValues.networkType = buildingObject.networkType;
+      finalValues.drawnPoints = buildingObject.drawnPoints;
+      finalValues.bounds = buildingObject.bounds;
     }
 
     return {
@@ -171,10 +178,6 @@ const BuildingForm = (props: Props) => {
 
     obj[id] = value;
     setBuildingObject(obj);
-  };
-
-  const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
-    setCenter(center);
   };
 
   const onChangeDistrict = (districtId, center?: ICoordinates) => {
@@ -249,8 +252,18 @@ const BuildingForm = (props: Props) => {
     const selectedValues =
       (osmBuilding && [osmBuilding.id]) || (building && [building?.osmbId]);
 
-    const onload = (_bounds, mapRef) => {
+    const onload = (bounds, mapRef) => {
+      bounds.push(bounds[0]);
       setMap(mapRef.current);
+    };
+
+    const onChangeCenter = (
+      newCenter: ICoordinates,
+      bounds: ICoordinates[],
+    ) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+      setCenter(newCenter);
     };
 
     const mapProps = {
@@ -261,12 +274,19 @@ const BuildingForm = (props: Props) => {
       style: { height: '300px', width: '100%' },
       selectedValues,
       onload,
-      buildings: props.buildings,
+      buildings: buildingsByBounds || [],
     };
 
     return <OSMBuildings {...mapProps} />;
   };
 
+  console.log('form buildingsByBounds');
+  console.log(buildingsByBounds);
+  const onChangeCenter = (newCenter: ICoordinates, bounds: ICoordinates[]) => {
+    bounds.push(bounds[0]);
+    props.getBuildingsWithingBounds(bounds);
+    setCenter(newCenter);
+  };
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
@@ -375,8 +395,41 @@ const BuildingForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
-
-        {render3dMap()}
+        <FormGroup>
+          <ControlLabel>Type</ControlLabel>
+          <FormControl
+            id={'mapType'}
+            defaultValue={mapType === 'Сонгох' ? 'Сонгох' : 'Зурах'}
+            componentClass="select"
+            name="mapType"
+            onChange={(d) => {
+              const { value } = d.target as any;
+              console.log(value);
+              setMapType(value);
+            }}
+          >
+            {['Сонгох', 'Зурах'].map((p, index) => (
+              <option key={index} value={p}>
+                {p}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+        {mapType === 'Сонгох' ? (
+          render3dMap()
+        ) : (
+          <OSMapDraw
+            id="test"
+            // buildings={buildingsByBounds}
+            onChangeCenter={onChangeCenter}
+            center={center}
+            onPyloganDrawn={(coords) => {
+              const obj: any = buildingObject || {};
+              obj.drawnPoints = coords;
+              setBuildingObject(obj);
+            }}
+          />
+        )}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

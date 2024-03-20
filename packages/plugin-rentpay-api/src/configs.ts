@@ -3,22 +3,17 @@ import resolvers from './graphql/resolvers';
 
 import { setupMessageConsumers } from './messageBroker';
 
-
-
-
-
 export default {
   name: 'rentpay',
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
-  apolloServerContext: async context => {
+  apolloServerContext: async (context) => {
     return context;
   },
-  onServerInit: async () => {
-  },
-  setupMessageConsumers
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

@@ -179,6 +179,23 @@ const Form = (props: Props) => {
     );
   };
 
+  const renderDimensions = () => {
+    if (!dimensions.length) {
+      return null;
+    }
+
+    return (
+      <>
+        <ControlLabel>Dimension</ControlLabel>
+        <Select
+          options={dimensions}
+          value={dimension?.x}
+          onChange={(sel) => setDimension({ x: sel.value })}
+        />
+      </>
+    );
+  };
+
   const renderChartTemplates = () => {
     if (!chartTemplates.length) {
       return null;
@@ -206,14 +223,7 @@ const Form = (props: Props) => {
             placeholder={__(`Choose type`)}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>Dimension</ControlLabel>
-          <Select
-            options={dimensions}
-            value={dimension?.x}
-            onChange={(sel) => setDimension({ x: sel.value })}
-          />
-        </FormGroup>
+        <FormGroup>{renderDimensions()}</FormGroup>
         <FormGroup>{renderFilterTypeFields()}</FormGroup>
       </>
     );

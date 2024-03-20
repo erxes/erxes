@@ -9,15 +9,13 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
 import * as customCommand from './customCommand';
 
-
-
 export default {
   name: 'apex',
   permissions,
   graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: true,
@@ -37,7 +35,6 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async () => {
-  },
-  setupMessageConsumers
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

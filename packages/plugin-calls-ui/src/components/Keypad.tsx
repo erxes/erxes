@@ -37,10 +37,11 @@ import {
 } from '../utils';
 import Popover from 'react-bootstrap/Popover';
 import { ICallConversation, ICustomer } from '../types';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
-  callIntegrationsOfUser: any;
+  callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
   toggleSectionWithPhone: (phoneNumber: string) => void;
@@ -48,19 +49,21 @@ type Props = {
   conversation: ICallConversation;
   addNote: (conversationId: string, content: string) => void;
   disconnectCall: () => void;
+  phoneNumber: string;
 };
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const {
     addCustomer,
-    callIntegrationsOfUser,
+    callUserIntegrations,
     setConfig,
     customer,
     toggleSectionWithPhone,
     taggerRefetchQueries,
     conversation,
     addNote,
+    phoneNumber,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -70,14 +73,14 @@ const KeyPad = (props: Props, context) => {
   const [currentTab, setCurrentTab] = useState('');
   const [shrink, setShrink] = useState(customer ? true : false);
 
-  const [number, setNumber] = useState('');
+  const [number, setNumber] = useState(phoneNumber ? phoneNumber : '');
   const [dialCode, setDialCode] = useState('');
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
     JSON.parse(defaultCallIntegration)?.phone ||
-      callIntegrationsOfUser?.[0]?.phone ||
+      callUserIntegrations?.[0]?.phone ||
       '',
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
@@ -86,7 +89,7 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(0);
   const formatedPhone = formatPhone(number);
 
-  const ourPhone = callIntegrationsOfUser?.map((user) => ({
+  const ourPhone = callUserIntegrations?.map((user) => ({
     value: user.phone,
     label: user.phone,
   }));
@@ -119,7 +122,7 @@ const KeyPad = (props: Props, context) => {
     if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
       const inboxId =
         JSON.parse(defaultCallIntegration)?.inboxId ||
-        callIntegrationsOfUser?.[0]?.inboxId;
+        callUserIntegrations?.[0]?.inboxId;
 
       addCustomer(inboxId, formatedPhone, call?.id);
     }
@@ -151,9 +154,6 @@ const KeyPad = (props: Props, context) => {
       return;
     }
 
-    if (formatedPhone.length !== 8) {
-      return Alert.warning('Check phone number');
-    }
     const { startCall } = context;
 
     if (startCall && hasMicrophone) {
@@ -170,7 +170,7 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCallConnect = () => {
-    const integration = callIntegrationsOfUser?.find(
+    const integration = callUserIntegrations?.find(
       (userIntegration) => userIntegration.phone === callFrom,
     );
     localStorage.setItem(
@@ -202,7 +202,7 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCallDisConnect = () => {
-    const integration = callIntegrationsOfUser?.find(
+    const integration = callUserIntegrations?.find(
       (userIntegration) => userIntegration.phone === callFrom,
     );
     localStorage.setItem(
@@ -287,7 +287,7 @@ const KeyPad = (props: Props, context) => {
   const onStatusChange = (status) => {
     setCallFrom(status.value);
 
-    const integration = callIntegrationsOfUser?.find(
+    const integration = callUserIntegrations?.find(
       (userIntegration) => userIntegration.phone === status.value,
     );
     localStorage.setItem(
@@ -356,7 +356,16 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status === CALL_STATUS_ACTIVE && dialCode) {
       showNumber = dialCode;
     }
-    return <PhoneNumber>{showNumber}</PhoneNumber>;
+
+    if (!shrink) {
+      return (
+        <>
+          {renderFullName(customer || '')}
+          <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>
+        </>
+      );
+    }
+    return <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>;
   };
 
   const onChangeText = (e) =>
@@ -416,6 +425,7 @@ const KeyPad = (props: Props, context) => {
               value={number}
               onKeyDown={handleKeyDown}
               autoFocus={true}
+              defaultValue={number}
             />
           </InputBar>
           {renderKeyPad(handNumPad)}

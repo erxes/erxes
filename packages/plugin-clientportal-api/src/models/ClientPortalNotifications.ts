@@ -5,18 +5,18 @@ import { IModels } from '../connectionResolver';
 import {
   cpNotificationSchema,
   ICPNotification,
-  ICPNotificationDocument
+  ICPNotificationDocument,
 } from './definitions/clientPortalNotifications';
 
 export interface ICPNotificationModel extends Model<ICPNotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
   createNotification(
     doc: ICPNotification,
-    createdUser?: string
+    createdUser?: string,
   ): Promise<ICPNotificationDocument>;
   updateNotification(
     _id: string,
-    doc: ICPNotification
+    doc: ICPNotification,
   ): Promise<ICPNotificationDocument>;
   checkIfRead(userId: string, contentTypeId: string): Promise<boolean>;
   removeNotification(_id: string, receiver: string): void;
@@ -37,7 +37,7 @@ export const loadNotificationClass = (models: IModels) => {
       return models.ClientPortalNotifications.updateMany(
         selector,
         { $set: { isRead: true } },
-        { multi: true }
+        { multi: true },
       );
     }
 
@@ -48,7 +48,7 @@ export const loadNotificationClass = (models: IModels) => {
       const notification = await models.ClientPortalNotifications.findOne({
         isRead: false,
         receiver: userId,
-        contentTypeId
+        contentTypeId,
       });
 
       return notification ? false : true;
@@ -59,15 +59,15 @@ export const loadNotificationClass = (models: IModels) => {
      */
     public static async createNotification(
       doc: ICPNotification,
-      createdUserId: string
+      createdUserId: string,
     ) {
       // if receiver is configured to get this notification
       const user = await models.ClientPortalUsers.getUser({
-        _id: doc.receiver
+        _id: doc.receiver,
       });
 
       const config = user.notificationSettings.configs.find(
-        c => c.notifType === doc.notifType
+        (c) => c.notifType === doc.notifType,
       );
 
       // receiver disabled this notification
@@ -77,7 +77,7 @@ export const loadNotificationClass = (models: IModels) => {
 
       return models.ClientPortalNotifications.create({
         ...doc,
-        createdUser: createdUserId
+        createdUser: createdUserId,
       });
     }
 

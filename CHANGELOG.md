@@ -1,3 +1,63 @@
+
+
+
+
+### [1.6.3-rc.2](https://github.com/erxes/erxes/compare/1.6.3-rc.1...1.6.3-rc.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix time clock list ui  ([67196c9](https://github.com/erxes/erxes/commit/67196c9efe1f10ed7c60c2d3bea98619d54083fe))
+
+### [1.6.3-rc.1](https://github.com/erxes/erxes/compare/1.6.3-rc.0...1.6.3-rc.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* clean apolloClient timeout ([458ff06](https://github.com/erxes/erxes/commit/458ff06ce0470f581d4027e671a979c165f00d6c))
+
+### [1.6.3-rc.0](https://github.com/erxes/erxes/compare/1.6.2...1.6.3-rc.0) (2024-03-06)
+
+
+### Features
+
+* **calls:** as widgets and solved connection ([030670f](https://github.com/erxes/erxes/commit/030670fba8bca7fa2baf1ee402cf356554b43d1f))
+* **verifier:** Replace truemail with SendGrid Mail Verifier API ([d9d9cca](https://github.com/erxes/erxes/commit/d9d9cca852f400e271484e5d757670118b14810a))
+
+
+### Bug Fixes
+
+* (pos) posclient orders subscription update with subtoken ([7ad9ae8](https://github.com/erxes/erxes/commit/7ad9ae8708427d788f4f6a829a5a2073bc1b8252))
+* **forms:** fix custom properties on contacts list ([#5046](https://github.com/erxes/erxes/issues/5046)) ([f63646e](https://github.com/erxes/erxes/commit/f63646ec7332578195f8c7b8cad87bc87e35aaa5))
+* issue with the engage tag ([#5033](https://github.com/erxes/erxes/issues/5033)) ([e97e4d4](https://github.com/erxes/erxes/commit/e97e4d4b43cf81969c0767927107d566aa44bbe6))
+* offline pos message uncheck queuename ([251bd41](https://github.com/erxes/erxes/commit/251bd415fa5ede6da1a4ae6531bac9227a139716))
+* **payment:** Qpay quick qr credentials ([5def2ca](https://github.com/erxes/erxes/commit/5def2cab1688b4de9957b2a7ae4e2d01d978aa20))
+* **saas:** case where db is shared between tenants ([85eeef1](https://github.com/erxes/erxes/commit/85eeef1bbebc4b95c32d024274cf7f8ea85e356a))
+
+
+### Performance Improvements
+
+* (pos) show items sum amount on market theme  ([#5048](https://github.com/erxes/erxes/issues/5048)) ([f33340c](https://github.com/erxes/erxes/commit/f33340c0dd3ae143fd95bc28de0ffbcb750dd4ea))
+* **engage:** updated manual engage, added engage notification count ([4a84007](https://github.com/erxes/erxes/commit/4a84007947ab3887705f2d3d6feaaa8ec4216263))
+* product filter on the selected car deal depends on the car category ([#5037](https://github.com/erxes/erxes/issues/5037)) ([b42256d](https://github.com/erxes/erxes/commit/b42256de312f465ede0156094192a7c85089a4b5))
+
+### [1.6.2](https://github.com/erxes/erxes/compare/1.6.2-rc.5...1.6.2) (2024-03-06)
+
+### [1.6.2-rc.5](https://github.com/erxes/erxes/compare/1.6.2-rc.4...1.6.2-rc.5) (2024-03-05)
+
+
+### Bug Fixes
+
+* fix exmfeed,exm, chats plugins permssions not showing ([81318b5](https://github.com/erxes/erxes/commit/81318b5d2cf9c84f6a00f1b60434cb8b65c8ef0f))
+* fix facebook get env function ([83dcb7a](https://github.com/erxes/erxes/commit/83dcb7a3dd92246d532d831b3c834853449d4aef))
+* fix getEnv function for get domain ([b0c4f63](https://github.com/erxes/erxes/commit/b0c4f63a12ac75fb2e88cd459c371daf70f7c827))
+* fix saas transaction emails ([e746ce8](https://github.com/erxes/erxes/commit/e746ce8f6c8e5cd2f551ef7a7f31e331b6de5e90))
+
+
+### Performance Improvements
+
+* **cards:** add assigneduserIds field in cards schema ([e7e1770](https://github.com/erxes/erxes/commit/e7e1770860277be73fcc90d7d1b6e97b73c62969))
+
 ## [1.6.2-rc.4](https://github.com/erxes/erxes/compare/1.6.2-rc.3...1.6.2-rc.4) (2024-02-29)
 
 

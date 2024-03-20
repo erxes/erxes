@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "1.6.2-rc.4",
+  "version": "1.6.3-rc.2",
   "workspaces": [
     "packages/*",
     "scripts"
@@ -18,37 +18,19 @@
   ],
   "license": "GNU General Public License v3.0 with Commons Clause",
   "lint-staged": {
-    "linters": {
-      "@(widgets)/src/**/*.{ts,tsx,json,css}": [
-        "prettier --single-quote --write",
-        "git add"
-      ],
-      "@(email-verifier)/src/**/*.ts": [
-        "prettier --single-quote --write",
-        "git add"
-      ],
-      "packages/*/src/**/*.{ts,tsx,json,css}": [
-        "prettier --single-quote --write",
-        "git add"
-      ]
-    },
-    "concurrent": false,
-    "subTaskConcurrency": 1
+    "*.@(js|jsx|ts|tsx|json|css)": "prettier --single-quote --write"
   },
   "scripts": {
     "create-plugins-cis": "node scripts/create-plugins-cis",
     "create-plugin": "node scripts/create-plugin",
-    "format": "prettier --single-quote --write '@(email-verifier)/src/**/*.ts' && prettier --single-quote --write '@(widgets)/src/**/*.@(ts|tsx|json|css)'",
-    "formatp": "func () { if [ -z \"$1\" ]; then prettier --single-quote --write '@(packages)/gateway/src/**/*.@(ts|tsx|json|css)'; else echo \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\" && \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\"; fi ;}; func",
-    "precommit": "lint-staged",
     "release": "release-it",
     "create-release-ci": "node scripts/create-release-ci"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "1.1.0",
     "@types/node": "18.17.1",
-    "husky": "^0.13.4",
-    "lint-staged": "^3.6.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "prettier": "^3.1.1",
     "typescript": "4.9.5",
     "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
