@@ -11,8 +11,8 @@ on:
     branches:
       - erxes-docs-blog
       - dev
-      - masterelop
       - master
+      - rc
     paths:
       - 'docs/**'
 
