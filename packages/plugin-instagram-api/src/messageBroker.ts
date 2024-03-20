@@ -45,7 +45,6 @@ export const setupMessageConsumers = async () => {
     },
   );
 
-  // listen for rpc queue =========
   consumeRPCQueue(
     'instagram:api_to_integrations',
     async ({ subdomain, data }) => {
@@ -56,18 +55,20 @@ export const setupMessageConsumers = async () => {
       let response: RPResult = {
         status: 'success',
       };
+
       try {
         if (action === 'remove-account') {
-          response.data = await removeAccount(models, data._id);
+          response.data = await removeAccount(subdomain, models, data._id);
         }
 
         if (action === 'repair-integrations') {
-          response.data = await repairIntegrations(models, data._id);
+          response.data = await repairIntegrations(subdomain, models, data._id);
         }
 
-        if (action === 'reply-messenger') {
-          response.data = await handleInstagramMessage(models, data);
+        if (type === 'instagram') {
+          response.data = await handleInstagramMessage(models, data, subdomain);
         }
+
         if (action === 'getConfigs') {
           response.data = await models.Configs.find({});
         }
@@ -114,9 +115,8 @@ export const setupMessageConsumers = async () => {
     'instagram:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
-
       if (kind === 'instagram') {
-        return instagramCreateIntegration(models, doc);
+        return instagramCreateIntegration(subdomain, models, doc);
       }
 
       return {
@@ -132,7 +132,7 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await removeIntegration(models, integrationId);
+      await removeIntegration(subdomain, models, integrationId);
 
       return { status: 'success' };
     },

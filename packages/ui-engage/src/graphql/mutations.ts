@@ -147,23 +147,45 @@ const engageMessageCopy = `
 `;
 
 const mailParamsDef = `
+  $integrationId: String,
+  $conversationId: String,
+  $replyTo: [String],
+  $inReplyTo: String,
+  $headerId: String,
+  $threadId: String,
+  $messageId: String,
+  $references: [String]
+  $replyToMessageId: String,
   $subject: String!,
   $body: String!,
   $to: [String]!,
   $cc: [String],
   $bcc: [String] ,
   $from: String!,
+  $shouldResolve: Boolean,
+  $shouldOpen: Boolean,
   $attachments: [JSON],
   $customerId: String
 `;
 
 const mailParams = `
+  integrationId: $integrationId,
+  conversationId: $conversationId,
+  replyTo: $replyTo,
+  inReplyTo: $inReplyTo,
+  headerId: $headerId,
+  threadId: $threadId,
+  messageId: $messageId,
+  references: $references,
+  replyToMessageId: $replyToMessageId,
   subject: $subject,
   body: $body,
   to: $to,
   cc: $cc,
   bcc: $bcc,
   from: $from,
+  shouldResolve: $shouldResolve,
+  shouldOpen: $shouldOpen,
   attachments: $attachments,
   customerId: $customerId
 `;

@@ -1,5 +1,10 @@
-import { DataWithLoader, Pagination, Table } from '@erxes/ui/src/components';
-import { router, __ } from '@erxes/ui/src/utils';
+import {
+  DataWithLoader,
+  ModalTrigger,
+  Pagination,
+  Table,
+} from '@erxes/ui/src/components';
+import { __ } from '@erxes/ui/src/utils';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
@@ -7,15 +12,15 @@ import { withRouter } from 'react-router-dom';
 
 import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
-import RightMenu from './RightMenu';
+import RightMenu from './RightMenuDuplicated';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { SUB_MENUS } from '../constants';
+import DetailDuplicated from '../containers/DetailDuplicated';
 
 interface IProps extends IRouterProps {
   errorMsg: string;
-  putResponses: IPutResponse[];
+  putResponsesDuplicated: IPutResponse[];
   loading: boolean;
-  searchValue: string;
   totalCount: number;
   sumAmount: number;
   bulk: any[];
@@ -23,100 +28,71 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
 
-  onSearch: (search: string, key?: string) => void;
   onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
 }
 
-type State = {
-  searchValue?: string;
-};
+type State = {};
 
-class PutResponsesByDate extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
-
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const { history } = this.props;
-    const searchValue = e.target.value;
-
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
-    }, 500);
-  };
-
-  moveCursorAtTheEnd = e => {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  };
-
+class PutResponsesDuplicated extends React.Component<IProps, State> {
   renderRow(putResponse, index) {
-    const { date, values } = putResponse;
-    return (
+    const { _id, date, number, count } = putResponse;
+
+    const modalContent = (_props) => {
+      return (
+        <DetailDuplicated contentId={_id.contentId} taxType={_id.taxType} />
+      );
+    };
+
+    const trigger = (
       <tr>
         <td>{index + 1} </td>
         <td>{date} </td>
-        <td>{values.counter.toLocaleString()} </td>
-        <td>{values.cityTax.toLocaleString()} </td>
-        <td>{values.vat.toLocaleString()} </td>
-        <td>{values.amount.toLocaleString()} </td>
+        <td>{number} </td>
+        <td>{count.toLocaleString()} </td>
       </tr>
+    );
+
+    return (
+      <ModalTrigger
+        key={`${_id.contentId}${_id.taxType}}`}
+        title={`Order detail`}
+        trigger={trigger}
+        autoOpenKey="showProductModal"
+        content={modalContent}
+        size={'xl'}
+      />
     );
   }
 
   render() {
     const {
-      putResponses,
+      putResponsesDuplicated,
       loading,
       totalCount,
       sumAmount,
       queryParams,
       errorMsg,
-      onSearch,
       onFilter,
-      onSelect,
       isFiltered,
-      clearFilter
+      clearFilter,
     } = this.props;
 
-    const mainContent = errorMsg ? (
-      <EmptyState
-        text={errorMsg.replace('GraphQL error: ', '')}
-        size="full"
-        image={'/images/actions/11.svg'}
-      />
-    ) : (
+    const mainContent = (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
               <th>{__('№')}</th>
               <th>{__('Date')}</th>
+              <th>{__('Number')}</th>
               <th>{__('Count')}</th>
-              <th>{__('CityTax')}</th>
-              <th>{__('Vat')}</th>
-              <th>{__('Amount')}</th>
             </tr>
           </thead>
           <tbody id="putResponses">
-            {(putResponses || []).map((putResponse, index) =>
-              this.renderRow(putResponse, index)
+            {(putResponsesDuplicated || []).map((putResponse, index) =>
+              this.renderRow(putResponse, index),
             )}
           </tbody>
         </Table>
@@ -125,12 +101,10 @@ class PutResponsesByDate extends React.Component<IProps, State> {
 
     const rightMenuProps = {
       onFilter,
-      onSelect,
-      onSearch,
       isFiltered,
       clearFilter,
       queryParams,
-      showMenu: !!errorMsg
+      showMenu: !!errorMsg,
     };
 
     const actionBarRight = (
@@ -164,7 +138,10 @@ class PutResponsesByDate extends React.Component<IProps, State> {
             data={mainContent}
             loading={loading}
             count={totalCount}
-            emptyText="Add in your first putResponse!"
+            emptyText={
+              errorMsg.replace('GraphQL error: ', '') ||
+              'not found duplicated putResponse!'
+            }
             emptyImage="/images/actions/1.svg"
           />
         }
@@ -173,4 +150,4 @@ class PutResponsesByDate extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(PutResponsesByDate);
+export default withRouter<IRouterProps>(PutResponsesDuplicated);

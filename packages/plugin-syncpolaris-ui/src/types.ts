@@ -20,13 +20,13 @@ export interface IList {
 // mutations
 
 export type ListResponce = {
-  syncHistories: any;
+  syncHistoriesPolaris: any;
   refetch: () => void;
   loading: boolean;
 };
 
 export type TotalCountQueryResponse = {
-  syncHistoriesCount: number;
+  syncHistoriesCountPolaris: number;
 } & QueryResponse;
 
 export type QueryResponse = {
@@ -36,23 +36,23 @@ export type QueryResponse = {
 };
 
 export type SyncHistoriesQueryResponse = {
-  syncHistories: any[];
+  syncHistoriesPolaris: any[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type SyncHistoriesCountQueryResponse = {
-  syncHistoriesCount: number;
+  syncHistoriesCountPolaris: number;
   loading: boolean;
   refetch: () => void;
 };
 
 export type ToCheckMutationResponse = {
-  toCheck: (mutation: { variables: { type: string } }) => Promise<any>;
+  toCheckPolaris: (mutation: { variables: { type: string } }) => Promise<any>;
 };
 
 export type ToSyncMutationResponse = {
-  toSync: (mutation: {
+  toSyncPolaris: (mutation: {
     variables: { type: string; items: any[] };
   }) => Promise<any>;
 };

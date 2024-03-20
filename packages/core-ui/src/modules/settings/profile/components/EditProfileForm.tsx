@@ -1,17 +1,18 @@
-import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
-import { IUser, IUserDoc } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import Form from 'modules/common/components/form/Form';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, getConstantFromStore } from 'modules/common/utils';
-import React from 'react';
+import { IUser, IUserDoc } from "modules/auth/types";
+import { __, getConstantFromStore } from "modules/common/utils";
+
+import Button from "modules/common/components/Button";
+import Form from "modules/common/components/form/Form";
+import { ModalFooter } from "modules/common/styles/main";
+import React from "react";
+import UserCommonInfos from "@erxes/ui-settings/src/common/components/UserCommonInfos";
 
 type Props = {
   currentUser: IUser;
   closeModal: () => void;
   save: (
     variables: IUserDoc & { password?: string },
-    callback: () => void,
+    callback: () => void
   ) => void;
 };
 
@@ -28,7 +29,7 @@ class EditProfile extends React.Component<Props, State> {
     const { details } = currentUser;
 
     this.state = {
-      avatar: details ? details.avatar || '' : '',
+      avatar: details ? details.avatar || "" : "",
       isShowPasswordPopup: false,
     };
   }
@@ -40,7 +41,7 @@ class EditProfile extends React.Component<Props, State> {
   handleSubmit = (values: any) => {
     const links = {};
 
-    getConstantFromStore('social_links').forEach((link) => {
+    getConstantFromStore("social_links").forEach((link) => {
       links[link.value] = values[link.value];
     });
 
@@ -65,7 +66,7 @@ class EditProfile extends React.Component<Props, State> {
         links,
         employeeId: values.employeeId,
       },
-      this.closeAllModals,
+      this.closeAllModals
     );
   };
 
@@ -91,7 +92,7 @@ class EditProfile extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="plus-circle">
+          <Button type="submit" btnStyle="success" icon="check-circle">
             Save
           </Button>
         </ModalFooter>
