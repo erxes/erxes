@@ -38,9 +38,9 @@ class ErxesPayment {
     this.minupay = new MinuPayAPI(payment.config, domain);
   }
 
-  async createInvoice(transaction: ITransactionDocument & { phone?: string }) {
+  async createInvoice(transaction: ITransactionDocument) {
     const { payment } = this;
-    const { details } = transaction || {};
+    const details = transaction.details || {};
 
     // return { qrData: await QRCode.toDataURL('test') };
 

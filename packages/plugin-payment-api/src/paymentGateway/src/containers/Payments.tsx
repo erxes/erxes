@@ -48,11 +48,13 @@ const ADD_TRANSACTION = gql`
     $invoiceId: String!
     $paymentId: String!
     $amount: Float!
+    $details: JSON
   ) {
     transactionsAdd(
       invoiceId: $invoiceId
       paymentId: $paymentId
       amount: $amount
+      details: $details
     ) {
       _id
       amount
@@ -61,6 +63,7 @@ const ADD_TRANSACTION = gql`
       paymentKind
       status
       response
+      details
     }
   }
 `;
@@ -116,11 +119,12 @@ const Payments = (props: Props) => {
     ? invoiceDetailQuery.data.invoiceDetail
     : null;
 
-  const onClickPayment = (paymentId: string) => {
+  const requestNewTransaction = (paymentId: string, details?: any ) => {
     addTransaction({
       variables: {
         invoiceId,
         paymentId,
+        details,
         amount: invoiceDetail.amount,
       },
     }).then(() => {
@@ -163,13 +167,19 @@ const Payments = (props: Props) => {
   };
 
   const newTransaction = addTransactionResponse.data && addTransactionResponse.data.transactionsAdd;
+  let payments = data.payments || [];
+
+  // if invoice amount is less than 100000, hide storepay
+  if (invoiceDetail && invoiceDetail.amount < 100000) {
+    payments = payments.filter((p: any) => p.kind !== 'storepay');
+  }
 
   const updatedProps = {
     ...props,
     invoiceDetail,
-    payments: data.payments,
+    payments,
     newTransaction,
-    onClickPayment,
+    requestNewTransaction,
     checkInvoiceHandler,
     transactionLoading: addTransactionResponse.loading,
   };

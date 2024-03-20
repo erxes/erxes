@@ -103,12 +103,21 @@ export class SocialPayAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
+      console.log(body, 'body');
+
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
       }
 
       if (body.response.status !== 'SUCCESS') {
         return { error: 'Error occured while creating invoice' };
+      }
+
+      if (details.phone && body.response.desc.includes('success')) {
+        return {
+          message:
+            'Invoice has been sent to your phone, Please go to SocialPay app to pay',
+        };
       }
 
       const qrData = await QRCode.toDataURL(body.response.desc);

@@ -9,7 +9,7 @@ type Props = {
   apiDomain: string;
   newTransaction: any;
   transactionLoading?: boolean;
-  onClickPayment: (paymentId: string) => void;
+  requestNewTransaction: (paymentId: string, details?: any) => void;
   checkInvoiceHandler: (id: string) => void;
 };
 
@@ -23,8 +23,10 @@ const PaymentGateway = (props: Props) => {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [kind, setKind] = useState(props.newTransaction?.paymentKind || 'default');
+  const [currentPaymentId, setCurrentPaymentId] = useState(props.newTransaction?.paymentId || '');
 
   const openModal = (payment) => {
+    setCurrentPaymentId(payment._id);
     setCurrentTransaction(null);
     setKind(payment.kind);
     console.log('pisda', payment.kind);
@@ -42,11 +44,11 @@ const PaymentGateway = (props: Props) => {
 
     if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
       console.log('requesting new transaction');
-      props.onClickPayment(payment._id);
+      props.requestNewTransaction(payment._id);
     } else if (pendingTransaction) {
       setCurrentTransaction(pendingTransaction);
     } else {
-      props.onClickPayment(payment._id);
+      props.requestNewTransaction(payment._id);
     }
 
     setModalIsOpen(true);
@@ -110,6 +112,7 @@ const PaymentGateway = (props: Props) => {
         onClose={closeModal}
         transaction={currentTransaction}
         kind={kind}
+        paymentId={currentPaymentId}
       />
     </div>
   );

@@ -27,8 +27,6 @@ export const transactionSchema = new Schema({
   paymentId: field({ type: String }),
   paymentKind: field({ type: String }),
   amount: field({ type: Number }),
-  monpayCoupon: field({ type: Number }),
-  phone: field({ type: String }),
   status: field({ type: String, default: PAYMENT_STATUS.PENDING }),
   createdAt: field({ type: Date, default: new Date() }),
   updatedAt: field({ type: Date }),

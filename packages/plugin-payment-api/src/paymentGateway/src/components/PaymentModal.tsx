@@ -12,9 +12,10 @@ type Props = {
   kind: string;
   transactionLoading?: boolean;
   transaction?: any;
-
+  paymentId: string;
   onClose: () => void;
   checkInvoiceHandler: (id: string) => void;
+  requestNewTransaction: (paymentId: string, details?: any) => void;
 };
 
 const PaymentModal = (props: Props) => {
@@ -28,7 +29,7 @@ const PaymentModal = (props: Props) => {
     kind = 'qpay';
   }
 
-  console.log('yeaah')
+  console.log('yeaah');
 
   const renderLoading = () => {
     return (
@@ -48,55 +49,139 @@ const PaymentModal = (props: Props) => {
     );
   };
 
-  const renderContent = () => {
+  const renderPhoneInput = () => {
+    if (!['socialpay', 'storepay'].includes(kind)) {
+      return null;
+    }
+
+    return (
+      <PhoneInput
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value);
+        }}
+        onSend={() => {
+          props.requestNewTransaction(props.paymentId, { phone });
+        }}
+      />
+    );
+  };
+
+  const renderQrCode = () => {
+    if (!transaction || !apiResponse || !apiResponse.qrData) {
+      return null;
+    }
+
+    return (
+      <img
+        className="qr"
+        src={apiResponse.qrData}
+        alt="qr code"
+        id="qr-code"
+        style={{ display: 'block', margin: 'auto', borderRadius: '8px' }}
+      />
+    );
+  };
+
+  const renderMessage = () => {
+    if (!transaction || !apiResponse || !apiResponse.message) {
+      return null;
+    }
+
+    return (
+      <p
+        id="message"
+        style={{
+          textAlign: 'center',
+          color: 'white',
+          textShadow: '2px 2px 2px rgba(0, 0, 0, 0.5)',
+        }}
+      >
+        {apiResponse.message}
+      </p>
+    );
+  };
+
+  const renderCheckButton = () => {
     if (!transaction) {
       return null;
     }
 
-    if (kind === 'minupay') {
-      return (
-        <div
-          className={`modal-content ${kind}-modal`}
-          style={{ borderColor: 'red', borderWidth: '1px' }}
-        >
-          <div className="modal-header">
-            <button
-              style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                padding: '10px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'white',
-                fontSize: '20px',
-              }}
-              onClick={onClose}
-            >
-              ×
-            </button>
-            <h4
-              className="modal-title"
-              id="paymentKind"
-              style={{
-                color: 'white',
-                textShadow: '2px 2px 2px rgba(0, 0, 0, 0.5)',
-              }}
-            >
-              {kind && capitalizeFirstLetter(kind)}
-            </h4>
-          </div>
-          <iframe
-            src={apiResponse}
+    return (
+      <button
+        className="btn btn-primary"
+        id="checkButton"
+        type="button"
+        onClick={() => props.checkInvoiceHandler(transaction._id)}
+        style={{
+          display: 'block',
+          margin: 'auto',
+          backgroundColor: 'white',
+          color: 'black',
+        }}
+      >
+        Manual check
+      </button>
+    );
+  };
+
+  const renderMinupay = () => {
+    if (!transaction) {
+      return null;
+    }
+
+    return (
+      <div
+        className={`modal-content ${kind}-modal`}
+        style={{ borderColor: 'red', borderWidth: '1px' }}
+      >
+        <div className="modal-header">
+          <button
             style={{
-              width: '100%',
-              height: '100%',
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              padding: '10px',
+              backgroundColor: 'transparent',
               border: 'none',
-              borderRadius: '8px',
+              color: 'white',
+              fontSize: '20px',
             }}
-          />
+            onClick={onClose}
+          >
+            ×
+          </button>
+          <h4
+            className="modal-title"
+            id="paymentKind"
+            style={{
+              color: 'white',
+              textShadow: '2px 2px 2px rgba(0, 0, 0, 0.5)',
+            }}
+          >
+            {kind && capitalizeFirstLetter(kind)}
+          </h4>
         </div>
-      );
+        <iframe
+          src={apiResponse}
+          style={{
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            borderRadius: '8px',
+          }}
+        />
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    // if (!transaction) {
+    //   return null;
+    // }
+
+    if (kind === 'minupay') {
+      return renderMinupay();
     }
 
     return (
@@ -132,43 +217,14 @@ const PaymentModal = (props: Props) => {
           </h4>
         </div>
         <div className="modal-body">
-          <img
-            className="qr"
-            src={apiResponse.qrData}
-            alt="qr code"
-            id="qr-code"
-            style={{ display: 'block', margin: 'auto', borderRadius: '8px' }}
-          />
-
+          {renderQrCode()}
+          {renderMessage()}
           <br />
-          {['socialpay', 'storepay'].includes(kind) && (
-            <PhoneInput
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-              }}
-              onSend={() => {
-                console.log('send');
-              }}
-            />
-          )}
+          {renderPhoneInput()}
           <br />
-          <h2 id="amount">{transaction.amount} ₮</h2>
+          <h2 id="amount">{transaction && transaction.amount} ₮</h2>
 
-          <button
-            className="btn btn-primary"
-            id="checkButton"
-            type="button"
-            onClick={() => props.checkInvoiceHandler(transaction._id)}
-            style={{
-              display: 'block',
-              margin: 'auto',
-              backgroundColor: 'white',
-              color: 'black',
-            }}
-          >
-            Manual check
-          </button>
+          {renderCheckButton()}
         </div>
       </div>
     );

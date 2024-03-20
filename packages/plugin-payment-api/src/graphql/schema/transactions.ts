@@ -9,6 +9,7 @@ export const types = `
     createdAt: Date
     updatedAt: Date
 
+    details: JSON
     response: JSON
   }
 `;
