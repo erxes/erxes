@@ -36,3 +36,12 @@ export const sendKbMessage = (args: MessageArgsOmitService): Promise<any> => {
     ...args,
   });
 };
+
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'logs',
+    ...args,
+  });
+};
