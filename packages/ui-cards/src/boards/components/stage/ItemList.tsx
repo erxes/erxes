@@ -115,7 +115,7 @@ function DraggableContainer(props: DraggableContainerProps) {
     >
       {(dragProvided, dragSnapshot) => (
         <ItemContainer
-          isDragging={dragSnapshot.isDragging}
+          $isDragging={dragSnapshot.isDragging}
           $isOld={isOld}
           innerRef={dragProvided.innerRef}
           {...dragProvided.draggableProps}
@@ -224,7 +224,7 @@ export default class ItemList extends React.Component<Props> {
         {(dropProvided, dropSnapshot) => (
           <Wrapper
             style={style}
-            isDraggingOver={dropSnapshot.isDraggingOver}
+            $isDraggingOver={dropSnapshot.isDraggingOver}
             {...dropProvided.droppableProps}
           >
             <InnerList

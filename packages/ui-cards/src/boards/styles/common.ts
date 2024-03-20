@@ -51,19 +51,19 @@ export const ChartBack = styled(RootBack)`
 export const GroupByContent = styled.div`
   display: flex;
   font-size: 11px;
-  .dropdown {
+  [id^="headlessui-listbox-button-"] {
     padding: 0 8px;
     .menu {
       width: auto;
     }
   }
   > i {
-    padding 5px 0;
+    padding: 5px 0;
     margin-right: 5px;
     color: ${colors.colorCoreGray};
   }
   span {
-    padding 5px 0;
+    padding: 5px 0;
     color: ${colors.colorCoreGray};
   }
 `;
@@ -78,9 +78,9 @@ export const EmptyContainer = styled.div`
   height: 100px;
 `;
 
-export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
-  background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && 'rgba(10, 45, 65, .1)'};
+export const Wrapper = styledTS<{ $isDraggingOver: boolean }>(styled.div)`
+  background-color: ${({ $isDraggingOver }) =>
+    $isDraggingOver && 'rgba(10, 45, 65, .1)'};
   display: flex;
   flex-direction: column;
   padding: 0 4px;
@@ -140,7 +140,7 @@ export const DragDisabler = styled.div`
 `;
 
 export const ItemContainer = styledTS<{
-  isDragging?: boolean;
+  $isDragging?: boolean;
   $isOld?: boolean;
 }>(styled.div)`
   position: relative;
@@ -148,7 +148,7 @@ export const ItemContainer = styledTS<{
   background-color: ${(props) =>
     props.$isOld ? 'rgb(222, 210, 255)' : 'rgb(255, 255, 255)'};
   box-shadow: ${(props) =>
-    props.isDragging
+    props.$isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
       : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   padding: 8px;

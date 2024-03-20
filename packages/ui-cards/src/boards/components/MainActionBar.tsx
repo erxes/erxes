@@ -5,31 +5,31 @@ import {
   HeaderLabel,
   HeaderLink,
   PageHeader,
-} from '../styles/header';
-import { IBoard, IOptions, IPipeline } from '../types';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
+} from "../styles/header";
+import { IBoard, IOptions, IPipeline } from "../types";
+import { __, isEnabled } from "@erxes/ui/src/utils/core";
 import {
   chartTypes,
   groupByGantt,
   groupByList,
   showByTime,
   stackByChart,
-} from '../constants';
+} from "../constants";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Filter from '@erxes/ui/src/components/filter/Filter';
-import { GroupByContent } from '../styles/common';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
-import PipelineWatch from '../containers/PipelineWatch';
-import React from 'react';
-import RightMenu from './RightMenu';
-import SelectType from './SelectType';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Tip from '@erxes/ui/src/components/Tip';
-import { Listbox, Transition } from '@headlessui/react';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Filter from "@erxes/ui/src/components/filter/Filter";
+import { GroupByContent } from "../styles/common";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import Participators from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators";
+import PipelineWatch from "../containers/PipelineWatch";
+import React from "react";
+import RightMenu from "./RightMenu";
+import SelectType from "./SelectType";
+import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
+import Tip from "@erxes/ui/src/components/Tip";
+import { Listbox, Transition } from "@headlessui/react";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -58,9 +58,9 @@ type State = {
 
 class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
-    viewType: 'board',
-    boardText: 'Board',
-    pipelineText: 'Pipeline',
+    viewType: "board",
+    boardText: "Board",
+    pipelineText: "Pipeline",
   };
 
   constructor(props: Props) {
@@ -68,7 +68,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       showDetail:
-        localStorage.getItem('showSalesDetail') === 'true' ? true : false,
+        localStorage.getItem("showSalesDetail") === "true" ? true : false,
     };
   }
 
@@ -171,10 +171,10 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    if (currentPipeline.visibility === 'public') {
+    if (currentPipeline.visibility === "public") {
       return (
         <HeaderButton $isActive={true}>
-          <Icon icon="earthgrid" /> {__('Public')}
+          <Icon icon="earthgrid" /> {__("Public")}
         </HeaderButton>
       );
     }
@@ -184,7 +184,7 @@ class MainActionBar extends React.Component<Props, State> {
     return (
       <>
         <HeaderButton $isActive={true}>
-          <Icon icon="users-alt" /> {__('Private')}
+          <Icon icon="users-alt" /> {__("Private")}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
@@ -194,17 +194,17 @@ class MainActionBar extends React.Component<Props, State> {
   renderGroupBy = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'list' && viewType !== 'gantt') {
+    if (viewType !== "list" && viewType !== "gantt") {
       return null;
     }
 
     return (
       <GroupByContent>
         <SelectType
-          title={__('Group by:')}
+          title={__("Group by:")}
           icon="list-2"
-          list={viewType === 'list' ? groupByList : groupByGantt}
-          text={__('Stage')}
+          list={viewType === "list" ? groupByList : groupByGantt}
+          text={__("Stage")}
           queryParamName="groupBy"
           queryParams={queryParams}
         />
@@ -215,26 +215,26 @@ class MainActionBar extends React.Component<Props, State> {
   renderChartView = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'chart') {
+    if (viewType !== "chart") {
       return null;
     }
 
     return (
       <GroupByContent>
         <SelectType
-          title={__('Chart Type:')}
+          title={__("Chart Type:")}
           icon="chart-bar"
           list={chartTypes}
-          text={__('Stacked Bar Chart')}
+          text={__("Stacked Bar Chart")}
           queryParamName="chartType"
           queryParams={queryParams}
         />
         &nbsp;&nbsp;&nbsp;
         <SelectType
-          title={__('Stack By:')}
+          title={__("Stack By:")}
           icon="list-2"
           list={stackByChart}
-          text={__('Stage')}
+          text={__("Stage")}
           queryParamName="stackBy"
           queryParams={queryParams}
         />
@@ -245,17 +245,17 @@ class MainActionBar extends React.Component<Props, State> {
   renderTimeView = () => {
     const { viewType, queryParams } = this.props;
 
-    if (viewType !== 'time') {
+    if (viewType !== "time") {
       return null;
     }
 
     return (
       <GroupByContent>
         <SelectType
-          title={__('Group by:')}
+          title={__("Group by:")}
           icon="list-2"
           list={showByTime}
-          text={__('Stage')}
+          text={__("Stage")}
           queryParamName="groupBy"
           queryParams={queryParams}
         />
@@ -296,79 +296,79 @@ class MainActionBar extends React.Component<Props, State> {
               <Listbox.Options static>
                 <li key="board">
                   <Link
-                    to={onFilterClick('board')}
-                    className={viewType === 'board' ? 'active' : ''}
+                    to={onFilterClick("board")}
+                    className={viewType === "board" ? "active" : ""}
                   >
-                    {__('Board')}
+                    {__("Board")}
                   </Link>
                 </li>
                 <li key="calendar">
                   <Link
-                    to={onFilterClick('calendar')}
-                    className={viewType === 'calendar' ? 'active' : ''}
+                    to={onFilterClick("calendar")}
+                    className={viewType === "calendar" ? "active" : ""}
                   >
-                    {__('Calendar')}
+                    {__("Calendar")}
                   </Link>
                 </li>
-                {options.type === 'deal' && (
+                {options.type === "deal" && (
                   <li key="conversion">
                     <Link
-                      to={onFilterClick('conversion')}
-                      className={viewType === 'conversion' ? 'active' : ''}
+                      to={onFilterClick("conversion")}
+                      className={viewType === "conversion" ? "active" : ""}
                     >
-                      {__('Conversion')}
+                      {__("Conversion")}
                     </Link>
                   </li>
                 )}
-                {options.type === 'purchase' && (
+                {options.type === "purchase" && (
                   <li key="conversion">
                     <Link
-                      to={onFilterClick('conversion')}
-                      className={viewType === 'conversion' ? 'active' : ''}
+                      to={onFilterClick("conversion")}
+                      className={viewType === "conversion" ? "active" : ""}
                     >
-                      {__('Conversion')}
+                      {__("Conversion")}
                     </Link>
                   </li>
                 )}
                 <li key="activity">
                   <Link
-                    to={onFilterClick('activity')}
-                    className={viewType === 'activity' ? 'active' : ''}
+                    to={onFilterClick("activity")}
+                    className={viewType === "activity" ? "active" : ""}
                   >
-                    {__('Activity')}
+                    {__("Activity")}
                   </Link>
                 </li>
                 <li key="list">
                   <Link
-                    to={onFilterClick('list')}
-                    className={viewType === 'list' ? 'active' : ''}
+                    to={onFilterClick("list")}
+                    className={viewType === "list" ? "active" : ""}
                   >
-                    {__('List')}
+                    {__("List")}
                   </Link>
                 </li>
                 <li key="chart">
                   <Link
-                    to={onFilterClick('chart')}
-                    className={viewType === 'chart' ? 'active' : ''}
+                    to={onFilterClick("chart")}
+                    className={viewType === "chart" ? "active" : ""}
                   >
-                    {__('Chart')}
+                    {__("Chart")}
                   </Link>
                 </li>
                 <li key="gantt">
                   <Link
-                    to={onFilterClick('gantt')}
-                    className={viewType === 'gantt' ? 'active' : ''}
+                    to={onFilterClick("gantt")}
+                    className={viewType === "gantt" ? "active" : ""}
                   >
-                    {__('Gantt')}
+                    {__("Gantt")}
                   </Link>
                 </li>
 
                 <li key="time">
                   <Link
-                    to={onFilterClick('time')}
-                    className={viewType === 'time' ? 'active' : ''}
+                    to={onFilterClick("time")}
+                    className={viewType === "time" ? "active" : ""}
                   >
-                    {__('Time')}
+                    {__("Time")}
                   </Link>
                 </li>
               </Listbox.Options>
@@ -385,23 +385,23 @@ class MainActionBar extends React.Component<Props, State> {
         showDetail: !this.state.showDetail,
       },
       () => {
-        localStorage.setItem('showSalesDetail', `${this.state.showDetail}`);
-        const storageChangeEvent = new Event('storageChange');
+        localStorage.setItem("showSalesDetail", `${this.state.showDetail}`);
+        const storageChangeEvent = new Event("storageChange");
         window.dispatchEvent(storageChangeEvent);
-      },
+      }
     );
   };
 
   renderSalesDetail = () => {
-    if (window.location.pathname.includes('deal/calendar')) {
+    if (window.location.pathname.includes("deal/calendar")) {
       return (
         <Button
           btnStyle="link"
           size="small"
-          icon={this.state.showDetail ? 'eye-slash' : 'eye'}
+          icon={this.state.showDetail ? "eye-slash" : "eye"}
           onClick={() => this.onDetailShowHandler()}
         >
-          {this.state.showDetail ? 'Hide detail' : 'Show detail'}
+          {this.state.showDetail ? "Hide detail" : "Show detail"}
         </Button>
       );
     }
@@ -423,20 +423,20 @@ class MainActionBar extends React.Component<Props, State> {
 
     const type = options.type;
 
-    if (!localStorage.getItem('showSalesDetail')) {
-      localStorage.setItem('showSalesDetail', `false`);
+    if (!localStorage.getItem("showSalesDetail")) {
+      localStorage.setItem("showSalesDetail", `false`);
     }
 
     const actionBarLeft = (
       <BarItems>
         <HeaderLabel>
-          <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
+          <Icon icon="web-grid-alt" /> {__(boardText || "")}:{" "}
         </HeaderLabel>
         <Listbox>
           <div className="relative">
             <Listbox.Button>
               <HeaderButton $rightIconed={true}>
-                {(currentBoard && currentBoard.name) || __('Choose board')}
+                {(currentBoard && currentBoard.name) || __("Choose board")}
                 <Icon icon="angle-down" />
               </HeaderButton>
             </Listbox.Button>
@@ -451,14 +451,14 @@ class MainActionBar extends React.Component<Props, State> {
           </div>
         </Listbox>
         <HeaderLabel>
-          <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
+          <Icon icon="web-section-alt" /> {__(pipelineText || "")}:{" "}
         </HeaderLabel>
         <Listbox>
           <div className="relative">
             <Listbox.Button>
               <HeaderButton $rightIconed={true}>
                 {(currentPipeline && currentPipeline.name) ||
-                  __('Choose pipeline')}
+                  __("Choose pipeline")}
                 <Icon icon="angle-down" />
               </HeaderButton>
             </Listbox.Button>
@@ -473,10 +473,10 @@ class MainActionBar extends React.Component<Props, State> {
           </div>
         </Listbox>
         <HeaderLink>
-          <Tip text={__('Manage Board & Pipeline')} placement="bottom">
+          <Tip text={__("Manage Board & Pipeline")} placement="bottom">
             <Link
               to={`/settings/boards/${type}?boardId=${
-                currentBoard ? currentBoard._id : ''
+                currentBoard ? currentBoard._id : ""
               }`}
             >
               <Icon icon="cog" />
@@ -504,7 +504,7 @@ class MainActionBar extends React.Component<Props, State> {
         {this.renderTimeView()}
         {queryParams && <Filter queryParams={queryParams} />}
 
-        {isEnabled('segments') && (
+        {isEnabled("segments") && (
           <TemporarySegment contentType={`cards:${type}`} />
         )}
 

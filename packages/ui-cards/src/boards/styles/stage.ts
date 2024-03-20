@@ -17,7 +17,7 @@ const Container = styled.div`
   transition: background-color 0.3s ease;
 `;
 
-const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
+const StageRoot = styledTS<{ $isDragging: boolean }>(styled.div)`
   display: flex;
   flex-direction: column;
   border-radius: 3px;
@@ -25,7 +25,7 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   background: ${stageGray};
   overflow: hidden;
   ${(props) => css`
-    box-shadow: ${props.isDragging
+    box-shadow: ${props.$isDragging
       ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
       : 'rgba(0, 0, 0, 0.15) 0px 1px 5px 0px'};
   `};

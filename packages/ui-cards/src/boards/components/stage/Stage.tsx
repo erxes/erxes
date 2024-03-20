@@ -388,7 +388,7 @@ export default class Stage extends React.Component<Props, State> {
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <StageRoot isDragging={snapshot.isDragging}>
+            <StageRoot $isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
                 <StageTitle>
                   <div>

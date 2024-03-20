@@ -76,7 +76,6 @@ export const CalenderWrapper = styled.div`
 export const CloseDateWrapper = styled.div`
   margin-top: 6px;
   position: relative;
-  text-align: right;
   margin-left: 20px;
   flex-shrink: 0;
   display: flex;

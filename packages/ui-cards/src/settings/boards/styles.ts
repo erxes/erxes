@@ -78,7 +78,6 @@ const StageItemContainer = styled.div`
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: ${(props) => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 const PipelineCount = styled.div`
