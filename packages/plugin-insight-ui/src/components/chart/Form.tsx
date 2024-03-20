@@ -78,9 +78,6 @@ const Form = (props: Props) => {
   const [dimension, setDimension] = useState<any>(chart?.dimension || {});
   const [dimensions, setDimensions] = useState<any>([]);
 
-  console.log('serviceName', serviceName)
-  console.log('type', type)
-
   useEffect(() => {
     if (type === 'report' && !chart) {
       updateServiceName(item?.serviceName || undefined);
@@ -94,6 +91,13 @@ const Form = (props: Props) => {
     label: c.name,
     value: c.templateType,
   }));
+
+  useEffect(() => {
+    if (chartTemplatesOptions && chartTemplatesOptions.length !== 0) {
+      setName(chartTemplatesOptions[0].label);
+      setChartTemplate(chartTemplatesOptions[0].value);
+    }
+  }, [chartTypesOptions])
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -199,6 +203,18 @@ const Form = (props: Props) => {
     );
   };
 
+  const renderFields = () => {
+
+    if (!templateType && !chartType) {
+      return null
+    }
+
+    return <>
+      <FormGroup>{renderDimensions()}</FormGroup>
+      <FormGroup>{renderFilterTypeFields()}</FormGroup>
+    </>
+  }
+
   const renderChartTemplates = () => {
     if (!chartTemplates.length) {
       return null;
@@ -214,6 +230,7 @@ const Form = (props: Props) => {
             value={templateType}
             onChange={onChartTemplateChange}
             placeholder={__(`Choose template`)}
+            clearable={false}
           />
         </FormGroup>
         <FormGroup>
@@ -224,10 +241,10 @@ const Form = (props: Props) => {
             value={chartType}
             onChange={onChartTypeChange}
             placeholder={__(`Choose type`)}
+            clearable={false}
           />
         </FormGroup>
-        <FormGroup>{renderDimensions()}</FormGroup>
-        <FormGroup>{renderFilterTypeFields()}</FormGroup>
+        {renderFields()}
       </>
     );
   };
@@ -290,6 +307,7 @@ const Form = (props: Props) => {
                 value={serviceName}
                 onChange={onServiceNameChange}
                 placeholder={__(`Choose service`)}
+                clearable={false}
               />
             </FormGroup>
 

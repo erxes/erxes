@@ -117,7 +117,7 @@ const Form = (props: Props) => {
         )
       : reportTemplates;
 
-    return templates.map((template, index) => {
+    return (templates || []).map((template, index) => {
       return (
         <ReportTemplate
           key={index}
