@@ -301,7 +301,6 @@ export default class SipProvider extends React.Component<
         `Calling answerCall() is not allowed when call status is ${this.state.callStatus} and call direction is ${this.state.callDirection}  (expected ${CALL_STATUS_STARTING} and ${CALL_DIRECTION_INCOMING})`,
       );
     }
-
     this.state.rtcSession.answer({
       mediaConstraints: {
         audio: true,
@@ -636,6 +635,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('bye', () => {
+          console.log('bye:');
           if (this.ua !== ua) {
             return;
           }
@@ -650,6 +650,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('rejected', function (e) {
+          console.log('rejected:', e);
           if (this.ua !== ua) {
             return;
           }
@@ -677,7 +678,6 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-
           [this.remoteAudio.srcObject] =
             rtcSession.connection.getRemoteStreams();
 
@@ -732,6 +732,7 @@ export default class SipProvider extends React.Component<
   }
 
   public render() {
+    console.log(this.state, 'state');
     return this.props.children(this.state);
   }
 }
