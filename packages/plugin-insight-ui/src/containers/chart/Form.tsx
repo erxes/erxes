@@ -8,12 +8,12 @@ import Form from '../../components/chart/Form';
 import { mutations, queries } from '../../graphql';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { filterChartTemplates } from '../../utils';
-import { ReportTemplatesListQueryResponse } from '../../types';
+import { InsightTemplatesListQueryResponse } from '../../types';
 import {
   IChart,
-  ReportChartFormMutationResponse,
-  ReportChartTemplatesListQueryResponse,
-  reportServicesListQueryResponse,
+  ChartFormMutationResponse,
+  InsightChartTemplatesListQueryResponse,
+  InsightServicesListQueryResponse,
 } from '../../types';
 
 type Props = {
@@ -32,24 +32,24 @@ const FormContainer = (props: Props) => {
     chart?.serviceName || undefined,
   );
 
-  const templateListQuery = useQuery<ReportTemplatesListQueryResponse>(
-    gql(queries.reportTemplatesList),
+  const templateListQuery = useQuery<InsightTemplatesListQueryResponse>(
+    gql(queries.insightTemplatesList),
     {
       skip: type !== 'report',
       fetchPolicy: 'network-only',
     },
   );
 
-  const servicesListQuery = useQuery<reportServicesListQueryResponse>(
-    gql(queries.reportServicesList),
+  const servicesListQuery = useQuery<InsightServicesListQueryResponse>(
+    gql(queries.insightServicesList),
     {
       fetchPolicy: 'network-only',
     },
   );
 
   const chartTemplatesListQuery =
-    useQuery<ReportChartTemplatesListQueryResponse>(
-      gql(queries.reportChartTemplatesList),
+    useQuery<InsightChartTemplatesListQueryResponse>(
+      gql(queries.insightChartTemplatesList),
       {
         skip: !serviceName,
         variables: { serviceName },
@@ -71,8 +71,8 @@ const FormContainer = (props: Props) => {
       <ButtonMutate
         mutation={
           object
-            ? mutations[type + 'ChartsEdit']
-            : mutations[type + 'ChartsAdd']
+            ? mutations.chartsEdit
+            : mutations.chartsAdd
         }
         variables={values}
         callback={afterSave}
@@ -88,10 +88,10 @@ const FormContainer = (props: Props) => {
     );
   };
 
-  const serviceNames = servicesListQuery?.data?.reportServicesList || [];
-  const reportTemplates = templateListQuery?.data?.reportTemplatesList || [];
+  const serviceNames = servicesListQuery?.data?.insightServicesList || [];
+  const reportTemplates = templateListQuery?.data?.insightTemplatesList || [];
   const chartTemplates =
-    chartTemplatesListQuery?.data?.reportChartTemplatesList || [];
+    chartTemplatesListQuery?.data?.insightChartTemplatesList || [];
 
   const services = type === 'report' ? [item?.serviceName] : serviceNames;
   const templates =
