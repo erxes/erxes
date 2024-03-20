@@ -4,9 +4,10 @@ import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src';
+import { generateFilter } from './utils';
 
 const salaryQueries = {
-  async salaryReport(_root, args: any, { models }: IContext) {
+  async salaryReport(_root, args: any, { subdomain, models }: IContext) {
     const { page = 1, perPage = 20, employeeId } = args;
 
     const qry: any = {};
@@ -15,8 +16,13 @@ const salaryQueries = {
       qry.employeeId = employeeId;
     }
 
-    const list = await paginate(models.Salaries.find(qry), { page, perPage });
-    const totalCount = await models.Salaries.find(qry).countDocuments();
+    const filter = await generateFilter(args, subdomain);
+
+    const list = await paginate(models.Salaries.find(filter), {
+      page,
+      perPage
+    });
+    const totalCount = await models.Salaries.find(filter).countDocuments();
 
     return { list, totalCount };
   },
@@ -68,7 +74,13 @@ const salaryQueries = {
 
   salaryLabels(_root, _args, _context: IContext) {
     const labels: any = {};
-    const exclude = ['createdAt', 'createdBy'];
+    const exclude = [
+      'createdAt',
+      'createdBy',
+      'startDate',
+      'endDate',
+      'userId'
+    ];
 
     Object.keys(salarySchema.paths).forEach(path => {
       if (

@@ -1,5 +1,6 @@
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
 import { Document, Schema } from 'mongoose';
+import { SALARY_FIELDS } from '../../constants';
 
 export interface ISalary {
   employeeId: string;
@@ -48,22 +49,26 @@ export const salarySchema = schemaWrapper(
     employeeId: field({
       type: String,
       label: 'Ажилтны код',
-      symbol: '',
+      symbol: ''
+    }),
+    userId: field({
+      type: String,
+      label: 'user id with given employee id'
     }),
     totalWorkHours: field({
       type: Number,
       label: 'Ажиллавал зохих цаг',
-      symbol: 'ц',
+      symbol: 'ц'
     }),
     totalWorkedHours: field({
       type: Number,
       label: 'Ажилласан цаг',
-      symbol: 'ц',
+      symbol: 'ц'
     }),
     mainSalary: field({
       type: Number,
       label: 'Үндсэн цалин',
-      symbol: '₮',
+      symbol: '₮'
     }),
     // bonus: field({ type: Number, label: 'Урамшуулал', symbol: '₮' }),
     // addition: field({ type: Number, label: 'Нэмэгдэл', symbol: '₮' }),
@@ -71,12 +76,12 @@ export const salarySchema = schemaWrapper(
     vacation: field({
       type: Number,
       label: 'Ээлжийн Амралт',
-      symbol: '₮',
+      symbol: '₮'
     }),
     totalAddition: field({
       type: Number,
       label: 'Нийт нэмэгдэл',
-      symbol: '₮',
+      symbol: '₮'
     }),
     // lateHoursDeduction: field({
     //   type: Number,
@@ -101,12 +106,12 @@ export const salarySchema = schemaWrapper(
     preliminarySalary: field({
       type: Number,
       label: 'Урьдчилгаа цалин',
-      symbol: '₮',
+      symbol: '₮'
     }),
     endSalary: field({
       type: Number,
       label: 'Сарын сүүл цалин',
-      symbol: '₮',
+      symbol: '₮'
     }),
     // receivable: field({ type: Number, label: 'Авлага', symbol: '₮' }),
     ndsh: field({ type: Number, label: 'ЭМД 2% НДШ 9.5%', symbol: '₮' }),
@@ -114,12 +119,12 @@ export const salarySchema = schemaWrapper(
     mainDeduction: field({
       type: Number,
       label: 'Нийт суутгал',
-      symbol: '₮',
+      symbol: '₮'
     }),
     otherDeduction: field({
       type: Number,
       label: 'Бусад суутгал',
-      symbol: '₮',
+      symbol: '₮'
     }),
     // biSan: field({ type: Number, label: 'BI Сан', symbol: '₮' }),
 
@@ -134,7 +139,7 @@ export const salarySchema = schemaWrapper(
     adequateSalary: field({
       type: Number,
       label: 'Олговол зохих цалин',
-      symbol: '₮',
+      symbol: '₮'
     }),
     // kpiDeduction: field({
     //   type: Number,
@@ -164,12 +169,20 @@ export const salarySchema = schemaWrapper(
     otherAddition: field({
       type: Number,
       label: 'Бусад нэмэгдэл',
-      symbol: '₮',
+      symbol: '₮'
     }),
+    startDate: field({
+      type: Date,
+      label: 'start date of range /title/'
+    }),
+    endDate: field({
+      type: Date,
+      label: 'end date of range /title/'
+    })
     // toSendBank: field({
     //   type: Number,
     //   label: 'Банкны дансруу шилжүүлэх',
     //   symbol: '₮'
     // })
-  }),
+  })
 );
