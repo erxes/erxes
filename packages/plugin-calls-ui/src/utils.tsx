@@ -1,17 +1,18 @@
-import React from 'react';
-import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
 import {
   Actions,
   CallAction,
-  InCallFooter,
   CallTabContent,
+  InCallFooter,
   Keypad,
 } from './styles';
+import { Button, FormControl, Icon } from '@erxes/ui/src/components';
 import { numbers, symbols } from './constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+
+import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
+import React from 'react';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export const formatPhone = (phone) => {
   var num;
@@ -159,35 +160,50 @@ export const callActions = (
   handleAudioToggle,
   isHolded,
   handleHold,
+  endCall,
 ) => {
-  return (
-    <Actions>
-      {!isMuted() && (
-        <CallAction key={'Mute'} shrink={false} onClick={handleAudioToggle}>
-          <Icon icon={'phone-times'} />
-          {__('Mute')}
-        </CallAction>
-      )}
-      {isMuted() && (
-        <CallAction key={'UnMute'} shrink={true} onClick={handleAudioToggle}>
-          <Icon icon={'phone-times'} />
-          {__('UnMute')}
-        </CallAction>
-      )}
+  const isHold = isHolded().localHold;
 
-      {!isHolded().localHold && (
-        <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
-          <Icon icon={'pause-1'} />
-          {__('Hold')}
+  return (
+    <InCallFooter>
+      <Actions>
+        <div>
+          <CallAction
+            key={isMuted ? 'UnMute' : 'Mute'}
+            shrink={isMuted ? true : false}
+            onClick={handleAudioToggle}
+          >
+            <Icon icon={'phone-times'} />
+          </CallAction>
+          {isMuted ? __('Mute') : __('UnMute')}
+        </div>
+        <div>
+          <CallAction
+            key={isHold ? 'UnHold' : 'Hold'}
+            shrink={isHold ? true : false}
+            onClick={handleHold}
+          >
+            <Icon icon={'pause-1'} />
+          </CallAction>
+          {isHold ? __('Hold') : __('UnHold')}
+        </div>
+        <div>
+          <CallAction>
+            <Icon icon={'book-alt'} />
+          </CallAction>
+          {__('Detail')}
+        </div>
+        <div>
+          <CallAction>
+            <Icon icon={'phone-volume'} />
+          </CallAction>
+          {__('Transfer call')}
+        </div>
+        <CallAction onClick={endCall} isDecline={true}>
+          <Icon icon="phone-slash" />
         </CallAction>
-      )}
-      {isHolded().localHold && (
-        <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
-          <Icon icon={'pause-1'} />
-          {__('UnHold')}
-        </CallAction>
-      )}
-    </Actions>
+      </Actions>
+    </InCallFooter>
   );
 };
 
@@ -200,7 +216,7 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations'),
+    localStorage.getItem('config:call_integrations') || '{}',
   );
 
   callConfig &&

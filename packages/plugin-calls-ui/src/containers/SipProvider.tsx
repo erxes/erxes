@@ -1,31 +1,31 @@
+import * as moment from 'moment';
+
 import React, { useState } from 'react';
-import SipProvider from '../components/SipProvider';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { mutations, queries, subscriptions } from '../graphql';
 
-import IncomingCallContainer from './IncomingCall';
-import WidgetContainer from './Widget';
-import { CALL_DIRECTION_INCOMING } from '../lib/enums';
-import { queries, mutations, subscriptions } from '../graphql';
-import { useQuery, gql, useMutation, useSubscription } from '@apollo/client';
-
-import { ModalTrigger } from '@erxes/ui/src/components';
 import { Alert } from '@erxes/ui/src/utils';
+import { CALL_DIRECTION_INCOMING } from '../lib/enums';
 import CallIntegrationForm from '../components/Form';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import IncomingCallContainer from './IncomingCall';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import SipProvider from '../components/SipProvider';
 import TerminateSessionForm from '../components/TerminateCallForm';
+import WidgetContainer from './Widget';
 import { setLocalStorage } from '../utils';
 
-import * as moment from 'moment';
 import { getSubdomain } from '@erxes/ui/src/utils/core';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem('config:call_integrations')),
+    JSON.parse(localStorage.getItem('config:call_integrations') || '{}'),
   );
-  const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+  const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
   const sessionCode = sessionStorage.getItem('sessioncode');
 
   const isConnectCallRequested = JSON.parse(
-    localStorage.getItem('isConnectCallRequested'),
+    localStorage.getItem('isConnectCallRequested') || '{}',
   );
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
@@ -172,27 +172,29 @@ const SipProviderContainer = (props) => {
       removeActiveSession={removeSession}
     />
   );
+
   if (!config || !config.inboxId) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
     );
   }
-  if (activeSession && activeSession.callsActiveSession) {
-    if (
-      (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
-        isConnectCallRequested ||
-        isConnectCallRequested === 'true') &&
-      !callInfo?.isUnRegistered
-    ) {
-      return (
-        <ModalTrigger
-          title="Call Config Modal"
-          content={terminateContent}
-          isOpen={true}
-        />
-      );
-    }
-  }
+
+  // if (activeSession && activeSession.callsActiveSession) {
+  //   if (
+  //     (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
+  //       isConnectCallRequested ||
+  //       isConnectCallRequested === "true") &&
+  //     !callInfo?.isUnRegistered
+  //   ) {
+  //     return (
+  //       <ModalTrigger
+  //         title="Call Config Modal"
+  //         content={terminateContent}
+  //         isOpen={true}
+  //       />
+  //     );
+  //   }
+  // }
   if (!config.isAvailable) {
     return (
       <WidgetContainer
@@ -226,9 +228,9 @@ const SipProviderContainer = (props) => {
         urls: 'stun:stun.l.google.com:19302',
       },
       {
-        urls: 'turn:relay1.expressturn.com:3478',
-        username: 'ef9XU6ND3AYQBGG0VB',
-        credential: '7niiKgbs4Kk92V0d',
+        urls: 'turn:relay8.expressturn.com:3478',
+        username: 'efVCM7AV4B0436ZEJQ',
+        credential: 'PtBTQUgzOtZ1T874',
       },
     ],
   };
@@ -241,20 +243,21 @@ const SipProviderContainer = (props) => {
       updateHistory={updateHistory}
       callUserIntegration={filteredIntegration}
     >
-      {(state) =>
-        state?.callDirection === CALL_DIRECTION_INCOMING ? (
-          <IncomingCallContainer
-            {...props}
-            callUserIntegrations={callUserIntegrations}
-          />
-        ) : (
+      {(state) => (
+        <>
+          {state?.callDirection === CALL_DIRECTION_INCOMING && (
+            <IncomingCallContainer
+              {...props}
+              callUserIntegrations={callUserIntegrations}
+            />
+          )}
           <WidgetContainer
             {...props}
             callUserIntegrations={callUserIntegrations}
             setConfig={handleSetConfig}
           />
-        )
-      }
+        </>
+      )}
     </SipProvider>
   );
 };
