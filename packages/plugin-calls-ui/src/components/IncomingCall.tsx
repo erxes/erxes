@@ -120,9 +120,7 @@ const IncomingCall = (props: Props, context) => {
     setStatus('accepted');
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
-    console.log('accepted..', call?.status);
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
-      console.log('accepted2..', call?.status);
       answerCall();
     }
   };

@@ -60,7 +60,6 @@ export default class SipProvider extends React.Component<
       callEndTime: Date,
       callStatus: string,
     ) => void;
-    callsActiveSession: any;
   },
   {
     sipStatus: SipStatus;
@@ -491,10 +490,6 @@ export default class SipProvider extends React.Component<
       });
 
       setLocalStorage(true, true);
-
-      if (!this.props.callsActiveSession) {
-        this.props.createSession();
-      }
     });
 
     ua.on('unregistered', () => {

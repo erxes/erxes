@@ -44,7 +44,7 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
     calls
       ? `
         type CallHistoryData {
-        _id: String! @external
+        _id: String!
         receiverNumber: String
         callerNumber: String
         callDuration: Int
