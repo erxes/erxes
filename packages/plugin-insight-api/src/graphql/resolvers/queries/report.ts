@@ -77,10 +77,6 @@ const generateFilter = async (
 const reportsQueries = {
     async reportList(_root, params, { models, subdomain, user }: IContext) {
 
-        console.log('models', models)
-        console.log('subdomain', subdomain)
-        console.log('user', user)
-
         const totalCount = models.Reports.count({});
 
         const filter = await generateFilter(params, user, subdomain);

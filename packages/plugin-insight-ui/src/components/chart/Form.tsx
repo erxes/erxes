@@ -96,8 +96,11 @@ const Form = (props: Props) => {
     if (chartTemplatesOptions && chartTemplatesOptions.length !== 0) {
       setName(chartTemplatesOptions[0].label);
       setChartTemplate(chartTemplatesOptions[0].value);
+    } else {
+      setName('');
+      setChartTemplate('');
     }
-  }, [chartTypesOptions])
+  }, [serviceName])
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
@@ -134,6 +137,8 @@ const Form = (props: Props) => {
   const onServiceNameChange = (selVal) => {
     updateServiceName(selVal.value);
     setServiceName(selVal.value);
+
+
   };
 
   const onChartTemplateChange = (selVal) => {
@@ -204,8 +209,7 @@ const Form = (props: Props) => {
   };
 
   const renderFields = () => {
-
-    if (!templateType && !chartType) {
+    if (!templateType) {
       return null
     }
 
