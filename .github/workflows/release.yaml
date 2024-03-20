@@ -1,6 +1,9 @@
 name: Publish Release
 on:
   push:
+    branches:
+      - master
+      - rc
     tags:
       - '*'
 jobs:
