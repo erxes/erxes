@@ -29,12 +29,6 @@ const SipProviderContainer = (props) => {
   );
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
-  const {
-    data: activeSession,
-    loading: activeSessionLoading,
-    error: activeSessionError,
-    refetch,
-  } = useQuery(gql(queries.activeSession), {});
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
@@ -77,9 +71,7 @@ const SipProviderContainer = (props) => {
 
   const createSession = () => {
     createActiveSession()
-      .then(() => {
-        refetch();
-      })
+      .then(() => {})
       .catch((e) => {
         Alert.error(e.message);
       });
@@ -88,8 +80,6 @@ const SipProviderContainer = (props) => {
   const removeSession = () => {
     removeActiveSession()
       .then(() => {
-        refetch();
-
         if (config) {
           setConfig({
             inboxId: config.inboxId,
@@ -136,14 +126,11 @@ const SipProviderContainer = (props) => {
       });
   };
 
-  if (loading || activeSessionLoading) {
+  if (loading) {
     return null;
   }
   if (error) {
     return Alert.error(error.message);
-  }
-  if (activeSessionError) {
-    return Alert.error(activeSessionError.message);
   }
 
   const { callUserIntegrations } = data;
@@ -239,7 +226,6 @@ const SipProviderContainer = (props) => {
     <SipProvider
       {...sipConfig}
       createSession={createSession}
-      callsActiveSession={activeSession?.callsActiveSession}
       updateHistory={updateHistory}
       callUserIntegration={filteredIntegration}
     >
