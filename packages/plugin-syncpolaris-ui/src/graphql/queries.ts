@@ -35,11 +35,11 @@ const commonHistoryParamDefs = `
   searchError: $searchError,
 `;
 
-const syncHistories = `
-  query syncHistories(
+const syncHistoriesPolaris = `
+  query syncHistoriesPolaris(
     ${commonHistoryParams}
   ) {
-    syncHistories (
+    syncHistoriesPolaris (
       ${commonHistoryParamDefs}
     ) {
       _id
@@ -61,11 +61,11 @@ const syncHistories = `
   }
 `;
 
-const syncHistoriesCount = `
-  query syncHistoriesCount(
+const syncHistoriesCountPolaris = `
+  query syncHistoriesCountPolaris(
     ${commonHistoryParams}
   ) {
-    syncHistoriesCount (
+    syncHistoriesCountPolaris (
       ${commonHistoryParamDefs}
     )
   }
@@ -73,6 +73,6 @@ const syncHistoriesCount = `
 
 export default {
   configs,
-  syncHistories,
-  syncHistoriesCount,
+  syncHistoriesPolaris,
+  syncHistoriesCountPolaris,
 };

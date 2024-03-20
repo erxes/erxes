@@ -1,8 +1,9 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { LogoContainer } from '@erxes/ui-settings/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { LogoContainer } from '@erxes/ui-settings/src/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -217,7 +218,7 @@ const WidgetPreviewStyled = styled.div`
   max-height: 660px;
   overflow: hidden;
   position: absolute;
-  right: 8px;
+  right: 80px;
   width: 380px;
   z-index: 1;
 `;
@@ -235,7 +236,7 @@ const Links = styled.div`
 
 const Launcher = styled(LogoContainer)`
   position: absolute;
-  right: ${unitSpace};
+  right: 80px;
   bottom: ${unitSpace};
 `;
 

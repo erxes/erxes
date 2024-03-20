@@ -27,6 +27,7 @@ import {
 import { applyInspectorEndpoints } from '../inspect';
 import app from '@erxes/api-utils/src/app';
 import { consumeQueue, consumeRPCQueue } from '../messageBroker';
+import { extractUserFromHeader } from '../headers';
 
 const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
@@ -156,17 +157,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         ) {
           return {};
         }
-        let user: any = null;
-
-        if (req.headers.user) {
-          if (Array.isArray(req.headers.user)) {
-            throw new Error(`Multiple user headers`);
-          }
-          const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8'
-          );
-          user = JSON.parse(userJson);
-        }
+        let user: any = extractUserFromHeader(req.headers);
 
         let context;
 
@@ -221,11 +212,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    })
+    }),
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve)
+    httpServer.listen({ port: PORT }, resolve),
   );
 
   if (configs.freeSubscriptions) {
@@ -238,7 +229,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
   await connectToMessageBroker(configs.setupMessageConsumers);
@@ -272,7 +263,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender
+          segments.propertyConditionExtender,
         );
       }
 
@@ -281,7 +272,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.associationFilter`,
-          segments.associationFilter
+          segments.associationFilter,
         );
       }
 
@@ -290,7 +281,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap
+          segments.esTypesMap,
         );
       }
 
@@ -299,7 +290,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.initialSelector`,
-          segments.initialSelector
+          segments.initialSelector,
         );
       }
     }
@@ -329,7 +320,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await forms.groupsFilter(args),
-          })
+          }),
         );
       }
 
@@ -410,7 +401,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.prepareImportDocs(args),
-          })
+          }),
         );
       }
 
@@ -420,7 +411,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await imports.insertImportItems(args),
-          })
+          }),
         );
       }
     }
@@ -432,7 +423,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.prepareExportData(args),
-          })
+          }),
         );
       }
 
@@ -442,7 +433,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await exporter.getExportDocs(args),
-          })
+          }),
         );
       }
     }
@@ -454,7 +445,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.receiveActions(args),
-          })
+          }),
         );
       }
       if (automations?.getRecipientsEmails) {
@@ -463,7 +454,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.getRecipientsEmails(args),
-          })
+          }),
         );
       }
       if (automations?.replacePlaceHolders) {
@@ -472,7 +463,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args),
-          })
+          }),
         );
       }
       if (automations?.checkCustomTrigger) {
@@ -481,7 +472,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await automations.checkCustomTrigger(args),
-          })
+          }),
         );
       }
     }
@@ -493,7 +484,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await reports.getChartResult(args),
-          })
+          }),
         );
       }
     }
@@ -567,7 +558,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.editorAttributes(args),
-        })
+        }),
       );
 
       consumeRPCQueue(
@@ -575,7 +566,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         async (args) => ({
           status: 'success',
           data: await documents.replaceContent(args),
-        })
+        }),
       );
     }
 

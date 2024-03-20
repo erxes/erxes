@@ -18,6 +18,7 @@ const callsQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
+    console.log('user', user);
     const res = models.Integrations.getIntegrations(user._id);
 
     return res;

@@ -35,13 +35,13 @@ class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
     const { queryParams, syncHistoriesQuery, syncHistoriesCountQuery } =
       this.props;
 
-    const syncHistories = syncHistoriesQuery.syncHistories || [];
-    const totalCount = syncHistoriesCountQuery.syncHistoriesCount || 0;
+    const syncHistoriesPolaris = syncHistoriesQuery.syncHistoriesPolaris || [];
+    const totalCount = syncHistoriesCountQuery.syncHistoriesCountPolaris || 0;
 
     const updatedProps = {
       ...this.props,
       queryParams,
-      syncHistories,
+      syncHistoriesPolaris,
       totalCount,
       loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading,
     };
@@ -72,7 +72,7 @@ const generateParams = ({ queryParams }) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistories), {
+    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistoriesPolaris), {
       name: 'syncHistoriesQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
@@ -80,7 +80,7 @@ export default withProps<Props>(
       }),
     }),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
-      gql(queries.syncHistoriesCount),
+      gql(queries.syncHistoriesCountPolaris),
       {
         name: 'syncHistoriesCountQuery',
         options: ({ queryParams }) => ({

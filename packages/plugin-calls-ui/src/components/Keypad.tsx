@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import {
-  InputBar,
-  NumberInput,
-  BackIcon,
-  ChooseCountry,
-  InCall,
-  CallInfo,
-  PhoneNumber,
-  ContactItem,
-  CallTabsContainer,
-  CallTab,
-  DisconnectCall,
-} from '../styles';
-import { inCallTabs } from '../constants';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Select from 'react-select-plus';
-import { Button, Icon } from '@erxes/ui/src/components';
-import { Alert, __ } from '@erxes/ui/src/utils';
 import * as PropTypes from 'prop-types';
+
+import {
+  ActiveCalls,
+  BackIcon,
+  CallInfo,
+  CallTab,
+  CallTabsContainer,
+  ChooseCountry,
+  ContactItem,
+  DisconnectCall,
+  HeaderItem,
+  InCall,
+  IncomingCallNav,
+  IncomingCalls,
+  IncomingContainer,
+  IncomingContent,
+  InputBar,
+  Keypad,
+  KeypadHeader,
+  NameCardContainer,
+  NumberInput,
+  PhoneNumber,
+} from '../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import { Button, Icon } from '@erxes/ui/src/components';
 import {
   CALL_DIRECTION_INCOMING,
+  CALL_DIRECTION_OUTGOING,
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
@@ -27,7 +34,8 @@ import {
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
 } from '../lib/enums';
-import { callPropType, sipPropType } from '../lib/types';
+import { ICallConversation, ICustomer } from '../types';
+import React, { useEffect, useState } from 'react';
 import {
   callActions,
   formatPhone,
@@ -35,8 +43,12 @@ import {
   renderFooter,
   renderKeyPad,
 } from '../utils';
+import { callPropType, sipPropType } from '../lib/types';
+
+import { FormControl } from '@erxes/ui/src/components/form';
 import Popover from 'react-bootstrap/Popover';
-import { ICallConversation, ICustomer } from '../types';
+import Select from 'react-select-plus';
+import { inCallTabs } from '../constants';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -51,6 +63,7 @@ type Props = {
   disconnectCall: () => void;
   phoneNumber: string;
 };
+
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
@@ -79,7 +92,7 @@ const KeyPad = (props: Props, context) => {
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
-    JSON.parse(defaultCallIntegration)?.phone ||
+    JSON.parse(defaultCallIntegration || '{}')?.phone ||
       callUserIntegrations?.[0]?.phone ||
       '',
   );
@@ -121,7 +134,7 @@ const KeyPad = (props: Props, context) => {
 
     if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
       const inboxId =
-        JSON.parse(defaultCallIntegration)?.inboxId ||
+        JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
 
       addCustomer(inboxId, formatedPhone, call?.id);
@@ -169,39 +182,9 @@ const KeyPad = (props: Props, context) => {
     }
   };
 
-  const handleCallConnect = () => {
-    const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === callFrom,
-    );
-    localStorage.setItem(
-      'config:call_integrations',
-      JSON.stringify({
-        inboxId: integration?.inboxId,
-        phone: integration?.phone,
-        wsServer: integration?.wsServer,
-        token: integration?.token,
-        operators: integration?.operators,
-        isAvailable: true,
-      }),
-    );
-    setConfig({
-      inboxId: integration?.inboxId,
-      phone: integration?.phone,
-      wsServer: integration?.wsServer,
-      token: integration?.token,
-      operators: integration?.operators,
-      isAvailable: true,
-    });
-    localStorage.setItem('isConnectCallRequested', 'true');
-    localStorage.setItem(
-      'callInfo',
-      JSON.stringify({
-        isUnRegistered: false,
-      }),
-    );
-  };
+  const handleCallConnect = (status: string) => {
+    const isConnected = status === 'connect';
 
-  const handleCallDisConnect = () => {
     const integration = callUserIntegrations?.find(
       (userIntegration) => userIntegration.phone === callFrom,
     );
@@ -213,7 +196,7 @@ const KeyPad = (props: Props, context) => {
         wsServer: integration?.wsServer,
         token: integration?.token,
         operators: integration?.operators,
-        isAvailable: false,
+        isAvailable: isConnected ? true : false,
       }),
     );
     setConfig({
@@ -222,8 +205,19 @@ const KeyPad = (props: Props, context) => {
       wsServer: integration?.wsServer,
       token: integration?.token,
       operators: integration?.operators,
-      isAvailable: false,
+      isAvailable: isConnected ? true : false,
     });
+
+    localStorage.setItem(
+      'isConnectCallRequested',
+      isConnected ? 'true' : 'false',
+    ),
+      localStorage.setItem(
+        'callInfo',
+        JSON.stringify({
+          isUnRegistered: isConnected ? true : false,
+        }),
+      );
   };
 
   const handNumPad = (e) => {
@@ -375,49 +369,99 @@ const KeyPad = (props: Props, context) => {
     addNote(conversationDetail?._id, noteContent);
   };
 
+  const isConnected =
+    !Sip.call ||
+    Sip.sip?.status === SIP_STATUS_ERROR ||
+    Sip.sip?.status === SIP_STATUS_DISCONNECTED;
+
+  if (
+    Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
+    Sip.call?.status === CALL_STATUS_STARTING
+  ) {
+    return (
+      <IncomingCallNav type="outgoing">
+        <IncomingContainer>
+          <IncomingContent>
+            <NameCardContainer>
+              <h5>
+                <Icon icon="calling" size={16} />
+                {__('Calling')}
+              </h5>
+              <PhoneNumber>{number}</PhoneNumber>
+            </NameCardContainer>
+            {callActions(
+              isMuted,
+              handleAudioToggle,
+              isHolded,
+              handleHold,
+              handleCallStop,
+            )}
+          </IncomingContent>
+        </IncomingContainer>
+      </IncomingCallNav>
+    );
+  }
+
+  if (Sip.call?.status === CALL_STATUS_ACTIVE) {
+    return (
+      <IncomingCallNav type="outgoing">
+        <IncomingContainer>
+          <IncomingContent>
+            <NameCardContainer>
+              <h5>{__('In Call')}</h5>
+              {renderCallerInfo()}
+            </NameCardContainer>
+            <p>
+              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+            </p>
+            {callActions(
+              isMuted,
+              handleAudioToggle,
+              isHolded,
+              handleHold,
+              handleCallStop,
+            )}
+          </IncomingContent>
+        </IncomingContainer>
+      </IncomingCallNav>
+    );
+  }
+
   return (
     <>
-      {Sip.call?.status === CALL_STATUS_ACTIVE && (
-        <Popover id="call-popover" className="call-popover">
-          <InCall>
-            <CallInfo shrink={shrink}>
-              <p>
-                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-              </p>
-              <div>{renderCallerInfo()}</div>
-              {callActions(isMuted, handleAudioToggle, isHolded, handleHold)}
-            </CallInfo>
-            <ContactItem>
-              <CallTabsContainer full={true}>
-                {inCallTabs.map((tab) => (
-                  <CallTab
-                    key={tab}
-                    className={currentTab === tab ? 'active' : ''}
-                    onClick={() => onTabClick(tab)}
-                  >
-                    {__(tab)}
-                  </CallTab>
-                ))}
-              </CallTabsContainer>
-            </ContactItem>
-            {renderFooter(
-              shrink,
-              handleCallStop,
-              currentTab,
-              onChangeText,
-              sendMessage,
-              customer,
-              taggerRefetchQueries,
-              toggleSection,
-              conversationDetail,
-              handNumPad,
-              true,
-            )}
-          </InCall>
-        </Popover>
-      )}
       {Sip.call?.direction !== CALL_DIRECTION_INCOMING && (
         <NumberInput>
+          <KeypadHeader>
+            <HeaderItem>
+              <Icon
+                className={isConnected ? 'off' : 'on'}
+                icon="signal-alt-3"
+              />
+              {isConnected ? __('Offline') : __('Online')}
+            </HeaderItem>
+            <HeaderItem>
+              <Icon className="reload" icon="reload" />
+              Reload
+            </HeaderItem>
+            <HeaderItem>
+              <Icon className="pause" size={14} icon="pause-circle" />
+              Pause
+            </HeaderItem>
+            <HeaderItem
+              onClick={() =>
+                isConnected
+                  ? handleCallConnect('connect')
+                  : handleCallConnect('disconnect')
+              }
+            >
+              <Icon
+                className={isConnected ? 'on' : 'off'}
+                size={13}
+                icon={isConnected ? 'power-button' : 'pause-1'}
+              />
+              {isConnected ? __('Turn on') : __('Turn off')}
+            </HeaderItem>
+          </KeypadHeader>
           <InputBar type="keypad">
             <FormControl
               placeholder={__('Enter Phone Number')}
@@ -429,7 +473,7 @@ const KeyPad = (props: Props, context) => {
             />
           </InputBar>
           {renderKeyPad(handNumPad)}
-          <p>Calling from your own phone number</p>
+          <p>{__('Calling from your own phone number')}</p>
           <Select
             placeholder={__('Choose phone number')}
             value={callFrom}
@@ -439,38 +483,20 @@ const KeyPad = (props: Props, context) => {
             scrollMenuIntoView={true}
           />
           <>
-            {Sip.call?.status === CALL_STATUS_IDLE &&
-              Sip.sip?.status === SIP_STATUS_REGISTERED && (
-                <>
-                  <Button icon="outgoing-call" onClick={handleCall}>
-                    Call
-                  </Button>
-                  <DisconnectCall>
-                    <Button
-                      btnStyle="danger"
-                      icon="signal-slash"
-                      onClick={handleCallDisConnect}
-                    >
-                      Disconnect Call
-                    </Button>
-                  </DisconnectCall>
-                </>
-              )}
-            {Sip.call && Sip.call?.status !== CALL_STATUS_IDLE && (
-              <Button
-                icon="phone-slash"
-                btnStyle="danger"
-                onClick={handleCallStop}
-              >
-                End Call
-              </Button>
-            )}
-            {(!Sip.call ||
-              Sip.sip?.status === SIP_STATUS_ERROR ||
-              Sip.sip?.status === SIP_STATUS_DISCONNECTED) && (
-              <Button btnStyle="success" onClick={handleCallConnect}>
-                Connect to Call
-              </Button>
+            {Sip.sip?.status === SIP_STATUS_REGISTERED && (
+              <>
+                <Button
+                  btnStyle="success"
+                  icon="outgoing-call"
+                  onClick={handleCall}
+                >
+                  {Sip.call?.status === CALL_STATUS_IDLE
+                    ? 'Call'
+                    : Sip.call?.status === CALL_STATUS_STARTING
+                      ? 'Calling'
+                      : 'aa'}
+                </Button>
+              </>
             )}
           </>
         </NumberInput>
@@ -478,6 +504,7 @@ const KeyPad = (props: Props, context) => {
     </>
   );
 };
+
 KeyPad.contextTypes = {
   sip: sipPropType,
   call: callPropType,
@@ -492,4 +519,5 @@ KeyPad.contextTypes = {
   isHolded: PropTypes.func,
   sendDtmf: PropTypes.func,
 };
+
 export default KeyPad;

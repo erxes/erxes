@@ -15,29 +15,25 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('loans:contract.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:firstLoanSchedules.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Contracts.findOne(data).lean(),
+      data: await models.FirstSchedules.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue(
-    'loans:contracts.updateContractNumber',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { selector, modifier } = data;
 
-      return {
-        status: 'success',
-        data: await models.Contracts.updateOne(
-          { _id: data._id },
-          { number: data.number },
-        ),
-      };
-    },
-  );
+    const result = await models.Contracts.updateOne(selector, modifier);
+    return {
+      status: 'success',
+      data: result,
+    };
+  });
 
   consumeRPCQueue(
     'loans:contracts.getCloseInfo',
@@ -61,10 +57,18 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
     return {
       status: 'success',
       data: await models.ContractTypes.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('loans:contractType.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ContractTypes.find(data).lean(),
     };
   });
 
@@ -97,6 +101,17 @@ export const setupMessageConsumers = async () => {
       status: 'success',
     };
   });
+  consumeRPCQueue(
+    'loans:firstLoanSchedules.insertMany',
+    async ({ subdomain,data }) => {
+      const models = await generateModels(subdomain);
+      
+      return {
+        data: await models.FirstSchedules.insertMany(data),
+        status: 'success',
+      };
+    },
+  )
 };
 
 export const sendMessageBroker = async (

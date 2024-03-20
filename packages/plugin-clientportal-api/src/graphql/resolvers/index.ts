@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { ClientPortalUser } from './clientPortalUser';
+import { ClientPortalUser, ClientPortalParticipant } from './clientPortalUser';
 import ClientPortalNotification from './clientPortalNotification';
 import ClientPortalComment from './comment';
 import Mutation from './mutations';
@@ -13,7 +13,8 @@ const resolvers: any = {
 
   ClientPortalNotification,
   ClientPortalUser,
-  ClientPortalComment
+  ClientPortalParticipant,
+  ClientPortalComment,
 };
 
 export default resolvers;

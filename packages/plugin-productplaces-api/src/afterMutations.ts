@@ -256,7 +256,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
 
           if (content.length) {
-            await graphqlPubsub.publish('productPlacesResponded', {
+            await graphqlPubsub.publish(`productPlacesResponded:${user._id}`, {
               productPlacesResponded: {
                 userId: user._id,
                 responseId: deal._id,

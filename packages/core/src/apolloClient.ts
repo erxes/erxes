@@ -9,6 +9,7 @@ import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { extractUserFromHeader } from '@erxes/api-utils/src/headers';
 
 // load environment variables
 dotenv.config();
@@ -34,11 +35,11 @@ export const initApolloServer = async (app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs,
-        resolvers
-      }
+        resolvers,
+      },
     ]),
     // for graceful shutdowns
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await apolloServer.start();
@@ -56,23 +57,13 @@ export const initApolloServer = async (app, httpServer) => {
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        let user: any = null;
-
-        if (req.headers.user) {
-          if (Array.isArray(req.headers.user)) {
-            throw new Error(`Multiple user headers`);
-          }
-          const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8'
-          );
-          user = JSON.parse(userJson);
-        }
+        let user: any = extractUserFromHeader(req.headers);
 
         const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 
         const requestInfo = {
           secure: req.secure,
-          cookies: req.cookies
+          cookies: req.cookies,
         };
 
         if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -80,14 +71,14 @@ export const initApolloServer = async (app, httpServer) => {
             brandIdSelector: {},
             singleBrandIdSelector: {},
             userBrandIdsSelector: {},
-            docModifier: doc => doc,
+            docModifier: (doc) => doc,
             commonQuerySelector: {},
             user,
             res,
             requestInfo,
             dataLoaders,
             subdomain,
-            models
+            models,
           };
         }
 
@@ -118,7 +109,7 @@ export const initApolloServer = async (app, httpServer) => {
         return {
           brandIdSelector,
           singleBrandIdSelector,
-          docModifier: doc => ({ ...doc, scopeBrandIds }),
+          docModifier: (doc) => ({ ...doc, scopeBrandIds }),
           commonQuerySelector,
           commonQuerySelectorElk,
           userBrandIdsSelector,
@@ -127,10 +118,10 @@ export const initApolloServer = async (app, httpServer) => {
           requestInfo,
           dataLoaders,
           subdomain,
-          models
+          models,
         };
-      }
-    })
+      },
+    }),
   );
 
   return apolloServer;

@@ -6,7 +6,12 @@ import {
   schemaHooksWrapper,
 } from './utils';
 import { IOrderItemDocument } from './orderItems';
-import { BILL_TYPES, ORDER_STATUSES, ORDER_TYPES } from './constants';
+import {
+  BILL_TYPES,
+  ORDER_STATUSES,
+  ORDER_TYPES,
+  ORDER_SALE_STATUS,
+} from './constants';
 
 export interface IPaidAmount {
   _id?: string;
@@ -22,6 +27,7 @@ export interface IMobileAmount {
 
 export interface IOrder {
   status?: string;
+  saleStatus?: string;
   createdAt?: Date;
   modifiedAt?: Date;
   userId?: string;
@@ -102,6 +108,13 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Status of the order',
       enum: ORDER_STATUSES.ALL,
       default: ORDER_STATUSES.NEW,
+      index: true,
+    }),
+    saleStatus: field({
+      type: String,
+      label: 'Status of the sale',
+      enum: ORDER_SALE_STATUS.ALL,
+      default: ORDER_SALE_STATUS.CART,
       index: true,
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),

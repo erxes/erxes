@@ -54,6 +54,12 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
+
+    if (!selectedOption) {
+      setFieldValue('');
+      onChange('');
+    }
+
     if (multi && Array.isArray(selectedOption)) {
       const selectedValues = selectedOption.map((option) => option.value);
       setFieldValue(selectedValues);
@@ -65,14 +71,6 @@ const ChartFormField = (props: Props) => {
       setFieldValue(selectedValue);
       onChange(selectedValue);
     }
-
-    if (!selectedOption) {
-      setFieldValue('');
-      onChange('');
-    }
-
-    setFieldValue(selectedOption.value);
-    onChange(selectedOption);
   };
 
   const onSaveDateRange = (dateRange: any) => {

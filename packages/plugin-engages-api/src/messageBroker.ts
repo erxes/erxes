@@ -21,7 +21,7 @@ export const setupMessageConsumers = async () => {
       await models.Logs.createLog(
         engageMessage._id,
         'failure',
-        'No customers found',
+        'No customers found'
       );
       throw new Error('No customers found');
     }
@@ -40,7 +40,7 @@ export const setupMessageConsumers = async () => {
       await models.Logs.createLog(
         engageMessage._id,
         'regular',
-        `Matched ${customerInfos.length} customers`,
+        `Matched ${customerInfos.length} customers`
       );
     }
 
@@ -50,14 +50,14 @@ export const setupMessageConsumers = async () => {
     ) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { 'scheduleDate.type': 'sent' } },
+        { $set: { 'scheduleDate.type': 'sent' } }
       );
     }
 
     if (customerInfos.length > 0) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { totalCustomersCount: customerInfos.length } },
+        { $set: { totalCustomersCount: customerInfos.length } }
       );
     }
   });
@@ -91,7 +91,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.removeCustomersEngages(customerIds);
-    },
+    }
   );
 
   consumeQueue(
@@ -100,7 +100,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       await models.EngageMessages.changeCustomer(customerId, customerIds);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -112,7 +112,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
       };
-    },
+    }
   );
 
   consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
@@ -128,7 +128,7 @@ export const removeEngageConversations = async (_id: string): Promise<any> => {
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -137,7 +137,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -146,7 +146,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -155,7 +155,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendLogsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
@@ -164,7 +164,7 @@ export const sendLogsMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -173,7 +173,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -182,7 +182,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendIntegrationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
@@ -191,7 +191,7 @@ export const sendIntegrationsMessage = async (
 };
 
 export const sendEmailTemplatesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'emailtemplates',
@@ -206,8 +206,15 @@ export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   });
 };
 
+export const sendImapMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'imap',
+    ...args,
+  });
+};
+
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

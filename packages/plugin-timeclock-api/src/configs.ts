@@ -76,6 +76,22 @@ export default {
         return res.send(result.response);
       }),
     );
+
+    app.get(
+      '/timeclock-export',
+      routeErrorHandling(async (req: any, res) => {
+        const { query } = req;
+
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
+
+        const result = await timeclockBuildFile(models, subdomain, query);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        return res.send(result.response);
+      }),
+    );
   },
   setupMessageConsumers,
 };
