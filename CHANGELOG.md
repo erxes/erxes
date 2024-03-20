@@ -1,3 +1,10 @@
+### [1.6.3](https://github.com/erxes/erxes/compare/1.6.3-rc.4...1.6.3) (2024-03-20)
+
+
+### Features
+
+* **ebarimt:** return bill for duplicated ([a5a7959](https://github.com/erxes/erxes/commit/a5a795929ec1fb2c6ca1bcd1859f7f10361a3af5))
+
 ### [1.6.3-rc.4](https://github.com/erxes/erxes/compare/1.6.3-rc.3...1.6.3-rc.4) (2024-03-18)
 
 
