@@ -22,14 +22,28 @@ const PaymentGateway = (props: Props) => {
   );
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [kind, setKind] = useState(props.newTransaction?.paymentKind || 'default');
 
   const openModal = (payment) => {
     setCurrentTransaction(null);
+    setKind(payment.kind);
+    console.log('pisda', payment.kind);
+    if (payment.kind === 'storepay') {
+      setModalIsOpen(true);
+
+      return;
+    }
+
     const pendingTransaction = transactions.find(
       (t) => t.paymentId === payment._id && t.status === 'pending'
     );
 
-    if (pendingTransaction) {
+    console.log('pendingTransaction', pendingTransaction);
+
+    if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
+      console.log('requesting new transaction');
+      props.onClickPayment(payment._id);
+    } else if (pendingTransaction) {
       setCurrentTransaction(pendingTransaction);
     } else {
       props.onClickPayment(payment._id);
@@ -95,6 +109,7 @@ const PaymentGateway = (props: Props) => {
         isOpen={modalIsOpen}
         onClose={closeModal}
         transaction={currentTransaction}
+        kind={kind}
       />
     </div>
   );

@@ -19,12 +19,14 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     amount,
     apiDomain,
     description,
+    details
   }: {
     invoiceId: string;
     paymentId: string;
     amount: number;
     apiDomain: string;
     description?: string;
+    details?: any;
   }): Promise<ITransactionDocument>;
   updateTransaction(_id: string, doc: any): Promise<ITransactionDocument>;
   cancelTransaction(_id: string): Promise<string>;

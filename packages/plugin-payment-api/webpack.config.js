@@ -7,7 +7,6 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
-    
     rules: [
       {
         test: /\.(ts|tsx)$/,
@@ -16,7 +15,11 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-typescript', '@babel/preset-react'],
+            presets: [
+              '@babel/preset-env',
+              '@babel/preset-typescript',
+              '@babel/preset-react',
+            ],
             plugins: [['@babel/plugin-proposal-class-properties']],
           },
         },
@@ -30,5 +33,11 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, './src/public/js'),
+  },
+
+  devServer: {
+      static: {
+          directory: path.join(__dirname, 'src/public'),
+      },
   },
 };

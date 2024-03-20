@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import Spinner from '../common/Spinner';
+import PhoneInput from '../common/PhoneInput';
 
 const capitalizeFirstLetter = (str) => {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
@@ -8,7 +9,7 @@ const capitalizeFirstLetter = (str) => {
 
 type Props = {
   isOpen: boolean;
-
+  kind: string;
   transactionLoading?: boolean;
   transaction?: any;
 
@@ -18,13 +19,16 @@ type Props = {
 
 const PaymentModal = (props: Props) => {
   const { isOpen, onClose, transaction } = props;
+  const [phone, setPhone] = React.useState('');
 
-  let kind = (transaction && transaction.paymentKind) || 'default';
+  let { kind = 'default' } = props;
   const apiResponse = transaction && transaction.response;
 
   if (kind.includes('qpay')) {
     kind = 'qpay';
   }
+
+  console.log('haha')
 
   const renderLoading = () => {
     return (
@@ -48,7 +52,53 @@ const PaymentModal = (props: Props) => {
     if (!transaction) {
       return null;
     }
-    
+
+    if (kind === 'minupay') {
+      return (
+        <div
+          className={`modal-content ${kind}-modal`}
+          style={{ borderColor: 'red', borderWidth: '1px' }}
+        >
+          <div className="modal-header">
+            <button
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                padding: '10px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '20px',
+              }}
+              onClick={onClose}
+            >
+              ×
+            </button>
+            <h4
+              className="modal-title"
+              id="paymentKind"
+              style={{
+                color: 'white',
+                textShadow: '2px 2px 2px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              {kind && capitalizeFirstLetter(kind)}
+            </h4>
+          </div>
+          <iframe
+            src={apiResponse}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              borderRadius: '8px',
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
       <div
         className={`modal-content ${kind}-modal`}
@@ -90,6 +140,18 @@ const PaymentModal = (props: Props) => {
             style={{ display: 'block', margin: 'auto', borderRadius: '8px' }}
           />
 
+          <br />
+          {['socialpay', 'storepay'].includes(kind) && (
+            <PhoneInput
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+              }}
+              onSend={() => {
+                console.log('send');
+              }}
+            />
+          )}
           <br />
           <h2 id="amount">{transaction.amount} ₮</h2>
 

@@ -70,6 +70,17 @@ export const PAYMENTS = {
     },
     handlerMethod: 'GET',
   },
+  minupay: {
+    title: 'MinuPay',
+    kind: 'minupay',
+    apiUrl: 'https://api.minu.mn',
+    actions: {
+      login: 'oncom/login',
+      invoice: 'oncom/invoice',
+      checkInvoice: 'oncom/checkTxn',
+    },
+    handlerMethod: 'POST',
+  },
   wechatpay: {
     title: 'WeChat Pay',
     kind: 'wechatpay',
@@ -99,6 +110,7 @@ export const PAYMENTS = {
     'pocket',
     'wechatpay',
     'paypal',
+    'minupay',
     'qpayQuickqr',
   ],
 };

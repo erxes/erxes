@@ -2,9 +2,13 @@
   "name": "@erxes/plugin-payment-api",
   "version": "1.0.0",
   "scripts": {
+    "clean": "rm -f src/public/js/bundle.js",
     "dev": "nodemon src/index.ts",
+    "start:client": "nodemon --exec 'yarn build:client' --watch src/paymentGateway/src",
     "build": "tsc",
-    "build:client": "webpack --config webpack.config.js"
+    "build:client": "yarn clean && webpack --config webpack.config.js",
+    "build:server": "cp -r .src/views/ ./dist/",
+    "dev-webpack": "webpack --mode development --watch --progress"
   },
   "dependencies": {
     "@erxes/api-utils": "*",
@@ -21,7 +25,9 @@
     "@babel/plugin-transform-runtime": "^7.11.5",
     "styled-components": "^5.3.11",
     "styled-components-ts": "^0.0.15",
-    "react-modal":"3.16.1"
+    "react-modal":"3.16.1",
+    "compression-webpack-plugin": "^8.0.1",
+    "terser-webpack-plugin": "^4.2.3"
   },
   "devDependencies": {
     "ts-node": "^8.4.1",

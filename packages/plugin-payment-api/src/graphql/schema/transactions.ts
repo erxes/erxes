@@ -18,7 +18,7 @@ export const mutations = `
     invoiceId: String!
     paymentId: String!
     amount: Float!
-    monpayCoupon: Float
+    details: JSON
   ): PaymentTransaction
 `;
 

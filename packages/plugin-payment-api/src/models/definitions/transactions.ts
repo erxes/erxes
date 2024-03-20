@@ -10,8 +10,8 @@ export interface ITransaction {
   paymentKind: string;
   amount: number;
   status: string;
-  monpayCoupon?: number;
   description?: string;
+  details?: any;
   // response from selected payment method
   response: any;
 }
@@ -28,10 +28,11 @@ export const transactionSchema = new Schema({
   paymentKind: field({ type: String }),
   amount: field({ type: Number }),
   monpayCoupon: field({ type: Number }),
+  phone: field({ type: String }),
   status: field({ type: String, default: PAYMENT_STATUS.PENDING }),
   createdAt: field({ type: Date, default: new Date() }),
   updatedAt: field({ type: Date }),
-
+  details: field({ type: Object }),
   response: field({ type: Object }),
 });
 

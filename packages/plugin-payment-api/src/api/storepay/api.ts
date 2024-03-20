@@ -1,10 +1,9 @@
 import fetch from 'node-fetch';
 import { BaseAPI } from '../../api/base';
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoice, IInvoiceDocument } from '../../models/definitions/invoices';
-import redis from '../../redis';
 import { ITransactionDocument } from '../../models/definitions/transactions';
+import redis from '../../redis';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 
 export const storepayCallbackHandler = async (
   models: IModels,
@@ -152,17 +151,19 @@ export class StorePayAPI extends BaseAPI {
    * @return {[object]} - Returns invoice object
    * TODO: update return type
    */
-  async createInvoice(invoice: ITransactionDocument & { phone: string }) {
+  async createInvoice(invoice: ITransactionDocument) {
+    const { details } = invoice || {};
+
     try {
       const data = {
         amount: invoice.amount,
-        mobileNumber: invoice.phone,
+        mobileNumber: details.phone,
         description: invoice.description || 'transaction',
         storeId: this.store_id,
         callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
       };
 
-      const possibleAmount = await this.checkLoanAmount(invoice.phone);
+      const possibleAmount = await this.checkLoanAmount(details.phone);
 
       if (possibleAmount < invoice.amount) {
         return {
@@ -184,7 +185,7 @@ export class StorePayAPI extends BaseAPI {
         return { error };
       }
 
-      return { ...res, text: `Invoice has sent to ${invoice.phone}` };
+      return { ...res, text: `Invoice has sent to ${details.phone}` };
     } catch (e) {
       return { error: e.message };
     }

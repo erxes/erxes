@@ -10,6 +10,7 @@ export default class Article extends React.PureComponent<Props> {
   handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
 
+    
     const { article, onClick } = this.props;
 
     onClick(article);

@@ -64,7 +64,7 @@ function CategoriesContainer() {
 
   const createInvoice = () => {
     const contentTypeId = 'UcP4JRIJtbDDpjQvNzmgP';
-    const pendingInvoices = sessionStorage.getItem('pendingInvoices')
+    const pendingInvoices = sessionStorage.getItem('pendingInvoices');
 
     const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
 
@@ -117,24 +117,40 @@ function CategoriesContainer() {
     });
   };
 
+  // center button and over iframe
+  const style = {
+    position: 'absolute',
+    // top: '10%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  };
+
   return (
     <>
-      {/* <Layout
+      <button
+        style={{
+          position: 'absolute',
+          top: '10%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+        onClick={() => {
+          createInvoice();
+        }}
+      >
+        Pay now
+      </button>
+
+      <div>
+        {/* <Layout
         headerBottomComponent={<Search searchValue={searchValue} />}
         headingSpacing={true}
       >
         {(props: Store) => renderContent(props)}
       </Layout> */}
 
-      <button
-        onClick={() => {
-          createInvoice();
-        }}
-      >
-        Click me
-      </button>
-
-      <iframe id="docIframe" width="100%" height={'1000px'} />
+        <iframe id="docIframe" width="100%" height={'1000px'} />
+      </div>
     </>
   );
 }
