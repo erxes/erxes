@@ -5,7 +5,7 @@ import Step from '@erxes/ui/src/components/step/Step';
 import Steps from '@erxes/ui/src/components/step/Steps';
 import {
   StepWrapper,
-  TitleContainer
+  TitleContainer,
 } from '@erxes/ui/src/components/step/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
@@ -13,7 +13,7 @@ import {
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
-  IEngageScheduleDate
+  IEngageScheduleDate,
 } from '@erxes/ui-engage/src/types';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -59,7 +59,7 @@ class VisitorForm extends React.Component<Props, State> {
     const message = props.message || ({} as IEngageMessage);
     const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules
-      ? messenger.rules.map(rule => ({ ...rule }))
+      ? messenger.rules.map((rule) => ({ ...rule }))
       : [];
 
     this.state = {
@@ -72,12 +72,12 @@ class VisitorForm extends React.Component<Props, State> {
       rules,
       messenger: message.messenger,
       scheduleDate: message.scheduleDate,
-      isSaved: false
+      isSaved: false,
     };
   }
 
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
   handleSubmit = (type: string): Promise<any> | void => {
@@ -92,9 +92,9 @@ class VisitorForm extends React.Component<Props, State> {
         rules: this.state.rules,
         brandId: messenger.brandId,
         sentAs: messenger.sentAs,
-        content: this.state.content
+        content: this.state.content,
       },
-      scheduleDate: this.state.scheduleDate
+      scheduleDate: this.state.scheduleDate,
     };
 
     const response = this.props.validateDoc(type, doc);
@@ -159,12 +159,12 @@ class VisitorForm extends React.Component<Props, State> {
       fromUserId,
       content,
       scheduleDate,
-      isSaved
+      isSaved,
     } = this.state;
 
     const { renderTitle, breadcrumbs, kind, users, brands } = this.props;
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
@@ -195,7 +195,7 @@ class VisitorForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-08.svg"
-            title="Compose your campaign"
+            title="Compose your broadcast"
             noButton={true}
           >
             <MessengerForm
@@ -207,7 +207,7 @@ class VisitorForm extends React.Component<Props, State> {
               messenger={messenger || ({} as IEngageMessenger)}
               fromUserId={fromUserId}
               content={content}
-              scheduleDate={scheduleDate || ({} as IEngageScheduleDate)}
+              // scheduleDate={scheduleDate || ({} as IEngageScheduleDate)}
               isSaved={isSaved}
             />
           </Step>
