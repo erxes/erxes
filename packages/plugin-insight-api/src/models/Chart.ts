@@ -10,7 +10,7 @@ import {
 export interface IChartModel extends Model<IChartDocument> {
   getChart(_id: string): Promise<IChartDocument>;
   createChart(doc: IChart): Promise<IChartDocument>;
-  updateChart(_id: string, doc: IChartEdit): Promise<IChartDocument>;
+  updateChart(_id: string, doc: IChart): Promise<IChartDocument>;
   removeChart(_id: string): void;
 }
 

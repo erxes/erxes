@@ -93,16 +93,6 @@ const Form = (props: Props) => {
   }));
 
   useEffect(() => {
-    if (chartTemplatesOptions && chartTemplatesOptions.length !== 0) {
-      setName(chartTemplatesOptions[0].label);
-      setChartTemplate(chartTemplatesOptions[0].value);
-    } else {
-      setName('');
-      setChartTemplate('');
-    }
-  }, [serviceName])
-
-  useEffect(() => {
     const findChartTemplate = chartTemplates.find(
       (t) => t.templateType === templateType,
     );
@@ -117,14 +107,15 @@ const Form = (props: Props) => {
   }, [[...chartTemplates]]);
 
   const generateDoc = (values) => {
+
     const finalValues = values;
     if (chart) {
       finalValues._id = chart._id;
     }
 
-    return {
+    const doc: IChart = {
       _id: finalValues._id,
-      insightId: item._id,
+      contentId: item._id,
       chartType,
       name,
       filter: filters,
@@ -132,6 +123,13 @@ const Form = (props: Props) => {
       serviceName,
       templateType,
     };
+
+    if (!chart) {
+      doc.contentType = type;
+    }
+
+
+    return doc;
   };
 
   const onServiceNameChange = (selVal) => {

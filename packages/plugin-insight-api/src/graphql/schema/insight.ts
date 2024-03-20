@@ -122,7 +122,7 @@ export const types = (tagsAvailable) => `
   type Chart {
     _id: String
     name: String
-    insightId: String!
+    contentId: String!
     contentType: String
     serviceName: String
     serviceType: String
@@ -211,6 +211,7 @@ const reportParams = `
 const chartParams = `
   name: String
   chartType: String
+  contentType: String
   order: Int
   vizState: String
   layout: String
@@ -232,11 +233,11 @@ export const mutations = `
   dashboardRemove(_id: String!): JSON
   dashboardDuplicate(_id: String!): Dashboard
 
-  chartsAdd(${chartParams}, insightId: String!): Chart
+  chartsAdd(${chartParams}, contentId: String!): Chart
   chartsRemove(_id: String!): JSON
   chartsEdit(_id: String!, ${chartParams}): Chart
-  chartsAddMany( charts: [ChartsAddParams] ,insightId: String!): [Chart] 
-  chartsEditMany( insightId: String!, ${reportParams}): JSON
+  chartsAddMany( charts: [ChartsAddParams] ,contentId: String!,contentType: String!, ): [Chart]
+  chartsEditMany( contentId: String!, contentType: String!, ${reportParams}): JSON
 
   reportAdd(${reportParams}): Report
   reportRemove(_id: String!): JSON

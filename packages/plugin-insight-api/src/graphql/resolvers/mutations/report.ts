@@ -49,7 +49,8 @@ const reportsMutations = {
                         return {
                             serviceName,
                             chartType: c.chartTypes[0],
-                            insightId: report._id,
+                            contentId: report._id,
+                            contentType: 'insight:report',
                             ...c,
                         };
                     }),
@@ -79,11 +80,11 @@ const reportsMutations = {
         });
     },
     async reportRemove(_root, _id: string, { models }: IContext) {
-        await models.Charts.remove({ insightId: _id });
+        await models.Charts.remove({ contentId: _id });
         return models.Reports.removeReport(_id);
     },
     async reportRemoveMany(_root, { ids }, { models }: IContext) {
-        await models.Charts.remove({ insightId: { $in: ids } });
+        await models.Charts.remove({ contentId: { $in: ids } });
         return models.Reports.remove({ _id: { $in: ids } });
     },
 
@@ -103,11 +104,11 @@ const reportsMutations = {
             updatedAt: new Date(),
         });
 
-        const charts = await models.Charts.find({ insightId: _id });
+        const charts = await models.Charts.find({ contentId: _id });
         const duplicatedCharts = charts.map((existingChart) => ({
             ...existingChart.toObject(),
             _id: undefined,
-            insightId: duplicatedReport._id,
+            contentId: duplicatedReport._id,
         }));
         await models.Charts.insertMany(duplicatedCharts);
 

@@ -136,6 +136,7 @@ const reportVariables = `
 
 const chartParams = `
   $name: String,
+  $contentType: String
   $chartType: String
   $layout: String
   $vizState: String
@@ -147,6 +148,7 @@ const chartParams = `
 
 const chartVariables = `
   name: $name,
+  contentType: $contentType
   chartType: $chartType
   layout: $layout
   vizState: $vizState
@@ -201,14 +203,14 @@ const reportDuplicate = `
 `;
 
 const chartsEditMany = `
-mutation chartsEditMany($insightId: String!, ${reportParams}) {
-  chartsEditMany(insightId: $insightId, ${reportVariables}) 
+mutation chartsEditMany($contentId: String!, $contentType: String! ${reportParams}) {
+  chartsEditMany(contentId: $contentId, contentType: $contentType, ${reportVariables}) 
 }
 `;
 
 const chartsAdd = `
-  mutation chartsAdd($insightId: String!, ${chartParams}) {
-    chartsAdd(insightId: $insightId, ${chartVariables}) {
+  mutation chartsAdd($contentId: String!, ${chartParams}) {
+    chartsAdd(contentId: $contentId, ${chartVariables}) {
       ${chartFields}
     }
   }

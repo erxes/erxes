@@ -100,7 +100,8 @@ export interface ISectionDocument extends ISection, Document {
 
 export interface IChart {
   name: string;
-  insightId: string;
+  contentId: string;
+
   contentType: string;
   templateType: string;
   order: number;
@@ -227,7 +228,7 @@ export const chartSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Chart name', index: true }),
-    insightId: field({
+    contentId: field({
       type: String,
       label: 'Id of a corresponding insight',
       index: true,

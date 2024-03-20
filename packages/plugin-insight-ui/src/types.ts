@@ -284,6 +284,7 @@ export type RemoveTypeMutationResponse = {
 export interface IChart {
   _id: string;
   name?: string;
+  contentId: string;
   contentType?: string;
   template?: string;
   order?: number;
@@ -335,7 +336,7 @@ export type InsightChartTemplatesListQueryResponse = {
 export type ChartFormMutationVariables = {
   _id?: string;
   name: string;
-  insightId: string;
+  contentId: string;
   chartType: string;
   filters: any[];
   order: string;

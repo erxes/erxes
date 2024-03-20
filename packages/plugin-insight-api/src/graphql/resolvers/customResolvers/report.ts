@@ -11,7 +11,7 @@ export default {
     ) {
         try {
             const { _id } = report;
-            return models.Charts.find({ insightId: _id });
+            return models.Charts.find({ contentId: _id });
         } catch (error) {
             return new Error(`Invalid ${error.path}: ${error.value}`);
         }
@@ -19,7 +19,7 @@ export default {
     chartsCount(report: IReportDocument, { }, { models }: IContext) {
         try {
             const { _id } = report;
-            return models.Charts.find({ insightId: _id }).countDocuments();
+            return models.Charts.find({ contentId: _id }).countDocuments();
         } catch (error) {
             return new Error(`Invalid ${error.path}: ${error.value}`);
         }

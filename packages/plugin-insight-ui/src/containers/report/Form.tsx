@@ -73,7 +73,7 @@ const FormContainer = (props: Props) => {
 
   const handleMutation = (values: ReportFormMutationVariables) => {
     if (reportId) {
-      return reportEditMutation({ variables: { insightId: reportId, ...values } })
+      return reportEditMutation({ variables: { contentId: reportId, contentType: 'report', ...values } })
         .then(() => {
           closeDrawer();
 

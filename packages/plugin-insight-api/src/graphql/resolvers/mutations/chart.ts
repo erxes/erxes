@@ -4,11 +4,14 @@ import { IChart, IChartDocument } from '../../../models/definitions/insight';
 
 const chartsMutations = {
   async chartsAdd(_root, doc: IChart, { models }: IContext) {
-    return await models.Charts.createChart(doc);
+
+    const { contentType } = doc
+
+    return await models.Charts.createChart({ ...doc, contentType: `insight:${contentType}` });
   },
 
   async chartsAddMany(_root, doc: any, { models }: IContext) {
-    const { charts, insightId } = doc;
+    const { charts, contentId, contentType } = doc;
     const insertManyDocs: any[] = [];
     const totalChartsDict: { [serviceName: string]: any } = {};
 
@@ -45,7 +48,8 @@ const chartsMutations = {
             insertManyDocs.push(
               ...getChartTemplates.map((c) => ({
                 serviceName,
-                insightId,
+                contentId,
+                contentType: `insight:${contentType}`,
                 chartType: c.chartTypes[0],
                 ...c,
               })),
@@ -65,11 +69,12 @@ const chartsMutations = {
     { _id, ...doc }: IChartDocument,
     { models }: IContext,
   ) {
+
     return await models.Charts.updateChart(_id, { ...doc });
   },
 
   async chartsEditMany(_root, doc: any, { models, user }: IContext) {
-    const { charts, insightId, serviceName } = doc;
+    const { charts, contentId, serviceName, contentType } = doc;
 
     // const { repo };
     if (charts) {
@@ -77,7 +82,7 @@ const chartsMutations = {
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
-      const existingCharts = await models.Charts.find({ insightId });
+      const existingCharts = await models.Charts.find({ contentId });
 
       const chartTemplatesSet = new Set(charts);
       const existingChartsList: string[] = [];
@@ -116,7 +121,8 @@ const chartsMutations = {
             return {
               serviceName,
               chartType: c.chartTypes[0],
-              insightId,
+              contentId,
+              contentType: `insight:${contentType}`,
               ...c,
             };
           }),
@@ -124,7 +130,7 @@ const chartsMutations = {
       }
     }
 
-    return await models.Reports.updateReport(insightId, {
+    return await models.Reports.updateReport(contentId, {
       ...doc,
       updatedAt: new Date(),
       updatedBy: user?._id || null,
