@@ -158,7 +158,7 @@ const PROBABILITY_TICKET = [
 const PRIORITY = [
   { label: 'Critical', value: 'Critical' },
   { label: 'High', value: 'High' },
-  { label: 'Medium', value: 'Mmedium' },
+  { label: 'Medium', value: 'Medium' },
   { label: 'Low', value: 'Low' },
 ];
 const PIPELINE_TYPE_TICKET = 'ticket';
