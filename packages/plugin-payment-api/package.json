@@ -2,13 +2,13 @@
   "name": "@erxes/plugin-payment-api",
   "version": "1.0.0",
   "scripts": {
-    "clean": "rm -f src/public/js/bundle.js",
     "dev": "nodemon src/index.ts",
-    "start:client": "nodemon --exec 'yarn build:client' --watch src/paymentGateway/src",
-    "build": "tsc",
-    "build:client": "yarn clean && webpack --config webpack.config.js",
-    "build:server": "cp -r .src/views/ ./dist/",
-    "dev-webpack": "webpack --mode development --watch --progress"
+    "dev:client": "yarn dev-server & yarn dev-webpack",
+    "dev-server": "NODE_ENV=development nodemon -e ts --project tsconfig.server.json server --exec ts-node",
+    "dev-webpack": "webpack --mode development --watch --progress",
+    "build": "yarn build-webpack && yarn build-server",
+    "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
+    "build-webpack": "webpack --mode production --config=webpack.prod.config.js"
   },
   "dependencies": {
     "@erxes/api-utils": "*",
@@ -26,17 +26,18 @@
     "styled-components": "^5.3.11",
     "styled-components-ts": "^0.0.15",
     "react-modal":"3.16.1",
-    "compression-webpack-plugin": "^8.0.1",
-    "terser-webpack-plugin": "^4.2.3"
+    "compression-webpack-plugin": "9.2.0",
+    "dotenv-webpack": "^1.7.0",
+    "terser-webpack-plugin": "^5.3.1",
+    "webpack": "^5.57.1",
+    "webpack-cli": "^4.9.0",
+    "webpack-merge": "^4.1.3"
   },
   "devDependencies": {
     "ts-node": "^8.4.1",
     "@types/react": "^16.4.13",
     "@types/react-dom": "^16.0.7",
     "typescript": "^4.0.5",
-    "webpack": "^5.3.1",
-    "webpack-cli": "^4.1.0",
-    "webpack-merge": "^5.2.0",
     "@babel/cli": "^7.11.6",
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
