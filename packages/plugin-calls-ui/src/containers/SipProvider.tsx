@@ -33,7 +33,7 @@ const SipProviderContainer = (props) => {
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
-    variables: { subdomain: getSubdomain(), userId: props.currentUser._id },
+    variables: { userId: props.currentUser._id },
     onSubscriptionData: () => {
       if (
         !callInfo?.isRegistered ||
