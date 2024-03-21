@@ -21,7 +21,6 @@ const Widget = (props: Props, context) => {
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
-
   const content = (
     <Popover id="call-popover" className="call-popover">
       <WidgetPopover autoOpenTab="Keyboard" {...props} />
