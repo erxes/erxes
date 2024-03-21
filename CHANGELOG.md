@@ -1,3 +1,5 @@
+### [1.6.4](https://github.com/erxes/erxes/compare/1.6.3...1.6.4) (2024-03-21)
+
 ### [1.6.3](https://github.com/erxes/erxes/compare/1.6.3-rc.4...1.6.3) (2024-03-20)
 
 
