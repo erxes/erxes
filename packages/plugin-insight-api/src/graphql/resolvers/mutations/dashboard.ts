@@ -16,7 +16,7 @@ const getChartTemplatesForService = async (serviceName, charts) => {
 };
 
 const addChartsForDashboard = async (
-  dashboardId,
+  contentId,
   serviceName,
   charts,
   models,
@@ -28,7 +28,8 @@ const addChartsForDashboard = async (
       chartTemplates.map((c) => ({
         serviceName,
         chartType: c.chartTypes[0],
-        dashboardId,
+        contentId,
+        contentType: 'insight:dashboard',
         ...c,
       })),
     );
@@ -89,7 +90,7 @@ const dashboardMutations = {
       const charts = doc.charts.map((chart) => ({
         ...chart,
         _id: undefined,
-        dashboardId: dashboard._id,
+        contentId: dashboard._id,
       }));
       await models.Charts.insertMany(charts);
     }
@@ -106,7 +107,7 @@ const dashboardMutations = {
     { _id, ...doc }: IDashboardDocument,
     { models, user }: IContext,
   ) {
-    const dashboardCharts = await models.Charts.find({ dashboardId: _id });
+    const dashboardCharts = await models.Charts.find({ contentId: _id });
     const baseCharts = dashboardCharts.map((item) => item.templateType);
     const changes = compareArrays(baseCharts, doc.charts || []);
 
@@ -142,7 +143,7 @@ const dashboardMutations = {
    */
 
   async dashboardRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    await models.Charts.remove({ dashboardId: _id });
+    await models.Charts.remove({ contentId: _id });
     const dashboard = await models.Dashboards.removeDashboard(_id);
     return dashboard;
   },
@@ -166,11 +167,11 @@ const dashboardMutations = {
       updatedAt: new Date(),
     });
 
-    const charts = await models.Charts.find({ dashboardId: _id });
+    const charts = await models.Charts.find({ contentId: _id });
     const duplicatedCharts = charts.map((chart) => ({
       ...chart.toObject(),
       _id: undefined,
-      dashboardId: duplicatedDashboard._id,
+      contentId: duplicatedDashboard._id,
     }));
     await models.Charts.insertMany(duplicatedCharts);
 

@@ -15,27 +15,22 @@ const loginMiddleware = async (req, res) => {
   const INSTAGRAM_PERMISSIONS = await getConfig(
     models,
     'INSTAGRAM_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
-  const MAIN_APP_DOMAIN = getEnv({
-    name: 'MAIN_APP_DOMAIN',
-  });
 
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
-  });
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/iglogin`,
+    `${DOMAIN}/gateway/pl:instagram/iglogin`
   );
 
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
     scope: `${INSTAGRAM_PERMISSIONS},instagram_basic,instagram_manage_messages,business_management`,
-    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL,
+    redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
   debugRequest(debugFacebook, req);
   // we don't have a code yet
@@ -45,7 +40,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${DOMAIN}/gateway/pl:instagram`,
+      state: `${DOMAIN}/gateway/pl:instagram`
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -62,7 +57,7 @@ const loginMiddleware = async (req, res) => {
     client_id: conf.client_id,
     redirect_uri: conf.redirect_uri,
     client_secret: conf.client_secret,
-    code: req.query.code,
+    code: req.query.code
   };
 
   debugResponse(debugFacebook, req, JSON.stringify(config));
@@ -80,7 +75,7 @@ const loginMiddleware = async (req, res) => {
       last_name: string;
     } = await graphRequest.get(
       'me?fields=id,first_name,last_name',
-      access_token,
+      access_token
     );
 
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
@@ -93,13 +88,13 @@ const loginMiddleware = async (req, res) => {
         {
           $set: {
             token: access_token,
-            allowedInstagram: true,
-          },
-        },
+            allowedInstagram: true
+          }
+        }
       );
 
       const integrations = await models.Integrations.find({
-        accountId: account._id,
+        accountId: account._id
       });
 
       for (const integration of integrations) {
@@ -111,11 +106,11 @@ const loginMiddleware = async (req, res) => {
         name,
         kind: 'instagram',
         uid: userAccount.id,
-        allowedInstagram: true,
+        allowedInstagram: true
       });
     }
 
-    const url = `${MAIN_APP_DOMAIN}/settings/authorization?fbAuthorized=true`;
+    const url = `${DOMAIN}/settings/ig-authorization?igAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 

@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { sendReportsMessage } from '../../../messageBroker';
 import { ISection } from '../../../models/definitions/insight';
 
 interface ISectionEdit extends ISection {
@@ -53,18 +52,10 @@ const sectionMutations = {
     }
 
     if (type === 'report') {
-      await sendReportsMessage({
-        subdomain,
-        action: 'updateMany',
-        data: {
-          selector: {
-            sectionId: { $in: _id },
-          },
-          modifier: {
-            $unset: { sectionId: 1 },
-          },
-        },
-      });
+      await models.Reports.updateMany(
+        { sectionId: { $in: [_id] } },
+        { $unset: { sectionId: 1 } },
+      );
     }
 
     return await models.Sections.removeSection(_id);

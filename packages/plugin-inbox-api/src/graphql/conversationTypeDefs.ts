@@ -1,9 +1,9 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms, contacts, dailyco }) => `
+export const types = ({ tags, forms, contacts, dailyco, calls }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -35,6 +35,28 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
         name: String
         status: String
         recordingLinks: [String]
+      }
+    `
+      : ''
+  }
+
+  ${
+    calls
+      ? `
+        type CallHistoryData {
+        _id: String!
+        receiverNumber: String
+        callerNumber: String
+        callDuration: Int
+        callStartTime: Date
+        callEndTime: Date
+        callType: String
+        callStatus: String
+        sessionId: String
+        modifiedAt: Date
+        createdAt: Date
+        createdBy: String
+        modifiedBy: String
       }
     `
       : ''
@@ -73,6 +95,7 @@ export const types = ({ tags, forms, contacts, dailyco }) => `
     participatedUsers: [User]
     participatorCount: Int
     ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    ${calls ? 'callHistory: CallHistoryData' : ''}
     customFieldsData: JSON
 
     bookingProductId: String

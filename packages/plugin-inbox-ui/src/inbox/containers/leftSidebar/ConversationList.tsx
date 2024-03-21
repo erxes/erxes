@@ -3,12 +3,12 @@ import * as compose from 'lodash.flowright';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
-  IConversation
+  IConversation,
 } from '@erxes/ui-inbox/src/inbox/types';
 import {
   getSubdomain,
   router as routerUtils,
-  withProps
+  withProps,
 } from '@erxes/ui/src/utils';
 import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
@@ -45,7 +45,7 @@ const ConversationListContainer = (props: FinalProps) => {
     history,
     conversationsQuery,
     totalCountQuery,
-    updateCountsForNewMessage
+    updateCountsForNewMessage,
   } = props;
 
   React.useEffect(() => {
@@ -53,8 +53,7 @@ const ConversationListContainer = (props: FinalProps) => {
       return conversationsQuery.subscribeToMore({
         document: gql(subscriptions.conversationClientMessageInserted),
         variables: {
-          subdomain: getSubdomain(),
-          userId: currentUser ? currentUser._id : null
+          userId: currentUser ? currentUser._id : null,
         },
         updateQuery: () => {
           if (updateCountsForNewMessage) {
@@ -63,7 +62,7 @@ const ConversationListContainer = (props: FinalProps) => {
 
           conversationsQuery.refetch();
           totalCountQuery.refetch();
-        }
+        },
       });
     }
   });
@@ -97,7 +96,7 @@ const ConversationListContainer = (props: FinalProps) => {
   const conversations = conversationsQuery.conversations || [];
 
   // on change conversation
-  const onChangeConversation = conversation => {
+  const onChangeConversation = (conversation) => {
     routerUtils.setParams(history, { _id: conversation._id });
   };
 
@@ -106,7 +105,7 @@ const ConversationListContainer = (props: FinalProps) => {
       conversationsQuery &&
       conversationsQuery.fetchMore({
         variables: {
-          skip: conversations.length
+          skip: conversations.length,
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult || fetchMoreResult.conversations.length === 0) {
@@ -115,7 +114,7 @@ const ConversationListContainer = (props: FinalProps) => {
 
           const prevConversations = prevResult.conversations || [];
           const prevConversationIds = prevConversations.map(
-            (conversation: IConversation) => conversation._id
+            (conversation: IConversation) => conversation._id,
           );
 
           const fetchedConversations: IConversation[] = [];
@@ -128,9 +127,9 @@ const ConversationListContainer = (props: FinalProps) => {
 
           return {
             ...prevResult,
-            conversations: [...prevConversations, ...fetchedConversations]
+            conversations: [...prevConversations, ...fetchedConversations],
           };
-        }
+        },
       })
     );
   };
@@ -141,13 +140,13 @@ const ConversationListContainer = (props: FinalProps) => {
     conversations,
     onChangeConversation,
     loading: conversationsQuery.loading,
-    totalCount: getTotalCount()
+    totalCount: getTotalCount(),
   };
 
   return <ConversationList {...updatedProps} />;
 };
 
-const ConversationListContainerWithRefetch = props => (
+const ConversationListContainerWithRefetch = (props) => (
   <InboxManagementActionConsumer>
     {({ notifyConsumersOfManagementAction }) => (
       <ConversationListContainer
@@ -158,9 +157,9 @@ const ConversationListContainerWithRefetch = props => (
   </InboxManagementActionConsumer>
 );
 
-const generateOptions = queryParams => ({
+const generateOptions = (queryParams) => ({
   ...queryParams,
-  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
 });
 
 export default withProps<Props>(
@@ -172,12 +171,12 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
           notifyOnNetworkStatusChange: true,
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
           // every minute
           // commented this line because it was causing the page to refresh every minute and it was glitchy
           // pollInterval: 60000
-        })
-      }
+        }),
+      },
     ),
     graphql<Props, ConversationsTotalCountQueryResponse>(
       gql(queries.totalConversationsCount),
@@ -185,9 +184,9 @@ export default withProps<Props>(
         name: 'totalCountQuery',
         options: ({ queryParams }) => ({
           notifyOnNetworkStatusChange: true,
-          variables: generateOptions(queryParams)
-        })
-      }
-    )
-  )(ConversationListContainerWithRefetch)
+          variables: generateOptions(queryParams),
+        }),
+      },
+    ),
+  )(ConversationListContainerWithRefetch),
 );

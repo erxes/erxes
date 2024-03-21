@@ -1,3 +1,45 @@
+# Changelog
+
+## [1.7.0-rc.1](https://github.com/erxes/erxes/compare/1.7.0-rc.0...1.7.0-rc.1) (2024-03-20)
+
+## [1.7.0-rc.0](https://github.com/erxes/erxes/compare/1.6.3...1.7.0-rc.0) (2024-03-20)
+
+
+### Features
+
+*  sync from polaris datas to erxes  ([#5041](https://github.com/erxes/erxes/issues/5041)) ([9f894c1](https://github.com/erxes/erxes/commit/9f894c179f6616b0ecbb033826f78a8363135df7))
+* add  sale status on pos orders ([#5038](https://github.com/erxes/erxes/issues/5038)) ([561cda0](https://github.com/erxes/erxes/commit/561cda04faac0b4901a692ca8f2261183f15b43c))
+
+
+### Bug Fixes
+
+*  hostname should be host. ([e540213](https://github.com/erxes/erxes/commit/e540213cf2e73b2ca538d67a10b93080407d3ade))
+* **cards:** Stage probility not saving ([5a6847e](https://github.com/erxes/erxes/commit/5a6847e3127f9d1850e1c71e7cafc97bf87198e4))
+* cars permission ([d551f73](https://github.com/erxes/erxes/commit/d551f732606133b776f2511f5ad115f77c0bf19a))
+* **engage:** fix create tag bug of engage ([d312f24](https://github.com/erxes/erxes/commit/d312f24bbf361d747d76fa81eabbbebd8ab545a7))
+* **erkhet:** Update main navigation names ([8bc57d2](https://github.com/erxes/erxes/commit/8bc57d2ddc78b96904258c19beb987f35ec7570d))
+* exclude description from syncerkhet product update ([48eef48](https://github.com/erxes/erxes/commit/48eef481b03688723f2b71e9b7eeed6b86d92dc6))
+* **inbox:** messenger integration preview is not visible because of erxes messenger ([fe88639](https://github.com/erxes/erxes/commit/fe8863944258125e1479686b7e4aa3b749994766))
+* pageName proflePic token error on facebookt bots list ([906a13c](https://github.com/erxes/erxes/commit/906a13c34a476ea11cd520ae53fc0d6fa1e82c84))
+* **posclient:** ordery by price and get delivery product price ([#5062](https://github.com/erxes/erxes/issues/5062)) ([092cbc7](https://github.com/erxes/erxes/commit/092cbc72271765c100de000e3eb814bd85dfa7dc))
+* **products:** show alert uom required ([9d7c188](https://github.com/erxes/erxes/commit/9d7c188350827d4020c8f28e7b85ea003c243851))
+* show archived product categories ([ade8d51](https://github.com/erxes/erxes/commit/ade8d5159d0959e2cf6d75c6fbd15d334420d0b8))
+* sync polaris loan 's schedule ([#5064](https://github.com/erxes/erxes/issues/5064)) ([caf5036](https://github.com/erxes/erxes/commit/caf5036127ba582f3141c7276129f133f8b0f4a8))
+* Syncpolaris update some query mutation and permission names ([#5070](https://github.com/erxes/erxes/issues/5070)) ([fb084ad](https://github.com/erxes/erxes/commit/fb084add4b4b3b80483ab3b6e7b383b64ed8f500))
+
+
+### Performance Improvements
+
+* products similarity group config filter by any field ([#5054](https://github.com/erxes/erxes/issues/5054)) ([c08436a](https://github.com/erxes/erxes/commit/c08436a002697cd90f320113c69d57711f3137c9))
+* **settings:** Add confirmation modal when delete items ([e54a5e1](https://github.com/erxes/erxes/commit/e54a5e13ba5a9002937e31b781d2764ea9eceaa6))
+
+### [1.6.3](https://github.com/erxes/erxes/compare/1.6.3-rc.4...1.6.3) (2024-03-20)
+
+
+### Features
+
+* **ebarimt:** return bill for duplicated ([a5a7959](https://github.com/erxes/erxes/commit/a5a795929ec1fb2c6ca1bcd1859f7f10361a3af5))
+
 ### [1.6.3-rc.4](https://github.com/erxes/erxes/compare/1.6.3-rc.3...1.6.3-rc.4) (2024-03-18)
 
 
@@ -1853,4 +1895,3 @@
 * **deal:** remove some editor buttons ([cdc0ff8](https://github.com/erxes/erxes/commit/cdc0ff8))
 
 ## [0.9.16](https://github.com/erxes/erxes/compare/0.9.15...0.9.16) (2019-07-03)
-

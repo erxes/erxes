@@ -53,7 +53,6 @@ class Provider extends React.Component<FinalProps> {
     this.unsubscribe = notificationsQuery.subscribeToMore({
       document: gql(subscriptions.notificationSubscription),
       variables: {
-        subdomain: getSubdomain(),
         userId: currentUser ? currentUser._id : null,
       },
       updateQuery: (prev, { subscriptionData: { data } }) => {

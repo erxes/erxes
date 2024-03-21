@@ -218,42 +218,42 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderEmailBox(
           emailStats.send,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.SEND,
+          AWS_EMAIL_DELIVERY_STATUSES.SEND
         )}
         {this.renderEmailBox(
           emailStats.delivery,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.DELIVERY,
+          AWS_EMAIL_DELIVERY_STATUSES.DELIVERY
         )}
         {this.renderEmailBox(
           emailStats.open,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.OPEN,
+          AWS_EMAIL_DELIVERY_STATUSES.OPEN
         )}
         {this.renderEmailBox(
           emailStats.click,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.CLICK,
+          AWS_EMAIL_DELIVERY_STATUSES.CLICK
         )}
         {this.renderEmailBox(
           emailStats.complaint,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.COMPLAINT,
+          AWS_EMAIL_DELIVERY_STATUSES.COMPLAINT
         )}
         {this.renderEmailBox(
           emailStats.bounce,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.BOUNCE,
+          AWS_EMAIL_DELIVERY_STATUSES.BOUNCE
         )}
         {this.renderEmailBox(
           emailStats.renderingfailure,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.RENDERING_FAILURE,
+          AWS_EMAIL_DELIVERY_STATUSES.RENDERING_FAILURE
         )}
         {this.renderEmailBox(
           emailStats.reject,
           emailStats.total,
-          AWS_EMAIL_DELIVERY_STATUSES.REJECT,
+          AWS_EMAIL_DELIVERY_STATUSES.REJECT
         )}
       </React.Fragment>
     );
@@ -273,33 +273,33 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderSmsBox(
           stats.queued,
           stats.total,
-          SMS_DELIVERY_STATUSES.QUEUED,
+          SMS_DELIVERY_STATUSES.QUEUED
         )}
         {this.renderSmsBox(
           stats.sending,
           stats.total,
-          SMS_DELIVERY_STATUSES.SENDING,
+          SMS_DELIVERY_STATUSES.SENDING
         )}
         {this.renderSmsBox(stats.sent, stats.total, SMS_DELIVERY_STATUSES.SENT)}
         {this.renderSmsBox(
           stats.delivered,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERED,
+          SMS_DELIVERY_STATUSES.DELIVERED
         )}
         {this.renderSmsBox(
           stats.sending_failed,
           stats.total,
-          SMS_DELIVERY_STATUSES.SENDING_FAILED,
+          SMS_DELIVERY_STATUSES.SENDING_FAILED
         )}
         {this.renderSmsBox(
           stats.delivery_failed,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERY_FAILED,
+          SMS_DELIVERY_STATUSES.DELIVERY_FAILED
         )}
         {this.renderSmsBox(
           stats.delivery_unconfirmed,
           stats.total,
-          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED,
+          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED
         )}
       </React.Fragment>
     );
@@ -316,20 +316,20 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderNotificationBox(
           totalCustomersCount || 0,
           undefined,
-          NOTIFICATION_DELIVERY_STATUSES.SENT,
+          NOTIFICATION_DELIVERY_STATUSES.SENT
         )}
 
         {this.renderNotificationBox(
           notificationStats?.read || 0,
           totalCustomersCount,
-          NOTIFICATION_DELIVERY_STATUSES.READ,
+          NOTIFICATION_DELIVERY_STATUSES.READ
         )}
         {this.renderNotificationBox(
           totalCustomersCount
             ? totalCustomersCount - (notificationStats?.read || 0)
             : 0,
           totalCustomersCount,
-          NOTIFICATION_DELIVERY_STATUSES.UNREAD,
+          NOTIFICATION_DELIVERY_STATUSES.UNREAD
         )}
       </React.Fragment>
     );
@@ -373,7 +373,7 @@ class EmailStatistics extends React.Component<Props> {
           <Wrapper.Header
             title={__('Show statistics')}
             breadcrumb={[
-              { title: __('XM Broadcast'), link: '/campaigns' },
+              { title: __('Broadcast'), link: '/campaigns' },
               { title: __('Show statistics') },
             ]}
           />

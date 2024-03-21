@@ -11,7 +11,7 @@ type Props = {
     breadcrumbs: IBreadCrumbItem[];
     validateDoc: (
       type: string,
-      doc: IEngageMessageDoc,
+      doc: IEngageMessageDoc
     ) => { status: string; doc?: IEngageMessageDoc };
   }) => any;
 };
@@ -35,7 +35,7 @@ class FormBase extends React.Component<Props> {
         )
       ) {
         return this.sendError(
-          __('At least one brand or tag or segment must be chosen'),
+          __('At least one brand or tag or segment must be chosen')
         );
       }
     }
@@ -76,22 +76,6 @@ class FormBase extends React.Component<Props> {
       }
     }
 
-    if (doc.scheduleDate) {
-      const { type, day, month } = doc.scheduleDate;
-
-      if (!type) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if ((type === 'year' || type === 'month') && !day) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if (type === 'year' && !month) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-    }
-
     if (docType === 'live') {
       return {
         status: 'ok',
@@ -110,24 +94,14 @@ class FormBase extends React.Component<Props> {
   };
 
   renderTitle() {
-    const { kind } = this.props;
-
-    let title = __('Auto broadcast');
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      title = __('Manual broadcast');
-    }
-
-    if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      title = __('Visitor auto broadcast');
-    }
+    let title = __('New broadcast');
 
     return title;
   }
 
   render() {
     const breadcrumbs = [
-      { title: __('XM Broadcast'), link: '/campaigns' },
+      { title: __('Broadcast'), link: '/campaigns' },
       { title: this.renderTitle() },
     ];
 

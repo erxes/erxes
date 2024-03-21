@@ -11,7 +11,7 @@ import Report from '../../components/report/Report';
 import { queries, mutations } from '../../graphql';
 import {
   IReport,
-  ReportChartFormMutationVariables,
+  ChartFormMutationVariables,
   ReportDetailQueryResponse,
 } from '../../types';
 
@@ -35,7 +35,7 @@ const ReportContainer = (props: Props) => {
   );
 
   const [reportDuplicateMutation] = useMutation(
-    gql(mutations.reportsDuplicate),
+    gql(mutations.reportDuplicate),
     {
       refetchQueries: [
         {
@@ -49,7 +49,7 @@ const ReportContainer = (props: Props) => {
     },
   );
 
-  const [reportRemoveMutation] = useMutation(gql(mutations.reportsRemove), {
+  const [reportRemoveMutation] = useMutation(gql(mutations.reportRemove), {
     refetchQueries: [
       {
         query: gql(queries.reportList),
@@ -61,7 +61,7 @@ const ReportContainer = (props: Props) => {
     reportDuplicateMutation({ variables: { _id } })
       .then((res) => {
         Alert.success('Successfully duplicated report');
-        const { _id } = res.data.reportsDuplicate;
+        const { _id } = res.data.reportDuplicate;
         if (_id) {
           history.push(`/insight?reportId=${_id}`);
         }
@@ -85,11 +85,11 @@ const ReportContainer = (props: Props) => {
   };
 
   const [reportChartsEditMutation] = useMutation(
-    gql(mutations.reportChartsEdit),
+    gql(mutations.chartsEdit),
   );
 
   const [reportChartsRemoveMutation] = useMutation(
-    gql(mutations.reportChartsRemove),
+    gql(mutations.chartsRemove),
     {
       refetchQueries: ['reportsList', 'reportDetail'],
     },
@@ -97,7 +97,7 @@ const ReportContainer = (props: Props) => {
 
   const reportChartsEdit = (
     _id: string,
-    values: ReportChartFormMutationVariables,
+    values: ChartFormMutationVariables,
   ) => {
     reportChartsEditMutation({ variables: { _id, ...values } });
   };

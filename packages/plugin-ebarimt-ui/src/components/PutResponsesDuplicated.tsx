@@ -13,7 +13,6 @@ import { withRouter } from 'react-router-dom';
 import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import RightMenu from './RightMenuDuplicated';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { SUB_MENUS } from '../constants';
 import DetailDuplicated from '../containers/DetailDuplicated';
 
@@ -60,6 +59,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
         title={`Order detail`}
         trigger={trigger}
         autoOpenKey="showProductModal"
+        paddingContent="less-padding"
         content={modalContent}
         size={'xl'}
       />
