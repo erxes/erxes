@@ -5,7 +5,7 @@ module.exports = {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
-			conversationClientMessageInserted(subdomain: String!, userId: String!): ConversationMessage
+			conversationClientMessageInserted(userId: String!): ConversationMessage
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -118,7 +118,7 @@ module.exports = {
           });
         },
         subscribe: withFilter(
-          (_, { userId, subdomain }) => {
+          (_, { userId }, { subdomain }) => {
             return graphqlPubsub.asyncIterator(
               `conversationClientMessageInserted:${subdomain}:${userId}`
             );
