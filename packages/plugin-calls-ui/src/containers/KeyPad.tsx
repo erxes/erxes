@@ -67,21 +67,23 @@ const KeyPadContainer = (props: IProps) => {
     primaryPhone: string,
     callID: string,
   ) => {
-    createCustomerMutation({
-      variables: {
-        inboxIntegrationId,
-        primaryPhone,
-        direction: 'outgoing',
-        callID,
-      },
-    })
-      .then(({ data }: any) => {
-        setCustomer(data.callAddCustomer?.customer);
-        setConversation(data.callAddCustomer?.conversation);
+    if (callID) {
+      createCustomerMutation({
+        variables: {
+          inboxIntegrationId,
+          primaryPhone,
+          direction: 'outgoing',
+          callID,
+        },
       })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
+        .then(({ data }: any) => {
+          setCustomer(data.callAddCustomer?.customer);
+          setConversation(data.callAddCustomer?.conversation);
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    }
   };
 
   const toggleSection = (phoneNumber): void => {

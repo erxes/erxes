@@ -40,7 +40,7 @@ const receiveCall = async (
         callId: callID,
         senderPhoneNumber: primaryPhone,
         recipientPhoneNumber: recipientId,
-        integrationId: inboxIntegrationId,
+        inboxIntegrationId,
       });
     } catch (e) {
       throw new Error(

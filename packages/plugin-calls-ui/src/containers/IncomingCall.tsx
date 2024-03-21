@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import React, { useEffect, useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
 
-import { Alert } from "@erxes/ui/src/utils";
-import { ICustomer } from "../types";
-import IncomingCall from "../components/IncomingCall";
-import { __ } from "@erxes/ui/src/utils/core";
-import { callPropType } from "../lib/types";
-import client from "@erxes/ui/src/apolloClient";
-import { mutations } from "../graphql";
-import queries from "../graphql/queries";
+import { Alert } from '@erxes/ui/src/utils';
+import { ICustomer } from '../types';
+import IncomingCall from '../components/IncomingCall';
+import { __ } from '@erxes/ui/src/utils/core';
+import { callPropType } from '../lib/types';
+import client from '@erxes/ui/src/apolloClient';
+import { mutations } from '../graphql';
+import queries from '../graphql/queries';
 
 interface IProps {
   closeModal?: () => void;
@@ -24,12 +24,12 @@ const IncomingCallContainer = (props: IProps, context) => {
   const { call } = context;
 
   const phoneNumber = context?.call?.counterpart?.slice(
-    context.call.counterpart.indexOf(":") + 1,
-    context.call.counterpart.indexOf("@")
+    context.call.counterpart.indexOf(':') + 1,
+    context.call.counterpart.indexOf('@'),
   );
 
   const defaultCallIntegration =
-    localStorage.getItem("config:call_integrations") || "{}";
+    localStorage.getItem('config:call_integrations') || '{}';
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
@@ -44,11 +44,11 @@ const IncomingCallContainer = (props: IProps, context) => {
         setHasMicrophone(true);
       })
       .catch((error) => {
-        console.error("Error accessing microphone:", error);
+        console.error('Error accessing microphone:', error);
         const errorMessage = error
           ?.toString()
-          .replace("DOMException:", "")
-          .replace("NotFoundError: ", "");
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
         setHasMicrophone(false);
 
         Alert.error(errorMessage);
@@ -59,8 +59,8 @@ const IncomingCallContainer = (props: IProps, context) => {
         variables: {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
-          direction: "incoming",
-          callID: call.id,
+          direction: 'incoming',
+          callID: call?.id,
         },
       })
         .then(({ data }: any) => {
@@ -82,7 +82,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       },
     })
       .then(() => {
-        Alert.success("Successfully added note");
+        Alert.success('Successfully added note');
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -97,7 +97,7 @@ const IncomingCallContainer = (props: IProps, context) => {
     client
       .query({
         query: gql(queries.callCustomerDetail),
-        fetchPolicy: "network-only",
+        fetchPolicy: 'network-only',
         variables: { callerNumber: phone },
       })
       .then(({ data }: { data: any }) => {
