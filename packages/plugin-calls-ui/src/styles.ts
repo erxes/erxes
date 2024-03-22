@@ -6,6 +6,7 @@ import {
 } from '@erxes/ui/src/utils/animations';
 import styled, { keyframes } from 'styled-components';
 
+import { NameCardText } from '@erxes/ui/src/components/nameCard/NameCard';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';
@@ -48,7 +49,8 @@ export const CallHistory = styled.div`
   flex-direction: column;
 
   h4 {
-    margin-bottom: 0;
+    margin: 0;
+    font-size: 14px;
   }
 `;
 
@@ -65,13 +67,25 @@ export const Contacts = styled.div`
   }
 `;
 
-export const CallDetail = styledTS<{ isMissedCall: boolean }>(styled.div)`
+export const CallDetail = styledTS<{ isMissedCall: boolean}>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  span {
-    border: 1.2px solid ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
+  > div {
+    display: flex;
+    align-items: center;
+
+    > i {
+      margin-right: 5px;
+      color: #666;
+    }
+
+    ${NameCardText} {
+      > div {
+        color: ${props => props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
+      }
+    }
   }
 
   a {
@@ -81,9 +95,14 @@ export const CallDetail = styledTS<{ isMissedCall: boolean }>(styled.div)`
 `;
 
 export const AdditionalDetail = styled.div`
-  color: #aaa;
+  color: #888;
   align-items: center;
   display: flex;
+
+  > span {
+    font-size: 11px;
+    margin-right: 5px;
+  }
 
   .dropdown-menu {
     right: 0;

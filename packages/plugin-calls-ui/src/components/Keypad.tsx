@@ -63,7 +63,6 @@ const KeyPad = (props: Props, context) => {
     "config:call_integrations"
   );
 
-  const [currentTab, setCurrentTab] = useState("");
   const [shrink, setShrink] = useState(customer ? true : false);
 
   const [number, setNumber] = useState(phoneNumber ? phoneNumber : "");
@@ -389,74 +388,71 @@ const KeyPad = (props: Props, context) => {
     );
   }
 
-  return (
-    <>
-      {Sip.call?.direction !== CALL_DIRECTION_INCOMING && (
-        <NumberInput>
-          <KeypadHeader>
-            <HeaderItem>
-              <Icon
-                className={isConnected ? "off" : "on"}
-                icon="signal-alt-3"
-              />
-              {isConnected ? __("Offline") : __("Online")}
-            </HeaderItem>
-            <HeaderItem
-              onClick={() =>
-                isConnected
-                  ? handleCallConnect("connect")
-                  : handleCallConnect("disconnect")
-              }
-            >
-              <Icon
-                className={isConnected ? "on" : "off"}
-                size={13}
-                icon={isConnected ? "power-button" : "pause-1"}
-              />
-              {isConnected ? __("Turn on") : __("Turn off")}
-            </HeaderItem>
-          </KeypadHeader>
-          <InputBar type="keypad">
-            <FormControl
-              placeholder={__("Enter Phone Number")}
-              name="searchValue"
-              value={number}
-              onKeyDown={handleKeyDown}
-              autoFocus={true}
-              defaultValue={number}
+  if (Sip.call?.direction !== CALL_DIRECTION_INCOMING) {
+    return (
+      <NumberInput>
+        <KeypadHeader>
+          <HeaderItem>
+            <Icon className={isConnected ? "off" : "on"} icon="signal-alt-3" />
+            {isConnected ? __("Offline") : __("Online")}
+          </HeaderItem>
+          <HeaderItem
+            onClick={() =>
+              isConnected
+                ? handleCallConnect("connect")
+                : handleCallConnect("disconnect")
+            }
+          >
+            <Icon
+              className={isConnected ? "on" : "off"}
+              size={13}
+              icon={isConnected ? "power-button" : "pause-1"}
             />
-          </InputBar>
-          {renderKeyPad(handNumPad)}
-          <p>{__("Calling from your own phone number")}</p>
-          <Select
-            placeholder={__("Choose phone number")}
-            value={callFrom}
-            onChange={onStatusChange}
-            clearable={false}
-            options={ourPhone}
-            scrollMenuIntoView={true}
+            {isConnected ? __("Turn on") : __("Turn off")}
+          </HeaderItem>
+        </KeypadHeader>
+        <InputBar type="keypad">
+          <FormControl
+            placeholder={__("Enter Phone Number")}
+            name="searchValue"
+            value={number}
+            onKeyDown={handleKeyDown}
+            autoFocus={true}
+            defaultValue={number}
           />
-          <>
-            {Sip.sip?.status === SIP_STATUS_REGISTERED && (
-              <>
-                <Button
-                  btnStyle="success"
-                  icon="outgoing-call"
-                  onClick={handleCall}
-                >
-                  {Sip.call?.status === CALL_STATUS_IDLE
-                    ? "Call"
-                    : Sip.call?.status === CALL_STATUS_STARTING
-                      ? "Calling"
-                      : "aa"}
-                </Button>
-              </>
-            )}
-          </>
-        </NumberInput>
-      )}
-    </>
-  );
+        </InputBar>
+        {renderKeyPad(handNumPad)}
+        <p>{__("Calling from your own phone number")}</p>
+        <Select
+          placeholder={__("Choose phone number")}
+          value={callFrom}
+          onChange={onStatusChange}
+          clearable={false}
+          options={ourPhone}
+          scrollMenuIntoView={true}
+        />
+        <>
+          {Sip.sip?.status === SIP_STATUS_REGISTERED && (
+            <>
+              <Button
+                btnStyle="success"
+                icon="outgoing-call"
+                onClick={handleCall}
+              >
+                {Sip.call?.status === CALL_STATUS_IDLE
+                  ? "Call"
+                  : Sip.call?.status === CALL_STATUS_STARTING
+                    ? "Calling"
+                    : "aa"}
+              </Button>
+            </>
+          )}
+        </>
+      </NumberInput>
+    );
+  }
+
+  return null;
 };
 
 KeyPad.contextTypes = {
