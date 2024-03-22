@@ -1,6 +1,12 @@
-import { AdditionalDetail, CallDetail, CallHistory } from "../styles";
+import {
+  AdditionalDetail,
+  CallDetail,
+  CallHistory,
+  PhoneNumber,
+} from "../styles";
 import { EmptyState, Spinner } from "@erxes/ui/src/components";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+import { __, renderFullName } from "@erxes/ui/src/utils";
 
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
@@ -8,7 +14,6 @@ import { IHistory } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
-import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
 
 type Props = {
@@ -117,12 +122,9 @@ class History extends React.Component<Props, State> {
             {callType === "outgoing" && (
               <Icon size={12} icon={"outgoing-call"} />
             )}
-            <NameCard
-              user={item.customer}
-              key={i}
-              avatarSize={30}
-              secondLine={secondLine}
-            />
+            <PhoneNumber shrink={true}>
+              {renderFullName(item.customer, true)}
+            </PhoneNumber>
           </div>
           <AdditionalDetail>
             <span>{dayjs(createdAt).format("DD MMM, HH:mm")}</span>

@@ -342,7 +342,7 @@ const KeyPad = (props: Props, context) => {
     if (!shrink) {
       return (
         <>
-          {renderFullName(customer || "")}
+          {renderFullName(customer || "", true)}
           <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>
         </>
       );
