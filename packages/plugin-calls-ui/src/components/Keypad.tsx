@@ -26,7 +26,7 @@ import {
   SIP_STATUS_REGISTERED,
 } from "../lib/enums";
 import { ICallConversation, ICustomer } from "../types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { callActions, formatPhone, getSpentTime, renderKeyPad } from "../utils";
 import { callPropType, sipPropType } from "../lib/types";
 
@@ -49,6 +49,7 @@ type Props = {
 
 const KeyPad = (props: Props, context) => {
   const Sip = context;
+  const inputRef = useRef<any>(null);
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const {
     addCustomer,
@@ -64,7 +65,7 @@ const KeyPad = (props: Props, context) => {
   );
 
   const [shrink, setShrink] = useState(customer ? true : false);
-
+  const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber);
   const [dialCode, setDialCode] = useState("");
 
@@ -91,6 +92,12 @@ const KeyPad = (props: Props, context) => {
       _id: conversation.erxesApiId,
     };
   }
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [selectFocus]);
 
   useEffect(() => {
     setNumber(phoneNumber);
@@ -204,6 +211,8 @@ const KeyPad = (props: Props, context) => {
     let num = number;
     let dialNumber = dialCode;
 
+    setSelectFocus(!selectFocus);
+
     if (e === "delete") {
       num = number.slice(0, -1);
       dialNumber = dialCode.slice(0, -1);
@@ -243,6 +252,10 @@ const KeyPad = (props: Props, context) => {
       number.length > 0
     ) {
       setNumber((prevNumber) => prevNumber.slice(0, -1));
+    }
+
+    if (keyValue === "Enter") {
+      handleCall();
     }
   };
 
@@ -420,13 +433,14 @@ const KeyPad = (props: Props, context) => {
           </HeaderItem>
         </KeypadHeader>
         <InputBar type="keypad">
-          <FormControl
+          <input
             placeholder={__("Enter Phone Number")}
             name="searchValue"
             value={number}
             onKeyDown={handleKeyDown}
             autoFocus={true}
             defaultValue={number}
+            ref={inputRef}
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
@@ -438,6 +452,7 @@ const KeyPad = (props: Props, context) => {
           clearable={false}
           options={ourPhone}
           scrollMenuIntoView={true}
+          onBlur={() => setSelectFocus(!selectFocus)}
         />
         <>
           {Sip.sip?.status === SIP_STATUS_REGISTERED && (

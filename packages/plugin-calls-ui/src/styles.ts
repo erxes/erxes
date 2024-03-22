@@ -35,8 +35,7 @@ export const TabsContainer = styled(Tabs)`
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-export const TabContent = styledTS<{ show: boolean }>(styled.div)`
-  display:${(props) => (props.show ? 'block' : 'none')};
+export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
   margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
@@ -72,7 +71,7 @@ export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}
   cursor: pointer;
   transition: all ease .3s;
 
-  &:hover {
+  &:hover, &.active {
     background: ${colors.bgActive};
   }
 
@@ -144,8 +143,20 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
 
   input {
-    border-bottom: 0;
-    margin-left: 10px;
+    border: 0;
+    width: 100%;
+    color: ${colors.textPrimary};
+    padding: ${dimensions.unitSpacing}px 0;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: ${colors.colorSecondary};
+    }
+  
+    ::placeholder {
+      color: #aaa;
+    }
   }
 `;
 

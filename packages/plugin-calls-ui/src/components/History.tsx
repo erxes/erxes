@@ -21,19 +21,56 @@ type Props = {
 
 type State = {
   currentTab: string;
+  cursor: number;
 };
 
 class History extends React.Component<Props, State> {
+  private activeItemRef: any;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
       currentTab: "All",
+      cursor: 0,
     };
+
+    this.activeItemRef = React.createRef();
   }
+
+  // componentDidUpdate() {
+  //   if (this.activeItemRef && this.activeItemRef.current) {
+  //     this.activeItemRef.current.focus();
+  //   }
+  // }
+
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+
+  handleKeyDown = (e) => {
+    const { cursor } = this.state;
+
+    if (e.keyCode === 38 && cursor > 0) {
+      this.setState((prevState) => ({
+        cursor: prevState.cursor - 1,
+      }));
+    } else if (e.keyCode === 40 && cursor < this.props.histories.length - 1) {
+      this.setState((prevState) => ({
+        cursor: prevState.cursor + 1,
+      }));
+    } else if (e.keyCode === 13) {
+      this.onCall(this.props.histories[cursor].customer?.primaryPhone);
+    }
+  };
 
   onTabClick = (currentTab: string) => {
     this.setState({ currentTab });
+
     if (currentTab === "Missed Call") {
       this.props.refetch({ callStatus: "missed" });
     } else {
@@ -72,6 +109,7 @@ class History extends React.Component<Props, State> {
         <CallDetail
           isMissedCall={isMissedCall}
           key={i}
+          className={this.state.cursor === i ? "active" : ""}
           isIncoming={callType !== "outgoing"}
           onClick={() => this.onCall(item.customer?.primaryPhone)}
         >
@@ -125,7 +163,7 @@ class History extends React.Component<Props, State> {
             {__("Missed Call")}
           </TabTitle>
         </Tabs>
-        <CallHistory>
+        <CallHistory ref={this.activeItemRef}>
           <h4>{__("Recents")}</h4>
           {this.renderCalls()}
         </CallHistory>
