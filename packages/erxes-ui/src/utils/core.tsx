@@ -148,7 +148,7 @@ export const renderFullName = (data, noPhone?: boolean) => {
       ' ' +
       (data.lastName || '') +
       ' ' +
-      (!noPhone && data.primaryPhone || '')
+      ((!noPhone && data.primaryPhone) || '')
     );
   }
 
