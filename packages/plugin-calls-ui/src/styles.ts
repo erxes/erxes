@@ -41,16 +41,12 @@ export const TabContent = styledTS<{ show: boolean }>(styled.div)`
 `;
 
 export const CallHistory = styled.div`
-  padding: 10px 20px 20px 20px;
   height: 392px;
   overflow: auto;
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
 
   h4 {
-    margin: 0;
-    font-size: 14px;
+    margin: 10px 20px;
+    font-size: 16px;
   }
 `;
 
@@ -67,17 +63,25 @@ export const Contacts = styled.div`
   }
 `;
 
-export const CallDetail = styledTS<{ isMissedCall: boolean}>(styled.div)`
+export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 5px 20px;
+  padding-left: ${props => props.isIncoming && '40px'};
+  cursor: pointer;
+  transition: all ease .3s;
+
+  &:hover {
+    background: ${colors.bgActive};
+  }
 
   > div {
     display: flex;
     align-items: center;
 
     > i {
-      margin-right: 5px;
+      margin-right: 8px;
       color: #666;
     }
 

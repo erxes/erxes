@@ -65,7 +65,7 @@ const KeyPad = (props: Props, context) => {
 
   const [shrink, setShrink] = useState(customer ? true : false);
 
-  const [number, setNumber] = useState(phoneNumber ? phoneNumber : "");
+  const [number, setNumber] = useState(phoneNumber);
   const [dialCode, setDialCode] = useState("");
 
   const [showTrigger, setShowTrigger] = useState(false);
@@ -91,6 +91,10 @@ const KeyPad = (props: Props, context) => {
       _id: conversation.erxesApiId,
     };
   }
+
+  useEffect(() => {
+    setNumber(phoneNumber);
+  }, [phoneNumber]);
 
   useEffect(() => {
     let timer;

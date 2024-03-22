@@ -69,10 +69,15 @@ class History extends React.Component<Props, State> {
         item.customer !== null ? item.customer.primaryPhone : "unknown user";
 
       const content = (
-        <CallDetail isMissedCall={isMissedCall} key={i}>
+        <CallDetail
+          isMissedCall={isMissedCall}
+          key={i}
+          isIncoming={callType !== "outgoing"}
+          onClick={() => this.onCall(item.customer?.primaryPhone)}
+        >
           <div>
             {callType === "outgoing" && (
-              <Icon size={13} icon={"outgoing-call"} />
+              <Icon size={12} icon={"outgoing-call"} />
             )}
             <NameCard
               user={item.customer}
@@ -88,12 +93,6 @@ class History extends React.Component<Props, State> {
                 <Icon icon="ellipsis-v" size={18} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <li
-                  key="call"
-                  onClick={() => this.onCall(item.customer?.primaryPhone)}
-                >
-                  <Icon icon="outgoing-call" /> {__("Call")}
-                </li>
                 <li key="delete" onClick={() => this.onRemove(item._id)}>
                   <Icon icon="trash-alt" size={14} /> {__("Delete")}
                 </li>
