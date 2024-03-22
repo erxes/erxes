@@ -33,10 +33,13 @@ export const Tab = styled(TabTitle)`
 export const TabsContainer = styled(Tabs)`
   height: fit-content;
   border-top: 1px solid ${colors.borderPrimary};
+  border-radius: 0 0 25px 10px;
+  overflow: hidden;
 `;
 
 export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
   margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 10px 10px 0 0;
 `;
 
 export const CallHistory = styled.div`
@@ -628,6 +631,7 @@ export const KeypadHeader = styled.div`
   padding: 10px 20px;
   background: #fcfcfd;
   border-bottom: 1px solid ${colors.borderPrimary};
+  border-radius: 10px 10px 0 0;
 `;
 
 export const HeaderItem = styled.div`

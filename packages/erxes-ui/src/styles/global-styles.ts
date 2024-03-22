@@ -506,6 +506,7 @@ a:hover {
   bottom: 155px;
   top: auto !important;
   transform: none !important;
+  border-radius: 25px;
 }
 
 .call-popover .arrow, #color-picker .arrow  {
