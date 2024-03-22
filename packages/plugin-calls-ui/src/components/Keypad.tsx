@@ -109,7 +109,11 @@ const KeyPad = (props: Props, context) => {
         return Alert.error(errorMessage);
       });
 
-    if (call?.status === CALL_STATUS_STARTING && hasMicrophone) {
+    if (
+      (call?.direction === CALL_DIRECTION_OUTGOING && call?.status) ===
+        CALL_STATUS_STARTING &&
+      hasMicrophone
+    ) {
       const inboxId =
         JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
