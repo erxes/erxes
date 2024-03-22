@@ -382,10 +382,17 @@ export const Actions = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    .coming-soon {
+      margin-bottom: -10px;
+      margin-top: -3px;
+      font-size: 10px;
+      color: #ddd;  
+    }
   }
 `;
 
-export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
+export const CallAction = styledTS<{ isDecline?: boolean; active?: boolean; disabled?: boolean }>(
   styled.div,
 )`
   width: 60px;
@@ -396,20 +403,21 @@ export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   justify-content: center;
   flex-direction: column;
   cursor: pointer;
-  color: ${colors.colorWhite};
-  background: rgba(255, 255, 255, 0.4);
+  color: ${props => props.active ? colors.textPrimary : colors.colorWhite};
+  background: ${(props) => props.disabled ? colors.colorShadowGray : props.isDecline ? colors.colorCoreRed : props.active ? colors.colorWhite  : 'rgba(255, 255, 255, 0.4)'};
   margin-bottom: 5px;
   transition: all ease .3s;
 
   ${(props) =>
     props.isDecline &&
     `
-    background: ${colors.colorCoreRed};
+    justify-self: center;
+    grid-column-start: span 3;
   `}
 
   &:hover {
     background: ${(props) =>
-      props.isDecline ? 'rgba(234, 71, 93, 0.6)' : 'rgba(255, 255, 255, 0.2)'};
+      props.isDecline ? 'rgba(234, 71, 93, 0.6)' : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
