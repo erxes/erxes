@@ -474,8 +474,8 @@ export const connectToMessageBroker = async (
   });
   con.once('close', (error) => {
     con.removeAllListeners();
-    if(error) {
-      console.error("RabbitMQ: connections is closing due to an error:", error);
+    if (error) {
+      console.error('RabbitMQ: connections is closing due to an error:', error);
       reconnectToMessageBroker(setupMessageConsumers);
     } else {
       console.log('RabbitMQ: connection is closing.');
