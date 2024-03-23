@@ -1254,6 +1254,7 @@ a:hover {
 
     a {
       color: #228be6;
+      display: inline-flex;
     }
     
     a:hover {
@@ -1384,12 +1385,19 @@ a:hover {
 
   /* ProseMirror (actual editable section of editor) */
   
-  .ProseMirror{
+  .ProseMirror{ 
     padding: 1rem;
     outline: 0px;
     height: 100%;
     overflow-y: auto;
-
+    a {
+      color: #228be6;
+      display: inline-flex;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
     table {
       border-collapse: collapse;
       margin: 0;
