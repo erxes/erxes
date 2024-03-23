@@ -1314,20 +1314,13 @@ a:hover {
       margin: 0;
       overflow: hidden;
       table-layout: fixed;
-      
-      td {
-        display: table-cell;
-      }
-      
+      display: table;
       td,
       th {
-        border: 2px solid #ced4da;
         box-sizing: border-box;
         min-width: 1em;
-        padding: 3px 5px;
         position: relative;
         vertical-align: top;
-
         > * {
           margin-bottom: 0;
         }
@@ -1351,19 +1344,13 @@ a:hover {
         z-index: 2;
       }
   
-      .column-resize-handle {
-        background-color: #adf;
-        bottom: -2px;
-        position: absolute;
-        right: -2px;
-        pointer-events: none;
-        top: 0;
-        width: 4px;
-      }
-  
       p {
         margin: 0;
       }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
     }
 
     p.is-editor-empty:first-child::before {
@@ -1372,11 +1359,6 @@ a:hover {
       float: left;
       height: 0;
       pointer-events: none;
-    }
-
-    .tableWrapper {
-      padding: 1rem 0;
-      overflow-x: auto;
     }
     
     .resize-cursor {
@@ -1407,6 +1389,50 @@ a:hover {
     outline: 0px;
     height: 100%;
     overflow-y: auto;
+
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      display: table;
+      td,
+      th {
+        box-sizing: border-box;
+        min-width: 1em;
+        position: relative;
+        vertical-align: top;
+        > * {
+          margin-bottom: 0;
+        }
+      }
+  
+      th {
+        background-color: #f1f3f5;
+        font-weight: bold;
+        text-align: left;
+      }
+  
+      .selectedCell:after {
+        background: rgba(200, 200, 255, 0.4);
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+  
+      p {
+        margin: 0;
+      }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
+    }
   }
  
 `;
