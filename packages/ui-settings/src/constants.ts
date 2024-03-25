@@ -616,7 +616,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'state',
     'avatar',
     'ownerId',
-    'status',
     'integrationId',
     'categoryId',
     'vendorId',
