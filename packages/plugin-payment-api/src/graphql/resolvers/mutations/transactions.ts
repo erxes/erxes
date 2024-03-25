@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { getEnv } from '@erxes/api-utils/src/core';
 
 const mutations = {
-  async transactionsAdd(_root, args: any, { models, subdomain }: IContext) {
+  async paymentTransactionsAdd(_root, args: any, { models, subdomain }: IContext) {
 
     const invoice = await models.Invoices.getInvoice({_id: args.invoiceId}, true);
 

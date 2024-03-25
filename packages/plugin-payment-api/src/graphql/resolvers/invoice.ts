@@ -19,6 +19,7 @@ export default {
     });
 
     // sum of paid transactions
+
     const paidAmount = transactions.reduce(
       (acc, transaction) => acc + transaction.amount,
       0

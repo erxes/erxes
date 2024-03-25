@@ -1,7 +1,14 @@
 export const types = `
+type TransactionsTotalCount {
+  total: Int
+  byKind: JSON
+  byStatus: JSON
+}
+
   type PaymentTransaction @key(fields: "_id") {
     _id: String
     invoiceId: String
+    invoice: Invoice
     paymentId: String
     paymentKind: String
     amount: Float
@@ -15,7 +22,7 @@ export const types = `
 `;
 
 export const mutations = `
-  transactionsAdd(
+  paymentTransactionsAdd(
     invoiceId: String!
     paymentId: String!
     amount: Float!
@@ -24,5 +31,6 @@ export const mutations = `
 `;
 
 export const queries = `
-  transactions(_ids: [String], invoiceId: String): [PaymentTransaction]
+  paymentTransactions(_ids: [String], invoiceId: String, searchValue: String, kind: String, status: String): [PaymentTransaction]
+  paymentTransactionsTotalCount(_ids: [String], invoiceId: String, searchValue: String, kind: String, status: String): TransactionsTotalCount
 `;

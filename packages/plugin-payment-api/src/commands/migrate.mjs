@@ -16,6 +16,7 @@ let db;
 
 let Payments;
 let Invoices;
+let Transactions;
 
 const command = async () => {
   await client.connect();
@@ -23,6 +24,7 @@ const command = async () => {
 
   Payments = db.collection('payments');
   Invoices = db.collection('invoices');
+  Transactions = db.collection('payment_transactions');
 
   try {
     await Payments.rename('payment_methods');
@@ -34,6 +36,30 @@ const command = async () => {
     await Invoices.rename('payment_invoices');
   } catch (e) {
     console.log('Error: ', e);
+  }
+
+  const invoices = await Invoices.find().toArray();
+
+  for (const invoice of invoices) {
+    if (invoice.status === 'status' && invoice.selectedPaymentId) {
+      // add transaction
+      await Transactions.insertOne({
+        _id: invoice.identifier,
+        invoiceId: invoice._id,
+        paymentId: invoice.selectedPaymentId,
+        paymentKind: invoice.paymentKind,
+        amount: invoice.amount,
+        status: invoice.status,
+        description: invoice.description,
+        details: {
+          phone: invoice.phone || '',
+          email: invoice.email || '',
+          couponAmount: invoice.couponAmount || '',
+          couponCode: invoice.couponCode || '',
+        },
+        response: invoice.apiResponse,
+      });
+    }
   }
 
   console.log(`Process finished at: ${new Date()}`);

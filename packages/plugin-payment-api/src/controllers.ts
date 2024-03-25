@@ -11,8 +11,24 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { hmac256 } from './api/socialpay/api';
 
 const router = Router();
+
+router.get('/golomt', async (req, res) => {
+  console.log('golomt');
+  const transacionId = randomAlphanumeric(10);
+  const key = "+d?#GxuL53v?{Shx=Gsw-/L;rzKdJ']Vrt7jc'H*e>(2j87u!!28YW!=rcW.7=zB";
+  const checksum = hmac256(
+    key,
+    transacionId + '5000' + 'GET' + 'http://localhost:4000/golomt/callback'
+  );
+
+  return res.json({
+    checksum,
+    transacionId,
+  });
+});
 
 router.get('/invoice/:invoiceId', async (req, res) => {
   const { invoiceId } = req.params;

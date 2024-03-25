@@ -57,7 +57,7 @@ const ADD_TRANSACTION = gql`
     $amount: Float!
     $details: JSON
   ) {
-    transactionsAdd(
+    paymentTransactionsAdd(
       invoiceId: $invoiceId
       paymentId: $paymentId
       amount: $amount
@@ -195,7 +195,7 @@ const Payments = (props: Props) => {
   };
 
   const newTransaction =
-    addTransactionResponse.data && addTransactionResponse.data.transactionsAdd;
+    addTransactionResponse.data && addTransactionResponse.data.paymentTransactionsAdd;
   let payments = data.paymentsPublic || [];
 
   // if invoice amount is less than 100000, hide storepay
