@@ -1398,18 +1398,21 @@ a:hover {
     a:hover {
       text-decoration: underline;
     }
+
     table {
       border-collapse: collapse;
       margin: 0;
       overflow: hidden;
       table-layout: fixed;
       display: table;
+
       td,
       th {
         box-sizing: border-box;
         min-width: 1em;
         position: relative;
         vertical-align: top;
+        border: 1px solid #e9ecef;
         > * {
           margin-bottom: 0;
         }
