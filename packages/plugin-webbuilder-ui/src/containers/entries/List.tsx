@@ -1,20 +1,20 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
   EntriesMainQueryResponse,
   EntriesRemoveMutationResponse,
   IContentType,
-  TypeDetailQueryResponse
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+  TypeDetailQueryResponse,
+} from "../../types";
+import { mutations, queries } from "../../graphql";
 
-import List from '../../components/entries/List';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import List from "../../components/entries/List";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   contentType: IContentType;
@@ -38,11 +38,11 @@ function ListContainer(props: FinalProps) {
     confirm().then(() => {
       entriesRemoveMutation({ variables: { _id } })
         .then(() => {
-          Alert.success('Successfully deleted a entry');
+          Alert.success("Successfully deleted a entry");
 
           entriesMainQuery.refetch();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -57,7 +57,7 @@ function ListContainer(props: FinalProps) {
     loading: entriesMainQuery.loading,
     contentType,
     remove,
-    entriesCount: totalCount
+    entriesCount: totalCount,
   };
 
   return <List {...updatedProps} />;
@@ -65,16 +65,17 @@ function ListContainer(props: FinalProps) {
 
 export default compose(
   graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
-    name: 'entriesMainQuery',
+    name: "entriesMainQuery",
     options: ({ contentType, queryParams }) => ({
       variables: {
-        contentTypeId: contentType._id || '',
-        ...generatePaginationParams(queryParams)
+        contentTypeId: contentType._id || "",
+        page: 1,
+        perPage: 100,
       },
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: "network-only",
+    }),
   }),
   graphql<{}, EntriesRemoveMutationResponse>(gql(mutations.entriesRemove), {
-    name: 'entriesRemoveMutation'
+    name: "entriesRemoveMutation",
   })
 )(ListContainer);
