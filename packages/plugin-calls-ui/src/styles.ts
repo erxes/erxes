@@ -6,7 +6,6 @@ import {
 } from '@erxes/ui/src/utils/animations';
 import styled, { keyframes } from 'styled-components';
 
-import { NameCardText } from '@erxes/ui/src/components/nameCard/NameCard';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';
@@ -65,6 +64,28 @@ export const Contacts = styled.div`
   }
 `;
 
+export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+  ${(props) =>
+    props.shrink
+      ? `font-weight: 600;
+    font-size: 15px;`
+      : `font-weight: 500;
+    font-size: 18px;`}
+
+    > h5 {
+      margin: 0;
+    }
+
+    > span {
+      display: block;
+      color: ${colors.bgGray};
+      font-size: 13px;
+      margin-top: -5px;
+      margin-bottom: ${dimensions.unitSpacing}px;
+      font-style: italic;
+    }
+`;
+
 export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}>(styled.div)`
   display: flex;
   justify-content: space-between;
@@ -87,10 +108,8 @@ export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}
       color: #666;
     }
 
-    ${NameCardText} {
-      > div {
+    ${PhoneNumber} {
         color: ${props => props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
-      }
     }
   }
 
@@ -360,19 +379,6 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   text-align: center;
   width: 100%;
-`;
-
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
-  ${(props) =>
-    props.shrink
-      ? `font-weight: 600;
-    font-size: 15px;`
-      : `font-weight: 500;
-    font-size: 18px;`}
-
-    > h5 {
-      margin: 0;
-    }
 `;
 
 export const Actions = styled.div`

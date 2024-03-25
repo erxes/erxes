@@ -66,7 +66,7 @@ const KeyPad = (props: Props, context) => {
 
   const [shrink, setShrink] = useState(customer ? true : false);
   const [selectFocus, setSelectFocus] = useState(false);
-  const [number, setNumber] = useState(phoneNumber);
+  const [number, setNumber] = useState(phoneNumber || "");
   const [dialCode, setDialCode] = useState("");
 
   const [showTrigger, setShowTrigger] = useState(false);
