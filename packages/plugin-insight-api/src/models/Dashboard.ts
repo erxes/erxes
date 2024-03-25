@@ -1,12 +1,10 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
 import {
   dashboardSchema,
   IDashboard,
   IDashboardDocument,
 } from './definitions/insight';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
 
 export interface IDashboardModel extends Model<IDashboardDocument> {
   getDashboard(_id: string): Promise<IDashboardDocument>;

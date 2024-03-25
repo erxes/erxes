@@ -17,8 +17,8 @@ const conversationMessageInserted = `
 `;
 
 const conversationClientMessageInserted = `
-  subscription conversationClientMessageInserted($subdomain: String!, $userId: String!) {
-    conversationClientMessageInserted(subdomain: $subdomain, userId: $userId) {
+  subscription conversationClientMessageInserted($userId: String!) {
+    conversationClientMessageInserted(userId: $userId) {
       _id
       content
     }
@@ -54,5 +54,5 @@ export default {
   conversationClientMessageInserted,
   conversationClientTypingStatusChanged,
   conversationExternalIntegrationMessageInserted,
-  customerConnectionChanged
+  customerConnectionChanged,
 };

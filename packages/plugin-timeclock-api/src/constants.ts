@@ -64,9 +64,3 @@ export const TIMECLOCK_EXPORT_COLUMNS = [
   [[''], ['Овог нэр']],
   [[''], ['Ажилтаны код']],
 ];
-
-export const TIMECLOCK_EXPORT_COLUMNS = [
-  [[''], ['Д/Д']],
-  [[''], ['Овог нэр']],
-  [[''], ['Ажилтаны код']],
-];

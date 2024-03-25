@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 import {
   types as insightTypes,
@@ -7,6 +8,8 @@ import {
 } from './schema/insight';
 
 const typeDefs = async () => {
+  const tagsAvailable = await isEnabled('tags');
+
   return gql`
     scalar JSON
     scalar Date
@@ -22,7 +25,7 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
-    ${insightTypes}
+    ${insightTypes(tagsAvailable)}
     
     extend type Query {
       ${insightQueries}

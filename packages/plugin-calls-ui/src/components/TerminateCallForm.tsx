@@ -1,10 +1,12 @@
-import { Button, ControlLabel, Form } from '@erxes/ui/src/components';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { callPropType, sipPropType } from '../lib/types';
 import * as PropTypes from 'prop-types';
+
+import { Button, ControlLabel, Form } from '@erxes/ui/src/components';
+import { callPropType, sipPropType } from '../lib/types';
+
+import { IFormProps } from '@erxes/ui/src/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -22,16 +24,16 @@ const TerminateSessionForm = (props: IProps) => {
       'config:call_integrations',
       JSON.stringify({
         ...JSON.parse(localStorage.getItem('config:call_integrations')),
-        isAvailable: true
-      })
+        isAvailable: true,
+      }),
     );
 
     localStorage.setItem(
       'callInfo',
       JSON.stringify({
         isRegistered: true,
-        isLogin: true
-      })
+        isLogin: true,
+      }),
     );
     // tslint:disable-next-line:no-unused-expression
 
@@ -43,8 +45,8 @@ const TerminateSessionForm = (props: IProps) => {
     localStorage.setItem(
       'callInfo',
       JSON.stringify({
-        isUnRegistered: true
-      })
+        isUnRegistered: true,
+      }),
     );
 
     setCallInfo({ isUnRegistered: true });
@@ -61,7 +63,12 @@ const TerminateSessionForm = (props: IProps) => {
         </ControlLabel>
 
         <ModalFooter>
-          <Button type="button" onClick={onCancel} icon="times-circle">
+          <Button
+            type="button"
+            btnStyle="simple"
+            onClick={onCancel}
+            icon="times-circle"
+          >
             No
           </Button>
           <Button

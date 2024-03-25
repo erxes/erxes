@@ -307,7 +307,7 @@ const engageMutations = {
       ...sourceCampaign.toObject(),
       createdAt: new Date(),
       createdBy: user._id,
-      title: `${sourceCampaign.title}-copied`,
+      title: `${sourceCampaign.title} - duplicated`,
       isDraft: true,
       isLive: false,
       runCount: 0,

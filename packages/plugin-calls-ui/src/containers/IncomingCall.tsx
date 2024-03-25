@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import IncomingCall from '../components/IncomingCall';
+import { gql, useMutation } from '@apollo/client';
 
+import { Alert } from '@erxes/ui/src/utils';
+import { ICustomer } from '../types';
+import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
-
-import { gql, useMutation } from '@apollo/client';
-import { mutations } from '../graphql';
-import { Alert } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
+import { mutations } from '../graphql';
 import queries from '../graphql/queries';
 
 interface IProps {
@@ -16,9 +16,14 @@ interface IProps {
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
-  const [customer, setCustomer] = useState<any>(undefined);
+  const [customer, setCustomer] = useState<any>({
+    firstName: 'Anu-Ujin',
+    middleName: '',
+    lastName: 'B',
+    phones: ['343443', '344334'],
+    primaryPhone: '99123569',
+  } as ICustomer);
   const [conversation, setConversation] = useState<any>(undefined);
-
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callUserIntegrations } = props;
@@ -29,9 +34,8 @@ const IncomingCallContainer = (props: IProps, context) => {
     context.call.counterpart.indexOf('@'),
   );
 
-  const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
-  );
+  const defaultCallIntegration =
+    localStorage.getItem('config:call_integrations') || '{}';
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;

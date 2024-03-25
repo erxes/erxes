@@ -1,6 +1,6 @@
 import {
   ItemBox,
-  ItemIndicator
+  ItemIndicator,
 } from '@erxes/ui-cards/src/boards/styles/stage';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { getCPUserName } from '@erxes/ui-log/src/activityLogs/utils';
@@ -17,7 +17,6 @@ class Detail extends React.Component<Props> {
   renderItem(item, color) {
     return (
       <ItemBox>
-        <ItemIndicator color={color} />
         {item.name ||
           item.primaryName ||
           renderFullName(item) ||
