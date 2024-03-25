@@ -63,8 +63,8 @@ const queryParams = `
 `;
 
 const queries = `
-  salaryReport(${queryParams}): SalaryReportsListResponse
   salaryByEmployee(password: String!): SalaryReportsListResponse
+  salaryReport(${queryParams}): SalaryReportsListResponse
 
   salaryLabels: JSON
   salarySymbols: JSON
