@@ -6,9 +6,7 @@ import Search from '../../main/components/Search';
 import { Store } from '../../types';
 import { useRouter } from 'next/router';
 import { gql, useMutation } from '@apollo/client';
-
-const NEXT_PUBLIC_ERXES_APP_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOnsiY3JlYXRlZEF0IjoiMjAyNC0wMy0xM1QwMDoyNTozNy45MzBaIiwibmFtZSI6InBheW1lbnQiLCJ1c2VyR3JvdXBJZCI6ImNNbDBhUGNRNUFQTkQ5UTdjdkVpNiIsImV4cGlyZURhdGUiOiIyMDI0LTA0LTEyVDA1OjUzOjMyLjQxN1oiLCJhbGxvd0FsbFBlcm1pc3Npb24iOmZhbHNlLCJub0V4cGlyZSI6dHJ1ZSwiX2lkIjoiUkpVNGtJc3FoOFNnVWw0SjN4TTZhIiwiX192IjowfSwiaWF0IjoxNzEwMzA5MjIzfQ.cq8PXxhVZL3H0eHcL5H1hqbrcr1oSvN9t7RmLcS_aSQ';
+import { getEnv } from '../../../utils/configs';
 
 const MUTATION = gql`
   mutation InvoiceCreate(
@@ -42,7 +40,35 @@ const MUTATION = gql`
 `;
 
 function CategoriesContainer() {
+  const { REACT_APP_TOKEN = '' } = getEnv();
+
+  console.log('REACT_APP_TOKEN', REACT_APP_TOKEN);
+
   const router = useRouter();
+
+  if (typeof window !== 'undefined') {
+    
+  window.addEventListener('message', (event) => {
+    const { fromPayment, message, invoice } = event.data;
+
+    if (fromPayment) {
+      if (message === 'paymentSuccessfull') {
+        console.log('paymentSuccessfull', invoice);
+
+        const pendingInvoices = sessionStorage.getItem('pendingInvoices');
+
+        const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
+
+        // remove invoice from pending invoices
+        const filtered = parsed.filter((p) => p._id !== invoice._id);
+
+        sessionStorage.setItem('pendingInvoices', JSON.stringify(filtered));
+      }
+    }
+  });
+  }
+
+
   const { searchValue } = router.query;
 
   const [invoiceCreate] = useMutation(MUTATION);
@@ -85,6 +111,11 @@ function CategoriesContainer() {
         phone: '12345678',
         contentType: 'cards:deal',
         contentTypeId,
+      },
+      context: {
+        headers: {
+          'erxes-app-token': REACT_APP_TOKEN,
+        },
       },
     }).then((res) => {
       const inv = res.data.invoiceCreate;

@@ -29,7 +29,7 @@ const PaymentGateway = (props: Props) => {
     setCurrentPaymentId(payment._id);
     setCurrentTransaction(null);
     setKind(payment.kind);
-    console.log('pisda', payment.kind);
+
     if (payment.kind === 'storepay') {
       setModalIsOpen(true);
 
@@ -40,10 +40,7 @@ const PaymentGateway = (props: Props) => {
       (t) => t.paymentId === payment._id && t.status === 'pending'
     );
 
-    console.log('pendingTransaction', pendingTransaction);
-
     if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
-      console.log('requesting new transaction');
       props.requestNewTransaction(payment._id);
     } else if (pendingTransaction) {
       setCurrentTransaction(pendingTransaction);

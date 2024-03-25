@@ -13,6 +13,12 @@ export const types = `
     byStatus: JSON
     total: Int
   }
+
+  type PaymentPublic {
+    _id: String
+    name: String
+    kind: String
+  }
 `;
 
 const paymentOptionsParams = `
@@ -29,6 +35,8 @@ const paymentOptionsParams = `
 
 export const queries = `
   payments(status: String): [Payment]
+
+  paymentsPublic(kind: String, _ids:[String]): [PaymentPublic]
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 

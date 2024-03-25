@@ -13,6 +13,7 @@ import { quickQrCallbackHandler } from './api/qpayQuickqr/api';
 import { pocketCallbackHandler } from './api/pocket/api';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { ITransactionDocument } from './models/definitions/transactions';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -26,7 +27,7 @@ export const callbackHandler = async (req, res) => {
     return res.status(400).send('kind is required');
   }
 
-  let transaction: any;
+  let transaction: ITransactionDocument;
 
   const data = { ...body, ...query };
 
@@ -40,9 +41,6 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.monpay.kind:
         transaction = await monpayCallbackHandler(models, data);
-        break;
-      case PAYMENTS.paypal.kind:
-        transaction = await paypalCallbackHandler(models, data);
         break;
       case PAYMENTS.qpayQuickqr.kind:
         transaction = await quickQrCallbackHandler(models, data);
@@ -58,27 +56,59 @@ export const callbackHandler = async (req, res) => {
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {
-      delete transaction.apiResponse;
+      const invoice = await models.Invoices.findOne({
+        _id: transaction.invoiceId,
+      }).lean();
 
-      graphqlPubsub.publish(`invoiceUpdated:${transaction._id}`, {
-        invoiceUpdated: {
+      const result = await models.Invoices.checkInvoice(transaction.invoiceId);
+
+      delete transaction.response;
+
+      graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
+        transactionUpdated: {
           _id: transaction._id,
           status: 'paid',
+          amount: transaction.amount,
+          paymentKind: transaction.paymentKind,
         },
       });
 
-      redisUtils.updateInvoiceStatus(transaction._id, 'paid');
-
-      const [serviceName] = transaction.contentType.split(':');
-
-      if (await isEnabled(serviceName)) {
-        sendMessage(`${serviceName}:paymentCallback`, {
-          subdomain,
-          data: {
-            ...transaction,
-            apiResponse: 'success',
+      if (result === 'paid') {
+        graphqlPubsub.publish(`invoiceUpdated:${transaction.invoiceId}`, {
+          invoiceUpdated: {
+            _id: transaction.invoiceId,
+            status: 'paid',
           },
         });
+      }
+
+      // remove next line after new payment ui is implemented
+      redisUtils.updateInvoiceStatus(transaction._id, 'paid');
+
+      const [serviceName] = invoice.contentType.split(':');
+
+      if (await isEnabled(serviceName)) {
+        try {
+          sendMessage(`${serviceName}:transactionCallback`, {
+            subdomain,
+            data: {
+              ...transaction,
+              apiResponse: 'success',
+            },
+          });
+
+          if (result === 'paid') {
+            sendMessage(`${serviceName}:paymentCallback`, {
+              subdomain,
+              data: {
+                ...invoice,
+                status: 'paid',
+              },
+            });
+          }
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   } catch (error) {

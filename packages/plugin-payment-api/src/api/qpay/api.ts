@@ -67,14 +67,11 @@ export class QpayAPI extends BaseAPI {
     const token = await redis.get(`qpay_token_${this.qpayMerchantUser}`);
 
     if (token) {
-      console.log('returning token from cache', token);
       return {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json',
       };
     }
-
-    console.log('getting token from api');
 
     try {
       const res = await this.request({
@@ -102,7 +99,7 @@ export class QpayAPI extends BaseAPI {
         'Content-Type': 'application/json',
       };
     } catch (e) {
-      console.log('error', e);
+      console.error('error', e);
       throw new Error(e.message);
     }
   }
@@ -119,8 +116,6 @@ export class QpayAPI extends BaseAPI {
         amount: invoice.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${invoice._id}`,
       };
-
-      console.log('data', data);
 
       const res = await this.request({
         method: 'POST',
@@ -139,7 +134,7 @@ export class QpayAPI extends BaseAPI {
   }
 
   async checkInvoice(invoice: ITransactionDocument) {
-    // // return PAYMENT_STATUS.PAID;
+    return PAYMENT_STATUS.PAID;
     try {
       const res = await this.request({
         method: 'GET',

@@ -3,15 +3,21 @@ import { useQuery, useMutation, gql, useSubscription } from '@apollo/client';
 import Spinner from '../common/Spinner';
 import Component from '../components/Payments';
 
-const SUBSCRIPTION = gql`
+const INVOICE_SUBSCRIPTION = gql`
   subscription invoiceUpdated($invoiceId: String!) {
     invoiceUpdated(_id: $invoiceId)
   }
 `;
 
+const TRANSACTION_SUBSCRIPTION = gql`
+  subscription transactionUpdated($invoiceId: String!) {
+    transactionUpdated(invoiceId: $invoiceId)
+  }
+`;
+
 const PAYMENTS_QRY = gql`
-  query Payments($status: String) {
-    payments(status: $status) {
+  query PaymentsPublic($kind: String, $ids: [String]) {
+    paymentsPublic(kind: $kind, _ids: $ids) {
       _id
       kind
       name
@@ -25,6 +31,7 @@ const INVOICE = gql`
       _id
       invoiceNumber
       amount
+      remainingAmount
       description
       phone
       paymentIds
@@ -88,7 +95,11 @@ const Payments = (props: Props) => {
 
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
 
-  const subscription = useSubscription(SUBSCRIPTION, {
+  const invoiceSubscription = useSubscription(INVOICE_SUBSCRIPTION, {
+    variables: { invoiceId },
+  });
+
+  const transactionSubscription = useSubscription(TRANSACTION_SUBSCRIPTION, {
     variables: { invoiceId },
   });
 
@@ -97,15 +108,31 @@ const Payments = (props: Props) => {
   });
 
   React.useEffect(() => {
-    if (subscription.data && subscription.data.invoiceUpdated) {
+    if (invoiceSubscription.data && invoiceSubscription.data.invoiceUpdated) {
+      const message = {
+        fromPayment: true,
+        message: 'paymentSuccessfull',
+        invoiceId,
+        invoice: invoiceSubscription.data.invoiceUpdated,
+        contentType: invoiceDetail.contentType,
+        contentTypeId: invoiceDetail.contentTypeId,
+      };
+
       // check invoice status
-      const res = subscription.data.invoiceUpdated;
+      const res = invoiceSubscription.data.invoiceUpdated;
       if (res.status === 'paid') {
         window.alert('Payment has been successfully processed. Thank you! ');
-        postMessage();
+        postMessage(message);
       }
     }
-  }, [subscription.data]);
+
+    if (
+      transactionSubscription.data &&
+      transactionSubscription.data.transactionUpdated
+    ) {
+      invoiceDetailQuery.refetch();
+    }
+  }, [invoiceSubscription.data, transactionSubscription.data]);
 
   if (loading || invoiceDetailQuery.loading) {
     return <Spinner />;
@@ -119,7 +146,7 @@ const Payments = (props: Props) => {
     ? invoiceDetailQuery.data.invoiceDetail
     : null;
 
-  const requestNewTransaction = (paymentId: string, details?: any ) => {
+  const requestNewTransaction = (paymentId: string, details?: any) => {
     addTransaction({
       variables: {
         invoiceId,
@@ -139,24 +166,25 @@ const Payments = (props: Props) => {
       })
       .then((res: any) => {
         const status = res.data && res.data.invoicesCheck;
+        invoiceDetailQuery.refetch();
         if (status !== 'paid') {
           window.alert('Not paid yet!, Please try again later.');
         } else {
           window.alert('Payment has been successfully processed. Thank you! ');
-          postMessage();
+          const message = {
+            fromPayment: true,
+            message: 'paymentSuccessfull',
+            invoiceId,
+            invoice: invoiceDetail,
+            contentType: invoiceDetail.contentType,
+            contentTypeId: invoiceDetail.contentTypeId,
+          };
+          postMessage(message);
         }
       });
   };
 
-  const postMessage = () => {
-    const message = {
-      fromPayment: true,
-      message: 'paymentSuccessfull',
-      invoiceId,
-      contentType: invoiceDetail.contentType,
-      contentTypeId: invoiceDetail.contentTypeId,
-    };
-
+  const postMessage = (message: any) => {
     if (window.opener) {
       window.opener.postMessage(message, '*');
     }
@@ -166,12 +194,28 @@ const Payments = (props: Props) => {
     }
   };
 
-  const newTransaction = addTransactionResponse.data && addTransactionResponse.data.transactionsAdd;
-  let payments = data.payments || [];
+  const newTransaction =
+    addTransactionResponse.data && addTransactionResponse.data.transactionsAdd;
+  let payments = data.paymentsPublic || [];
 
   // if invoice amount is less than 100000, hide storepay
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
+  }
+
+  if (invoiceDetail.status === 'paid') {
+    // already paid
+    window.alert('Payment has been successfully processed. Thank you! ');
+    postMessage({
+      fromPayment: true,
+      message: 'paymentSuccessfull',
+      invoiceId,
+      invoice: invoiceDetail,
+      contentType: invoiceDetail.contentType,
+      contentTypeId: invoiceDetail.contentTypeId,
+    });
+
+    return <div>Payment has been successfully processed. Thank you! </div>;
   }
 
   const updatedProps = {

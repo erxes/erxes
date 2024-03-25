@@ -20,6 +20,11 @@ window.envMaps = [
   {
     name: 'REACT_APP_SUBSCRIPTION_URL',
     processValue: '%REACT_APP_SUBSCRIPTION_URL%'
+  },
+
+  {
+    name: 'REACT_APP_TOKEN',
+    processValue: '%REACT_APP_TOKEN%'
   }
 ];
 

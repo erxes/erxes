@@ -57,15 +57,11 @@ export const loadTransactionClass = (models: IModels) => {
         doc.paymentId
       );
 
-      console.log('paymentMethod', paymentMethod.kind);
-
       const updatedDoc = {
         ...doc,
         paymentKind: paymentMethod.kind,
         status: 'pending',
       };
-
-      console.log('updatedDoc', updatedDoc);
 
       const transaction = await models.Transactions.create(updatedDoc);
 

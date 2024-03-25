@@ -28,9 +28,7 @@ const PaymentModal = (props: Props) => {
   if (kind.includes('qpay')) {
     kind = 'qpay';
   }
-
-  console.log('yeaah');
-
+  
   const renderLoading = () => {
     return (
       <div

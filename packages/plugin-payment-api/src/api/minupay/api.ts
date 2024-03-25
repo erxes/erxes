@@ -133,7 +133,6 @@ export class MinuPayAPI extends BaseAPI {
     //     },
     //   });
 
-    //   console.log('ressss', await res.text());
 
     //   return res;
     // } catch (e) {

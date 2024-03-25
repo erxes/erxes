@@ -152,7 +152,7 @@ export class StorePayAPI extends BaseAPI {
    * TODO: update return type
    */
   async createInvoice(invoice: ITransactionDocument) {
-    const { details } = invoice || {};
+    const details = invoice.details || {};
 
     try {
       const data = {

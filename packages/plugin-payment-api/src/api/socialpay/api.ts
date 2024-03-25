@@ -70,7 +70,7 @@ export class SocialPayAPI extends BaseAPI {
 
   async createInvoice(invoice: ITransactionDocument) {
     const amount = invoice.amount.toString();
-    const { details } = invoice || {};
+    const details = invoice.details || {};
 
     const path = details.phone
       ? PAYMENTS.socialpay.actions.invoicePhone
@@ -102,9 +102,7 @@ export class SocialPayAPI extends BaseAPI {
         headers: { 'Content-Type': 'application/json' },
         data,
       }).then((r) => r.json());
-
-      console.log(body, 'body');
-
+      
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
       }

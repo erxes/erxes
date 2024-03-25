@@ -16,6 +16,8 @@ export const types = `
     invoiceNumber: String
 
     amount: Float
+    remainingAmount: Float
+    
     phone: String
     email: String
     description: String

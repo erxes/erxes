@@ -54,8 +54,6 @@ const generateFilterQuery = (params: IParam) => {
 
   query.selectedPaymentId = { $exists: true };
 
-  console.log('query', query);
-
   return query;
 };
 

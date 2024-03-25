@@ -31,6 +31,7 @@ export const transactionSchema = new Schema({
   createdAt: field({ type: Date, default: new Date() }),
   updatedAt: field({ type: Date }),
   details: field({ type: Object }),
+  description: field({ type: String }),
   response: field({ type: Object }),
 });
 

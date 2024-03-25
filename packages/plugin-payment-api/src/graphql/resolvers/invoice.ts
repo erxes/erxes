@@ -11,6 +11,26 @@ export default {
     return models.Transactions.find({ invoiceId: invoice._id });
   },
 
+  async remainingAmount(invoice: IInvoiceDocument, {}, { models }: IContext) {
+    // find paid transactions with invoiceId
+    const transactions = await models.Transactions.find({
+      invoiceId: invoice._id,
+      status: 'paid',
+    });
+
+    // sum of paid transactions
+    const paidAmount = transactions.reduce(
+      (acc, transaction) => acc + transaction.amount,
+      0
+    );
+
+    if (invoice.amount < paidAmount) {
+      return invoice.amount - paidAmount;
+    } else {
+      return 0;
+    }
+  },
+
   async customer(invoice: IInvoice, {}, { subdomain }: IContext) {
     switch (invoice.customerType) {
       case 'company':

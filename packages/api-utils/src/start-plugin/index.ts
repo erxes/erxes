@@ -596,6 +596,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           data: await payment.callback(args),
         }));
       }
+
+      if (payment.transactionCallback) {
+        payment.transactionCallbackAvailable = true;
+        consumeQueue(`${configs.name}:transactionCallback`, async (args) => ({
+          status: 'success',
+          data: await payment.transactionCallback(args),
+        }));
+      }
     }
 
     if (cpCustomerHandle) {
