@@ -1,11 +1,11 @@
-import { IBoard, IPipeline, IStage } from '../types';
+import { IBoard, IPipeline, IStage } from "../types";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FormContainer } from '../styles/common';
-// import Select from 'react-select-plus';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { selectOptions } from '../utils';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormContainer } from "../styles/common";
+import Select from "react-select";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { selectOptions } from "../utils";
 
 type Props = {
   boards: IBoard[];
@@ -31,18 +31,17 @@ class BoardSelect extends React.Component<Props> {
   };
 
   renderSelect(placeholder, value, onChange, options) {
-    return null;
-    // return (
-    //   <Select
-    //     isRequired={true}
-    //     placeholder={placeholder}
-    //     value={value}
-    //     onChange={onChange}
-    //     optionRenderer={this.renderOptions}
-    //     options={options}
-    //     clearable={false}
-    //   />
-    // );
+    return (
+      <Select
+        required={true}
+        placeholder={placeholder}
+        value={options.find((o) => value === o.value)}
+        onChange={onChange}
+        // optionRenderer={this.renderOptions}
+        options={options}
+        isClearable={false}
+      />
+    );
   }
 
   renderContent() {
@@ -72,30 +71,30 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Board</ControlLabel>
           {this.renderSelect(
-            __('Choose a board'),
+            __("Choose a board"),
             boardId,
             (board) => onChangeBoard(board.value),
-            selectOptions(boards),
+            selectOptions(boards)
           )}
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Pipeline</ControlLabel>
           {this.renderSelect(
-            __('Choose a pipeline'),
+            __("Choose a pipeline"),
             pipelineId,
             (pipeline) => onChangePipeline(pipeline.value),
-            selectOptions(pipelines),
+            selectOptions(pipelines)
           )}
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Stage</ControlLabel>
           {this.renderSelect(
-            __('Choose a stage'),
+            __("Choose a stage"),
             stageId,
             (stage) => onChangeStage(stage.value, callback),
-            selectOptions(stages),
+            selectOptions(stages)
           )}
         </FormGroup>
       </>

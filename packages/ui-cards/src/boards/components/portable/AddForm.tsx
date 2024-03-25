@@ -1,27 +1,27 @@
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 import {
   BoardSelectWrapper,
   FormFooter,
   HeaderContent,
   HeaderRow,
-} from '../../styles/item';
-import { IAttachment, IField } from '@erxes/ui/src/types';
-import { IItem, IItemParams, IOptions, IStage } from '../../types';
+} from "../../styles/item";
+import { IAttachment, IField } from "@erxes/ui/src/types";
+import { IItem, IItemParams, IOptions, IStage } from "../../types";
 
-import { Alert } from '@erxes/ui/src/utils';
-import BoardSelect from '../../containers/BoardSelect';
-import Button from '@erxes/ui/src/components/Button';
-import CardSelect from './CardSelect';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import GenerateAddFormFields from './GenerateAddFormFields';
-import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
-import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
-import { invalidateCache } from '../../utils';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
-// import Select from 'react-select-plus';
+import { Alert } from "@erxes/ui/src/utils";
+import BoardSelect from "../../containers/BoardSelect";
+import Button from "@erxes/ui/src/components/Button";
+import CardSelect from "./CardSelect";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import GenerateAddFormFields from "./GenerateAddFormFields";
+import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
+import React from "react";
+import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
+import { invalidateCache } from "../../utils";
+import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import Select from "react-select";
 
 type Props = {
   options: IOptions;
@@ -72,24 +72,24 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       disabled: false,
-      boardId: props.boardId || '',
-      pipelineId: props.pipelineId || '',
-      stageId: props.stageId || '',
-      cardId: props.cardId || '',
+      boardId: props.boardId || "",
+      pipelineId: props.pipelineId || "",
+      stageId: props.stageId || "",
+      cardId: props.cardId || "",
       cards: [],
       name:
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
-        '',
+        "",
       customFieldsData: [],
-      tagIds: props.tagIds || '',
+      tagIds: props.tagIds || "",
       startDate: props.startDate || null,
       closeDate: props.closeDate || null,
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    if (name === 'stageId') {
+    if (name === "stageId") {
       const { fetchCards } = this.props;
       fetchCards(String(value), (cards: any) => {
         if (cards) {
@@ -100,7 +100,7 @@ class AddForm extends React.Component<Props, State> {
       });
     }
 
-    if (name === 'pipelineId') {
+    if (name === "pipelineId") {
       this.props.refetchFields({ pipelineId: value });
     }
 
@@ -133,19 +133,19 @@ class AddForm extends React.Component<Props, State> {
     let { fields } = this.props;
 
     if (!stageId) {
-      return Alert.error('No stage');
+      return Alert.error("No stage");
     }
 
     if (!name && !cardId) {
-      return Alert.error('Please enter name or select card');
+      return Alert.error("Please enter name or select card");
     }
 
     fields = fields.filter((field) => {
       const logics: LogicParams[] = (field.logics || []).map((logic) => {
-        let { fieldId = '' } = logic;
+        let { fieldId = "" } = logic;
 
-        if (fieldId.includes('customFieldsData')) {
-          fieldId = fieldId.split('.')[1];
+        if (fieldId.includes("customFieldsData")) {
+          fieldId = fieldId.split(".")[1];
         }
 
         return {
@@ -165,7 +165,7 @@ class AddForm extends React.Component<Props, State> {
     });
 
     customFieldsData = customFieldsData.filter((customField) =>
-      fields.find((field) => field._id === customField.field),
+      fields.find((field) => field._id === customField.field)
     );
 
     for (const field of fields) {
@@ -175,7 +175,7 @@ class AddForm extends React.Component<Props, State> {
       if (field.isRequired) {
         let alert = false;
 
-        if (field.isDefinedByErxes && !this.state[field.field || '']) {
+        if (field.isDefinedByErxes && !this.state[field.field || ""]) {
           alert = true;
         } else if (!field.isDefinedByErxes && !customField.value) {
           alert = true;
@@ -187,7 +187,7 @@ class AddForm extends React.Component<Props, State> {
         }
 
         if (alert) {
-          return Alert.error('Please enter or choose a required field');
+          return Alert.error("Please enter or choose a required field");
         }
       }
     }
@@ -271,9 +271,9 @@ class AddForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
-    const stgIdOnChange = (stgId) => this.onChangeField('stageId', stgId);
-    const plIdOnChange = (plId) => this.onChangeField('pipelineId', plId);
-    const brIdOnChange = (brId) => this.onChangeField('boardId', brId);
+    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
+    const plIdOnChange = (plId) => this.onChangeField("pipelineId", plId);
+    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelectWrapper>
@@ -293,21 +293,21 @@ class AddForm extends React.Component<Props, State> {
   onChangeCardSelect = (option) => {
     const { cardId, name } = option;
 
-    if (cardId && cardId !== 'copiedItem') {
-      this.onChangeField('name', '');
+    if (cardId && cardId !== "copiedItem") {
+      this.onChangeField("name", "");
 
-      return this.onChangeField('cardId', cardId);
+      return this.onChangeField("cardId", cardId);
     }
 
-    this.onChangeField('cardId', '');
-    this.onChangeField('name', name);
+    this.onChangeField("cardId", "");
+    this.onChangeField("name", name);
 
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
   onChangeName = (e) => {
     const name = (e.target as HTMLInputElement).value;
-    this.onChangeField('name', name);
+    this.onChangeField("name", name);
 
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
@@ -318,7 +318,7 @@ class AddForm extends React.Component<Props, State> {
 
   onRelationsChange = (ids: string[], relationType: string) => {
     const { relationData = {} } = this.state;
-    const key = relationType.split(':')[1];
+    const key = relationType.split(":")[1];
 
     relationData[key] = ids;
 
@@ -369,13 +369,17 @@ class AddForm extends React.Component<Props, State> {
           <HeaderRow>
             <HeaderContent>
               <ControlLabel required={true}>Stage</ControlLabel>
-              {/* <Select
+              <Select
                 placeholder="Select a stage"
-                value={this.state.stageId}
+                value={
+                  stageValues
+                    ? stageValues.find((s) => this.state.stageId === s.value)
+                    : null
+                }
                 options={stageValues}
                 name="stage"
-                onChange={e => this.onSelectStage(e)}
-              /> */}
+                onChange={(e) => this.onSelectStage(e)}
+              />
             </HeaderContent>
           </HeaderRow>
         )}
@@ -388,7 +392,7 @@ class AddForm extends React.Component<Props, State> {
           fields={this.props.fields}
         />
 
-        {loadDynamicComponent('relationForm', {
+        {loadDynamicComponent("relationForm", {
           ...this.props,
           onChange: this.onRelationsChange,
           contentType: `cards:${type}`,

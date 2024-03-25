@@ -1,11 +1,11 @@
-import { ControlLabel, FormGroup, Spinner } from '@erxes/ui/src/components';
-import { IField, IOption } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import { ControlLabel, FormGroup, Spinner } from "@erxes/ui/src/components";
+import { IField, IOption } from "@erxes/ui/src/types";
+import React, { useState } from "react";
 
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
-// import Select from 'react-select-plus';
-import { useQuery } from '@apollo/client';
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import Select from "react-select";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   pipelineId: string;
@@ -30,7 +30,7 @@ const GenerateAddFormFields = (props: Props) => {
   const onChange = (ops: IOption[]) => {
     props.onChangeField(
       field.field,
-      ops.map((option) => option.value),
+      ops.map((option) => option.value)
     );
 
     setLabelIds(ops.map((option) => option.value));
@@ -46,14 +46,13 @@ const GenerateAddFormFields = (props: Props) => {
       <ControlLabel ignoreTrans={true} required={field.isRequired}>
         {field.text}
       </ControlLabel>
-      {/* <Select
-        value={labelIds}
+      <Select
+        value={options.filter((o) => labelIds.includes(o.value))}
         name="labelIds"
-        multi={true}
+        isMulti={true}
         options={options}
-        componentClass="select"
         onChange={onChange}
-      /> */}
+      />
     </FormGroup>
   );
 };

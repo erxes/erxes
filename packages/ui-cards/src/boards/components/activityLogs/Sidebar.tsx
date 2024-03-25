@@ -1,36 +1,32 @@
-import { FieldStyle, RowFill } from '../../styles/activityLogs';
-import { __, router } from '@erxes/ui/src/utils';
+import { FieldStyle, RowFill } from "../../styles/activityLogs";
+import { __, router } from "@erxes/ui/src/utils";
 
 // import { withRouter } from 'react-router-dom';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import React, {useState} from "react";
+import { SEARCH_ACTIVITY_CHECKBOX } from "../../constants";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
   queryParams?: any;
   isChecked?: boolean;
-} & IRouterProps;
-
-type State = {
-  page?: string;
-  perPage?: string;
 };
 
-class Sidebar extends React.Component<Props, State> {
-  clearItem(key: string) {
-    const { history } = this.props;
+const Sidebar = (props: Props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const clearItem = (key: string) => {
     const onClear = () => {
-      router.setParams(history, { [key]: null });
+      router.setParams(navigate, location, { [key]: null });
     };
 
-    if (router.getParam(history, [key])) {
+    if (router.getParam(location, [key])) {
       return (
         <a href="#cancel" tabIndex={0} onClick={onClear}>
           <Icon icon="times-circle" />
@@ -39,13 +35,11 @@ class Sidebar extends React.Component<Props, State> {
     }
 
     return null;
-  }
+  };
 
-  onChange = () => {
-    const { history } = this.props;
-
+  const onChange = () => {
     const checkboxes: any = document.getElementsByName(
-      'activityLogViewGeneral',
+      "activityLogViewGeneral"
     );
 
     const action: any = [];
@@ -56,74 +50,70 @@ class Sidebar extends React.Component<Props, State> {
       }
     }
 
-    router.setParams(history, { action: action.toString() });
+    router.setParams(navigate, location, { action: action.toString() });
   };
 
-  onChangeAll = (e) => {
-    const { history } = this.props;
-
-    router.setParams(history, {
+  const onChangeAll = (e) => {
+    router.setParams(navigate, location, {
       action: e.target.checked
         ? SEARCH_ACTIVITY_CHECKBOX.map((a) => a.action).toString()
-        : '',
+        : "",
     });
   };
 
-  render() {
-    const { isChecked } = this.props;
-    const activityValues = SEARCH_ACTIVITY_CHECKBOX.map((p) => ({
-      label: p,
-      title: p,
-    }));
+  const { isChecked } = props;
+  const activityValues = SEARCH_ACTIVITY_CHECKBOX.map((p) => ({
+    label: p,
+    title: p,
+  }));
 
-    const actionQP: string = (this.props.queryParams || {}).action || '';
+  const actionQP: string = (props.queryParams || {}).action || "";
 
-    return (
-      <Wrapper.Sidebar>
-        <Section.Title>{__('General')}</Section.Title>
-        <SidebarList
-          id={'checkboxList'}
-          style={{
-            backgroundColor: 'white',
-            marginBottom: '10px',
-            padding: '10px 0',
-          }}
-        >
-          <li key="0">
+  return (
+    <Wrapper.Sidebar>
+      <Section.Title>{__("General")}</Section.Title>
+      <SidebarList
+        id={"checkboxList"}
+        style={{
+          backgroundColor: "white",
+          marginBottom: "10px",
+          padding: "10px 0",
+        }}
+      >
+        <li key="0">
+          <label>
+            <RowFill>
+              <FormControl
+                componentClass="checkbox"
+                options={activityValues}
+                onChange={onChangeAll}
+                checked={actionQP.split(",").length === 5}
+              />
+              <FieldStyle>All</FieldStyle>
+            </RowFill>
+          </label>
+        </li>
+        {SEARCH_ACTIVITY_CHECKBOX.map(({ action, title }, index) => (
+          <li key={index}>
             <label>
               <RowFill>
                 <FormControl
                   componentClass="checkbox"
+                  name="activityLogViewGeneral"
                   options={activityValues}
-                  onChange={this.onChangeAll}
-                  checked={actionQP.split(',').length === 5}
+                  value={action}
+                  onChange={onChange}
+                  checked={actionQP.includes(action)}
+                  defaultChecked={isChecked}
                 />
-                <FieldStyle>All</FieldStyle>
+                <FieldStyle>{title}</FieldStyle>
               </RowFill>
             </label>
           </li>
-          {SEARCH_ACTIVITY_CHECKBOX.map(({ action, title }, index) => (
-            <li key={index}>
-              <label>
-                <RowFill>
-                  <FormControl
-                    componentClass="checkbox"
-                    name="activityLogViewGeneral"
-                    options={activityValues}
-                    value={action}
-                    onChange={this.onChange}
-                    checked={actionQP.includes(action)}
-                    defaultChecked={isChecked}
-                  />
-                  <FieldStyle>{title}</FieldStyle>
-                </RowFill>
-              </label>
-            </li>
-          ))}
-        </SidebarList>
-      </Wrapper.Sidebar>
-    );
-  }
-}
+        ))}
+      </SidebarList>
+    </Wrapper.Sidebar>
+  );
+};
 
 export default Sidebar;

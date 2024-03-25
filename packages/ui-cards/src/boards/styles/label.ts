@@ -101,19 +101,8 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
 
     span {
       display: block;
-    }
-
-    .erxes-label-enter-done {
       text-indent: 0px;
       line-height: 1.2em;
-      transition: all ${props.timeout}ms ease-in;
-    }
-
-    span,
-    .erxes-label-exit-done {
-      line-height: 0em;
-      text-indent: -699px;
-      transition: all ${props.timeout}ms ease-out;
     }`}
 `;
 

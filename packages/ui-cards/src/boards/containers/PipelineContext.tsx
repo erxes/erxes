@@ -533,7 +533,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
-    const { queryParams, history } = this.props;
+    const { queryParams } = this.props;
 
     if (!aboveItemId) {
       this.setState({
@@ -541,7 +541,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
         itemIds: [...itemIds, item._id],
       });
 
-      isRefresh(queryParams, routerUtils, history);
+      isRefresh(queryParams, routerUtils);
 
       return;
     }
@@ -560,7 +560,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       });
     }
 
-    isRefresh(queryParams, routerUtils, history);
+    isRefresh(queryParams, routerUtils);
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {

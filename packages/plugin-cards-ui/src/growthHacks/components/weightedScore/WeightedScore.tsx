@@ -34,7 +34,7 @@ class WeightedScore extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
-        <BoardContent $transparent={true} bgColor={colors.bgMain}>
+        <BoardContent $transparent={true} bgcolor={colors.bgMain}>
           {this.renderActionBar()}
           <Content {...this.props} />
         </BoardContent>

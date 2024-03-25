@@ -268,9 +268,9 @@ const HelperButtons = styledTS<{ $isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${(props) =>
-    props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
+    props.$isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
   color: ${colors.colorCoreLightGray};
-  padding-right: ${(props) => (props.isSidebarOpen ? '20px' : '0')};
+  padding-right: ${(props) => (props.$isSidebarOpen ? '20px' : '0')};
   a, button {
     color: ${colors.colorCoreLightGray};
     text-transform: none;

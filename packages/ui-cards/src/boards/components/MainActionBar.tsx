@@ -40,7 +40,6 @@ type Props = {
   currentPipeline?: IPipeline;
   boards: IBoard[];
   middleContent?: () => React.ReactNode;
-  history: any;
   queryParams: any;
   extraFilter?: React.ReactNode;
   link: string;

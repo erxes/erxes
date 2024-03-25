@@ -18,12 +18,12 @@ export const BoardContainer = styled(Contents)`
 `;
 
 export const BoardContent = styledTS<{
-  bgColor?: string;
+  bgcolor?: string;
   $transparent?: boolean;
 }>(styled(MainContent))`
   margin: 0;
-  background-color: ${({ bgColor, $transparent }) =>
-    $transparent ? 'transparent' : bgColor || colors.colorSecondary};
+  background-color: ${({ bgcolor, $transparent }) =>
+    $transparent ? 'transparent' : bgcolor || colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled.div`

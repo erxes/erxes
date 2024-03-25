@@ -6,7 +6,6 @@ import { IResponseTemplate } from '../../../../../settings/responseTemplates/typ
 import Icon from '@erxes/ui/src/components/Icon';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { PopoverHeader } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -34,7 +33,7 @@ const ResponseTemplate = (props: Props) => {
 
   const popover = (close) => (
     <div className="popover-template" id="templates-popover">
-      <PopoverHeader>{__('Response Templates')}</PopoverHeader>
+      <div className='popover-header'>{__('Response Templates')}</div>
       <PopoverContent {...props} onSelectTemplate={close} />
     </div>
   );

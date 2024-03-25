@@ -1,13 +1,14 @@
-import { Amount, HeaderAmount } from './styles/stage';
-import { ColumnProps, getCommonParams } from './components/Calendar';
-import { IDraggableLocation, IFilterParams, IItem, IItemMap } from './types';
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
+import { Amount, HeaderAmount } from "./styles/stage";
+import { ColumnProps, getCommonParams } from "./components/Calendar";
+import { IDraggableLocation, IFilterParams, IItem, IItemMap } from "./types";
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "./constants";
 
-import { IDateColumn } from '@erxes/ui/src/types';
-import PriorityIndicator from './components/editForm/PriorityIndicator';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { IDateColumn } from "@erxes/ui/src/types";
+import PriorityIndicator from "./components/editForm/PriorityIndicator";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type Options = {
   _id: string;
@@ -17,7 +18,7 @@ type Options = {
   itemId?: string;
 };
 
-// get options for react-select-plus
+// get options for react-select
 export function selectOptions(array: Options[] = []) {
   return array.map((item) => ({ value: item._id, label: item.name }));
 }
@@ -33,7 +34,7 @@ export function collectOrders(array: Options[] = []) {
 export const reorder = (
   list: any[],
   startIndex: number,
-  endIndex: number,
+  endIndex: number
 ): any[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -128,8 +129,8 @@ export const reorderItemMap = ({
 };
 
 export const getDefaultBoardAndPipelines = () => {
-  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
-  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || "{}";
+  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || "{}";
 
   return {
     defaultBoards: JSON.parse(defaultBoards),
@@ -165,7 +166,7 @@ export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
       <Amount $unUsed={!tick}>
         {Object.keys(amount || {}).map((key) => (
           <li key={key}>
-            {((amount[key] * percent) / 100).toLocaleString()}{' '}
+            {((amount[key] * percent) / 100).toLocaleString()}{" "}
             <span>{key}</span>
           </li>
         ))}
@@ -175,7 +176,7 @@ export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
 };
 
 export const invalidateCache = () => {
-  localStorage.setItem('cacheInvalidated', 'true');
+  localStorage.setItem("cacheInvalidated", "true");
 };
 
 export const toArray = (item: string | string[] = []) => {
@@ -195,20 +196,20 @@ export const renderPriority = (priority?: string) => {
 };
 
 export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
-  let colorName = '';
+  let colorName = "";
 
   if (isComplete) {
-    colorName = 'green';
+    colorName = "green";
   } else if (closeDate) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
 
     if (new Date(closeDate).getTime() - now.getTime() < oneDay) {
-      colorName = 'yellow';
+      colorName = "yellow";
     }
 
     if (now > closeDate) {
-      colorName = 'red';
+      colorName = "red";
     }
   }
 
@@ -216,18 +217,18 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
 };
 
 export const generateButtonStart = (startDate: Date) => {
-  let colorName = 'teal';
+  let colorName = "teal";
 
   if (startDate) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
 
     if (new Date(startDate).getTime() - now.getTime() < oneDay) {
-      colorName = 'blue';
+      colorName = "blue";
     }
 
     if (now > startDate) {
-      colorName = 'red';
+      colorName = "red";
     }
   }
 
@@ -267,15 +268,15 @@ export const calendarColumnQuery = (query, name) =>
 
 export const getColors = (index: number) => {
   const COLORS = [
-    '#EA475D',
-    '#3CCC38',
-    '#FDA50D',
-    '#63D2D6',
-    '#3B85F4',
-    '#0A1E41',
-    '#5629B6',
-    '#6569DF',
-    '#888888',
+    "#EA475D",
+    "#3CCC38",
+    "#FDA50D",
+    "#63D2D6",
+    "#3B85F4",
+    "#0A1E41",
+    "#5629B6",
+    "#6569DF",
+    "#888888",
   ];
 
   if (index > 9) {
@@ -285,43 +286,46 @@ export const getColors = (index: number) => {
   return COLORS[index];
 };
 
-export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
+export const isRefresh = (queryParams: any, routerUtils: any) => {
   const keys = Object.keys(queryParams || {});
 
-  if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
-    routerUtils.setParams(history, { key: Math.random() });
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  if (!(keys.length === 2 || (keys.includes("key") && keys.length === 3))) {
+    routerUtils.setParams(navigate, location, { key: Math.random() });
   }
 };
 
 export const getBoardViewType = () => {
-  let viewType = 'board';
+  let viewType = "board";
 
-  if (window.location.href.includes('calendar')) {
-    viewType = 'calendar';
+  if (window.location.href.includes("calendar")) {
+    viewType = "calendar";
   }
 
-  if (window.location.href.includes('activity')) {
-    viewType = 'activity';
+  if (window.location.href.includes("activity")) {
+    viewType = "activity";
   }
 
-  if (window.location.href.includes('conversion')) {
-    viewType = 'conversion';
+  if (window.location.href.includes("conversion")) {
+    viewType = "conversion";
   }
 
-  if (window.location.href.includes('list')) {
-    viewType = 'list';
+  if (window.location.href.includes("list")) {
+    viewType = "list";
   }
 
-  if (window.location.href.includes('chart')) {
-    viewType = 'chart';
+  if (window.location.href.includes("chart")) {
+    viewType = "chart";
   }
 
-  if (window.location.href.includes('gantt')) {
-    viewType = 'gantt';
+  if (window.location.href.includes("gantt")) {
+    viewType = "gantt";
   }
 
-  if (window.location.href.includes('time')) {
-    viewType = 'time';
+  if (window.location.href.includes("time")) {
+    viewType = "time";
   }
 
   return viewType;
@@ -333,7 +337,7 @@ export const getWarningMessage = (type: string): string => {
 
 export const getFilterParams = (
   queryParams: IFilterParams,
-  getExtraParams: (queryParams) => any,
+  getExtraParams: (queryParams) => any
 ) => {
   if (!queryParams) {
     return {};

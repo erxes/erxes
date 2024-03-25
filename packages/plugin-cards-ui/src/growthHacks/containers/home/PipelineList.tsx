@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import PipelineList from '../../components/home/PipelineList';
@@ -14,7 +14,7 @@ import { withProps } from '@erxes/ui/src/utils';
 
 // import { withRouter } from 'react-router-dom';
 
-type Props = { queryParams: any } & IRouterProps;
+type Props = { queryParams: any };
 
 type FinalProps = {
   pipelinesQuery?: PipelinesQueryResponse;

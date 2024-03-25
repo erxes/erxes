@@ -1,15 +1,15 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IOption } from '@erxes/ui/src/types';
-import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
-import React from 'react';
-// import Select from 'react-select-plus';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { __ } from 'coreui/utils';
-import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import options from '@erxes/ui-cards/src/tickets/options';
+import { IBoard } from "@erxes/ui-cards/src/boards/types";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { IOption } from "@erxes/ui/src/types";
+import MainActionBar from "@erxes/ui-cards/src/boards/components/MainActionBar";
+import React from "react";
+import Select from "react-select";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { __ } from "coreui/utils";
+import { getBoardViewType } from "@erxes/ui-cards/src/boards/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import options from "@erxes/ui-cards/src/tickets/options";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -35,30 +35,30 @@ const TicketMainActionBar = (props: Props) => {
   }));
 
   sourceValues.push({
-    label: 'Other',
-    value: 'other',
+    label: "Other",
+    value: "other",
   });
 
   const sources = queryParams ? queryParams.source : [];
+
   const onSourceSelect = (ops: IOption[]) =>
     onSelect(
       ops.map((option) => option.value),
-      'source',
+      "source"
     );
 
   const extraFilter = (
     <>
-      {/* <Select
-        placeholder={__('Choose a source')}
-        value={sources}
+      <Select
+        placeholder={__("Choose a source")}
+        value={sourceValues.filter((s) => (sources || "").includes(s.value))}
         options={sourceValues}
         name="source"
         onChange={onSourceSelect}
-        multi={true}
-        loadingPlaceholder={__('Loading...')}
-      /> */}
+        isMulti={true}
+      />
 
-      {isEnabled('contacts') && (
+      {isEnabled("contacts") && (
         <>
           <SelectCompanies
             label="Choose companies"

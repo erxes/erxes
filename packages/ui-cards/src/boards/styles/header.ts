@@ -19,11 +19,11 @@ export const PageHeader = styled.div`
 `;
 
 export const ButtonGroup = styled.div`
-  display: inline-block;
+  display: inline-flex;
   border-radius: 18px;
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid ${colors.bgActive};
-  > a {
+  a {
     padding: 7px ${dimensions.coreSpacing}px;
     display: inline-block;
     color: ${colors.colorCoreGray};

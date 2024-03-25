@@ -1,5 +1,5 @@
 import { IEditFormContent, IOptions } from '../../boards/types';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { ITicket, ITicketParams } from '../types';
 import React, { useEffect, useState } from 'react';
 
@@ -81,14 +81,14 @@ export default function TicketEditForm(props: Props) {
     return (
       <FormGroup>
         <ControlLabel>Source</ControlLabel>
-        {/* <Select
+        <Select
           placeholder={__('Select a source')}
-          value={source}
+          value={sourceValues.find((s)=>s.value === source)}
           options={sourceValues}
           onChange={onSourceChange}
-          optionRenderer={sourceValueRenderer}
-          valueRenderer={sourceValueRenderer}
-        /> */}
+          // optionRenderer={sourceValueRenderer}
+          // valueRenderer={sourceValueRenderer}
+        />
       </FormGroup>
     );
   }

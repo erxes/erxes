@@ -1,6 +1,6 @@
-import React from 'react';
-// import Select from 'react-select-plus';
-import styled from 'styled-components';
+import React from "react";
+import Select from "react-select";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -28,7 +28,7 @@ type Props = {
 
 type State = {
   searchValue: string;
-  selectedValue?: { label: string; value: string };
+  selectedValue?: { label: string; value: string } | null;
 };
 
 class CardSelect extends React.Component<Props, State> {
@@ -36,7 +36,8 @@ class CardSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: '',
+      searchValue: "",
+      selectedValue: null,
     };
   }
 
@@ -50,7 +51,7 @@ class CardSelect extends React.Component<Props, State> {
       });
 
       this.setState({
-        searchValue: option.value === 'copiedItem' ? option.label : '',
+        searchValue: option.value === "copiedItem" ? option.label : "",
         selectedValue: option,
       });
     }
@@ -72,9 +73,13 @@ class CardSelect extends React.Component<Props, State> {
 
     const { selectedValue } = this.state;
 
-    if (selectedValue && selectedValue.value !== 'copiedItem') {
+    if (selectedValue && selectedValue.value !== "copiedItem") {
       return;
     }
+
+    this.setState({
+      selectedValue: { value: "copiedItem", label: this.state.searchValue },
+    });
 
     onChange({
       name: this.state.searchValue,
@@ -86,24 +91,24 @@ class CardSelect extends React.Component<Props, State> {
     const { selectedValue } = this.state;
 
     if (additionalValue) {
-      options.push({ value: 'copiedItem', label: additionalValue });
+      options.push({ value: "copiedItem", label: additionalValue });
     }
 
     return (
       <Wrapper>
         <FillContent>
-          {/* <Select
+          <Select
             placeholder={placeholder}
             options={options}
             value={selectedValue}
-            onSelectResetsInput={true}
+            // onSelectResetsInput={true}
             onBlur={this.handleAdd}
-            onBlurResetsInput={false}
+            // onBlurResetsInput={false}
             onChange={this.handleChange}
             onInputChange={this.handleInput}
-            onInputKeyDown={this.handleKeyDown}
-            clearable={false}
-          /> */}
+            onKeyDown={this.handleKeyDown}
+            isClearable={false}
+          />
         </FillContent>
       </Wrapper>
     );

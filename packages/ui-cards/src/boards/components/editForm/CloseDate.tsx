@@ -7,7 +7,7 @@ import {
   DateGrid,
 } from '../../styles/popup';
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { generateButtonClass, selectOptions } from '../../utils';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -147,14 +147,14 @@ class CloseDate extends React.Component<Props, State> {
         </CalenderWrapper>
 
         <ControlLabel>Set reminder</ControlLabel>
-        {/* 
+        
           <Select
-            isRequired={true}
+            required={true}
             value={reminderMinute}
             onChange={this.minuteOnChange}
             options={selectOptions(REMINDER_MINUTES)}
-            clearable={false}
-          /> */}
+            isClearable={false}
+          />
 
         <DateGrid>
           <Button colorname="red" onClick={this.remove}>

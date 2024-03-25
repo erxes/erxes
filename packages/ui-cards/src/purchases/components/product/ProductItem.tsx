@@ -14,7 +14,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -414,6 +414,8 @@ class ProductItem extends React.Component<Props, State> {
       .filter((u) => u)
       .map((u) => ({ value: u, label: u }));
 
+    const currencyOptions = selectConfigOptions(currencies, CURRENCIES)
+
     return (
       <tr key={productData._id}>
         <td>{this.renderType(productData.product)}</td>
@@ -488,24 +490,26 @@ class ProductItem extends React.Component<Props, State> {
         </td>
 
         <td style={avStyle}>
-          {/* <Select
+          <Select
             name="currency"
             placeholder={__('Choose')}
-            value={productData.currency}
+            value={currencyOptions.find(
+              (option) => option.value === productData.currency
+            )}
             onChange={this.currencyOnChange}
             optionRenderer={selectOption}
-            options={selectConfigOptions(currencies, CURRENCIES)}
-          /> */}
+            options={currencyOptions}
+          />
         </td>
         <td style={avStyle}>
-          {/* <Select
+          <Select
             name="uom"
             placeholder={__('Choose')}
-            value={productData.uom}
+            value={uoms.find((uom) => uom.value === productData.uom)}
             onChange={this.uomOnChange}
             optionRenderer={selectOption}
             options={uoms}
-          /> */}
+          />
         </td>
         <td>
           <FormControl

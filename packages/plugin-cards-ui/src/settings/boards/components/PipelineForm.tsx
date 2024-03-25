@@ -61,8 +61,8 @@ type State = {
   excludeCheckUserIds: string[];
   boardId: string;
   selectedBoard: ISelectOption;
-  selectedTags: ISelectOption;
-  selectedDepartments: ISelectOption[];
+  selectedTags: ISelectOption | null;
+  selectedDepartments: ISelectOption[] | null;
   tagId?: string;
   numberConfig?: string;
   numberSize?: string;
@@ -94,10 +94,10 @@ class PipelineForm extends React.Component<Props, State> {
         value: props.boardId,
         label: props.boards.find((b) => b._id === props.boardId)?.name || "",
       },
-      selectedTags: {
+      selectedTags: pipeline?.tagId ? {
         value: pipeline?.tagId || "",
         label: props.tags?.find((b) => b._id === props.boardId)?.name || "",
-      },
+      } : null,
       selectedDepartments: this.props.departments
         .filter((d) =>
           (pipeline ? pipeline.departmentIds || [] : []).includes(d._id)
