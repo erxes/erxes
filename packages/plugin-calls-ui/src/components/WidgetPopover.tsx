@@ -6,10 +6,11 @@ import HistoryContainer from '../containers/History';
 import { Icon } from '@erxes/ui/src/components';
 import KeyPadContainer from '../containers/KeyPad';
 import { __ } from '@erxes/ui/src/utils';
+import { ICallConfigDoc } from '../types';
 
 type Props = {
   autoOpenTab: string;
-  callUserIntegrations?: any;
+  callUserIntegrations?: ICallConfigDoc[];
   setConfig?: any;
 };
 
@@ -42,21 +43,27 @@ const WidgetPopover = ({
     onTabClick('Contact');
   };
 
+  const renderContent = () => {
+    if (currentTab === 'History') {
+      return <HistoryContainer changeMainTab={changeTab} />;
+    }
+
+    if (currentTab === 'Contact') {
+      return <ContactsContainer changeMainTab={changeTab} />;
+    }
+
+    return (
+      <KeyPadContainer
+        callUserIntegrations={callUserIntegrations}
+        setConfig={setConfig}
+        phoneNumber={phoneNumber}
+      />
+    );
+  };
+
   return (
     <>
-      <TabContent show={currentTab === 'History'}>
-        <HistoryContainer changeMainTab={changeTab} />
-      </TabContent>
-      <TabContent show={currentTab === 'Keyboard'}>
-        <KeyPadContainer
-          callUserIntegrations={callUserIntegrations}
-          setConfig={setConfig}
-          phoneNumber={phoneNumber}
-        />
-      </TabContent>
-      <TabContent show={currentTab === 'Contact'}>
-        <ContactsContainer changeMainTab={changeTab} />
-      </TabContent>
+      <TabContent>{renderContent()}</TabContent>
       <TabsContainer full={true}>
         <Tab
           className={currentTab === 'History' ? 'active' : ''}

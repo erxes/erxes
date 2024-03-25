@@ -16,13 +16,7 @@ interface IProps {
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
-  const [customer, setCustomer] = useState<any>({
-    firstName: 'Anu-Ujin',
-    middleName: '',
-    lastName: 'B',
-    phones: ['343443', '344334'],
-    primaryPhone: '99123569',
-  } as ICustomer);
+  const [customer, setCustomer] = useState<any>({} as ICustomer);
   const [conversation, setConversation] = useState<any>(undefined);
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
@@ -66,7 +60,7 @@ const IncomingCallContainer = (props: IProps, context) => {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
           direction: 'incoming',
-          callID: call.id,
+          callID: call?.id,
         },
       })
         .then(({ data }: any) => {

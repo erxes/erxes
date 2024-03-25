@@ -15,12 +15,30 @@ const types = `
     _id: String! @external
   }
 
+   extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
   }
 
   input CallIntegrationConfigs {
     ${integrationCommonFields}
+  }
+
+  type CallChannel {
+    _id: String!
+    name: String!
+    description: String
+    integrationIds: [String]
+    memberIds: [String]
+    createdAt: Date
+    userId: String!
+    conversationCount: Int
+    openConversationCount: Int
+
+    members: [User]
   }
 
   type CallConversation {
@@ -30,6 +48,7 @@ const types = `
     senderPhoneNumber: String
     recipientPhoneNumber: String
     callId: String
+    channels: [CallChannel]
   }
 
   type CallConversationDetail {

@@ -16,6 +16,10 @@ const customersAdd = `
           senderPhoneNumber
           recipientPhoneNumber
           callId
+          channels {
+            _id
+            name
+          }
         }
       customer {
         _id
