@@ -18,6 +18,9 @@ export const TableImproved = Table.extend({
           };
         },
       },
+      style: {
+        parseHTML: (element) => element.getAttribute('style'),
+      },
     };
   },
   parseHTML() {

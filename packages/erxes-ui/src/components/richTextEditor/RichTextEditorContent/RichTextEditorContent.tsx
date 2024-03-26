@@ -40,7 +40,12 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
   }
 
   return (
-    <ProseMirrorWrapper data-promise-mirror-editor={true}>
+    <ProseMirrorWrapper
+      data-promise-mirror-editor={true}
+      $height={autoGrow ? undefined : convertToPx(height)}
+      $minHeight={convertToPx(autoGrow ? autoGrowMinHeight : height)}
+      $maxHeight={convertToPx(autoGrow ? autoGrowMaxHeight : height)}
+    >
       <CodeMirror
         ref={codeMirrorRef}
         style={{ outline: 'none' }}

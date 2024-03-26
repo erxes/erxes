@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import React, { useState } from "react";
+import { gql, useMutation } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-import { Alert } from '@erxes/ui/src/utils';
-import { ICallConversation } from '../types';
-import KeyPad from '../components/Keypad';
-import client from '@erxes/ui/src/apolloClient';
+import { Alert } from "@erxes/ui/src/utils";
+import { ICallConversation } from "../types";
+import KeyPad from "../components/Keypad";
+import client from "@erxes/ui/src/apolloClient";
 
 type IProps = {
   callUserIntegrations: any;
@@ -31,7 +31,7 @@ const KeyPadContainer = (props: IProps) => {
     client
       .query({
         query: gql(queries.callCustomerDetail),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { callerNumber: phoneNumber },
       })
       .then(({ data }: { data: any }) => {
@@ -55,7 +55,7 @@ const KeyPadContainer = (props: IProps) => {
       },
     })
       .then(() => {
-        Alert.success('Successfully added note');
+        Alert.success("Successfully added note");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -65,23 +65,25 @@ const KeyPadContainer = (props: IProps) => {
   const createCustomer = (
     inboxIntegrationId: string,
     primaryPhone: string,
-    callID: string,
+    callID: string
   ) => {
-    createCustomerMutation({
-      variables: {
-        inboxIntegrationId,
-        primaryPhone,
-        direction: 'outgoing',
-        callID,
-      },
-    })
-      .then(({ data }: any) => {
-        setCustomer(data.callAddCustomer?.customer);
-        setConversation(data.callAddCustomer?.conversation);
+    if (callID) {
+      createCustomerMutation({
+        variables: {
+          inboxIntegrationId,
+          primaryPhone,
+          direction: "outgoing",
+          callID,
+        },
       })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
+        .then(({ data }: any) => {
+          setCustomer(data.callAddCustomer?.customer);
+          setConversation(data.callAddCustomer?.conversation);
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    }
   };
 
   const toggleSection = (phoneNumber): void => {
@@ -108,7 +110,7 @@ const KeyPadContainer = (props: IProps) => {
       conversation={conversation}
       addNote={addNote}
       disconnectCall={disconnectCall}
-      phoneNumber={phoneNumber || ''}
+      phoneNumber={phoneNumber || ""}
     />
   );
 };
