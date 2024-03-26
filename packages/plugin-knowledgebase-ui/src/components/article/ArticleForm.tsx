@@ -91,6 +91,7 @@ class ArticleForm extends React.Component<Props, State> {
     title: string;
     summary: string;
     status: string;
+    code?: string;
   }) => {
     const { article, currentCategoryId } = this.props;
     const {
@@ -114,6 +115,7 @@ class ArticleForm extends React.Component<Props, State> {
       _id: finalValues._id,
       doc: {
         title: finalValues.title,
+        code: finalValues.code,
         summary: finalValues.summary,
         content,
         reactionChoices,
@@ -346,6 +348,14 @@ class ArticleForm extends React.Component<Props, State> {
             defaultValue={object.title}
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
           />
         </FormGroup>
 
