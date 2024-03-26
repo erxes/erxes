@@ -225,7 +225,7 @@ class Properties extends React.Component<
     ];
 
     const title = (
-      <Title capitalize={true}>
+      <Title $capitalize={true}>
         {currentType} {__('properties')}
       </Title>
     );

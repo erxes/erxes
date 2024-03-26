@@ -1,14 +1,14 @@
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IOption } from '@erxes/ui/src/types';
-import React from 'react';
-// import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { FlexRow } from '../styles';
+import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IOption } from "@erxes/ui/src/types";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import { FlexRow } from "../styles";
 
 type Props = {
   boards: IBoard[];
@@ -25,7 +25,7 @@ class SelectBoards extends React.Component<Props, State> {
     super(props);
 
     let selectItems: any[] = [
-      { _id: Math.random().toString(), boardId: '', pipelineIds: [] },
+      { _id: Math.random().toString(), boardId: "", pipelineIds: [] },
     ];
 
     if (props.selectedItems && this.props.selectedItems.length > 0) {
@@ -81,7 +81,7 @@ class SelectBoards extends React.Component<Props, State> {
     // find current editing one
     const item = selectItems.find((e) => e._id === itemId) || {
       _id: itemId,
-      boardId: '',
+      boardId: "",
       pipelineIds: [],
       pipelineOptions: [],
     };
@@ -100,7 +100,7 @@ class SelectBoards extends React.Component<Props, State> {
     // find current editing one
     const item = selectItems.find((e) => e._id === itemId) || {
       _id: itemId,
-      boardId: '',
+      boardId: "",
       pipelineIds: [],
     };
 
@@ -117,7 +117,7 @@ class SelectBoards extends React.Component<Props, State> {
 
     selectItems.push({
       _id: Math.random().toString(),
-      boardId: '',
+      boardId: "",
       pipelineIds: [],
     });
 
@@ -153,22 +153,26 @@ class SelectBoards extends React.Component<Props, State> {
 
     return (
       <FlexRow key={_id}>
-        {/* <Select
+        <Select
           className="flex-item"
-          placeholder={__('Select board')}
-          value={boardId}
+          placeholder={__("Select board")}
+          value={this.generateBoardOptions(this.props.boards).find(
+            (option) => option.value === boardId
+          )}
           onChange={onBoardChange}
           options={this.generateBoardOptions(this.props.boards)}
-          multi={false}
+          isMulti={false}
         />
         <Select
           className="flex-item"
-          placeholder={__('Select pipelines')}
-          value={pipelineIds}
+          placeholder={__("Select pipelines")}
+          value={this.generatePipeLineOptions(pipelineOptions).filter(
+            (option) => pipelineIds.includes(option.value)
+          )}
           onChange={onPipelineChange}
           options={this.generatePipeLineOptions(pipelineOptions)}
-          multi={true}
-        /> */}
+          isMulti={true}
+        />
 
         <Button btnStyle="link" size="small" onClick={remove} icon="times" />
       </FlexRow>
@@ -178,14 +182,14 @@ class SelectBoards extends React.Component<Props, State> {
   render() {
     return (
       <FormGroup>
-        <ControlLabel>{'Board & PipeLines'}</ControlLabel>
-        <p>{__('In which Board(s) do you want to add this property group?')}</p>
+        <ControlLabel>{"Board & PipeLines"}</ControlLabel>
+        <p>{__("In which Board(s) do you want to add this property group?")}</p>
 
         {this.state.selectItems.map((item) => this.renderSelect(item))}
         <br />
 
         <LinkButton onClick={this.addNew}>
-          <Icon icon="plus-1" /> {__('Add another board')}
+          <Icon icon="plus-1" /> {__("Add another board")}
         </LinkButton>
       </FormGroup>
     );

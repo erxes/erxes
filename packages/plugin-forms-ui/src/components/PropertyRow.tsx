@@ -402,9 +402,9 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <li key={group._id}>
-        <CollapseRow isChild={!!group.parentId}>
+        <CollapseRow $isChild={!!group.parentId}>
           <div style={{ flex: 1 }} onClick={this.handleCollapse}>
-            <DropIcon isOpen={this.state.collapse} />
+            <DropIcon $isOpen={this.state.collapse} />
             {group.name}
           </div>
           {this.renderActionButtons(
