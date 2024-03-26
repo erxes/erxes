@@ -32,7 +32,6 @@ import {
   ModalOverlay,
 } from "@erxes/ui/src/styles/main";
 import { Dialog, Transition } from "@headlessui/react";
-import { IOption as ISelectOption } from "@erxes/ui/src/types";
 
 type Props = {
   type: string;
@@ -60,9 +59,6 @@ type State = {
   isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
-  selectedBoard: ISelectOption;
-  selectedTags: ISelectOption | null;
-  selectedDepartments: ISelectOption[] | null;
   tagId?: string;
   numberConfig?: string;
   numberSize?: string;
@@ -90,24 +86,6 @@ class PipelineForm extends React.Component<Props, State> {
       numberConfig: (pipeline && pipeline.numberConfig) || "",
       numberSize: (pipeline && pipeline.numberSize) || "",
       departmentIds: pipeline ? pipeline.departmentIds || [] : [],
-      selectedBoard: {
-        value: props.boardId,
-        label: props.boards.find((b) => b._id === props.boardId)?.name || "",
-      },
-      selectedTags: pipeline?.tagId ? {
-        value: pipeline?.tagId || "",
-        label: props.tags?.find((b) => b._id === props.boardId)?.name || "",
-      } : null,
-      selectedDepartments: this.props.departments
-        .filter((d) =>
-          (pipeline ? pipeline.departmentIds || [] : []).includes(d._id)
-        )
-        .map((item) => {
-          return {
-            value: item._id,
-            label: item.title,
-          };
-        }),
     };
   }
 
@@ -213,6 +191,15 @@ class PipelineForm extends React.Component<Props, State> {
       return;
     }
 
+    const departmentOptions = generateTree(
+      this.props.departments,
+      null,
+      (node, level) => ({
+        value: node._id,
+        label: `${"---".repeat(level)} ${node.title}`,
+      })
+    );
+
     return (
       <>
         <FormGroup>
@@ -231,15 +218,10 @@ class PipelineForm extends React.Component<Props, State> {
           <SelectMemberStyled>
             <ControlLabel>Departments</ControlLabel>
             <Select
-              value={this.state.selectedDepartments}
-              options={generateTree(
-                this.props.departments,
-                null,
-                (node, level) => ({
-                  value: node._id,
-                  label: `${"---".repeat(level)} ${node.title}`,
-                })
+              value={departmentOptions.filter((option) =>
+                this.state.departmentIds?.includes(option.value)
               )}
+              options={departmentOptions}
               onChange={this.onChangeDepartments.bind(this)}
               placeholder={__("Choose department ...")}
               isMulti={true}
@@ -300,7 +282,6 @@ class PipelineForm extends React.Component<Props, State> {
 
     const onChange = (item) => {
       this.setState({ boardId: item.value });
-      this.setState({ selectedBoard: item });
     };
 
     return (
@@ -308,7 +289,9 @@ class PipelineForm extends React.Component<Props, State> {
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
           placeholder={__("Choose a board")}
-          value={this.state.selectedBoard}
+          value={boardOptions.find(
+            (option) => option.value === this.state.boardId
+          )}
           options={boardOptions}
           onChange={onChange}
           isClearable={true}
@@ -324,7 +307,6 @@ class PipelineForm extends React.Component<Props, State> {
 
     const onChange = (item) => {
       this.setState({ tagId: item.value });
-      this.setState({ selectedTags: item });
     };
 
     const generateOptions = (items) => {
@@ -345,7 +327,9 @@ class PipelineForm extends React.Component<Props, State> {
         <ControlLabel>Tags</ControlLabel>
         <Select
           placeholder={__("Choose a tag")}
-          value={this.state.selectedTags}
+          value={(generateOptions(filteredTags) || []).find(
+            (option) => option.value === this.state.tagId
+          )}
           options={generateOptions(filteredTags)}
           isClearable={true}
           onChange={onChange}
