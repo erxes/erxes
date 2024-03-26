@@ -26,8 +26,7 @@ const receiveCall = async (
   }
 
   params.recipientId = integration.phone;
-  const { inboxIntegrationId, primaryPhone, recipientId, direction, callID } =
-    params;
+  const { primaryPhone, recipientId, direction, callID } = params;
 
   const customer = await getOrCreateCustomer(models, subdomain, params);
 
@@ -40,7 +39,7 @@ const receiveCall = async (
         callId: callID,
         senderPhoneNumber: primaryPhone,
         recipientPhoneNumber: recipientId,
-        integrationId: inboxIntegrationId,
+        integrationId: inboxIntegration._id,
       });
     } catch (e) {
       throw new Error(
