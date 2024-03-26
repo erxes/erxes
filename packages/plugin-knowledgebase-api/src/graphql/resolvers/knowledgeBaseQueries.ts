@@ -2,6 +2,20 @@ import { checkPermission, requireLogin, paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
 
+const findDetail = async (model, _id) => {
+  let detail = await model.findOne({
+    _id,
+  });
+
+  if (!detail) {
+    detail = await model.findOne({
+      code: _id,
+    });
+  }
+
+  return detail;
+};
+
 const knowledgeBaseQueries = {
   /**
    * Article list
@@ -47,7 +61,7 @@ const knowledgeBaseQueries = {
     if (codes && codes.length > 0) {
       selector.code = { $in: codes };
     }
-    
+
     if (topicIds && topicIds.length > 0) {
       const categoryIds = await models.KnowledgeBaseCategories.find({
         topicId: { $in: topicIds },
@@ -71,13 +85,7 @@ const knowledgeBaseQueries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    const article = await models.KnowledgeBaseArticles.findOne({ _id }).lean();
-
-    if (!article) {
-      return models.KnowledgeBaseArticles.findOne({ code: _id }).lean();
-    }
-
-    return article;
+    return findDetail(models.KnowledgeBaseArticles, _id);
   },
 
   /**
@@ -100,10 +108,10 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[], codes: string[]},
+    args: { categoryIds: string[]; codes: string[] },
     { models }: IContext
   ) {
-    const qry:any  = {};
+    const qry: any = {};
 
     if (args.categoryIds && args.categoryIds.length > 0) {
       qry.categoryId = { $in: args.categoryIds };
@@ -125,11 +133,10 @@ const knowledgeBaseQueries = {
       page,
       perPage,
       topicIds,
-      codes
-    }: { page: number; perPage: number; topicIds: string[], codes: string[]},
+      codes,
+    }: { page: number; perPage: number; topicIds: string[]; codes: string[] },
     { models }: IContext
   ) {
-
     const qry: any = {};
 
     if (topicIds && topicIds.length > 0) {
@@ -159,12 +166,7 @@ const knowledgeBaseQueries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-   let category = await models.KnowledgeBaseCategories.findOne({ _id }).lean();
-    if (!category) {
-      return models.KnowledgeBaseCategories.findOne({ code: _id }).lean();
-    }
-
-    return category;
+    return findDetail(models.KnowledgeBaseCategories, _id);
   },
 
   /**
@@ -172,7 +174,7 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseCategoriesTotalCount(
     _root,
-    args: { topicIds: string[], codes: string[]},
+    args: { topicIds: string[]; codes: string[] },
     { models }: IContext
   ) {
     const qry: any = {};
@@ -228,13 +230,7 @@ const knowledgeBaseQueries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    let topic = await models.KnowledgeBaseTopics.findOne({ _id });
-
-    if (!topic) {
-      return models.KnowledgeBaseTopics.findOne({ code: _id });
-    }
-
-    return topic;
+    return findDetail(models.KnowledgeBaseTopics, _id);
   },
 
   /**
