@@ -12,6 +12,8 @@ const knowledgeBaseQueries = {
       categoryIds,
       searchValue,
       articleIds,
+      codes,
+      topicIds,
       ...pageArgs
     }: {
       page: number;
@@ -19,8 +21,10 @@ const knowledgeBaseQueries = {
       searchValue?: string;
       categoryIds: string[];
       articleIds: string[];
+      codes: string[];
+      topicIds: string[];
     },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const selector: any = {};
 
@@ -40,6 +44,18 @@ const knowledgeBaseQueries = {
       selector._id = { $in: articleIds };
     }
 
+    if (codes && codes.length > 0) {
+      selector.code = { $in: codes };
+    }
+    
+    if (topicIds && topicIds.length > 0) {
+      const categoryIds = await models.KnowledgeBaseCategories.find({
+        topicId: { $in: topicIds },
+      }).distinct('_id');
+
+      selector.categoryId = { $in: categoryIds };
+    }
+
     const articles = models.KnowledgeBaseArticles.find(selector).sort({
       createdDate: -1,
     });
@@ -50,12 +66,18 @@ const knowledgeBaseQueries = {
   /**
    * Article detail
    */
-  knowledgeBaseArticleDetail(
+  async knowledgeBaseArticleDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
-    return models.KnowledgeBaseArticles.findOne({ _id });
+    const article = await models.KnowledgeBaseArticles.findOne({ _id }).lean();
+
+    if (!article) {
+      return models.KnowledgeBaseArticles.findOne({ code: _id }).lean();
+    }
+
+    return article;
   },
 
   /**
@@ -64,12 +86,12 @@ const knowledgeBaseQueries = {
   knowledgeBaseArticleDetailAndIncViewCount(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.KnowledgeBaseArticles.findOneAndUpdate(
       { _id },
       { $inc: { viewCount: 1 } },
-      { new: true },
+      { new: true }
     );
   },
 
@@ -78,12 +100,20 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[] },
-    { models }: IContext,
+    args: { categoryIds: string[], codes: string[]},
+    { models }: IContext
   ) {
-    return models.KnowledgeBaseArticles.find({
-      categoryId: { $in: args.categoryIds },
-    }).countDocuments();
+    const qry:any  = {};
+
+    if (args.categoryIds && args.categoryIds.length > 0) {
+      qry.categoryId = { $in: args.categoryIds };
+    }
+
+    if (args.codes && args.codes.length > 0) {
+      qry.code = { $in: args.codes };
+    }
+
+    return models.KnowledgeBaseArticles.find(qry).countDocuments();
   },
 
   /**
@@ -95,12 +125,22 @@ const knowledgeBaseQueries = {
       page,
       perPage,
       topicIds,
-    }: { page: number; perPage: number; topicIds: string[] },
-    { models }: IContext,
+      codes
+    }: { page: number; perPage: number; topicIds: string[], codes: string[]},
+    { models }: IContext
   ) {
-    const categories = models.KnowledgeBaseCategories.find({
-      topicId: { $in: topicIds },
-    }).sort({
+
+    const qry: any = {};
+
+    if (topicIds && topicIds.length > 0) {
+      qry.topicId = { $in: topicIds };
+    }
+
+    if (codes && codes.length > 0) {
+      qry.code = { $in: codes };
+    }
+
+    const categories = models.KnowledgeBaseCategories.find(qry).sort({
       title: 1,
     });
 
@@ -114,14 +154,17 @@ const knowledgeBaseQueries = {
   /**
    * Category detail
    */
-  knowledgeBaseCategoryDetail(
+  async knowledgeBaseCategoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
-    return models.KnowledgeBaseCategories.findOne({ _id }).then((category) => {
-      return category;
-    });
+   let category = await models.KnowledgeBaseCategories.findOne({ _id }).lean();
+    if (!category) {
+      return models.KnowledgeBaseCategories.findOne({ code: _id }).lean();
+    }
+
+    return category;
   },
 
   /**
@@ -129,12 +172,20 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseCategoriesTotalCount(
     _root,
-    args: { topicIds: string[] },
-    { models }: IContext,
+    args: { topicIds: string[], codes: string[]},
+    { models }: IContext
   ) {
-    return models.KnowledgeBaseCategories.find({
-      topicId: { $in: args.topicIds },
-    }).countDocuments();
+    const qry: any = {};
+
+    if (args.topicIds && args.topicIds.length > 0) {
+      qry.topicId = { $in: args.topicIds };
+    }
+
+    if (args.codes && args.codes.length > 0) {
+      qry.code = { $in: args.codes };
+    }
+
+    return models.KnowledgeBaseCategories.find(qry).countDocuments();
   },
 
   /**
@@ -143,7 +194,7 @@ const knowledgeBaseQueries = {
   knowledgeBaseCategoriesGetLast(
     _root,
     _args,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models }: IContext
   ) {
     return models.KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
       createdDate: -1,
@@ -155,11 +206,14 @@ const knowledgeBaseQueries = {
    */
   knowledgeBaseTopics(
     _root,
-    args: { page: number; perPage: number; brandId: string },
-    { commonQuerySelector, models }: IContext,
+    args: { page: number; perPage: number; brandId: string; codes: string[] },
+    { commonQuerySelector, models }: IContext
   ) {
     const topics = models.KnowledgeBaseTopics.find({
       ...(args.brandId ? { brandId: args.brandId } : {}),
+      ...(args.codes && args.codes.length > 0
+        ? { code: { $in: args.codes } }
+        : {}),
       ...commonQuerySelector,
     }).sort({ modifiedDate: -1 });
 
@@ -169,12 +223,18 @@ const knowledgeBaseQueries = {
   /**
    * Topic detail
    */
-  knowledgeBaseTopicDetail(
+  async knowledgeBaseTopicDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
-    return models.KnowledgeBaseTopics.findOne({ _id });
+    let topic = await models.KnowledgeBaseTopics.findOne({ _id });
+
+    if (!topic) {
+      return models.KnowledgeBaseTopics.findOne({ code: _id });
+    }
+
+    return topic;
   },
 
   /**
@@ -183,10 +243,10 @@ const knowledgeBaseQueries = {
   knowledgeBaseTopicsTotalCount(
     _root,
     _args,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models }: IContext
   ) {
     return models.KnowledgeBaseTopics.find(
-      commonQuerySelector,
+      commonQuerySelector
     ).countDocuments();
   },
 };
@@ -200,19 +260,19 @@ checkPermission(
   knowledgeBaseQueries,
   'knowledgeBaseArticles',
   'showKnowledgeBase',
-  [],
+  []
 );
 checkPermission(
   knowledgeBaseQueries,
   'knowledgeBaseTopics',
   'showKnowledgeBase',
-  [],
+  []
 );
 checkPermission(
   knowledgeBaseQueries,
   'knowledgeBaseCategories',
   'showKnowledgeBase',
-  [],
+  []
 );
 
 export default knowledgeBaseQueries;
