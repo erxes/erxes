@@ -1,18 +1,18 @@
 // Settings
 
-const toCheck = `
-  mutation toCheck($type: String) {
-    toCheck(type: $type)
+const toCheckPolaris = `
+  mutation toCheckPolaris($type: String) {
+    toCheckPolaris(type: $type)
   }
 `;
 
-const toSync = `
-  mutation toSync($type: String, $items: [JSON]) {
-    toSync(type: $type, items: $items)
+const toSyncPolaris = `
+  mutation toSyncPolaris($type: String, $items: [JSON]) {
+    toSyncPolaris(type: $type, items: $items)
   }
 `;
 
 export default {
-  toCheck,
-  toSync,
+  toCheckPolaris,
+  toSyncPolaris,
 };

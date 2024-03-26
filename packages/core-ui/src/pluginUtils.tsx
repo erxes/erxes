@@ -2,18 +2,16 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
+import { ApolloProvider } from '@apollo/client';
+import { AppProvider } from './appContext';
+import { BrowserRouter } from 'react-router-dom';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
 import React from 'react';
 import { __ } from 'modules/common/utils';
-import ReactDOM from 'react-dom';
-import { Route } from 'react-router-dom';
-import { render } from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import { AppProvider } from './appContext';
-import { ApolloProvider } from '@apollo/client';
 import apolloClient from '@erxes/ui/src/apolloClient';
+import { render } from 'react-dom';
 
 const PLUGIN_LABEL_COLORS: string[] = [
   '',
@@ -395,7 +393,7 @@ export const pluginsInnerWidgets = () => {
   const rootDiv = document.getElementById('root');
   const newDiv = document.createElement('div');
   newDiv.style.cssText =
-    'position:absolute;width:30px;z-index:999999;height:30px;';
+    'position:absolute;width:72px;z-index:999999;height:72px;display:flex;align-items:center;justify-content:center;';
 
   for (const plugin of plugins) {
     if (!plugin.innerWidget) {

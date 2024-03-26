@@ -2,6 +2,7 @@ import { DISTRICTS } from './definitions/constants';
 import { IModels } from '../connectionResolver';
 import fetch from 'node-fetch';
 import { IEbarimtConfig } from './definitions/configs';
+import { IPutResponseDocument } from './definitions/putResponses';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';
@@ -160,7 +161,23 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const prePutResponse = await this.models.PutResponses.putHistory({
+    const continuePutResponses: IPutResponseDocument[] =
+      await this.models.PutResponses.find({
+        contentType,
+        contentId,
+        taxType: this.params.taxType,
+        modifiedAt: { $exists: false }
+      }).lean();
+
+    if (continuePutResponses.length) {
+      for (const cpr of continuePutResponses) {
+        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+          throw new Error('The previously submitted data has not yet been processed');
+        }
+      }
+    }
+
+    const prePutResponse: IPutResponseDocument | undefined = await this.models.PutResponses.putHistory({
       contentType,
       contentId,
       taxType: this.params.taxType || '',
@@ -172,9 +189,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
         prePutResponse.stocks &&
         prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
-          (this.transactionInfo.taxType || '1') &&
+        (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
-          (this.transactionInfo.billType || '1')
+        (this.transactionInfo.billType || '1')
       ) {
         return this.models.PutResponses.findOne({
           billId: prePutResponse.billId,
@@ -201,6 +218,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       headers: {
         'Content-Type': 'application/json',
       },
+      timeout: 10000
     }).then((res) => res.json());
 
     if (

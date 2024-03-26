@@ -16,13 +16,13 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
 import Form from './Form';
 interface IProps extends IRouterProps {
-  toSync: (type: string, items: any[]) => void;
-  syncHistories: any[];
+  toSyncPolaris: (type: string, items: any[]) => void;
+  syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
   history: any;
   queryParams: any;
-  toCheck: (type: string) => void;
+  toCheckPolaris: (type: string) => void;
   items: any;
   contentType;
 }
@@ -31,13 +31,13 @@ class List extends React.Component<IProps> {
   render() {
     const {
       history,
-      syncHistories,
+      syncHistoriesPolaris,
       totalCount,
       loading,
       queryParams,
       items,
-      toSync,
-      toCheck,
+      toSyncPolaris,
+      toCheckPolaris,
       contentType,
     } = this.props;
     const formHead: any[] = [];
@@ -46,7 +46,7 @@ class List extends React.Component<IProps> {
       ? formHead.push('Code', 'Last name', 'Firs Name', 'Phones')
       : formHead.push('Number', 'Status', 'Start Date', 'End Date');
     const onClickCheck = () => {
-      toCheck(contentType);
+      toCheckPolaris(contentType);
     };
     let checkButton: React.ReactNode;
     if (
@@ -75,7 +75,7 @@ class List extends React.Component<IProps> {
           </tr>
         </thead>
         <tbody id="syncPolaris">
-          {(syncHistories || []).map((syncHistory) => (
+          {(syncHistoriesPolaris || []).map((syncHistory) => (
             <tr key={syncHistory._id}>
               <td>{dayjs(syncHistory.createdAt).format('lll')}</td>
               <td>
@@ -103,8 +103,8 @@ class List extends React.Component<IProps> {
         return (
           <Form
             items={items}
-            toCheck={toCheck}
-            toSync={toSync}
+            toCheckPolaris={toCheckPolaris}
+            toSyncPolaris={toSyncPolaris}
             type={contentType}
             tablehead={formHead}
             {...props}

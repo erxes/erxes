@@ -7,7 +7,7 @@ import {
 } from '../../../utils/toSyncUtils/utils';
 
 const syncmutations = {
-  async toSync(
+  async toSyncPolaris(
     _root,
     { items, type }: { items: any[]; type: string },
     { subdomain }: IContext,

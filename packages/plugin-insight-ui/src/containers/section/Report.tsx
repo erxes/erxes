@@ -37,7 +37,7 @@ const ReportSectionContainer = (props: Props) => {
   );
 
   const [reportsRemoveManyMutation] = useMutation<ReportRemoveMutationResponse>(
-    gql(mutations.reportsRemove),
+    gql(mutations.reportRemove),
     {
       refetchQueries: [
         {
@@ -65,7 +65,7 @@ const ReportSectionContainer = (props: Props) => {
   };
 
   const sections = sectionsQuery?.data?.sections || [];
-  const { list = [], totalCount = 0 } = reportsQuery?.data?.reportsList || {};
+  const { list = [], totalCount = 0 } = reportsQuery?.data?.reportList || {};
   const loading = reportsQuery.loading && sectionsQuery.loading;
 
   const updatedProps = {
