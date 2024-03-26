@@ -1,4 +1,5 @@
 import * as PropTypes from 'prop-types';
+import * as moment from 'moment';
 
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
@@ -27,7 +28,13 @@ import {
 } from '../lib/enums';
 import { ICallConversation, ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
-import { callActions, formatPhone, getSpentTime, renderKeyPad } from '../utils';
+import {
+  calculateTimeElapsed,
+  callActions,
+  formatPhone,
+  getSpentTime,
+  renderKeyPad,
+} from '../utils';
 import { callPropType, sipPropType } from '../lib/types';
 
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -77,7 +84,9 @@ const KeyPad = (props: Props, context) => {
       '',
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
-  const [timeSpent, setTimeSpent] = useState(0);
+  const [timeSpent, setTimeSpent] = useState(
+    call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
+  );
   const formatedPhone = formatPhone(number);
 
   const ourPhone = callUserIntegrations?.map((user) => ({
@@ -132,9 +141,13 @@ const KeyPad = (props: Props, context) => {
       addCustomer(inboxId, formatedPhone, call?.id);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
-      timer = setInterval(() => {
-        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
-      }, 1000);
+      const { startTime } = call;
+      if (startTime) {
+        timer = setInterval(() => {
+          const diff = calculateTimeElapsed(startTime);
+          setTimeSpent(diff);
+        }, 1000);
+      }
     }
 
     return () => {

@@ -65,5 +65,4 @@ export const callPropType = PropTypes.shape({
   direction: PropTypes.string,
   counterpart: PropTypes.string,
   startTime: PropTypes.string,
-  endTime: PropTypes.string,
 });
