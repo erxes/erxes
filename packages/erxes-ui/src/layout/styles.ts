@@ -41,7 +41,6 @@ const PageHeader = styled.div`
 const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
-  margin: ${dimensions.unitSpacing}px 0 0 ${dimensions.unitSpacing}px;
   max-height: 100%;
   position: absolute;
   left: 0;
@@ -84,8 +83,7 @@ const MainContent = styledTS<{
   display: flex;
   flex-direction: column;
   min-width: 480px;
-  box-shadow: ${(props) =>
-    !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
+  border-right: 1px solid ${colors.borderPrimary};
   height: ${(props) => props.center && '100%'};
 `;
 
@@ -150,12 +148,9 @@ const SideContent = styledTS<{
   width: ${(props) => (props.wide ? '340px' : '290px')};
   flex: ${(props) => (props.half ? '1' : 'none')};
   background: ${(props) => (props.full ? colors.colorWhite : 'none')};
-  margin: 0 ${dimensions.unitSpacing}px;
   margin: ${(props) => props.hasBorder && 0};
   border-right: ${(props) =>
     props.hasBorder && `1px solid ${colors.borderPrimary}`};
-  box-shadow: ${(props) =>
-    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;

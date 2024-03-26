@@ -10,12 +10,12 @@ import {
   findTeamMembers,
   generateCommonUserIds,
   getNextNthColumnChar,
-  returnSupervisedUsers
+  returnSupervisedUsers,
 } from './utils';
 
 import {
   findTimeclockTeamMemberIds,
-  paginateArray
+  paginateArray,
 } from '../src/graphql/resolvers/utils';
 
 type Column = {
@@ -124,7 +124,7 @@ const prepareHeader = async (sheet: any, startDate: Date, endDate: Date) => {
     daysAndDatesHeaders[dateField] = {
       dateField,
       text: startRange.format(dateOfTheMonthFormat),
-      date: startRange.toDate()
+      date: startRange.toDate(),
     };
 
     total_columns += 1;
@@ -137,8 +137,8 @@ const prepareHeader = async (sheet: any, startDate: Date, endDate: Date) => {
   addIntoSheet([dates], `${column_start}2`, `${column_end}2`, sheet, false, [
     {
       style: 'bold',
-      value: true
-    }
+      value: true,
+    },
   ]);
 
   sheet.column('B').width(50);
@@ -202,7 +202,7 @@ const extractAndAddIntoSheet = async (
     if (schedules?.length) {
       const scheduleIds = schedules.map((schedule: any) => schedule._id);
       const scheduleShifts = await models.Shifts.find({
-        scheduleId: { $in: scheduleIds }
+        scheduleId: { $in: scheduleIds },
       });
 
       for (const scheduleShift of scheduleShifts) {
@@ -241,9 +241,9 @@ const extractAndAddIntoSheet = async (
               shiftStart,
               shiftEnd,
               shiftNotClosed: timeclock.shiftNotClosed,
-              shiftActive: timeclock.shiftActive || !timeclock.shiftEnd
+              shiftActive: timeclock.shiftActive || !timeclock.shiftEnd,
             },
-            ...prevTimeclock
+            ...prevTimeclock,
           ];
 
           continue;
@@ -256,8 +256,8 @@ const extractAndAddIntoSheet = async (
             shiftEnd,
             shiftNotClosed: timeclock.shiftNotClosed,
             deviceType: timeclock.deviceType,
-            shiftActive: timeclock.shiftActive || !timeclock.shiftEnd
-          }
+            shiftActive: timeclock.shiftActive || !timeclock.shiftEnd,
+          },
         ];
       }
     }
@@ -291,7 +291,7 @@ const extractAndAddIntoSheet = async (
             if (date in requestsInfo) {
               requestsInfo[date].push({
                 reason: request.reason,
-                absenceDuration: abseneDurationPerDay
+                absenceDuration: abseneDurationPerDay,
               });
 
               continue;
@@ -300,8 +300,8 @@ const extractAndAddIntoSheet = async (
             requestsInfo[date] = [
               {
                 reason: request.reason,
-                absenceDuration: abseneDurationPerDay
-              }
+                absenceDuration: abseneDurationPerDay,
+              },
             ];
           }
 
@@ -319,7 +319,7 @@ const extractAndAddIntoSheet = async (
         if (dateField in requestsInfo) {
           requestsInfo[dateField].push({
             reason: request.reason,
-            absenceDuration
+            absenceDuration,
           });
           continue;
         }
@@ -327,8 +327,8 @@ const extractAndAddIntoSheet = async (
         requestsInfo[dateField] = [
           {
             reason: request.reason,
-            absenceDuration
-          }
+            absenceDuration,
+          },
         ];
       }
     }
@@ -412,7 +412,7 @@ export const buildFile = async (
     page,
     perPage,
     startDate,
-    endDate
+    endDate,
   } = params;
 
   const userIds =
@@ -491,6 +491,6 @@ export const buildFile = async (
 
   return {
     name: `Timeclock-${startDateFormatted}-${endDateFormatted}`,
-    response: await generateXlsx(workbook)
+    response: await generateXlsx(workbook),
   };
 };

@@ -5,7 +5,7 @@ module.exports = {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
-			conversationClientMessageInserted(subdomain: String!, userId: String!): ConversationMessage
+			conversationClientMessageInserted(userId: String!): ConversationMessage
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -28,19 +28,19 @@ module.exports = {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
           if (!payload) {
             console.error(
-              `Subscription resolver error: conversationMessageInserted: payload is ${payload}`
+              `Subscription resolver error: conversationMessageInserted: payload is ${payload}`,
             );
             return;
           }
           if (!payload.conversationMessageInserted) {
             console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`
+              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted is ${payload.conversationMessageInserted}`,
             );
             return;
           }
           if (!payload.conversationMessageInserted._id) {
             console.error(
-              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`
+              `Subscription resolver error: conversationMessageInserted: payload.conversationMessageInserted._id is ${payload.conversationMessageInserted._id}`,
             );
             return;
           }
@@ -75,7 +75,7 @@ module.exports = {
       conversationClientTypingStatusChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(
-            `conversationClientTypingStatusChanged:${_id}`
+            `conversationClientTypingStatusChanged:${_id}`,
           ),
       },
 
@@ -86,19 +86,19 @@ module.exports = {
         resolve(payload, args, { dataSources: { gatewayDataSource } }, info) {
           if (!payload) {
             console.error(
-              `Subscription resolver error: conversationClientMessageInserted: payload is ${payload}`
+              `Subscription resolver error: conversationClientMessageInserted: payload is ${payload}`,
             );
             return;
           }
           if (!payload.conversationClientMessageInserted) {
             console.error(
-              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted is ${payload.conversationClientMessageInserted}`
+              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted is ${payload.conversationClientMessageInserted}`,
             );
             return;
           }
           if (!payload.conversationClientMessageInserted._id) {
             console.error(
-              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted._id is ${payload.conversationClientMessageInserted._id}`
+              `Subscription resolver error: conversationClientMessageInserted: payload.conversationClientMessageInserted._id is ${payload.conversationClientMessageInserted._id}`,
             );
             return;
           }
@@ -118,9 +118,9 @@ module.exports = {
           });
         },
         subscribe: withFilter(
-          (_, { userId, subdomain }) => {
+          (_, { userId }, { subdomain }) => {
             return graphqlPubsub.asyncIterator(
-              `conversationClientMessageInserted:${subdomain}:${userId}`
+              `conversationClientMessageInserted:${subdomain}:${userId}`,
             );
           },
           async (payload, variables) => {
@@ -135,7 +135,7 @@ module.exports = {
             }
 
             return true;
-          }
+          },
         ),
       },
 
@@ -145,7 +145,7 @@ module.exports = {
       conversationAdminMessageInserted: {
         subscribe: (_, { customerId }) =>
           graphqlPubsub.asyncIterator(
-            `conversationAdminMessageInserted:${customerId}`
+            `conversationAdminMessageInserted:${customerId}`,
           ),
       },
 
@@ -155,7 +155,7 @@ module.exports = {
       conversationExternalIntegrationMessageInserted: {
         subscribe: () =>
           graphqlPubsub.asyncIterator(
-            'conversationExternalIntegrationMessageInserted'
+            'conversationExternalIntegrationMessageInserted',
           ),
       },
     };

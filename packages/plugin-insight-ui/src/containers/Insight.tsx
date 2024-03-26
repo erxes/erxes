@@ -73,12 +73,12 @@ const withLastDashboard = (props: Props) => {
   const { queryParams, history } = props;
   const { goalId, dashboardId, reportId } = queryParams;
 
-  const dashboardGetLastQuery = useQuery(gql(queries.dashboardGetLast), {
+  const dashboardGetLastQuery = useQuery(gql(queries.insightGetLast), {
     skip: dashboardId || goalId || reportId,
     fetchPolicy: 'network-only',
   });
 
-  const dashboard = dashboardGetLastQuery?.data?.dashboardGetLast;
+  const dashboard = dashboardGetLastQuery?.data?.insightGetLast;
 
   useEffect(() => {
     if (

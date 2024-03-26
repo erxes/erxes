@@ -15,18 +15,18 @@ type Props = {
 const TimeclockActionBarLeft = ({
   queryParams,
   currentUserId,
-  isCurrentUserAdmin
+  isCurrentUserAdmin,
 }: Props) => {
   const exportPage = () => {
     const stringified = queryString.stringify({
       ...queryParams,
       currentUserId,
-      isCurrentUserAdmin
+      isCurrentUserAdmin,
     });
 
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:timeclock/timeclock-export?${stringified}`
+      `${REACT_APP_API_URL}/pl:timeclock/timeclock-export?${stringified}`,
     );
   };
 
@@ -53,7 +53,7 @@ const TimeclockActionBarLeft = ({
             <div>Absent</div>
           </FlexRow>
           <FlexRow>
-            <ColoredSquare color='rgba(255,88,87,0.2)' />
+            <ColoredSquare color="rgba(255,88,87,0.2)" />
             <div>Shift active</div>
           </FlexRow>
           <FlexRow>
@@ -64,7 +64,7 @@ const TimeclockActionBarLeft = ({
       </FlexRowLeft>
 
       <div>
-        <Button onClick={exportPage} icon='export' btnStyle='primary'>
+        <Button onClick={exportPage} icon="export" btnStyle="primary">
           Export page
         </Button>
       </div>

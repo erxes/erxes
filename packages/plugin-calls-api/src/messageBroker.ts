@@ -157,6 +157,46 @@ export const setupMessageConsumers = async () => {
         break;
     }
   });
+  consumeRPCQueue(
+    'calls:getCallHistory',
+    async (args: InterMessage): Promise<any> => {
+      try {
+        const { subdomain, data } = args;
+        const models = await generateModels(subdomain);
+        const { erxesApiConversationId } = data;
+
+        if (!erxesApiConversationId) {
+          return {
+            status: 'error',
+            errorMessage: 'Conversation id not found.',
+          };
+        }
+
+        const conversation = await models.Conversations.findOne({
+          erxesApiId: erxesApiConversationId,
+        });
+
+        if (!conversation) {
+          return {
+            status: 'error',
+            errorMessage: 'Conversation  not found.',
+          };
+        }
+
+        const sessionId = conversation.callId || '';
+        const history = await models.CallHistory.findOne({ sessionId });
+        return {
+          status: 'success',
+          data: history,
+        };
+      } catch (error) {
+        return {
+          status: 'error',
+          errorMessage: 'Error processing call history:' + error,
+        };
+      }
+    },
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs) => {

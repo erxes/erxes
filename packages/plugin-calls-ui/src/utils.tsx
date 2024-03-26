@@ -1,33 +1,25 @@
-import React from 'react';
-import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import { Button, FormControl, Icon } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import {
-  Actions,
-  CallAction,
-  InCallFooter,
-  CallTabContent,
-  Keypad,
-} from './styles';
-import { numbers, symbols } from './constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { Actions, CallAction, InCallFooter, Keypad } from "./styles";
+import { numbers, symbols } from "./constants";
+
+import { Icon } from "@erxes/ui/src/components";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 export const formatPhone = (phone) => {
   var num;
-  if (phone.indexOf('@')) {
-    num = phone.split('@')[0];
+  if (phone.indexOf("@")) {
+    num = phone.split("@")[0];
   } else {
     num = phone;
   }
   // remove everything but digits & '+' sign
-  num = num.toString().replace(/[^+0-9]/g, '');
+  num = num.toString().replace(/[^+0-9]/g, "");
 
   return num;
 };
 
 const formatNumber = (n: number) => {
-  return n.toLocaleString('en-US', {
+  return n.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -75,82 +67,10 @@ export const renderKeyPad = (handNumPad) => {
       <div className="number" onClick={() => handNumPad(0)}>
         0
       </div>
-      <div className="symbols" onClick={() => handNumPad('delete')}>
+      <div className="symbols" onClick={() => handNumPad("delete")}>
         <Icon icon="backspace" />
       </div>
     </Keypad>
-  );
-};
-
-export const renderFooter = (
-  shrink,
-  endCall,
-  currentTab,
-  onChangeText,
-  sendMessage,
-  customer,
-  taggerRefetchQueries,
-  toggleSection,
-  conversationDetail,
-  handNumPad,
-  isKeyPad,
-) => {
-  if (!shrink) {
-    return (
-      <InCallFooter>
-        <Button btnStyle="link">{__('Add or call')}</Button>
-        <CallAction onClick={endCall} isDecline={true}>
-          <Icon icon="phone-slash" />
-        </CallAction>
-        <Button btnStyle="link">{__('Transfer call')}</Button>
-      </InCallFooter>
-    );
-  }
-
-  return (
-    <>
-      <CallTabContent tab="Notes" show={currentTab === 'Notes' ? true : false}>
-        <FormControl
-          componentClass="textarea"
-          placeholder="Send a note..."
-          onChange={onChangeText}
-        />
-        <Button btnStyle="success" onClick={sendMessage}>
-          {__('Send')}
-        </Button>
-      </CallTabContent>
-      <CallTabContent tab="Tags" show={currentTab === 'Tags' ? true : false}>
-        {isEnabled('tags') && (
-          <TaggerSection
-            data={customer}
-            type="contacts:customer"
-            refetchQueries={taggerRefetchQueries}
-            collapseCallback={toggleSection}
-          />
-        )}
-      </CallTabContent>
-      <CallTabContent
-        tab="Assign"
-        show={currentTab === 'Assign' ? true : false}
-      >
-        <AssignBox
-          targets={[conversationDetail]}
-          event="onClick"
-          afterSave={() => {}}
-        />
-      </CallTabContent>
-      <CallTabContent
-        tab="Keypad"
-        show={currentTab === 'Keypad' ? true : false}
-      >
-        {renderKeyPad(handNumPad)}
-      </CallTabContent>
-      {isKeyPad && (
-        <CallAction onClick={endCall} isDecline={true}>
-          <Icon icon="phone-slash" />
-        </CallAction>
-      )}
-    </>
   );
 };
 
@@ -159,53 +79,63 @@ export const callActions = (
   handleAudioToggle,
   isHolded,
   handleHold,
+  endCall
 ) => {
-  return (
-    <Actions>
-      {!isMuted() && (
-        <CallAction key={'Mute'} shrink={false} onClick={handleAudioToggle}>
-          <Icon icon={'phone-times'} />
-          {__('Mute')}
-        </CallAction>
-      )}
-      {isMuted() && (
-        <CallAction key={'UnMute'} shrink={true} onClick={handleAudioToggle}>
-          <Icon icon={'phone-times'} />
-          {__('UnMute')}
-        </CallAction>
-      )}
+  const isHold = isHolded().localHold;
 
-      {!isHolded().localHold && (
-        <CallAction key={'Hold'} shrink={false} onClick={handleHold}>
-          <Icon icon={'pause-1'} />
-          {__('Hold')}
+  return (
+    <InCallFooter>
+      <Actions>
+        <div>
+          <CallAction
+            key={isMuted() ? "UnMute" : "Mute"}
+            active={isMuted() ? true : false}
+            onClick={handleAudioToggle}
+          >
+            <Icon size={20} icon={"phone-times"} />
+          </CallAction>
+          {isMuted() ? __("UnMute") : __("Mute")}
+        </div>
+        <div>
+          <CallAction
+            key={isHold ? "UnHold" : "Hold"}
+            active={isHold ? true : false}
+            onClick={handleHold}
+          >
+            <Icon size={20} icon={"pause-1"} />
+          </CallAction>
+          {isHold ? __("UnHold") : __("Hold")}
+        </div>
+        <div>
+          <CallAction disabled={true}>
+            <Icon size={20} icon={"phone-volume"} />
+          </CallAction>
+          {__("Transfer")}
+          <span className="coming-soon">coming soon</span>
+        </div>
+        <CallAction onClick={endCall} isDecline={true}>
+          <Icon size={20} icon="phone-slash" />
         </CallAction>
-      )}
-      {isHolded().localHold && (
-        <CallAction key={'UnHold'} shrink={true} onClick={handleHold}>
-          <Icon icon={'pause-1'} />
-          {__('UnHold')}
-        </CallAction>
-      )}
-    </Actions>
+      </Actions>
+    </InCallFooter>
   );
 };
 
 export const setLocalStorage = (isRegistered, isAvailable) => {
   localStorage.setItem(
-    'callInfo',
+    "callInfo",
     JSON.stringify({
       isRegistered,
-    }),
+    })
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations'),
+    localStorage.getItem("config:call_integrations") || "{}"
   );
 
   callConfig &&
     localStorage.setItem(
-      'config:call_integrations',
+      "config:call_integrations",
       JSON.stringify({
         inboxId: callConfig.inboxId,
         phone: callConfig.phone,
@@ -213,6 +143,6 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         token: callConfig.token,
         operators: callConfig.operators,
         isAvailable,
-      }),
+      })
     );
 };
