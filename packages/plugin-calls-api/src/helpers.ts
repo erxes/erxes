@@ -1,3 +1,4 @@
+import redis from '@erxes/api-utils/src/redis';
 import { IModels } from './connectionResolver';
 
 export const removeCustomers = async (models: IModels, params) => {
