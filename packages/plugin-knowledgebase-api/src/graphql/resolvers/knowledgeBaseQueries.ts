@@ -1,4 +1,4 @@
-import { checkPermission, requireLogin, paginate } from '@erxes/api-utils/src';
+import { checkPermission, paginate, requireLogin } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
 
@@ -16,20 +16,40 @@ const findDetail = async (model, _id) => {
   return detail;
 };
 
+const buildQuery = (args: any) => {
+  const qry: any = {};
+
+  const keys = ['codes', 'categoryIds', 'articleIds', 'topicIds'];
+
+  keys.forEach((key) => {
+    if (args[key] && args[key].length > 0) {
+      const field = key.replace('s', '');
+      qry[field] = { $in: args[key] };
+    }
+  });
+
+  if (args.searchValue && args.searchValue.trim()) {
+    qry.$or = [
+      { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+    ];
+  }
+
+  if (args.brandId) {
+    qry.brandId = args.brandId;
+  }
+
+  return qry;
+};
+
 const knowledgeBaseQueries = {
   /**
    * Article list
    */
   async knowledgeBaseArticles(
     _root,
-    {
-      categoryIds,
-      searchValue,
-      articleIds,
-      codes,
-      topicIds,
-      ...pageArgs
-    }: {
+    args: {
       page: number;
       perPage: number;
       searchValue?: string;
@@ -40,34 +60,18 @@ const knowledgeBaseQueries = {
     },
     { models }: IContext
   ) {
-    const selector: any = {};
+    const selector: any = buildQuery(args);
 
-    if (searchValue && searchValue.trim()) {
-      selector.$or = [
-        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-      ];
-    }
+    const pageArgs = { page: args.page, perPage: args.perPage };
 
-    if (categoryIds && categoryIds.length > 0) {
-      selector.categoryId = { $in: categoryIds };
-    }
-
-    if (articleIds && articleIds.length > 0) {
-      selector._id = { $in: articleIds };
-    }
-
-    if (codes && codes.length > 0) {
-      selector.code = { $in: codes };
-    }
-
-    if (topicIds && topicIds.length > 0) {
+    if (args.topicIds && args.topicIds.length > 0) {
       const categoryIds = await models.KnowledgeBaseCategories.find({
-        topicId: { $in: topicIds },
+        topicId: { $in: args.topicIds },
       }).distinct('_id');
 
       selector.categoryId = { $in: categoryIds };
+
+      delete selector.topicIds;
     }
 
     const articles = models.KnowledgeBaseArticles.find(selector).sort({
@@ -111,15 +115,7 @@ const knowledgeBaseQueries = {
     args: { categoryIds: string[]; codes: string[] },
     { models }: IContext
   ) {
-    const qry: any = {};
-
-    if (args.categoryIds && args.categoryIds.length > 0) {
-      qry.categoryId = { $in: args.categoryIds };
-    }
-
-    if (args.codes && args.codes.length > 0) {
-      qry.code = { $in: args.codes };
-    }
+    const qry: any = buildQuery(args);
 
     return models.KnowledgeBaseArticles.find(qry).countDocuments();
   },
@@ -129,27 +125,21 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseCategories(
     _root,
-    {
-      page,
-      perPage,
-      topicIds,
-      codes,
-    }: { page: number; perPage: number; topicIds: string[]; codes: string[] },
+    args: {
+      page: number;
+      perPage: number;
+      topicIds: string[];
+      codes: string[];
+    },
     { models }: IContext
   ) {
-    const qry: any = {};
-
-    if (topicIds && topicIds.length > 0) {
-      qry.topicId = { $in: topicIds };
-    }
-
-    if (codes && codes.length > 0) {
-      qry.code = { $in: codes };
-    }
+    const qry: any = buildQuery(args);
 
     const categories = models.KnowledgeBaseCategories.find(qry).sort({
       title: 1,
     });
+
+    const { page, perPage } = args;
 
     if (!page && !perPage) {
       return categories;
@@ -177,15 +167,7 @@ const knowledgeBaseQueries = {
     args: { topicIds: string[]; codes: string[] },
     { models }: IContext
   ) {
-    const qry: any = {};
-
-    if (args.topicIds && args.topicIds.length > 0) {
-      qry.topicId = { $in: args.topicIds };
-    }
-
-    if (args.codes && args.codes.length > 0) {
-      qry.code = { $in: args.codes };
-    }
+    const qry: any = buildQuery(args);
 
     return models.KnowledgeBaseCategories.find(qry).countDocuments();
   },
@@ -211,11 +193,10 @@ const knowledgeBaseQueries = {
     args: { page: number; perPage: number; brandId: string; codes: string[] },
     { commonQuerySelector, models }: IContext
   ) {
+    const qry: any = buildQuery(args);
+
     const topics = models.KnowledgeBaseTopics.find({
-      ...(args.brandId ? { brandId: args.brandId } : {}),
-      ...(args.codes && args.codes.length > 0
-        ? { code: { $in: args.codes } }
-        : {}),
+      ...qry,
       ...commonQuerySelector,
     }).sort({ modifiedDate: -1 });
 
