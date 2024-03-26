@@ -1,8 +1,21 @@
 # Changelog
 
-## [1.7.0-rc.1](https://github.com/erxes/erxes/compare/1.7.0-rc.0...1.7.0-rc.1) (2024-03-20)
+## [1.7.0](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-25)
 
-## [1.7.0-rc.0](https://github.com/erxes/erxes/compare/1.6.3...1.7.0-rc.0) (2024-03-20)
+
+### Features
+
+* **calls:** improving calls ui  ([2c53c42](https://github.com/erxes/erxes/commit/2c53c424e7be5560acea9e976429af9c7cf8faa2))
+
+
+### Bug Fixes
+
+* **coreui:**  Update tiptap editor schema & make editor section resizable ([#5083](https://github.com/erxes/erxes/issues/5083)) ([8ea9c65](https://github.com/erxes/erxes/commit/8ea9c65c10b1afc20c447e958469a21908f34f5b))
+* don't use frontend's getSubdomain function ([ac49388](https://github.com/erxes/erxes/commit/ac4938811b6e76301f8f69b12d3e939ed529d770))
+
+## [1.7.0-rc.1](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-20)
+
+## [1.7.0-rc.0](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-20)
 
 
 ### Features
@@ -32,6 +45,10 @@
 
 * products similarity group config filter by any field ([#5054](https://github.com/erxes/erxes/issues/5054)) ([c08436a](https://github.com/erxes/erxes/commit/c08436a002697cd90f320113c69d57711f3137c9))
 * **settings:** Add confirmation modal when delete items ([e54a5e1](https://github.com/erxes/erxes/commit/e54a5e13ba5a9002937e31b781d2764ea9eceaa6))
+
+## [1.6.4](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-21)
+
+### [1.6.4](https://github.com/erxes/erxes/compare/1.6.3...1.6.4) (2024-03-21)
 
 ### [1.6.3](https://github.com/erxes/erxes/compare/1.6.3-rc.4...1.6.3) (2024-03-20)
 

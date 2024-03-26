@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import React, { useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import { Alert } from "@erxes/ui/src/utils";
-import KeyPad from "../components/Keypad";
-import client from "@erxes/ui/src/apolloClient";
+import { Alert } from '@erxes/ui/src/utils';
+import KeyPad from '../components/Keypad';
+import client from '@erxes/ui/src/apolloClient';
 
 type IProps = {
   callUserIntegrations: any;
@@ -29,7 +29,7 @@ const KeyPadContainer = (props: IProps) => {
     client
       .query({
         query: gql(queries.callCustomerDetail),
-        fetchPolicy: "network-only",
+        fetchPolicy: 'network-only',
         variables: { callerNumber: phoneNumber },
       })
       .then(({ data }: { data: any }) => {
@@ -53,7 +53,7 @@ const KeyPadContainer = (props: IProps) => {
       },
     })
       .then(() => {
-        Alert.success("Successfully added note");
+        Alert.success('Successfully added note');
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -63,14 +63,14 @@ const KeyPadContainer = (props: IProps) => {
   const createCustomer = (
     inboxIntegrationId: string,
     primaryPhone: string,
-    callID: string
+    callID: string,
   ) => {
     if (callID) {
       createCustomerMutation({
         variables: {
           inboxIntegrationId,
           primaryPhone,
-          direction: "outgoing",
+          direction: 'outgoing',
           callID,
         },
       })
@@ -108,7 +108,7 @@ const KeyPadContainer = (props: IProps) => {
       conversation={conversation}
       addNote={addNote}
       disconnectCall={disconnectCall}
-      phoneNumber={phoneNumber || ""}
+      phoneNumber={phoneNumber || ''}
     />
   );
 };
