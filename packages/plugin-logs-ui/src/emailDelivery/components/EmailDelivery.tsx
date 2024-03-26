@@ -1,23 +1,23 @@
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { colors } from '@erxes/ui/src/styles';
-import { Title } from '@erxes/ui/src/styles/main';
-import { __, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import * as React from 'react';
-import Select from 'react-select-plus';
-import { EMAIL_TYPES } from '../containers/EmailDelivery';
-import Row from './Row';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { FlexItem, FlexRow, InputBar } from '@erxes/ui-settings/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Table from "@erxes/ui/src/components/table";
+import { colors } from "@erxes/ui/src/styles";
+import { Title } from "@erxes/ui/src/styles/main";
+import { __, router } from "@erxes/ui/src/utils";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import * as React from "react";
+import Select from "react-select";
+import { EMAIL_TYPES } from "../containers/EmailDelivery";
+import Row from "./Row";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   list: any;
-  history: any;
   searchValue?: string;
   loading: boolean;
   count: number;
@@ -28,37 +28,37 @@ type Props = {
 };
 
 const breadcrumb = [
-  { title: 'Settings', link: '/settings' },
-  { title: __('Email deliveries') }
+  { title: "Settings", link: "/settings" },
+  { title: __("Email deliveries") },
 ];
 
 const emailTypeOptions = [
-  { value: 'transaction', label: __('Transaction') },
-  { value: 'engage', label: __('SES Engage') }
+  { value: "transaction", label: __("Transaction") },
+  { value: "engage", label: __("SES Engage") },
 ];
 
 const tableHeaders = {
-  transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
-  engage: ['Customer', 'Email', 'Title', 'Status', 'Created at']
+  transaction: ["Subject", "To", "Cc", "Bcc", "From", "Status", "Created at"],
+  engage: ["Customer", "Email", "Title", "Status", "Created at"],
 };
 
 export const STATUS_OPTIONS = [
-  { value: 'send', label: 'Sent', color: colors.colorPrimary },
-  { value: 'delivery', label: 'Delivered', color: colors.colorCoreBlue },
-  { value: 'open', label: 'Opened', color: colors.colorCoreGreen },
-  { value: 'click', label: 'Clicked', color: colors.colorCoreTeal },
+  { value: "send", label: "Sent", color: colors.colorPrimary },
+  { value: "delivery", label: "Delivered", color: colors.colorCoreBlue },
+  { value: "open", label: "Opened", color: colors.colorCoreGreen },
+  { value: "click", label: "Clicked", color: colors.colorCoreTeal },
   {
-    value: 'complaint',
-    label: 'Complained/Spammed',
-    color: colors.colorCoreOrange
+    value: "complaint",
+    label: "Complained/Spammed",
+    color: colors.colorCoreOrange,
   },
-  { value: 'bounce', label: 'Bounced', color: colors.colorCoreGray },
+  { value: "bounce", label: "Bounced", color: colors.colorCoreGray },
   {
-    value: 'renderingfailure',
-    label: 'Rendering failure',
-    color: colors.colorCoreBlack
+    value: "renderingfailure",
+    label: "Rendering failure",
+    color: colors.colorCoreBlack,
   },
-  { value: 'reject', label: 'Rejected', color: colors.colorCoreRed }
+  { value: "reject", label: "Rejected", color: colors.colorCoreRed },
 ];
 
 function EmailDelivery({
@@ -68,14 +68,15 @@ function EmailDelivery({
   list = [],
   handleSelectEmailType,
   searchValue,
-  history,
   handleSelectStatus,
-  status
+  status,
 }: Props) {
   const [search, setSearch] = React.useState(searchValue);
   const timerRef = React.useRef<number | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleSearch = e => {
+  const handleSearch = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -84,13 +85,13 @@ function EmailDelivery({
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
   const handleEmailtype = ({ value }: { value: string }) => {
-    setSearch('');
+    setSearch("");
     return handleSelectEmailType(value);
   };
 
@@ -100,7 +101,12 @@ function EmailDelivery({
 
   function renderContent() {
     return (
-      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+      <Table
+        $whiteSpace="wrap"
+        $hover={true}
+        $bordered={true}
+        $condensed={true}
+      >
         <thead>
           <tr>
             {(tableHeaders[emailType] || []).map((item, idx) => (
@@ -109,7 +115,7 @@ function EmailDelivery({
           </tr>
         </thead>
         <tbody>
-          {list.map(item => (
+          {list.map((item) => (
             <Row key={item._id} item={item} emailType={emailType} />
           ))}
         </tbody>
@@ -128,7 +134,7 @@ function EmailDelivery({
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={handleSearch}
                 value={search}
               />
@@ -136,25 +142,28 @@ function EmailDelivery({
           </InputBar>
 
           <React.Fragment>
-            {isEnabled('engages') && (
+            {isEnabled("engages") && (
               <InputBar type="selectBar">
                 <Select
-                  placeholder={__('Choose Email type')}
-                  value={emailType}
+                  placeholder={__("Choose Email type")}
+                  value={emailTypeOptions.find(
+                    (option) => option.value === emailType
+                  )}
                   options={emailTypeOptions}
                   onChange={handleEmailtype}
-                  clearable={false}
+                  isClearable={false}
                 />
               </InputBar>
             )}
             {isTransaction ? null : (
               <InputBar type="selectBar">
                 <Select
-                  placeholder={__('Choose status')}
-                  value={status}
+                  placeholder={__("Choose status")}
+                  value={STATUS_OPTIONS.find(
+                    (option) => option.value === status
+                  )}
                   options={STATUS_OPTIONS}
                   onChange={handleStatusChange}
-                  resetValue={[]}
                 />
               </InputBar>
             )}
@@ -175,7 +184,7 @@ function EmailDelivery({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Email Deliveries')}
+          title={__("Email Deliveries")}
           breadcrumb={breadcrumb}
         />
       }
@@ -186,7 +195,7 @@ function EmailDelivery({
           data={renderContent()}
           loading={loading}
           count={count}
-          emptyText={__('There are no logs')}
+          emptyText={__("There are no logs")}
           emptyImage="/images/actions/21.svg"
         />
       }

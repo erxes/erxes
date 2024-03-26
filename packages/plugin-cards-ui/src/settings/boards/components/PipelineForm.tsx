@@ -105,7 +105,6 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeDepartments = (options) => {
     this.setState({ departmentIds: (options || []).map((o) => o.value) });
-    this.setState({ selectedDepartments: options });
   };
 
   onChangeDominantUsers = (items) => {
