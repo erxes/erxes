@@ -143,13 +143,12 @@ export const renderFullName = (data, noPhone?: boolean) => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
       (data.firstName || "") +
-        " " +
-        (data.middleName || "") +
-        " " +
-        (data.lastName || "") +
-        " " +
-        !noPhone &&
-      (data.primaryPhone || "")
+      " " +
+      (data.middleName || "") +
+      " " +
+      (data.lastName || "") +
+      " " +
+      (!noPhone && data.primaryPhone || "")
     );
   }
 
