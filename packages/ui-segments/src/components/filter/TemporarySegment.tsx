@@ -12,11 +12,11 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import RTG from 'react-transition-group';
 import SegmentsForm from '../../containers/form/SegmentsForm';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import styled from 'styled-components';
+import { Transition } from '@headlessui/react';
 
 // import { withRouter } from 'react-router-dom';
 
@@ -175,11 +175,9 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
 
   const content = (
     <>
-      <RTG.CSSTransition
-        in={showDrawer}
-        timeout={400}
-        classNames="slide-in-right"
-        unmountOnExit={true}
+      <Transition
+        show={showDrawer}
+        className="slide-in-right"
       >
         <RightDrawerContainer>
           <ScrolledContent>
@@ -191,7 +189,7 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
             />
           </ScrolledContent>
         </RightDrawerContainer>
-      </RTG.CSSTransition>
+      </Transition>
     </>
   );
 

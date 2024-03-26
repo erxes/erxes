@@ -2,7 +2,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 import { OperatorList } from '../styles';
@@ -79,21 +79,21 @@ class PropertyForm extends React.Component<Props, State> {
     return;
   };
 
-  // renderSelect(
-  //   value: string | number,
-  //   options: Array<{ label: string; value: string | number }>
-  // ) {
-  //   return (
-  //     <Select
-  //       placeholder={__('Select value')}
-  //       value={value}
-  //       options={options}
-  //       isRequired={true}
-  //       clearable={false}
-  //       onChange={this.onChangeSelect}
-  //     />
-  //   );
-  // }
+  renderSelect(
+    value: string | number,
+    options: Array<{ label: string; value: string | number }>
+  ) {
+    return (
+      <Select
+        placeholder={__('Select value')}
+        value={options.find(option => option.value === value)}
+        options={options}
+        required={true}
+        isClearable={false}
+        onChange={this.onChangeSelect}
+      />
+    );
+  }
 
   renderDate(value: string) {
     return (
@@ -144,16 +144,16 @@ class PropertyForm extends React.Component<Props, State> {
       return this.renderDate(currentValue);
     }
 
-    // if (selectOptions.length > 0) {
-    //   return this.renderSelect(currentValue, selectOptions);
-    // }
+    if (selectOptions.length > 0) {
+      return this.renderSelect(currentValue, selectOptions);
+    }
 
-    // // if custom field is of type radio, then show options as select
-    // if (type === 'radio' && choiceOptions.length > 0) {
-    //   const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
+    // if custom field is of type radio, then show options as select
+    if (type === 'radio' && choiceOptions.length > 0) {
+      const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
 
-    //   return this.renderSelect(currentValue, options);
-    // }
+      return this.renderSelect(currentValue, options);
+    }
 
     return <FormControl value={currentValue} onChange={this.onChangeValue} />;
   };

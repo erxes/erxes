@@ -124,7 +124,7 @@ type HeaderProps = {
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   return (
-    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+    <SidebarHeader spaceBottom={spaceBottom} $uppercase={uppercase} $bold={bold}>
       {children}
     </SidebarHeader>
   );

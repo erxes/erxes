@@ -794,6 +794,35 @@ a:hover {
   }
 }
 
+.css-13cymwt-control, .css-t3ipsp-control {
+  border-top-width: 0 !important;
+  border-right-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.css-13cymwt-control > div, .css-t3ipsp-control > div {
+  padding: 2px 8px 2px 0;
+}
+
+.css-t3ipsp-control, .css-t3ipsp-control:hover {
+  border-color: ${colors.colorPrimary} !important;
+}
+
+.css-1xc3v61-indicatorContainer, .css-15lsz6c-indicatorContainer {
+  padding: 2px !important;
+}
+
+.css-1u9des2-indicatorSeparator {
+  display: none;
+}
+
+.css-tj5bde-Svg {
+  height: 12px;
+  width: 12px;
+}
+
 .simple-option .channel-round {
   color: ${colors.colorWhite};
   font-weight: bold;

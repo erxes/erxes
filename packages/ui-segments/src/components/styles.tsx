@@ -21,8 +21,8 @@ const SegmentWrapper = styled.div`
   padding: ${dimensions.unitSpacing}px;
 `;
 
-const ConditionItem = styledTS<{ useMargin: boolean }>(styled.div)`
-  margin-left: ${props => props.useMargin && '30px'};
+const ConditionItem = styledTS<{ $useMargin: boolean }>(styled.div)`
+  margin-left: ${props => props.$useMargin && '30px'};
   
   i{
     cursor: pointer;
@@ -188,10 +188,10 @@ const Condition = styled.div`
   }
 `;
 
-const ButtonWrapper = styledTS<{ hasCondition: boolean }>(styled.div)`
+const ButtonWrapper = styledTS<{ $hasCondition: boolean }>(styled.div)`
   > button {
     margin: ${props =>
-      !props.hasCondition ? '10px 0 10px 40px' : '0 0 10px 10px'};
+      !props.$hasCondition ? '10px 0 10px 40px' : '0 0 10px 10px'};
   }
 `;
 

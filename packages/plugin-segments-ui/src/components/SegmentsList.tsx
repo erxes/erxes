@@ -140,7 +140,7 @@ class SegmentsList extends React.Component<Props, State> {
     ];
 
     const title = (
-      <Title capitalize={true}>
+      <Title $capitalize={true}>
         {contentType} {__('segments')}
       </Title>
     );
