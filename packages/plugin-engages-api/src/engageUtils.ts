@@ -45,7 +45,7 @@ export const generateCustomerSelector = async (
     segmentIds = [],
     tagIds = [],
     brandIds = [],
-  }: ICustomerSelector,
+  }: ICustomerSelector
 ): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
@@ -141,7 +141,7 @@ export const send = async (
   models: IModels,
   subdomain: string,
   engageMessage: IEngageMessageDocument,
-  forceCreateConversation?: boolean,
+  forceCreateConversation?: boolean
 ) => {
   const {
     customerIds,
@@ -165,7 +165,7 @@ export const send = async (
       await models.Logs.createLog(
         _id,
         'regular',
-        `Broadcast will run at "${dateTime.toLocaleString()}"`,
+        `Broadcast will run at "${dateTime.toLocaleString()}"`
       );
 
       return;
@@ -186,7 +186,7 @@ export const send = async (
     await models.Logs.createLog(
       _id,
       'regular',
-      `Manual broadcast "${title}" has already run before`,
+      `Broadcast "${title}" has already run before`
     );
 
     return;
@@ -205,7 +205,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngage',
+      'sendEngage'
     );
   }
 
@@ -214,7 +214,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngageSms',
+      'sendEngageSms'
     );
   }
 
@@ -265,7 +265,7 @@ const sendEmailOrSms = async (
   models: IModels,
   subdomain,
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms',
+  action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -276,7 +276,7 @@ const sendEmailOrSms = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Run at ${new Date()}`,
+      `Run at ${new Date()}`
     );
   }
 
@@ -306,7 +306,7 @@ const sendCampaignNotification = async (models, subdomain, doc) => {
       await models.Logs.createLog(groupId, 'success', 'Notification sent');
       await models.EngageMessages.updateOne(
         { _id: groupId },
-        { $inc: { runCount: 1 } },
+        { $inc: { runCount: 1 } }
       );
     });
   } catch (e) {
@@ -317,7 +317,7 @@ const sendCampaignNotification = async (models, subdomain, doc) => {
 const sendNotifications = async (
   models: IModels,
   subdomain,
-  { engageMessage, customersSelector, user }: IEngageParams,
+  { engageMessage, customersSelector, user }: IEngageParams
 ) => {
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
@@ -345,7 +345,7 @@ const sendNotifications = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `No client portal user found`,
+      `No client portal user found`
     );
 
     return;
@@ -355,7 +355,7 @@ const sendNotifications = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Preparing to send Notification to "${cpUserIds.length}" customers`,
+      `Preparing to send Notification to "${cpUserIds.length}" customers`
     );
   }
 
@@ -379,7 +379,7 @@ const sendNotifications = async (
         $set: {
           totalCustomersCount: receiversLength,
         },
-      },
+      }
     );
   }
 
@@ -390,7 +390,7 @@ const sendNotifications = async (
 export const checkCampaignDoc = async (
   models: IModels,
   subdomain: string,
-  doc: IEngageMessage,
+  doc: IEngageMessage
 ) => {
   const {
     brandIds = [],
@@ -452,7 +452,7 @@ export const checkCampaignDoc = async (
     }
     if (!doc.cpId) {
       throw new Error(
-        'Please select "Clientportal" in the notification campaign',
+        'Please select "Clientportal" in the notification campaign'
       );
     }
     if (!doc.notification.title) {
@@ -498,7 +498,7 @@ export const findUser = async (subdomain, userId?: string) => {
 // check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
-  params: ICheckCustomerParams,
+  params: ICheckCustomerParams
 ) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
   if (!isUsingElk()) {

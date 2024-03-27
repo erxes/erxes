@@ -139,7 +139,7 @@ export const getPluginConfig = ({ pluginName, configName }) => {
   return result;
 };
 
-export const renderFullName = (data) => {
+export const renderFullName = (data, noPhone?: boolean) => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
       (data.firstName || '') +
@@ -148,7 +148,7 @@ export const renderFullName = (data) => {
       ' ' +
       (data.lastName || '') +
       ' ' +
-      (data.primaryPhone || '')
+      (!noPhone && data.primaryPhone || '')
     );
   }
 

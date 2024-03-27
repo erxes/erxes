@@ -10,11 +10,7 @@ import {
 import React from 'react';
 import RichTextEditor from '../containers/RichTextEditor';
 import MessengerPreview from '../containers/MessengerPreview';
-import {
-  IEngageMessenger,
-  IEngageScheduleDate,
-} from '@erxes/ui-engage/src/types';
-import Scheduler from './Scheduler';
+import { IEngageMessenger } from '@erxes/ui-engage/src/types';
 import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -22,8 +18,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   brands: IBrand[];
   onChange: (
-    name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
-    value?: IEngageMessenger | IEngageScheduleDate | string,
+    name: 'messenger' | 'content' | 'fromUserId',
+    value?: IEngageMessenger | string
   ) => void;
   users: IUser[];
   hasKind: boolean;
@@ -31,14 +27,12 @@ type Props = {
   messenger: IEngageMessenger;
   fromUserId: string;
   content: string;
-  scheduleDate: IEngageScheduleDate;
   isSaved?: boolean;
 };
 
 type State = {
   fromUserId: string;
   messenger: IEngageMessenger;
-  scheduleDate: IEngageScheduleDate;
 };
 
 class MessengerForm extends React.Component<Props, State> {
@@ -48,7 +42,6 @@ class MessengerForm extends React.Component<Props, State> {
     this.state = {
       fromUserId: props.fromUserId,
       messenger: props.messenger,
-      scheduleDate: props.scheduleDate,
     };
   }
 
@@ -97,21 +90,6 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
-  renderScheduler() {
-    const { messageKind, onChange } = this.props;
-
-    if (messageKind === 'manual') {
-      return null;
-    }
-
-    return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
-        onChange={onChange}
-      />
-    );
-  }
-
   onEditorChange = (content: string) => {
     this.props.onChange('content', content);
   };
@@ -122,7 +100,7 @@ class MessengerForm extends React.Component<Props, State> {
 
     const onChangeContent = (e) => {
       Alert.warning(
-        'Please carefully select the brand, it will appear in the selected brand messenger.',
+        'Please carefully select the brand, it will appear in the selected brand messenger.'
       );
       this.changeContent('brandId', (e.target as HTMLInputElement).value);
     };
@@ -197,7 +175,6 @@ class MessengerForm extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           {/* TODO enable after engage update */}
-          {/* {this.renderScheduler()} */}
         </FlexPad>
 
         <FlexItem overflow="auto" count="2">

@@ -68,6 +68,22 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
+    const continuePutResponses: IPutResponseDocument[] =
+      await this.models.PutResponses.find({
+        contentType,
+        contentId,
+        taxType: this.params.taxType,
+        modifiedAt: { $exists: false }
+      }).lean();
+
+    if (continuePutResponses.length) {
+      for (const cpr of continuePutResponses) {
+        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+          throw new Error('The previously submitted data has not yet been processed');
+        }
+      }
+    }
+
     const prePutResponse: IPutResponseDocument | undefined =
       await this.models.PutResponses.putHistory({
         contentType,
@@ -82,9 +98,9 @@ export class PutData<IListArgs extends IPutDataArgs> {
         prePutResponse.stocks &&
         prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
-          (this.transactionInfo.taxType || '1') &&
+        (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
-          (this.transactionInfo.billType || '1')
+        (this.transactionInfo.billType || '1')
       ) {
         return this.models.PutResponses.findOne({
           billId: prePutResponse.billId,
@@ -92,16 +108,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
       }
 
       this.transactionInfo.returnBillId = prePutResponse.billId;
-      await this.models.PutResponses.updateOne(
-        { _id: prePutResponse._id },
-        { $set: { status: 'inactive' } },
-      );
     }
 
     const resObj = await this.models.PutResponses.createPutResponse({
       sendInfo: { ...this.transactionInfo },
       contentId,
       contentType,
+      taxType: this.params.taxType,
       number,
     });
 
@@ -113,8 +126,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: 10000
       },
-    ).then((r) => r.json());
+    )
+      .then((r) => r.json())
+      .catch((err) => {
+        throw new Error(err.message);
+      });
 
     if (
       response.billType === '1' &&
@@ -128,6 +146,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
           `${url}/getInformation?lib=${rd}`,
         ).then((r) => r.text());
       }
+    }
+
+    if (prePutResponse && ['true', true].includes(response.success)) {
+      await this.models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } },
+      );
     }
 
     await this.models.PutResponses.updatePutResponse(resObj._id, {
@@ -258,11 +283,6 @@ export const returnBill = async (
       date: date,
     };
 
-    await models.PutResponses.updateOne(
-      { _id: prePutResponse._id },
-      { $set: { status: 'inactive' } },
-    );
-
     const resObj = await models.PutResponses.createPutResponse({
       sendInfo: { ...data },
       contentId,
@@ -278,6 +298,13 @@ export const returnBill = async (
         'Content-Type': 'application/json',
       },
     }).then((r) => r.json());
+
+    if (['true', true].includes(response.success)) {
+      await models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } },
+      );
+    }
 
     await models.PutResponses.updatePutResponse(resObj._id, {
       ...response,

@@ -1,36 +1,75 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { CallHistory, CallDetail, AdditionalDetail } from '../styles';
+import {
+  AdditionalDetail,
+  CallDetail,
+  CallHistory,
+  PhoneNumber,
+} from '../styles';
+import { EmptyState, Spinner } from '@erxes/ui/src/components';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { __, renderFullName } from '@erxes/ui/src/utils';
+
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { EmptyState } from '@erxes/ui/src/components';
 import { IHistory } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import dayjs from 'dayjs';
 
 type Props = {
   histories: IHistory[];
+  loading?: boolean;
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
-  refetch: ({ callStatus: string }) => void;
+  refetch: ({ callStatus }: { callStatus: string }) => void;
   remove: (_id: string) => void;
 };
 
 type State = {
   currentTab: string;
+  cursor: number;
 };
 
 class History extends React.Component<Props, State> {
+  private activeItemRef: any;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
       currentTab: 'All',
+      cursor: 0,
     };
+
+    this.activeItemRef = React.createRef();
   }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = (e) => {
+    const { cursor } = this.state;
+
+    if (e.keyCode === 38 && cursor > 0) {
+      this.setState((prevState) => ({
+        cursor: prevState.cursor - 1,
+      }));
+    } else if (e.keyCode === 40 && cursor < this.props.histories.length - 1) {
+      this.setState((prevState) => ({
+        cursor: prevState.cursor + 1,
+      }));
+    } else if (e.keyCode === 13) {
+      this.onCall(this.props.histories[cursor].customer?.primaryPhone);
+    }
+  };
 
   onTabClick = (currentTab: string) => {
     this.setState({ currentTab });
+
     if (currentTab === 'Missed Call') {
       this.props.refetch({ callStatus: 'missed' });
     } else {
@@ -47,33 +86,44 @@ class History extends React.Component<Props, State> {
   };
 
   renderCalls = () => {
-    if (!this.props.histories || this.props.histories.length === 0) {
+    const { histories, loading } = this.props;
+
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    if (!histories || histories.length === 0) {
       return <EmptyState icon="ban" text="There is no history" size="small" />;
     }
 
-    return this.props.histories.map((item, i) => {
-      const secondLine =
-        item.customer !== null ? item.customer.primaryPhone : 'unknown user';
-      const content = (
-        <CallDetail isMissedCall={false} key={i}>
-          <NameCard
-            user={item.customer}
-            key={i}
-            avatarSize={40}
-            secondLine={secondLine}
-          />
+    return histories.map((item, i) => {
+      const { callStatus, callType, createdAt } = item;
+      const isMissedCall =
+        callStatus === 'missed' || callStatus === 'cancelled';
+
+      const content = item.customer && (
+        <CallDetail
+          isMissedCall={isMissedCall}
+          key={i}
+          className={this.state.cursor === i ? 'active' : ''}
+          isIncoming={callType !== 'outgoing'}
+          onClick={() => this.onCall(item.customer.primaryPhone)}
+        >
+          <div>
+            {callType === 'outgoing' && (
+              <Icon size={12} icon={'outgoing-call'} />
+            )}
+            <PhoneNumber shrink={true}>
+              {renderFullName(item.customer, true)}
+            </PhoneNumber>
+          </div>
           <AdditionalDetail>
+            <span>{dayjs(createdAt).format('DD MMM, HH:mm')}</span>
             <Dropdown>
               <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
                 <Icon icon="ellipsis-v" size={18} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <li
-                  key="call"
-                  onClick={() => this.onCall(item.customer?.primaryPhone)}
-                >
-                  <Icon icon="outgoing-call" /> {__('Call')}
-                </li>
                 <li key="delete" onClick={() => this.onRemove(item._id)}>
                   <Icon icon="trash-alt" size={14} /> {__('Delete')}
                 </li>
@@ -106,7 +156,7 @@ class History extends React.Component<Props, State> {
             {__('Missed Call')}
           </TabTitle>
         </Tabs>
-        <CallHistory>
+        <CallHistory ref={this.activeItemRef}>
           <h4>{__('Recents')}</h4>
           {this.renderCalls()}
         </CallHistory>

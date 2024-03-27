@@ -53,6 +53,8 @@ type FinalProps = {
   currentUser: IUser;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
+  currentConversation: any;
+  messagesQuery: any;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -85,14 +87,17 @@ class MailFormContainer extends React.Component<
       emailTemplatesTotalCountQuery,
       currentUser,
       mails,
-      messageId
+      messageId,
+      currentConversation,
+      messagesQuery
     } = this.props;
+    if (messagesQuery.loading) {
+      return null;
+    }
 
-    const {
-      loadedEmails,
-      verifiedImapEmails,
-      verifiedEngageEmails
-    } = this.state;
+    const messages = messagesQuery.imapConversationDetail || [];
+    const { loadedEmails, verifiedImapEmails, verifiedEngageEmails } =
+      this.state;
 
     if (!loadedEmails) {
       if (isEnabled('engages')) {
@@ -228,7 +233,7 @@ class MailFormContainer extends React.Component<
             callback();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
 
           if (callback) {
@@ -279,7 +284,8 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
-      verifiedEngageEmails: verifiedEngageEmails || []
+      verifiedEngageEmails: verifiedEngageEmails || [],
+      messages: messages || []
     };
 
     return <MailForm {...updatedProps} />;
@@ -307,6 +313,18 @@ const WithMailForm = withProps<Props>(
         fetchPolicy: 'cache-first'
       }),
       skip: !isEnabled('emailtemplates')
+    }),
+    graphql<Props, any>(gql(queries.imapSendMail), {
+      name: 'messagesQuery',
+      options: ({ queryParams }) => {
+        const { _id } = queryParams;
+        return {
+          variables: {
+            conversationId: _id // Use the conversationId obtained from queryParams
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
     })
   )(withCurrentUser(MailFormContainer))
 );

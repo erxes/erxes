@@ -8,6 +8,7 @@ interface ICommonFields {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  code?: string;
 }
 
 interface IFormCodes {
@@ -70,6 +71,7 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
   title: field({ type: String, label: 'Title' }),
+  code: field({ type: String, unique: true, label: 'Code'}),
 };
 
 const formcodesSchema = new Schema(
@@ -160,6 +162,12 @@ export const topicSchema = schemaWrapper(
       required: false,
     }),
 
+    
+
     ...commonFields,
   }),
 );
+
+articleSchema.index({ code: 1}, { unique: true });
+categorySchema.index({ code: 1}, { unique: true });
+topicSchema.index({ code: 1}, { unique: true });

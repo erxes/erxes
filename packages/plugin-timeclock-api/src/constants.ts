@@ -62,5 +62,5 @@ export const PIVOT_REPORT_COLUMNS = [
 export const TIMECLOCK_EXPORT_COLUMNS = [
   [[''], ['Д/Д']],
   [[''], ['Овог нэр']],
-  [[''], ['Ажилтаны код']]
+  [[''], ['Ажилтаны код']],
 ];

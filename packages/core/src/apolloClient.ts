@@ -9,6 +9,7 @@ import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { extractUserFromHeader } from '@erxes/api-utils/src/headers';
 
 // load environment variables
 dotenv.config();
@@ -56,17 +57,7 @@ export const initApolloServer = async (app, httpServer) => {
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        let user: any = null;
-
-        if (req.headers.user) {
-          if (Array.isArray(req.headers.user)) {
-            throw new Error(`Multiple user headers`);
-          }
-          const userJson = Buffer.from(req.headers.user, 'base64').toString(
-            'utf-8',
-          );
-          user = JSON.parse(userJson);
-        }
+        let user: any = extractUserFromHeader(req.headers);
 
         const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 

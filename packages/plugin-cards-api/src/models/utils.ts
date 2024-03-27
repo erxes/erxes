@@ -293,7 +293,7 @@ export const destroyBoardItemRelations = async (
 
   await models.Checklists.removeChecklists(contentType, [contentTypeId]);
 
-  sendCoreMessage({
+  await sendCoreMessage({
     subdomain,
     action: 'conformities.removeConformity',
     data: {
@@ -302,10 +302,10 @@ export const destroyBoardItemRelations = async (
     },
   });
 
-  return sendInternalNotesMessage({
+  await sendInternalNotesMessage({
     subdomain,
-    action: 'deleteMany',
-    data: { contentType, contentTypeId },
+    action: 'removeInternalNotes',
+    data: { contentType: `cards:${contentType}`, contentTypeIds: [contentTypeId] },
   });
 };
 
