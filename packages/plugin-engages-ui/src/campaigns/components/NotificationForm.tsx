@@ -1,3 +1,4 @@
+import { IEngageNotification } from '@erxes/ui-engage/src/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -8,7 +9,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IEngageNotification } from '@erxes/ui-engage/src/types';
 import NotificationPreview from './NotificationPreview';
 
 const FlexInfo = styled.div`

@@ -383,6 +383,45 @@ query scheduleConfigOrder($userId: String){
   }
 }`;
 
+const timeclockReportByUsers = `
+query timeclockReportByUsers(${listParamsDef}){
+  timeclockReportByUsers(${listParamsValue}){
+   list {
+      user{
+        ${userFields}
+      }
+
+
+      schedules{
+          shifts{
+            shiftStart
+            shiftEnd
+          }
+      }
+      timeclocks{
+            _id
+            shiftStart
+            shiftEnd
+            shiftActive
+            user {
+              ${userFields}
+            }
+            employeeUserName
+            branchName
+            employeeId
+            deviceName
+            deviceType
+            inDevice
+            inDeviceType  
+            outDevice
+            outDeviceType
+          }
+      requests
+    }
+    totalCount
+  }
+}`;
+
 export default {
   timeclockReports,
   branches,
@@ -406,5 +445,6 @@ export default {
   scheduleConfigOrder,
 
   timeclockBranches,
-  timeclockDepartments
+  timeclockDepartments,
+  timeclockReportByUsers,
 };

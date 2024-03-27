@@ -13,7 +13,7 @@ import {
   IDashboard,
   IReport,
   IReportTemplate,
-  ReportChartTemplatesListQueryResponse,
+  InsightChartTemplatesListQueryResponse,
 } from '../../types';
 
 type Props = {
@@ -29,8 +29,8 @@ const ChartTemplatesContainer = (props: Props) => {
   const { serviceName, charts } = template;
 
   const reportChartTemplatesListQuery =
-    useQuery<ReportChartTemplatesListQueryResponse>(
-      gql(queries.reportChartTemplatesList),
+    useQuery<InsightChartTemplatesListQueryResponse>(
+      gql(queries.insightChartTemplatesList),
       {
         variables: {
           serviceName,
@@ -41,7 +41,7 @@ const ChartTemplatesContainer = (props: Props) => {
     );
 
   const chartTemplates =
-    reportChartTemplatesListQuery?.data?.reportChartTemplatesList || [];
+    reportChartTemplatesListQuery?.data?.insightChartTemplatesList || [];
   const loading = reportChartTemplatesListQuery.loading;
 
   const updatedProps = {

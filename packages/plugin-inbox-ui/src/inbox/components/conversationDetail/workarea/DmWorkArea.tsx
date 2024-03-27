@@ -1,17 +1,18 @@
 import {
   AddMessageMutationVariables,
   IConversation,
-  IMessage
+  IMessage,
 } from '@erxes/ui-inbox/src/inbox/types';
 import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
 import {
   ConversationWrapper,
   MailSubject,
-  RenderConversationWrapper
+  RenderConversationWrapper,
 } from './styles';
 
 import ActionBar from './ActionBar';
 import CallPro from './callpro/Callpro';
+import GrandStream from './grandStream/GrandStream';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
@@ -34,7 +35,7 @@ type Props = {
     variables,
     optimisticResponse,
     callback,
-    kind
+    kind,
   }: {
     variables: AddMessageMutationVariables;
     optimisticResponse: any;
@@ -57,7 +58,7 @@ export default class WorkArea extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      attachmentPreview: null
+      attachmentPreview: null,
     };
 
     this.node = React.createRef();
@@ -121,7 +122,7 @@ export default class WorkArea extends React.Component<Props, State> {
     }
   };
 
-  setAttachmentPreview = attachmentPreview => {
+  setAttachmentPreview = (attachmentPreview) => {
     this.setState({ attachmentPreview });
   };
 
@@ -147,7 +148,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
     let tempId;
 
-    messages.forEach(message => {
+    messages.forEach((message) => {
       rows.push(
         <Message
           isSameUser={
@@ -158,7 +159,7 @@ export default class WorkArea extends React.Component<Props, State> {
           conversationFirstMessage={conversationFirstMessage}
           message={message}
           key={message._id}
-        />
+        />,
       );
 
       tempId = message.userId ? message.userId : message.customerId;
@@ -211,7 +212,7 @@ export default class WorkArea extends React.Component<Props, State> {
     if (kind === 'calls') {
       return (
         <>
-          <CallPro conversation={currentConversation} />
+          <GrandStream conversation={currentConversation} />
           {this.renderMessages(messages, firstMessage)}
         </>
       );
@@ -226,7 +227,7 @@ export default class WorkArea extends React.Component<Props, State> {
       addMessage,
       typingInfo,
       refetchMessages,
-      refetchDetail
+      refetchDetail,
     } = this.props;
 
     const { kind } = currentConversation.integration;
@@ -236,6 +237,7 @@ export default class WorkArea extends React.Component<Props, State> {
       kind === 'lead' ||
       kind === 'booking' ||
       kind === 'imap' ||
+      kind === 'calls' ||
       kind === 'webhook';
 
     const typingIndicator = typingInfo ? (

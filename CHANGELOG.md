@@ -1,3 +1,106 @@
+# Changelog
+
+## [1.7.1](https://github.com/erxes/erxes/compare/1.7.0...1.7.1) (2024-03-26)
+
+
+### Features
+
+* **calls:** check customer, add customer info on conversation and improved keypad ([9d7e363](https://github.com/erxes/erxes/commit/9d7e3636c1fcf896770c848d171b9b6ed121a32e))
+
+
+### Bug Fixes
+
+* customer render full name ([e4e454f](https://github.com/erxes/erxes/commit/e4e454f47e0ddba5b56e6084a1d65442c78acd0f))
+* products filter by code condition regex ([df32b67](https://github.com/erxes/erxes/commit/df32b678e6c371fc4dacf506195fc7c6c0a325b2))
+
+
+### Performance Improvements
+
+* **facebook:** change facebook logs db collections ([a4e2b58](https://github.com/erxes/erxes/commit/a4e2b58ce2a8ec7a981946276de8b40ad65e64eb))
+
+## [1.7.0](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-25)
+
+
+### Features
+
+* **calls:** improving calls ui  ([2c53c42](https://github.com/erxes/erxes/commit/2c53c424e7be5560acea9e976429af9c7cf8faa2))
+
+
+### Bug Fixes
+
+* **coreui:**  Update tiptap editor schema & make editor section resizable ([#5083](https://github.com/erxes/erxes/issues/5083)) ([8ea9c65](https://github.com/erxes/erxes/commit/8ea9c65c10b1afc20c447e958469a21908f34f5b))
+* don't use frontend's getSubdomain function ([ac49388](https://github.com/erxes/erxes/commit/ac4938811b6e76301f8f69b12d3e939ed529d770))
+
+## [1.7.0-rc.1](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-20)
+
+## [1.7.0-rc.0](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-20)
+
+
+### Features
+
+*  sync from polaris datas to erxes  ([#5041](https://github.com/erxes/erxes/issues/5041)) ([9f894c1](https://github.com/erxes/erxes/commit/9f894c179f6616b0ecbb033826f78a8363135df7))
+* add  sale status on pos orders ([#5038](https://github.com/erxes/erxes/issues/5038)) ([561cda0](https://github.com/erxes/erxes/commit/561cda04faac0b4901a692ca8f2261183f15b43c))
+
+
+### Bug Fixes
+
+*  hostname should be host. ([e540213](https://github.com/erxes/erxes/commit/e540213cf2e73b2ca538d67a10b93080407d3ade))
+* **cards:** Stage probility not saving ([5a6847e](https://github.com/erxes/erxes/commit/5a6847e3127f9d1850e1c71e7cafc97bf87198e4))
+* cars permission ([d551f73](https://github.com/erxes/erxes/commit/d551f732606133b776f2511f5ad115f77c0bf19a))
+* **engage:** fix create tag bug of engage ([d312f24](https://github.com/erxes/erxes/commit/d312f24bbf361d747d76fa81eabbbebd8ab545a7))
+* **erkhet:** Update main navigation names ([8bc57d2](https://github.com/erxes/erxes/commit/8bc57d2ddc78b96904258c19beb987f35ec7570d))
+* exclude description from syncerkhet product update ([48eef48](https://github.com/erxes/erxes/commit/48eef481b03688723f2b71e9b7eeed6b86d92dc6))
+* **inbox:** messenger integration preview is not visible because of erxes messenger ([fe88639](https://github.com/erxes/erxes/commit/fe8863944258125e1479686b7e4aa3b749994766))
+* pageName proflePic token error on facebookt bots list ([906a13c](https://github.com/erxes/erxes/commit/906a13c34a476ea11cd520ae53fc0d6fa1e82c84))
+* **posclient:** ordery by price and get delivery product price ([#5062](https://github.com/erxes/erxes/issues/5062)) ([092cbc7](https://github.com/erxes/erxes/commit/092cbc72271765c100de000e3eb814bd85dfa7dc))
+* **products:** show alert uom required ([9d7c188](https://github.com/erxes/erxes/commit/9d7c188350827d4020c8f28e7b85ea003c243851))
+* show archived product categories ([ade8d51](https://github.com/erxes/erxes/commit/ade8d5159d0959e2cf6d75c6fbd15d334420d0b8))
+* sync polaris loan 's schedule ([#5064](https://github.com/erxes/erxes/issues/5064)) ([caf5036](https://github.com/erxes/erxes/commit/caf5036127ba582f3141c7276129f133f8b0f4a8))
+* Syncpolaris update some query mutation and permission names ([#5070](https://github.com/erxes/erxes/issues/5070)) ([fb084ad](https://github.com/erxes/erxes/commit/fb084add4b4b3b80483ab3b6e7b383b64ed8f500))
+
+
+### Performance Improvements
+
+* products similarity group config filter by any field ([#5054](https://github.com/erxes/erxes/issues/5054)) ([c08436a](https://github.com/erxes/erxes/commit/c08436a002697cd90f320113c69d57711f3137c9))
+* **settings:** Add confirmation modal when delete items ([e54a5e1](https://github.com/erxes/erxes/commit/e54a5e13ba5a9002937e31b781d2764ea9eceaa6))
+
+## [1.6.4](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-21)
+
+### [1.6.4](https://github.com/erxes/erxes/compare/1.6.3...1.6.4) (2024-03-21)
+
+### [1.6.3](https://github.com/erxes/erxes/compare/1.6.3-rc.4...1.6.3) (2024-03-20)
+
+
+### Features
+
+* **ebarimt:** return bill for duplicated ([a5a7959](https://github.com/erxes/erxes/commit/a5a795929ec1fb2c6ca1bcd1859f7f10361a3af5))
+
+### [1.6.3-rc.4](https://github.com/erxes/erxes/compare/1.6.3-rc.3...1.6.3-rc.4) (2024-03-18)
+
+
+### Bug Fixes
+
+* instagram-plugin login redirect url fix ([c17694e](https://github.com/erxes/erxes/commit/c17694e2750c9aef337cda68fb77d13af129214d))
+
+### [1.6.3-rc.3](https://github.com/erxes/erxes/compare/1.6.3-rc.2...1.6.3-rc.3) (2024-03-18)
+
+
+### Performance Improvements
+
+* **calls:** improving calls ui & code refactor ([f052833](https://github.com/erxes/erxes/commit/f05283309004854dbdba93c55e3efe9dc7a769a4))
+* **calls:** improving incoming call ui and code refactor  ([6e5af5f](https://github.com/erxes/erxes/commit/6e5af5f6a8c5f002b1dbeb61463113f48a67ebdf))
+
+
+
+
+
+### [1.6.3-rc.2](https://github.com/erxes/erxes/compare/1.6.3-rc.1...1.6.3-rc.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix time clock list ui  ([67196c9](https://github.com/erxes/erxes/commit/67196c9efe1f10ed7c60c2d3bea98619d54083fe))
+
 ### [1.6.3-rc.1](https://github.com/erxes/erxes/compare/1.6.3-rc.0...1.6.3-rc.1) (2024-03-07)
 
 
@@ -1827,4 +1930,3 @@
 * **deal:** remove some editor buttons ([cdc0ff8](https://github.com/erxes/erxes/commit/cdc0ff8))
 
 ## [0.9.16](https://github.com/erxes/erxes/compare/0.9.15...0.9.16) (2019-07-03)
-

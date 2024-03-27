@@ -45,21 +45,21 @@ type Props = {
 };
 
 type FinalProps = {
-  reportChartGetResultQuery: any;
+  chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { reportChartGetResultQuery, chartVariables, filter, chartType } =
+  const { chartGetResultQuery, chartVariables, filter, chartType } =
     props;
 
-  if (reportChartGetResultQuery && reportChartGetResultQuery.loading) {
+  if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
   }
 
-  const getResult = reportChartGetResultQuery?.reportChartGetResult || {};
+  const getResult = chartGetResultQuery?.chartGetResult || {};
 
   let finalProps: any = {
     ...props,
-    loading: reportChartGetResultQuery.loading,
+    loading: chartGetResultQuery.loading,
   };
 
   if (getResult && Array.isArray(getResult)) {
@@ -78,7 +78,7 @@ const ChartRendererList = (props: FinalProps) => {
   }
 
   const { data, labels, title, options } =
-    reportChartGetResultQuery?.reportChartGetResult || {};
+    chartGetResultQuery?.chartGetResult || {};
 
   const dataset = { data, labels, title };
   if (chartType === 'table') {
@@ -88,7 +88,7 @@ const ChartRendererList = (props: FinalProps) => {
     !data &&
     !labels &&
     !title &&
-    reportChartGetResultQuery.reportChartGetResult;
+    chartGetResultQuery.chartGetResult;
 
   finalProps = {
     ...props,
@@ -97,7 +97,7 @@ const ChartRendererList = (props: FinalProps) => {
     data,
     labels,
     title,
-    loading: reportChartGetResultQuery.loading,
+    loading: chartGetResultQuery.loading,
   };
 
   return <ChartRenderer {...finalProps} />;
@@ -105,8 +105,8 @@ const ChartRendererList = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<any>(gql(queries.reportChartGetResult), {
-      name: 'reportChartGetResultQuery',
+    graphql<any>(gql(queries.chartGetResult), {
+      name: 'chartGetResultQuery',
       options: ({ chartVariables, filter, dimension }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
