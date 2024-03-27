@@ -1,4 +1,4 @@
-import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
+import { ContentBox } from '@erxes/ui-settings/src/styles';
 import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -11,11 +11,12 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
 import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Integration from '../../Integration';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: any;
 };
 
 type State = {
@@ -29,6 +30,12 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.configsMap !== this.props.configsMap) {
+      this.setState({ configsMap: this.props.configsMap || {} });
+    }
   }
 
   save = e => {
@@ -66,10 +73,18 @@ class IntegrationConfigs extends React.Component<Props, State> {
         {description && <p>{__(description)}</p>}
         <FormControl
           type={type || 'text'}
-          defaultValue={configsMap[key] || defaultValue}
+          value={configsMap[key] || defaultValue}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
+    );
+  };
+
+  actionButtons = () => {
+    return (
+      <Button icon="check-circle" btnStyle="success" onClick={this.save}>
+        Save Configs
+      </Button>
     );
   };
 
@@ -219,33 +234,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
   };
 
   render() {
-    const actionButtons = (
-      <Button btnStyle="success" onClick={this.save} icon="check-circle">
-        Save
-      </Button>
-    );
-
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations config') }
-    ];
-
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Integrations config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Integrations config')}</Title>}
-            right={actionButtons}
-          />
-        }
+      <Integration
+        action={this.actionButtons()}
         content={this.renderContent()}
-        hasBorder={true}
+        tab="configs"
       />
     );
   }
