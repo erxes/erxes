@@ -15,6 +15,15 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('loans:firstLoanSchedules.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.FirstSchedules.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { selector, modifier } = data;
@@ -92,6 +101,17 @@ export const setupMessageConsumers = async () => {
       status: 'success',
     };
   });
+  consumeRPCQueue(
+    'loans:firstLoanSchedules.insertMany',
+    async ({ subdomain,data }) => {
+      const models = await generateModels(subdomain);
+      
+      return {
+        data: await models.FirstSchedules.insertMany(data),
+        status: 'success',
+      };
+    },
+  )
 };
 
 export const sendMessageBroker = async (

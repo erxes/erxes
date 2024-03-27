@@ -1,12 +1,14 @@
+
 import { sendCommonMessage } from '../../messageBroker';
 import { getCustomerDetail } from '../customer/getCustomerDetail';
 import { getLoanDetail } from '../loan/getLoanDetail';
+import { getLoanSchedule } from '../loan/getLoanSchedule';
 import { getSavingDetail } from '../saving/getSavingDetail';
 import {
   getContract,
   getCustomer,
   updateContract,
-  updateCustomer,
+  updateCustomer
 } from '../utils';
 
 export const getCustomFields = async (subdomain, customFieldType, item?) => {
@@ -42,6 +44,7 @@ export const getCustomFields = async (subdomain, customFieldType, item?) => {
     item: item || [],
   };
 };
+
 export const dateNames = ['startDate', 'endDate'];
 export const findDiffrentData = async (mainData, polarisData) => {
   if (polarisData) {
@@ -137,12 +140,7 @@ export const syncDataToErxes = async (type, subdomain, item, updateData) => {
     case 'contacts:customer':
       return await updateCustomer(subdomain, { code: item.code }, updateData);
     case 'loans:contract':
-      return updateContract(
-        subdomain,
-        { number: item.number },
-        { $set: updateData },
-        'loans',
-      );
+      return setLoanWithSchedule(subdomain, item, updateData);
     case 'savings:contract':
       return await updateContract(
         subdomain,
@@ -171,3 +169,80 @@ export const getMainDatas = async (subdomain, type) => {
     }
   }
 };
+
+export const setLoanWithSchedule = async (subdomain, item, updateData) => {
+  
+  await updateContract(
+    subdomain,
+    { number: item.number },
+    { $set: updateData },
+    'loans',
+  )
+  await preLoanSchedule(subdomain,item)
+};
+
+
+export const preLoanSchedule = async (subdomain, item) => {
+  try {
+
+    const mainLoanSchedule = await getMainLoanSchedule(subdomain, {contractId: item._id})
+    const loanSchedules = await getLoanSchedule(subdomain, { number: item.number })
+
+    if(!mainLoanSchedule && loanSchedules) {
+      await createLoanSchedule(subdomain,loanSchedules,item._id)
+    }
+  } catch (error) {
+    console.log('update schedule:',error)
+  }
+};
+
+export const getMainLoanSchedule = async (subdomain, data) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'firstLoanSchedules.findOne',
+    serviceName: 'loans',
+    data: data,
+    isRPC: true,
+  });
+}
+
+export const insertLoanSchedule = async (subdomain, data) => {
+  return await sendCommonMessage({
+    subdomain,
+    action: 'firstLoanSchedules.insertMany',
+    serviceName: 'loans',
+    data: data,
+    isRPC: true,
+  });
+}
+export const createLoanSchedule = async (subdomain,loanSchedules, contractId) => {
+  try {
+    const result: any[] = [] 
+
+    for(const schedule of loanSchedules) {
+      const loanSchedule  = {
+        "status": "pending",
+        "payDate": new Date(schedule.schdDate),
+        "scheduleDidStatus": "pending",
+        "transactionIds": [],
+        "isDefault": true,
+        "scopeBrandIds": [],
+        "createdAt": new Date(new Date().getTime()),
+        "contractId": contractId,
+        "version": "0",
+        "balance": schedule.theorBal,
+        "payment": schedule.totalAmount,
+        "interestEve": schedule.intAmount,
+        "interestNonce": schedule.amount,
+        "total": schedule.totalAmount,
+        "insurance": 0,
+      }
+      result.push(loanSchedule)
+    }
+
+    await insertLoanSchedule(subdomain,result)
+
+  } catch (error) {
+    console.log('insert loan schedule', error)
+  }
+}

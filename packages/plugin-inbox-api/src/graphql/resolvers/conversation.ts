@@ -1,6 +1,6 @@
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
@@ -136,5 +136,39 @@ export default {
       debugError(e);
       return null;
     }
+  },
+  async callHistory(
+    conversation: IConversationDocument,
+    _args,
+    { models, subdomain }: IContext,
+  ) {
+    const integration =
+      (await models.Integrations.findOne({
+        _id: conversation.integrationId,
+      })) || ({} as any);
+
+    if (integration && integration.kind !== 'calls') {
+      return null;
+    }
+
+    // if (user.isOwner || user._id === conv.assignedUserId) {
+    try {
+      const response = await sendCallsMessage({
+        subdomain,
+        action: 'getCallHistory',
+        data: {
+          erxesApiConversationId: conversation._id,
+        },
+        isRPC: true,
+      });
+
+      return response ? response : '';
+    } catch (e) {
+      debugError(e);
+      return null;
+    }
+    // }
+
+    return null;
   },
 };

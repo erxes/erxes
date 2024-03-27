@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import {
   EmailTemplatesQueryResponse,
   IEngageMessageDoc,
-  IEngageScheduleDate,
   IIntegrationWithPhone,
 } from '@erxes/ui-engage/src/types';
 
@@ -30,7 +29,6 @@ import { withProps } from '@erxes/ui/src/utils';
 type Props = {
   kind?: string;
   brands: IBrand[];
-  scheduleDate?: IEngageScheduleDate;
   totalCountQuery?: any;
   segmentType?: string;
 };
@@ -64,7 +62,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     clientPortalConfigsQuery,
     { loading, data = {} as ClientPortalConfigsQueryResponse },
   ] = useLazyQuery<ClientPortalConfigsQueryResponse>(
-    gql(clientPortalQueries.getConfigs),
+    gql(clientPortalQueries.getConfigs)
   );
 
   const handleClientPortalKindChange = useCallback(
@@ -72,7 +70,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
       setBusinessPortalKind(businessPortalKind);
       clientPortalConfigsQuery({ variables: { kind: businessPortalKind } });
     },
-    [businessPortalKind],
+    [businessPortalKind]
   );
 
   const configs =
@@ -96,7 +94,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
-      (i) => i._id === ext.erxesApiId && i.isActive,
+      (i) => i._id === ext.erxesApiId && i.isActive
     );
 
     for (const local of locals) {
@@ -137,9 +135,9 @@ const withTemplatesQuery = withFormMutations<Props>(
             perPage: totalCountQuery.emailTemplatesTotalCount,
           },
         }),
-      }),
-    )(AutoAndManualFormContainer),
-  ),
+      })
+    )(AutoAndManualFormContainer)
+  )
 );
 
 let composers: any[] = [
@@ -169,7 +167,7 @@ const integrationEnabledQueries = [
           fetchPolicy: 'network-only',
         };
       },
-    },
+    }
   ),
 ];
 

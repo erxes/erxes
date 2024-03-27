@@ -7,20 +7,24 @@ import { generateAttachmentMessages, sendReply } from './utils';
  * Handle requests from erxes api
  */
 
-export const handleInstagramMessage = async (models: IModels, msg) => {
+export const handleInstagramMessage = async (
+  models: IModels,
+  msg,
+  subdomain,
+) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
     const conversation = await models.Conversations.getConversation({
-      erxesApiId: doc.conversationId
+      erxesApiId: doc.conversationId,
     });
 
     return models.ConversationMessages.addMessage(
       {
         ...doc,
-        conversationId: conversation._id
+        conversationId: conversation._id,
       },
-      doc.userId
+      doc.userId,
     );
   }
   if (action === 'reply-messenger') {
@@ -29,17 +33,17 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
       conversationId,
       content = '',
       attachments = [],
-      extraInfo
+      extraInfo,
     } = doc;
 
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
-    const images: string[] = (content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
+    const images: string[] = (content.match(regex) || []).map((m) =>
+      m.replace(regex, '$1'),
     );
 
-    images.forEach(img => {
+    images.forEach((img) => {
       attachments.push({ type: 'image', url: img });
     });
 
@@ -47,7 +51,7 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
 
     strippedContent = strippedContent.replace(/&amp;/g, '&');
     const conversation = await models.Conversations.getConversation({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const { senderId } = conversation;
@@ -61,9 +65,9 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
             {
               recipient: { id: senderId },
               message: { text: strippedContent },
-              tag
+              tag,
             },
-            integrationId
+            integrationId,
           );
 
           if (resp) {
@@ -72,20 +76,23 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
                 ...doc,
                 // inbox conv id comes, so override
                 conversationId: conversation._id,
-                mid: resp.message_id
+                mid: resp.message_id,
               },
-              doc.userId
+              doc.userId,
             );
           }
         } catch (e) {
           await models.ConversationMessages.deleteOne({
-            _id: localMessage && localMessage._id
+            _id: localMessage && localMessage._id,
           });
           throw new Error(e.message);
         }
       }
 
-      const generatedAttachments = generateAttachmentMessages(attachments);
+      const generatedAttachments = generateAttachmentMessages(
+        subdomain,
+        attachments,
+      );
 
       for (const message of generatedAttachments) {
         try {
@@ -93,7 +100,7 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
             models,
             'me/messages',
             { recipient: { id: senderId }, message, tag },
-            integrationId
+            integrationId,
           );
         } catch (e) {
           throw new Error(e.message);
@@ -107,7 +114,7 @@ export const handleInstagramMessage = async (models: IModels, msg) => {
       status: 'success',
       // inbox conversation id is used for mutation response,
       // therefore override local id
-      data: { ...localMessage.toObject(), conversationId }
+      data: { ...localMessage.toObject(), conversationId },
     };
   }
 };

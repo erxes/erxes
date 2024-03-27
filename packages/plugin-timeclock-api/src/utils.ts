@@ -978,7 +978,7 @@ const createScheduleObjOfMembers = async (
                   new Date().toLocaleDateString() +
                     ' ' +
                     scheduleConfigShift.configShiftEnd
-                )
+                ),
             };
           }
 
@@ -1002,7 +1002,7 @@ const createScheduleObjOfMembers = async (
                   ' ' +
                   getScheduleConfig?.shiftEnd ||
                   dayjs(scheduleShift.shiftEnd).format(timeFormat)
-              )
+              ),
           };
           // if there're config(s) already, put all in array
           if (shift_date_key in empSchedulesDict) {
@@ -1093,10 +1093,10 @@ const createTeamMembersObjectWithFullName = async (
     subdomain,
     action: 'users.find',
     data: {
-      query: { _id: { $in: userIds }, isActive: true }
+      query: { _id: { $in: userIds }, isActive: true },
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const teamMember of teamMembers) {
@@ -1105,7 +1105,7 @@ const createTeamMembersObjectWithFullName = async (
       fullName: `${teamMember.details.lastName?.charAt(0)}.${
         teamMember.details.firstName
       }`,
-      position: teamMember.details.position
+      position: teamMember.details.position,
     };
   }
 
@@ -1225,7 +1225,7 @@ const generateFilter = async (
 
   if (!isCurrentUserAdmin) {
     scheduleFilter = {
-      userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
+      userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
     };
   }
 
@@ -1277,7 +1277,7 @@ const generateFilter = async (
     returnFilter = {};
     if (!isCurrentUserAdmin) {
       returnFilter = {
-        userId: { $in: totalSupervisedUsers.map(usr => usr._id) }
+        userId: { $in: totalSupervisedUsers.map(usr => usr._id) },
       };
     }
     returnFilter = {

@@ -97,10 +97,20 @@ export const afterMutationHandlers = async (
             registerNo: config.companyRD || '',
           };
         } else {
-          ebarimtResponse = await models.PutResponses.putData(
-            ebarimtData,
-            config,
-          );
+          try {
+            ebarimtResponse = await models.PutResponses.putData(
+              ebarimtData,
+              config,
+            );
+          } catch (e) {
+            ebarimtResponse = {
+              _id: `Err${Math.random()}`,
+              billId: 'Error',
+              success: 'false',
+              message: e.message
+            }
+          }
+
         }
         if (ebarimtResponse._id) {
           ebarimtResponses.push(ebarimtResponse);

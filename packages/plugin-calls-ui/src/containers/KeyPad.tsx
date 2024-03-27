@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
-
-import { mutations, queries } from '../graphql';
 import { gql, useMutation } from '@apollo/client';
-import client from '@erxes/ui/src/apolloClient';
-import { Alert } from '@erxes/ui/src/utils';
+import { mutations, queries } from '../graphql';
 
+import { Alert } from '@erxes/ui/src/utils';
 import KeyPad from '../components/Keypad';
-import { ICallConversation } from '../types';
+import client from '@erxes/ui/src/apolloClient';
 
 type IProps = {
   callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
 };
+
 const KeyPadContainer = (props: IProps) => {
   const { callUserIntegrations, setConfig, phoneNumber } = props;
 
   const [customer, setCustomer] = useState<any>(undefined);
-  const [conversation, setConversation] =
-    useState<ICallConversation>(undefined);
+  const [conversation, setConversation] = useState<any>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
@@ -67,21 +65,23 @@ const KeyPadContainer = (props: IProps) => {
     primaryPhone: string,
     callID: string,
   ) => {
-    createCustomerMutation({
-      variables: {
-        inboxIntegrationId,
-        primaryPhone,
-        direction: 'outgoing',
-        callID,
-      },
-    })
-      .then(({ data }: any) => {
-        setCustomer(data.callAddCustomer?.customer);
-        setConversation(data.callAddCustomer?.conversation);
+    if (callID) {
+      createCustomerMutation({
+        variables: {
+          inboxIntegrationId,
+          primaryPhone,
+          direction: 'outgoing',
+          callID,
+        },
       })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
+        .then(({ data }: any) => {
+          setCustomer(data.callAddCustomer?.customer);
+          setConversation(data.callAddCustomer?.conversation);
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    }
   };
 
   const toggleSection = (phoneNumber): void => {
