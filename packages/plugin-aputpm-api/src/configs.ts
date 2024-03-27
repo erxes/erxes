@@ -5,6 +5,7 @@ import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import forms from './forms';
+import reports from './reports/reports';
 
 export default {
   name: 'aputpm',
@@ -17,6 +18,7 @@ export default {
 
   meta: {
     forms,
+    reports,
   },
 
   apolloServerContext: async (context, req) => {

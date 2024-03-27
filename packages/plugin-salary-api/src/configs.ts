@@ -17,13 +17,13 @@ export default {
   permissions,
 
   meta: {
-    permissions,
+    permissions
   },
 
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
 
@@ -34,7 +34,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers,
+      headers: req.headers
     };
 
     context.subdomain = subdomain;
@@ -52,7 +52,7 @@ export default {
 
     const corsOptions = {
       credentials: true,
-      origin: DOMAIN || 'http://localhost:3000',
+      origin: DOMAIN || 'http://localhost:3000'
     };
 
     app.use(cors(corsOptions));
@@ -79,10 +79,19 @@ export default {
             return res.status(200).json({ error: 'File is required' });
           }
 
-          try {
-            const result = await handleUpload(subdomain, req.user, file, title);
+          const [startDateString, endDateString] = title.split('-');
 
-            res.status(200).json({ success: true, result });
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+
+          try {
+            const message = await handleUpload(subdomain, req.user, file, {
+              title,
+              startDate,
+              endDate
+            });
+
+            res.status(200).json({ success: true, message });
           } catch (e) {
             return res.status(200).json({ error: e.message });
           }
@@ -91,8 +100,8 @@ export default {
           // next(e);
           return res.status(200).json({ error: e.message });
         }
-      },
+      }
     );
   },
-  setupMessageConsumers,
+  setupMessageConsumers
 };

@@ -6,11 +6,18 @@ import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import List from '../components/SalaryList';
 import { queries, mutations } from '../graphql';
+import { generateParams } from '../utils';
 
 type Props = {
   refetch?: () => void;
   history?: any;
   queryParams: any;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
+  setLoading: (loading: boolean) => void;
+  setEmptyContentButton: (content: any) => void;
 } & IRouterProps;
 
 export default function ListContainer(props: Props) {
@@ -19,27 +26,28 @@ export default function ListContainer(props: Props) {
 
   const variables: any = {
     ...router.generatePaginationParams(props.queryParams || {}),
+    ...generateParams(props.queryParams || {})
   };
 
   const salariesQry = useQuery(gql(queries.salaryReport), {
     variables: {
-      ...variables,
+      ...variables
     },
     skip: isEmployeeSalary,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   });
 
   const [removeSalary] = useMutation(gql(mutations.removeSalary), {
     variables: { _id: '' },
-    refetchQueries: [gql(queries.salaryReport)],
+    refetchQueries: [gql(queries.salaryReport)]
   });
 
   const labelsQuery = useQuery(gql(queries.labelsQuery), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first'
   });
 
   const symbolsQuery = useQuery(gql(queries.symbolsQuery), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-first'
   });
 
   const [getEmployeeSalary, { data, loading, error }] = useLazyQuery(
@@ -47,9 +55,9 @@ export default function ListContainer(props: Props) {
     {
       fetchPolicy: 'network-only',
       variables: {
-        password: '',
-      },
-    },
+        password: ''
+      }
+    }
   );
 
   if (
@@ -65,14 +73,14 @@ export default function ListContainer(props: Props) {
     const message = 'Please enter your password to confirm this action.';
 
     confirm(message, { hasPasswordConfirm: true })
-      .then((password) => {
+      .then(password => {
         getEmployeeSalary({
           variables: {
-            password: password as string,
-          },
+            password: password as string
+          }
         });
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -82,13 +90,13 @@ export default function ListContainer(props: Props) {
 
     confirm(message).then(() => {
       removeSalary({
-        variables: { _id: id },
+        variables: { _id: id }
       })
         .then(() => {
           Alert.success(__('Successfully deleted.'));
           salariesQry.refetch();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     });
@@ -107,19 +115,24 @@ export default function ListContainer(props: Props) {
   }
 
   if (isEmployeeSalary) {
-    salaries = (data && data.bichilSalaryByEmployee.list) || [];
-    totalCount = (data && data.bichilSalaryByEmployee.totalCount) || 0;
+    salaries = (data && data.salaryByEmployee.list) || [];
+    totalCount = (data && data.salaryByEmployee.totalCount) || 0;
 
     if (error) {
       Alert.error(error.message);
     }
   }
 
-  const labels = labelsQuery.data.bichilSalaryLabels || {};
-  const symbols = symbolsQuery.data.bichilSalarySymbols || {};
+  const labels = labelsQuery.data.salaryLabels || {};
+  const symbols = symbolsQuery.data.salarySymbols || {};
 
   const extendedProps = {
     ...props,
+    loading:
+      loading ||
+      labelsQuery.loading ||
+      salariesQry.loading ||
+      symbolsQuery.loading,
     labels,
     symbols,
     salaries,
@@ -127,7 +140,7 @@ export default function ListContainer(props: Props) {
     isEmployeeSalary,
     remove,
     refetch,
-    confirmPassword,
+    confirmPassword
   };
 
   return <List {...extendedProps} />;

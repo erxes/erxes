@@ -10,13 +10,13 @@ import * as jwt from 'jsonwebtoken';
 import * as xlsx from 'xlsx-populate';
 
 import { generateModels } from './connectionResolver';
-import { SALARY_FIELDS } from './constants';
+import { SALARY_FIELDS, SALARY_FIELDS_MAP } from './constants';
 import { sendCoreMessage } from './messageBroker';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
   _res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const subdomain = getSubdomain(req);
 
@@ -38,9 +38,9 @@ export default async function userMiddleware(
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: user._id,
+        _id: user._id
       },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!userDoc) {
@@ -85,14 +85,14 @@ export default async function userMiddleware(
 export const checkPermission = async (
   subdomain: string,
   user: IUserDocument,
-  mutationName: string,
+  mutationName: string
 ) => {
   checkLogin(user);
 
   const permissions = ['addSalaries'];
 
   const actionName = permissions.find(
-    (permission) => permission === mutationName,
+    permission => permission === mutationName
   );
 
   if (!actionName) {
@@ -116,117 +116,168 @@ export const handleUpload = async (
   subdomain: string,
   user: any,
   file: any,
-  title: string,
+  doc: any
 ) => {
-  const models = await generateModels(subdomain);
+  try {
+    const models = await generateModels(subdomain);
 
-  const workbook = await xlsx.fromFileAsync(file.path);
-  const worksheet = workbook.sheet(0);
-  const usedRange = worksheet.usedRange();
-  const allData: any[] = [];
+    const workbook = await xlsx.fromFileAsync(file.path);
+    const worksheet = workbook.sheet(0);
+    const usedRange = worksheet.usedRange();
+    const allData: any[] = [];
 
-  let startRow = null;
+    let startRow = null;
+    const columnNumberDictionary: { [fieldName: string]: number } = {};
 
-  // Loop through rows
-  for (
-    let i = usedRange.startCell().rowNumber();
-    i <= usedRange.endCell().rowNumber();
-    i++
-  ) {
-    if (i === 1 || i === 2) {
-      continue;
-    }
-
-    const row: any[] = [];
+    // Loop through rows
     for (
-      let j = usedRange.startCell().columnNumber();
-      j <= usedRange.endCell().columnNumber();
-      j++
+      let i = usedRange.startCell().rowNumber();
+      i <= usedRange.endCell().rowNumber();
+      i++
     ) {
-      const cell = worksheet.cell(i, j);
-      const cellValue = cell.value();
-      row.push(cellValue);
+      let dbUser;
+      const headersRow: string[] = [];
+      if (i === 1 || i === 2) {
+        for (
+          let j = usedRange.startCell().columnNumber();
+          j <= usedRange.endCell().columnNumber();
+          j++
+        ) {
+          const cell = worksheet.cell(i, j);
+          const cellValue = cell.value();
 
-      // Check if starting row is not yet determined and the cell is non-empty
-      if (
-        startRow === null &&
-        cellValue !== null &&
-        cellValue !== undefined &&
-        cellValue !== ''
-      ) {
-        startRow = i;
-      }
-    }
+          if (!cellValue) {
+            continue;
+          }
 
-    if (row[0] !== null && row[0] !== undefined) {
-      const employee = await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: {
-          employeeId: row[0],
-        },
-        isRPC: true,
-        defaultValue: null,
-      });
+          headersRow.push(cellValue);
+          const lowerCaseValue = String(cellValue).toLowerCase();
 
-      if (!employee) {
+          if (SALARY_FIELDS_MAP[lowerCaseValue]) {
+            const dbFieldName = SALARY_FIELDS_MAP[lowerCaseValue];
+
+            const columnIndex = cell.columnNumber() - 1;
+            columnNumberDictionary[dbFieldName] = columnIndex;
+            columnNumberDictionary[columnIndex] = dbFieldName;
+          }
+
+          // Check if starting row is not yet determined and the cell is non-empty
+          if (
+            startRow === null &&
+            cellValue !== null &&
+            cellValue !== undefined &&
+            cellValue !== ''
+          ) {
+            startRow = i;
+          }
+        }
+
         continue;
       }
-    }
 
-    if (
-      row.filter((cell) => cell !== null && cell !== undefined && cell !== '')
-        .length === 0
-    ) {
-      continue;
-    }
-
-    if (
-      row[0] &&
-      row[0] !== null &&
-      row[0] !== undefined &&
-      typeof row[0] === 'string' &&
-      row[0].toLowerCase().includes('нийт')
-    ) {
-      break;
-    }
-
-    const salaryDoc: any = {
-      title,
-      createdBy: user._id,
-      createdAt: new Date(),
-    };
-
-    for (const [index, value] of row.entries()) {
-      if (value && index === 0) {
-        salaryDoc.employeeId = value;
+      const row: any[] = [];
+      for (
+        let j = usedRange.startCell().columnNumber();
+        j <= usedRange.endCell().columnNumber();
+        j++
+      ) {
+        const cell = worksheet.cell(i, j);
+        const cellValue = cell.value();
+        row.push(cellValue);
+        // Check if starting row is not yet determined and the cell is non-empty
+        if (
+          startRow === null &&
+          cellValue !== null &&
+          cellValue !== undefined &&
+          cellValue !== ''
+        ) {
+          startRow = i;
+        }
       }
 
-      if (value) {
-        salaryDoc[SALARY_FIELDS[index]] = value;
+      if (row[0] !== null && row[0] !== undefined) {
+        const employee = await sendCoreMessage({
+          subdomain,
+          action: 'users.findOne',
+          data: {
+            employeeId: row[0]
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        if (!employee) {
+          continue;
+        }
+
+        dbUser = employee;
       }
 
-      if (value === '-') {
-        salaryDoc[SALARY_FIELDS[index]] = 0;
+      if (
+        row.filter(cell => cell !== null && cell !== undefined && cell !== '')
+          .length === 0
+      ) {
+        continue;
+      }
+
+      if (
+        row[0] &&
+        row[0] !== null &&
+        row[0] !== undefined &&
+        typeof row[0] === 'string' &&
+        row[0].toLowerCase().includes('нийт')
+      ) {
+        break;
+      }
+
+      const salaryDoc: any = {
+        ...doc,
+        createdBy: user._id,
+        createdAt: new Date()
+      };
+
+      if (dbUser) {
+        salaryDoc['userId'] = dbUser._id;
+      }
+
+      for (const [index, value] of row.entries()) {
+        if (value && index === 0) {
+          salaryDoc.employeeId = value;
+          continue;
+        }
+
+        if (index in columnNumberDictionary) {
+          const dbFieldName = columnNumberDictionary[index];
+
+          if (value) {
+            salaryDoc[dbFieldName] = value;
+          }
+
+          if (value === '-') {
+            salaryDoc[dbFieldName] = 0;
+          }
+        }
+      }
+
+      if (salaryDoc.employeeId) {
+        allData.push(salaryDoc);
       }
     }
 
-    if (salaryDoc.employeeId) {
-      allData.push(salaryDoc);
+    if (allData.length === 0) {
+      throw new Error('No valid data found');
     }
+
+    await models.Salaries.insertMany(allData, {
+      ordered: false,
+      rawResult: true
+    });
+
+    // remove file
+    fs.unlinkSync(file.path);
+
+    return 'success';
+  } catch (error) {
+    return error.message;
   }
-
-  if (allData.length === 0) {
-    throw new Error('No valid data found');
-  }
-
-  await models.Salaries.insertMany(allData, {
-    ordered: false,
-    rawResult: true,
-  });
-
-  // remove file
-  fs.unlinkSync(file.path);
-
-  return 'success';
 };
