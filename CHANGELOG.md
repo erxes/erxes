@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/erxes/erxes/compare/1.7.1...1.7.2) (2024-03-27)
+
+
+### Bug Fixes
+
+* customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
+
 ## [1.7.1](https://github.com/erxes/erxes/compare/1.7.0...1.7.1) (2024-03-26)
 
 
