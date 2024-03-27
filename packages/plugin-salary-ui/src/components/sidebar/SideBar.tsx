@@ -5,7 +5,6 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { router } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import {
@@ -49,8 +48,12 @@ const LeftSideBar = (props: Props) => {
     setIsHovered(false);
   };
 
-  const [startDate, setStartDate] = useState(queryParams.startDate);
-  const [endDate, setEndDate] = useState(queryParams.endDate);
+  const [startDate, setStartDate] = useState(
+    queryParams.startDate || startOfThisMonth
+  );
+  const [endDate, setEndDate] = useState(
+    queryParams.endDate || startOfNextMonth
+  );
 
   const cleanFilter = () => {
     onBranchSelect([]);
@@ -145,6 +148,10 @@ const LeftSideBar = (props: Props) => {
   const onDateFilterActiveButton = () => {
     const setValue = !dateFilterActive;
 
+    if (setValue) {
+      setParams('startDate', startDate);
+      setParams('endDate', endDate);
+    }
     setParams('dateFilter', setValue.toString());
     setDateFilterActive(setValue);
   };
