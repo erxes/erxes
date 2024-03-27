@@ -9,12 +9,16 @@ module.exports = {
   generateResolvers: (graphqlPubsub) => {
     return {
       phoneCallReceived: {
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`phoneCallReceived:${userId}`),
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `phoneCallReceived:${subdomain}:${userId}`,
+          ),
       },
       sessionTerminateRequested: {
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`sessionTerminateRequested:${userId}`),
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `sessionTerminateRequested:${subdomain}:${userId}`,
+          ),
       },
     };
   },

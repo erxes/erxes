@@ -1,4 +1,7 @@
 import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../src/connectionResolver';
+import { sendContactsMessage, sendInboxMessage } from '../src/messageBroker';
+import * as nodemailer from 'nodemailer';
 
 interface IMail {
   name: string;
@@ -28,12 +31,12 @@ export const customerSchema = new Schema({
   contactsId: String,
   email: { type: String, unique: true },
   firstName: String,
-  lastName: String
+  lastName: String,
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
 
-export const loadCustomerClass = models => {
+export const loadCustomerClass = (models) => {
   class Customer {}
 
   customerSchema.loadClass(Customer);
@@ -63,17 +66,17 @@ export const attachmentSchema = new Schema(
     mimeType: String,
     type: String,
     size: Number,
-    attachmentId: String
+    attachmentId: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const emailSchema = new Schema(
   {
     name: String,
-    address: String
+    address: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const messageSchema = new Schema({
@@ -90,13 +93,165 @@ export const messageSchema = new Schema({
   from: [emailSchema],
   attachments: [attachmentSchema],
   createdAt: { type: Date, index: true, default: new Date() },
-  type: { type: String, enum: ['SENT', 'INBOX'] }
+  type: { type: String, enum: ['SENT', 'INBOX'] },
 });
 
-export interface IMessageModel extends Model<IMessageDocument> {}
+export interface IMessageModel extends Model<IMessageDocument> {
+  createSendMail(
+    args: any,
+    subdomain: string,
+    models: IModels,
+  ): Promise<IMessageDocument>;
+}
 
-export const loadMessageClass = models => {
-  class Message {}
+export const loadMessageClass = (models) => {
+  class Message {
+    public static async createSendMail(
+      args: any,
+      subdomain: string,
+      models: IModels,
+    ) {
+      const {
+        integrationId,
+        conversationId,
+        subject,
+        body,
+        from,
+        customerId,
+        to,
+        attachments,
+        replyToMessageId,
+        shouldOpen,
+        shouldResolve,
+      } = args;
+
+      let customer;
+
+      const selector = customerId
+        ? { _id: customerId }
+        : { status: { $ne: 'deleted' }, emails: { $in: to } };
+
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: selector,
+        isRPC: true,
+      });
+
+      if (!customer) {
+        const [primaryEmail] = to;
+
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            state: 'lead',
+            primaryEmail,
+          },
+          isRPC: true,
+        });
+      }
+
+      let integration;
+
+      if (from) {
+        integration = await models.Integrations.findOne({
+          user: from,
+        });
+      }
+
+      if (!integration) {
+        integration = await models.Integrations.findOne({
+          inboxId: integrationId,
+        });
+      }
+
+      if (!integration && conversationId) {
+        const conversation = await sendInboxMessage({
+          subdomain,
+          action: 'conversations.findOne',
+          data: { _id: conversationId },
+          isRPC: true,
+        });
+
+        integration = await models.Integrations.findOne({
+          inboxId: conversation.integrationId,
+        });
+      }
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      if (conversationId) {
+        if (shouldResolve) {
+          await sendInboxMessage({
+            subdomain,
+            action: 'conversations.changeStatus',
+            data: { id: conversationId, status: 'closed' },
+            isRPC: true,
+          });
+        }
+        if (shouldOpen) {
+          await sendInboxMessage({
+            subdomain,
+            action: 'conversations.changeStatus',
+            data: { id: conversationId, status: 'new' },
+            isRPC: true,
+          });
+        }
+      }
+
+      const transporter = nodemailer.createTransport({
+        host: integration.smtpHost,
+        port: integration.smtpPort,
+        secure: true,
+        logger: true,
+        debug: true,
+        auth: {
+          user: integration.mainUser || integration.user,
+          pass: integration.password,
+        },
+      });
+
+      const mailData = {
+        from,
+        to,
+        subject: replyToMessageId ? `Re: ${subject}` : subject,
+        html: body,
+        inReplyTo: replyToMessageId,
+        references: [replyToMessageId],
+        attachments: attachments.map((attach) => ({
+          filename: attach.name,
+          path: attach.url,
+        })),
+      };
+
+      const info = await transporter.sendMail(mailData);
+
+      models.Messages.create({
+        inboxIntegrationId: integration.inboxId,
+        inboxConversationId: conversationId,
+        createdAt: new Date(),
+        messageId: info.messageId,
+        inReplyTo: replyToMessageId,
+        references: mailData.references,
+        subject: mailData.subject,
+        body: mailData.html,
+        to: (mailData.to || []).map((to) => ({ name: to, address: to })),
+        from: [{ name: mailData.from, address: mailData.from }],
+        attachments: attachments.map(({ name, type, size }) => ({
+          filename: name,
+          type,
+          size,
+        })),
+        type: 'SENT',
+      });
+      return {
+        info: info,
+      };
+    }
+  }
 
   messageSchema.loadClass(Message);
 
@@ -128,12 +283,12 @@ export const integrationSchema = new Schema({
   password: String,
   healthStatus: String,
   error: String,
-  lastFetchDate: Date
+  lastFetchDate: Date,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
 
-export const loadIntegrationClass = models => {
+export const loadIntegrationClass = (models) => {
   class Integration {}
 
   integrationSchema.loadClass(Integration);
@@ -154,13 +309,13 @@ export const logSchema = new Schema({
   date: Date,
   type: String,
   message: String,
-  errorStack: String
+  errorStack: String,
 });
 
 export interface ILogModel extends Model<ILogDocument> {
   createLog({
     type,
-    message
+    message,
   }: {
     type: 'info' | 'error';
     message: string;
@@ -168,14 +323,15 @@ export interface ILogModel extends Model<ILogDocument> {
   }): JSON;
 }
 
-export const loadLogClass = models => {
+export const CreateSendMail = (Model) => {};
+export const loadLogClass = (models) => {
   class Log {
     public static createLog({ type, message, errorStack }) {
       return models.Logs.create({
         date: new Date(),
         type,
         message,
-        errorStack
+        errorStack,
       });
     }
   }

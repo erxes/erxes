@@ -1,34 +1,34 @@
-import { ColorPick, ColorPicker, ModalFooter } from '@erxes/ui/src/styles/main';
-import { ExpandWrapper, MarkdownWrapper } from '@erxes/ui-settings/src/styles';
+import { ColorPick, ColorPicker, ModalFooter } from "@erxes/ui/src/styles/main";
+import { ExpandWrapper, MarkdownWrapper } from "@erxes/ui-settings/src/styles";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { __, getEnv } from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
+import { __, getEnv } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { ITopic } from '@erxes/ui-knowledgebase/src/types';
-import Info from '@erxes/ui/src/components/Info';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import Select from 'react-select-plus';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import colors from '@erxes/ui/src/styles/colors';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import CopyToClipboard from "react-copy-to-clipboard";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { FlexContent } from "@erxes/ui/src/layout/styles";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { ITopic } from "@erxes/ui-knowledgebase/src/types";
+import Info from "@erxes/ui/src/components/Info";
+import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import ReactMarkdown from "react-markdown";
+import Select from "react-select-plus";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import TwitterPicker from "react-color/lib/Twitter";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import colors from "@erxes/ui/src/styles/colors";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 // Define type for component props
 type Props = {
@@ -47,11 +47,11 @@ const KnowledgeForm = (props: Props) => {
   // State variables
   const [copied, setCopied] = useState<boolean>(false);
   const [tagCopied, setTagCopied] = useState<boolean>(false);
-  const [code, setCode] = useState<string>('');
-  const [tag, setTag] = useState<string>('');
+  const [code, setCode] = useState<string>("");
+  const [tag, setTag] = useState<string>("");
   const [color, setColor] = useState<string>(colors.colorPrimary);
-  const [backgroundImage, setBackgroundImage] = useState<string>('');
-  const [languageCode, setLanguageCode] = useState<string>('');
+  const [backgroundImage, setBackgroundImage] = useState<string>("");
+  const [languageCode, setLanguageCode] = useState<string>("");
   const [notificationSegmentId, setNotificationSegmentId] = useState<
     string | null
   >(null);
@@ -111,7 +111,7 @@ const KnowledgeForm = (props: Props) => {
 
   // Handle copy to clipboard
   const handleCopy = (name: string) => {
-    if (name === 'code') {
+    if (name === "code") {
       setCopied(true);
     } else {
       setTagCopied(true);
@@ -120,7 +120,7 @@ const KnowledgeForm = (props: Props) => {
 
   // Handle background image change
   const onBackgroundImageChange = ([file]: IAttachment[]) => {
-    setBackgroundImage(file ? file.url : '');
+    setBackgroundImage(file ? file.url : "");
   };
 
   // Handle removal of topic
@@ -136,8 +136,8 @@ const KnowledgeForm = (props: Props) => {
 
     window.open(
       `${REACT_APP_CDN_HOST}/test?type=kb&topic_id=${topic?._id}`,
-      'kbWindow',
-      'width=800,height=800',
+      "kbWindow",
+      "width=800,height=800"
     );
   };
 
@@ -149,7 +149,7 @@ const KnowledgeForm = (props: Props) => {
         {code ? (
           <CopyToClipboard text={code} onCopy={() => handleCopy(name)}>
             <Button btnStyle="primary" size="small" icon="copy-1">
-              {copied ? 'Copied' : 'Copy to clipboard'}
+              {copied ? "Copied" : "Copy to clipboard"}
             </Button>
           </CopyToClipboard>
         ) : (
@@ -166,16 +166,16 @@ const KnowledgeForm = (props: Props) => {
         <>
           <FormGroup>
             <ControlLabel>Install code</ControlLabel>
-            {renderScript(code, copied, 'code')}
+            {renderScript(code, copied, "code")}
           </FormGroup>
 
           <FormGroup>
             <Info>
               {__(
-                'Paste the tag below where you want erxes knowledgebase to appear',
+                "Paste the tag below where you want erxes knowledgebase to appear"
               )}
             </Info>
-            {renderScript(tag, tagCopied, 'tag')}
+            {renderScript(tag, tagCopied, "tag")}
           </FormGroup>
         </>
       );
@@ -204,6 +204,7 @@ const KnowledgeForm = (props: Props) => {
     title: string;
     description: string;
     brandId: string;
+    code?: string;
   }) => {
     const finalValues = { ...values };
 
@@ -221,6 +222,7 @@ const KnowledgeForm = (props: Props) => {
         color,
         backgroundImage,
         notificationSegmentId,
+        code: finalValues.code,
       },
     };
   };
@@ -228,7 +230,7 @@ const KnowledgeForm = (props: Props) => {
   // Render form content
   const renderFormContent = (currentTopic: ITopic, formProps: IFormProps) => {
     const { brand } = currentTopic;
-    const brandId = brand != null ? brand._id : '';
+    const brandId = brand != null ? brand._id : "";
 
     // Handle language change
     const handleLanguageChange = (selectLanguage: { value: string }) => {
@@ -283,7 +285,7 @@ const KnowledgeForm = (props: Props) => {
               <ControlLabel>Language</ControlLabel>
               <Select
                 id="languageCode"
-                value={languageCode || 'en'}
+                value={languageCode || "en"}
                 options={LANGUAGES}
                 onChange={handleLanguageChange}
                 formProps={formProps}
@@ -310,6 +312,16 @@ const KnowledgeForm = (props: Props) => {
         </FlexContent>
 
         <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={topic.code || ""}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Background image: </ControlLabel>
           <Uploader
             multiple={false}
@@ -318,9 +330,9 @@ const KnowledgeForm = (props: Props) => {
               backgroundImage
                 ? [
                     {
-                      name: 'backgroundImage',
+                      name: "backgroundImage",
                       url: backgroundImage,
-                      type: 'img',
+                      type: "img",
                     },
                   ]
                 : []
@@ -329,7 +341,7 @@ const KnowledgeForm = (props: Props) => {
           />
         </FormGroup>
 
-        {isEnabled('segments') && (
+        {isEnabled("segments") && (
           <FormGroup>
             <ControlLabel>Notification segment</ControlLabel>
             <Select
@@ -356,12 +368,12 @@ const KnowledgeForm = (props: Props) => {
       <>
         {renderFormContent(
           topic || {
-            title: '',
-            description: '',
-            languageCode: '',
-            brand: { _id: '' },
+            title: "",
+            description: "",
+            languageCode: "",
+            brand: { _id: "" },
           },
-          { ...formProps },
+          { ...formProps }
         )}
         <ModalFooter>
           <Button
@@ -395,7 +407,7 @@ const KnowledgeForm = (props: Props) => {
             </>
           )}
           {renderButton({
-            name: 'Knowledge Base',
+            name: "Knowledge Base",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

@@ -89,11 +89,11 @@ const DashboardContainer = (props: Props) => {
   };
 
   const [dashboardChartsEditMutation] = useMutation(
-    gql(mutations.dashboardChartsEdit),
+    gql(mutations.chartsEdit),
   );
 
   const [dashboardChartsRemoveMutation] = useMutation(
-    gql(mutations.dashboardChartsRemove),
+    gql(mutations.chartsRemove),
     {
       refetchQueries: ['dashboards', 'dashboardDetail'],
     },

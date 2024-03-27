@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IIntegration } from '../../types';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegration } from "../../types";
 // import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
+import { __ } from "@erxes/ui/src/utils";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -24,14 +24,16 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
+  messages: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
+      messages = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
-      selectedItem = '',
+      selectedItem = "",
       onChange,
     } = this.props;
 
@@ -41,21 +43,26 @@ class MailChooser extends React.Component<Props> {
 
     const options = [
       {
-        label: 'Shared Emails (IMAP)',
+        label: "Shared Emails (IMAP)",
         options: verifiedImapEmails.map((e) => ({ value: e, label: e })),
       },
       {
-        label: 'Broadcast (Campaign)',
+        label: "Broadcast (Campaign)",
         options: verifiedEngageEmails.map((e) => ({ value: e, label: e })),
       },
     ];
 
+    let defaultEmail = "";
+    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
+      defaultEmail = messages[0].mailData.to[0].email;
+    }
     return (
       <Wrapper>
         <FormGroup>
           {/* <Select
             placeholder={__('Choose email to send from')}
             value={selectedItem}
+            defaultValue={defaultEmail}
             onChange={onSelectChange}
             options={options}
           /> */}

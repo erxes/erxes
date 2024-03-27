@@ -1,26 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation,
-} from '@erxes/ui-inbox/src/inbox/types';
+} from "@erxes/ui-inbox/src/inbox/types";
 import {
   getSubdomain,
   router as routerUtils,
   withProps,
-} from '@erxes/ui/src/utils';
-import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "@erxes/ui/src/utils";
+import { queries, subscriptions } from "@erxes/ui-inbox/src/inbox/graphql";
 
-import ConversationList from '../../components/leftSidebar/ConversationList';
-import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { InboxManagementActionConsumer } from '../InboxCore';
-import React from 'react';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import ConversationList from "../../components/leftSidebar/ConversationList";
+import { ConversationsTotalCountQueryResponse } from "@erxes/ui-inbox/src/inbox/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { InboxManagementActionConsumer } from "../InboxCore";
+import React from "react";
+import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   currentUser?: IUser;
@@ -57,7 +56,6 @@ const ConversationListContainer: React.FC<FinalProps> = (props) => {
       return conversationsQuery.subscribeToMore({
         document: gql(subscriptions.conversationClientMessageInserted),
         variables: {
-          subdomain: getSubdomain(),
           userId: currentUser ? currentUser._id : null,
         },
         updateQuery: () => {
@@ -87,7 +85,7 @@ const ConversationListContainer: React.FC<FinalProps> = (props) => {
           counts.byIntegrationTypes[queryParams.integrationType] || 0;
       }
       if (queryParams.tag && counts.byTags) {
-        const tags = queryParams.tag.split(',');
+        const tags = queryParams.tag.split(",");
 
         for (const tag of tags) {
           totalCount += counts.byTags[tag] || 0;
@@ -119,7 +117,7 @@ const ConversationListContainer: React.FC<FinalProps> = (props) => {
 
           const prevConversations = prevResult.conversations || [];
           const prevConversationIds = prevConversations.map(
-            (conversation: IConversation) => conversation._id,
+            (conversation: IConversation) => conversation._id
           );
 
           const fetchedConversations: IConversation[] = [];
@@ -172,26 +170,26 @@ export default withProps<Props>(
     graphql<Props, ConversationsQueryResponse, ConvesationsQueryVariables>(
       gql(queries.sidebarConversations),
       {
-        name: 'conversationsQuery',
+        name: "conversationsQuery",
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
           notifyOnNetworkStatusChange: true,
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           // every minute
           // commented this line because it was causing the page to refresh every minute and it was glitchy
           // pollInterval: 60000
         }),
-      },
+      }
     ),
     graphql<Props, ConversationsTotalCountQueryResponse>(
       gql(queries.totalConversationsCount),
       {
-        name: 'totalCountQuery',
+        name: "totalCountQuery",
         options: ({ queryParams }) => ({
           notifyOnNetworkStatusChange: true,
           variables: generateOptions(queryParams),
         }),
-      },
-    ),
-  )(ConversationListContainerWithRefetch),
+      }
+    )
+  )(ConversationListContainerWithRefetch)
 );

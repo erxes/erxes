@@ -158,9 +158,9 @@ const PROBABILITY_TICKET = [
 ];
 const PRIORITY = [
   { label: 'Critical', value: 'Critical' },
-  { label: 'High', value: 'high' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Low', value: 'low' },
+  { label: 'High', value: 'High' },
+  { label: 'Medium', value: 'Medium' },
+  { label: 'Low', value: 'Low' },
 ];
 const PIPELINE_TYPE_TICKET = 'ticket';
 const PIPELINE_TYPE_DEAL = 'deal';
@@ -356,6 +356,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -549,6 +550,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -756,6 +758,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -938,6 +941,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'boardId',
@@ -1079,6 +1083,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -1270,6 +1275,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -1458,6 +1464,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -1615,6 +1622,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -1812,6 +1820,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -2006,6 +2015,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'boardId',
@@ -2149,6 +2159,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'boardId',
@@ -2331,6 +2342,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -2448,6 +2460,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -2641,6 +2654,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -2857,6 +2871,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3061,6 +3076,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3252,6 +3268,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3439,6 +3456,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3624,6 +3642,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3797,6 +3816,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -3981,6 +4001,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -4187,6 +4208,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -4376,6 +4398,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -4584,6 +4607,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -4800,6 +4824,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -4983,6 +5008,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -5178,6 +5204,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -5367,6 +5394,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -5563,6 +5591,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -5713,6 +5742,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -5897,6 +5927,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6032,6 +6063,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6178,6 +6210,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6353,6 +6386,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6537,6 +6571,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6656,6 +6691,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',
@@ -6803,6 +6839,7 @@ const chartTemplates = [
         fieldQuery: 'date',
         fieldOptions: DATE_RANGE_TYPES,
         fieldLabel: 'Select date range',
+        fieldDefaultValue: 'all',
       },
       {
         fieldName: 'branchIds',

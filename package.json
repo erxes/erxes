@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "1.6.3-rc.1",
+  "version": "1.7.1",
   "workspaces": [
     "packages/*",
     "scripts"
@@ -39,11 +39,12 @@
     "@babel/preset-env": "^7.23.8",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
+    "@babel/runtime": "^7.11.2",
     "@graphql-codegen/cli": "5.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@module-federation/fmr": "^0.0.7",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.1.0",

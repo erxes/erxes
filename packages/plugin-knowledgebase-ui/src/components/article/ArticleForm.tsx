@@ -103,6 +103,7 @@ const ArticleForm = (props: Props) => {
     title: string;
     summary: string;
     status: string;
+    code?: string;
   }) => {
     const finalValues = values;
 
@@ -114,6 +115,7 @@ const ArticleForm = (props: Props) => {
       _id: finalValues._id,
       doc: {
         title: finalValues.title,
+        code: finalValues.code,
         summary: finalValues.summary,
         content,
         reactionChoices,
@@ -328,6 +330,14 @@ const ArticleForm = (props: Props) => {
             defaultValue={object.title}
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
           />
         </FormGroup>
 

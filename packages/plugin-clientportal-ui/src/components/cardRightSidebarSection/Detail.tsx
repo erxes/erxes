@@ -17,7 +17,6 @@ const Detail: React.FC<Props> = ({ item, color }: Props) => {
   const renderItem = (item, color) => {
     return (
       <ItemBox>
-        <ItemIndicator color={color} />
         {item.name ||
           item.primaryName ||
           renderFullName(item) ||

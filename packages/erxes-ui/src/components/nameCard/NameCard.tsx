@@ -1,7 +1,7 @@
-import Avatar from './Avatar';
-import React from 'react';
-import { colors } from '../../styles';
-import styled from 'styled-components';
+import Avatar from "./Avatar";
+import React from "react";
+import { colors } from "../../styles";
+import styled from "styled-components";
 
 const NameCardStyled = styled.div`
   overflow: hidden;
@@ -9,7 +9,7 @@ const NameCardStyled = styled.div`
   align-items: center;
 `;
 
-const NameCardText = styled.div`
+export const NameCardText = styled.div`
   margin-left: 10px;
 `;
 

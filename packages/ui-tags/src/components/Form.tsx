@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ITag } from '../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-// import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { colors } from '@erxes/ui/src/styles';
-import { getRandomNumber } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
-import Popover from '@erxes/ui/src/components/Popover';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ITag } from "../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import { colors } from "@erxes/ui/src/styles";
+import { getRandomNumber } from "@erxes/ui/src/utils";
+import styled from "styled-components";
 
 const ColorPick = styled.div`
   margin-top: 10px;
@@ -55,7 +55,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
   types,
 }) => {
   const [colorCode, setColorCode] = useState<string>(
-    tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)],
+    tag ? tag.colorCode || "" : COLORS[getRandomNumber(7)]
   );
 
   const onColorChange = (e: { hex: string }) => {
@@ -87,14 +87,14 @@ const FormComponent: React.FC<FormComponentProps> = ({
     const result: React.ReactNode[] = [];
 
     for (const tag of tags) {
-      const order = tag.order || '';
+      const order = tag.order || "";
 
       const foundedString = order.match(/[/]/gi);
 
-      let space = '';
+      let space = "";
 
       if (foundedString) {
-        space = '\u00A0 '.repeat(foundedString.length);
+        space = "\u00A0 ".repeat(foundedString.length);
       }
 
       if (currentTagId !== tag._id) {
@@ -102,7 +102,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
           <option key={tag._id} value={tag._id}>
             {space}
             {tag.name}
-          </option>,
+          </option>
         );
       }
     }
@@ -179,13 +179,13 @@ const FormComponent: React.FC<FormComponentProps> = ({
           </FormGroup>
         )}
 
-        <ModalFooter id={'AddTagButtons'}>
+        <ModalFooter id={"AddTagButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 
           {renderButton({
-            name: 'tag',
+            name: "tag",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,

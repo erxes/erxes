@@ -10,9 +10,9 @@ export const MESSAGE_KINDS = {
 };
 
 export const statusFilters = [
-  { key: 'live', value: 'Live' },
+  // { key: 'live', value: 'Live' },
   { key: 'draft', value: 'draft' },
-  { key: 'paused', value: 'Paused' },
+  // { key: 'paused', value: 'Paused' },
   { key: 'yours', value: 'Your messages' },
 ];
 

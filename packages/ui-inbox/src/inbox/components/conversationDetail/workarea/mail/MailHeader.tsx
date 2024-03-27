@@ -191,12 +191,15 @@ const MailHeader: React.FC<MailHeaderProps> = ({
   const renderDetails = (mailData: IMail) => {
     const [from] = mailData.from || [{}];
 
-    return (
-      <Details onClick={toggleExpand} $clickable={!isContentCollapsed}>
-        {renderCustomer(from.email || "")}
-        {renderSecondaryContent(mailData)}
-      </Details>
-    );
+    const modifiedEmail = from.email.replace("noreply@", "");
+    if (from.email) {
+      return (
+        <Details onClick={toggleExpand} $clickable={!isContentCollapsed}>
+          {renderCustomer(modifiedEmail || "")}
+          {renderSecondaryContent(mailData)}
+        </Details>
+      );
+    }
   };
 
   const { createdAt, mailData = {} as IMail } = message;

@@ -1,22 +1,20 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IConfigsMap, IProduct } from '../types';
+import { IConfigsMap, IProduct } from "../types";
 import {
   ProductCategoriesQueryResponse,
   ProductsConfigsQueryResponse,
   UomsQueryResponse,
-} from '@erxes/ui-products/src/types';
-import { mutations, queries } from '../graphql';
+} from "@erxes/ui-products/src/types";
+import { mutations, queries } from "../graphql";
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import From from '../components/ProductForm';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-
-// import { withRouter } from 'react-router-dom';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import Form from "../components/ProductForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   product?: IProduct;
@@ -74,7 +72,7 @@ const ProductFormContainer = (props: FinalProps) => {
         type="submit"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -98,15 +96,15 @@ const ProductFormContainer = (props: FinalProps) => {
     configsMap: configsMap || ({} as IConfigsMap),
   };
 
-  return <From {...updatedProps} />;
+  return <Form {...updatedProps} />;
 };
 
 const getRefetchQueries = () => {
   return [
-    'productDetail',
-    'products',
-    'productsTotalCount',
-    'productCategories',
+    "productDetail",
+    "products",
+    "productsTotalCount",
+    "productCategories",
   ];
 };
 
@@ -115,14 +113,14 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery',
-      },
+        name: "productCategoriesQuery",
+      }
     ),
     graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
-      name: 'uomsQuery',
+      name: "uomsQuery",
     }),
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: 'productsConfigsQuery',
-    }),
-  )(ProductFormContainer),
+      name: "productsConfigsQuery",
+    })
+  )(ProductFormContainer)
 );

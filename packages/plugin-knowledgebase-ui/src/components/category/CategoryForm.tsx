@@ -1,16 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { icons } from '../../icons.constant';
-import { ICategory, ITopic } from '@erxes/ui-knowledgebase/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ICategory, ITopic } from "@erxes/ui-knowledgebase/src/types";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select from "react-select-plus";
+import { __ } from "@erxes/ui/src/utils/core";
+import { icons } from "../../icons.constant";
 
 type Props = {
   currentTopicId: string;
@@ -32,17 +33,18 @@ const CategoryForm = (props: Props) => {
   } = props;
 
   const [selectedIcon, setSelectedIcon] = useState<string>(
-    category ? category.icon : '',
+    category ? category.icon : ""
   );
   const [topicId, setTopicId] = useState<string>(currentTopicId);
   const [parentCategoryId, setParentCategoryId] = useState<string>(
-    category && category.parentCategoryId!,
+    category && category.parentCategoryId!
   );
 
   const generateDoc = (values: {
     _id?: string;
     title: string;
     description: string;
+    code?: string;
   }) => {
     const finalValues = values;
 
@@ -59,6 +61,7 @@ const CategoryForm = (props: Props) => {
         topicIds: [topicId],
         topicId,
         parentCategoryId,
+        code: finalValues.code,
       },
     };
   };
@@ -68,7 +71,7 @@ const CategoryForm = (props: Props) => {
       ? [
           {
             value: null,
-            label: 'Select category',
+            label: "Select category",
           },
         ]
       : [];
@@ -77,14 +80,14 @@ const CategoryForm = (props: Props) => {
       options.push({
         value: option._id,
         label: option.title,
-      }),
+      })
     );
 
     return options;
   };
 
   const handleIconChange = (obj) => {
-    setSelectedIcon(obj ? obj.value : '');
+    setSelectedIcon(obj ? obj.value : "");
   };
 
   const renderOption = (option) => {
@@ -99,7 +102,7 @@ const CategoryForm = (props: Props) => {
   const renderTopics = () => {
     const onChange = (selectedTopic) => {
       setTopicId(selectedTopic.value);
-      setParentCategoryId('');
+      setParentCategoryId("");
     };
 
     return (
@@ -108,7 +111,7 @@ const CategoryForm = (props: Props) => {
         <br />
 
         <Select
-          placeholder={__('Choose knowledgebase')}
+          placeholder={__("Choose knowledgebase")}
           value={topicId}
           options={generateOptions(topics)}
           onChange={onChange}
@@ -121,7 +124,7 @@ const CategoryForm = (props: Props) => {
     const topic = topics.find((t) => t._id === topicId);
     let categories = topic ? topic.parentCategories : [];
     const isCurrentCategory = categories.find(
-      (cat) => cat._id === queryParams.id,
+      (cat) => cat._id === queryParams.id
     );
 
     if (category && currentTopicId === topicId) {
@@ -142,7 +145,7 @@ const CategoryForm = (props: Props) => {
         <br />
 
         <Select
-          placeholder={__('Choose category')}
+          placeholder={__("Choose category")}
           value={parentCategoryId}
           options={generateOptions(categories, true)}
           onChange={onChange}
@@ -166,6 +169,11 @@ const CategoryForm = (props: Props) => {
             defaultValue={object.title}
             required={true}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
@@ -204,7 +212,7 @@ const CategoryForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            name: 'category',
+            name: "category",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

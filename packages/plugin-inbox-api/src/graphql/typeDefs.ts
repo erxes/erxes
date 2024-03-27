@@ -1,52 +1,45 @@
-import gql from 'graphql-tag';
-
 import {
-  types as ChannelTypes,
-  queries as ChannelQueries,
   mutations as ChannelMutations,
+  queries as ChannelQueries,
+  types as ChannelTypes,
 } from './channelTypeDefs';
-
 import {
-  types as ConversationTypes,
-  queries as ConversationQueries,
   mutations as ConversationMutations,
+  queries as ConversationQueries,
+  types as ConversationTypes,
 } from './conversationTypeDefs';
-
 import {
-  types as MessengerAppTypes,
-  queries as MessengerAppQueries,
-  mutations as MessengerAppMutations,
-} from './messengerAppTypeDefs';
-
-import {
-  types as integrationTypes,
-  queries as IntegrationQueries,
   mutations as IntegrationMutations,
+  queries as IntegrationQueries,
+  types as integrationTypes,
 } from './integrationTypeDefs';
-
 import {
-  types as ResponseTemplateTypes,
-  queries as ResponseTemplateQueries,
+  mutations as MessengerAppMutations,
+  queries as MessengerAppQueries,
+  types as MessengerAppTypes,
+} from './messengerAppTypeDefs';
+import {
   mutations as ResponseTemplateMutations,
+  queries as ResponseTemplateQueries,
+  types as ResponseTemplateTypes,
 } from './responseTemplateTypeDefs';
-
 import {
-  types as widgetTypes,
-  queries as widgetQueries,
+  mutations as ScriptMutations,
+  queries as ScriptQueries,
+  types as ScriptTypes,
+} from './scriptTypeDefs';
+import {
+  mutations as SkillMutations,
+  queries as SkillQueries,
+  types as SkillTypes,
+} from './skillTypeDefs';
+import {
   mutations as widgetMutations,
+  queries as widgetQueries,
+  types as widgetTypes,
 } from './widgetTypeDefs';
 
-import {
-  types as SkillTypes,
-  queries as SkillQueries,
-  mutations as SkillMutations,
-} from './skillTypeDefs';
-
-import {
-  types as ScriptTypes,
-  queries as ScriptQueries,
-  mutations as ScriptMutations,
-} from './scriptTypeDefs';
+import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
@@ -56,6 +49,7 @@ const typeDefs = async () => {
   const isKbEnabled = await isEnabled('knowledgebase');
   const isContactsEnabled = await isEnabled('contacts');
   const isDailycoEnabled = await isEnabled('dailyco');
+  const isCallsEnabled = await isEnabled('calls');
 
   const isEnabledTable = {
     products: isProductsEnabled,
@@ -64,6 +58,7 @@ const typeDefs = async () => {
     knowledgeBase: isKbEnabled,
     contacts: isContactsEnabled,
     dailyco: isDailycoEnabled,
+    calls: isCallsEnabled,
   };
 
   return gql`

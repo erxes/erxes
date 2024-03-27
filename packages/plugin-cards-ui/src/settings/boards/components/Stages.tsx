@@ -1,13 +1,13 @@
-import { IDepartment } from '@erxes/ui/src/team/types';
-import { IOption } from '../types';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import StageItem from './StageItem';
-import { StageList } from '@erxes/ui-cards/src/settings/boards/styles';
-import { __ } from 'coreui/utils';
+import { IDepartment } from "@erxes/ui/src/team/types";
+import { IOption } from "../types";
+import { IStage } from "@erxes/ui-cards/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import React from "react";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import StageItem from "./StageItem";
+import { StageList } from "@erxes/ui-cards/src/settings/boards/styles";
+import { __ } from "coreui/utils";
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
@@ -27,7 +27,7 @@ class Stages extends React.Component<Props, {}> {
   onChange = (stageId: string, name: string, value: string) => {
     const { stages, onChangeStages } = this.props;
 
-    const stage = stages.find(s => s._id === stageId);
+    const stage = stages.find((s) => s._id === stageId);
     stage[name] = value;
 
     onChangeStages(stages);
@@ -38,26 +38,27 @@ class Stages extends React.Component<Props, {}> {
 
     stages.push({
       _id: Math.random().toString(),
-      name: '',
-      visibility: 'public',
+      name: "",
+      visibility: "public",
+      probability: "10%",
       memberIds: [],
       departmentIds: [],
-      type
+      type,
     });
 
     onChangeStages(stages);
   };
 
-  remove = stageId => {
+  remove = (stageId) => {
     const { stages, onChangeStages } = this.props;
 
-    const remainedStages = stages.filter(stage => stage._id !== stageId);
+    const remainedStages = stages.filter((stage) => stage._id !== stageId);
 
     onChangeStages(remainedStages);
   };
 
-  onStageInputKeyPress = e => {
-    if (e.key === 'Enter') {
+  onStageInputKeyPress = (e) => {
+    if (e.key === "Enter") {
       this.add();
       e.preventDefault();
     }
@@ -67,7 +68,7 @@ class Stages extends React.Component<Props, {}> {
     const { options, type, departments } = this.props;
     const Item = options?.StageItem || StageItem;
 
-    const child = stage => (
+    const child = (stage) => (
       <Item
         stage={stage}
         type={type}
@@ -89,7 +90,7 @@ class Stages extends React.Component<Props, {}> {
         />
 
         <LinkButton onClick={this.add}>
-          <Icon icon="plus-1" /> {__('Add another stage')}
+          <Icon icon="plus-1" /> {__("Add another stage")}
         </LinkButton>
       </StageList>
     );

@@ -82,6 +82,8 @@ type Props = {
   }) => void;
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
+  messages: string[];
+  history: any;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
@@ -541,7 +543,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { verifiedImapEmails, verifiedEngageEmails } = this.props;
+    const { verifiedImapEmails, verifiedEngageEmails, messages } = this.props;
 
     const onChangeMail = (from: string) => {
       this.setState({ from });
@@ -556,6 +558,7 @@ class MailForm extends React.Component<Props, State> {
         selectedItem={this.state.from}
         verifiedImapEmails={verifiedImapEmails}
         verifiedEngageEmails={verifiedEngageEmails}
+        messages={messages}
       />
     );
   };

@@ -472,18 +472,17 @@ export const connectToMessageBroker = async (
   const con = await amqplib.connect(`${RABBITMQ_HOST}?heartbeat=60`, {
     noDelay: true,
   });
-  con.once('close', () => {
+  con.once('close', (error) => {
     con.removeAllListeners();
-    console.log('RabbitMQ: connection is closing.');
-    reconnectToMessageBroker(setupMessageConsumers);
+    if (error) {
+      console.error('RabbitMQ: connections is closing due to an error:', error);
+      reconnectToMessageBroker(setupMessageConsumers);
+    } else {
+      console.log('RabbitMQ: connection is closing.');
+    }
   });
   con.on('error', async (e) => {
     console.error('RabbitMQ: connection error:', e);
-    try {
-      await con.close();
-    } catch (e) {
-      console.error('RabbitMQ connection close error:', e);
-    }
   });
 
   channel = await con.createChannel();

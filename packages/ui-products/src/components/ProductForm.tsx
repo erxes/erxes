@@ -1,18 +1,4 @@
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import CommonForm from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Icon from "@erxes/ui/src/components/Icon";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Tip from "@erxes/ui/src/components/Tip";
-import Uploader from "@erxes/ui/src/components/Uploader";
+import { BarcodeItem, TableBarcode } from "../styles";
 import {
   FormColumn,
   FormWrapper,
@@ -23,15 +9,30 @@ import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import { extractAttachment } from "@erxes/ui/src/utils";
-import { __, router } from "@erxes/ui/src/utils/core";
-import React, { useState, useEffect } from "react";
-import { TAX_TYPES, TYPES } from "../constants";
-import CategoryForm from "../containers/CategoryForm";
-import { queries } from "../graphql";
-import { BarcodeItem, TableBarcode } from "../styles";
 import { IProduct, IProductCategory, IUom, IVariant } from "../types";
+import React, { useEffect, useState } from "react";
+import { TAX_TYPES, TYPES } from "../constants";
+import { __, router } from "@erxes/ui/src/utils/core";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../containers/CategoryForm";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
 import Select from "react-select";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { extractAttachment } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
 import { useLocation } from "react-router-dom";
 
 type Props = {
@@ -784,6 +785,7 @@ const Form = (props: Props) => {
                   queryName="uoms"
                   query={queries.uoms}
                   onChange={onChangeUom}
+                  required={true}
                 />
                 <Button
                   btnStyle="primary"

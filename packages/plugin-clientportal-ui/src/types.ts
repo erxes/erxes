@@ -100,6 +100,17 @@ export type ClientPortalUserRemoveMutationResponse = {
     variables: { clientPortalUserIds: string[] };
   }) => Promise<any>;
 };
+export type ClientPortalParticipantRelationEditMutationResponse = {
+  clientPortalParticipantRelationEdit: (mutation: {
+    variables: {
+      type: string;
+      cardId: string;
+      cpUserIds: string[];
+      oldCpUserIds: string[];
+    };
+  }) => Promise<any>;
+};
+
 export type ClientPortalUserAssignCompanyMutationResponse = {
   clientPortalUserAssignCompany: (mutation: {
     variables: {
@@ -210,6 +221,13 @@ export type ClientPortalConfigsQueryResponse = {
   error?: string;
 };
 
+export type ClientPortalParticipantDetailQueryResponse = {
+  clientPortalParticipantDetail?: IClientPortalParticipant;
+  loading?: boolean;
+  refetch: () => Promise<any>;
+  error?: string;
+};
+
 export type ClientPortalConfigQueryResponse = {
   clientPortalGetConfig?: ClientPortalConfig;
   loading?: boolean;
@@ -226,3 +244,23 @@ export type ClientPortalGetLastQueryResponse = {
   clientPortalGetLast: ClientPortalConfig;
   loading?: boolean;
 };
+
+export interface IClientPortalParticipantDoc {
+  contentType: string;
+  contentTypeId: string;
+  cpUserId: string;
+  cpUser: IClientPortalUser;
+  status: string;
+  paymentStatus: string;
+  paymentAmount: number;
+  offeredAmount: number;
+  hasVat: boolean;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+export interface IClientPortalParticipant extends IClientPortalParticipantDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
