@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.7.2](https://github.com/erxes/erxes/compare/1.7.1...1.7.2) (2024-03-27)
+
+
+### Bug Fixes
+
+* customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
+
+## [1.7.1](https://github.com/erxes/erxes/compare/1.7.0...1.7.1) (2024-03-26)
+
+
+### Features
+
+* **calls:** check customer, add customer info on conversation and improved keypad ([9d7e363](https://github.com/erxes/erxes/commit/9d7e3636c1fcf896770c848d171b9b6ed121a32e))
+
+
+### Bug Fixes
+
+* customer render full name ([e4e454f](https://github.com/erxes/erxes/commit/e4e454f47e0ddba5b56e6084a1d65442c78acd0f))
+* products filter by code condition regex ([df32b67](https://github.com/erxes/erxes/commit/df32b678e6c371fc4dacf506195fc7c6c0a325b2))
+
+
+### Performance Improvements
+
+* **facebook:** change facebook logs db collections ([a4e2b58](https://github.com/erxes/erxes/commit/a4e2b58ce2a8ec7a981946276de8b40ad65e64eb))
+
 ## [1.7.0](https://github.com/erxes/erxes/compare/1.7.0-rc.1...1.7.0) (2024-03-25)
 
 
