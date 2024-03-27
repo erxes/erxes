@@ -1,5 +1,4 @@
 import * as PropTypes from 'prop-types';
-import * as moment from 'moment';
 
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
