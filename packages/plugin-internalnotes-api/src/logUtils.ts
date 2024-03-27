@@ -9,10 +9,14 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 
 import {
-  sendCardsMessage,
   sendContactsMessage,
   sendCoreMessage,
+  sendDealsMessage,
+  sendGrowthHacksMessage,
   sendProductsMessage,
+  sendPurchasesMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
 } from './messageBroker';
 import {
   IInternalNoteDocument,
@@ -36,7 +40,7 @@ const MODULE_NAMES = {
 const findContentItemName = async (
   subdomain: string,
   contentType: string,
-  contentTypeId: string,
+  contentTypeId: string
 ): Promise<string> => {
   let name: string = '';
   const type =
@@ -49,8 +53,68 @@ const findContentItemName = async (
     type === MODULE_NAMES.TICKET ||
     type === MODULE_NAMES.GROWTH_HACK;
 
-  if (isCardItem) {
-    const cardItem = await sendCardsMessage({
+  if (type === MODULE_NAMES.TICKET) {
+    const cardItem = await sendTicketsMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.DEAL) {
+    const cardItem = await sendDealsMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.TASK) {
+    const cardItem = await sendTasksMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.PURCHASE) {
+    const cardItem = await sendPurchasesMessage({
+      subdomain,
+      action: 'findItem',
+      data: {
+        _id: contentTypeId,
+        contentType,
+      },
+      isRPC: true,
+    });
+
+    if (cardItem && cardItem.name) {
+      name = cardItem.name;
+    }
+  }
+  if (type === MODULE_NAMES.GROWTH_HACK) {
+    const cardItem = await sendGrowthHacksMessage({
       subdomain,
       action: 'findItem',
       data: {
@@ -134,7 +198,7 @@ const findContentItemName = async (
 
 const gatherDescriptions = async (
   subdomain: string,
-  obj: IInternalNoteDocument,
+  obj: IInternalNoteDocument
 ) => {
   let extraDesc: LogDesc[] = [
     {
@@ -142,7 +206,7 @@ const gatherDescriptions = async (
       name: await findContentItemName(
         subdomain,
         obj.contentType,
-        obj.contentTypeId,
+        obj.contentTypeId
       ),
     },
   ];
@@ -168,7 +232,7 @@ const gatherDescriptions = async (
 export const putDeleteLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user,
+  user
 ) => {
   await commonPutDeleteLog(
     subdomain,
@@ -177,14 +241,14 @@ export const putDeleteLog = async (
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
       type: `internalnotes:${logDoc.type}`,
     },
-    user,
+    user
   );
 };
 
 export const putUpdateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user,
+  user
 ) => {
   await commonPutUpdateLog(
     subdomain,
@@ -193,14 +257,14 @@ export const putUpdateLog = async (
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
       type: `internalnotes:${logDoc.type}`,
     },
-    user,
+    user
   );
 };
 
 export const putCreateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user,
+  user
 ) => {
   await commonPutCreateLog(
     subdomain,
@@ -209,7 +273,7 @@ export const putCreateLog = async (
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
       type: `internalnotes:${logDoc.type}`,
     },
-    user,
+    user
   );
 };
 
