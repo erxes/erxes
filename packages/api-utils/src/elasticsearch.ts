@@ -174,6 +174,13 @@ export const getMappings = async (index: string) => {
 export function getDbNameFromConnectionString(connectionString) {
   const parsedUrl = parse(connectionString, true);
 
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    return 'erxes';
+  }
+
+
   if (parsedUrl.pathname) {
     const dbName = parsedUrl.pathname.substring(1);
     return dbName;
