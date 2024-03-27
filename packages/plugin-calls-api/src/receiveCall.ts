@@ -91,7 +91,7 @@ const receiveCall = async (
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: recipientId,
+          owner: user._id,
         }),
       },
       isRPC: true,

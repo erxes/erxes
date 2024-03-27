@@ -1,6 +1,6 @@
-import * as PropTypes from "prop-types";
+import * as PropTypes from 'prop-types';
 
-import { Alert, __ } from "@erxes/ui/src/utils";
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   CallButton,
   IncomingActionButton,
@@ -10,17 +10,17 @@ import {
   IncomingContent,
   NameCardContainer,
   PhoneNumber,
-} from "../styles";
-import { ICallConversation, ICustomer } from "../types";
-import React, { useEffect, useRef, useState } from "react";
-import { callPropType, sipPropType } from "../lib/types";
+} from '../styles';
+import { ICallConversation, ICustomer } from '../types';
+import React, { useEffect, useRef, useState } from 'react';
+import { callPropType, sipPropType } from '../lib/types';
 
-import Avatar from "@erxes/ui/src/components/nameCard/Avatar";
-import { CALL_STATUS_IDLE } from "../lib/enums";
-import Icon from "@erxes/ui/src/components/Icon";
-import { callActions } from "../utils";
-import { caller } from "../constants";
-import { renderFullName } from "@erxes/ui/src/utils/core";
+import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
+import { CALL_STATUS_IDLE } from '../lib/enums';
+import Icon from '@erxes/ui/src/components/Icon';
+import { callActions } from '../utils';
+import { caller } from '../constants';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
   customer: ICustomer;
@@ -52,7 +52,7 @@ const getSpentTime = (seconds: number) => {
 };
 
 const formatNumber = (n: number) => {
-  return n.toLocaleString("en-US", {
+  return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -62,13 +62,13 @@ const IncomingCall = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const { customer, conversation, hasMicrophone } = props;
-  const primaryPhone = customer?.primaryPhone || "";
+  const primaryPhone = customer?.primaryPhone || '';
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false
+    primaryPhone ? true : false,
   );
   const [timeSpent, setTimeSpent] = useState(0);
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState('pending');
 
   let conversationDetail;
 
@@ -83,22 +83,22 @@ const IncomingCall = (props: Props, context) => {
     let timer: NodeJS.Timeout;
 
     if (audioRef.current) {
-      audioRef.current.src = "/sound/incoming.mp3";
+      audioRef.current.src = '/sound/incoming.mp3';
       audioRef.current.play();
     }
-    if (status === "accepted") {
+    if (status === 'accepted') {
       timer = setInterval(() => {
         setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
       }, 1000);
     }
-    if (status !== "accepted") {
+    if (status !== 'accepted') {
       setHaveIncomingCall(true);
     }
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.src = "";
+        audioRef.current.src = '';
       }
       clearInterval(timer);
     };
@@ -111,13 +111,13 @@ const IncomingCall = (props: Props, context) => {
   const onAcceptCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = "";
+      audioRef.current.src = '';
     }
     if (!hasMicrophone) {
-      return Alert.error("Check your microphone");
+      return Alert.error('Check your microphone');
     }
 
-    setStatus("accepted");
+    setStatus('accepted');
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
@@ -128,7 +128,7 @@ const IncomingCall = (props: Props, context) => {
   const onDeclineCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = "";
+      audioRef.current.src = '';
     }
 
     setHaveIncomingCall(false);
@@ -156,16 +156,24 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const renderUserInfo = (type?: string) => {
-    const inCall = type === "incall" ? true : false;
+    const inCall = type === 'incall' ? true : false;
+    const hasChannel = conversationDetail?.channels?.length > 0;
+    const channelName = conversationDetail?.channels?.[0]?.name || '';
 
     return (
       <NameCardContainer>
-        <h5>{__("Call")}</h5>
+        <h5>{__('Call')}</h5>
         <Avatar user={customer} size={inCall ? 72 : 30} />
-        <h4>{renderFullName(customer || "", true)}</h4>
+        <h4>{renderFullName(customer || '', true)}</h4>
         {primaryPhone && (
           <PhoneNumber>
-            {primaryPhone} <br /> <h5>{caller.place}</h5>
+            {primaryPhone}
+            {hasChannel && (
+              <span>
+                {__('is calling to')} {channelName}
+              </span>
+            )}
+            <h5>{caller.place}</h5>
           </PhoneNumber>
         )}
       </NameCardContainer>
@@ -185,13 +193,13 @@ const IncomingCall = (props: Props, context) => {
                   <IncomingActionButton onClick={onAcceptCall} type="accepted">
                     <Icon icon="phone-alt" size={20} />
                   </IncomingActionButton>
-                  <b>{__("Accept")}</b>
+                  <b>{__('Accept')}</b>
                 </div>
                 <div>
                   <IncomingActionButton onClick={onDeclineCall} type="decline">
                     <Icon icon="phone-slash" size={20} />
                   </IncomingActionButton>
-                  <b>{__("Decline")}</b>
+                  <b>{__('Decline')}</b>
                 </div>
               </IncomingButtonContainer>
             </IncomingContent>
@@ -201,26 +209,26 @@ const IncomingCall = (props: Props, context) => {
     );
   }
 
-  if (status === "accepted" && !haveIncomingCall) {
+  if (status === 'accepted' && !haveIncomingCall) {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = "";
+      audioRef.current.src = '';
     }
     return (
       hasMicrophone && (
         <IncomingCallNav>
           <IncomingContainer>
             <IncomingContent>
-              {renderUserInfo("incall")}
+              {renderUserInfo('incall')}
               <p>
-                {__("Call duration:")} <b>{getSpentTime(timeSpent)}</b>
+                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
               </p>
               {callActions(
                 isMuted,
                 handleAudioToggle,
                 isHolded,
                 handleHold,
-                endCall
+                endCall,
               )}
             </IncomingContent>
           </IncomingContainer>
