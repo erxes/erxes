@@ -12,10 +12,7 @@ import {
 } from './models/Conversations';
 
 import { ICustomerDocument } from './models/definitions/customers';
-import {
-  IActiveSessionDocument,
-  IActiveSessions,
-} from './models/definitions/activeSessions';
+import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
   loadActiveSessionClass,
