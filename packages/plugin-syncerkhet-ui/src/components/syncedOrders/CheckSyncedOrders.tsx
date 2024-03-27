@@ -1,20 +1,20 @@
-import Button from '@erxes/ui/src/components/Button';
-import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
-import Row from './CheckSyncedOrdersRow';
+import Button from "@erxes/ui/src/components/Button";
+import CheckSyncedOrdersSidebar from "./CheckSyncedOrdersSidebar";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import React from "react";
+import Row from "./CheckSyncedOrdersRow";
 import {
   __,
   BarItems,
   Wrapper,
   DataWithLoader,
   Pagination,
-  Table
-} from '@erxes/ui/src';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+  Table,
+} from "@erxes/ui/src";
+import { Alert, confirm } from "@erxes/ui/src/utils";
 
-import { menuSyncerkhet } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { menuSyncerkhet } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   totalCount: number;
@@ -50,10 +50,10 @@ class CheckSyncedOrders extends React.Component<Props> {
       bulk,
       unSyncedOrderIds,
       toSyncOrders,
-      syncedOrderInfos
+      syncedOrderInfos,
     } = this.props;
 
-    return orders?.map(order => (
+    return orders?.map((order) => (
       <Row
         history={history}
         key={order._id}
@@ -69,13 +69,13 @@ class CheckSyncedOrders extends React.Component<Props> {
 
   onChange = () => {
     const { toggleAll, orders } = this.props;
-    toggleAll(orders, 'orders');
+    toggleAll(orders, "orders");
   };
 
   checkSynced = async (_orders: any) => {
     const orderIds: string[] = [];
 
-    _orders.forEach(order => {
+    _orders.forEach((order) => {
       orderIds.push(order._id);
     });
 
@@ -92,18 +92,18 @@ class CheckSyncedOrders extends React.Component<Props> {
       unSyncedOrderIds,
       toSyncOrders,
       posList,
-      syncedOrderInfos
+      syncedOrderInfos,
     } = this.props;
     const tablehead = [
-      'Number',
-      'Total Amount',
-      'Created At',
-      'Paid At',
-      'Synced',
-      'Synced Date',
-      'Synced bill Number',
-      'Synced customer',
-      'Sync Actions'
+      "Number",
+      "Total Amount",
+      "Created At",
+      "Paid At",
+      "Synced",
+      "Synced Date",
+      "Synced bill Number",
+      "Synced customer",
+      "Sync Actions",
     ];
     const Content = (
       <Table bordered={true}>
@@ -112,13 +112,11 @@ class CheckSyncedOrders extends React.Component<Props> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            {tablehead?.map(p => (
-              <th key={p}>{p || ''}</th>
-            ))}
+            {tablehead?.map((p) => <th key={p}>{p || ""}</th>)}
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -140,7 +138,7 @@ class CheckSyncedOrders extends React.Component<Props> {
           await this.checkSynced(bulk);
           this.setState({ contentLoading: false });
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
           this.setState({ contentLoading: false });
         });
@@ -151,7 +149,7 @@ class CheckSyncedOrders extends React.Component<Props> {
         .then(() => {
           toSyncOrders(unSyncedOrderIds);
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 

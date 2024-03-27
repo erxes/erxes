@@ -1,26 +1,26 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import Alert from "@erxes/ui/src/utils/Alert";
+import { BarItems } from "@erxes/ui/src/layout/styles";
 
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useState, useRef } from 'react';
+import { IRouterProps } from "@erxes/ui/src/types";
+import React, { useState, useRef } from "react";
 
-import { ClassificationHistoryTableWrapper } from '../styles';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IPeriodLock } from '../types';
-import { can } from '@erxes/ui/src/utils/core';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import PeriodLockRow from './ClassificationHistoryRow';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import { ClassificationHistoryTableWrapper } from "../styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IPeriodLock } from "../types";
+import { can } from "@erxes/ui/src/utils/core";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import PeriodLockRow from "./ClassificationHistoryRow";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-import withConsumer from '../../withConsumer';
-import Button from '@erxes/ui/src/components/Button';
+import { menuContracts } from "../../constants";
+import withConsumer from "../../withConsumer";
+import Button from "@erxes/ui/src/components/Button";
 
 interface IProps extends IRouterProps {
   classificationHistory: IPeriodLock[];
@@ -35,7 +35,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeClassificationHistory: (
     doc: { classificationIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -60,7 +60,7 @@ const ClassificationHistoryList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(classificationHistory, 'classificationHistory');
+    toggleAll(classificationHistory, "classificationHistory");
   };
 
   const search = (e) => {
@@ -90,7 +90,7 @@ const ClassificationHistoryList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -102,23 +102,23 @@ const ClassificationHistoryList = (props: IProps) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'date'} label={__('Date')} />
+              <SortHandler sortField={"date"} label={__("Date")} />
             </th>
             <th>
-              <SortHandler sortField={'total'} label={__('Total')} />
+              <SortHandler sortField={"total"} label={__("Total")} />
             </th>
             <th>
-              <SortHandler sortField={'total'} label={__('Classification')} />
+              <SortHandler sortField={"total"} label={__("Classification")} />
             </th>
             <th>
               <SortHandler
-                sortField={'total'}
-                label={__('New Classification')}
+                sortField={"total"}
+                label={__("New Classification")}
               />
             </th>
             <th></th>
@@ -153,9 +153,9 @@ const ClassificationHistoryList = (props: IProps) => {
 
     actionBarLeft = (
       <BarItems>
-        {can('manageClassificationHistory', currentUser) && (
+        {can("manageClassificationHistory", currentUser) && (
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
+            {__("Delete")}
           </Button>
         )}
       </BarItems>
@@ -166,7 +166,7 @@ const ClassificationHistoryList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -187,7 +187,7 @@ const ClassificationHistoryList = (props: IProps) => {
           title={__(`Period Locks`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

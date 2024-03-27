@@ -9,15 +9,15 @@ import {
   SortHandler,
   Table,
   Wrapper,
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useState, useRef } from 'react';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { IInsuranceType } from '../types';
-import InsuranceTypeForm from '../containers/InsuranceTypeForm';
-import InsuranceTypeRow from './InsuranceTypeRow';
-import { InsuranceTypesTableWrapper } from '../styles';
-import { __ } from 'coreui/utils';
+} from "@erxes/ui/src";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React, { useState, useRef } from "react";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { IInsuranceType } from "../types";
+import InsuranceTypeForm from "../containers/InsuranceTypeForm";
+import InsuranceTypeRow from "./InsuranceTypeRow";
+import { InsuranceTypesTableWrapper } from "../styles";
+import { __ } from "coreui/utils";
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -33,7 +33,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeInsuranceTypes: (
     doc: { insuranceTypeIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -56,7 +56,7 @@ const InsuranceTypesList = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
 
   const onChange = () => {
-    toggleAll(insuranceTypes, 'insuranceTypes');
+    toggleAll(insuranceTypes, "insuranceTypes");
   };
 
   const search = (e) => {
@@ -86,7 +86,7 @@ const InsuranceTypesList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -98,24 +98,24 @@ const InsuranceTypesList = (props: IProps) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'code'} label={__('Code')} />
+              <SortHandler sortField={"code"} label={__("Code")} />
             </th>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
-            <th>{__('Company Code')}</th>
-            <th>{__('Company Name')}</th>
-            <th>{__('Percent')}</th>
-            <th>{__('Year Percents')}</th>
+            <th>{__("Company Code")}</th>
+            <th>{__("Company Name")}</th>
+            <th>{__("Percent")}</th>
+            <th>{__("Year Percents")}</th>
             <th>
               <SortHandler
-                sortField={'description'}
-                label={__('Description')}
+                sortField={"description"}
+                label={__("Description")}
               />
             </th>
             <th></th>
@@ -138,7 +138,7 @@ const InsuranceTypesList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add insuranceType')}
+      {__("Add insuranceType")}
     </Button>
   );
 
@@ -157,7 +157,7 @@ const InsuranceTypesList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-          {__('Delete')}
+          {__("Delete")}
         </Button>
       </BarItems>
     );
@@ -171,7 +171,7 @@ const InsuranceTypesList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -179,7 +179,7 @@ const InsuranceTypesList = (props: IProps) => {
       />
 
       <ModalTrigger
-        title={__('New insuranceType')}
+        title={__("New insuranceType")}
         trigger={addTrigger}
         autoOpenKey="showInsuranceTypeModal"
         content={insuranceTypeForm}
@@ -199,8 +199,8 @@ const InsuranceTypesList = (props: IProps) => {
           title={__(`InsuranceTypes`) + ` (${totalCount})`}
           queryParams={queryParams}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Insurance type') },
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Insurance type") },
           ]}
         />
       }

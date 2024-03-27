@@ -11,15 +11,15 @@ import {
   Wrapper,
   confirm,
   router,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 
-import ContractTypeForm from '../containers/ContractTypeForm';
-import ContractTypeRow from './ContractTypeRow';
-import { ContractTypesTableWrapper } from '../styles';
-import { IContractType } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useEffect, useRef, useState } from 'react';
-import { __ } from 'coreui/utils';
+import ContractTypeForm from "../containers/ContractTypeForm";
+import ContractTypeRow from "./ContractTypeRow";
+import { ContractTypesTableWrapper } from "../styles";
+import { IContractType } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React, { useEffect, useRef, useState } from "react";
+import { __ } from "coreui/utils";
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -35,7 +35,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeContractTypes: (
     doc: { contractTypeIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -61,7 +61,7 @@ const ContractTypesList = (props: IProps) => {
   }, [props.searchValue]);
 
   const onChange = () => {
-    toggleAll(contractTypes, 'contractTypes');
+    toggleAll(contractTypes, "contractTypes");
   };
 
   const search = (e) => {
@@ -91,7 +91,7 @@ const ContractTypesList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -103,20 +103,20 @@ const ContractTypesList = (props: IProps) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'code'} label={__('Code')} />
+              <SortHandler sortField={"code"} label={__("Code")} />
             </th>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
             <th>
-              <SortHandler sortField={'number'} label={__('Start Number')} />
+              <SortHandler sortField={"number"} label={__("Start Number")} />
             </th>
-            <th>{__('After vacancy count')}</th>
+            <th>{__("After vacancy count")}</th>
             <th></th>
           </tr>
         </thead>
@@ -137,7 +137,7 @@ const ContractTypesList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add Saving contract type')}
+      {__("Add Saving contract type")}
     </Button>
   );
 
@@ -156,7 +156,7 @@ const ContractTypesList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-          {__('Delete')}
+          {__("Delete")}
         </Button>
       </BarItems>
     );
@@ -170,7 +170,7 @@ const ContractTypesList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -178,7 +178,7 @@ const ContractTypesList = (props: IProps) => {
       />
 
       <ModalTrigger
-        title={__('New Saving contract type')}
+        title={__("New Saving contract type")}
         trigger={addTrigger}
         autoOpenKey="showContractTypeModal"
         size="lg"
@@ -199,8 +199,8 @@ const ContractTypesList = (props: IProps) => {
           title={__(`ContractTypes`) + ` (${totalCount})`}
           queryParams={queryParams}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Contract Type') },
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Contract Type") },
           ]}
         />
       }

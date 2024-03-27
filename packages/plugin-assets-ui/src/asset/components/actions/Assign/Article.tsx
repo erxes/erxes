@@ -1,9 +1,9 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IAsset } from '../../../../common/types';
-import { KbArticles } from '../../../../style';
-import { FormControl } from '@erxes/ui/src';
-import { ContainerBox } from '../../../../style';
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { IAsset } from "../../../../common/types";
+import { KbArticles } from "../../../../style";
+import { FormControl } from "@erxes/ui/src";
+import { ContainerBox } from "../../../../style";
 
 type Props = {
   objects?: IAsset[];
@@ -39,7 +39,7 @@ const Article = (props: Props) => {
       <ContainerBox spaceBetween={true} align="center">
         <ContainerBox gap={5}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedArticles.includes(article._id)}
             onClick={() => handleArticleSelect(article._id)}
           />

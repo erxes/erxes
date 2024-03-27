@@ -1,21 +1,21 @@
-import { __ } from '../../utils/core';
-import React from 'react';
-import { Label } from './styles';
+import { Label } from "./styles";
+import React from "react";
+import { __ } from "../../utils/core";
 
 type Props = {
   children: React.ReactNode | string;
-  ignoreTrans?: boolean;
+  ignoretrans?: boolean;
   htmlFor?: string;
   required?: boolean;
   uppercase?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoreTrans, required, uppercase = true } = props;
+  const { children, ignoretrans, required, uppercase = true } = props;
 
   let content = children;
 
-  if (!ignoreTrans && typeof children === 'string') {
+  if (!ignoretrans && typeof children === "string") {
     content = __(children);
   }
 

@@ -1,14 +1,15 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, ISegmentCondition } from '../../types';
-import React from 'react';
-import Select from 'react-select';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
-import { OperatorList } from '../styles';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
-import { CenterContent } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
+import { DEFAULT_OPERATORS, OPERATORS } from "../constants";
+import { IField, ISegmentCondition } from "../../types";
+
+import Button from "@erxes/ui/src/components/Button";
+import { CenterContent } from "@erxes/ui/src/styles/main";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { Formgroup } from "@erxes/ui/src/components/form/styles";
+import { OperatorList } from "../styles";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   field: IField;
@@ -34,16 +35,16 @@ class PropertyForm extends React.Component<Props, State> {
 
     let chosenOperator;
 
-    let currentValue = '';
+    let currentValue = "";
 
     if (field && condition) {
-      const operators = OPERATORS[field.type || ''] || OPERATORS.string;
+      const operators = OPERATORS[field.type || ""] || OPERATORS.string;
 
       chosenOperator = operators.find(
-        (operator) => operator.value === condition.propertyOperator,
+        (operator) => operator.value === condition.propertyOperator
       );
 
-      currentValue = condition.propertyValue || '';
+      currentValue = condition.propertyValue || "";
     }
 
     this.state = {
@@ -55,13 +56,13 @@ class PropertyForm extends React.Component<Props, State> {
   }
 
   onClickOperator = (operator) => {
-    if (['is', 'ins', 'it', 'if'].indexOf(operator.value) >= 0) {
+    if (["is", "ins", "it", "if"].indexOf(operator.value) >= 0) {
       this.setState({
         chosenOperator: operator,
         currentValue: operator.value,
       });
     } else {
-      this.setState({ chosenOperator: operator, currentValue: '' });
+      this.setState({ chosenOperator: operator, currentValue: "" });
     }
   };
 
@@ -85,8 +86,8 @@ class PropertyForm extends React.Component<Props, State> {
   ) {
     return (
       <Select
-        placeholder={__('Select value')}
-        value={options.find(option => option.value === value)}
+        placeholder={__("Select value")}
+        value={options.find((option) => option.value === value)}
         options={options}
         required={true}
         isClearable={false}
@@ -103,7 +104,7 @@ class PropertyForm extends React.Component<Props, State> {
         closeOnSelect={false}
         closeOnTab={true}
         value={`${new Date(value).toDateString()} ${new Date(
-          value,
+          value
         ).toTimeString()}`}
         onChange={this.onChangeDate}
       />
@@ -111,7 +112,7 @@ class PropertyForm extends React.Component<Props, State> {
   }
 
   onChangeSelect = (option: { value: string }) => {
-    const value = !option ? '' : option.value.toString();
+    const value = !option ? "" : option.value.toString();
 
     this.setState({ currentValue: value });
   };
@@ -136,11 +137,11 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { selectOptions = [], choiceOptions = [], type } = field;
 
-    if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
+    if (["is", "ins", "it", "if"].indexOf(value) >= 0) {
       return null;
     }
 
-    if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
+    if (["dateigt", "dateilt", "drlt", "drgt"].includes(value)) {
       return this.renderDate(currentValue);
     }
 
@@ -149,8 +150,8 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     // if custom field is of type radio, then show options as select
-    if (type === 'radio' && choiceOptions.length > 0) {
-      const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
+    if (type === "radio" && choiceOptions.length > 0) {
+      const options = choiceOptions.map((opt) => ({ value: opt, label: opt }));
 
       return this.renderSelect(currentValue, options);
     }
@@ -173,13 +174,13 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { type, validation } = field;
 
-    const operators = OPERATORS[validation || type || ' '] || DEFAULT_OPERATORS;
+    const operators = OPERATORS[validation || type || " "] || DEFAULT_OPERATORS;
 
     return operators.map((operator, index) => {
       return (
         <div key={index}>
           <FormControl
-            componentClass="radio"
+            componentclass="radio"
             onChange={this.onClickOperator.bind(this, operator)}
             value={operator.value}
             checked={this.isChecked(operator)}
@@ -198,15 +199,15 @@ class PropertyForm extends React.Component<Props, State> {
 
     return addCondition(
       {
-        type: 'property',
-        key: condition ? condition.key : '',
+        type: "property",
+        key: condition ? condition.key : "",
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue,
         config,
       },
-      segmentKey,
+      segmentKey
     );
   };
 

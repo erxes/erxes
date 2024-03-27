@@ -1,38 +1,38 @@
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import moment from 'moment';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import moment from "moment";
+import React from "react";
+import { __ } from "coreui/utils";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IWork, IWorkDocument } from '../types';
-import { IProductsData } from '../../types';
-import { JOB_TYPE_CHOISES } from '../../constants';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import jobQueries from '../../job/graphql/queries';
-import Alert from '@erxes/ui/src/utils/Alert';
-import productQueries from '@erxes/ui-products/src/graphql/queries';
-import { FLOWJOB_TYPES } from '../../flow/constants';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IWork, IWorkDocument } from "../types";
+import { IProductsData } from "../../types";
+import { JOB_TYPE_CHOISES } from "../../constants";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import jobQueries from "../../job/graphql/queries";
+import Alert from "@erxes/ui/src/utils/Alert";
+import productQueries from "@erxes/ui-products/src/graphql/queries";
+import { FLOWJOB_TYPES } from "../../flow/constants";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -52,22 +52,22 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       workInfo: work || {
-        name: '',
-        status: 'new',
+        name: "",
+        status: "new",
         dueDate: new Date(),
         startAt: new Date(),
         endAt: new Date(),
-        type: '',
-        typeId: '',
-        origin: 'handle',
+        type: "",
+        typeId: "",
+        origin: "handle",
         count: 1,
-        inBranchId: '',
-        inDepartmentId: '',
-        outBranchId: '',
-        outDepartmentId: '',
+        inBranchId: "",
+        inDepartmentId: "",
+        outBranchId: "",
+        outDepartmentId: "",
         needProducts: [],
-        resultProducts: []
-      }
+        resultProducts: [],
+      },
     };
   }
 
@@ -88,7 +88,7 @@ class Form extends React.Component<Props, State> {
     return {
       ...(work || {}),
       ...finalValues,
-      ...workInfo
+      ...workInfo,
     };
   };
 
@@ -117,7 +117,7 @@ class Form extends React.Component<Props, State> {
 
     for (const product of products) {
       const { uom } = product;
-      const productName = product.product ? product.product.name : 'not name';
+      const productName = product.product ? product.product.name : "not name";
 
       result.push(
         this.renderView(productName, product.quantity * workInfo.count, uom)
@@ -133,7 +133,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('NeedProducts', needProducts || [])}
+        {this.renderProducts("NeedProducts", needProducts || [])}
       </SidebarList>
     );
   }
@@ -144,24 +144,24 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('ResultProducts', resultProducts || [])}
+        {this.renderProducts("ResultProducts", resultProducts || [])}
       </SidebarList>
     );
   }
 
-  onChange = e => {
+  onChange = (e) => {
     const { workInfo } = this.state;
     const count = Number(e.target.value);
 
     this.setState({
-      workInfo: { ...workInfo, count }
+      workInfo: { ...workInfo, count },
     });
   };
 
   onSelectDate = (value, name) => {
     const { workInfo } = this.state;
     this.setState({
-      workInfo: { ...workInfo, [name]: value }
+      workInfo: { ...workInfo, [name]: value },
     });
   };
 
@@ -169,13 +169,13 @@ class Form extends React.Component<Props, State> {
     const { workInfo } = this.state;
 
     this.setState({
-      workInfo: { ...workInfo, [name]: value }
+      workInfo: { ...workInfo, [name]: value },
     });
   };
 
   renderLoc(obj) {
     if (!obj) {
-      return 'unknown';
+      return "unknown";
     }
 
     return `${obj.code} - ${obj.title}`;
@@ -185,22 +185,22 @@ class Form extends React.Component<Props, State> {
     const { workInfo } = this.state;
 
     if (!workInfo.type) {
-      return '';
+      return "";
     }
 
-    if (['end', 'job'].includes(workInfo.type)) {
-      const onSelectJobRefer = jobReferId => {
+    if (["end", "job"].includes(workInfo.type)) {
+      const onSelectJobRefer = (jobReferId) => {
         this.setState({
           workInfo: {
             ...workInfo,
-            typeId: jobReferId
-          }
+            typeId: jobReferId,
+          },
         });
 
         client
           .query({
             query: gql(jobQueries.jobReferDetail),
-            variables: { id: jobReferId }
+            variables: { id: jobReferId },
           })
           .then(({ data }: any) => {
             if (data.jobReferDetail) {
@@ -211,32 +211,32 @@ class Form extends React.Component<Props, State> {
                   name: detail.name,
                   typeId: jobReferId,
                   needProducts: detail.needProducts,
-                  resultProducts: detail.resultProducts
-                }
+                  resultProducts: detail.resultProducts,
+                },
               });
             }
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       };
 
       return (
         <>
-          {(workInfo.type === 'end' && (
+          {(workInfo.type === "end" && (
             <FormGroup>
               <ControlLabel>Job Refer</ControlLabel>
               <SelectJobRefer
-                key={'jobReferEnds'}
+                key={"jobReferEnds"}
                 label="Choose jobRefer"
                 name="jobReferId"
-                initialValue={workInfo.typeId || ''}
+                initialValue={workInfo.typeId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear jobRefer filter'
+                  value: "",
+                  label: "...Clear jobRefer filter",
                 }}
                 onSelect={onSelectJobRefer}
-                filterParams={{ types: ['end'] }}
+                filterParams={{ types: ["end"] }}
                 multi={false}
               />
             </FormGroup>
@@ -244,16 +244,16 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Job Refer</ControlLabel>
               <SelectJobRefer
-                key={'jobReferJobs'}
+                key={"jobReferJobs"}
                 label="Choose jobRefer"
                 name="jobReferId"
-                initialValue={workInfo.typeId || ''}
+                initialValue={workInfo.typeId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear jobRefer filter'
+                  value: "",
+                  label: "...Clear jobRefer filter",
                 }}
                 onSelect={onSelectJobRefer}
-                filterParams={{ types: ['job'] }}
+                filterParams={{ types: ["job"] }}
                 multi={false}
               />
             </FormGroup>
@@ -262,18 +262,18 @@ class Form extends React.Component<Props, State> {
       );
     }
 
-    const onSelectProduct = productId => {
+    const onSelectProduct = (productId) => {
       this.setState({
         workInfo: {
           ...workInfo,
-          typeId: productId
-        }
+          typeId: productId,
+        },
       });
 
       client
         .query({
           query: gql(productQueries.productDetail),
-          variables: { _id: productId }
+          variables: { _id: productId },
         })
         .then(({ data }: any) => {
           if (data.productDetail) {
@@ -283,7 +283,7 @@ class Form extends React.Component<Props, State> {
               productId,
               uom: product.uom,
               quantity: 1,
-              product
+              product,
             };
             let needProducts: IProductsData[] = [];
             let resultProducts: IProductsData[] = [];
@@ -308,12 +308,12 @@ class Form extends React.Component<Props, State> {
                 name: product.name,
                 typeId: productId,
                 needProducts,
-                resultProducts
-              }
+                resultProducts,
+              },
             });
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -324,10 +324,10 @@ class Form extends React.Component<Props, State> {
           <SelectProducts
             label="Choose product"
             name="productId"
-            initialValue={workInfo.typeId || ''}
+            initialValue={workInfo.typeId || ""}
             customOption={{
-              value: '',
-              label: '...Clear product filter'
+              value: "",
+              label: "...Clear product filter",
             }}
             onSelect={onSelectProduct}
             multi={false}
@@ -347,7 +347,7 @@ class Form extends React.Component<Props, State> {
       inBranchId,
       outBranchId,
       inDepartmentId,
-      outDepartmentId
+      outDepartmentId,
     } = workInfo;
 
     return (
@@ -363,7 +363,7 @@ class Form extends React.Component<Props, State> {
                   timeFormat={true}
                   placeholder="Choose date"
                   value={startAt}
-                  onChange={value => this.onSelectDate(value, 'dueDate')}
+                  onChange={(value) => this.onSelectDate(value, "dueDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -386,18 +386,18 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Type</ControlLabel>
               <FormControl
                 name="type"
-                componentClass="select"
+                componentclass="select"
                 value={workInfo.type}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.onSelectChange(
-                    'type',
+                    "type",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
                 <option value="">All type</option>
-                {Object.keys(JOB_TYPE_CHOISES).map(jt => (
+                {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
                   <option value={jt} key={Math.random()}>
                     {JOB_TYPE_CHOISES[jt]}
                   </option>
@@ -416,13 +416,13 @@ class Form extends React.Component<Props, State> {
               <SelectBranches
                 label="Choose branch"
                 name="inBranchId"
-                initialValue={inBranchId || ''}
+                initialValue={inBranchId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear branch filter'
+                  value: "",
+                  label: "...Clear branch filter",
                 }}
-                onSelect={branchId =>
-                  this.onSelectChange('inBranchId', branchId)
+                onSelect={(branchId) =>
+                  this.onSelectChange("inBranchId", branchId)
                 }
                 multi={false}
               />
@@ -432,13 +432,13 @@ class Form extends React.Component<Props, State> {
               <SelectDepartments
                 label="Choose department"
                 name="inDepartmentId"
-                initialValue={inDepartmentId || ''}
+                initialValue={inDepartmentId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear department filter'
+                  value: "",
+                  label: "...Clear department filter",
                 }}
-                onSelect={departmentId =>
-                  this.onSelectChange('inDepartmentId', departmentId)
+                onSelect={(departmentId) =>
+                  this.onSelectChange("inDepartmentId", departmentId)
                 }
                 multi={false}
               />
@@ -451,13 +451,13 @@ class Form extends React.Component<Props, State> {
               <SelectBranches
                 label="Choose branch"
                 name="outBranchId"
-                initialValue={outBranchId || ''}
+                initialValue={outBranchId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear branch filter'
+                  value: "",
+                  label: "...Clear branch filter",
                 }}
-                onSelect={branchId =>
-                  this.onSelectChange('outBranchId', branchId)
+                onSelect={(branchId) =>
+                  this.onSelectChange("outBranchId", branchId)
                 }
                 multi={false}
               />
@@ -467,13 +467,13 @@ class Form extends React.Component<Props, State> {
               <SelectDepartments
                 label="Choose department"
                 name="outDepartmentId"
-                initialValue={outDepartmentId || ''}
+                initialValue={outDepartmentId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear department filter'
+                  value: "",
+                  label: "...Clear department filter",
                 }}
-                onSelect={departmentId =>
-                  this.onSelectChange('outDepartmentId', departmentId)
+                onSelect={(departmentId) =>
+                  this.onSelectChange("outDepartmentId", departmentId)
                 }
                 multi={false}
               />
@@ -481,7 +481,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
         </FormWrapper>
 
-        <Box title={'Plan Details:'}>
+        <Box title={"Plan Details:"}>
           <FormWrapper>
             <FormColumn>{this.renderDetailNeed()}</FormColumn>
             <FormColumn>{this.renderDetailResult()}</FormColumn>
@@ -499,11 +499,11 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'Performance',
+            name: "Performance",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: work
+            object: work,
           })}
         </ModalFooter>
       </>

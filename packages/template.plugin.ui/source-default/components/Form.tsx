@@ -118,7 +118,7 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
             <FormControl
               {...formProps}
               name='typeId'
-              componentClass='select'
+              componentclass='select'
               defaultValue={object.typeId}
             >
               {this.generateTagOptions(types)}

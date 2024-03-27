@@ -1,14 +1,14 @@
-import React from 'react';
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-
-import { IImportHistoryContentType } from '../../types';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { __ } from 'modules/common/utils';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+
+import { IImportHistoryContentType } from "../../types";
+import React from "react";
+import { SubHeading } from "@erxes/ui-settings/src/styles";
+import { __ } from "modules/common/utils";
 
 type Props = {
   duplicatedHeaders: string[];
@@ -19,10 +19,10 @@ type Props = {
 
 class AccociateForm extends React.Component<Props, {}> {
   render() {
-    const onChangeHeader = e =>
+    const onChangeHeader = (e) =>
       this.props.onChangeAssociateHeader((e.target as HTMLInputElement).value);
 
-    const onChangeContentType = e =>
+    const onChangeContentType = (e) =>
       this.props.onChangeAssociateContentType(
         (e.target as HTMLInputElement).value
       );
@@ -30,22 +30,22 @@ class AccociateForm extends React.Component<Props, {}> {
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
-          <SubHeading>{__('Choose how to associate your data')}</SubHeading>
+          <SubHeading>{__("Choose how to associate your data")}</SubHeading>
 
           <div>
             <FormGroup>
               <ControlLabel>
-                {__('Common column headers found in your file')}
+                {__("Common column headers found in your file")}
               </ControlLabel>
               <p>
                 {__(
-                  'Choose which common column you want to use to associate your data.'
+                  "Choose which common column you want to use to associate your data."
                 )}
                 .
               </p>
-              <FormControl componentClass="select" onChange={onChangeHeader}>
+              <FormControl componentclass="select" onChange={onChangeHeader}>
                 <option />
-                {this.props.duplicatedHeaders.map(header => (
+                {this.props.duplicatedHeaders.map((header) => (
                   <option key={header} value={header}>
                     {header}
                   </option>
@@ -54,20 +54,20 @@ class AccociateForm extends React.Component<Props, {}> {
             </FormGroup>
             <FormGroup>
               <ControlLabel>
-                {__('Which object is the unique key for')}
+                {__("Which object is the unique key for")}
               </ControlLabel>
               <p>
                 {__(
-                  'The common column between your files should also be the unique key for one of your objects. This unique key is used to associate objects based on individual data but only belongs to one object.'
+                  "The common column between your files should also be the unique key for one of your objects. This unique key is used to associate objects based on individual data but only belongs to one object."
                 )}
                 .
               </p>
               <FormControl
-                componentClass="select"
+                componentclass="select"
                 onChange={onChangeContentType}
               >
                 <option />
-                {this.props.contentTypes.map(contentType => (
+                {this.props.contentTypes.map((contentType) => (
                   <option
                     key={contentType.contentType}
                     value={contentType.contentType}

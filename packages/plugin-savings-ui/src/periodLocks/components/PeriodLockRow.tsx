@@ -1,10 +1,10 @@
-import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
-import _ from 'lodash';
-import React from 'react';
+import { formatValue, FormControl, Icon, ModalTrigger } from "@erxes/ui/src";
+import _ from "lodash";
+import React from "react";
 
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { IPeriodLock } from '../types';
-import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import PeriodLockForm from "../containers/PeriodLockForm";
+import { IPeriodLock } from "../types";
+import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
 
 type Props = {
   periodLock: IPeriodLock;
@@ -24,7 +24,7 @@ function displayValue(periodLock, name) {
 }
 
 function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
-  const content = props => (
+  const content = (props) => (
     <PeriodLockForm {...props} periodLock={periodLock} />
   );
 
@@ -36,7 +36,7 @@ function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
 function renderEditAction(periodLock: IPeriodLock) {
   const trigger = (
     <ActionButton
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
       children={<Icon icon="edit-1" />}
     />
   );
@@ -45,13 +45,13 @@ function renderEditAction(periodLock: IPeriodLock) {
 }
 
 function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -64,12 +64,12 @@ function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(periodLock, 'date')}</td>
+      <td key={"code"}>{displayValue(periodLock, "date")}</td>
 
       <td onClick={onClick}>{renderEditAction(periodLock)}</td>
     </tr>

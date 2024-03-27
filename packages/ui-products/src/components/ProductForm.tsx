@@ -476,7 +476,7 @@ const Form = (props: Props) => {
               <td>
                 <FormControl
                   name="image"
-                  componentClass="select"
+                  componentclass="select"
                   value={((variants[item] || {}).image || {}).url || ""}
                   onChange={onChangePerImage.bind(this, item)}
                 >
@@ -611,7 +611,7 @@ const Form = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="type"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={object.type}
                 required={true}
               >
@@ -676,7 +676,7 @@ const Form = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="taxType"
-                componentClass="select"
+                componentclass="select"
                 onChange={onTaxChange}
                 defaultValue={taxType}
                 options={[
@@ -694,7 +694,7 @@ const Form = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="taxCode"
-                componentClass="select"
+                componentclass="select"
                 onChange={onTaxChange}
                 defaultValue={taxCode}
                 options={(TAX_TYPES[taxType || ""] || {}).options || []}

@@ -2,23 +2,23 @@ import {
   ContentColumn,
   ItemRow as CommonItemRow,
   ItemText,
-} from '@erxes/ui-cards/src/deals/styles';
-import { FormControl, Icon, TextInfo, __ } from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { renderFullName } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IMovementItem } from '../../../common/types';
-import { SelectWithAssets } from '../../../common/utils';
+} from "@erxes/ui-cards/src/deals/styles";
+import { FormControl, Icon, TextInfo, __ } from "@erxes/ui/src";
+import client from "@erxes/ui/src/apolloClient";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { renderFullName } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import React from "react";
+import { Link } from "react-router-dom";
+import { IMovementItem } from "../../../common/types";
+import { SelectWithAssets } from "../../../common/utils";
 import {
   ContainerBox,
   MovementItemConfigContainer,
   MovementItemInfoContainer,
   RemoveRow,
-} from '../../../style';
-import { queries as itemQueries } from '../../assets/graphql';
+} from "../../../style";
+import { queries as itemQueries } from "../../assets/graphql";
 
 type Props = {
   item: IMovementItem;
@@ -82,7 +82,7 @@ const MovementItem = (props: Props) => {
     client
       .query({
         query: gql(itemQueries.item),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { assetId },
       })
       .then((res) => {
@@ -94,7 +94,7 @@ const MovementItem = (props: Props) => {
   const generateInfoText = ({ type, prev, current }) => {
     let prevText;
     let currentText;
-    if (['branch', 'department'].includes(type)) {
+    if (["branch", "department"].includes(type)) {
       return (
         <>
           {prev && `${prev?.title} / `}
@@ -103,23 +103,23 @@ const MovementItem = (props: Props) => {
       );
     }
 
-    if (type === 'team') {
+    if (type === "team") {
       prevText = prev?.details?.fullName;
       currentText = current?.details?.fullName;
     }
 
-    if (type === 'companies') {
+    if (type === "companies") {
       prevText = prev?.primaryName;
       currentText = current?.primaryName;
     }
 
-    if (type === 'contacts') {
-      prevText = prev ? renderFullName(prev || '') : '';
-      currentText = current ? renderFullName(current || '') : '';
+    if (type === "contacts") {
+      prevText = prev ? renderFullName(prev || "") : "";
+      currentText = current ? renderFullName(current || "") : "";
     }
 
     const generateLink = (variable) => {
-      if (type === 'contacts') {
+      if (type === "contacts") {
         return `/${type}/details/${variable?._id}`;
       }
       return `/settings/${type}/details/${variable?._id}`;
@@ -142,25 +142,25 @@ const MovementItem = (props: Props) => {
     <>
       <tr
         id={assetId}
-        className={current === assetId ? 'active' : ''}
+        className={current === assetId ? "active" : ""}
         onClick={() => changeCurrent(assetId)}
       >
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
             color="#3B85F4"
           />
         </td>
         <td>
-          <ContainerBox row>{__(assetDetail?.name || '-')}</ContainerBox>
+          <ContainerBox row>{__(assetDetail?.name || "-")}</ContainerBox>
         </td>
-        <td>{__(branch?.title || '-')}</td>
-        <td>{__(department?.title || '-')}</td>
-        <td>{__((customer && renderFullName(customer)) || '-')}</td>
-        <td>{__(company?.primaryName || '-')}</td>
-        <td>{__(teamMember?.details?.fullName || '-')}</td>
+        <td>{__(branch?.title || "-")}</td>
+        <td>{__(department?.title || "-")}</td>
+        <td>{__((customer && renderFullName(customer)) || "-")}</td>
+        <td>{__(company?.primaryName || "-")}</td>
+        <td>{__(teamMember?.details?.fullName || "-")}</td>
         <td>
           <RemoveRow>
             <Icon onClick={() => removeRow(assetId)} icon="times-circle" />
@@ -181,40 +181,40 @@ const MovementItem = (props: Props) => {
                       onSelect={changeRowItem}
                       initialValue={assetId}
                       skip={selectedItems?.filter((item) => item !== assetId)}
-                      customOption={{ value: '', label: 'Choose Asset' }}
+                      customOption={{ value: "", label: "Choose Asset" }}
                     />
                   </ItemRow>
                   <ItemRow label="Branch:">
                     {generateInfoText({
-                      type: 'branch',
+                      type: "branch",
                       prev: sourceLocations?.branch,
                       current: branch,
                     })}
                   </ItemRow>
                   <ItemRow label="Department:">
                     {generateInfoText({
-                      type: 'department',
+                      type: "department",
                       prev: sourceLocations?.department,
                       current: department,
                     })}
                   </ItemRow>
                   <ItemRow label="Customer:">
                     {generateInfoText({
-                      type: 'contacts',
+                      type: "contacts",
                       prev: sourceLocations?.customer,
                       current: customer,
                     })}
                   </ItemRow>
                   <ItemRow label="Company:">
                     {generateInfoText({
-                      type: 'companies',
+                      type: "companies",
                       prev: sourceLocations?.company,
                       current: company,
                     })}
                   </ItemRow>
                   <ItemRow label="Team Member:">
                     {generateInfoText({
-                      type: 'team',
+                      type: "team",
                       prev: sourceLocations?.teamMember,
                       current: teamMember,
                     })}

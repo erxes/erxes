@@ -1,17 +1,17 @@
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import React, { useRef } from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { SidebarFilters } from '../../styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import React, { useRef } from "react";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { SidebarFilters } from "../../styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 
 interface Props {
   history: any;
@@ -28,17 +28,17 @@ const YearPlanSidebar = (props: Props) => {
   const clearFilter = () => {
     router.removeParams(
       history,
-      'year',
-      'filterStatus',
-      'branchId',
-      'departmentId',
-      'productCategoryId',
-      'productId',
+      "year",
+      "filterStatus",
+      "branchId",
+      "departmentId",
+      "productCategoryId",
+      "productId"
     );
   };
 
   const setFilter = (name, value) => {
-    router.removeParams(history, 'page');
+    router.removeParams(history, "page");
     router.setParams(history, { [name]: value });
   };
 
@@ -59,16 +59,16 @@ const YearPlanSidebar = (props: Props) => {
   return (
     <Wrapper.Sidebar hasBorder>
       <Section.Title>
-        {__('Filters')}
+        {__("Filters")}
         <Section.QuickButtons>
-          {(router.getParam(history, 'filterStatus') ||
-            router.getParam(history, 'branchId') ||
-            router.getParam(history, 'departmentId') ||
-            router.getParam(history, 'productCategoryId') ||
-            router.getParam(history, 'productId') ||
-            router.getParam(history, 'year')) && (
+          {(router.getParam(history, "filterStatus") ||
+            router.getParam(history, "branchId") ||
+            router.getParam(history, "departmentId") ||
+            router.getParam(history, "productCategoryId") ||
+            router.getParam(history, "productId") ||
+            router.getParam(history, "year")) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -92,12 +92,12 @@ const YearPlanSidebar = (props: Props) => {
             <SelectBranches
               label="Choose branch"
               name="branchId"
-              initialValue={queryParams.branchId || ''}
+              initialValue={queryParams.branchId || ""}
               customOption={{
-                value: '',
-                label: '...Clear branch filter',
+                value: "",
+                label: "...Clear branch filter",
               }}
-              onSelect={(branchId) => setFilter('branchId', branchId)}
+              onSelect={(branchId) => setFilter("branchId", branchId)}
               multi={false}
             />
           </FormGroup>
@@ -106,13 +106,13 @@ const YearPlanSidebar = (props: Props) => {
             <SelectDepartments
               label="Choose department"
               name="departmentId"
-              initialValue={queryParams.departmentId || ''}
+              initialValue={queryParams.departmentId || ""}
               customOption={{
-                value: '',
-                label: '...Clear department filter',
+                value: "",
+                label: "...Clear department filter",
               }}
               onSelect={(departmentId) =>
-                setFilter('departmentId', departmentId)
+                setFilter("departmentId", departmentId)
               }
               multi={false}
             />
@@ -122,13 +122,13 @@ const YearPlanSidebar = (props: Props) => {
             <SelectProductCategory
               label="Choose product category"
               name="productCategoryId"
-              initialValue={queryParams.productCategoryId || ''}
+              initialValue={queryParams.productCategoryId || ""}
               customOption={{
-                value: '',
-                label: '...Clear product category filter',
+                value: "",
+                label: "...Clear product category filter",
               }}
               onSelect={(categoryId) =>
-                setFilter('productCategoryId', categoryId)
+                setFilter("productCategoryId", categoryId)
               }
               multi={false}
             />
@@ -138,12 +138,12 @@ const YearPlanSidebar = (props: Props) => {
             <SelectProducts
               label="Choose product"
               name="productId"
-              initialValue={queryParams.productId || ''}
+              initialValue={queryParams.productId || ""}
               customOption={{
-                value: '',
-                label: '...Clear product filter',
+                value: "",
+                label: "...Clear product filter",
               }}
-              onSelect={(productId) => setFilter('productId', productId)}
+              onSelect={(productId) => setFilter("productId", productId)}
               multi={false}
             />
           </FormGroup>
@@ -151,27 +151,27 @@ const YearPlanSidebar = (props: Props) => {
             <ControlLabel>Status</ControlLabel>
             <FormControl
               name="filterStatus"
-              componentClass="select"
+              componentclass="select"
               defaultValue={queryParams.filterStatus}
               required={false}
               onChange={(e) =>
                 setFilter(
-                  'filterStatus',
-                  (e.currentTarget as HTMLInputElement).value,
+                  "filterStatus",
+                  (e.currentTarget as HTMLInputElement).value
                 )
               }
             >
-              <option key={''} value={''}>
-                {' '}
-                {'All status'}{' '}
+              <option key={""} value={""}>
+                {" "}
+                {"All status"}{" "}
               </option>
-              <option key={'active'} value={'active'}>
-                {' '}
-                {'active'}{' '}
+              <option key={"active"} value={"active"}>
+                {" "}
+                {"active"}{" "}
               </option>
-              <option key={'archived'} value={'archived'}>
-                {' '}
-                {'archived'}{' '}
+              <option key={"archived"} value={"archived"}>
+                {" "}
+                {"archived"}{" "}
               </option>
             </FormControl>
           </FormGroup>

@@ -1,20 +1,20 @@
-import Form from '../containers/Form';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './DayLabelRow';
-import Sidebar from './DayLabelSidebar';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/Form";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./DayLabelRow";
+import Sidebar from "./DayLabelSidebar";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { IDayLabel } from '../types';
-import { menuSalesplans } from '../../constants';
-import { FlexRow, Title } from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui/src/components";
+import { IDayLabel } from "../types";
+import { menuSalesplans } from "../../constants";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   dayLabels: IDayLabel[];
@@ -49,7 +49,7 @@ const DayLabelList = (props: Props) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(dayLabels, 'dayLabels');
+    toggleAll(dayLabels, "dayLabels");
   };
 
   const renderRow = () => {
@@ -122,15 +122,15 @@ const DayLabelList = (props: Props) => {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
-            <th>{__('Date')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Labels')}</th>
-            <th>{__('')}</th>
+            <th>{__("Date")}</th>
+            <th>{__("Branch")}</th>
+            <th>{__("Department")}</th>
+            <th>{__("Labels")}</th>
+            <th>{__("")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -142,13 +142,13 @@ const DayLabelList = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Sales Year plans')}
+          title={__("Sales Year plans")}
           submenu={menuSalesplans}
         />
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Day labels')}</Title>}
+          left={<Title>{__("Day labels")}</Title>}
           right={actionBarRight()}
         />
       }

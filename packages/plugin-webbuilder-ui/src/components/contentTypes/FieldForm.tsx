@@ -2,26 +2,26 @@ import {
   LeftSection,
   Preview,
   PreviewSection,
-  ShowPreview
-} from '@erxes/ui-forms/src/forms/styles';
+  ShowPreview,
+} from "@erxes/ui-forms/src/forms/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FieldPreview from '@erxes/ui-forms/src/forms/components/FieldPreview';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import Modal from 'react-bootstrap/Modal';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FieldPreview from "@erxes/ui-forms/src/forms/components/FieldPreview";
+import { FlexItem } from "@erxes/ui/src/components/step/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import Modal from "react-bootstrap/Modal";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   onSubmit: (field: any) => void;
   onDelete?: (field: any) => void;
   onCancel: () => void;
-  mode: 'create' | 'update';
+  mode: "create" | "update";
   field: any;
 };
 
@@ -36,7 +36,7 @@ class FieldForm extends React.Component<Props, State> {
     const { field } = props;
 
     this.state = {
-      field
+      field,
     };
   }
 
@@ -58,7 +58,7 @@ class FieldForm extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   };
 
-  onSubmit = e => {
+  onSubmit = (e) => {
     e.persist();
 
     const { field } = this.state;
@@ -73,7 +73,7 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const remove = e => {
+    const remove = (e) => {
       e.preventDefault();
 
       onDelete(field);
@@ -90,19 +90,19 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, onCancel } = this.props;
     const { field } = this.state;
 
-    const text = e =>
-      this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
+    const text = (e) =>
+      this.onFieldChange("text", (e.currentTarget as HTMLInputElement).value);
 
-    const code = e =>
-      this.onFieldChange('code', (e.currentTarget as HTMLInputElement).value);
+    const code = (e) =>
+      this.onFieldChange("code", (e.currentTarget as HTMLInputElement).value);
 
-    const show = e =>
-      this.onFieldChange('show', (e.currentTarget as HTMLInputElement).checked);
+    const show = (e) =>
+      this.onFieldChange("show", (e.currentTarget as HTMLInputElement).checked);
 
     return (
       <>
         <CollapseContent
-          title={__('General settings')}
+          title={__("General settings")}
           compact={true}
           open={true}
         >
@@ -110,7 +110,7 @@ class FieldForm extends React.Component<Props, State> {
             <ControlLabel required={true}>Field Label</ControlLabel>
 
             <FormControl
-              value={field.text || ''}
+              value={field.text || ""}
               onChange={text}
               required={true}
               autoFocus={true}
@@ -119,14 +119,14 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel required={true}>Field Code</ControlLabel>
-            <FormControl value={field.code || ''} onChange={code} />
+            <FormControl value={field.code || ""} onChange={code} />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Show on entry row</ControlLabel>
             <FormControl
               checked={field.show}
-              componentClass="checkbox"
+              componentclass="checkbox"
               required={true}
               onChange={show}
             />
@@ -148,9 +148,9 @@ class FieldForm extends React.Component<Props, State> {
           <Button
             onClick={this.onSubmit}
             btnStyle="success"
-            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+            icon={mode === "update" ? "check-circle" : "plus-circle"}
           >
-            {mode === 'update' ? 'Save' : 'Add Field'}
+            {mode === "update" ? "Save" : "Add Field"}
           </Button>
         </Modal.Footer>
       </>
@@ -169,7 +169,7 @@ class FieldForm extends React.Component<Props, State> {
             <FieldPreview field={field} />
 
             <ShowPreview>
-              <Icon icon="eye" /> {__('Field preview')}
+              <Icon icon="eye" /> {__("Field preview")}
             </ShowPreview>
           </Preview>
         </PreviewSection>
@@ -190,7 +190,7 @@ class FieldForm extends React.Component<Props, State> {
       >
         <Modal.Header closeButton={true}>
           <Modal.Title>
-            {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
+            {mode === "create" ? "Add" : "Edit"} {field.type} field
           </Modal.Title>
         </Modal.Header>
         <Modal.Body id="ModalBody" className="md-padding">

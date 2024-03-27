@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   __,
   Button,
@@ -7,16 +7,16 @@ import {
   Icon,
   Table,
   Tip,
-} from '@erxes/ui/src';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui/src";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
 import {
   FullContent,
   LinkButton,
   MiddleContent,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
-import { ITimeframe } from '../types';
-import { FormTable, LevelOption, RemoveRow } from '../../styles';
+} from "@erxes/ui/src/styles/main";
+import { ITimeframe } from "../types";
+import { FormTable, LevelOption, RemoveRow } from "../../styles";
 
 type Props = {
   data: ITimeframe[];
@@ -28,7 +28,7 @@ const ManageConfigs = (props: Props) => {
   const { data, closeModal, edit } = props;
 
   const [configsData, setConfigsData] = useState<ITimeframe[]>(
-    data ? data : [],
+    data ? data : []
   );
 
   const [sumPercent, setSumPercent] = useState<number>(0);
@@ -37,8 +37,8 @@ const ManageConfigs = (props: Props) => {
     if (!data || data.length === 0) {
       setConfigsData([
         {
-          name: '',
-          description: '',
+          name: "",
+          description: "",
           percent: 0,
           startTime: 0,
           endTime: 0,
@@ -50,7 +50,7 @@ const ManageConfigs = (props: Props) => {
     setSumPercent(
       data.length
         ? data.map((d) => d.percent || 0).reduce((sum, d) => sum + d)
-        : 0,
+        : 0
     );
   }, [data]);
 
@@ -94,7 +94,7 @@ const ManageConfigs = (props: Props) => {
         const updatedLabels = [...configsData];
 
         let value: any = (event.target as HTMLInputElement).value;
-        if (['startTime', 'endTime', 'percent'].includes(key)) {
+        if (["startTime", "endTime", "percent"].includes(key)) {
           value = Number(value);
         }
         item[key] = value;
@@ -103,7 +103,7 @@ const ManageConfigs = (props: Props) => {
         setSumPercent(
           configsData.length
             ? configsData.map((d) => d.percent || 0).reduce((sum, d) => sum + d)
-            : 0,
+            : 0
         );
       };
 
@@ -113,52 +113,52 @@ const ManageConfigs = (props: Props) => {
             <FormControl
               type="text"
               id={`${index}`}
-              value={item.name || ''}
-              placeholder={'Name'}
-              onChange={(event: any) => onChangeConfigData(event, 'name')}
+              value={item.name || ""}
+              placeholder={"Name"}
+              onChange={(event: any) => onChangeConfigData(event, "name")}
             />
           </td>
           <td>
             <FormControl
               id={`${index}`}
-              value={item.description || ''}
-              placeholder={'Description'}
+              value={item.description || ""}
+              placeholder={"Description"}
               onChange={(event: any) =>
-                onChangeConfigData(event, 'description')
+                onChangeConfigData(event, "description")
               }
             />
           </td>
           <td>
             <FormControl
               type="number"
-              componentClass="number"
+              componentclass="number"
               min={0}
               max={100}
               id={`${index}`}
               value={item.percent || 0}
-              onChange={(event: any) => onChangeConfigData(event, 'percent')}
+              onChange={(event: any) => onChangeConfigData(event, "percent")}
             />
           </td>
           <td>
             <FormControl
               type="number"
-              componentClass="number"
+              componentclass="number"
               min={0}
               max={24}
               id={`${index}`}
-              value={item.startTime || ''}
-              onChange={(event: any) => onChangeConfigData(event, 'startTime')}
+              value={item.startTime || ""}
+              onChange={(event: any) => onChangeConfigData(event, "startTime")}
             />
           </td>
           <td>
             <FormControl
               type="number"
-              componentClass="number"
+              componentclass="number"
               min={0}
               max={24}
               id={`${index}`}
-              value={item.endTime || ''}
-              onChange={(event: any) => onChangeConfigData(event, 'endTime')}
+              value={item.endTime || ""}
+              onChange={(event: any) => onChangeConfigData(event, "endTime")}
             />
           </td>
 
@@ -199,7 +199,7 @@ const ManageConfigs = (props: Props) => {
         <LevelOption>
           <FlexRow justifyContent="space-between">
             <LinkButton onClick={addConfig}>
-              <Icon icon="add" /> {__('Add another config')}
+              <Icon icon="add" /> {__("Add another config")}
             </LinkButton>
             Summary Percent: {sumPercent}
           </FlexRow>

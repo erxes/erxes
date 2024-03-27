@@ -1,28 +1,28 @@
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import { Form } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import {
+  ClientPortalConfig,
+  IClientPortalUser,
+  IClientPortalUserDoc,
+} from "../../types";
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper,
-} from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState, useEffect } from 'react';
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
 
-import { USER_LOGIN_TYPES } from '../../constants';
-import {
-  ClientPortalConfig,
-  IClientPortalUser,
-  IClientPortalUserDoc,
-} from '../../types';
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Form } from "@erxes/ui/src/components/form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IUser } from "@erxes/ui/src/auth/types";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import { USER_LOGIN_TYPES } from "../../constants";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   currentUser: IUser;
@@ -51,44 +51,44 @@ type State = {
 
 const CustomerForm: React.FC<Props> = (props: Props) => {
   const [state, setState] = useState<State>({
-    ownerId: '',
-    isSubscribed: 'Yes',
-    hasAuthority: 'No',
+    ownerId: "",
+    isSubscribed: "Yes",
+    hasAuthority: "No",
     users: [],
-    avatar: '',
-    phone: '',
-    email: '',
-    type: 'customer',
-    erxesCompanyId: '',
+    avatar: "",
+    phone: "",
+    email: "",
+    type: "customer",
+    erxesCompanyId: "",
     req: true,
     activeSections: {
       renderClientPortalUser: false,
       renderClientPortalCompany: false,
     },
-    password: '',
+    password: "",
     disableVerificationMail: false,
-    clientPortalId: '',
+    clientPortalId: "",
   });
 
   useEffect(() => {
     const { currentUser, clientPortalUser } = props;
-    const userId = currentUser ? currentUser._id : '';
+    const userId = currentUser ? currentUser._id : "";
 
     setState((prevState) => ({
       ...prevState,
-      type: clientPortalUser?.type || 'customer',
+      type: clientPortalUser?.type || "customer",
       ownerId: clientPortalUser?.ownerId || userId,
-      isSubscribed: clientPortalUser?.isSubscribed || 'Yes',
-      hasAuthority: clientPortalUser?.hasAuthority || 'No',
-      avatar: clientPortalUser?.avatar || '',
-      erxesCompanyId: clientPortalUser?.erxesCompanyId || '',
+      isSubscribed: clientPortalUser?.isSubscribed || "Yes",
+      hasAuthority: clientPortalUser?.hasAuthority || "No",
+      avatar: clientPortalUser?.avatar || "",
+      erxesCompanyId: clientPortalUser?.erxesCompanyId || "",
       disableVerificationMail: false,
-      clientPortalId: clientPortalUser?.clientPortalId || '',
+      clientPortalId: clientPortalUser?.clientPortalId || "",
     }));
   }, [props.clientPortalUser, props.currentUser]);
 
   const generateDoc = (
-    values: { _id: string; password?: string } & IClientPortalUserDoc,
+    values: { _id: string; password?: string } & IClientPortalUserDoc
   ) => {
     const { clientPortalUser } = props;
     const finalValues = values;
@@ -159,7 +159,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
     return (
       <>
         <CollapseContent
-          title={__('General information')}
+          title={__("General information")}
           compact={true}
           open={true}
         >
@@ -179,7 +179,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <ControlLabel required={true}>First Name</ControlLabel>
                 <FormControl
                   {...formProps}
-                  defaultValue={clientPortalUser.firstName || ''}
+                  defaultValue={clientPortalUser.firstName || ""}
                   autoFocus={true}
                   required={true}
                   name="firstName"
@@ -191,7 +191,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="lastName"
-                  defaultValue={clientPortalUser.lastName || ''}
+                  defaultValue={clientPortalUser.lastName || ""}
                 />
               </FormGroup>
 
@@ -200,14 +200,14 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="username"
-                  defaultValue={clientPortalUser.username || ''}
+                  defaultValue={clientPortalUser.username || ""}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Company</ControlLabel>
                 <SelectCompanies
                   initialValue={clientPortalUser.erxesCompanyId}
-                  label={__('Select a company')}
+                  label={__("Select a company")}
                   name="companyId"
                   onSelect={onChangeCompany}
                   multi={false}
@@ -220,7 +220,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="code"
-                  defaultValue={clientPortalUser.code || ''}
+                  defaultValue={clientPortalUser.code || ""}
                 />
               </FormGroup>
               <FormGroup>
@@ -229,7 +229,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                   {...formProps}
                   name="email"
                   required={true}
-                  defaultValue={clientPortalUser.email || ''}
+                  defaultValue={clientPortalUser.email || ""}
                 />
               </FormGroup>
               <FormGroup>
@@ -237,7 +237,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="phone"
-                  defaultValue={clientPortalUser.phone || ''}
+                  defaultValue={clientPortalUser.phone || ""}
                 />
               </FormGroup>
               <FormGroup>
@@ -245,7 +245,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 <FormControl
                   {...formProps}
                   name="clientPortalId"
-                  componentClass="select"
+                  componentclass="select"
                   defaultValue={clientPortalUser.clientPortalId}
                   required={true}
                   onChange={onChange}
@@ -268,7 +268,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
             <FormControl
               {...formProps}
               name="password"
-              defaultValue={clientPortalUser._id && '******'}
+              defaultValue={clientPortalUser._id && "******"}
               onChange={(e: any) =>
                 setState((prevState) => ({
                   ...prevState,
@@ -287,7 +287,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="disableVerificationMail"
-                componentClass="checkbox"
+                componentclass="checkbox"
                 defaultChecked={false}
                 onChange={(e: any) =>
                   setState((prevState) => ({
@@ -309,7 +309,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
 
     return (
       <CollapseContent
-        title={__('General information')}
+        title={__("General information")}
         compact={true}
         open={true}
       >
@@ -319,7 +319,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
               <ControlLabel required={true}>Company Name</ControlLabel>
               <FormControl
                 {...formProps}
-                defaultValue={clientPortalUser.companyName || ''}
+                defaultValue={clientPortalUser.companyName || ""}
                 autoFocus={true}
                 required={true}
                 name="companyName"
@@ -331,7 +331,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="companyRegistrationNumber"
-                defaultValue={clientPortalUser.companyRegistrationNumber || ''}
+                defaultValue={clientPortalUser.companyRegistrationNumber || ""}
               />
             </FormGroup>
           </FormColumn>
@@ -342,7 +342,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
                 {...formProps}
                 name="email"
                 required={true}
-                defaultValue={clientPortalUser.email || ''}
+                defaultValue={clientPortalUser.email || ""}
               />
             </FormGroup>
             <FormGroup>
@@ -350,7 +350,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="phone"
-                defaultValue={clientPortalUser.phone || ''}
+                defaultValue={clientPortalUser.phone || ""}
               />
             </FormGroup>
             <FormGroup>
@@ -358,7 +358,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="clientPortalId"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={clientPortalUser.clientPortalId}
                 required={true}
                 onChange={onChange}
@@ -388,7 +388,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
             <FormControl
               {...formProps}
               name="type"
-              componentClass="select"
+              componentclass="select"
               defaultValue={state.type}
               required={true}
               onChange={onChangeContent}
@@ -397,7 +397,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
             </FormControl>
           </FormGroup>
 
-          {state.type === 'customer'
+          {state.type === "customer"
             ? renderClientPortalUser(formProps)
             : renderClientPortalCompany(formProps)}
         </ScrollWrapper>
@@ -412,7 +412,7 @@ const CustomerForm: React.FC<Props> = (props: Props) => {
           </Button>
 
           {props.renderButton({
-            name: 'clientPortalUser',
+            name: "clientPortalUser",
             values: generateDoc(values),
             isSubmitted,
             object: props.clientPortalUser,

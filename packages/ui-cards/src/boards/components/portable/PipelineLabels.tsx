@@ -2,9 +2,9 @@ import { ControlLabel, FormGroup, Spinner } from "@erxes/ui/src/components";
 import { IField, IOption } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
+import Select from "react-select";
 import { gql } from "@apollo/client";
 import { queries } from "../../graphql";
-import Select from "react-select";
 import { useQuery } from "@apollo/client";
 
 type Props = {
@@ -43,7 +43,7 @@ const GenerateAddFormFields = (props: Props) => {
 
   return (
     <FormGroup>
-      <ControlLabel ignoreTrans={true} required={field.isRequired}>
+      <ControlLabel ignoretrans={true} required={field.isRequired}>
         {field.text}
       </ControlLabel>
       <Select

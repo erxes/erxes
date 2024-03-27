@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -6,23 +6,23 @@ import {
   HeaderDescription,
   ModalTrigger,
   Pagination,
-  Table
-} from '@erxes/ui/src/components';
+  Table,
+} from "@erxes/ui/src/components";
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
 
-import Form from '../containers/Form';
-import { ISpinCampaign } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/Form";
+import { ISpinCampaign } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "../../general/components/Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   spinCampaigns: ISpinCampaign[];
@@ -54,12 +54,12 @@ class SpinCampaigns extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue || '',
-      filterStatus: this.props.filterStatus || ''
+      searchValue: this.props.searchValue || "",
+      filterStatus: this.props.filterStatus || "",
     };
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -70,7 +70,7 @@ class SpinCampaigns extends React.Component<Props, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -78,19 +78,19 @@ class SpinCampaigns extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
   onChange = () => {
     const { toggleAll, spinCampaigns } = this.props;
-    toggleAll(spinCampaigns, 'spinCampaigns');
+    toggleAll(spinCampaigns, "spinCampaigns");
   };
 
   renderRow = () => {
     const { spinCampaigns, history, toggleBulk, bulk } = this.props;
 
-    return spinCampaigns.map(spinCampaign => (
+    return spinCampaigns.map((spinCampaign) => (
       <Row
         key={spinCampaign._id}
         history={history}
@@ -101,14 +101,14 @@ class SpinCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeSpinCampaigns = spinCampaigns => {
+  removeSpinCampaigns = (spinCampaigns) => {
     const spinCampaignIds: string[] = [];
 
-    spinCampaigns.forEach(spinCampaign => {
+    spinCampaigns.forEach((spinCampaign) => {
       spinCampaignIds.push(spinCampaign._id);
     });
 
@@ -124,7 +124,7 @@ class SpinCampaigns extends React.Component<Props, State> {
           .then(() => {
             this.removeSpinCampaigns(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -154,7 +154,7 @@ class SpinCampaigns extends React.Component<Props, State> {
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
                 value={this.state.searchValue}
                 autoFocus={true}
@@ -163,7 +163,7 @@ class SpinCampaigns extends React.Component<Props, State> {
             </FlexItem>
           </InputBar>
           <ModalTrigger
-            size={'lg'}
+            size={"lg"}
             title="Add spin campaign"
             trigger={trigger}
             autoOpenKey="showProductModal"
@@ -186,12 +186,12 @@ class SpinCampaigns extends React.Component<Props, State> {
     );
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
+      { title: __("Settings"), link: "/settings" },
       {
-        title: __('Loyalties config'),
-        link: '/erxes-plugin-loyalty/settings/general'
+        title: __("Loyalties config"),
+        link: "/erxes-plugin-loyalty/settings/general",
       },
-      { title: __('Spin Campaign') }
+      { title: __("Spin Campaign") },
     ];
 
     const content = (
@@ -201,16 +201,16 @@ class SpinCampaigns extends React.Component<Props, State> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Start Date')}</th>
-            <th>{__('End Date')}</th>
-            <th>{__('Finish Date of Use')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Start Date")}</th>
+            <th>{__("End Date")}</th>
+            <th>{__("Finish Date of Use")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -220,11 +220,11 @@ class SpinCampaigns extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Spin Campaign')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Spin Campaign")} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Spin Campaign')}</Title>}
+            left={<Title>{__("Spin Campaign")}</Title>}
             right={this.actionBarRight()}
           />
         }

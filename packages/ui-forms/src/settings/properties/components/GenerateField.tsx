@@ -90,7 +90,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderSelect(options: string[] = [], attrs = {}) {
     return (
-      <FormControl componentClass="select" {...attrs}>
+      <FormControl componentclass="select" {...attrs}>
         <option key={""} value="">
           Choose option
         </option>
@@ -108,7 +108,7 @@ export default class GenerateField extends React.Component<Props, State> {
     attrs = {}
   ) {
     return (
-      <FormControl componentClass="select" {...attrs}>
+      <FormControl componentclass="select" {...attrs}>
         <option key={""} value="">
           Choose option
         </option>
@@ -250,7 +250,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderTextarea(attrs) {
-    return <FormControl componentClass="textarea" {...attrs} />;
+    return <FormControl componentclass="textarea" {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
@@ -466,7 +466,7 @@ export default class GenerateField extends React.Component<Props, State> {
               </p>
               <FormControl
                 type="text"
-                componentClass={`${o.type}`}
+                componentclass={`${o.type}`}
                 placeholder={`${o.label}`}
               />
             </React.Fragment>
@@ -808,7 +808,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel ignoreTrans={true} required={field.isRequired}>
+        <ControlLabel ignoretrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
         {this.renderAddButton()}

@@ -58,7 +58,7 @@ const Row: React.FC<Props> = (props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>

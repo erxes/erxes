@@ -1,7 +1,3 @@
-import { gql } from '@apollo/client';
-import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
-import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
-import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
 import {
   Button,
   Form as CommonForm,
@@ -13,32 +9,37 @@ import {
   Tip,
   __,
   colors,
-  confirm
-} from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
+  confirm,
+} from "@erxes/ui/src";
+import { COLORS, calculateMethods } from "../../common/constants";
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { IField, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Select from 'react-select-plus';
-import { COLORS, calculateMethods } from '../../common/constants';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 import {
   ContentWrapper,
   FormContainer,
   FormContent,
   PreviewWrapper,
-  RemoveRow
-} from '../../styles';
-import { RiskCalculateLogicType } from '../common/types';
-import { mutations } from '../graphql';
+  RemoveRow,
+} from "../../styles";
+import { IField, IFormProps } from "@erxes/ui/src/types";
+
+import CreateForm from "@erxes/ui-forms/src/forms/containers/CreateForm";
+import EditForm from "@erxes/ui-forms/src/forms/containers/EditForm";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import React from "react";
+import { RiskCalculateLogicType } from "../common/types";
+import Select from "react-select-plus";
+import { ShowPreview } from "@erxes/ui-forms/src/forms/styles";
+import TwitterPicker from "react-color/lib/Twitter";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { mutations } from "../graphql";
 
 type Props = {
   formId?: string;
@@ -60,11 +61,11 @@ class Item extends React.Component<Props, State> {
 
     this.state = {
       isReadyToSave: false,
-      doc: {}
+      doc: {},
     };
   }
 
-  handleCloseForm = closeModal => {
+  handleCloseForm = (closeModal) => {
     const { formId } = this.state.doc;
     const { doc } = this.props;
 
@@ -74,7 +75,7 @@ class Item extends React.Component<Props, State> {
       ).then(() => {
         client.mutate({
           mutation: gql(mutations.removeUnusedRiskIndicatorForm),
-          variables: { formId }
+          variables: { formId },
         });
         return closeModal();
       });
@@ -98,7 +99,7 @@ class Item extends React.Component<Props, State> {
         return (
           <>
             <ShowPreview>
-              <Icon icon="eye" /> {__('Form preview')}
+              <Icon icon="eye" /> {__("Form preview")}
             </ShowPreview>
             <ModalFooter>
               <Button
@@ -130,8 +131,8 @@ class Item extends React.Component<Props, State> {
       );
     };
     const afterDbSave = (formId: string) => {
-      this.setState(prev => ({
-        isReadyToSave: false
+      this.setState((prev) => ({
+        isReadyToSave: false,
       }));
       this.props.handleChange({ ...this.props.doc, formId });
       closeModal();
@@ -140,9 +141,9 @@ class Item extends React.Component<Props, State> {
     const formProps = {
       renderPreviewWrapper: formPreview,
       afterDbSave,
-      type: 'risk-assessment',
+      type: "risk-assessment",
       isReadyToSave: this.state.isReadyToSave,
-      hideOptionalFields: true
+      hideOptionalFields: true,
     };
     if (doc.formId) {
       return (
@@ -163,56 +164,56 @@ class Item extends React.Component<Props, State> {
     { _id, name, logic, value, value2, color }: RiskCalculateLogicType,
     formProps
   ) {
-    const handleRow = e => {
+    const handleRow = (e) => {
       const { doc, handleChange } = this.props;
       const { name, value } = e.currentTarget as HTMLInputElement;
       const newVariables =
         doc.calculateLogics &&
-        doc?.calculateLogics.map(logic =>
+        doc?.calculateLogics.map((logic) =>
           logic._id === _id
             ? {
                 ...logic,
-                [name]: ['value', 'value2'].includes(name)
+                [name]: ["value", "value2"].includes(name)
                   ? parseInt(value)
-                  : value
+                  : value,
               }
             : logic
         );
       handleChange({ ...doc, calculateLogics: newVariables });
     };
 
-    const removeLogicRow = e => {
+    const removeLogicRow = (e) => {
       const { doc, handleChange } = this.props;
       const removedLogicRows =
         doc.calculateLogics &&
-        doc?.calculateLogics.filter(logic => logic._id !== _id);
+        doc?.calculateLogics.filter((logic) => logic._id !== _id);
       handleChange({
         ...doc,
-        calculateLogics: removedLogicRows
+        calculateLogics: removedLogicRows,
       });
     };
 
-    const onChangeColor = hex => {
+    const onChangeColor = (hex) => {
       const { doc, handleChange } = this.props;
       const newVariables =
         doc.calculateLogics &&
-        doc.calculateLogics.map(logic =>
+        doc.calculateLogics.map((logic) =>
           logic._id === _id ? { ...logic, color: hex } : logic
         );
       handleChange({
         ...doc,
-        calculateLogics: newVariables
+        calculateLogics: newVariables,
       });
     };
 
-    const renderColorSelect = selectedColor => {
+    const renderColorSelect = (selectedColor) => {
       const popoverBottom = (
         <Popover id="color-picker">
           <TwitterPicker
             width="266px"
             triangle="hide"
             color={selectedColor}
-            onChange={e => onChangeColor(e.hex)}
+            onChange={(e) => onChangeColor(e.hex)}
             colors={COLORS}
           />
         </Popover>
@@ -233,7 +234,7 @@ class Item extends React.Component<Props, State> {
     };
 
     return (
-      <FormWrapper style={{ margin: '5px 0' }} key={_id}>
+      <FormWrapper style={{ margin: "5px 0" }} key={_id}>
         <FormColumn>
           <FormControl
             {...formProps}
@@ -248,14 +249,14 @@ class Item extends React.Component<Props, State> {
           <FormControl
             name="logic"
             {...formProps}
-            componentClass="select"
+            componentclass="select"
             required
             defaultValue={logic}
             onChange={handleRow}
           >
             <option />
-            {['(>) greater than', '(<) lower than', '(≈) between'].map(
-              value => (
+            {["(>) greater than", "(<) lower than", "(≈) between"].map(
+              (value) => (
                 <option value={value} key={value}>
                   {value}
                 </option>
@@ -273,7 +274,7 @@ class Item extends React.Component<Props, State> {
               onChange={handleRow}
               required
             />
-            {logic === '(≈) between' && (
+            {logic === "(≈) between" && (
               <>
                 <span>-</span>
                 <FormControl
@@ -294,7 +295,7 @@ class Item extends React.Component<Props, State> {
             btnStyle="danger"
             icon="times"
             onClick={removeLogicRow}
-            style={{ marginLeft: '10px' }}
+            style={{ marginLeft: "10px" }}
           />
         </Tip>
       </FormWrapper>
@@ -306,7 +307,7 @@ class Item extends React.Component<Props, State> {
 
     return (
       doc.calculateLogics &&
-      doc.calculateLogics.map(logic => this.renderLogic(logic, formProps))
+      doc.calculateLogics.map((logic) => this.renderLogic(logic, formProps))
     );
   }
 
@@ -316,25 +317,25 @@ class Item extends React.Component<Props, State> {
     const formTrigger = (
       <Button
         btnStyle="link"
-        icon={!!this.props.doc.formId ? 'file-edit-alt' : 'file-plus-alt'}
+        icon={!!this.props.doc.formId ? "file-edit-alt" : "file-plus-alt"}
         iconColor={colors.colorPrimary}
       >
-        {__(!!this.props.doc?.formId ? 'Edit a form' : 'Build a form')}
+        {__(!!this.props.doc?.formId ? "Edit a form" : "Build a form")}
       </Button>
     );
 
-    const handleAddLevel = e => {
+    const handleAddLevel = (e) => {
       const { doc, handleChange } = this.props;
       const variables = {
         _id: Math.random().toString(),
-        name: '',
+        name: "",
         value: 0,
-        logic: ''
+        logic: "",
       };
 
       handleChange({
         ...doc,
-        calculateLogics: [...(doc.calculateLogics || []), variables]
+        calculateLogics: [...(doc.calculateLogics || []), variables],
       });
     };
 
@@ -344,23 +345,23 @@ class Item extends React.Component<Props, State> {
       handleChange({ ...doc, calculateMethod: value });
     };
 
-    const handleChangePercentWeight = e => {
+    const handleChangePercentWeight = (e) => {
       const { doc, handleChange } = this.props;
       const { value } = e.currentTarget as HTMLInputElement;
 
       handleChange({ ...doc, percentWeight: parseInt(value) });
     };
 
-    const removeRow = id => {
+    const removeRow = (id) => {
       const { doc, remove } = this.props;
 
       if (doc.formId) {
         return confirm(
-          'Are you sure.If you remove this row you will lose created form data'
+          "Are you sure.If you remove this row you will lose created form data"
         ).then(() => {
           client.mutate({
             mutation: gql(mutations.removeUnusedRiskIndicatorForm),
-            variables: { formId: doc.formId }
+            variables: { formId: doc.formId },
           });
           remove(id);
         });
@@ -377,9 +378,9 @@ class Item extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>{__('Calculate Methods')}</ControlLabel>
+              <ControlLabel>{__("Calculate Methods")}</ControlLabel>
               <Select
-                placeholder={__('Select Calculate Method')}
+                placeholder={__("Select Calculate Method")}
                 value={doc?.calculateMethod}
                 options={calculateMethods}
                 multi={false}
@@ -389,7 +390,7 @@ class Item extends React.Component<Props, State> {
           </FormColumn>
           {totalFormsCount > 1 && (
             <FormGroup>
-              <ControlLabel>{__('Percent weight')}</ControlLabel>
+              <ControlLabel>{__("Percent weight")}</ControlLabel>
               <FormControl
                 type="number"
                 name="percentWeight"
@@ -402,7 +403,7 @@ class Item extends React.Component<Props, State> {
             </FormGroup>
           )}
           <ModalTrigger
-            title={!!this.props.doc.formId ? 'Build New Form' : 'Edit Form'}
+            title={!!this.props.doc.formId ? "Build New Form" : "Edit Form"}
             enforceFocus={false}
             size="xl"
             content={this.renderFormContent}
@@ -412,7 +413,7 @@ class Item extends React.Component<Props, State> {
         {totalFormsCount === 1 && (
           <>
             <FormWrapper>
-              {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
+              {["Name", "Logic", "Value", "Status Color"].map((head) => (
                 <FormColumn key={head}>
                   <ControlLabel required>{head}</ControlLabel>
                 </FormColumn>

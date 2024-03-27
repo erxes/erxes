@@ -1,18 +1,18 @@
-import * as routerUtils from '../utils/router';
+import * as routerUtils from "../utils/router";
 
 import {
   CloseModal,
   DialogContent,
   DialogWrapper,
   ModalOverlay,
-} from '../styles/main';
-import { Dialog, Transition } from '@headlessui/react';
-import React, { Fragment, useEffect, useState } from 'react';
-import { __, router } from '../utils/core';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "../styles/main";
+import { Dialog, Transition } from "@headlessui/react";
+import React, { Fragment, useEffect, useState } from "react";
+import { __, router } from "../utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Icon from './Icon';
-import queryString from 'query-string';
+import Icon from "./Icon";
+import queryString from "query-string";
 
 type Props = {
   title: string;
@@ -20,15 +20,15 @@ type Props = {
   trigger?: React.ReactNode;
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
-  size?: 'sm' | 'lg' | 'xl';
-  ignoreTrans?: boolean;
+  size?: "sm" | "lg" | "xl";
+  ignoretrans?: boolean;
   dialogClassName?: string;
-  backDrop?: 'static' | boolean;
+  backDrop?: "static" | boolean;
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
   addisOpenToQueryParam?: boolean;
-  paddingContent?: 'less-padding';
+  paddingContent?: "less-padding";
   centered?: boolean;
   onExit?: () => void;
   isAnimate?: boolean;
@@ -39,8 +39,8 @@ const ModalTrigger: React.FC<Props> = ({
   trigger,
   autoOpenKey,
   content,
-  as = 'div',
-  size = 'sm',
+  as = "div",
+  size = "sm",
   dialogClassName,
   enforceFocus,
   hideHeader,
@@ -48,13 +48,13 @@ const ModalTrigger: React.FC<Props> = ({
   addisOpenToQueryParam,
   paddingContent,
   onExit,
-  ignoreTrans,
+  ignoretrans,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isOpenTrigger, setIsOpen] = useState(isOpen || false);
-  const [autoOpenKeyState, setAutoOpenKey] = useState('');
+  const [autoOpenKeyState, setAutoOpenKey] = useState("");
 
   // const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
@@ -62,7 +62,7 @@ const ModalTrigger: React.FC<Props> = ({
     if (autoOpenKey !== autoOpenKeyState) {
       if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
         setIsOpen(true);
-        setAutoOpenKey(autoOpenKey || '');
+        setAutoOpenKey(autoOpenKey || "");
       }
     }
   }, [autoOpenKey, autoOpenKeyState]);
@@ -78,13 +78,13 @@ const ModalTrigger: React.FC<Props> = ({
       }
 
       if (queryParams.isModalOpen) {
-        router.removeParams(navigate, location, 'isModalOpen');
+        router.removeParams(navigate, location, "isModalOpen");
       }
     }
   }, [addisOpenToQueryParam, isOpen]);
 
   const openModal = () => {
-    console.log('aaaa', isOpenTrigger);
+    console.log("aaaa", isOpenTrigger);
     setIsOpen(true);
   };
 
@@ -103,7 +103,7 @@ const ModalTrigger: React.FC<Props> = ({
 
     return (
       <Dialog.Title as="h3">
-        {ignoreTrans ? title : __(title)}
+        {ignoretrans ? title : __(title)}
         <Icon icon="times" size={24} onClick={closeModal} />
       </Dialog.Title>
     );
@@ -115,7 +115,7 @@ const ModalTrigger: React.FC<Props> = ({
         onClick: openModal,
       })
     : null;
-  console.log('isOpen:', isOpenTrigger);
+  console.log("isOpen:", isOpenTrigger);
   return (
     <>
       {triggerComponent}
@@ -123,7 +123,7 @@ const ModalTrigger: React.FC<Props> = ({
       {isOpenTrigger && (
         <Dialog
           open={true}
-          as={as ? as : 'div'}
+          as={as ? as : "div"}
           onClose={closeModal}
           className={`${dialogClassName} relative z-10`}
           initialFocus={(enforceFocus as any) || false}

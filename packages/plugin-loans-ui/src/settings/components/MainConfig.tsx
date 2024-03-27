@@ -5,10 +5,11 @@ import {
   FormControl,
   FormGroup,
   MainStyleModalFooter as ModalFooter,
-} from '@erxes/ui/src';
-import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
-import { __ } from 'coreui/utils';
+} from "@erxes/ui/src";
+import React, { useState } from "react";
+
+import { IConfigsMap } from "../types";
+import { __ } from "coreui/utils";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -43,17 +44,17 @@ const MainConfig = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+      open={props.currentConfigKey === "newEbarimtConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel required={true}>{__('Organization type')}</ControlLabel>
+        <ControlLabel required={true}>{__("Organization type")}</ControlLabel>
         <FormControl
           name="organizationType"
-          componentClass="select"
-          defaultValue={config['organizationType']}
-          onChange={onChangeInput.bind(this, 'organizationType')}
+          componentclass="select"
+          defaultValue={config["organizationType"]}
+          onChange={onChangeInput.bind(this, "organizationType")}
         >
-          {['bbsb', 'entity'].map((typeName, index) => (
+          {["bbsb", "entity"].map((typeName, index) => (
             <option key={index} value={typeName}>
               {__(typeName)}
             </option>
@@ -61,24 +62,24 @@ const MainConfig = (props: Props) => {
         </FormControl>
       </FormGroup>
       <FormGroup>
-        <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
+        <ControlLabel>{__("Calculation number fixed")}</ControlLabel>
         <FormControl
-          defaultValue={config['calculationFixed']}
+          defaultValue={config["calculationFixed"]}
           type="number"
           min={0}
           max={100}
-          onChange={onChangeInput.bind(this, 'calculationFixed')}
+          onChange={onChangeInput.bind(this, "calculationFixed")}
           required={true}
         />
       </FormGroup>
       <FormGroup>
-        <ControlLabel>{__('Display number fixed')}</ControlLabel>
+        <ControlLabel>{__("Display number fixed")}</ControlLabel>
         <FormControl
-          defaultValue={config['displayFixed']}
+          defaultValue={config["displayFixed"]}
           type="number"
           min={0}
           max={100}
-          onChange={onChangeInput.bind(this, 'displayFixed')}
+          onChange={onChangeInput.bind(this, "displayFixed")}
           required={true}
         />
       </FormGroup>
@@ -90,7 +91,7 @@ const MainConfig = (props: Props) => {
           onClick={onSave}
           uppercase={false}
         >
-          {__('Save')}
+          {__("Save")}
         </Button>
       </ModalFooter>
     </CollapseContent>

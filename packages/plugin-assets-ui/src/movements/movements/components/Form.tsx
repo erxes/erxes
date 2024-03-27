@@ -10,38 +10,38 @@ import {
   SelectTeamMembers,
   Table,
   __,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 
 import {
   ContentColumn,
   ItemRow,
   ItemText,
-} from '@erxes/ui-cards/src/deals/styles';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import client from '@erxes/ui/src/apolloClient';
+} from "@erxes/ui-cards/src/deals/styles";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import client from "@erxes/ui/src/apolloClient";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import _loadash from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { IMovementItem, IMovementType } from '../../../common/types';
-import { CommonFormGroup, CommonItemRow } from '../../../common/utils';
+} from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { gql } from "@apollo/client";
+import _loadash from "lodash";
+import React, { useState, useEffect } from "react";
+import { IMovementItem, IMovementType } from "../../../common/types";
+import { CommonFormGroup, CommonItemRow } from "../../../common/utils";
 import {
   ContainerBox,
   MovementItemContainer,
   MovementTableWrapper,
-} from '../../../style';
-import AssetChooser from '../containers/Chooser';
-import { queries } from '../graphql';
-import MovementItems from './MovementItem';
+} from "../../../style";
+import AssetChooser from "../containers/Chooser";
+import { queries } from "../graphql";
+import MovementItems from "./MovementItem";
 
 type Props = {
   detail: IMovementType;
@@ -63,8 +63,8 @@ const Form = (props: Props) => {
 
   const [variables, setVariables] = useState<IMovementItem[]>([]);
   const [currentItems, setCurrentItems] = useState<string[]>([]);
-  const [description, setDescription] = useState<string>('');
-  const [movedAt, setMovedAt] = useState<string>('');
+  const [description, setDescription] = useState<string>("");
+  const [movedAt, setMovedAt] = useState<string>("");
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
   const [general, setGeneral] = useState<General>({});
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
@@ -72,10 +72,10 @@ const Form = (props: Props) => {
   useEffect(() => {
     if (detail) {
       setVariables(detail.items || []);
-      setDescription(detail.description || '');
-      setMovedAt(detail.movedAt || '');
+      setDescription(detail.description || "");
+      setMovedAt(detail.movedAt || "");
       setSelectedItemsIds(
-        detail?.items && detail.items.map((item) => item.assetId),
+        detail?.items && detail.items.map((item) => item.assetId)
       );
     }
 
@@ -100,7 +100,7 @@ const Form = (props: Props) => {
         customerId,
         companyId,
         teamMemberId,
-      }),
+      })
     );
     const doc = { items, description, movedAt };
     if (!_loadash.isEmpty(detail)) {
@@ -115,7 +115,7 @@ const Form = (props: Props) => {
       client
         .query({
           query: gql(queries.itemsCurrentLocation),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { assetIds: newSelectedItemsIds },
         })
         .then((res) => {
@@ -132,7 +132,7 @@ const Form = (props: Props) => {
 
           const newVariables = selectedItems.map((selectedItem) => {
             const newItem = currentAssetMovementItems.find(
-              (item) => item.assetId === selectedItem.assetId,
+              (item) => item.assetId === selectedItem.assetId
             );
             if (newItem) {
               return newItem;
@@ -169,38 +169,38 @@ const Form = (props: Props) => {
   const renderInfoSelection = (label, asset, value) => {
     let Selection;
     let field;
-    let text = '';
+    let text = "";
 
-    if (label === 'Branches') {
+    if (label === "Branches") {
       Selection = SelectBranches;
-      field = 'branchId';
+      field = "branchId";
       text = asset?.branch?.title;
     }
-    if (label === 'Departments') {
+    if (label === "Departments") {
       Selection = SelectDepartments;
-      field = 'departmentId';
+      field = "departmentId";
       text = asset?.department?.title;
     }
-    if (label === 'Team Member') {
+    if (label === "Team Member") {
       Selection = SelectTeamMembers;
-      field = 'teamMemberId';
+      field = "teamMemberId";
       text = asset?.teamMember?.email;
     }
-    if (label === 'Company') {
+    if (label === "Company") {
       Selection = SelectCompanies;
-      field = 'companyId';
+      field = "companyId";
     }
-    if (label === 'Customer') {
+    if (label === "Customer") {
       Selection = SelectCustomers;
-      field = 'customerId';
+      field = "customerId";
       text = asset?.customer?.primaryEmail;
     }
 
     const handleChange = (selected) => {
       const newVariables = variables.map((item) =>
         item.assetId === asset.assetId
-          ? { ...item, [field]: selected === '' ? null : selected }
-          : item,
+          ? { ...item, [field]: selected === "" ? null : selected }
+          : item
       );
       setVariables(newVariables);
     };
@@ -213,9 +213,9 @@ const Form = (props: Props) => {
             <Selection
               label={`Choose ${label}`}
               onSelect={handleChange}
-              initialValue={value || ''}
+              initialValue={value || ""}
               multi={false}
-              customOption={{ value: '', label: `Choose ${label}` }}
+              customOption={{ value: "", label: `Choose ${label}` }}
             />
           </MovementItemContainer>
         </ContentColumn>
@@ -244,10 +244,10 @@ const Form = (props: Props) => {
 
   const handleChangeRowItem = (prevItemId, newItem) => {
     const newVariables = variables.map((item) =>
-      item.assetId === prevItemId ? newItem : item,
+      item.assetId === prevItemId ? newItem : item
     );
     const removedSeletedItemIds = selectedItemsIds.filter(
-      (item) => item !== prevItemId,
+      (item) => item !== prevItemId
     );
 
     setVariables(newVariables);
@@ -260,14 +260,14 @@ const Form = (props: Props) => {
 
       const newVariables = variables.map((item) =>
         checkedItems.includes(item.assetId)
-          ? { ...item, [field]: value === '' ? null : value }
-          : item,
+          ? { ...item, [field]: value === "" ? null : value }
+          : item
       );
 
       setVariables(newVariables);
       setGeneral((prevGeneral) => ({
         ...prevGeneral,
-        [field]: value === '' ? null : value,
+        [field]: value === "" ? null : value,
       }));
     };
 
@@ -275,7 +275,7 @@ const Form = (props: Props) => {
       <CollapseContent
         title="General Location Configrations"
         description={__(
-          'If you want to change the location generally of your selected assets, you should click checkboxes below.',
+          "If you want to change the location generally of your selected assets, you should click checkboxes below."
         )}
       >
         <BarItems>
@@ -289,7 +289,7 @@ const Form = (props: Props) => {
                     onSelect={handleGeneralOptions}
                     multi={false}
                     initialValue={general?.branchId}
-                    customOption={{ value: '', label: 'Choose Branch' }}
+                    customOption={{ value: "", label: "Choose Branch" }}
                   />
                 </CommonItemRow>
               </FormColumn>
@@ -301,7 +301,7 @@ const Form = (props: Props) => {
                     onSelect={handleGeneralOptions}
                     multi={false}
                     initialValue={general?.departmentId}
-                    customOption={{ value: '', label: 'Choose Department' }}
+                    customOption={{ value: "", label: "Choose Department" }}
                   />
                 </CommonItemRow>
               </FormColumn>
@@ -315,7 +315,7 @@ const Form = (props: Props) => {
                     onSelect={handleGeneralOptions}
                     multi={false}
                     initialValue={general?.customerId}
-                    customOption={{ value: '', label: 'Choose Customer' }}
+                    customOption={{ value: "", label: "Choose Customer" }}
                   />
                 </CommonItemRow>
               </FormColumn>
@@ -327,7 +327,7 @@ const Form = (props: Props) => {
                     onSelect={handleGeneralOptions}
                     multi={false}
                     initialValue={general?.companyId}
-                    customOption={{ value: '', label: 'Choose Company' }}
+                    customOption={{ value: "", label: "Choose Company" }}
                   />
                 </CommonItemRow>
               </FormColumn>
@@ -339,7 +339,7 @@ const Form = (props: Props) => {
                 onSelect={handleGeneralOptions}
                 multi={false}
                 initialValue={general?.teamMemberId}
-                customOption={{ value: '', label: 'Choose Team Member' }}
+                customOption={{ value: "", label: "Choose Team Member" }}
               />
             </CommonItemRow>
           </ContentColumn>
@@ -352,7 +352,7 @@ const Form = (props: Props) => {
     const removeRow = (id) => {
       const newVariables = variables.filter((item) => item.assetId !== id);
       const newSelectedItems = selectedItemsIds.filter(
-        (itemId) => itemId !== id,
+        (itemId) => itemId !== id
       );
       if (currentItems.includes(id)) {
         const newCurrentItems = currentItems.filter((item) => item !== id);
@@ -373,7 +373,7 @@ const Form = (props: Props) => {
       <MovementItems
         key={item.assetId}
         item={item}
-        current={currentItems.includes(item.assetId) ? item.assetId : ''}
+        current={currentItems.includes(item.assetId) ? item.assetId : ""}
         changeCurrent={changeCurrentItem}
         removeRow={removeRow}
         selectedItems={selectedItemsIds}
@@ -381,11 +381,11 @@ const Form = (props: Props) => {
         onChangeBulkItems={onChangeCheckedItems}
         handleChangeRowItem={handleChangeRowItem}
       >
-        {renderInfoSelection('Branches', item, item['branchId'])}
-        {renderInfoSelection('Departments', item, item['departmentId'])}
-        {renderInfoSelection('Customer', item, item['customerId'])}
-        {renderInfoSelection('Company', item, item['companyId'])}
-        {renderInfoSelection('Team Member', item, item['teamMemberId'])}
+        {renderInfoSelection("Branches", item, item["branchId"])}
+        {renderInfoSelection("Departments", item, item["departmentId"])}
+        {renderInfoSelection("Customer", item, item["customerId"])}
+        {renderInfoSelection("Company", item, item["companyId"])}
+        {renderInfoSelection("Team Member", item, item["teamMemberId"])}
       </MovementItems>
     ));
   };
@@ -408,17 +408,17 @@ const Form = (props: Props) => {
                     variables.length > 0 &&
                     variables.length === checkedItems.length
                   }
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                   color="#3B85F4"
                 />
               </th>
-              <th>{__('Name')}</th>
-              <th>{__('Branch')}</th>
-              <th>{__('Departmnet')}</th>
-              <th>{__('Customer')}</th>
-              <th>{__('Comapny')}</th>
-              <th>{__('Team Member')}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Branch")}</th>
+              <th>{__("Departmnet")}</th>
+              <th>{__("Customer")}</th>
+              <th>{__("Comapny")}</th>
+              <th>{__("Team Member")}</th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
@@ -461,7 +461,7 @@ const Form = (props: Props) => {
         {renderList()}
 
         <ContainerBox justifyCenter>
-          {renderChooser(<Button icon="plus-circle">{__('Add Asset')}</Button>)}
+          {renderChooser(<Button icon="plus-circle">{__("Add Asset")}</Button>)}
         </ContainerBox>
         {renderButton && (
           <ModalFooter>
@@ -469,7 +469,7 @@ const Form = (props: Props) => {
               Cancel
             </Button>
             {renderButton({
-              text: 'Movement',
+              text: "Movement",
               values: generateDoc(),
               isSubmitted,
               callback: closeModal,

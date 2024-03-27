@@ -1,28 +1,28 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import moment from 'moment';
-import queryString from 'query-string';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import Tip from '@erxes/ui/src/components/Tip';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { MenuFooter, SidebarFilters } from '../../styles';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IQueryParams } from '@erxes/ui/src/types';
-import SelectJobCategory from '../../job/containers/category/SelectJobCategory';
-import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import { JOB_TYPE_CHOISES } from '../../constants';
-import Button from '@erxes/ui/src/components/Button';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import moment from "moment";
+import queryString from "query-string";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import Tip from "@erxes/ui/src/components/Tip";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { MenuFooter, SidebarFilters } from "../../styles";
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { IQueryParams } from "@erxes/ui/src/types";
+import SelectJobCategory from "../../job/containers/category/SelectJobCategory";
+import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
+import { JOB_TYPE_CHOISES } from "../../constants";
+import Button from "@erxes/ui/src/components/Button";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 
 interface Props {
   history: any;
@@ -46,7 +46,7 @@ class Sidebar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      filterParams: this.props.queryParams
+      filterParams: this.props.queryParams,
     };
   }
 
@@ -56,17 +56,17 @@ class Sidebar extends React.Component<Props, State> {
     for (const param in params) {
       if (
         [
-          'type',
-          'startDate',
-          'endDate',
-          'jobReferId',
-          'jobCategoryId',
-          'productIds',
-          'productCategoryId',
-          'inBranchId',
-          'inDepartmentId',
-          'outBranchId',
-          'outDepartmentId'
+          "type",
+          "startDate",
+          "endDate",
+          "jobReferId",
+          "jobCategoryId",
+          "productIds",
+          "productCategoryId",
+          "inBranchId",
+          "inDepartmentId",
+          "outBranchId",
+          "outDepartmentId",
         ].includes(param)
       ) {
         return true;
@@ -87,7 +87,7 @@ class Sidebar extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [name]: value } });
   };
 
-  onInputChange = e => {
+  onInputChange = (e) => {
     e.preventDefault();
 
     if (this.timer) {
@@ -102,13 +102,13 @@ class Sidebar extends React.Component<Props, State> {
   };
 
   onSelectDate = (value, name) => {
-    const strVal = moment(value).format('YYYY-MM-DD HH:mm');
+    const strVal = moment(value).format("YYYY-MM-DD HH:mm");
     this.setFilter(name, strVal);
   };
 
   runFilter = () => {
     const { filterParams } = this.state;
-    router.removeParams(this.props.history, 'page');
+    router.removeParams(this.props.history, "page");
     router.setParams(this.props.history, { ...filterParams });
   };
 
@@ -116,10 +116,10 @@ class Sidebar extends React.Component<Props, State> {
     const { filterParams } = this.state;
 
     if (!filterParams.type) {
-      return '';
+      return "";
     }
 
-    if (['end', 'job'].includes(filterParams.type)) {
+    if (["end", "job"].includes(filterParams.type)) {
       return (
         <>
           <FormGroup>
@@ -127,33 +127,33 @@ class Sidebar extends React.Component<Props, State> {
             <SelectJobCategory
               label="Choose product category"
               name="productCategoryId"
-              initialValue={filterParams.productCategoryId || ''}
+              initialValue={filterParams.productCategoryId || ""}
               customOption={{
-                value: '',
-                label: '...Clear product category filter'
+                value: "",
+                label: "...Clear product category filter",
               }}
-              onSelect={categoryId =>
-                this.setFilter('productCategoryId', categoryId)
+              onSelect={(categoryId) =>
+                this.setFilter("productCategoryId", categoryId)
               }
               multi={false}
             />
           </FormGroup>
-          {(filterParams.type === 'end' && (
+          {(filterParams.type === "end" && (
             <FormGroup>
               <ControlLabel>Job Refer</ControlLabel>
               <SelectJobRefer
-                key={'jobReferEnds'}
+                key={"jobReferEnds"}
                 label="Choose jobRefer"
                 name="jobReferId"
-                initialValue={filterParams.jobReferId || ''}
+                initialValue={filterParams.jobReferId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear jobRefer filter'
+                  value: "",
+                  label: "...Clear jobRefer filter",
                 }}
-                onSelect={jobReferId =>
-                  this.setFilter('jobReferId', jobReferId)
+                onSelect={(jobReferId) =>
+                  this.setFilter("jobReferId", jobReferId)
                 }
-                filterParams={{ types: ['end'] }}
+                filterParams={{ types: ["end"] }}
                 multi={false}
               />
             </FormGroup>
@@ -161,18 +161,18 @@ class Sidebar extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Job Refer</ControlLabel>
               <SelectJobRefer
-                key={'jobReferJobs'}
+                key={"jobReferJobs"}
                 label="Choose jobRefer"
                 name="jobReferId"
-                initialValue={filterParams.jobReferId || ''}
+                initialValue={filterParams.jobReferId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear jobRefer filter'
+                  value: "",
+                  label: "...Clear jobRefer filter",
                 }}
-                onSelect={jobReferId =>
-                  this.setFilter('jobReferId', jobReferId)
+                onSelect={(jobReferId) =>
+                  this.setFilter("jobReferId", jobReferId)
                 }
-                filterParams={{ types: ['job'] }}
+                filterParams={{ types: ["job"] }}
                 multi={false}
               />
             </FormGroup>
@@ -188,13 +188,13 @@ class Sidebar extends React.Component<Props, State> {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={filterParams.productCategoryId || ''}
+            initialValue={filterParams.productCategoryId || ""}
             customOption={{
-              value: '',
-              label: '...Clear product category filter'
+              value: "",
+              label: "...Clear product category filter",
             }}
-            onSelect={categoryId =>
-              this.setFilter('productCategoryId', categoryId)
+            onSelect={(categoryId) =>
+              this.setFilter("productCategoryId", categoryId)
             }
             multi={false}
           />
@@ -206,10 +206,10 @@ class Sidebar extends React.Component<Props, State> {
             name="productIds"
             initialValue={filterParams.productIds || []}
             customOption={{
-              value: '',
-              label: '...Clear product filter'
+              value: "",
+              label: "...Clear product filter",
             }}
-            onSelect={productIds => this.setFilter('productIds', productIds)}
+            onSelect={(productIds) => this.setFilter("productIds", productIds)}
             multi={true}
           />
         </FormGroup>
@@ -220,10 +220,10 @@ class Sidebar extends React.Component<Props, State> {
             name="vendorIds"
             initialValue={filterParams.vendorIds || []}
             customOption={{
-              value: '',
-              label: '...Clear product filter'
+              value: "",
+              label: "...Clear product filter",
             }}
-            onSelect={vendorIds => this.setFilter('vendorIds', vendorIds)}
+            onSelect={(vendorIds) => this.setFilter("vendorIds", vendorIds)}
             multi={true}
           />
         </FormGroup>
@@ -237,11 +237,11 @@ class Sidebar extends React.Component<Props, State> {
     return (
       <Wrapper.Sidebar hasBorder>
         <Section.Title>
-          {__('Filters')}
+          {__("Filters")}
           <Section.QuickButtons>
             {this.isFiltered() && (
               <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -254,18 +254,18 @@ class Sidebar extends React.Component<Props, State> {
               <ControlLabel>Type</ControlLabel>
               <FormControl
                 name="type"
-                componentClass="select"
+                componentclass="select"
                 value={filterParams.type}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.setFilter(
-                    'type',
+                    "type",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
                 <option value="">All type</option>
-                {Object.keys(JOB_TYPE_CHOISES).map(jt => (
+                {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
                   <option value={jt} key={Math.random()}>
                     {JOB_TYPE_CHOISES[jt]}
                   </option>
@@ -278,12 +278,12 @@ class Sidebar extends React.Component<Props, State> {
               <SelectBranches
                 label="Choose branch"
                 name="inBranchId"
-                initialValue={filterParams.inBranchId || ''}
+                initialValue={filterParams.inBranchId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear branch filter'
+                  value: "",
+                  label: "...Clear branch filter",
                 }}
-                onSelect={branchId => this.setFilter('inBranchId', branchId)}
+                onSelect={(branchId) => this.setFilter("inBranchId", branchId)}
                 multi={false}
               />
             </FormGroup>
@@ -292,13 +292,13 @@ class Sidebar extends React.Component<Props, State> {
               <SelectDepartments
                 label="Choose department"
                 name="inDepartmentId"
-                initialValue={filterParams.inDepartmentId || ''}
+                initialValue={filterParams.inDepartmentId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear department filter'
+                  value: "",
+                  label: "...Clear department filter",
                 }}
-                onSelect={departmentId =>
-                  this.setFilter('inDepartmentId', departmentId)
+                onSelect={(departmentId) =>
+                  this.setFilter("inDepartmentId", departmentId)
                 }
                 multi={false}
               />
@@ -308,12 +308,12 @@ class Sidebar extends React.Component<Props, State> {
               <SelectBranches
                 label="Choose branch"
                 name="outBranchId"
-                initialValue={filterParams.outBranchId || ''}
+                initialValue={filterParams.outBranchId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear branch filter'
+                  value: "",
+                  label: "...Clear branch filter",
                 }}
-                onSelect={branchId => this.setFilter('outBranchId', branchId)}
+                onSelect={(branchId) => this.setFilter("outBranchId", branchId)}
                 multi={false}
               />
             </FormGroup>
@@ -322,13 +322,13 @@ class Sidebar extends React.Component<Props, State> {
               <SelectDepartments
                 label="Choose department"
                 name="outDepartmentId"
-                initialValue={filterParams.outDepartmentId || ''}
+                initialValue={filterParams.outDepartmentId || ""}
                 customOption={{
-                  value: '',
-                  label: '...Clear department filter'
+                  value: "",
+                  label: "...Clear department filter",
                 }}
-                onSelect={departmentId =>
-                  this.setFilter('outDepartmentId', departmentId)
+                onSelect={(departmentId) =>
+                  this.setFilter("outDepartmentId", departmentId)
                 }
                 multi={false}
               />
@@ -345,7 +345,7 @@ class Sidebar extends React.Component<Props, State> {
                     filterParams.startDate ||
                     moment(new Date(new Date().setHours(0, 0, 0)))
                   }
-                  onChange={value => this.onSelectDate(value, 'startDate')}
+                  onChange={(value) => this.onSelectDate(value, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -365,7 +365,7 @@ class Sidebar extends React.Component<Props, State> {
                       )
                     )
                   }
-                  onChange={value => this.onSelectDate(value, 'endDate')}
+                  onChange={(value) => this.onSelectDate(value, "endDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -378,7 +378,7 @@ class Sidebar extends React.Component<Props, State> {
               onClick={this.runFilter}
               icon="filter"
             >
-              {__('Filter')}
+              {__("Filter")}
             </Button>
           </MenuFooter>
         </SidebarFilters>

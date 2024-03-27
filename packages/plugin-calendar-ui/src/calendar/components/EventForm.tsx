@@ -1,21 +1,21 @@
-import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Modal from 'react-bootstrap/Modal';
-import { CalendarForm } from '../styles';
-import { IAccount, IEvent, INylasCalendar } from '../types';
-import { milliseconds } from '../utils';
-import { CalendarConsumer } from './Wrapper';
+import dayjs from "dayjs";
+import { IUser } from "@erxes/ui/src/auth/types";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import Modal from "react-bootstrap/Modal";
+import { CalendarForm } from "../styles";
+import { IAccount, IEvent, INylasCalendar } from "../types";
+import { milliseconds } from "../utils";
+import { CalendarConsumer } from "./Wrapper";
 
 type Props = {
   isPopupVisible: boolean;
@@ -44,14 +44,14 @@ class EditForm extends React.Component<FinalProps, State> {
 
     if (!account && currentUser) {
       account =
-        accounts.find(cal => {
+        accounts.find((cal) => {
           return cal.isPrimary && cal.userId === currentUser._id;
         }) || accounts[0];
     }
 
     this.state = {
       accountId: account && account.accountId,
-      calendar: account && account.calendars[0]
+      calendar: account && account.calendars[0],
     };
 
     this.hideModal = this.hideModal.bind(this);
@@ -65,7 +65,7 @@ class EditForm extends React.Component<FinalProps, State> {
 
       if (!account && currentUser) {
         account =
-          accounts.find(cal => {
+          accounts.find((cal) => {
             return cal.isPrimary && cal.userId === currentUser._id;
           }) || accounts[0];
       }
@@ -76,8 +76,8 @@ class EditForm extends React.Component<FinalProps, State> {
           calendar: !event
             ? account.calendars[0]
             : account.calendars.find(
-                cal => cal.providerCalendarId === event.providerCalendarId
-              )
+                (cal) => cal.providerCalendarId === event.providerCalendarId
+              ),
         });
       }
     }
@@ -85,14 +85,14 @@ class EditForm extends React.Component<FinalProps, State> {
 
   dateDefaulValue = (start?: boolean) => {
     const { selectedDate, event } = this.props;
-    let day = dayjs(selectedDate || new Date()).set('hour', start ? 13 : 14);
+    let day = dayjs(selectedDate || new Date()).set("hour", start ? 13 : 14);
 
     if (event && event.when) {
       const time = start ? event.when.start_time : event.when.end_time;
       day = dayjs(time ? milliseconds(time) : new Date());
     }
 
-    return day.format('YYYY-MM-DD HH:mm');
+    return day.format("YYYY-MM-DD HH:mm");
   };
 
   onChangeCalendar = (calendar, accountId) => {
@@ -100,7 +100,7 @@ class EditForm extends React.Component<FinalProps, State> {
   };
 
   hideModal() {
-    this.setState({ accountId: '' });
+    this.setState({ accountId: "" });
     this.props.onHideModal();
   }
 
@@ -108,7 +108,7 @@ class EditForm extends React.Component<FinalProps, State> {
     return (
       <Modal.Header closeButton={true}>
         <Modal.Title>
-          {__(`${this.props.event ? 'Edit' : 'Create'}  Event`)}
+          {__(`${this.props.event ? "Edit" : "Create"}  Event`)}
         </Modal.Title>
       </Modal.Header>
     );
@@ -123,17 +123,17 @@ class EditForm extends React.Component<FinalProps, State> {
       return (
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            {calendar ? calendar.name : 'Select calendar'}
+            {calendar ? calendar.name : "Select calendar"}
             <Icon icon="angle-down" />
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ul>
-              {accounts.map(acc => {
+              {accounts.map((acc) => {
                 return (
                   <li key={acc._id}>
                     {acc.name}
                     <ul>
-                      {acc.calendars.map(cal => {
+                      {acc.calendars.map((cal) => {
                         return (
                           <li
                             key={cal._id}
@@ -144,11 +144,11 @@ class EditForm extends React.Component<FinalProps, State> {
                             )}
                           >
                             <Icon
-                              icon={'circle'}
+                              icon={"circle"}
                               style={{
-                                color: cal.color || (acc && acc.color)
+                                color: cal.color || (acc && acc.color),
                               }}
-                            />{' '}
+                            />{" "}
                             &nbsp;
                             {cal.name}
                           </li>
@@ -186,7 +186,7 @@ class EditForm extends React.Component<FinalProps, State> {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={event && event.description}
           />
@@ -198,7 +198,7 @@ class EditForm extends React.Component<FinalProps, State> {
           <FormControl
             {...formProps}
             name="start"
-            componentClass="datetime-local"
+            componentclass="datetime-local"
             defaultValue={this.dateDefaulValue(true)}
           />
         </FormGroup>
@@ -209,7 +209,7 @@ class EditForm extends React.Component<FinalProps, State> {
           <FormControl
             {...formProps}
             name="end"
-            componentClass="datetime-local"
+            componentclass="datetime-local"
             defaultValue={this.dateDefaulValue()}
           />
         </FormGroup>
@@ -219,10 +219,10 @@ class EditForm extends React.Component<FinalProps, State> {
             values: {
               ...values,
               accountId: this.state.accountId,
-              calendarId: calendar.providerCalendarId
+              calendarId: calendar.providerCalendarId,
             },
             isSubmitted,
-            callback: this.hideModal
+            callback: this.hideModal,
           })}
         </ModalFooter>
       </CalendarForm>

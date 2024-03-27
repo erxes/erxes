@@ -1,11 +1,11 @@
-import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
-import _ from 'lodash';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { formatValue, FormControl, Icon, ModalTrigger } from "@erxes/ui/src";
+import _ from "lodash";
+import React from "react";
+import { Link } from "react-router-dom";
 
-import InsuranceTypeForm from '../containers/InsuranceTypeForm';
-import { IInsuranceType } from '../types';
-import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import InsuranceTypeForm from "../containers/InsuranceTypeForm";
+import { IInsuranceType } from "../types";
+import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
 
 type Props = {
   insuranceType: IInsuranceType;
@@ -37,7 +37,7 @@ function renderFormTrigger(
   trigger: React.ReactNode,
   insuranceType: IInsuranceType
 ) {
-  const content = props => (
+  const content = (props) => (
     <InsuranceTypeForm {...props} insuranceType={insuranceType} />
   );
 
@@ -53,7 +53,7 @@ function renderFormTrigger(
 function renderEditAction(insuranceType: IInsuranceType) {
   const trigger = (
     <ActionButton
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
       children={<Icon icon="edit-1" />}
     />
   );
@@ -65,13 +65,13 @@ function InsuranceTypeRow(
   { insuranceType, history, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(insuranceType, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -80,28 +80,28 @@ function InsuranceTypeRow(
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(insuranceType, 'code')}</td>
-      <td key={'name'}>{displayValue(insuranceType, 'name')}</td>
-      <td key={'companyCode'}>
-        {displayCompanyValue(insuranceType, insuranceType.company, 'code')}
+      <td key={"code"}>{displayValue(insuranceType, "code")}</td>
+      <td key={"name"}>{displayValue(insuranceType, "name")}</td>
+      <td key={"companyCode"}>
+        {displayCompanyValue(insuranceType, insuranceType.company, "code")}
       </td>
-      <td key={'companyName'}>
+      <td key={"companyName"}>
         {displayCompanyValue(
           insuranceType,
           insuranceType.company,
-          'primaryName'
+          "primaryName"
         )}
       </td>
-      <td key={'percent'}>{displayValue(insuranceType, 'percent')}</td>
-      <td key={'yearPercents'}>
-        {displayValue(insuranceType, 'yearPercents')}
+      <td key={"percent"}>{displayValue(insuranceType, "percent")}</td>
+      <td key={"yearPercents"}>
+        {displayValue(insuranceType, "yearPercents")}
       </td>
-      <td key={'description'}>{displayValue(insuranceType, 'description')}</td>
+      <td key={"description"}>{displayValue(insuranceType, "description")}</td>
       <td>{renderEditAction(insuranceType)}</td>
     </tr>
   );

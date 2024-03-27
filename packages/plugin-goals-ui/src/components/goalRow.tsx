@@ -1,17 +1,17 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 import {
   ActionButtons,
   Button,
   formatValue,
   FormControl,
   ModalTrigger,
-} from '@erxes/ui/src';
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
-import GoalTypeForm from '../containers/goalForm';
-import { queries } from '../graphql';
-import { IGoalType } from '../types';
-import GoalView from './goalView';
+} from "@erxes/ui/src";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import GoalTypeForm from "../containers/goalForm";
+import { queries } from "../graphql";
+import { IGoalType } from "../types";
+import GoalView from "./goalView";
 
 type Props = {
   goalType: IGoalType;
@@ -43,7 +43,7 @@ function renderFormTViewier(
   boardName: string,
   pipelineName: string,
   stageName: string,
-  emailName: string,
+  emailName: string
 ) {
   const content = (props) => (
     <GoalView
@@ -76,7 +76,7 @@ function renderViewAction(
   boardName: string,
   pipelineName: string,
   stageName: string,
-  emailName: string,
+  emailName: string
 ) {
   const trigger = <Button btnStyle="link" icon="eye" />;
   return renderFormTViewier(
@@ -85,7 +85,7 @@ function renderViewAction(
     boardName,
     pipelineName,
     stageName,
-    emailName,
+    emailName
   );
 }
 
@@ -98,10 +98,10 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   const onClick = (e) => {
     e.stopPropagation();
   };
-  const [pipelineName, setPipelineName] = useState('');
-  const [boardName, setBoardName] = useState('');
-  const [stageName, setStageName] = useState('');
-  const [emailName, setEmail] = useState('');
+  const [pipelineName, setPipelineName] = useState("");
+  const [boardName, setBoardName] = useState("");
+  const [stageName, setStageName] = useState("");
+  const [emailName, setEmail] = useState("");
 
   const pipelineDetail = useQuery(gql(queries.pipelineDetail), {
     variables: {
@@ -160,25 +160,25 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td key={'entity'}>{displayValue(goalType, 'entity')}</td>
+      <td key={"entity"}>{displayValue(goalType, "entity")}</td>
       <td>{boardName}</td>
       <td>{pipelineName}</td>
       <td>{stageName}</td>
-      <td key={'contributionType'}>
-        {' '}
-        {displayValue(goalType, 'contributionType')}
+      <td key={"contributionType"}>
+        {" "}
+        {displayValue(goalType, "contributionType")}
       </td>
-      <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
-      <td key={'goalTypeChoose'}>{displayValue(goalType, 'goalTypeChoose')}</td>
-      <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
-      <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
-      <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
-      <td key={'target'}>{displayValue(goalType, 'target')}</td>
-      <td key={'progress'}>{displayValue(goalType.progress, 'progress')}</td>
+      <td key={"metric"}>{displayValue(goalType, "metric")}</td>
+      <td key={"goalTypeChoose"}>{displayValue(goalType, "goalTypeChoose")}</td>
+      <td key={"startDate"}>{displayValue(goalType, "startDate")}</td>
+      <td key={"endDate"}>{displayValue(goalType, "endDate")}</td>
+      <td key={"current"}>{displayValue(goalType.progress, "current")}</td>
+      <td key={"target"}>{displayValue(goalType, "target")}</td>
+      <td key={"progress"}>{displayValue(goalType.progress, "progress")}</td>
       <td>
         <ActionButtons>
           {renderViewAction(
@@ -186,7 +186,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
             boardName,
             pipelineName,
             stageName,
-            emailName,
+            emailName
           )}
           {renderEditAction(goalType)}
         </ActionButtons>

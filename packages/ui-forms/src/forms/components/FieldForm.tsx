@@ -1,21 +1,10 @@
-import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/SelectProperty";
-import { IProductCategory } from "@erxes/ui-products/src/types";
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Icon from "@erxes/ui/src/components/Icon";
-import { FlexItem } from "@erxes/ui/src/components/step/styles";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import { IField, IFieldLogic, IOption } from "@erxes/ui/src/types";
-import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
-import React from "react";
-import Select from "react-select";
-
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalFooter,
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
 import {
   FlexRow,
   LeftSection,
@@ -23,18 +12,28 @@ import {
   PreviewSection,
   ShowPreview,
 } from "../styles";
+import { IField, IFieldLogic, IOption } from "@erxes/ui/src/types";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
+
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FieldLogics from "./FieldLogics";
 import FieldPreview from "./FieldPreview";
+import { FlexItem } from "@erxes/ui/src/components/step/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import GroupedField from "./GroupedField";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
 import LocationOptions from "./LocationOptions";
 import ObjectListConfigs from "./ObjectListConfigs";
-import GroupedField from "./GroupedField";
-import { Dialog, Transition } from "@headlessui/react";
-import {
-  ModalFooter,
-  DialogContent,
-  DialogWrapper,
-  ModalOverlay,
-} from "@erxes/ui/src/styles/main";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import Select from "react-select";
+import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/SelectProperty";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -197,7 +196,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <FormControl
           id="validation"
-          componentClass="select"
+          componentclass="select"
           value={field.validation || ""}
           onChange={validation}
         >
@@ -231,7 +230,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <FormControl
           id="options"
-          componentClass="textarea"
+          componentclass="textarea"
           value={(field.options || []).join("\n")}
           onChange={onChange}
         />
@@ -346,7 +345,7 @@ class FieldForm extends React.Component<Props, State> {
             <ControlLabel>{__("Value")}</ControlLabel>
             <FormControl
               id="FieldValue"
-              componentClass="textarea"
+              componentclass="textarea"
               defaultValue={optionsValues}
               onChange={handleChange}
             />
@@ -593,7 +592,7 @@ class FieldForm extends React.Component<Props, State> {
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
             id="propertyGroup"
-            componentClass="select"
+            componentclass="select"
             defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
@@ -627,7 +626,7 @@ class FieldForm extends React.Component<Props, State> {
           <ControlLabel>Categories:</ControlLabel>
           <FormControl
             id="productCategories"
-            componentClass="select"
+            componentclass="select"
             defaultValue={field.productCategoryId || ""}
             onChange={onCategoryChange}
           >
@@ -662,7 +661,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <FormControl
           id="validation"
-          componentClass="select"
+          componentclass="select"
           value={field.column || ""}
           onChange={onChangeColumn}
         >

@@ -1,20 +1,20 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_FORUMS } from '@erxes/ui-settings/src/constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './Row';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IPage } from '../../types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PageForm from './PageForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert, confirm, __, router as routerUtils } from '@erxes/ui/src/utils';
-import { Flex } from '@erxes/ui/src/styles/main';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { EMPTY_CONTENT_FORUMS } from "@erxes/ui-settings/src/constants";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { IPage } from "../../types";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PageForm from "./PageForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { Alert, confirm, __, router as routerUtils } from "@erxes/ui/src/utils";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 type Props = {
   pages: IPage[];
@@ -36,7 +36,7 @@ class List extends React.Component<Props> {
   renderRow() {
     const { pages, remove, bulk, toggleBulk, renderButton } = this.props;
 
-    return pages.map(page => (
+    return pages.map((page) => (
       <Row
         key={page._id}
         page={page}
@@ -49,11 +49,11 @@ class List extends React.Component<Props> {
     ));
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     return <PageForm {...props} renderButton={this.props.renderButton} />;
   };
 
-  searchHandler = event => {
+  searchHandler = (event) => {
     const { history } = this.props;
 
     routerUtils.setParams(history, { search: event.target.value });
@@ -69,19 +69,19 @@ class List extends React.Component<Props> {
       toggleAll,
       remove,
       emptyBulk,
-      history
+      history,
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
       const onClick = () => {
-        confirm('Are you sure? This cannot be undone.')
+        confirm("Are you sure? This cannot be undone.")
           .then(() => {
-            bulk.map(item => remove(item._id, emptyBulk));
-            Alert.success('You successfully deleted a page');
+            bulk.map((item) => remove(item._id, emptyBulk));
+            Alert.success("You successfully deleted a page");
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       };
@@ -102,9 +102,9 @@ class List extends React.Component<Props> {
       <Flex>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={this.searchHandler}
-          value={routerUtils.getParam(history, 'search')}
+          value={routerUtils.getParam(history, "search")}
         />
         &nbsp;&nbsp;
         <ModalTrigger
@@ -121,7 +121,7 @@ class List extends React.Component<Props> {
     );
 
     const onChange = () => {
-      toggleAll(pages, 'pages');
+      toggleAll(pages, "pages");
     };
 
     const actionBar = (
@@ -135,18 +135,18 @@ class List extends React.Component<Props> {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'title'} label={__('Title')} />
+              <SortHandler sortField={"title"} label={__("Title")} />
             </th>
-            <th>{__('Code')}</th>
+            <th>{__("Code")}</th>
             <th>
-              <SortHandler sortField={'listOrder'} label={__('List Order')} />
+              <SortHandler sortField={"listOrder"} label={__("List Order")} />
             </th>
-            <th>{__('Actions')}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -154,14 +154,14 @@ class List extends React.Component<Props> {
     );
 
     const submenu = [
-      { title: 'Posts', link: '/forums/posts' },
-      { title: 'Pages', link: '/forums/pages' },
-      { title: 'Quiz', link: '/forums/quizzes' }
+      { title: "Posts", link: "/forums/posts" },
+      { title: "Pages", link: "/forums/pages" },
+      { title: "Quiz", link: "/forums/quizzes" },
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Pages')} submenu={submenu} />}
+        header={<Wrapper.Header title={__("Pages")} submenu={submenu} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

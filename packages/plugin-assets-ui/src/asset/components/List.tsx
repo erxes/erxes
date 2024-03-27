@@ -1,8 +1,8 @@
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import React, { useState, useEffect, useRef } from 'react';
-import { IAsset, IAssetCategory } from '../../common/types';
-import { breadcrumb } from '../../common/constant';
-import { FlexItem, InputBar, Title } from '@erxes/ui-settings/src/styles';
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import React, { useState, useEffect, useRef } from "react";
+import { IAsset, IAssetCategory } from "../../common/types";
+import { breadcrumb } from "../../common/constant";
+import { FlexItem, InputBar, Title } from "@erxes/ui-settings/src/styles";
 import {
   __,
   router,
@@ -15,14 +15,14 @@ import {
   ModalTrigger,
   Icon,
   Alert,
-} from '@erxes/ui/src';
-import Row from './Row';
-import { Link } from 'react-router-dom';
-import AssetForm from '../containers/AssetForm';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import MergeAssets from './actions/Merge';
-import AssignArticles from '../containers/actions/Assign';
-import Sidebar from '../containers/Sidebar';
+} from "@erxes/ui/src";
+import Row from "./Row";
+import { Link } from "react-router-dom";
+import AssetForm from "../containers/AssetForm";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import MergeAssets from "./actions/Merge";
+import AssignArticles from "../containers/actions/Assign";
+import Sidebar from "../containers/Sidebar";
 
 type Props = {
   assets: IAsset[];
@@ -35,7 +35,7 @@ type Props = {
   remove: (doc: { assetIds: string[] }, emptyBulk: () => void) => void;
   assignKbArticles: (
     doc: { assetIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IAsset[], containerId: string) => void;
@@ -85,18 +85,18 @@ const List = (props: Props) => {
 
     timerRef.current = window.setTimeout(() => {
       router.setParams(history, { searchValue: value });
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
     }, 500);
   };
 
   const handleSelectAllChange = () => {
-    toggleAll(assets, 'assets');
+    toggleAll(assets, "assets");
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -184,7 +184,7 @@ const List = (props: Props) => {
             />
           )}
 
-          {isEnabled('knowledgebase') && (
+          {isEnabled("knowledgebase") && (
             <ModalTrigger
               title="Assign knowledgebase articles"
               size="lg"
@@ -208,7 +208,7 @@ const List = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={search}
               autoFocus={true}
@@ -219,7 +219,7 @@ const List = (props: Props) => {
 
         <Link to="/settings/importHistories?type=asset">
           <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
+            {__("Import items")}
           </Button>
         </Link>
 
@@ -246,16 +246,16 @@ const List = (props: Props) => {
           <th style={{ width: 60 }}>
             <FormControl
               checked={isAllSelected}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={handleSelectAllChange}
             />
           </th>
-          <th>{__('Code')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Category')}</th>
-          <th>{__('Parent')}</th>
-          <th>{__('Unit Price')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Code")}</th>
+          <th>{__("Name")}</th>
+          <th>{__("Category")}</th>
+          <th>{__("Parent")}</th>
+          <th>{__("Unit Price")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -266,7 +266,7 @@ const List = (props: Props) => {
 
   const leftActionBar = (
     <Title>{`${
-      currentCategory.name || currentParent.name || 'All Assets'
+      currentCategory.name || currentParent.name || "All Assets"
     } (${assetsCount})`}</Title>
   );
 
@@ -274,7 +274,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('List Assets')}
+          title={__("List Assets")}
           breadcrumb={breadcrumb}
           queryParams={queryParams}
         />

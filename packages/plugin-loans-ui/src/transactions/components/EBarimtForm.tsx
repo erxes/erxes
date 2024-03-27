@@ -9,17 +9,17 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IFormProps } from '@erxes/ui/src/types';
-import { ITransaction, ITransactionDoc } from '../types';
+} from "@erxes/ui/src";
+import { IFormProps } from "@erxes/ui/src/types";
+import { ITransaction, ITransactionDoc } from "../types";
 
-import { Amount } from '../../contracts/styles';
-import { IInvoice } from '../../invoices/types';
-import React, { useState } from 'react';
-import { __ } from 'coreui/utils';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import { Amount } from "../../contracts/styles";
+import { IInvoice } from "../../invoices/types";
+import React, { useState } from "react";
+import { __ } from "coreui/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   transaction: ITransaction;
@@ -48,34 +48,34 @@ const EBarimtForm = (props: Props) => {
   const { transaction = {} as ITransaction } = props;
 
   const [contractId, setContractId] = useState(
-    transaction.contractId || (props.invoice && props.invoice.contractId) || '',
+    transaction.contractId || (props.invoice && props.invoice.contractId) || ""
   );
   const [payDate, setPayDate] = useState(
     transaction.payDate ||
       (props.invoice && props.invoice.payDate) ||
-      new Date(),
+      new Date()
   );
   const [invoiceId, setInvoiceId] = useState(
-    transaction.invoiceId || (props.invoice && props.invoice._id) || '',
+    transaction.invoiceId || (props.invoice && props.invoice._id) || ""
   );
-  const [description, setDescription] = useState(transaction.description || '');
+  const [description, setDescription] = useState(transaction.description || "");
   const [total, setTotal] = useState(
-    transaction.total || (props.invoice && props.invoice.total) || 0,
+    transaction.total || (props.invoice && props.invoice.total) || 0
   );
   const [companyId, setCompanyId] = useState(
-    transaction.companyId || (props.invoice && props.invoice.companyId) || '',
+    transaction.companyId || (props.invoice && props.invoice.companyId) || ""
   );
   const [customerId, setCustomerId] = useState(
-    transaction.customerId || (props.invoice && props.invoice.customerId) || '',
+    transaction.customerId || (props.invoice && props.invoice.customerId) || ""
   );
   const [invoice, setInvoice] = useState(
-    props.invoice || transaction.invoice || null,
+    props.invoice || transaction.invoice || null
   );
   const [paymentInfo, setPaymentInfo] = useState(null as any);
   const [isGetEBarimt, setIsGetEBarimt] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
-  const [organizationRegister, setOrganizationRegister] = useState('');
-  const [organizationName, setOrganizationName] = useState('');
+  const [organizationRegister, setOrganizationRegister] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
@@ -119,7 +119,7 @@ const EBarimtForm = (props: Props) => {
   const renderRow = (label, fieldName) => {
     const invoiceVal = (invoice && invoice[fieldName]) || 0;
     const trVal =
-      (fieldName === 'total' && total) || transaction[fieldName] || 0;
+      (fieldName === "total" && total) || transaction[fieldName] || 0;
 
     return (
       <FormWrapper>
@@ -140,7 +140,7 @@ const EBarimtForm = (props: Props) => {
   };
 
   const renderRowTr = (label, fieldName, isFromState?: any) => {
-    let trVal = '';
+    let trVal = "";
 
     if (isFromState) {
       trVal = total.toString();
@@ -164,19 +164,19 @@ const EBarimtForm = (props: Props) => {
         <>
           <FormWrapper>
             <FormColumn>
-              <ControlLabel>{__('Type')}</ControlLabel>
+              <ControlLabel>{__("Type")}</ControlLabel>
             </FormColumn>
             <FormColumn>
               <ControlLabel>Transaction</ControlLabel>
             </FormColumn>
           </FormWrapper>
-          {renderRowTr('Total must pay', 'total')}
-          {renderRowTr('Payment', 'payment')}
-          {renderRowTr('Interest Eve', 'interestEve')}
-          {renderRowTr('Interest Nonce', 'interestNonce')}
-          {renderRowTr('Loss', 'undue')}
-          {renderRowTr('Insurance', 'insurance')}
-          {renderRowTr('Debt', 'debt')}
+          {renderRowTr("Total must pay", "total")}
+          {renderRowTr("Payment", "payment")}
+          {renderRowTr("Interest Eve", "interestEve")}
+          {renderRowTr("Interest Nonce", "interestNonce")}
+          {renderRowTr("Loss", "undue")}
+          {renderRowTr("Insurance", "insurance")}
+          {renderRowTr("Debt", "debt")}
         </>
       );
     }
@@ -197,13 +197,13 @@ const EBarimtForm = (props: Props) => {
             <ControlLabel>Change</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow('total', 'total')}
-        {renderRow('payment', 'payment')}
-        {renderRow('interest eve', 'interestEve')}
-        {renderRow('interest nonce', 'interestNonce')}
-        {renderRow('undue', 'undue')}
-        {renderRow('insurance', 'insurance')}
-        {renderRow('debt', 'debt')}
+        {renderRow("total", "total")}
+        {renderRow("payment", "payment")}
+        {renderRow("interest eve", "interestEve")}
+        {renderRow("interest nonce", "interestNonce")}
+        {renderRow("undue", "undue")}
+        {renderRow("insurance", "insurance")}
+        {renderRow("debt", "debt")}
       </>
     );
   };
@@ -220,14 +220,14 @@ const EBarimtForm = (props: Props) => {
         mutation={mutations.createEBarimtOnTransaction}
         variables={values}
         callback={afterSave}
-        refetchQueries={['transactionsMain']}
+        refetchQueries={["transactionsMain"]}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       >
-        {__('Get')}
+        {__("Get")}
       </ButtonMutate>
     );
   };
@@ -250,7 +250,7 @@ const EBarimtForm = (props: Props) => {
     };
 
     const onChangeField = (e) => {
-      if ((e.target as HTMLInputElement).name === 'total') {
+      if ((e.target as HTMLInputElement).name === "total") {
         const value = Number((e.target as HTMLInputElement).value);
 
         if (value > paymentInfo.closeAmount) {
@@ -258,28 +258,28 @@ const EBarimtForm = (props: Props) => {
         }
       }
       if (
-        (e.target as HTMLInputElement).name === 'organizationRegister' &&
+        (e.target as HTMLInputElement).name === "organizationRegister" &&
         isOrganization &&
         isGetEBarimt
       ) {
         if ((e.target as HTMLInputElement).value.length > 7) return;
         if ((e.target as HTMLInputElement).value.length < 7) {
-          setOrganizationName('');
+          setOrganizationName("");
         }
         getCompanyName((e.target as HTMLInputElement).value);
       }
       const value =
-        e.target.type === 'checkbox'
+        e.target.type === "checkbox"
           ? (e.target as HTMLInputElement).checked
           : (e.target as HTMLInputElement).value;
       const name = (e.target as HTMLInputElement).name;
-      if (name === 'isGetEBarimt') {
+      if (name === "isGetEBarimt") {
         setIsGetEBarimt(value as any);
       }
-      if (name === 'isOrganization') {
+      if (name === "isOrganization") {
         setIsOrganization(value as any);
       }
-      if (name === 'organizationRegister') {
+      if (name === "organizationRegister") {
         setOrganizationRegister(value as any);
       }
     };
@@ -289,14 +289,14 @@ const EBarimtForm = (props: Props) => {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderRowTr('Total', 'total', true)}
+              {renderRowTr("Total", "total", true)}
               {!props.isGotEBarimt && (
                 <FormGroup>
-                  <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>
+                  <ControlLabel>{__("Is get E-Barimt")}</ControlLabel>
                   <FormControl
                     {...formProps}
-                    type={'checkbox'}
-                    componentClass="checkbox"
+                    type={"checkbox"}
+                    componentclass="checkbox"
                     useNumberFormat
                     fixed={0}
                     name="isGetEBarimt"
@@ -308,11 +308,11 @@ const EBarimtForm = (props: Props) => {
               )}
               {isGetEBarimt && (
                 <FormGroup>
-                  <ControlLabel>{__('Is organization')}</ControlLabel>
+                  <ControlLabel>{__("Is organization")}</ControlLabel>
                   <FormControl
                     {...formProps}
-                    type={'checkbox'}
-                    componentClass="checkbox"
+                    type={"checkbox"}
+                    componentclass="checkbox"
                     useNumberFormat
                     fixed={0}
                     name="isOrganization"
@@ -326,10 +326,10 @@ const EBarimtForm = (props: Props) => {
                 <FormWrapper>
                   <FormColumn>
                     <FormGroup>
-                      <ControlLabel>{__('Organization Register')}</ControlLabel>
+                      <ControlLabel>{__("Organization Register")}</ControlLabel>
                       <FormControl
                         {...formProps}
-                        type={'number'}
+                        type={"number"}
                         fixed={2}
                         name="organizationRegister"
                         value={organizationRegister}
@@ -340,7 +340,7 @@ const EBarimtForm = (props: Props) => {
                   </FormColumn>
                   <FormColumn>
                     <FormGroup>
-                      <ControlLabel>{__('Organization Name')}</ControlLabel>
+                      <ControlLabel>{__("Organization Name")}</ControlLabel>
                       <FormControl
                         {...formProps}
                         disabled
@@ -359,12 +359,12 @@ const EBarimtForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {!props.isGotEBarimt &&
             renderButton({
-              name: 'transaction',
+              name: "transaction",
               values: generateDoc(values),
               isSubmitted,
               object: transaction,

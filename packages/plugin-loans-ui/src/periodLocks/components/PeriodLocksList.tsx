@@ -1,28 +1,28 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IPeriodLock } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import React, { useRef, useState } from 'react';
+import Alert from "@erxes/ui/src/utils/Alert";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IPeriodLock } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import React, { useRef, useState } from "react";
 
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { PeriodLocksTableWrapper } from '../styles';
-import PeriodLockRow from './PeriodLockRow';
-import { can } from '@erxes/ui/src/utils/core';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
+import PeriodLockForm from "../containers/PeriodLockForm";
+import { PeriodLocksTableWrapper } from "../styles";
+import PeriodLockRow from "./PeriodLockRow";
+import { can } from "@erxes/ui/src/utils/core";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-import { router } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
+import { menuContracts } from "../../constants";
+import { router } from "@erxes/ui/src/utils/core";
+import withConsumer from "../../withConsumer";
 
 interface IProps extends IRouterProps {
   periodLocks: IPeriodLock[];
@@ -37,7 +37,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removePeriodLocks: (
     doc: { periodLockIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -61,7 +61,7 @@ const PeriodLocksList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(periodLocks, 'periodLocks');
+    toggleAll(periodLocks, "periodLocks");
   };
 
   const search = (e) => {
@@ -91,7 +91,7 @@ const PeriodLocksList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -103,12 +103,12 @@ const PeriodLocksList = (props: IProps) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'date'} label={__('Date')} />
+              <SortHandler sortField={"date"} label={__("Date")} />
             </th>
             <th></th>
           </tr>
@@ -130,7 +130,7 @@ const PeriodLocksList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add periodLock')}
+      {__("Add periodLock")}
     </Button>
   );
 
@@ -148,9 +148,9 @@ const PeriodLocksList = (props: IProps) => {
 
     actionBarLeft = (
       <BarItems>
-        {can('managePeriodLocks', currentUser) && (
+        {can("managePeriodLocks", currentUser) && (
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
+            {__("Delete")}
           </Button>
         )}
       </BarItems>
@@ -165,15 +165,15 @@ const PeriodLocksList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
         onFocus={moveCursorAtTheEnd}
       />
-      {can('managePeriodLocks', currentUser) && (
+      {can("managePeriodLocks", currentUser) && (
         <ModalTrigger
-          title={__('New periodLock')}
+          title={__("New periodLock")}
           trigger={addTrigger}
           autoOpenKey="showPeriodLockModal"
           content={periodLockForm}
@@ -195,7 +195,7 @@ const PeriodLocksList = (props: IProps) => {
           title={__(`Period Locks`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

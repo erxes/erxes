@@ -1,13 +1,13 @@
-import { colors, dimensions } from '../styles';
+import { colors, dimensions } from "../styles";
 
-import { ITag } from '@erxes/ui-tags/src/types';
-import Label from './Label';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { ITag } from "@erxes/ui-tags/src/types";
+import Label from "./Label";
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const TagList = styledTS<{ length: number }>(styled.div).attrs({
-  className: (props) => (props.length > 0 ? 'tags' : ''),
+  className: (props) => (props.length > 0 ? "tags" : ""),
 })`
   > span {
     margin-right: ${dimensions.unitSpacing / 2}px;
@@ -34,14 +34,14 @@ function Tags({ tags, limit }: Props) {
           <Label
             key={Math.random()}
             lblColor={tag.colorCode}
-            ignoreTrans={true}
+            ignoretrans={true}
           >
             <span>{tag.name}</span>
           </Label>
         );
       })}
       {limit && length - limit > 0 && (
-        <Label lblColor={colors.colorCoreGray} ignoreTrans={true}>
+        <Label lblColor={colors.colorCoreGray} ignoretrans={true}>
           <span>{`+${length - limit}`}</span>
         </Label>
       )}

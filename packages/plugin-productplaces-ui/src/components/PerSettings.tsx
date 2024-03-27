@@ -1,17 +1,17 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState, useEffect } from 'react';
-import { IConfigsMap } from '../types';
-import PerConditions from './PerConditions';
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState, useEffect } from "react";
+import { IConfigsMap } from "../types";
+import PerConditions from "./PerConditions";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -72,24 +72,24 @@ const PerSettings = (props: Props) => {
       id: Math.random().toString(),
     });
     setconditions(conditions);
-    onChangeConfig('conditions', conditions);
+    onChangeConfig("conditions", conditions);
   };
 
   const renderConditions = () => {
     const remove = (id) => {
       setconditions(conditions.filter((c) => c.id !== id));
       onChangeConfig(
-        'conditions',
-        conditions.filter((c) => c.id !== id),
+        "conditions",
+        conditions.filter((c) => c.id !== id)
       );
     };
 
     const editCondition = (id, condition) => {
       const updated = (conditions || []).map((c) =>
-        c.id === id ? condition : c,
+        c.id === id ? condition : c
       );
       setconditions(updated);
-      onChangeConfig('conditions', updated);
+      onChangeConfig("conditions", updated);
     };
 
     return (conditions || []).map((c) => (
@@ -105,13 +105,13 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === 'newPlacesConfig' ? true : false}
+      open={currentConfigKey === "newPlacesConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
@@ -136,8 +136,8 @@ const PerSettings = (props: Props) => {
             <ControlLabel>Check pricing</ControlLabel>
             <FormControl
               checked={config.checkPricing || false}
-              onChange={onChangeCheckbox.bind(this, 'checkPricing')}
-              componentClass="checkbox"
+              onChange={onChangeCheckbox.bind(this, "checkPricing")}
+              componentclass="checkbox"
             />
           </FormGroup>
         </FormColumn>

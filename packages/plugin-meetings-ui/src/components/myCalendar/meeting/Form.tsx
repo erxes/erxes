@@ -1,28 +1,28 @@
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Button from '@erxes/ui/src/components/Button';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IMeeting } from '../../../types';
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Button from "@erxes/ui/src/components/Button";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __, Alert } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IMeeting } from "../../../types";
 import {
   CustomRangeContainer,
   MeetingDetailColumn,
-  MeetingDetailRow
-} from '../../../styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
-import { DealsQueryResponse, IDeal } from '@erxes/ui-cards/src/deals/types';
+  MeetingDetailRow,
+} from "../../../styles";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { CompaniesQueryResponse } from "@erxes/ui-contacts/src/companies/types";
+import { DealsQueryResponse, IDeal } from "@erxes/ui-cards/src/deals/types";
 
-import { ModalTrigger } from '@erxes/ui/src/components';
-import DealChooser from '../../../containers/myCalendar/meeting/Chooser';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { ModalTrigger } from "@erxes/ui/src/components";
+import DealChooser from "../../../containers/myCalendar/meeting/Chooser";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -38,19 +38,19 @@ type Props = {
 export const MeetingForm = (props: Props) => {
   const { meeting, queryParams, calendarDate, dealId } = props;
 
-  const dealInitialId = dealId ? [dealId] : '';
+  const dealInitialId = dealId ? [dealId] : "";
 
   const [userIds, setUserIds] = useState([props.currentUser._id] || []);
-  const [companyId, setCompanyId] = useState(meeting?.companyId || '');
-  const [title, setTitle] = useState('');
-  const [selectedMethod, setSelectedMethod] = useState('');
+  const [companyId, setCompanyId] = useState(meeting?.companyId || "");
+  const [title, setTitle] = useState("");
+  const [selectedMethod, setSelectedMethod] = useState("");
   const [dealIds, setDealIds] = useState(dealInitialId);
 
   const [startDate, setStartDate] = useState<string | Date>(
     calendarDate?.startDate || new Date()
   );
   const [endDate, setEndDate] = useState<string | Date>(
-    calendarDate?.endDate || ''
+    calendarDate?.endDate || ""
   );
 
   const [selectedDeals, setSelectedDeals] = useState(meeting?.deals || []);
@@ -92,25 +92,25 @@ export const MeetingForm = (props: Props) => {
     }
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
   const methodOptions = [
-    { value: 'online', label: 'Online meeting' },
-    { value: 'face-to-face', label: 'Face-to-face meeting' },
-    { value: 'offline', label: 'Offline meeting' }
+    { value: "online", label: "Online meeting" },
+    { value: "face-to-face", label: "Face-to-face meeting" },
+    { value: "offline", label: "Offline meeting" },
   ];
 
-  const onStartDateChange = dateVal => {
+  const onStartDateChange = (dateVal) => {
     setStartDate(dateVal);
   };
 
-  const onEndDateChange = dateVal => {
+  const onEndDateChange = (dateVal) => {
     if (new Date() < dateVal) {
       setEndDate(dateVal);
     } else {
-      Alert.warning('Please choose the correct date');
+      Alert.warning("Please choose the correct date");
     }
   };
 
@@ -118,51 +118,51 @@ export const MeetingForm = (props: Props) => {
     return (
       <CustomRangeContainer>
         <DateControl
-          value={startDate || ''}
+          value={startDate || ""}
           required={false}
           name="startDate"
           onChange={onStartDateChange}
-          placeholder={'Start date'}
-          dateFormat={'YYYY-MM-DD'}
+          placeholder={"Start date"}
+          dateFormat={"YYYY-MM-DD"}
           timeFormat="HH:mm a"
         />
         <DateControl
-          value={endDate || ''}
+          value={endDate || ""}
           required={false}
           name="endDate"
-          placeholder={'End date'}
+          placeholder={"End date"}
           onChange={onEndDateChange}
-          dateFormat={'YYYY-MM-DD'}
+          dateFormat={"YYYY-MM-DD"}
           timeFormat="HH:mm a"
         />
       </CustomRangeContainer>
     );
   };
 
-  const onUserSelect = users => {
+  const onUserSelect = (users) => {
     setUserIds(users);
   };
 
-  const onMethodSelect = e => {
+  const onMethodSelect = (e) => {
     setSelectedMethod((e.target as HTMLInputElement).value);
   };
 
   const renderBulkProductChooser = () => {
     const dealsOnChange = (datas: any, selectedCompanyId: string) => {
-      const dealsId = datas?.map(data => data._id);
+      const dealsId = datas?.map((data) => data._id);
 
       const { companyId: cId } = JSON.parse(
-        localStorage.getItem('erxes_deals:chooser_filter') || '{}'
+        localStorage.getItem("erxes_deals:chooser_filter") || "{}"
       );
 
       const filterId = selectedCompanyId || cId;
 
       const companyName =
-        datas?.find(deal => {
+        datas?.find((deal) => {
           const selectedCompanies =
-            deal.companies && deal.companies.filter(c => c._id === filterId);
+            deal.companies && deal.companies.filter((c) => c._id === filterId);
           return selectedCompanies && selectedCompanies.length > 0;
-        })?.companies?.[0]?.primaryName || '';
+        })?.companies?.[0]?.primaryName || "";
 
       setDealIds(dealsId);
       setSelectedDeals(datas);
@@ -173,15 +173,15 @@ export const MeetingForm = (props: Props) => {
     const content = ({ closeModal }) => {
       const updatedProps = {
         ...props,
-        closeModal
+        closeModal,
       };
       return (
         <DealChooser
           {...updatedProps}
           onSelect={dealsOnChange}
           data={{
-            name: 'Deal',
-            deals: []
+            name: "Deal",
+            deals: [],
           }}
         />
       );
@@ -231,15 +231,15 @@ export const MeetingForm = (props: Props) => {
           <CustomRangeContainer>
             {selectedDeals.length === 0 && (
               <FormControl
-                componentClass="input"
+                componentclass="input"
                 placeholder="Deal name"
                 type="string"
-                value={''}
+                value={""}
                 disabled={true}
               />
             )}
             <FormControl
-              componentClass="input"
+              componentclass="input"
               placeholder="Company name"
               type="string"
               value={title || object?.title}
@@ -260,14 +260,14 @@ export const MeetingForm = (props: Props) => {
             {...formProps}
             name="method"
             defaultValue={object.method}
-            componentClass="select"
+            componentclass="select"
             required={true}
             options={methodOptions}
             onChange={onMethodSelect}
           />
         </FormGroup>
 
-        {selectedMethod === 'offline' && (
+        {selectedMethod === "offline" && (
           <FormGroup>
             <ControlLabel required={true}>Place</ControlLabel>
             <FormControl
@@ -282,15 +282,15 @@ export const MeetingForm = (props: Props) => {
         )}
 
         <FormGroup>
-          <div style={{ marginBottom: '0' }}>
+          <div style={{ marginBottom: "0" }}>
             <ControlLabel>Team members </ControlLabel>
-            <div style={{ width: '100%' }}>
+            <div style={{ width: "100%" }}>
               <SelectTeamMembers
                 initialValue={object?.participantIds || userIds}
                 customField="userIds"
                 filterParams={{}}
                 queryParams={queryParams}
-                label={'Select team member'}
+                label={"Select team member"}
                 onSelect={onUserSelect}
                 name="userId"
               />
@@ -310,17 +310,17 @@ export const MeetingForm = (props: Props) => {
           />
         </FormGroup>
 
-        <ModalFooter id={'AddTagButtons'}>
+        <ModalFooter id={"AddTagButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 
           {renderButton({
-            passedName: 'meeting',
+            passedName: "meeting",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: meeting
+            object: meeting,
           })}
         </ModalFooter>
       </>

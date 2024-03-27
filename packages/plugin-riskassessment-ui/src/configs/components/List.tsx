@@ -1,7 +1,3 @@
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { DefaultWrapper, SelectCustomFields } from '../../common/utils';
-import { cardTypes, subMenu } from '../../common/constants';
 import {
   BarItems,
   Button,
@@ -13,15 +9,20 @@ import {
   Sidebar,
   SortHandler,
   Table,
+  __,
   confirm,
-  __
-} from '@erxes/ui/src';
-import Form from '../containers/Form';
-import Row from './Row';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import Select from 'react-select-plus';
-import { SidebarHeader, Padding } from '../../styles';
+} from "@erxes/ui/src";
+import { DefaultWrapper, SelectCustomFields } from "../../common/utils";
+import { Padding, SidebarHeader } from "../../styles";
+import { cardTypes, subMenu } from "../../common/constants";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import Form from "../containers/Form";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React from "react";
+import Row from "./Row";
+import Select from "react-select-plus";
 
 type Props = {
   queryParams: any;
@@ -40,7 +41,7 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedItems: []
+      selectedItems: [],
     };
   }
 
@@ -68,17 +69,17 @@ class List extends React.Component<Props, State> {
 
     const selectAllItems = () => {
       if (!selectedItems.length) {
-        const configIds = configs.map(config => config._id);
+        const configIds = configs.map((config) => config._id);
         return this.setState({ selectedItems: configIds });
       }
 
       this.setState({ selectedItems: [] });
     };
 
-    const selectItem = id => {
+    const selectItem = (id) => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== id
+          (selectItem) => selectItem !== id
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
@@ -91,29 +92,29 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={configs.length === selectedItems.length}
                 onClick={selectAllItems}
               />
             </th>
-            <th>{__('Board')}</th>
-            <th>{__('Pipeline')}</th>
-            <th>{__('Stage')}</th>
-            <th>{__('Field')}</th>
-            <th>{__('Risk Assessment')}</th>
+            <th>{__("Board")}</th>
+            <th>{__("Pipeline")}</th>
+            <th>{__("Stage")}</th>
+            <th>{__("Field")}</th>
+            <th>{__("Risk Assessment")}</th>
             <th>
               <SortHandler sortField="createdAt" />
-              {__('Created At')}
+              {__("Created At")}
             </th>
             <th>
               <SortHandler sortField="modifiedAt" />
-              {__('Modified At')}
+              {__("Modified At")}
             </th>
-            <th>{__('Action')}</th>
+            <th>{__("Action")}</th>
           </tr>
         </thead>
         <tbody>
-          {configs.map(config => (
+          {configs.map((config) => (
             <Row
               {...this.props}
               key={config._id}
@@ -140,12 +141,12 @@ class List extends React.Component<Props, State> {
 
     const handleFilterParams = (type, value) => {
       if (!value) {
-        if (type === 'cardType') {
+        if (type === "cardType") {
           for (const param of [
-            'cardType',
-            'boardId',
-            'pipelineId',
-            'stageId'
+            "cardType",
+            "boardId",
+            "pipelineId",
+            "stageId",
           ]) {
             removeParams(this.props.history, param);
           }
@@ -159,17 +160,17 @@ class List extends React.Component<Props, State> {
     const sidebar = (
       <Sidebar
         full
-        header={<SidebarHeader>{__('Addition Filters')}</SidebarHeader>}
+        header={<SidebarHeader>{__("Addition Filters")}</SidebarHeader>}
       >
         <Padding horizontal>
           <FormGroup>
-            <ControlLabel>{__('Type')}</ControlLabel>
+            <ControlLabel>{__("Type")}</ControlLabel>
             <Select
-              placeholder={__('Select Type')}
+              placeholder={__("Select Type")}
               value={queryParams?.cardType}
               options={cardTypes}
               multi={false}
-              onChange={e => handleFilterParams('cardType', e?.value)}
+              onChange={(e) => handleFilterParams("cardType", e?.value)}
             />
           </FormGroup>
           <BoardSelectContainer
@@ -177,18 +178,18 @@ class List extends React.Component<Props, State> {
             boardId={queryParams?.boardId}
             pipelineId={queryParams?.pipelineId}
             stageId={queryParams?.stageId}
-            onChangeBoard={e => handleFilterParams('boardId', e)}
-            onChangePipeline={e => handleFilterParams('pipelineId', e)}
-            onChangeStage={e => handleFilterParams('stageId', e)}
+            onChangeBoard={(e) => handleFilterParams("boardId", e)}
+            onChangePipeline={(e) => handleFilterParams("pipelineId", e)}
+            onChangeStage={(e) => handleFilterParams("stageId", e)}
             autoSelectStage={false}
           />
           <FormGroup>
-            <ControlLabel>{__('Custom field')}</ControlLabel>
+            <ControlLabel>{__("Custom field")}</ControlLabel>
             <SelectCustomFields
               label="Select Custom Field"
               name="customField"
               initialValue={queryParams?.customFieldId}
-              onSelect={({ _id }) => handleFilterParams('customFieldId', _id)}
+              onSelect={({ _id }) => handleFilterParams("customFieldId", _id)}
               type={queryParams?.cardType}
             />
           </FormGroup>
@@ -216,13 +217,13 @@ class List extends React.Component<Props, State> {
     );
 
     const updatedProps = {
-      title: 'Configrations',
+      title: "Configrations",
       content: this.renderContent(),
       rightActionBar,
       leftActionBar,
       subMenu,
       totalCount,
-      sidebar
+      sidebar,
     };
 
     return <DefaultWrapper {...updatedProps} />;

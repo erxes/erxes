@@ -150,7 +150,7 @@ const List: React.FC<IProps> = (props) => {
               <th style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
@@ -241,7 +241,7 @@ const List: React.FC<IProps> = (props) => {
       return (
         <BarItems>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChangeChecked}
             checked={checked}
           />

@@ -1,22 +1,23 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import React from 'react';
-import RTG from 'react-transition-group';
 import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+  FormGroup,
+} from "@erxes/ui/src/components";
 import {
   CustomRangeContainer,
   FilterBox,
   MenuFooter,
   RightMenuContainer,
-  TabContent
-} from '../styles';
-import { IQueryParams } from '@erxes/ui/src/types';
+  TabContent,
+} from "../styles";
+
+import Datetime from "@nateradebaugh/react-datetime";
+import { IQueryParams } from "@erxes/ui/src/types";
+import RTG from "react-transition-group";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
 type Props = {
   onFilter: (filterParams: IQueryParams) => void;
@@ -40,16 +41,16 @@ export default class RightMenu extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'Filter',
+      currentTab: "Filter",
       showMenu: this.props.showMenu || false,
 
-      filterParams: this.props.queryParams
+      filterParams: this.props.queryParams,
     };
   }
 
   setFilter = () => {
     const { filterParams } = this.state;
-    this.props.onFilter({ ...filterParams, page: '1' });
+    this.props.onFilter({ ...filterParams, page: "1" });
   };
 
   toggleMenu = () => {
@@ -57,7 +58,7 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ showMenu: !showMenu });
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const { target } = e;
     const { name, value } = target;
 
@@ -67,7 +68,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
   onChangeRangeFilter = (kind, date) => {
     const { filterParams } = this.state;
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
     this.setState({ filterParams: { ...filterParams, [kind]: cDate } });
   };
 
@@ -81,31 +82,31 @@ export default class RightMenu extends React.Component<Props, State> {
         <CustomRangeContainer>
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams.startDate}
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, 'startDate')}
-              viewMode={'days'}
-              className={'filterDate'}
+              onChange={this.onChangeRangeFilter.bind(this, "startDate")}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
 
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams.endDate}
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, 'endDate')}
-              viewMode={'days'}
-              className={'filterDate'}
+              onChange={this.onChangeRangeFilter.bind(this, "endDate")}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
         </CustomRangeContainer>
@@ -121,14 +122,14 @@ export default class RightMenu extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{`Bill Type`}</ControlLabel>
           <FormControl
-            name={'billType'}
-            componentClass="select"
+            name={"billType"}
+            componentclass="select"
             defaultValue={filterParams.billType}
             onChange={this.onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            <option value="1">{__('1')}</option>
-            <option value="3">{__('3')}</option>
+            <option value="">{__("All")}</option>
+            <option value="1">{__("1")}</option>
+            <option value="3">{__("3")}</option>
           </FormControl>
         </FormGroup>
 
@@ -149,7 +150,7 @@ export default class RightMenu extends React.Component<Props, State> {
             onClick={this.setFilter}
             icon="filter"
           >
-            {__('Filter')}
+            {__("Filter")}
           </Button>
         </MenuFooter>
       </>
@@ -169,7 +170,7 @@ export default class RightMenu extends React.Component<Props, State> {
             uppercase={false}
             onClick={this.props.clearFilter}
           >
-            {__('Clear Filter')}
+            {__("Clear Filter")}
           </Button>
         )}
         <Button
@@ -178,7 +179,7 @@ export default class RightMenu extends React.Component<Props, State> {
           icon="bars"
           onClick={this.toggleMenu}
         >
-          {showMenu ? __('Hide Filter') : __('Show Filter')}
+          {showMenu ? __("Hide Filter") : __("Show Filter")}
         </Button>
 
         <RTG.CSSTransition

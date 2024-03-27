@@ -9,7 +9,6 @@ import {
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IAttachment } from "@erxes/ui/src/types";
@@ -21,6 +20,7 @@ import { METHODS } from "@erxes/ui-engage/src/constants";
 import MessengerPreview from "../containers/MessengerPreview";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
+import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
 import Select from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { __ } from "coreui/utils";
@@ -154,7 +154,7 @@ class WidgetForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Channel:</ControlLabel>
           <FormControl
-            componentClass="select"
+            componentclass="select"
             onChange={this.onChannelChange}
             defaultValue={this.state.channel}
           >
@@ -193,7 +193,7 @@ class WidgetForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Brand:</ControlLabel>
 
-              <FormControl id="brandId" componentClass="select" required={true}>
+              <FormControl id="brandId" componentclass="select" required={true}>
                 <option />
                 {this.props.brands.map((b, index) => (
                   <option key={`brand-${index}`} value={b._id}>
@@ -210,7 +210,7 @@ class WidgetForm extends React.Component<Props, State> {
 
                     <FormControl
                       id="messengerKind"
-                      componentClass="select"
+                      componentclass="select"
                       required={true}
                     >
                       <option />
@@ -229,7 +229,7 @@ class WidgetForm extends React.Component<Props, State> {
                     <FormControl
                       id="sentAs"
                       defaultValue={this.state.sentAs}
-                      componentClass="select"
+                      componentclass="select"
                       onChange={this.onSentAsChange}
                     >
                       {this.props.sentAsChoices.map((t, index) => (

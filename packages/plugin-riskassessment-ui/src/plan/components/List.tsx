@@ -9,17 +9,18 @@ import {
   Tip,
   Wrapper,
   __,
-  router
-} from '@erxes/ui/src';
-import { setParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { TableHead } from '../../assessments/components/ListHead';
-import { subMenu } from '../../common/constants';
-import { FlexRow, HeaderContent } from '../../styles';
-import { headers } from '../common/Headers';
-import Form from '../containers/Form';
-import Row from './Row';
+  router,
+} from "@erxes/ui/src";
+import { FlexRow, HeaderContent } from "../../styles";
+
+import Form from "../containers/Form";
+import { Link } from "react-router-dom";
+import React from "react";
+import Row from "./Row";
+import { TableHead } from "../../assessments/components/ListHead";
+import { headers } from "../common/Headers";
+import { setParams } from "@erxes/ui/src/utils/router";
+import { subMenu } from "../../common/constants";
 
 type Props = {
   list: any[];
@@ -45,12 +46,12 @@ class List extends React.Component<Props, State> {
     this.state = {
       selectedItems: [],
       showFilters: false,
-      searchValue: props?.queryParams?.searchValue || ''
+      searchValue: props?.queryParams?.searchValue || "",
     };
   }
 
   renderForm() {
-    const trigger = <Button btnStyle="success">{__('Add Plan')}</Button>;
+    const trigger = <Button btnStyle="success">{__("Add Plan")}</Button>;
 
     const content = () => <Form />;
 
@@ -65,28 +66,23 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const {
-      queryParams,
-      history,
-      list,
-      duplicatePlan,
-      changeStatus
-    } = this.props;
+    const { queryParams, history, list, duplicatePlan, changeStatus } =
+      this.props;
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = this.props.list.map(branch => branch._id);
+        const branchIds = this.props.list.map((branch) => branch._id);
         return this.setState({ selectedItems: branchIds });
       }
 
       this.setState({ selectedItems: [] });
     };
 
-    const handleSelect = id => {
+    const handleSelect = (id) => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== id
+          (selectItem) => selectItem !== id
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
@@ -99,11 +95,11 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Name')}</th>
+            <th>{__("Name")}</th>
             {headers(queryParams, history).map(
               ({ name, label, sort, filter }) => (
                 <TableHead key={name} sort={sort} filter={filter}>
@@ -111,11 +107,11 @@ class List extends React.Component<Props, State> {
                 </TableHead>
               )
             )}
-            <th>{__('Actions')}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
-          {list.map(plan => (
+          {list.map((plan) => (
             <Row
               plan={plan}
               selectedItems={selectedItems}
@@ -130,7 +126,7 @@ class List extends React.Component<Props, State> {
     );
   }
   renderSearchField = () => {
-    const search = e => {
+    const search = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -141,14 +137,14 @@ class List extends React.Component<Props, State> {
       this.setState({ searchValue });
 
       this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
+        router.removeParams(history, "page");
         router.setParams(history, { searchValue });
       }, 500);
     };
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
     return (
@@ -171,7 +167,7 @@ class List extends React.Component<Props, State> {
       setParams(history, { [name]: value });
     };
 
-    const isArchived = queryParams?.isArchived === 'true';
+    const isArchived = queryParams?.isArchived === "true";
 
     const handleRemove = () => {
       removePlans(selectedItems);
@@ -204,17 +200,17 @@ class List extends React.Component<Props, State> {
         )}
         <Button btnStyle="success">
           <Link to={`/settings/risk-assessment-plans/add`}>
-            {__('Add Plan')}
+            {__("Add Plan")}
           </Link>
         </Button>
         <Tip
-          text={`See ${isArchived ? 'Active' : 'Archived'} Plans`}
+          text={`See ${isArchived ? "Active" : "Archived"} Plans`}
           placement="bottom"
         >
           <Button
             btnStyle="link"
-            icon={isArchived ? 'calendar-alt' : 'archive-alt'}
-            onClick={() => onSelectFilter('isArchived', !isArchived)}
+            icon={isArchived ? "calendar-alt" : "archive-alt"}
+            onClick={() => onSelectFilter("isArchived", !isArchived)}
           />
         </Tip>
       </BarItems>
@@ -222,7 +218,7 @@ class List extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={'Plans'} submenu={subMenu} />}
+        header={<Wrapper.Header title={"Plans"} submenu={subMenu} />}
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }

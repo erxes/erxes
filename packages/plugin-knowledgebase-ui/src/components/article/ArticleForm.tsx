@@ -333,12 +333,8 @@ const ArticleForm = (props: Props) => {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="code"
-            defaultValue={object.code}
-          />
+          <ControlLabel>{__("Code")}</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
@@ -385,7 +381,7 @@ const ArticleForm = (props: Props) => {
             <FormGroup>
               <ControlLabel required={true}>{__("isPrivate")}</ControlLabel>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={isPrivate}
                 onChange={onChangeIsCheckDate}
               />
@@ -456,7 +452,7 @@ const ArticleForm = (props: Props) => {
             <FormGroup>
               <ControlLabel>{__("File type")}</ControlLabel>
               <FormControl
-                componentClass="select"
+                componentclass="select"
                 value={attachment.type || ""}
                 onChange={(e: any) =>
                   handleAttachmentChange("type", e.target.value)

@@ -1,20 +1,20 @@
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import { IFlowCategory } from '../../types';
-import { Link } from 'react-router-dom';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import { IFlowCategory } from "../../types";
+import { Link } from "react-router-dom";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -34,7 +34,7 @@ class List extends React.Component<IProps> {
   clearLocationFilter = () => {
     router.setParams(this.props.history, {
       branchId: null,
-      departmentId: null
+      departmentId: null,
     });
   };
 
@@ -44,7 +44,7 @@ class List extends React.Component<IProps> {
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+    const currentGroup = queryParams.categoryId || "";
 
     return currentGroup === id;
   };
@@ -58,24 +58,24 @@ class List extends React.Component<IProps> {
 
     const result: React.ReactNode[] = [
       <SidebarListItem
-        key={'unknownCategory'}
-        isActive={this.isActive('unknownCategory')}
+        key={"unknownCategory"}
+        isActive={this.isActive("unknownCategory")}
       >
-        <Link to={`?categoryId=${'unknownCategory'}`}>
-          {__('!Unknown Category')}
+        <Link to={`?categoryId=${"unknownCategory"}`}>
+          {__("!Unknown Category")}
         </Link>
-      </SidebarListItem>
+      </SidebarListItem>,
     ];
 
     for (const category of flowCategories) {
-      const order = category.order || '';
+      const order = category.order || "";
 
       const m = order.match(/[/]/gi);
 
-      let space = '';
+      let space = "";
 
       if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
+        space = "\u00a0\u00a0".repeat(m.length);
       }
 
       const name = category.isRoot ? (
@@ -105,12 +105,12 @@ class List extends React.Component<IProps> {
   renderCategoryHeader() {
     return (
       <Section.Title>
-        {__('Categories')}
+        {__("Categories")}
 
         <Section.QuickButtons>
-          {router.getParam(this.props.history, 'categoryId') && (
+          {router.getParam(this.props.history, "categoryId") && (
             <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -151,17 +151,17 @@ class List extends React.Component<IProps> {
         </Section>
         <Section>
           <Section.Title>
-            {__('Latest job location')}
+            {__("Latest job location")}
 
             <Section.QuickButtons>
-              {(router.getParam(this.props.history, 'branchId') ||
-                router.getParam(this.props.history, 'departmentId')) && (
+              {(router.getParam(this.props.history, "branchId") ||
+                router.getParam(this.props.history, "departmentId")) && (
                 <a
                   href="#cancel"
                   tabIndex={0}
                   onClick={this.clearLocationFilter}
                 >
-                  <Tip text={__('Clear filter')} placement="bottom">
+                  <Tip text={__("Clear filter")} placement="bottom">
                     <Icon icon="cancel-1" />
                   </Tip>
                 </a>
@@ -175,8 +175,8 @@ class List extends React.Component<IProps> {
                 label="Choose branch"
                 name="selectedBranchId"
                 initialValue={queryParams.branchId}
-                customOption={{ value: '', label: 'Skip branch' }}
-                onSelect={branchId => this.setFilter('branchId', branchId)}
+                customOption={{ value: "", label: "Skip branch" }}
+                onSelect={(branchId) => this.setFilter("branchId", branchId)}
                 multi={false}
               />
             </FormGroup>
@@ -186,9 +186,9 @@ class List extends React.Component<IProps> {
                 label="Choose department"
                 name="selectedDepartmentId"
                 initialValue={queryParams.departmentId}
-                customOption={{ value: '', label: 'Skip department' }}
-                onSelect={departmentId =>
-                  this.setFilter('departmentId', departmentId)
+                customOption={{ value: "", label: "Skip department" }}
+                onSelect={(departmentId) =>
+                  this.setFilter("departmentId", departmentId)
                 }
                 multi={false}
               />
@@ -197,13 +197,13 @@ class List extends React.Component<IProps> {
         </Section>
         <Section>
           <Section.Title>
-            {__('Status')}
+            {__("Status")}
 
             <Section.QuickButtons>
-              {(router.getParam(this.props.history, 'status') ||
-                router.getParam(this.props.history, 'validation')) && (
+              {(router.getParam(this.props.history, "status") ||
+                router.getParam(this.props.history, "validation")) && (
                 <a href="#cancel" tabIndex={0} onClick={this.clearStatusFilter}>
-                  <Tip text={__('Clear filter')} placement="bottom">
+                  <Tip text={__("Clear filter")} placement="bottom">
                     <Icon icon="cancel-1" />
                   </Tip>
                 </a>
@@ -215,31 +215,31 @@ class List extends React.Component<IProps> {
               <ControlLabel>Status</ControlLabel>
               <FormControl
                 name="status"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={queryParams.status}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.setFilter(
-                    'status',
+                    "status",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
-                <option key={''} value={''}>
-                  {' '}
-                  {'Not deleted'}{' '}
+                <option key={""} value={""}>
+                  {" "}
+                  {"Not deleted"}{" "}
                 </option>
-                <option key={'active'} value={'active'}>
-                  {' '}
-                  {'active'}{' '}
+                <option key={"active"} value={"active"}>
+                  {" "}
+                  {"active"}{" "}
                 </option>
-                <option key={'draft'} value={'draft'}>
-                  {' '}
-                  {'draft'}{' '}
+                <option key={"draft"} value={"draft"}>
+                  {" "}
+                  {"draft"}{" "}
                 </option>
-                <option key={'deleted'} value={'deleted'}>
-                  {' '}
-                  {'deleted'}{' '}
+                <option key={"deleted"} value={"deleted"}>
+                  {" "}
+                  {"deleted"}{" "}
                 </option>
               </FormControl>
             </FormGroup>
@@ -247,61 +247,61 @@ class List extends React.Component<IProps> {
               <ControlLabel>Validation</ControlLabel>
               <FormControl
                 name="validation"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={queryParams.validation}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.setFilter(
-                    'validation',
+                    "validation",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
-                <option key={''} value={''}>
-                  {' '}
-                  {'Any validation'}{' '}
+                <option key={""} value={""}>
+                  {" "}
+                  {"Any validation"}{" "}
                 </option>
-                <option key={'true'} value={'true'}>
-                  {' '}
-                  {'true'}{' '}
+                <option key={"true"} value={"true"}>
+                  {" "}
+                  {"true"}{" "}
                 </option>
-                <option key={'Has not jobs'} value={'Has not jobs'}>
-                  {' '}
-                  {'Has not jobs'}{' '}
-                </option>
-                <option
-                  key={'Has not endPoint job'}
-                  value={'Has not endPoint job'}
-                >
-                  {' '}
-                  {'Has not endPoint job'}{' '}
-                </option>
-                <option key={'Many endPoint jobs'} value={'Many endPoint jobs'}>
-                  {' '}
-                  {'Many endPoint jobs'}{' '}
-                </option>
-                <option key={'Has not latest job'} value={'Has not latest job'}>
-                  {' '}
-                  {'Has not latest job'}{' '}
-                </option>
-                <option key={'Many latest jobs'} value={'Many latest jobs'}>
-                  {' '}
-                  {'Many latest jobs'}{' '}
-                </option>
-                <option key={'less products'} value={'less products'}>
-                  {' '}
-                  {'less products'}{' '}
+                <option key={"Has not jobs"} value={"Has not jobs"}>
+                  {" "}
+                  {"Has not jobs"}{" "}
                 </option>
                 <option
-                  key={'wrong Spend Department'}
-                  value={'wrong Spend Department'}
+                  key={"Has not endPoint job"}
+                  value={"Has not endPoint job"}
                 >
-                  {' '}
-                  {'wrong Spend Department'}{' '}
+                  {" "}
+                  {"Has not endPoint job"}{" "}
                 </option>
-                <option key={'wrong Spend Branch'} value={'wrong Spend Branch'}>
-                  {' '}
-                  {'wrong Spend Branch'}{' '}
+                <option key={"Many endPoint jobs"} value={"Many endPoint jobs"}>
+                  {" "}
+                  {"Many endPoint jobs"}{" "}
+                </option>
+                <option key={"Has not latest job"} value={"Has not latest job"}>
+                  {" "}
+                  {"Has not latest job"}{" "}
+                </option>
+                <option key={"Many latest jobs"} value={"Many latest jobs"}>
+                  {" "}
+                  {"Many latest jobs"}{" "}
+                </option>
+                <option key={"less products"} value={"less products"}>
+                  {" "}
+                  {"less products"}{" "}
+                </option>
+                <option
+                  key={"wrong Spend Department"}
+                  value={"wrong Spend Department"}
+                >
+                  {" "}
+                  {"wrong Spend Department"}{" "}
+                </option>
+                <option key={"wrong Spend Branch"} value={"wrong Spend Branch"}>
+                  {" "}
+                  {"wrong Spend Branch"}{" "}
                 </option>
               </FormControl>
             </FormGroup>

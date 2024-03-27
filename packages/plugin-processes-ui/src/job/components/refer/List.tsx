@@ -1,21 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { Count, Title } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import Form from '../../containers/refer/Form';
-import CategoryList from '../../containers/category/List';
-import { IJobRefer } from '../../types';
-import Row from './Row';
-import { menuSettings } from '../../../constants';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Table from "@erxes/ui/src/components/table";
+import { Count, Title } from "@erxes/ui/src/styles/main";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { Alert, confirm, router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import React from "react";
+import Form from "../../containers/refer/Form";
+import CategoryList from "../../containers/category/List";
+import { IJobRefer } from "../../types";
+import Row from "./Row";
+import { menuSettings } from "../../../constants";
 
 interface IProps extends IRouterProps {
   history: any;
@@ -43,14 +43,14 @@ class List extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
   renderRow = () => {
     const { jobRefers, history, toggleBulk, bulk } = this.props;
 
-    return jobRefers.map(jobRefer => (
+    return jobRefers.map((jobRefer) => (
       <Row
         history={history}
         key={jobRefer._id}
@@ -63,28 +63,28 @@ class List extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, jobRefers } = this.props;
-    toggleAll(jobRefers, 'jobRefers');
+    toggleAll(jobRefers, "jobRefers");
   };
 
-  removeProducts = jobRefers => {
+  removeProducts = (jobRefers) => {
     const jobRefersIds: string[] = [];
 
-    jobRefers.forEach(jobRefer => {
+    jobRefers.forEach((jobRefer) => {
       jobRefersIds.push(jobRefer._id);
     });
 
     this.props.remove({ jobRefersIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
+  renderCount = (productCount) => {
     return (
       <Count>
-        {productCount} job{productCount > 1 && 's'}
+        {productCount} job{productCount > 1 && "s"}
       </Count>
     );
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -95,7 +95,7 @@ class List extends React.Component<IProps, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -103,7 +103,7 @@ class List extends React.Component<IProps, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
@@ -114,22 +114,22 @@ class List extends React.Component<IProps, State> {
       queryParams,
       isAllSelected,
       history,
-      bulk
+      bulk,
     } = this.props;
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add job')}
+        {__("Add job")}
       </Button>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const modalContent = (props) => <Form {...props} />;
 
     let actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -154,16 +154,16 @@ class List extends React.Component<IProps, State> {
               <th style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Name')}</th>
-              <th>{__('Code')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Need Products')}</th>
-              <th>{__('Result Products')}</th>
-              <th>{__('Actions')}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Code")}</th>
+              <th>{__("Type")}</th>
+              <th>{__("Need Products")}</th>
+              <th>{__("Result Products")}</th>
+              <th>{__("Actions")}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -177,7 +177,7 @@ class List extends React.Component<IProps, State> {
           .then(() => {
             this.removeProducts(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -195,11 +195,11 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{`${__('All jobs')}`}</Title>;
+    const actionBarLeft = <Title>{`${__("All jobs")}`}</Title>;
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Job')} submenu={menuSettings} />}
+        header={<Wrapper.Header title={__("Job")} submenu={menuSettings} />}
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

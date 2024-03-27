@@ -1,35 +1,35 @@
-import { Alert, __, confirm, router } from 'coreui/utils';
+import { Alert, __, confirm, router } from "coreui/utils";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
-import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
-import CompanyRow from './CompanyRow';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ICompany } from '../../types';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React, { useState } from 'react';
-import Sidebar from './Sidebar';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { gql } from '@apollo/client';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '../../graphql';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import CompaniesMerge from "@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge";
+import CompanyForm from "@erxes/ui-contacts/src/companies/containers/CompanyForm";
+import CompanyRow from "./CompanyRow";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICompany } from "../../types";
+import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ManageColumns from "@erxes/ui-forms/src/settings/properties/containers/ManageColumns";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Sidebar from "./Sidebar";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Table from "@erxes/ui/src/components/table";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { menuContacts } from "@erxes/ui/src/utils/menus";
+import { queries } from "../../graphql";
 // import { withRouter } from 'react-router-dom';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu } from '@headlessui/react';
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 interface IProps {
   companies: ICompany[];
@@ -45,7 +45,7 @@ interface IProps {
   emptyBulk: () => void;
   removeCompanies: (
     doc: { companyIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   mergeCompanies: () => void;
   queryParams: any;
@@ -63,12 +63,12 @@ const CompaniesList: React.FC<IProps> = (props) => {
   let timer;
 
   const [searchValue, setSearchValue] = useState<string | undefined>(
-    props.searchValue,
+    props.searchValue
   );
 
   const onChange = () => {
     const { toggleAll, companies } = props;
-    toggleAll(companies, 'companies');
+    toggleAll(companies, "companies");
   };
 
   const search = (e) => {
@@ -80,7 +80,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
     setSearchValue(searchValue);
     timer = setTimeout(() => {
-      router.removeParams(navigate, location, 'page');
+      router.removeParams(navigate, location, "page");
       router.setParams(navigate, location, { searchValue });
     }, 500);
   };
@@ -97,7 +97,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -140,23 +140,23 @@ const CompaniesList: React.FC<IProps> = (props) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             {columnsConfig.map(({ name, label, _id }) => (
               <th key={name}>
-                {_id !== '#' ? (
+                {_id !== "#" ? (
                   <SortHandler sortField={name} label={__(label)} />
                 ) : (
                   <>#</>
                 )}
               </th>
             ))}
-            <th>{__('Tags')}</th>
+            <th>{__("Tags")}</th>
           </tr>
         </thead>
-        <tbody id="companies" className={isExpand ? 'expand' : ''}>
+        <tbody id="companies" className={isExpand ? "expand" : ""}>
           {companies.map((company, i) => (
             <CompanyRow
               index={(page - 1) * perPage + i + 1}
@@ -179,7 +179,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     </Button>
   );
 
-  const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
+  const editColumns = <a href="#edit">{__("Choose Properties/View")}</a>;
 
   const mergeButton = (
     <Button btnStyle="primary" size="small" icon="merge">
@@ -211,12 +211,12 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
     const refetchQuery = {
       query: gql(queries.companyCounts),
-      variables: { only: 'byTag' },
+      variables: { only: "byTag" },
     };
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <TaggerPopover
             type={TAG_TYPES.COMPANY}
             successCallback={afterTag}
@@ -267,7 +267,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -276,14 +276,14 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
       {renderExpandButton()}
 
-      {isEnabled('segments') && (
+      {isEnabled("segments") && (
         <TemporarySegment contentType={`contacts:company`} />
       )}
 
       <Menu as="div" className="relative">
         <Menu.Button>
           <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon icon="angle-down" />
+            {__("Customize ")} <Icon icon="angle-down" />
           </Button>
         </Menu.Button>
         <Menu.Items className="absolute">
@@ -296,19 +296,19 @@ const CompaniesList: React.FC<IProps> = (props) => {
           </Menu.Item>
           <Menu.Item>
             <Link to="/settings/properties?type=contacts:company">
-              {__('Manage properties')}
+              {__("Manage properties")}
             </Link>
           </Menu.Item>
           <Menu.Item>
             <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-              {__('Export this companies')}
+              {__("Export this companies")}
             </a>
           </Menu.Item>
         </Menu.Items>
       </Menu>
       <Link to="/settings/importHistories?type=contacts:company">
         <Button btnStyle="primary" size="small" icon="arrow-from-right">
-          {__('Go to import')}
+          {__("Go to import")}
         </Button>
       </Link>
       <ModalTrigger
@@ -352,4 +352,4 @@ const CompaniesList: React.FC<IProps> = (props) => {
   );
 };
 
-export default withTableWrapper('Company', CompaniesList);
+export default withTableWrapper("Company", CompaniesList);

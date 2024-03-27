@@ -1,21 +1,21 @@
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import { GroupWrapper } from '@erxes/ui-segments/src/styles';
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import { GroupWrapper } from "@erxes/ui-segments/src/styles";
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Tip,
-} from '@erxes/ui/src/components';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { LittleGroup } from '../styles';
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+} from "@erxes/ui/src/components";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { LittleGroup } from "../styles";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
 
 type Props = {
   condition: any;
@@ -43,125 +43,125 @@ const PerConditions = (props: Props) => {
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{'Product Category'}</ControlLabel>
+            <ControlLabel>{"Product Category"}</ControlLabel>
             <SelectProductCategory
               label="Choose product category"
               name="productCategoryIds"
-              initialValue={condition.productCategoryIds || ''}
+              initialValue={condition.productCategoryIds || ""}
               onSelect={(categoryIds) =>
-                onChangeHandler('productCategoryIds', categoryIds)
+                onChangeHandler("productCategoryIds", categoryIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude categories')}</ControlLabel>
+            <ControlLabel>{__("Exclude categories")}</ControlLabel>
             <SelectProductCategory
               name="excludeCategoryIds"
               label="Choose categories to exclude"
               initialValue={condition.excludeCategoryIds}
               onSelect={(categoryIds) =>
-                onChangeHandler('excludeCategoryIds', categoryIds)
+                onChangeHandler("excludeCategoryIds", categoryIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Product Tags'}</ControlLabel>
+            <ControlLabel>{"Product Tags"}</ControlLabel>
             <SelectTags
               tagsType="products:product"
               label="Choose product tag"
               name="productTagIds"
-              initialValue={condition.productTagIds || ''}
-              onSelect={(tagIds) => onChangeHandler('productTagIds', tagIds)}
+              initialValue={condition.productTagIds || ""}
+              onSelect={(tagIds) => onChangeHandler("productTagIds", tagIds)}
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude tags')}</ControlLabel>
+            <ControlLabel>{__("Exclude tags")}</ControlLabel>
             <SelectTags
               tagsType="products:product"
               name="excludeTagIds"
               label="Choose tags to exclude"
               initialValue={condition.excludeTagIds}
-              onSelect={(tagIds) => onChangeHandler('excludeTagIds', tagIds)}
+              onSelect={(tagIds) => onChangeHandler("excludeTagIds", tagIds)}
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Exclude products')}</ControlLabel>
+            <ControlLabel>{__("Exclude products")}</ControlLabel>
             <SelectProducts
               name="excludeProductIds"
               label="Choose products to exclude"
               initialValue={condition.excludeProductIds}
               onSelect={(productIds) =>
-                onChangeHandler('excludeProductIds', productIds)
+                onChangeHandler("excludeProductIds", productIds)
               }
               multi={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Segment')}</ControlLabel>
+            <ControlLabel>{__("Segment")}</ControlLabel>
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={['products:product']}
+              contentTypes={["products:product"]}
               initialValue={condition.segments}
               multi={true}
-              onSelect={(segmentIds) => onChangeHandler('segments', segmentIds)}
+              onSelect={(segmentIds) => onChangeHandler("segments", segmentIds)}
             />
           </FormGroup>
         </FormColumn>
 
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{'Low Count'}</ControlLabel>
+            <ControlLabel>{"Low Count"}</ControlLabel>
             <FormControl
               defaultValue={condition.ltCount}
-              onChange={onChangeInput.bind(this, 'ltCount')}
+              onChange={onChangeInput.bind(this, "ltCount")}
               required={true}
               autoFocus={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Great Count'}</ControlLabel>
+            <ControlLabel>{"Great Count"}</ControlLabel>
             <FormControl
               defaultValue={condition.gtCount}
-              onChange={onChangeInput.bind(this, 'gtCount')}
+              onChange={onChangeInput.bind(this, "gtCount")}
               required={true}
               autoFocus={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Low UnitPrice'}</ControlLabel>
+            <ControlLabel>{"Low UnitPrice"}</ControlLabel>
             <FormControl
               defaultValue={condition.ltUnitPrice}
-              onChange={onChangeInput.bind(this, 'ltUnitPrice')}
+              onChange={onChangeInput.bind(this, "ltUnitPrice")}
               required={true}
               autoFocus={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Great UnitPrice'}</ControlLabel>
+            <ControlLabel>{"Great UnitPrice"}</ControlLabel>
             <FormControl
               defaultValue={condition.gtUnitPrice}
-              onChange={onChangeInput.bind(this, 'gtUnitPrice')}
+              onChange={onChangeInput.bind(this, "gtUnitPrice")}
               required={true}
               autoFocus={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{'Sub uom type'}</ControlLabel>
+            <ControlLabel>{"Sub uom type"}</ControlLabel>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               defaultValue={condition.subUomType}
               options={[
-                { label: 'Not use', value: '' },
-                { label: 'Low than count', value: 'lt' },
-                { label: 'Greater, equal than count', value: 'gte' },
+                { label: "Not use", value: "" },
+                { label: "Low than count", value: "lt" },
+                { label: "Greater, equal than count", value: "gte" },
               ]}
               onChange={(e: any) => {
-                onChangeHandler('subUomType', e.target.value);
+                onChangeHandler("subUomType", e.target.value);
               }}
             />
           </FormGroup>
@@ -170,32 +170,32 @@ const PerConditions = (props: Props) => {
       <LittleGroup>
         <FormWrapper>
           <FormColumn>
-            <ControlLabel>{'Set branch'}</ControlLabel>
+            <ControlLabel>{"Set branch"}</ControlLabel>
             <SelectBranches
               label="Choose Branch"
               name="branchId"
               initialValue={condition.branchId}
-              onSelect={(branchId) => onChangeHandler('branchId', branchId)}
+              onSelect={(branchId) => onChangeHandler("branchId", branchId)}
               multi={false}
-              customOption={{ value: '', label: 'Clean branch' }}
+              customOption={{ value: "", label: "Clean branch" }}
             />
           </FormColumn>
           <FormColumn>
-            <ControlLabel>{'Set department'}</ControlLabel>
+            <ControlLabel>{"Set department"}</ControlLabel>
             <SelectDepartments
               label="Choose department"
               name="selectedDepartmentIds"
               initialValue={condition.departmentId}
               onSelect={(departmentId) =>
-                onChangeHandler('departmentId', departmentId)
+                onChangeHandler("departmentId", departmentId)
               }
               multi={false}
-              customOption={{ value: '', label: 'Clean department' }}
+              customOption={{ value: "", label: "Clean department" }}
             />
           </FormColumn>
         </FormWrapper>
       </LittleGroup>
-      <Tip text={'Delete'}>
+      <Tip text={"Delete"}>
         <Button
           btnStyle="simple"
           size="small"

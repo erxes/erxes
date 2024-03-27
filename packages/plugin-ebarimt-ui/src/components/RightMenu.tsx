@@ -273,7 +273,7 @@ const RightMenu: React.FC<Props> = (props) => {
           <ControlLabel>{`Content Type`}</ControlLabel>
           <FormControl
             name={"contentType"}
-            componentClass="select"
+            componentclass="select"
             defaultValue={filterParams.contentType}
             onChange={onChangeInput}
           >
@@ -294,7 +294,7 @@ const RightMenu: React.FC<Props> = (props) => {
           <ControlLabel>{`Success`}</ControlLabel>
           <FormControl
             name={"success"}
-            componentClass="select"
+            componentclass="select"
             defaultValue={filterParams.success}
             onChange={onChangeInput}
           >
@@ -308,7 +308,7 @@ const RightMenu: React.FC<Props> = (props) => {
           <ControlLabel>{`Bill Type`}</ControlLabel>
           <FormControl
             name={"billType"}
-            componentClass="select"
+            componentclass="select"
             defaultValue={filterParams.billType}
             onChange={onChangeInput}
           >
@@ -322,7 +322,7 @@ const RightMenu: React.FC<Props> = (props) => {
           <ControlLabel>{`Bill ID Rule`}</ControlLabel>
           <FormControl
             name={"billIdRule"}
-            componentClass="select"
+            componentclass="select"
             defaultValue={filterParams.billIdRule}
             onChange={onChangeInput}
           >
@@ -338,7 +338,7 @@ const RightMenu: React.FC<Props> = (props) => {
           <ControlLabel>{`On Last`}</ControlLabel>
           <FormControl
             name={"isLast"}
-            componentClass="select"
+            componentclass="select"
             defaultValue={filterParams.isLast}
             onChange={onChangeInput}
           >

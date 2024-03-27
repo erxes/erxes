@@ -1,19 +1,20 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
-import { IInvoice, InvoicesCount } from '../../types';
-import React, { useRef, useState } from 'react';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { IInvoice, InvoicesCount } from "../../types";
+import React, { useRef, useState } from "react";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IRouterProps } from '@erxes/ui/src/types';
-import InvoiceDetail from '../../containers/invoice/Detail';
-import Modal from 'react-bootstrap/Modal';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Row from './Row';
-import Sidebar from './SideBar';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IRouterProps } from "@erxes/ui/src/types";
+import InvoiceDetail from "../../containers/invoice/Detail";
+import Modal from "react-bootstrap/Modal";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Row from "./Row";
+import Sidebar from "./SideBar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -52,7 +53,7 @@ const List = (props: IProps) => {
 
     if (searchValue !== props.searchValue) {
       timeoutId = setTimeout(() => {
-        router.removeParams(history, 'page');
+        router.removeParams(history, "page");
         router.setParams(history, { searchValue });
       }, 500);
 
@@ -83,7 +84,7 @@ const List = (props: IProps) => {
   };
 
   const onChange = () => {
-    toggleAll(invoices, 'invoices');
+    toggleAll(invoices, "invoices");
   };
   const removeInvoices = (ids) => {
     const invoiceIds: string[] = [];
@@ -94,12 +95,12 @@ const List = (props: IProps) => {
   };
 
   const search = (e) => {
-    setSearchValue(e.target.value || '');
+    setSearchValue(e.target.value || "");
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -107,7 +108,7 @@ const List = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -127,20 +128,20 @@ const List = (props: IProps) => {
             >
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
-            <th>{__('Payment name')}</th>
-            <th>{__('Kind')}</th>
-            <th>{__('Amount')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Customer')}</th>
-            <th>{__('Customer Type')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Created date')}</th>
-            <th>{__('Resolved date')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Payment name")}</th>
+            <th>{__("Kind")}</th>
+            <th>{__("Amount")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Customer")}</th>
+            <th>{__("Customer Type")}</th>
+            <th>{__("Description")}</th>
+            <th>{__("Created date")}</th>
+            <th>{__("Resolved date")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -148,10 +149,10 @@ const List = (props: IProps) => {
 
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Invoice detail')}</Modal.Title>
+          <Modal.Title>{__("Invoice detail")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <InvoiceDetail id={currentInvoiceId || ''} />
+          <InvoiceDetail id={currentInvoiceId || ""} />
         </Modal.Body>
       </Modal>
     </>
@@ -160,7 +161,7 @@ const List = (props: IProps) => {
   if (bulk.length > 0) {
     const onClick = () =>
       confirm(
-        __('Invoices that are already paid will not be deleted. Are you sure?'),
+        __("Invoices that are already paid will not be deleted. Are you sure?")
       )
         .then(() => {
           removeInvoices(bulk);
@@ -187,10 +188,10 @@ const List = (props: IProps) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Invoices')}
+          title={__("Invoices")}
           breadcrumb={[
             {
-              title: __('Invoices'),
+              title: __("Invoices"),
             },
           ]}
           queryParams={props.queryParams}

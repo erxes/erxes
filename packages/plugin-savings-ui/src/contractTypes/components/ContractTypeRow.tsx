@@ -1,9 +1,9 @@
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
-import _ from 'lodash';
-import React from 'react';
+import { Button, formatValue, FormControl, ModalTrigger } from "@erxes/ui/src";
+import _ from "lodash";
+import React from "react";
 
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractType } from '../types';
+import ContractTypeForm from "../containers/ContractTypeForm";
+import { IContractType } from "../types";
 
 type Props = {
   contractType: IContractType;
@@ -26,7 +26,7 @@ function renderFormTrigger(
   trigger: React.ReactNode,
   contractType: IContractType
 ) {
-  const content = props => (
+  const content = (props) => (
     <ContractTypeForm {...props} contractType={contractType} />
   );
 
@@ -50,13 +50,13 @@ function ContractTypeRow(
   { contractType, history, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contractType, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -71,15 +71,15 @@ function ContractTypeRow(
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(contractType, 'code')}</td>
-      <td key={'name'}>{displayValue(contractType, 'name')}</td>
-      <td key={'number'}>{displayValue(contractType, 'number')}</td>
-      <td key={'vacancy'}>{displayValue(contractType, 'vacancy')}</td>
+      <td key={"code"}>{displayValue(contractType, "code")}</td>
+      <td key={"name"}>{displayValue(contractType, "name")}</td>
+      <td key={"number"}>{displayValue(contractType, "number")}</td>
+      <td key={"vacancy"}>{displayValue(contractType, "vacancy")}</td>
 
       <td onClick={onClick}>{renderEditAction(contractType)}</td>
     </tr>

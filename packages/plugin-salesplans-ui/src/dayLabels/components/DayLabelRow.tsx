@@ -1,15 +1,15 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Form from '../containers/EditForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import moment from 'moment';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { FormControl } from '@erxes/ui/src/components';
-import { IDayLabel } from '../types';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import Form from "../containers/EditForm";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import moment from "moment";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
+import { FormControl } from "@erxes/ui/src/components";
+import { IDayLabel } from "../types";
 
 type Props = {
   dayLabel: IDayLabel;
@@ -47,13 +47,13 @@ const DayLabelRow = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>{moment(date).format('YYYY/MM/DD')}</td>
-      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
+      <td>{moment(date).format("YYYY/MM/DD")}</td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ""}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ""}</td>
       <td>
         {(labels || []).map((l) => (
           <span key={Math.random()}>
@@ -64,7 +64,7 @@ const DayLabelRow = (props: Props) => {
       </td>
       <td>
         <ActionButtons>
-          <Tip text={__('Edit')} placement="bottom">
+          <Tip text={__("Edit")} placement="bottom">
             <ModalTrigger
               title="Edit label"
               trigger={trigger}

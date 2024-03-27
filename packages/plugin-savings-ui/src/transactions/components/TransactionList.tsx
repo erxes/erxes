@@ -12,23 +12,23 @@ import {
   DropdownToggle,
   Icon,
   confirm,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 
-import { ContractsTableWrapper } from '../../contracts/styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { ITransaction } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import InterestChange from '../../contracts/containers/detail/InterestChange';
-import React from 'react';
-import RightMenu from './RightMenu';
-import TransactionForm from '../containers/TransactionForm';
-import TransactionRow from './TransactionRow';
-import { __ } from 'coreui/utils';
-import { can } from '@erxes/ui/src/utils/core';
+import { ContractsTableWrapper } from "../../contracts/styles";
+import Dropdown from "react-bootstrap/Dropdown";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { ITransaction } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InterestChange from "../../contracts/containers/detail/InterestChange";
+import React from "react";
+import RightMenu from "./RightMenu";
+import TransactionForm from "../containers/TransactionForm";
+import TransactionRow from "./TransactionRow";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
 // import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-import withConsumer from '../../withConsumer';
+import { menuContracts } from "../../constants";
+import withConsumer from "../../withConsumer";
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -42,7 +42,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeTransactions: (
     doc: { transactionIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
 
   onSearch: (search: string) => void;
@@ -75,7 +75,7 @@ const TransactionsList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(transactions, 'transactions');
+    toggleAll(transactions, "transactions");
   };
 
   const removeTransactionsHandler = (transactions) => {
@@ -96,30 +96,30 @@ const TransactionsList = (props: IProps) => {
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'contract.number'}
-                label={__('Contract Number')}
+                sortField={"contract.number"}
+                label={__("Contract Number")}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'contract.description'}
-                label={__('Description')}
+                sortField={"contract.description"}
+                label={__("Description")}
               />
             </th>
             <th>
-              <SortHandler sortField={'payDate'} label={__('Date')} />
+              <SortHandler sortField={"payDate"} label={__("Date")} />
             </th>
             <th>
-              <SortHandler sortField={'total'} label={__('Total')} />
+              <SortHandler sortField={"total"} label={__("Total")} />
             </th>
             <th>
-              <SortHandler sortField={'type'} label={__('Type')} />
+              <SortHandler sortField={"type"} label={__("Type")} />
             </th>
 
             <th></th>
@@ -154,9 +154,9 @@ const TransactionsList = (props: IProps) => {
 
     actionBarLeft = (
       <BarItems>
-        {can('transactionsRemove', currentUser) && (
+        {can("transactionsRemove", currentUser) && (
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
+            {__("Delete")}
           </Button>
         )}
       </BarItems>
@@ -193,11 +193,11 @@ const TransactionsList = (props: IProps) => {
 
   const actionBarRight = (
     <BarItems>
-      {can('manageTransactions', currentUser) && (
+      {can("manageTransactions", currentUser) && (
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="success" size="medium">
-              {__('New transaction')}
+              {__("New transaction")}
               <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
@@ -205,9 +205,9 @@ const TransactionsList = (props: IProps) => {
           <Dropdown.Menu>
             <li>
               <ModalTrigger
-                title={`${__('Income Transaction')}`}
+                title={`${__("Income Transaction")}`}
                 trigger={
-                  <a href="#Income Transaction">{__('Income Transaction')}</a>
+                  <a href="#Income Transaction">{__("Income Transaction")}</a>
                 }
                 size="lg"
                 content={incomeTransactionForm}
@@ -215,9 +215,9 @@ const TransactionsList = (props: IProps) => {
             </li>
             <li>
               <ModalTrigger
-                title={`${__('Outcome Transaction')}`}
+                title={`${__("Outcome Transaction")}`}
                 trigger={
-                  <a href="#Outcome Transaction">{__('Outcome Transaction')}</a>
+                  <a href="#Outcome Transaction">{__("Outcome Transaction")}</a>
                 }
                 size="lg"
                 content={outcomeTransactionForm}
@@ -225,16 +225,16 @@ const TransactionsList = (props: IProps) => {
             </li>
             <li>
               <ModalTrigger
-                title={`${__('Interest Change')}`}
-                trigger={<a href="#Interest Change">{__('Interest Change')}</a>}
+                title={`${__("Interest Change")}`}
+                trigger={<a href="#Interest Change">{__("Interest Change")}</a>}
                 size="lg"
                 content={interestChangeForm}
               />
             </li>
             <li>
               <ModalTrigger
-                title={`${__('Interest Return')}`}
-                trigger={<a href="#Interest Return">{__('Interest Return')}</a>}
+                title={`${__("Interest Return")}`}
+                trigger={<a href="#Interest Return">{__("Interest Return")}</a>}
                 size="lg"
                 content={interestReturnForm}
               />
@@ -258,7 +258,7 @@ const TransactionsList = (props: IProps) => {
           title={__(`Transactions`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

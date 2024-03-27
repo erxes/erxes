@@ -3,20 +3,20 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+} from "@erxes/ui/src/styles/eindex";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { ChangeAmount } from '../../styles';
-import { ICloseInfo, IContract, IContractDoc } from '../../types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from 'coreui/utils';
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import { ChangeAmount } from "../../styles";
+import { ICloseInfo, IContract, IContractDoc } from "../../types";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { __ } from "coreui/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -28,8 +28,8 @@ type Props = {
 };
 
 const CloseForm = (props: Props) => {
-  const [closeType, setCloseType] = useState('');
-  const [description, setDescription] = useState('');
+  const [closeType, setCloseType] = useState("");
+  const [description, setDescription] = useState("");
   const { contract = {} as IContract } = props;
 
   const generateDoc = (values: { _id: string } & IContractDoc) => {
@@ -50,10 +50,10 @@ const CloseForm = (props: Props) => {
   const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    if (name === 'closeType') {
+    if (name === "closeType") {
       setCloseType(value);
     }
-    if (name === 'description') {
+    if (name === "description") {
       setDescription(value);
     }
   };
@@ -77,12 +77,12 @@ const CloseForm = (props: Props) => {
   const renderCloseInfo = () => {
     return (
       <>
-        {renderRow('Total', 'total')}
-        {renderRow('Payment', 'payment')}
-        {renderRow('Interest', 'interest')}
-        {renderRow('Loss', 'undue')}
-        {renderRow('Insurance', 'insurance')}
-        {renderRow('Debt', 'debt')}
+        {renderRow("Total", "total")}
+        {renderRow("Payment", "payment")}
+        {renderRow("Interest", "interest")}
+        {renderRow("Loss", "undue")}
+        {renderRow("Insurance", "insurance")}
+        {renderRow("Debt", "debt")}
       </>
     );
   };
@@ -101,7 +101,7 @@ const CloseForm = (props: Props) => {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Close Date')}</ControlLabel>
+                <ControlLabel required={true}>{__("Close Date")}</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
@@ -116,21 +116,21 @@ const CloseForm = (props: Props) => {
             </FormColumn>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Close Type')}</ControlLabel>
+                <ControlLabel required={true}>{__("Close Type")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="closeType"
-                  componentClass="select"
+                  componentclass="select"
                   value={closeType}
                   required={true}
                   onChange={onChangeField}
                 >
-                  {['value0', 'changeCondition', 'cantPay'].map(
+                  {["value0", "changeCondition", "cantPay"].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {typeName}
                       </option>
-                    ),
+                    )
                   )}
                 </FormControl>
               </FormGroup>
@@ -139,13 +139,13 @@ const CloseForm = (props: Props) => {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
+                <ControlLabel>{__("Description")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
-                  value={description || ''}
+                  componentclass="textarea"
+                  value={description || ""}
                   onChange={onChangeField}
                 />
               </FormGroup>
@@ -157,11 +157,11 @@ const CloseForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: generateDoc(values),
             isSubmitted,
             object: props.contract,

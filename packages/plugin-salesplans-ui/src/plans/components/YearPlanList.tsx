@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import Row from './YearPlanRow';
-import Sidebar from './YearPlanSidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import React, { useState, useRef } from "react";
+import Row from "./YearPlanRow";
+import Sidebar from "./YearPlanSidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
@@ -10,18 +10,18 @@ import {
   Icon,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { IYearPlan } from '../types';
-import Form from '../containers/YearPlanForm';
-import { menuSalesplans, MONTHS } from '../../constants';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { TableWrapper } from '../../styles';
+} from "@erxes/ui/src/components";
+import { IYearPlan } from "../types";
+import Form from "../containers/YearPlanForm";
+import { menuSalesplans, MONTHS } from "../../constants";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import { TableWrapper } from "../../styles";
 import {
   FlexItem,
   FlexRow,
   InputBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 
 type Props = {
   yearPlans: IYearPlan[];
@@ -58,7 +58,7 @@ const YearPlanList = (props: Props) => {
     searchValue,
   } = props;
 
-  const [search, setSearch] = useState<string>(searchValue || '');
+  const [search, setSearch] = useState<string>(searchValue || "");
   const timerRef = useRef<number | null>(null);
 
   const handleSearch = (e) => {
@@ -70,7 +70,7 @@ const YearPlanList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue: value });
     }, 500);
   };
@@ -78,12 +78,12 @@ const YearPlanList = (props: Props) => {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const onChange = () => {
-    toggleAll(yearPlans, 'yearPlans');
+    toggleAll(yearPlans, "yearPlans");
   };
 
   const renderRow = () => {
@@ -144,7 +144,7 @@ const YearPlanList = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={searchValue}
               autoFocus={true}
@@ -171,33 +171,33 @@ const YearPlanList = (props: Props) => {
               <th style={{ width: 60 }} rowSpan={2}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
-              <th rowSpan={2}>{__('Year')}</th>
-              <th rowSpan={2}>{__('Branch')}</th>
-              <th rowSpan={2}>{__('Department')}</th>
-              <th rowSpan={2}>{__('Product')}</th>
-              <th>{__('Uom')}</th>
+              <th rowSpan={2}>{__("Year")}</th>
+              <th rowSpan={2}>{__("Branch")}</th>
+              <th rowSpan={2}>{__("Department")}</th>
+              <th rowSpan={2}>{__("Product")}</th>
+              <th>{__("Uom")}</th>
               {MONTHS.map((m) => (
                 <th key={m}>{m}</th>
               ))}
-              <th>{__('Sum')}</th>
-              <th>{__('')}</th>
+              <th>{__("Sum")}</th>
+              <th>{__("")}</th>
             </tr>
             <tr>
-              <th>{__('Sum')}:</th>
+              <th>{__("Sum")}:</th>
               {MONTHS.map((m) => (
                 <th key={m}>{totalSum[m]}</th>
               ))}
               <th>
                 {Object.values(totalSum).reduce(
                   (sum, i) => Number(sum) + Number(i),
-                  0,
+                  0
                 )}
               </th>
-              <th>{__('')}</th>
+              <th>{__("")}</th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
@@ -210,13 +210,13 @@ const YearPlanList = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Sales Year plans')}
+          title={__("Sales Year plans")}
           submenu={menuSalesplans}
         />
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Sales Year plans')}</Title>}
+          left={<Title>{__("Sales Year plans")}</Title>}
           right={actionBarRight()}
         />
       }

@@ -2,28 +2,28 @@ import {
   FilterItem,
   FilterWrapper,
   NotWrappable,
-} from '@erxes/ui-settings/src/permissions/styles';
-import { IActions, IModule, IPermissionDocument } from '../types';
-import { __, router } from 'modules/common/utils';
-import { correctValue, generatedList } from './utils';
+} from "@erxes/ui-settings/src/permissions/styles";
+import { IActions, IModule, IPermissionDocument } from "../types";
+import { __, router } from "modules/common/utils";
+import { correctValue, generatedList } from "./utils";
 
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { FormControl } from 'modules/common/components/form';
-import GroupList from '../containers/GroupList';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import PermissionFixer from './PermissionFixer';
-import PermissionForm from './PermissionForm';
-import PermissionRow from './PermissionRow';
-import React from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Table from 'modules/common/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from 'modules/layout/components/Wrapper';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import { FormControl } from "modules/common/components/form";
+import GroupList from "../containers/GroupList";
+import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import PermissionFixer from "./PermissionFixer";
+import PermissionForm from "./PermissionForm";
+import PermissionRow from "./PermissionRow";
+import React from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Table from "modules/common/components/table";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "modules/layout/components/Wrapper";
 // import Select from 'react-select-plus';
-import { isObject } from 'util';
+import { isObject } from "util";
 
 type Props = {
   history: any;
@@ -77,18 +77,18 @@ class PermissionList extends React.Component<Props> {
     const { queryParams } = this.props;
 
     const usersOnChange = (users) => {
-      this.setFilter('userId', users);
+      this.setFilter("userId", users);
     };
 
     const allowedOnChange = (e) => {
-      this.setFilter('allowed', {
-        value: e.target.checked ? 'allowed' : 'notAllowed',
+      this.setFilter("allowed", {
+        value: e.target.checked ? "allowed" : "notAllowed",
       });
     };
 
     return (
       <FilterWrapper>
-        <strong>{__('Filters')}:</strong>
+        <strong>{__("Filters")}:</strong>
         <FilterItem id="permission-choose-module">
           {/* <Select
             placeholder={__('Choose module')}
@@ -108,7 +108,7 @@ class PermissionList extends React.Component<Props> {
         </FilterItem>
         <FilterItem id="permission-choose-users">
           <SelectTeamMembers
-            label={__('Choose users')}
+            label={__("Choose users")}
             name="userId"
             initialValue={queryParams.userId}
             onSelect={usersOnChange}
@@ -117,10 +117,10 @@ class PermissionList extends React.Component<Props> {
         </FilterItem>
 
         <div>
-          <strong>{__('Granted')}:</strong>
+          <strong>{__("Granted")}:</strong>
           <FormControl
-            componentClass="checkbox"
-            defaultChecked={queryParams.allowed !== 'notAllowed'}
+            componentclass="checkbox"
+            defaultChecked={queryParams.allowed !== "notAllowed"}
             id="allowed"
             onChange={allowedOnChange}
           />
@@ -134,12 +134,12 @@ class PermissionList extends React.Component<Props> {
       <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
-            <th>{__('Module')}</th>
-            <th>{__('Action')}</th>
-            <th>{__('Email')}</th>
-            <th>{__('Group')}</th>
-            <th>{__('Allow')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Module")}</th>
+            <th>{__("Action")}</th>
+            <th>{__("Email")}</th>
+            <th>{__("Group")}</th>
+            <th>{__("Allow")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -188,7 +188,7 @@ class PermissionList extends React.Component<Props> {
     );
 
     const title = (
-      <Title>{this.props.currentGroupName || __('All permissions')}</Title>
+      <Title>{this.props.currentGroupName || __("All permissions")}</Title>
     );
 
     const actionBarRight = (
@@ -226,7 +226,7 @@ class PermissionList extends React.Component<Props> {
           data={this.renderData()}
           loading={isLoading}
           count={totalCount}
-          emptyText={__('There is no permissions in this group')}
+          emptyText={__("There is no permissions in this group")}
           emptyImage="/images/actions/11.svg"
         />
       </>
@@ -237,15 +237,15 @@ class PermissionList extends React.Component<Props> {
     const { totalCount, queryParams } = this.props;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: __('Permissions') },
+      { title: "Settings", link: "/settings" },
+      { title: __("Permissions") },
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Permissions')}
+            title={__("Permissions")}
             queryParams={queryParams}
             breadcrumb={breadcrumb}
             filterTitle={this.props.currentGroupName}

@@ -1,13 +1,14 @@
 import {
   FormControl,
-  TextInfo,
+  Icon,
   ModalTrigger,
-  Icon
-} from '@erxes/ui/src/components';
-import React from 'react';
-import Form from '../containers/Form';
-import { ISpinCampaign } from '../types';
-import { Link } from 'react-router-dom';
+  TextInfo,
+} from "@erxes/ui/src/components";
+
+import Form from "../containers/Form";
+import { ISpinCampaign } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
 
 type Props = {
   spinCampaign: ISpinCampaign;
@@ -17,12 +18,12 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  modalContent = props => {
+  modalContent = (props) => {
     const { spinCampaign } = this.props;
 
     const updatedProps = {
       ...props,
-      spinCampaign
+      spinCampaign,
     };
 
     return <Form {...updatedProps} />;
@@ -31,31 +32,25 @@ class Row extends React.Component<Props> {
   render() {
     const { spinCampaign, history, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(spinCampaign, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
-    const {
-      _id,
-      title,
-      startDate,
-      endDate,
-      finishDateOfUse,
-      status
-    } = spinCampaign;
+    const { _id, title, startDate, endDate, finishDateOfUse, status } =
+      spinCampaign;
 
     const trigger = (
       <tr key={_id}>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -76,7 +71,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        size={'lg'}
+        size={"lg"}
         title="Edit spin campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"

@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import { __ } from '@erxes/ui/src/utils';
+import React, { useState } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ITimeframe, ITimeProportion } from '../../types';
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ITimeframe, ITimeProportion } from "../../types";
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
+} from "@erxes/ui/src/styles/eindex";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 type Props = {
   timeProportion: ITimeProportion;
@@ -29,7 +29,7 @@ const TimesEditForm = (props: Props) => {
   const { timeframes, timeProportion, renderButton, closeModal } = props;
 
   const [timesProportion, setTimesProportion] = useState<ITimeProportion>(
-    timeProportion || {},
+    timeProportion || {}
   );
 
   const [sumPercent, setSumPercent] = useState<number>(
@@ -37,7 +37,7 @@ const TimesEditForm = (props: Props) => {
       ? (timeProportion.percents || [])
           .map((tf) => tf?.percent || 0)
           .reduce((sum, per) => sum + per, 0)
-      : 0,
+      : 0
   );
 
   const generateDoc = (values: { _id?: string }) => {
@@ -60,7 +60,7 @@ const TimesEditForm = (props: Props) => {
 
       setTimesProportion((prevTimeProportion) => {
         const updatedPercents = (prevTimeProportion.percents || []).map((p) =>
-          p.timeId === percent.timeId ? { ...p, percent: value } : p,
+          p.timeId === percent.timeId ? { ...p, percent: value } : p
         );
 
         const newTimeProportion = {
@@ -72,7 +72,7 @@ const TimesEditForm = (props: Props) => {
         setSumPercent(
           pers && pers.length
             ? pers.map((tf) => tf.percent).reduce((sum, per) => sum + per)
-            : 0,
+            : 0
         );
 
         return newTimeProportion;
@@ -93,7 +93,7 @@ const TimesEditForm = (props: Props) => {
         <FlexItem>
           <FormControl
             type="number"
-            componentClass="number"
+            componentclass="number"
             min={0}
             max={100}
             id={`${percent._id}`}
@@ -143,8 +143,8 @@ const TimesEditForm = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="branchId"
-            initialValue={timesProportion?.branchId || ''}
-            onSelect={(branchIds) => onSelectChange('branchIds', branchIds)}
+            initialValue={timesProportion?.branchId || ""}
+            onSelect={(branchIds) => onSelectChange("branchIds", branchIds)}
             multi={false}
           />
         </FormGroup>
@@ -153,9 +153,9 @@ const TimesEditForm = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="departmentId"
-            initialValue={timesProportion?.departmentId || ''}
+            initialValue={timesProportion?.departmentId || ""}
             onSelect={(departmentIds) =>
-              onSelectChange('departmentIds', departmentIds)
+              onSelectChange("departmentIds", departmentIds)
             }
             multi={false}
           />
@@ -165,9 +165,9 @@ const TimesEditForm = (props: Props) => {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={timesProportion?.productCategoryId || ''}
+            initialValue={timesProportion?.productCategoryId || ""}
             onSelect={(categoryId) =>
-              onSelectChange('productCategoryId', categoryId)
+              onSelectChange("productCategoryId", categoryId)
             }
             multi={false}
           />

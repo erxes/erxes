@@ -1,10 +1,10 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IAsset } from '../../../../common/types';
-import { KbArticlesContainer, KbCategories } from '../../../../style';
-import { ControlLabel, EmptyState, FormControl } from '@erxes/ui/src';
-import { ContainerBox } from '../../../../style';
-import Article from './Article';
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { IAsset } from "../../../../common/types";
+import { KbArticlesContainer, KbCategories } from "../../../../style";
+import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
+import { ContainerBox } from "../../../../style";
+import Article from "./Article";
 
 type Props = {
   objects?: IAsset[];
@@ -40,7 +40,7 @@ const Category = (props: Props) => {
   const handleCategorySelect = () => {
     if (categoriesToShow.includes(category._id)) {
       const updateCategoryIds = categoriesToShow.filter(
-        (id) => id !== category._id,
+        (id) => id !== category._id
       );
       return setCategoriesToShow(updateCategoryIds);
     }
@@ -51,7 +51,7 @@ const Category = (props: Props) => {
   const handleAllArticlesSelect = () => {
     if (articleIds.every((articleId) => selectedArticles.includes(articleId))) {
       const updatedSelectedArticleIds = selectedArticles.filter(
-        (articleId) => !articleIds.includes(articleId),
+        (articleId) => !articleIds.includes(articleId)
       );
       return setSelectedArticles(updatedSelectedArticleIds);
     }
@@ -60,7 +60,7 @@ const Category = (props: Props) => {
 
   const renderArticles = () => {
     const articles = loadedArticles.filter(
-      (article) => article.categoryId === category._id,
+      (article) => article.categoryId === category._id
     );
 
     if (!articles?.length) {
@@ -91,7 +91,7 @@ const Category = (props: Props) => {
         <ContainerBox spaceBetween={true} align="center">
           <ContainerBox gap={5} align="center">
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={() => handleAllArticlesSelect()}
               checked={checked}
             />

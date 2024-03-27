@@ -8,16 +8,16 @@ import {
   Table,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import HeaderDescription from './MainHead';
-import React from 'react';
-import RightMenu from './RightMenu';
-import { TableWrapper } from '../../styles';
+import HeaderDescription from "./MainHead";
+import React from "react";
+import RightMenu from "./RightMenu";
+import { TableWrapper } from "../../styles";
 // import { withRouter } from 'react-router-dom';
-import { menuPos } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { menuPos } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   history: any;
@@ -44,11 +44,11 @@ const Summary = (props: Props) => {
   } = props;
 
   const { amounts, columns } = summary;
-  const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+  const staticKeys = ["count", "totalAmount", "cashAmount", "mobileAmount"];
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -67,7 +67,7 @@ const Summary = (props: Props) => {
         <ControlLabel>Group Type:</ControlLabel>
         <FormControl
           value={queryParams.groupField}
-          componentClass="select"
+          componentclass="select"
           onChange={(e) => onFilter({ groupField: (e.target as any).value })}
         >
           <option value="">Undefined</option>
@@ -79,14 +79,14 @@ const Summary = (props: Props) => {
       </BarItems>
     );
 
-    const actionBarLeft = <Title>{__('Pos Summary')}</Title>;
+    const actionBarLeft = <Title>{__("Pos Summary")}</Title>;
 
     return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
   };
 
   const renderContent = () => {
     const otherPayTitles = (columns ? Object.keys(columns) || [] : [])
-      .filter((a) => !['_id'].includes(a))
+      .filter((a) => !["_id"].includes(a))
       .filter((a) => !staticKeys.includes(a))
       .sort();
 
@@ -96,22 +96,22 @@ const Summary = (props: Props) => {
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={''} label={__('Group')} />
+                <SortHandler sortField={""} label={__("Group")} />
               </th>
               <th>
-                <SortHandler sortField={''} label={__('Count')} />
+                <SortHandler sortField={""} label={__("Count")} />
               </th>
               <th>
-                <SortHandler sortField={''} label={__('Cash Amount')} />
+                <SortHandler sortField={""} label={__("Cash Amount")} />
               </th>
               <th>
-                <SortHandler sortField={''} label={__('Mobile Amount')} />
+                <SortHandler sortField={""} label={__("Mobile Amount")} />
               </th>
               {otherPayTitles.map((key) => (
                 <th key={Math.random()}>{__(key)}</th>
               ))}
               <th>
-                <SortHandler sortField={''} label={__('Amount')} />
+                <SortHandler sortField={""} label={__("Amount")} />
               </th>
             </tr>
           </thead>

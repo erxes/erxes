@@ -9,19 +9,19 @@ import {
   Wrapper,
   __,
   confirm,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 import {
   default as GoalForm,
   default as GoalTypeForm,
-} from '../containers/goalForm';
+} from "../containers/goalForm";
 
-import GoalRow from './goalRow';
-import { GoalTypesTableWrapper } from '../styles';
-import { IGoalType } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Sidebar from './Sidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
+import GoalRow from "./goalRow";
+import { GoalTypesTableWrapper } from "../styles";
+import { IGoalType } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   goalTypes: IGoalType[];
@@ -55,7 +55,7 @@ const goalTypesList = (props: Props) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(goalTypes, 'goalTypes');
+    toggleAll(goalTypes, "goalTypes");
   };
 
   const handleRemove = () => {
@@ -81,21 +81,21 @@ const goalTypesList = (props: Props) => {
     if (bulk.length > 0) {
       return (
         <Button btnStyle="danger" icon="cancel-1" onClick={handleRemove}>
-          {__('Delete')}
+          {__("Delete")}
         </Button>
       );
     }
 
     const addTrigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add Goal')}
+        {__("Add Goal")}
       </Button>
     );
 
     return (
       <ModalTrigger
         size="lg"
-        title={__('New Goal')}
+        title={__("New Goal")}
         trigger={addTrigger}
         autoOpenKey="showGoalTypeModal"
         content={renderForm}
@@ -121,23 +121,23 @@ const goalTypesList = (props: Props) => {
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
-              <th>{__('entity ')}</th>
-              <th>{__('boardName ')}</th>
-              <th>{__('pipelineName ')}</th>
-              <th>{__('stageName ')}</th>
-              <th>{__('contributionType')}</th>
-              <th>{__('metric')}</th>
-              <th>{__('goalTypeChoose')}</th>
-              <th>{__('startDate')}</th>
-              <th>{__('endDate')}</th>
-              <th>{__('current')}</th>
-              <th>{__('target')}</th>
-              <th>{__('progress(%)')}</th>
-              <th>{__('Action')}</th>
+              <th>{__("entity ")}</th>
+              <th>{__("boardName ")}</th>
+              <th>{__("pipelineName ")}</th>
+              <th>{__("stageName ")}</th>
+              <th>{__("contributionType")}</th>
+              <th>{__("metric")}</th>
+              <th>{__("goalTypeChoose")}</th>
+              <th>{__("startDate")}</th>
+              <th>{__("endDate")}</th>
+              <th>{__("current")}</th>
+              <th>{__("target")}</th>
+              <th>{__("progress(%)")}</th>
+              <th>{__("Action")}</th>
             </tr>
           </thead>
           <tbody id="goalTypes">
@@ -163,8 +163,8 @@ const goalTypesList = (props: Props) => {
           title={__(`GoalTypes`) + ` (${totalCount})`}
           queryParams={queryParams}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Goal') },
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Goal") },
           ]}
         />
       }

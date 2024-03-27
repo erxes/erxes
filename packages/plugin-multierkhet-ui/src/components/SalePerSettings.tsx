@@ -5,21 +5,22 @@ import {
   FormControl,
   FormGroup,
   Tip,
-} from '@erxes/ui/src/components';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import Select from 'react-select-plus';
-import React, { useState, useEffect } from 'react';
-import { IConfigsMap } from '../types';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { GroupWrapper } from '@erxes/ui-segments/src/styles';
+} from "@erxes/ui/src/components";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import React, { useEffect, useState } from "react";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { GroupWrapper } from "@erxes/ui-segments/src/styles";
+import { IConfigsMap } from "../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import Select from "react-select-plus";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -33,17 +34,17 @@ const PerSettings = (props: Props) => {
   const [config, setConfig] = useState(props.config);
   const [brandRules, setBrandRules] = useState(props.config.brandRules || {});
   const [fieldsCombined, setFieldsCombined] = useState(
-    [] as FieldsCombinedByType[],
+    [] as FieldsCombinedByType[]
   );
   const { configsMap, currentConfigKey } = props;
 
   useEffect(() => {
-    if (isEnabled('forms')) {
+    if (isEnabled("forms")) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal',
+            contentType: "cards:deal",
           },
         })
         .then(({ data }) => {
@@ -93,21 +94,21 @@ const PerSettings = (props: Props) => {
   };
 
   const onresponseCustomFieldChange = (option) => {
-    const value = !option ? '' : option.value.toString();
-    onChangeConfig('responseField', value);
+    const value = !option ? "" : option.value.toString();
+    onChangeConfig("responseField", value);
   };
 
   const renderCheckbox = (
     key: string,
     title?: string,
-    description?: string,
+    description?: string
   ) => {
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           checked={config[key]}
           onChange={onChangeCheckbox.bind(this, key)}
         />
@@ -119,12 +120,12 @@ const PerSettings = (props: Props) => {
     setBrandRules({
       ...brandRules,
       newBrand: {
-        brandId: '',
-        userEmail: '',
+        brandId: "",
+        userEmail: "",
         hasPayment: true,
         hasVat: false,
         hasCitytax: false,
-        defaultPay: 'debtAmount',
+        defaultPay: "debtAmount",
       },
     });
   };
@@ -139,7 +140,7 @@ const PerSettings = (props: Props) => {
     setBrandRules((prevBrandRules) => {
       const newBrandRules = { ...prevBrandRules };
 
-      if (key === 'brandId') {
+      if (key === "brandId") {
         delete newBrandRules.newBrand;
       }
       if (brandId !== test) {
@@ -159,14 +160,14 @@ const PerSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>Brand</ControlLabel>
             <SelectBrands
-              label={__('Choose brands')}
+              label={__("Choose brands")}
               initialValue={brandRules[key].brandId}
               name="brandId"
               customOption={{
-                label: 'No Brand (noBrand)',
-                value: 'noBrand',
+                label: "No Brand (noBrand)",
+                value: "noBrand",
               }}
-              onSelect={(brand) => updateConfig(brand, 'brandId', brand, key)}
+              onSelect={(brand) => updateConfig(brand, "brandId", brand, key)}
               multi={false}
             />
           </FormGroup>
@@ -177,7 +178,7 @@ const PerSettings = (props: Props) => {
                 <FormControl
                   value={brandRules[key].userEmail}
                   onChange={(e) =>
-                    updateConfig(key, 'userEmail', (e.target as any).value)
+                    updateConfig(key, "userEmail", (e.target as any).value)
                   }
                   required={true}
                 />
@@ -185,10 +186,10 @@ const PerSettings = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Has Vat</ControlLabel>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={brandRules[key].hasVat}
                   onChange={(e) =>
-                    updateConfig(key, 'hasVat', (e.target as any).checked)
+                    updateConfig(key, "hasVat", (e.target as any).checked)
                   }
                 />
               </FormGroup>
@@ -199,30 +200,30 @@ const PerSettings = (props: Props) => {
                 <Select
                   value={brandRules[key].defaultPay}
                   onChange={(option) =>
-                    updateConfig(key, 'defaultPay', option.value)
+                    updateConfig(key, "defaultPay", option.value)
                   }
                   clearable={false}
                   required={true}
                   options={[
-                    { value: 'debtAmount', label: 'debtAmount' },
-                    { value: 'cashAmount', label: 'cashAmount' },
-                    { value: 'cardAmount', label: 'cardAmount' },
+                    { value: "debtAmount", label: "debtAmount" },
+                    { value: "cashAmount", label: "cashAmount" },
+                    { value: "cardAmount", label: "cardAmount" },
                   ]}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Has Citytax</ControlLabel>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={brandRules[key].hasCitytax}
                   onChange={(e) =>
-                    updateConfig(key, 'hasCitytax', (e.target as any).checked)
+                    updateConfig(key, "hasCitytax", (e.target as any).checked)
                   }
                 />
               </FormGroup>
             </FormColumn>
           </FormWrapper>
-          <Tip text={'Delete'}>
+          <Tip text={"Delete"}>
             <Button
               btnStyle="simple"
               size="small"
@@ -238,15 +239,15 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newStageInSaleConfig' ? true : false}
+      open={props.currentConfigKey === "newStageInSaleConfig" ? true : false}
     >
       <FormWrapper>
         <FormColumn>
           <FormGroup>
-            <ControlLabel>{'Title'}</ControlLabel>
+            <ControlLabel>{"Title"}</ControlLabel>
             <FormControl
-              defaultValue={config['title']}
-              onChange={onChangeInput.bind(this, 'title')}
+              defaultValue={config["title"]}
+              onChange={onChangeInput.bind(this, "title")}
               required={true}
               autoFocus={true}
             />
@@ -263,9 +264,9 @@ const PerSettings = (props: Props) => {
               onChangeStage={onChangeStage}
             />
           </FormGroup>
-          {renderCheckbox('hasPayment', 'has Payment')}
+          {renderCheckbox("hasPayment", "has Payment")}
           <FormGroup>
-            <ControlLabel>{__('Choose response field')}</ControlLabel>
+            <ControlLabel>{__("Choose response field")}</ControlLabel>
             <Select
               name="responseField"
               value={config.responseField}

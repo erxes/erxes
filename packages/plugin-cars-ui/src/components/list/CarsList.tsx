@@ -10,23 +10,23 @@ import {
   Table,
   Wrapper,
   Icon,
-} from '@erxes/ui/src';
-import { isEnabled, router } from '@erxes/ui/src/utils/core';
-import React, { useState, useRef } from 'react';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import CarForm from '../../containers/CarForm';
-import CarRow from './CarRow';
-import CarsMerge from '../detail/CarsMerge';
-import { CarsTableWrapper } from '../../styles';
-import { ICar } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Sidebar from './Sidebar';
+} from "@erxes/ui/src";
+import { isEnabled, router } from "@erxes/ui/src/utils/core";
+import React, { useState, useRef } from "react";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import CarForm from "../../containers/CarForm";
+import CarRow from "./CarRow";
+import CarsMerge from "../detail/CarsMerge";
+import { CarsTableWrapper } from "../../styles";
+import { ICar } from "../../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import Sidebar from "./Sidebar";
 import {
   FlexItem,
   FlexRow,
   InputBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 
 type Props = {
   cars: ICar[];
@@ -62,11 +62,11 @@ const CarsList = (props: Props) => {
     queryParams,
   } = props;
 
-  const [search, setSearch] = useState<string>(searchValue || '');
+  const [search, setSearch] = useState<string>(searchValue || "");
   const timerRef = useRef<number | null>(null);
 
   const onChange = () => {
-    toggleAll(cars, 'cars');
+    toggleAll(cars, "cars");
   };
 
   const handleSearch = (e) => {
@@ -78,7 +78,7 @@ const CarsList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue: value });
     }, 500);
   };
@@ -95,7 +95,7 @@ const CarsList = (props: Props) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -147,13 +147,13 @@ const CarsList = (props: Props) => {
             />
           )}
 
-          {isEnabled('tags') && (
+          {isEnabled("tags") && (
             <TaggerPopover
-              type={'cars:car'}
+              type={"cars:car"}
               successCallback={emptyBulk}
               targets={bulk}
               trigger={tagButton}
-              refetchQueries={['productCountByTags']}
+              refetchQueries={["productCountByTags"]}
             />
           )}
 
@@ -171,7 +171,7 @@ const CarsList = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={search}
               autoFocus={true}
@@ -209,35 +209,35 @@ const CarsList = (props: Props) => {
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'plateNumber'}
-                  label={__('Plate Number')}
+                  sortField={"plateNumber"}
+                  label={__("Plate Number")}
                 />
               </th>
               <th>
-                <SortHandler sortField={'vinNumber'} label={__('Vin Number')} />
+                <SortHandler sortField={"vinNumber"} label={__("Vin Number")} />
               </th>
               <th>
                 <SortHandler
-                  sortField={'vintageYear'}
-                  label={__('Vintage Year')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'importYear'}
-                  label={__('Import Year')}
+                  sortField={"vintageYear"}
+                  label={__("Vintage Year")}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'description'}
-                  label={__('Description')}
+                  sortField={"importYear"}
+                  label={__("Import Year")}
+                />
+              </th>
+              <th>
+                <SortHandler
+                  sortField={"description"}
+                  label={__("Description")}
                 />
               </th>
             </tr>
@@ -264,7 +264,7 @@ const CarsList = (props: Props) => {
         <Wrapper.Header
           title={__(`Cars`)}
           queryParams={queryParams}
-          breadcrumb={[{ title: 'Cars' }]}
+          breadcrumb={[{ title: "Cars" }]}
         />
       }
       actionBar={renderActionBar()}

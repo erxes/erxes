@@ -1,8 +1,8 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import React, { useState, useEffect } from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { FormControl } from '@erxes/ui/src/components';
-import { IReserveRem } from '../types';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import React, { useState, useEffect } from "react";
+import { __ } from "@erxes/ui/src/utils";
+import { FormControl } from "@erxes/ui/src/components";
+import { IReserveRem } from "../types";
 
 type Props = {
   reserveRem: IReserveRem;
@@ -55,18 +55,18 @@ const Row: React.FC<Props> = (props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
-      <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-      <td>{uom || ''}</td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ""}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ""}</td>
+      <td>{product ? `${product.code} - ${product.name}` : ""}</td>
+      <td>{uom || ""}</td>
       <td>
         <FormControl
           type="number"
-          name={'remainder'}
+          name={"remainder"}
           defaultValue={reserveRem.remainder || 0}
           onChange={onChangeValue}
         />

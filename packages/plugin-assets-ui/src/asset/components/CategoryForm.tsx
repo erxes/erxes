@@ -1,20 +1,20 @@
-import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
-import { FormColumn } from '@erxes/ui/src/styles/main';
-import { FormWrapper } from '@erxes/ui/src/styles/main';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IFormProps } from '@erxes/ui/src/types';
-import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import React, { useState, useEffect } from 'react';
+import { CommonFormGroup, SelectWithAssetCategory } from "../../common/utils";
+import { FormColumn } from "@erxes/ui/src/styles/main";
+import { FormWrapper } from "@erxes/ui/src/styles/main";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IAssetCategory, IAssetCategoryTypes } from "../../common/types";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IFormProps } from "@erxes/ui/src/types";
+import { ASSET_CATEGORY_STATUSES } from "../../common/constant";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import React, { useState, useEffect } from "react";
 // import Select from 'react-select-plus';
-import { extractAttachment } from '@erxes/ui/src/utils/core';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils';
+import { extractAttachment } from "@erxes/ui/src/utils/core";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Button from "@erxes/ui/src/components/Button";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -27,15 +27,15 @@ const CategoryForm = (props: Props) => {
   const { renderButton, closeModal, category } = props;
 
   const [attachment, setAttachment] = useState<IAttachment | undefined>(
-    undefined,
+    undefined
   );
-  const [status, setStatus] = useState<string>('');
-  const [parentId, setParentId] = useState<string>('');
+  const [status, setStatus] = useState<string>("");
+  const [parentId, setParentId] = useState<string>("");
 
   useEffect(() => {
     if (category) {
-      setStatus(category.status || '');
-      setParentId(category.parentId || '');
+      setStatus(category.status || "");
+      setParentId(category.parentId || "");
     }
   }, []);
 
@@ -86,7 +86,7 @@ const CategoryForm = (props: Props) => {
           <FormControl
             name="description"
             {...formProps}
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={object.description}
           />
         </CommonFormGroup>
@@ -112,7 +112,7 @@ const CategoryForm = (props: Props) => {
                 multi={false}
                 initialValue={object.parentId}
                 onSelect={(value) => setParentId(value as string)}
-                customOption={{ value: '', label: 'Choose Asset Category' }}
+                customOption={{ value: "", label: "Choose Asset Category" }}
                 {...formProps}
               />
             </CommonFormGroup>
@@ -134,7 +134,7 @@ const CategoryForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            text: 'Asset Category',
+            text: "Asset Category",
             values: generateDocs(values),
             isSubmitted,
             callback: closeModal,

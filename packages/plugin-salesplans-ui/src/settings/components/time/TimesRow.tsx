@@ -1,7 +1,7 @@
-import Form from '../../containers/time/TimesEditForm';
-import React from 'react';
-import { ITimeProportion } from '../../types';
-import { FormControl, TextInfo, ModalTrigger } from '@erxes/ui/src/components';
+import Form from "../../containers/time/TimesEditForm";
+import React from "react";
+import { ITimeProportion } from "../../types";
+import { FormControl, TextInfo, ModalTrigger } from "@erxes/ui/src/components";
 
 type Props = {
   timeProportion: ITimeProportion;
@@ -39,16 +39,16 @@ const Row = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ""}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ""}</td>
       <td>
         {productCategory
           ? `${productCategory.code} - ${productCategory.name}`
-          : ''}
+          : ""}
       </td>
       <td>{(percents || []).map((p) => `${p.percent},`)}</td>
     </tr>

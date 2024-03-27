@@ -1,12 +1,13 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useState, useRef } from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { FormControl } from '@erxes/ui/src/components';
-import { IPlanValues, IYearPlan } from '../types';
-import { MONTHS } from '../../constants';
+import { IPlanValues, IYearPlan } from "../types";
+import React, { useRef, useState } from "react";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import { FormControl } from "@erxes/ui/src/components";
+import Icon from "@erxes/ui/src/components/Icon";
+import { MONTHS } from "../../constants";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   yearPlan: IYearPlan;
@@ -55,15 +56,15 @@ const YearPlanRow = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>{year}</td>
-      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
-      <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-      <td>{uom || ''}</td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ""}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ""}</td>
+      <td>{product ? `${product.code} - ${product.name}` : ""}</td>
+      <td>{uom || ""}</td>
       {MONTHS.map((m) => (
         <td key={m}>
           <FormControl
@@ -79,7 +80,7 @@ const YearPlanRow = (props: Props) => {
       </td>
       <td>
         <ActionButtons>
-          <Tip text={__('Text')} placement="bottom">
+          <Tip text={__("Text")} placement="bottom">
             <Button id="action-button" btnStyle="link">
               <Icon icon="pen-1" />
             </Button>

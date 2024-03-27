@@ -1,13 +1,13 @@
-import { Counts, IButtonMutateProps } from '@erxes/ui/src/types';
-import { CustomerCounts, RadioContainer } from '@erxes/ui-engage/src/styles';
+import { Counts, IButtonMutateProps } from "@erxes/ui/src/types";
+import { CustomerCounts, RadioContainer } from "@erxes/ui-engage/src/styles";
 
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ISegmentDoc } from '@erxes/ui-segments/src/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Targets from '../Targets';
-import { __ } from 'coreui/utils';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ISegmentDoc } from "@erxes/ui-segments/src/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Targets from "../Targets";
+import { __ } from "coreui/utils";
 
 type Props<Target, OnSubmit> = {
   name: string;
@@ -80,7 +80,7 @@ class Common<Target, OnSubmit> extends React.Component<
       <CustomerCounts>
         <Icon icon="users" size={50} />
         <p>
-          {this.props.customersCount(targetIds)} {__('customers')}
+          {this.props.customersCount(targetIds)} {__("customers")}
         </p>
       </CustomerCounts>
     );
@@ -101,7 +101,7 @@ class Common<Target, OnSubmit> extends React.Component<
         name={label}
         onChange={this.toggleForm}
         value={this.state.show}
-        componentClass="radio"
+        componentclass="radio"
       >
         {title}
       </FormControl>

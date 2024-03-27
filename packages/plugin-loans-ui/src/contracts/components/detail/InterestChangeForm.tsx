@@ -3,26 +3,26 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+} from "@erxes/ui/src/styles/eindex";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { ChangeAmount } from '../../styles';
-import { ICloseInfo, IContract, IContractDoc } from '../../types';
-import { __ } from 'coreui/utils';
-import SelectContracts from '../common/SelectContract';
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import { ChangeAmount } from "../../styles";
+import { ICloseInfo, IContract, IContractDoc } from "../../types";
+import { __ } from "coreui/utils";
+import SelectContracts from "../common/SelectContract";
 
-import dayjs from 'dayjs';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../../../transactions/graphql';
+import dayjs from "dayjs";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries } from "../../../transactions/graphql";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,8 +35,8 @@ type Props = {
 };
 
 const InterestChangeForm = (props: Props) => {
-  const [type, setType] = useState(props.type || 'stopInterest');
-  const [description, setDescription] = useState('');
+  const [type, setType] = useState(props.type || "stopInterest");
+  const [description, setDescription] = useState("");
   const [interestAmount, setInterestAmount] = useState(0);
   const [contractId, setContractId] = useState(undefined as any);
   const [paymentInfo, setPaymentInfo] = useState(undefined as any);
@@ -53,9 +53,9 @@ const InterestChangeForm = (props: Props) => {
       contractId: finalValues._id,
       paymentInfo,
       interestAmount: Number(
-        type === 'stopInterest'
+        type === "stopInterest"
           ? props.closeInfo.storedInterest
-          : interestAmount,
+          : interestAmount
       ),
       description,
       invDate: props.invDate,
@@ -66,16 +66,16 @@ const InterestChangeForm = (props: Props) => {
   const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    if (name === 'type') {
+    if (name === "type") {
       setType(value as any);
     }
-    if (name === 'contractId') {
+    if (name === "contractId") {
       setContractId(value as any);
     }
-    if (name === 'interestAmount') {
+    if (name === "interestAmount") {
       setInterestAmount(value as any);
     }
-    if (name === 'description') {
+    if (name === "description") {
       setDescription(value as any);
     }
   };
@@ -99,9 +99,9 @@ const InterestChangeForm = (props: Props) => {
   const renderCloseInfo = () => {
     return (
       <>
-        {renderRow('Payment', 'payment')}
-        {renderRow('Interest', 'storedInterest')}
-        {renderRow('Loss', 'undue')}
+        {renderRow("Payment", "payment")}
+        {renderRow("Interest", "storedInterest")}
+        {renderRow("Loss", "undue")}
       </>
     );
   };
@@ -116,7 +116,7 @@ const InterestChangeForm = (props: Props) => {
 
     const getPaymentInfo = (
       contractId,
-      payDate: any = dayjs().locale('en').format('MMM, D YYYY'),
+      payDate: any = dayjs().locale("en").format("MMM, D YYYY")
     ) => {
       client
         .mutate({
@@ -134,7 +134,7 @@ const InterestChangeForm = (props: Props) => {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Change Date')}</ControlLabel>
+                <ControlLabel required={true}>{__("Change Date")}</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
@@ -151,22 +151,22 @@ const InterestChangeForm = (props: Props) => {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>
-                    {__('Change Type')}
+                    {__("Change Type")}
                   </ControlLabel>
                   <FormControl
                     {...formProps}
                     name="type"
-                    componentClass="select"
+                    componentclass="select"
                     value={type}
                     required={true}
                     onChange={onChangeField}
                   >
-                    {['stopInterest', 'interestChange', 'interestReturn'].map(
+                    {["stopInterest", "interestChange", "interestReturn"].map(
                       (typeName, index) => (
                         <option key={index} value={typeName}>
                           {typeName}
                         </option>
-                      ),
+                      )
                     )}
                   </FormControl>
                 </FormGroup>
@@ -175,9 +175,9 @@ const InterestChangeForm = (props: Props) => {
             {props.type && (
               <FormColumn>
                 <FormGroup>
-                  <ControlLabel>{__('Contract')}</ControlLabel>
+                  <ControlLabel>{__("Contract")}</ControlLabel>
                   <SelectContracts
-                    label={__('Choose an contract')}
+                    label={__("Choose an contract")}
                     name="contractId"
                     initialValue={contractId}
                     onSelect={(v, n) => {
@@ -193,17 +193,17 @@ const InterestChangeForm = (props: Props) => {
               </FormColumn>
             )}
           </FormWrapper>
-          {type !== 'stopInterest' && (
+          {type !== "stopInterest" && (
             <FormWrapper>
               <FormColumn>
                 <FormGroup>
-                  <ControlLabel>{__('Interest Change to')}</ControlLabel>
+                  <ControlLabel>{__("Interest Change to")}</ControlLabel>
                   <FormControl
                     {...formProps}
                     name="interestAmount"
                     type="number"
                     useNumberFormat
-                    value={interestAmount || ''}
+                    value={interestAmount || ""}
                     onChange={onChangeField}
                   />
                 </FormGroup>
@@ -213,13 +213,13 @@ const InterestChangeForm = (props: Props) => {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
+                <ControlLabel>{__("Description")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
-                  value={description || ''}
+                  componentclass="textarea"
+                  value={description || ""}
                   onChange={onChangeField}
                 />
               </FormGroup>
@@ -231,11 +231,11 @@ const InterestChangeForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: generateDoc(values),
             isSubmitted,
             object: props.contract,

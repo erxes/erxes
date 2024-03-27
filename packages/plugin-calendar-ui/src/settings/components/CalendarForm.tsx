@@ -1,22 +1,22 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import { Flex } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { colors } from '@erxes/ui/src/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Select from 'react-select-plus';
-import { ICalendar, IGroup } from '../types';
+import { AppConsumer } from "@erxes/ui/src/appContext";
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import { Flex } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { colors } from "@erxes/ui/src/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import Select from "react-select-plus";
+import { ICalendar, IGroup } from "../types";
 
 type Props = {
   show: boolean;
@@ -42,8 +42,8 @@ class CalendarForm extends React.Component<FinalProps, State> {
 
     this.state = {
       backgroundColor: colors.colorPrimaryDark,
-      groupId: '',
-      isPrimary: false
+      groupId: "",
+      isPrimary: false,
     };
   }
 
@@ -54,17 +54,17 @@ class CalendarForm extends React.Component<FinalProps, State> {
       this.setState({
         backgroundColor: calendar.color,
         groupId: calendar.groupId,
-        isPrimary: calendar.isPrimary || false
+        isPrimary: calendar.isPrimary || false,
       });
     }
   }
 
-  onChangeIsPrimary = e => {
+  onChangeIsPrimary = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ isPrimary: isChecked });
   };
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ backgroundColor: e.hex });
   };
 
@@ -81,27 +81,27 @@ class CalendarForm extends React.Component<FinalProps, State> {
       ...finalValues,
       groupId,
       isPrimary,
-      color: backgroundColor
+      color: backgroundColor,
     };
   };
 
-  renderOptions = array => {
-    return array.map(obj => ({
+  renderOptions = (array) => {
+    return array.map((obj) => ({
       value: obj._id,
-      label: obj.name
+      label: obj.name,
     }));
   };
 
   renderGroups() {
     const { groups, calendar } = this.props;
 
-    const onChange = item => this.setState({ groupId: item.value });
+    const onChange = (item) => this.setState({ groupId: item.value });
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Group</ControlLabel>
         <Select
-          placeholder={__('Choose a group')}
+          placeholder={__("Choose a group")}
           value={this.state.groupId || (calendar && calendar.groupId)}
           options={this.renderOptions(groups)}
           onChange={onChange}
@@ -114,7 +114,7 @@ class CalendarForm extends React.Component<FinalProps, State> {
   renderContent = (formProps: IFormProps) => {
     const { calendar, renderButton, closeModal, currentUserId } = this.props;
     const { values, isSubmitted } = formProps;
-    const calendarName = 'calendar';
+    const calendarName = "calendar";
     const showPrimary =
       !calendar || (calendar && currentUserId === calendar.userId);
 
@@ -169,7 +169,7 @@ class CalendarForm extends React.Component<FinalProps, State> {
                 {...formProps}
                 name="isPrimary"
                 defaultChecked={this.state.isPrimary}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChangeIsPrimary}
               />
             </FormGroup>
@@ -191,7 +191,7 @@ class CalendarForm extends React.Component<FinalProps, State> {
               isSubmitted,
               callback: closeModal,
               object: calendar,
-              confirmationUpdate: true
+              confirmationUpdate: true,
             })}
           </Modal.Footer>
         </Modal.Body>
@@ -224,7 +224,7 @@ export default (props: Props) => (
     {({ currentUser }) => (
       <CalendarForm
         {...props}
-        currentUserId={(currentUser && currentUser._id) || ''}
+        currentUserId={(currentUser && currentUser._id) || ""}
       />
     )}
   </AppConsumer>

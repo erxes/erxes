@@ -1,28 +1,28 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
   FormControl,
   HeaderDescription,
   Pagination,
-  Table
-} from '@erxes/ui/src/components';
+  Table,
+} from "@erxes/ui/src/components";
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
 
-import CreateForm from './CreateForm';
-import { IAssignmentCampaign } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
+import CreateForm from "./CreateForm";
+import { IAssignmentCampaign } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "../../general/components/Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];
@@ -55,12 +55,12 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue || '',
-      filterStatus: this.props.filterStatus || ''
+      searchValue: this.props.searchValue || "",
+      filterStatus: this.props.filterStatus || "",
     };
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -71,7 +71,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -79,19 +79,19 @@ class AssignmentCampaigns extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
   onChange = () => {
     const { toggleAll, assignmentCampaigns } = this.props;
-    toggleAll(assignmentCampaigns, 'assignmentCampaigns');
+    toggleAll(assignmentCampaigns, "assignmentCampaigns");
   };
 
   renderRow = () => {
     const { assignmentCampaigns, history, toggleBulk, bulk } = this.props;
 
-    return assignmentCampaigns.map(assignmentCampaign => (
+    return assignmentCampaigns.map((assignmentCampaign) => (
       <Row
         key={assignmentCampaign._id}
         history={history}
@@ -102,17 +102,17 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  formContent = props => {
+  formContent = (props) => {
     const { queryParams, history } = this.props;
     return (
       <CreateForm {...props} queryParams={queryParams} history={history} />
     );
   };
 
-  removeAssignmentCampaigns = assignmentCampaigns => {
+  removeAssignmentCampaigns = (assignmentCampaigns) => {
     const assignmentCampaignIds: string[] = [];
 
-    assignmentCampaigns.forEach(assignmentCampaign => {
+    assignmentCampaigns.forEach((assignmentCampaign) => {
       assignmentCampaignIds.push(assignmentCampaign._id);
     });
 
@@ -128,7 +128,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           .then(() => {
             this.removeAssignmentCampaigns(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -152,7 +152,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
                 value={this.state.searchValue}
                 autoFocus={true}
@@ -174,12 +174,12 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     const { loading, isAllSelected, totalCount } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
+      { title: __("Settings"), link: "/settings" },
       {
-        title: __('Loyalties config'),
-        link: '/erxes-plugin-loyalty/settings/general'
+        title: __("Loyalties config"),
+        link: "/erxes-plugin-loyalty/settings/general",
       },
-      { title: __('Assignment Campaign') }
+      { title: __("Assignment Campaign") },
     ];
 
     const header = (
@@ -197,16 +197,16 @@ class AssignmentCampaigns extends React.Component<Props, State> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Start Date')}</th>
-            <th>{__('End Date')}</th>
-            <th>{__('Finish Date of Use')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Start Date")}</th>
+            <th>{__("End Date")}</th>
+            <th>{__("Finish Date of Use")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -217,14 +217,14 @@ class AssignmentCampaigns extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Assignment Campaign')}
+            title={__("Assignment Campaign")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={header}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Assignment Campaign')}</Title>}
+            left={<Title>{__("Assignment Campaign")}</Title>}
             right={this.actionBarRight()}
           />
         }

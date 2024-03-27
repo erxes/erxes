@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -6,23 +6,23 @@ import {
   HeaderDescription,
   ModalTrigger,
   Pagination,
-  Table
-} from '@erxes/ui/src/components';
+  Table,
+} from "@erxes/ui/src/components";
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
 
-import Form from '../containers/Form';
-import { IVoucherCampaign } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/Form";
+import { IVoucherCampaign } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "../../general/components/Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   voucherCampaigns: IVoucherCampaign[];
@@ -55,12 +55,12 @@ class VoucherCampaigns extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue || '',
-      filterStatus: this.props.filterStatus || ''
+      searchValue: this.props.searchValue || "",
+      filterStatus: this.props.filterStatus || "",
     };
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -71,7 +71,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -79,19 +79,19 @@ class VoucherCampaigns extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
   onChange = () => {
     const { toggleAll, voucherCampaigns } = this.props;
-    toggleAll(voucherCampaigns, 'voucherCampaigns');
+    toggleAll(voucherCampaigns, "voucherCampaigns");
   };
 
   renderRow = () => {
     const { voucherCampaigns, history, toggleBulk, bulk } = this.props;
 
-    return voucherCampaigns.map(voucherCampaign => (
+    return voucherCampaigns.map((voucherCampaign) => (
       <Row
         key={voucherCampaign._id}
         history={history}
@@ -102,14 +102,14 @@ class VoucherCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeVoucherCampaigns = voucherCampaigns => {
+  removeVoucherCampaigns = (voucherCampaigns) => {
     const voucherCampaignIds: string[] = [];
 
-    voucherCampaigns.forEach(voucherCampaign => {
+    voucherCampaigns.forEach((voucherCampaign) => {
       voucherCampaignIds.push(voucherCampaign._id);
     });
 
@@ -125,7 +125,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
           .then(() => {
             this.removeVoucherCampaigns(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -155,7 +155,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
                 value={this.state.searchValue}
                 autoFocus={true}
@@ -164,7 +164,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
             </FlexItem>
           </InputBar>
           <ModalTrigger
-            size={'lg'}
+            size={"lg"}
             title="Add voucher campaign"
             trigger={trigger}
             autoOpenKey="showProductModal"
@@ -187,12 +187,12 @@ class VoucherCampaigns extends React.Component<Props, State> {
     );
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
+      { title: __("Settings"), link: "/settings" },
       {
-        title: __('Loyalties Config'),
-        link: '/erxes-plugin-loyalty/settings/general'
+        title: __("Loyalties Config"),
+        link: "/erxes-plugin-loyalty/settings/general",
       },
-      { title: __('Voucher Campaign') }
+      { title: __("Voucher Campaign") },
     ];
 
     const content = (
@@ -202,17 +202,17 @@ class VoucherCampaigns extends React.Component<Props, State> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Start Date')}</th>
-            <th>{__('End Date')}</th>
-            <th>{__('Finish Date of Use')}</th>
-            <th>{__('Type')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Start Date")}</th>
+            <th>{__("End Date")}</th>
+            <th>{__("Finish Date of Use")}</th>
+            <th>{__("Type")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -223,14 +223,14 @@ class VoucherCampaigns extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Voucher Campaign')}
+            title={__("Voucher Campaign")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={header}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title capitalize={true}>{__('Voucher Campaign')}</Title>}
+            left={<Title capitalize={true}>{__("Voucher Campaign")}</Title>}
             right={this.actionBarRight()}
           />
         }

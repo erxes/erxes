@@ -1,16 +1,16 @@
-import Modal from 'react-bootstrap/Modal';
-import React, { useState } from 'react';
-import { Button, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { IProductGroup } from '../../../types';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Modal from "react-bootstrap/Modal";
+import React, { useState } from "react";
+import { Button, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { IProductGroup } from "../../../types";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 
 type Props = {
   group?: IProductGroup;
   onSubmit: (group: IProductGroup) => void;
   onDelete: (group: IProductGroup) => void;
   closeModal: () => void;
-  mode: 'create' | 'update';
+  mode: "create" | "update";
 };
 
 const GroupForm = (props: Props) => {
@@ -19,12 +19,12 @@ const GroupForm = (props: Props) => {
   const [group, setGroup] = useState<IProductGroup>(
     props.group || {
       _id: `temporaryId${String(Math.random())}`,
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       categoryIds: [],
       excludedCategoryIds: [],
       excludedProductIds: [],
-    },
+    }
   );
 
   const onChangeFunction = (name: any, value: any) => {
@@ -41,13 +41,13 @@ const GroupForm = (props: Props) => {
   };
 
   const onChangeName = (e) => {
-    onChangeFunction('name', (e.currentTarget as HTMLInputElement).value);
+    onChangeFunction("name", (e.currentTarget as HTMLInputElement).value);
   };
 
   const onChangeDescription = (e) => {
     onChangeFunction(
-      'description',
-      (e.currentTarget as HTMLInputElement).value,
+      "description",
+      (e.currentTarget as HTMLInputElement).value
     );
   };
 
@@ -56,7 +56,7 @@ const GroupForm = (props: Props) => {
   };
 
   const onChangeExcludeProducts = (values) => {
-    onChangeFunction('excludedProductIds', values);
+    onChangeFunction("excludedProductIds", values);
   };
 
   return (
@@ -75,7 +75,7 @@ const GroupForm = (props: Props) => {
         <ControlLabel>Group Description</ControlLabel>
         <FormControl
           name="description"
-          componentClass="textarea"
+          componentclass="textarea"
           rows={5}
           defaultValue={group.description}
           onChange={onChangeDescription}
@@ -88,11 +88,11 @@ const GroupForm = (props: Props) => {
           name="productCategoryId"
           initialValue={group.categoryIds}
           customOption={{
-            value: '',
-            label: '...Clear product category filter',
+            value: "",
+            label: "...Clear product category filter",
           }}
           onSelect={(categoryIds) =>
-            onChangeCategories('categoryIds', categoryIds)
+            onChangeCategories("categoryIds", categoryIds)
           }
           multi={true}
         />
@@ -104,11 +104,11 @@ const GroupForm = (props: Props) => {
           name="productCategoryId"
           initialValue={group.excludedCategoryIds}
           customOption={{
-            value: '',
-            label: '...Clear product category filter',
+            value: "",
+            label: "...Clear product category filter",
           }}
           onSelect={(categoryIds) =>
-            onChangeCategories('excludedCategoryIds', categoryIds)
+            onChangeCategories("excludedCategoryIds", categoryIds)
           }
           multi={true}
         />
@@ -116,7 +116,7 @@ const GroupForm = (props: Props) => {
       <FormGroup>
         <ControlLabel>Exclude Products</ControlLabel>
         <SelectProducts
-          label={'exclude products'}
+          label={"exclude products"}
           name="excludeProductsIds"
           initialValue={group.excludedProductIds}
           onSelect={onChangeExcludeProducts}
@@ -136,9 +136,9 @@ const GroupForm = (props: Props) => {
         <Button
           onClick={onClicksave}
           btnStyle="success"
-          icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+          icon={mode === "update" ? "check-circle" : "plus-circle"}
         >
-          {mode === 'update' ? 'Save' : 'Add to POS'}
+          {mode === "update" ? "Save" : "Add to POS"}
         </Button>
       </Modal.Footer>
     </>

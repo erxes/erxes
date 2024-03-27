@@ -1,14 +1,14 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React, { useState } from 'react';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React, { useState } from "react";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -26,10 +26,10 @@ const CheckerSidebar = (props: IProps) => {
   const [stageId, setStageId] = useState(queryParams.stageId);
   const [configStageId, setConfigStageId] = useState(queryParams.configStageId);
   const [stageChangedStartDate, setStageChangedStartDate] = useState<Date>(
-    queryParams.stageChangedStartDate,
+    queryParams.stageChangedStartDate
   );
   const [stageChangedEndDate, setStageChangedEndDate] = useState<Date>(
-    queryParams.stageChangedEndDate,
+    queryParams.stageChangedEndDate
   );
   const [dateType, setDateType] = useState(queryParams.dateType);
   const [search, setSearch] = useState(queryParams.search);
@@ -52,11 +52,11 @@ const CheckerSidebar = (props: IProps) => {
   };
 
   const onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    if (kind === 'stageChangedStartDate') {
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
+    if (kind === "stageChangedStartDate") {
       setStageChangedStartDate(cDate as any);
     }
-    if (kind === 'stageChangedEndDate') {
+    if (kind === "stageChangedEndDate") {
       setStageChangedEndDate(cDate as any);
     }
   };
@@ -71,7 +71,7 @@ const CheckerSidebar = (props: IProps) => {
           <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
 
           <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
             value={stageChangedStartDate || null}
@@ -79,14 +79,14 @@ const CheckerSidebar = (props: IProps) => {
             utc={true}
             input={true}
             onChange={onChangeRangeFilter.bind(this, lblStart)}
-            viewMode={'days'}
-            className={'filterDate'}
+            viewMode={"days"}
+            className={"filterDate"}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
             value={stageChangedEndDate}
@@ -94,8 +94,8 @@ const CheckerSidebar = (props: IProps) => {
             utc={true}
             input={true}
             onChange={onChangeRangeFilter.bind(this, lblEnd)}
-            viewMode={'days'}
-            className={'filterDate'}
+            viewMode={"days"}
+            className={"filterDate"}
           />
         </FormGroup>
       </>
@@ -129,10 +129,10 @@ const CheckerSidebar = (props: IProps) => {
   const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
     const value = (e.currentTarget as HTMLInputElement).value;
     const name = (e.currentTarget as HTMLInputElement).name;
-    if (name === 'number') {
+    if (name === "number") {
       setNumber(value);
     }
-    if (name === 'search') {
+    if (name === "search") {
       setSearch(value);
     }
   };
@@ -141,16 +141,16 @@ const CheckerSidebar = (props: IProps) => {
     <Wrapper.Sidebar>
       <Sidebar>
         <Section collapsible={false}>
-          <Section.Title>{__('Filters')}</Section.Title>
+          <Section.Title>{__("Filters")}</Section.Title>
 
           <FormGroup>
             <ControlLabel>Choose Filter Stage</ControlLabel>
             <BoardSelectContainer
               type="deal"
               autoSelectStage={false}
-              boardId={boardId || ''}
-              pipelineId={pipelineId || ''}
-              stageId={stageId || ''}
+              boardId={boardId || ""}
+              pipelineId={pipelineId || ""}
+              stageId={stageId || ""}
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
               onChangeStage={onChangeStage}
@@ -161,8 +161,8 @@ const CheckerSidebar = (props: IProps) => {
             <SelectTeamMembers
               label="Choose users"
               name="userId"
-              customOption={{ label: 'Choose user', value: '' }}
-              initialValue={userId || ''}
+              customOption={{ label: "Choose user", value: "" }}
+              initialValue={userId || ""}
               onSelect={onUserChange}
               multi={false}
             />
@@ -188,15 +188,15 @@ const CheckerSidebar = (props: IProps) => {
             />
           </FormGroup>
 
-          {renderRange('stageChanged')}
+          {renderRange("stageChanged")}
           <FormGroup>
             <ControlLabel>Choose Get Config Stage</ControlLabel>
             <BoardSelectContainer
               type="deal"
               autoSelectStage={false}
-              boardId={boardId || ''}
-              pipelineId={pipelineId || ''}
-              stageId={configStageId || stageId || ''}
+              boardId={boardId || ""}
+              pipelineId={pipelineId || ""}
+              stageId={configStageId || stageId || ""}
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
               onChangeStage={onChangeConfigStage}
@@ -205,20 +205,20 @@ const CheckerSidebar = (props: IProps) => {
           <FormGroup>
             <ControlLabel>Date type</ControlLabel>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               value={dateType}
               name="dateType"
               onChange={onChangeType}
             >
-              <option value={''}>Now</option>
-              <option value={'lastMove'}>Last move at</option>
-              <option value={'created'}>Created At</option>
-              <option value={'closeOrCreated'}>Close date or created at</option>
-              <option value={'closeOrMove'}>Close date or last move at</option>
-              <option value={'firstOrMove'}>
+              <option value={""}>Now</option>
+              <option value={"lastMove"}>Last move at</option>
+              <option value={"created"}>Created At</option>
+              <option value={"closeOrCreated"}>Close date or created at</option>
+              <option value={"closeOrMove"}>Close date or last move at</option>
+              <option value={"firstOrMove"}>
                 First synced or last move at
               </option>
-              <option value={'firstOrCreated'}>
+              <option value={"firstOrCreated"}>
                 First synced or created at
               </option>
             </FormControl>

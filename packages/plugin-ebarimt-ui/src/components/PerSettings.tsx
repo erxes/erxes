@@ -5,14 +5,14 @@ import {
   FormControl,
   FormGroup,
   Icon,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
+import React, { useState } from "react";
 
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { DISTRICTS } from '../constants';
-import { IConfigsMap } from '../types';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import React, { useState } from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { DISTRICTS } from "../constants";
+import { IConfigsMap } from "../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -106,7 +106,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
   const renderCheckbox = (
     key: string,
     title?: string,
-    description?: string,
+    description?: string
   ) => {
     return (
       <FormGroup>
@@ -115,7 +115,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
         <FormControl
           checked={state.config[key]}
           onChange={onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
+          componentclass="checkbox"
         />
       </FormGroup>
     );
@@ -126,13 +126,13 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       title={__(state.config.title)}
       transparent={true}
       beforeTitle={<Icon icon="settings" />}
-      open={currentConfigKey === 'newEbarimtConfig' ? true : false}
+      open={currentConfigKey === "newEbarimtConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={state.config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={state.config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
@@ -151,31 +151,31 @@ const PerSettings: React.FC<Props> = (props: Props) => {
           onChangeStage={onChangeStage}
         />
       </FormGroup>
-      {renderInput('companyName', 'companyName', 'optional')}
-      {renderInput('userEmail', 'userEmail', '')}
+      {renderInput("companyName", "companyName", "optional")}
+      {renderInput("userEmail", "userEmail", "")}
 
       <FormGroup>
-        <ControlLabel>{__('Provice/District')}</ControlLabel>
+        <ControlLabel>{__("Provice/District")}</ControlLabel>
         <FormControl
-          componentClass="select"
+          componentclass="select"
           defaultValue={state.config.districtName}
           options={DISTRICTS}
-          onChange={onChangeInput.bind(this, 'districtName')}
+          onChange={onChangeInput.bind(this, "districtName")}
           required={true}
         />
       </FormGroup>
 
-      {renderInput('companyRD', 'companyRD', '')}
-      {renderInput('vatPercent', 'vatPercent', '')}
-      {renderInput('cityTaxPercent', 'cityTaxPercent', '')}
-      {renderInput('defaultGSCode', 'defaultGSCode', '')}
+      {renderInput("companyRD", "companyRD", "")}
+      {renderInput("vatPercent", "vatPercent", "")}
+      {renderInput("cityTaxPercent", "cityTaxPercent", "")}
+      {renderInput("defaultGSCode", "defaultGSCode", "")}
 
-      {renderCheckbox('hasVat', 'has Vat', '')}
-      {renderCheckbox('hasCitytax', 'has Citytax', '')}
+      {renderCheckbox("hasVat", "has Vat", "")}
+      {renderCheckbox("hasCitytax", "has Citytax", "")}
       {renderCheckbox(
-        'skipPutData',
-        'skip Ebarimt',
-        'When checked only  print inner bill',
+        "skipPutData",
+        "skip Ebarimt",
+        "When checked only  print inner bill"
       )}
 
       <ModalFooter>

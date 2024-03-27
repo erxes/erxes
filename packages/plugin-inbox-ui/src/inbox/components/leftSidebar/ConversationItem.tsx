@@ -1,5 +1,5 @@
-import * as dayjs from 'dayjs';
-import * as relativeTime from 'dayjs/plugin/relativeTime';
+import * as dayjs from "dayjs";
+import * as relativeTime from "dayjs/plugin/relativeTime";
 
 import {
   AssigneeImg,
@@ -12,32 +12,32 @@ import {
   RowContent,
   RowItem,
   SmallTextOneLine,
-} from './styles';
+} from "./styles";
 import {
   CustomerName,
   EllipsisContent,
   Flex as FlexRoot,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
 import {
   cleanIntegrationKind,
   readFile,
   renderFullName,
-} from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/utils";
 
-import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import React from 'react';
-import Tags from '@erxes/ui/src/components/Tags';
-import Tip from '@erxes/ui/src/components/Tip';
-import strip from 'strip';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { CallLabel } from "@erxes/ui-inbox/src/inbox/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import IntegrationIcon from "@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import Tags from "@erxes/ui/src/components/Tags";
+import Tip from "@erxes/ui/src/components/Tip";
+import strip from "strip";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 dayjs.extend(relativeTime);
 
@@ -78,7 +78,7 @@ const ConversationItem: React.FC<Props> = (props) => {
     return (
       <CheckBox onClick={(e) => e.stopPropagation()}>
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={toggleCheckboxHandler}
         />
       </CheckBox>
@@ -89,10 +89,10 @@ const ConversationItem: React.FC<Props> = (props) => {
     const kind = integration.kind;
 
     if (
-      kind === 'form' ||
-      kind.includes('nylas') ||
-      kind === 'gmail' ||
-      conversation.status === 'closed'
+      kind === "form" ||
+      kind.includes("nylas") ||
+      kind === "gmail" ||
+      conversation.status === "closed"
     ) {
       return false;
     }
@@ -102,9 +102,9 @@ const ConversationItem: React.FC<Props> = (props) => {
   };
 
   const showMessageContent = (kind: string, content: string) => {
-    if (kind === 'callpro') {
+    if (kind === "callpro") {
       return (
-        <CallLabel type={(content || '').toLocaleLowerCase()}>
+        <CallLabel type={(content || "").toLocaleLowerCase()}>
           {content}
         </CallLabel>
       );
@@ -156,8 +156,8 @@ const ConversationItem: React.FC<Props> = (props) => {
               </CustomerName>
 
               <SmallTextOneLine>
-                to {brand.name} via{' '}
-                {integration.kind === 'callpro'
+                to {brand.name} via{" "}
+                {integration.kind === "callpro"
                   ? integration.name
                   : cleanIntegrationKind(integration && integration.kind)}
               </SmallTextOneLine>
@@ -166,7 +166,7 @@ const ConversationItem: React.FC<Props> = (props) => {
 
           <MessageContent>
             <EllipsisContent>
-              {showMessageContent(integration.kind, content || '')}
+              {showMessageContent(integration.kind, content || "")}
             </EllipsisContent>
             <FlexRoot>
               {messageCount > 1 && <Count>{messageCount}</Count>}
@@ -181,7 +181,7 @@ const ConversationItem: React.FC<Props> = (props) => {
                       assignedUser.details &&
                       (assignedUser.details.avatar
                         ? readFile(assignedUser.details.avatar, 36)
-                        : '/images/avatar-colored.svg')
+                        : "/images/avatar-colored.svg")
                     }
                   />
                 </Tip>

@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -7,23 +7,23 @@ import {
   Pagination,
   SortHandler,
   Table,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 import {
   MainStyleCount as Count,
   MainStyleTitle as Title,
-} from '@erxes/ui/src/styles/eindex';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src/styles/eindex";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IVoucher } from '../types';
-import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import React from 'react';
-import Sidebar from './Sidebar';
-import VoucherForm from '../containers/Form';
-import VoucherRow from './Row';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { menuLoyalties } from '../../common/constants';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { IVoucher } from "../types";
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { LoyaltiesTableWrapper } from "../../common/styles";
+import React from "react";
+import Sidebar from "./Sidebar";
+import VoucherForm from "../containers/Form";
+import VoucherRow from "./Row";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { menuLoyalties } from "../../common/constants";
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -40,7 +40,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeVouchers: (
     doc: { voucherIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: IQueryParams;
@@ -63,7 +63,7 @@ class VouchersList extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, vouchers } = this.props;
-    toggleAll(vouchers, 'vouchers');
+    toggleAll(vouchers, "vouchers");
   };
 
   search = (e) => {
@@ -76,7 +76,7 @@ class VouchersList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -93,7 +93,7 @@ class VouchersList extends React.Component<IProps, State> {
 
   moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -113,7 +113,7 @@ class VouchersList extends React.Component<IProps, State> {
     const renderCheckbox = () => {
       if (
         !currentCampaign ||
-        ['spin', 'lottery'].includes(currentCampaign.voucherType)
+        ["spin", "lottery"].includes(currentCampaign.voucherType)
       ) {
         return;
       }
@@ -121,7 +121,7 @@ class VouchersList extends React.Component<IProps, State> {
         <th>
           <FormControl
             checked={isAllSelected}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={this.onChange}
           />
         </th>
@@ -135,16 +135,16 @@ class VouchersList extends React.Component<IProps, State> {
             <tr>
               {renderCheckbox()}
               <th>
-                <SortHandler sortField={'createdAt'} label={__('Created')} />
+                <SortHandler sortField={"createdAt"} label={__("Created")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
+                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerId'} label={__('Owner')} />
+                <SortHandler sortField={"ownerId"} label={__("Owner")} />
               </th>
               <th>
-                <SortHandler sortField={'status'} label={__('Status')} />
+                <SortHandler sortField={"status"} label={__("Status")} />
               </th>
               <th>Actions</th>
             </tr>
@@ -204,7 +204,7 @@ class VouchersList extends React.Component<IProps, State> {
         <BarItems>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={this.search}
             value={this.state.searchValue}
             autoFocus={true}
@@ -226,7 +226,7 @@ class VouchersList extends React.Component<IProps, State> {
       <Title>
         {(currentCampaign &&
           `${currentCampaign.voucherType}: ${currentCampaign.title}`) ||
-          'All voucher campaigns'}{' '}
+          "All voucher campaigns"}{" "}
       </Title>
     );
     const actionBar = (
@@ -253,7 +253,7 @@ class VouchersList extends React.Component<IProps, State> {
         content={
           <>
             <Count>
-              {totalCount} voucher{totalCount > 1 && 's'}
+              {totalCount} voucher{totalCount > 1 && "s"}
             </Count>
             <DataWithLoader
               data={mainContent}

@@ -1,5 +1,5 @@
-import React from 'react';
-import { IAsset } from '../../common/types';
+import React from "react";
+import { IAsset } from "../../common/types";
 import {
   Button,
   FormControl,
@@ -9,10 +9,10 @@ import {
   router,
   __,
   ActionButtons,
-} from '@erxes/ui/src';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import AssetForm from '../containers/AssetForm';
-import AssignArticles from '../containers/actions/Assign';
+} from "@erxes/ui/src";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import AssetForm from "../containers/AssetForm";
+import AssignArticles from "../containers/actions/Assign";
 
 type Props = {
   asset: IAsset;
@@ -22,7 +22,7 @@ type Props = {
   toggleBulk: (asset: IAsset, isChecked?: boolean) => void;
   assignKbArticles: (
     doc: { assetIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
 };
 
@@ -51,7 +51,7 @@ const Row = (props: Props) => {
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Assign Knowledgebase')} placement="bottom">
+        <Tip text={__("Assign Knowledgebase")} placement="bottom">
           <Icon icon="light-bulb" />
         </Tip>
       </Button>
@@ -84,7 +84,7 @@ const Row = (props: Props) => {
 
   const handleParent = () => {
     if (queryParams.categoryId) {
-      router.removeParams(history, 'categoryId');
+      router.removeParams(history, "categoryId");
     }
     router.setParams(history, { assetId: asset._id });
   };
@@ -96,14 +96,14 @@ const Row = (props: Props) => {
       <td onClick={onCellClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>{code}</td>
       <td>{name}</td>
-      <td>{category ? category.name : ''}</td>
-      <td>{parent ? parent.name : ''}</td>
+      <td>{category ? category.name : ""}</td>
+      <td>{parent ? parent.name : ""}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td onClick={onCellClick}>
         <ActionButtons>
@@ -115,12 +115,12 @@ const Row = (props: Props) => {
               {/* <Badge>{childAssetCount}</Badge> */}
             </Button>
           )}
-          {isEnabled('knowledgebase') && renderKbAssignForm()}
+          {isEnabled("knowledgebase") && renderKbAssignForm()}
           <ModalTrigger
             title="Edit basic info"
             trigger={
               <Button btnStyle="link">
-                <Tip text={__('Edit')} placement="bottom">
+                <Tip text={__("Edit")} placement="bottom">
                   <Icon icon="edit-3" />
                 </Tip>
               </Button>

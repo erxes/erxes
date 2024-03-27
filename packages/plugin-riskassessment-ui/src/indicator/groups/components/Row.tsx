@@ -1,9 +1,10 @@
-import { FormControl, Label, ModalTrigger, __ } from '@erxes/ui/src';
-import moment from 'moment';
-import React from 'react';
-import { FormContainer } from '../../../styles';
-import { IIndicatorsGroups } from '../common/types';
-import Form from '../containers/Form';
+import { FormControl, Label, ModalTrigger, __ } from "@erxes/ui/src";
+
+import Form from "../containers/Form";
+import { FormContainer } from "../../../styles";
+import { IIndicatorsGroups } from "../common/types";
+import React from "react";
+import moment from "moment";
 type Props = {
   indicatorsGroups: IIndicatorsGroups;
   selectedItems: string[];
@@ -17,14 +18,10 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const {
-      indicatorsGroups,
-      selectItem,
-      selectedItems,
-      queryParams
-    } = this.props;
+    const { indicatorsGroups, selectItem, selectedItems, queryParams } =
+      this.props;
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -32,7 +29,7 @@ class Row extends React.Component<Props> {
       <tr key={indicatorsGroups._id}>
         <td onClick={onClick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(indicatorsGroups._id)}
             onChange={selectItem.bind(this, indicatorsGroups._id)}
           />
@@ -40,20 +37,20 @@ class Row extends React.Component<Props> {
         <td>{__(indicatorsGroups.name)}</td>
         <td>
           <FormContainer gapBetween={5} row maxItemsRow={3}>
-            {(indicatorsGroups?.tags || []).map(tag => (
+            {(indicatorsGroups?.tags || []).map((tag) => (
               <Label key={tag._id} lblColor={tag.colorCode}>
                 {tag.name}
               </Label>
             ))}
           </FormContainer>
         </td>
-        <td>{moment(indicatorsGroups.createdAt).format('lll')}</td>
-        <td>{moment(indicatorsGroups.modifiedAt).format('lll')} </td>
+        <td>{moment(indicatorsGroups.createdAt).format("lll")}</td>
+        <td>{moment(indicatorsGroups.modifiedAt).format("lll")} </td>
         <td></td>
       </tr>
     );
 
-    const content = props => (
+    const content = (props) => (
       <Form {...props} detail={indicatorsGroups} queryParams={queryParams} />
     );
 

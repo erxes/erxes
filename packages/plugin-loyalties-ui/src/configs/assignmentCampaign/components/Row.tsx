@@ -1,8 +1,10 @@
-import { FormControl, TextInfo, Icon } from '@erxes/ui/src/components';
-import React from 'react';
-import { IAssignmentCampaign } from '../types';
-import { Link } from 'react-router-dom';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
+
+import { FormControl, Icon, TextInfo } from "@erxes/ui/src/components";
+
+import { IAssignmentCampaign } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
@@ -18,13 +20,13 @@ class Row extends React.Component<Props> {
   render() {
     const { assignmentCampaign, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(assignmentCampaign, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -35,7 +37,7 @@ class Row extends React.Component<Props> {
       endDate,
       finishDateOfUse,
       status,
-      segmentIds
+      segmentIds,
     } = assignmentCampaign;
 
     const onTrClick = (e: MouseEvent) => {
@@ -48,7 +50,7 @@ class Row extends React.Component<Props> {
 
       if (segmentIds) {
         routerUtils.setParams(history, {
-          segmentIds: JSON.stringify(segmentIds)
+          segmentIds: JSON.stringify(segmentIds),
         });
       }
     };
@@ -58,14 +60,14 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
         <td>{title}</td>
-        <td>{new Date(startDate || '').toLocaleDateString()}</td>
-        <td>{new Date(endDate || '').toLocaleDateString()}</td>
-        <td>{new Date(finishDateOfUse || '').toLocaleDateString()}</td>
+        <td>{new Date(startDate || "").toLocaleDateString()}</td>
+        <td>{new Date(endDate || "").toLocaleDateString()}</td>
+        <td>{new Date(finishDateOfUse || "").toLocaleDateString()}</td>
         <td>
           <TextInfo>{status}</TextInfo>
         </td>

@@ -1,15 +1,15 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { FlexRow } from '../../styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Info from '@erxes/ui/src/components/Info';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { queries } from '../graphql';
-import styled from 'styled-components';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexRow } from "../../styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Info from "@erxes/ui/src/components/Info";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { __ } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
+import styled from "styled-components";
 
 type Props = {
   emailConfig: any;
@@ -37,8 +37,8 @@ const EmailConfigForm = (props: Props) => {
 
   const { emailText, emailConfig, setEmailConfig } = props;
 
-  const email = emailConfig.email || '';
-  const type = emailConfig.type || 'simple';
+  const email = emailConfig.email || "";
+  const type = emailConfig.type || "simple";
   const template = emailConfig.template || defaultTemplate;
 
   const onChangeEmail = (e: any) => {
@@ -66,7 +66,7 @@ const EmailConfigForm = (props: Props) => {
   };
 
   const renderTemplate = () => {
-    if (type === 'custom') {
+    if (type === "custom") {
       return (
         <ContentWrapper>
           <RichTextEditor
@@ -83,7 +83,7 @@ const EmailConfigForm = (props: Props) => {
     return (
       <ContentWrapper>
         <Info>
-          {__('Your email will be sent with Erxes email template') + '.'}
+          {__("Your email will be sent with Erxes email template") + "."}
         </Info>
       </ContentWrapper>
     );
@@ -109,7 +109,7 @@ const EmailConfigForm = (props: Props) => {
           <p>Choose "custom" to change the template of transactional emails.</p>
 
           <FormControl
-            componentClass="select"
+            componentclass="select"
             value={type}
             onChange={onChangeType}
           >
