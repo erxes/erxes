@@ -4,18 +4,18 @@ import { __ } from "../../utils/core";
 
 type Props = {
   children: React.ReactNode | string;
-  ignoretrans?: boolean;
+  ignoreTrans?: boolean;
   htmlFor?: string;
   required?: boolean;
   uppercase?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoretrans, required, uppercase = true } = props;
+  const { children, ignoreTrans, required, uppercase = true } = props;
 
   let content = children;
 
-  if (!ignoretrans && typeof children === "string") {
+  if (!ignoreTrans && typeof children === "string") {
     content = __(children);
   }
 

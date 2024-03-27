@@ -211,17 +211,17 @@ class Row extends React.Component<Props> {
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
         <td>
-          <TextInfo ignoretrans={true}>{lead.viewCount || 0}</TextInfo>
+          <TextInfo ignoreTrans={true}>{lead.viewCount || 0}</TextInfo>
         </td>
         <td>
-          ignoretrans
-          <TextInfo $textStyle="primary" ignoretrans={true}>
+          ignoreTrans
+          <TextInfo $textStyle="primary" ignoreTrans={true}>
             {percentage.substring(0, 4)} %
           </TextInfo>
         </td>
         <td>
-          ignoretrans
-          <TextInfo $textStyle="danger" ignoretrans={true}>
+          ignoreTrans
+          <TextInfo $textStyle="danger" ignoreTrans={true}>
             {lead.contactsGathered || 0}
           </TextInfo>
         </td>

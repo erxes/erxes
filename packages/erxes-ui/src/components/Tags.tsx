@@ -34,14 +34,14 @@ function Tags({ tags, limit }: Props) {
           <Label
             key={Math.random()}
             lblColor={tag.colorCode}
-            ignoretrans={true}
+            ignoreTrans={true}
           >
             <span>{tag.name}</span>
           </Label>
         );
       })}
       {limit && length - limit > 0 && (
-        <Label lblColor={colors.colorCoreGray} ignoretrans={true}>
+        <Label lblColor={colors.colorCoreGray} ignoreTrans={true}>
           <span>{`+${length - limit}`}</span>
         </Label>
       )}

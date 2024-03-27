@@ -110,7 +110,7 @@ export default function Row(props: Props) {
     <tr>
       <td>{data.name && data.name}</td>
       <td>
-        <Label lblStyle={generateStatusStyle()} ignoretrans={true}>
+        <Label lblStyle={generateStatusStyle()} ignoreTrans={true}>
           {data.status && data.status}
         </Label>
       </td>

@@ -204,7 +204,7 @@ class FileManager extends React.Component<Props, State> {
         />
         {currentFolder.sharedUsers &&
           currentFolder.sharedUsers.length !== 0 && (
-            <Label lblStyle="success" ignoretrans={true}>
+            <Label lblStyle="success" ignoreTrans={true}>
               <>Shared {(currentFolder.sharedUsers || []).length} member</>
             </Label>
           )}

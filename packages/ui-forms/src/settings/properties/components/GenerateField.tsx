@@ -808,7 +808,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel ignoretrans={true} required={field.isRequired}>
+        <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
         {this.renderAddButton()}

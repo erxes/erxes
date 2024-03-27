@@ -24,7 +24,7 @@ class UnreadCount extends React.Component<Props> {
     }
 
     return (
-      <Label shake={true} lblStyle="danger" ignoretrans={true}>
+      <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );

@@ -43,7 +43,7 @@ const GenerateAddFormFields = (props: Props) => {
 
   return (
     <FormGroup>
-      <ControlLabel ignoretrans={true} required={field.isRequired}>
+      <ControlLabel ignoreTrans={true} required={field.isRequired}>
         {field.text}
       </ControlLabel>
       <Select

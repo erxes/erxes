@@ -34,7 +34,7 @@ const Text = styledTS<{ $textStyle: string; hugeness: string }>(styled.span)`
 
 type Props = {
   children: React.ReactNode | string;
-  ignoretrans?: boolean;
+  ignoreTrans?: boolean;
   $textStyle?: string;
   hugeness?: string;
 };
@@ -46,18 +46,18 @@ const defaultProps = {
 
 class TextInfo extends React.PureComponent<Props> {
   render() {
-    const { ignoretrans, children } = this.props;
+    const { ignoreTrans, children, $textStyle, hugeness } = this.props;
 
     let content;
 
-    if (ignoretrans) {
+    if (ignoreTrans) {
       content = children;
     } else if (typeof children === "string") {
       content = __(children);
     }
 
     return (
-      <Text {...defaultProps} {...this.props}>
+      <Text {...defaultProps} $textStyle={$textStyle} $hugeness={hugeness}>
         {content}
       </Text>
     );

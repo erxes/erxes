@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { TextArea } from './styles';
+import React, { useEffect, useRef } from "react";
+
+import { TextArea } from "./styles";
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
@@ -24,7 +25,7 @@ const Textarea: React.FC<Props> = ({
 
     if (textarea) {
       // Reset element's scrollHeight
-      textarea.style.height = '0';
+      textarea.style.height = "0";
       // Add 1px for border height
       textarea.style.height = `${textarea.scrollHeight + 1}px`;
     }

@@ -135,7 +135,7 @@ const Row: React.FC<Props> = ({
               ? colors.colorCoreGreen
               : colors.colorCoreGray
           }
-          ignoretrans={true}
+          ignoreTrans={true}
         >
           <span>{status}</span>
         </Label>

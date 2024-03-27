@@ -21,7 +21,7 @@ type Props = {
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
   size?: "sm" | "lg" | "xl";
-  ignoretrans?: boolean;
+  ignoreTrans?: boolean;
   dialogClassName?: string;
   backDrop?: "static" | boolean;
   enforceFocus?: boolean;
@@ -48,7 +48,7 @@ const ModalTrigger: React.FC<Props> = ({
   addisOpenToQueryParam,
   paddingContent,
   onExit,
-  ignoretrans,
+  ignoreTrans,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,7 +103,7 @@ const ModalTrigger: React.FC<Props> = ({
 
     return (
       <Dialog.Title as="h3">
-        {ignoretrans ? title : __(title)}
+        {ignoreTrans ? title : __(title)}
         <Icon icon="times" size={24} onClick={closeModal} />
       </Dialog.Title>
     );

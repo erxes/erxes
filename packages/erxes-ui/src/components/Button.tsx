@@ -121,14 +121,14 @@ const ButtonStyled = styledTS<{
   }
 `;
 
-const ButtonLink = styledTS<{ disabled?: boolean }>(
+const ButtonLink = styledTS<{ $disabled?: boolean }>(
   styled(styled.a(ButtonStyled))
 )`
   text-decoration: inherit;
   text-align: center;
 
   ${(props) =>
-    props.disabled &&
+    props.$disabled &&
     css`
       cursor: not-allowed !important;
       opacity: 0.75;
@@ -185,7 +185,7 @@ export type ButtonProps = {
   btnStyle?: string;
   size?: string;
   disabled?: boolean;
-  ignoretrans?: boolean;
+  ignoreTrans?: boolean;
   block?: boolean;
   icon?: string;
   style?: any;
@@ -208,15 +208,23 @@ export default class Button extends React.Component<ButtonProps> {
   };
 
   render() {
-    const { size, iconColor, uppercase, btnStyle, block, ...sizeExcluded } =
-      this.props;
-    const { href, children, ignoretrans, icon, img } = sizeExcluded;
+    const {
+      size,
+      iconColor,
+      uppercase,
+      btnStyle,
+      block,
+      disabled,
+      ...sizeExcluded
+    } = this.props;
+    const { href, children, ignoreTrans, icon, img } = sizeExcluded;
     const props = {
       ...sizeExcluded,
       hugeness: size,
       $uppercase: uppercase,
       $btnStyle: btnStyle,
       $block: block,
+      $disabled: disabled,
     };
 
     // TODO: fix
@@ -225,7 +233,7 @@ export default class Button extends React.Component<ButtonProps> {
 
     let content = children;
 
-    if (!ignoretrans && typeof content === "string" && __) {
+    if (!ignoreTrans && typeof content === "string" && __) {
       content = __(content);
     }
 

@@ -83,11 +83,11 @@ type Props = {
   children: React.ReactNode | string;
   className?: string;
   shake?: boolean;
-  ignoretrans?: boolean;
+  ignoreTrans?: boolean;
 };
 
 const Label: React.FC<Props> = ({
-  ignoretrans,
+  ignoreTrans,
   children,
   lblColor,
   lblStyle = "default",
@@ -103,7 +103,7 @@ const Label: React.FC<Props> = ({
 
   let content;
 
-  if (ignoretrans) {
+  if (ignoreTrans) {
     content = children;
   } else if (typeof children === "string") {
     content = __(children);

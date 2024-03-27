@@ -97,7 +97,7 @@ class RequestedFileList extends React.Component<Props> {
                   <td>{info.size && `${Math.round(info.size / 1000)} Kb`}</td>
                   <td>{info.type}</td>
                   <td>
-                    <Label ignoretrans={true}>{item.status}</Label>
+                    <Label ignoreTrans={true}>{item.status}</Label>
                   </td>
                   <td>{item.description || "-"}</td>
                   <td>

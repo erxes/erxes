@@ -48,7 +48,7 @@ const Row = (props: Props) => {
       <td>{effect}</td>
 
       <td>
-        <Label lblColor={color} ignoretrans={true}>
+        <Label lblColor={color} ignoreTrans={true}>
           {color}
         </Label>
       </td>

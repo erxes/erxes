@@ -44,7 +44,7 @@ const Widget = (props: Props) => {
 
     if (!user.isShowNotification && unreadCount && unreadCount !== 0) {
       return (
-        <Label shake={true} ignoretrans={true}>
+        <Label shake={true} ignoreTrans={true}>
           {unreadCount}
         </Label>
       );

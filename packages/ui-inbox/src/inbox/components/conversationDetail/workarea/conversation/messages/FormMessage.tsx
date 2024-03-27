@@ -176,7 +176,7 @@ export default class FormMessage extends React.Component<Props, {}> {
         <FieldWrapper column={field.column}>
           <FieldItem>
             <FormGroup>
-              <ControlLabel ignoretrans={true} required={field.isRequired}>
+              <ControlLabel ignoreTrans={true} required={field.isRequired}>
                 {field.text}
               </ControlLabel>
               {field.type === "multiSelect" ? (

@@ -75,7 +75,7 @@ class CommonPreview extends React.Component<Props, {}> {
     ) => {
       return (
         <Button
-          ignoretrans={true}
+          ignoreTrans={true}
           btnStyle={btnStyle}
           style={{ backgroundColor: theme ? theme : color, margin: "5px" }}
           onClick={action}

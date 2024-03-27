@@ -132,7 +132,7 @@ function renderButton(props: ItemButton) {
     <Item>
       <Button
         btnStyle="simple"
-        ignoretrans={true}
+        ignoreTrans={true}
         size="small"
         {...buttonProps}
       >

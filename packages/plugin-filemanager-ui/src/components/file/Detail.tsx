@@ -226,7 +226,7 @@ class FileDetail extends React.Component<Props, State> {
     const { sharedUsers = [] } = this.props.item || {};
 
     return (
-      <Label lblStyle="success" ignoretrans={true}>
+      <Label lblStyle="success" ignoreTrans={true}>
         <>
           Shared with {sharedUsers.length || 0} member
           {sharedUsers.map((user) => (

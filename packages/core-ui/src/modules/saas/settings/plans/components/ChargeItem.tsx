@@ -35,7 +35,7 @@ function ChargeItem(props: Props) {
         {children}
       </td>
       <td>
-        <Label lblStyle="danger" ignoretrans={true}>
+        <Label lblStyle="danger" ignoreTrans={true}>
           {!unLimited ? (
             `${formatNumber(usedAmount)} ${unit || ""}`
           ) : (
@@ -44,7 +44,7 @@ function ChargeItem(props: Props) {
         </Label>
       </td>
       <td>
-        <Label lblStyle="success" ignoretrans={true}>
+        <Label lblStyle="success" ignoreTrans={true}>
           {!unLimited ? (
             `${formatNumber(remainingAmount)} ${unit || ""}`
           ) : (
