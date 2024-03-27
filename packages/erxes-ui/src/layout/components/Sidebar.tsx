@@ -103,10 +103,10 @@ class Section extends React.Component<Props, State> {
       <SidebarBox
         $collapsible={$collapsible}
         style={style}
-        noShadow={noShadow}
+        $noShadow={noShadow}
         noBackground={noBackground}
         full={full}
-        noMargin={noMargin}
+        $noMargin={noMargin}
       >
         <BoxContent noPadding={noPadding}>{children}</BoxContent>
         {$collapsible ? this.renderCollapseButton() : null}

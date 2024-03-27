@@ -1,23 +1,23 @@
-import * as compose from 'lodash.flowright';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as compose from "lodash.flowright";
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
   ListQueryVariables,
-} from '@erxes/ui-engage/src/types';
+} from "@erxes/ui-engage/src/types";
 
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
-import MessageList from '../components/MessageList';
-import React from 'react';
-import { generateListQueryVariables } from '@erxes/ui-engage/src/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-engage/src/graphql';
-import queryString from 'query-string';
+import Bulk from "@erxes/ui/src/components/Bulk";
+import MessageList from "../components/MessageList";
+import React, { useEffect, useState } from "react";
+import { generateListQueryVariables } from "@erxes/ui-engage/src/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-engage/src/graphql";
+import queryString from "query-string";
 // import { withRouter } from 'react-router-dom';
-import { withProps } from '@erxes/ui/src/utils';
+import { withProps } from "@erxes/ui/src/utils";
+import { useLocation } from "react-router-dom";
 
 type Props = {
   type: string;
@@ -29,108 +29,95 @@ type FinalProps = {
   engageMessagesQuery: EngageMessagesQueryResponse;
   engageMessagesTotalCountQuery: EngageMessagesTotalCountQueryResponse;
   engageStatsQuery: any;
-} & Props &
-  IRouterProps;
+} & Props;
 
-type State = {
-  bulk: any[];
-  isAllSelected: boolean;
-};
+const MessageListContainer = (props: FinalProps) => {
+  const location = useLocation();
 
-class MessageListContainer extends React.Component<FinalProps, State> {
-  constructor(props: FinalProps) {
-    super(props);
+  const [bulk, setBulk] = useState([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
 
-    this.state = {
-      bulk: [],
-      isAllSelected: false,
-    };
-  }
-
-  componentDidMount() {
-    const { history } = this.props;
-
+  useEffect(() => {
     const shouldRefetchList = routerUtils.getParam(
-      history,
-      'engageRefetchList',
+      location,
+      "engageRefetchList"
     );
 
     if (shouldRefetchList) {
-      this.refetch();
+      refetch();
     }
-  }
+  }, []);
 
-  refetch = () => {
+  const refetch = () => {
     const {
       engageMessagesQuery,
       engageMessagesTotalCountQuery,
       engageStatsQuery,
-    } = this.props;
+    } = props;
 
     engageMessagesQuery.refetch();
     engageMessagesTotalCountQuery.refetch();
     engageStatsQuery.refetch();
   };
 
-  render() {
-    const {
-      queryParams,
-      engageMessagesQuery,
-      engageMessagesTotalCountQuery,
-      engageStatsQuery,
-    } = this.props;
+  const {
+    queryParams,
+    engageMessagesQuery,
+    engageMessagesTotalCountQuery,
+    engageStatsQuery,
+  } = props;
 
-    const updatedProps = {
-      kind: queryParams.kind,
-      messages: engageMessagesQuery.engageMessages || [],
-      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
-      bulk: this.state.bulk,
-      isAllSelected: this.state.isAllSelected,
-      queryParams,
-      loading: engageMessagesQuery.loading || engageStatsQuery.loading,
-      emailPercentages: engageStatsQuery.engageEmailPercentages || {},
-      refetch: this.refetch,
-    };
+  const updatedProps = {
+    kind: queryParams.kind,
+    messages: engageMessagesQuery.engageMessages || [],
+    totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
+    bulk,
+    isAllSelected,
+    queryParams,
+    loading: engageMessagesQuery.loading || engageStatsQuery.loading,
+    emailPercentages: engageStatsQuery.engageEmailPercentages || {},
+    refetch,
+  };
 
-    const content = (props) => {
-      return <MessageList {...updatedProps} {...props} />;
-    };
+  const content = (props) => {
+    return <MessageList {...updatedProps} {...props} />;
+  };
 
-    return <Bulk content={content} />;
-  }
-}
+  return <Bulk content={content} />;
+};
 
 const MessageListContainerWithData = withProps<Props>(
   compose(
     graphql<Props, EngageMessagesQueryResponse, ListQueryVariables>(
       gql(queries.engageMessages),
       {
-        name: 'engageMessagesQuery',
+        name: "engageMessagesQuery",
         options: (props) => ({
           variables: generateListQueryVariables(props),
         }),
-      },
+      }
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageMessagesTotalCount),
       {
-        name: 'engageMessagesTotalCountQuery',
+        name: "engageMessagesTotalCountQuery",
         options: (props) => ({
           variables: generateListQueryVariables(props),
         }),
-      },
+      }
     ),
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageEmailPercentages),
       {
-        name: 'engageStatsQuery',
-      },
-    ),
-  )(MessageListContainer),
+        name: "engageStatsQuery",
+      }
+    )
+  )(MessageListContainer)
 );
 
-const EngageListContainer = (props: IRouterProps & Props) => {
-  const queryParams = queryString.parse(props.location.search);
+const EngageListContainer = (props: Props) => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
 
   const extendedProps = { ...props, queryParams };
 

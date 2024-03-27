@@ -1,4 +1,4 @@
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -195,10 +195,10 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <Select
               placeholder={__('Choose phone number')}
-              value={fromIntegrationId}
+              value={this.fromSelectOptions().find(option => option.value === fromIntegrationId)}
               onChange={onChangeFrom}
               options={this.fromSelectOptions()}
-              optionRenderer={this.fromOptionRenderer}
+              // optionRenderer={this.fromOptionRenderer}
             />
           </FormGroup>
           <FormGroup>

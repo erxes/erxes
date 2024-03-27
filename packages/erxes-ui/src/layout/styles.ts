@@ -208,15 +208,15 @@ const SidebarFooter = styledTS<{ children: any }>(styled(SidebarHeader))`
 
 const SidebarBox = styledTS<{
   noBackground?: boolean;
-  noShadow?: boolean;
+  $noShadow?: boolean;
   $collapsible?: boolean;
   full?: boolean;
-  noMargin?: boolean;
+  $noMargin?: boolean;
 }>(styled.div)`
   background-color: ${(props) => (props.noBackground ? '' : colors.colorWhite)};
-  margin-bottom: ${(props) => !props.noMargin && dimensions.unitSpacing}px;
+  margin-bottom: ${(props) => !props.$noMargin && dimensions.unitSpacing}px;
   box-shadow: ${(props) =>
-    props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
+    props.$noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${(props) =>
     props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
   position: ${(props) => (props.full ? 'initial' : 'relative')};

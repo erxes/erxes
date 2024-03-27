@@ -56,7 +56,7 @@ class ChannelStep extends React.Component<Props> {
 
   render() {
     return (
-      <FullContent center={true}>
+      <FullContent $center={true}>
         {this.renderBox(
           METHODS.EMAIL,
           'envelope-edit',

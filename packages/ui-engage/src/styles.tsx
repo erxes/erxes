@@ -456,11 +456,11 @@ const Shell = styled.div`
   }
 `;
 
-const DesktopPreviewContent = styledTS<{ templateId?: string }>(styled.div)`
+const DesktopPreviewContent = styledTS<{ templateid?: string }>(styled.div)`
   width: 70%;
   margin: 0 auto;
-  background: ${(props) => !props.templateId && colors.colorWhite}
-  padding: ${(props) => !props.templateId && `${dimensions.coreSpacing}px`}
+  background: ${(props) => !props.templateid && colors.colorWhite}
+  padding: ${(props) => !props.templateid && `${dimensions.coreSpacing}px`}
 `;
 
 const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`

@@ -202,7 +202,7 @@ class List extends React.Component<Props> {
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
