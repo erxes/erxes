@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IConfigsMap, IProduct } from '../types';
 import {
   ProductCategoriesQueryResponse,
@@ -27,8 +27,7 @@ type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productsConfigsQuery: ProductsConfigsQueryResponse;
   uomsQuery: UomsQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const ProductFormContainer = (props: FinalProps) => {
   const { productCategoriesQuery, productsConfigsQuery, uomsQuery } = props;

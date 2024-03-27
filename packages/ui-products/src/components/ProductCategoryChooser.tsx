@@ -1,11 +1,11 @@
-import React from 'react';
-// import Select from 'react-select-plus';
+import React from "react";
+import Select from "react-select";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { CategoryContainer } from '../styles';
-import { IProductCategory } from '../types';
-import { IOption } from '@erxes/ui/src/types';
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/core";
+import { CategoryContainer } from "../styles";
+import { IProductCategory } from "../types";
+import { IOption } from "@erxes/ui/src/types";
 
 type Props = {
   categories: IProductCategory[];
@@ -25,15 +25,15 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: this.props.currentId || '',
+      categoryId: this.props.currentId || "",
     };
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const { currentId } = this.props;
     if (prevProps.currentId) {
-      if (currentId === '') {
-        this.setState({ categoryId: '' });
+      if (currentId === "") {
+        this.setState({ categoryId: "" });
       }
     }
   }
@@ -48,7 +48,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     }));
 
     if (customOption) {
-      options.unshift({ ...customOption, order: '0', isRoot: true });
+      options.unshift({ ...customOption, order: "0", isRoot: true });
     }
 
     return options;
@@ -64,7 +64,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
       if (foundCategory) {
         const childs = categories.filter((c) =>
-          c.order.startsWith(foundCategory.order),
+          c.order.startsWith(foundCategory.order)
         );
 
         if (childs.length) {
@@ -87,10 +87,10 @@ class ProductCategoryChooser extends React.Component<Props, State> {
       </>
     );
     const order = option.order.match(/[/]/gi);
-    let space = '';
+    let space = "";
 
     if (order) {
-      space = '\u00A0 '.repeat(order.length);
+      space = "\u00A0 ".repeat(order.length);
     }
 
     return (
@@ -109,15 +109,17 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
     return (
       <CategoryContainer>
-        {/* <Select
-          isRequired={true}
-          placeholder={__('Choose a category')}
-          optionRenderer={this.renderOptions}
+        <Select
+          required={true}
+          placeholder={__("Choose a category")}
+          // optionRenderer={this.renderOptions}
           options={this.selectOptions(categories)}
-          value={this.state.categoryId}
+          value={this.selectOptions(categories).find(
+            (option) => option.value === this.state.categoryId
+          )}
           onChange={onChangeCategory}
-          clearable={false}
-        /> */}
+          isClearable={false}
+        />
       </CategoryContainer>
     );
   }

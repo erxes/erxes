@@ -6,7 +6,7 @@ import Icon from './Icon';
 import client from '../apolloClient';
 import debounce from 'lodash/debounce';
 import { gql } from '@apollo/client';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -327,23 +327,23 @@ function AutoCompletionSelect({
   return (
     <Wrapper>
       <FillContent>
-        {/* <Select
-          ref={selectRef}
+        <Select
+          // ref={selectRef}
           isLoading={loading}
           required={required}
           placeholder={placeholder}
-          inputRenderer={inputRenderer}
+          // inputRenderer={inputRenderer}
           value={selectedValue}
           options={[fields.added, fields.search]}
-          onSelectResetsInput={true}
-          onBlurResetsInput={true}
+          // onSelectResetsInput={true}
+          // onBlurResetsInput={true}
           onBlur={handleOnBlur}
           onChange={handleChange}
-          onInputKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDown}
           onInputChange={handleInput}
-          optionComponent={Option}
-          noResultsText={renderNoResult()}
-        /> */}
+          // optionComponent={Option}
+          // noResultsText={renderNoResult()}
+        />
       </FillContent>
     </Wrapper>
   );
