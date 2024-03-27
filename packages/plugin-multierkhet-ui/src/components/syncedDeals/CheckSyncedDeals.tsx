@@ -1,13 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import CheckSyncedDealsSidebar from './CheckSyncedDealsSidebar';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React, { useState } from 'react';
-import Row from './CheckSyncedDealsRow';
-import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui/src/styles/main';
-import { menuMultierkhet } from '../../constants';
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { DataWithLoader, Pagination, Table, __ } from "@erxes/ui/src";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import CheckSyncedDealsSidebar from "./CheckSyncedDealsSidebar";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Row from "./CheckSyncedDealsRow";
+import { Title } from "@erxes/ui/src/styles/main";
+import { menuMultierkhet } from "../../constants";
 
 type Props = {
   totalCount: number;
@@ -20,7 +21,7 @@ type Props = {
   emptyBulk: () => void;
   checkSynced: (
     doc: { dealIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
@@ -29,7 +30,7 @@ type Props = {
   toSyncDeals: (
     dealIds: string[],
     configStageId: string,
-    dateType: string,
+    dateType: string
   ) => void;
   dateType: string;
 };
@@ -72,7 +73,7 @@ const CheckSyncedDeals = (props: Props) => {
   };
 
   const onChange = () => {
-    toggleAll(deals, 'deals');
+    toggleAll(deals, "deals");
   };
 
   const checkSynced = async (deals) => {
@@ -86,18 +87,20 @@ const CheckSyncedDeals = (props: Props) => {
   };
 
   const tablehead = [
-    'deal name',
-    'deal number',
-    'Amount',
-    'created At',
-    'modified At',
-    'stage Changed Date',
-    'Un Synced',
-    'Brand',
-    'Synced Date',
-    'Synced bill Number',
-    'Synced Customer',
-    'Sync Actions',
+    "deal name",
+    "deal number",
+    "Amount",
+    "created At",
+    "modified At",
+    "stage Changed Date",
+    "Un Synced",
+    "",
+    "Brand",
+    "Synced Date",
+    "Synced bill Number",
+    "Synced Customer",
+    "",
+    "Sync Actions",
   ];
 
   const Content = (
@@ -112,7 +115,7 @@ const CheckSyncedDeals = (props: Props) => {
             />
           </th>
           {tablehead.map((p) => (
-            <th key={p}>{p || ''}</th>
+            <th key={p}>{p || ""}</th>
           ))}
         </tr>
       </thead>
@@ -145,7 +148,7 @@ const CheckSyncedDeals = (props: Props) => {
         toSyncDeals(
           unSyncedDealIds,
           queryParams.configStageId,
-          queryParams.dateType,
+          queryParams.dateType
         );
       })
       .catch((error) => {
