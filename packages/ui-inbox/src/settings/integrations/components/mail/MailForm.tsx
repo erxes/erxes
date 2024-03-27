@@ -83,7 +83,6 @@ type Props = {
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
   messages: string[];
-  history: any;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;
@@ -782,7 +781,6 @@ class MailForm extends React.Component<Props, State> {
                   totalCount={totalCount}
                   fetchMoreEmailTemplates={fetchMoreEmailTemplates}
                   targets={generateEmailTemplateParams(emailTemplates || [])}
-                  history={history}
                   loading={loading}
                 />
               )}
