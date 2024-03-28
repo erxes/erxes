@@ -70,15 +70,6 @@ export const sendNotificationsMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
 export const sendTicketsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
