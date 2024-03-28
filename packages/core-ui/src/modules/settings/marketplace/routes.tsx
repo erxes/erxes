@@ -1,14 +1,14 @@
-import { Route, Routes, useParams } from 'react-router-dom';
+import { Route, Routes, useParams } from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 const Store = asyncComponent(
-  () => import(/* webpackChunkName: "Store" */ './containers/Store'),
+  () => import(/* webpackChunkName: "Store" */ "./containers/Store")
 );
 
 const PluginDetails = asyncComponent(
-  () => import(/* webpackChunkName: "Store" */ './containers/PluginDetails'),
+  () => import(/* webpackChunkName: "Store" */ "./containers/PluginDetails")
 );
 
 const Detail = () => {
@@ -26,7 +26,7 @@ const routes = () => {
         element={<Detail />}
       />
 
-      <Route path="/marketplace" key="/marketplace" element={Store} />
+      <Route path="/marketplace" key="/marketplace" element={<Store />} />
     </Routes>
   );
 };
