@@ -11061,7 +11061,7 @@ debug@4.3.4, debug@^4, debug@^4.3.3, debug@^4.3.4:
   dependencies:
     ms "2.1.2"
 
-debug@^3.1.0, debug@^3.2.6:
+debug@^3.1.0:
   version "3.2.6"
   resolved "https://registry.npmjs.org/debug/-/debug-3.2.6.tgz"
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
@@ -12931,27 +12931,10 @@ first-chunk-stream@^0.1.0:
   resolved "https://registry.npmjs.org/first-chunk-stream/-/first-chunk-stream-0.1.0.tgz"
   integrity sha512-o7kVqimu9cl+XNeEGqDPI8Ms4IViicBnjIDZ5uU+7aegfDhJJiU1Da9y52Qt0TfBO3rpKA5hW2cqwp4EkCfl9w==
 
-follow-redirects@^1.0.0:
-  version "1.7.0"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.7.0.tgz"
-  integrity sha512-m/pZQy4Gj287eNy94nivy5wchN3Kp+Q5WgUPNy5lJSZ3sgkVKSYV/ZChMAQVIgx1SqfZ2zBZtPA2YlXIWxxJOQ==
-  dependencies:
-    debug "^3.2.6"
-
-follow-redirects@^1.14.0:
-  version "1.14.8"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.14.8.tgz"
-  integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
-
-follow-redirects@^1.14.7, follow-redirects@^1.14.8, follow-redirects@^1.15.0:
-  version "1.15.2"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.2.tgz"
-  integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
-
-follow-redirects@^1.15.4:
-  version "1.15.5"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.5.tgz#54d4d6d062c0fa7d9d17feb008461550e3ba8020"
-  integrity sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==
+follow-redirects@^1.0.0, follow-redirects@^1.14.0, follow-redirects@^1.14.7, follow-redirects@^1.14.8, follow-redirects@^1.15.0, follow-redirects@^1.15.4:
+  version "1.15.6"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
+  integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
 
 for-each@^0.3.3:
   version "0.3.3"
