@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IIntegration } from '../../types';
-// import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegration } from "../../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -31,7 +31,7 @@ class MailChooser extends React.Component<Props> {
     const {
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
-      selectedItem = '',
+      selectedItem = "",
       onChange,
     } = this.props;
 
@@ -41,11 +41,11 @@ class MailChooser extends React.Component<Props> {
 
     const options = [
       {
-        label: 'Shared Emails (IMAP)',
+        label: "Shared Emails (IMAP)",
         options: verifiedImapEmails.map((e) => ({ value: e, label: e })),
       },
       {
-        label: 'Broadcast (Campaign)',
+        label: "Broadcast (Campaign)",
         options: verifiedEngageEmails.map((e) => ({ value: e, label: e })),
       },
     ];
@@ -53,12 +53,14 @@ class MailChooser extends React.Component<Props> {
     return (
       <Wrapper>
         <FormGroup>
-          {/* <Select
-            placeholder={__('Choose email to send from')}
-            value={selectedItem}
+          <Select
+            placeholder={__("Choose email to send from")}
+            value={options.map((o) =>
+              o.options.find((item) => item.value === selectedItem)
+            )}
             onChange={onSelectChange}
             options={options}
-          /> */}
+          />
         </FormGroup>
       </Wrapper>
     );

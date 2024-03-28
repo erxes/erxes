@@ -242,7 +242,9 @@ class PipelineForm extends React.Component<Props, State> {
         <ControlLabel required={true}>Campaign</ControlLabel>
         <Select
           placeholder={__("Choose a campaign")}
-          value={boardOptions.find((option) => option.value === this.state.boardId)}
+          value={boardOptions.find(
+            (option) => option.value === this.state.boardId
+          )}
           options={boardOptions}
           onChange={onChange}
           isClearable={false}
@@ -356,7 +358,9 @@ class PipelineForm extends React.Component<Props, State> {
               <ControlLabel>Metric</ControlLabel>
               <Select
                 placeholder={__("Choose a metric")}
-                value={metricOptions.find((option) => option.options.value === metric)}
+                value={metricOptions.map((option) =>
+                  option.options.find((item) => item.value === metric)
+                )}
                 options={metricOptions}
                 onChange={onChangeMetric}
                 isClearable={false}

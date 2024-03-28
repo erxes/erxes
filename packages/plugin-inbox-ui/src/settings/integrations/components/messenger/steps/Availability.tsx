@@ -1,30 +1,30 @@
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
-import OnlineHours from './OnlineHours';
-import { RESPOND_RATES } from '../../../constants';
-import React from 'react';
-// import Select from 'react-select-plus';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { ToggleWrapper } from '../widgetPreview/styles';
-import { __ } from '@erxes/ui/src/utils';
-import timezones from '@erxes/ui/src/constants/timezones';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Description } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IOnlineHour } from "@erxes/ui-inbox/src/settings/integrations/types";
+import OnlineHours from "./OnlineHours";
+import { RESPOND_RATES } from "../../../constants";
+import React from "react";
+import Select from "react-select";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { ToggleWrapper } from "../widgetPreview/styles";
+import { __ } from "@erxes/ui/src/utils";
+import timezones from "@erxes/ui/src/constants/timezones";
 
 type Props = {
   onChange: (
     name:
-      | 'onlineHours'
-      | 'isOnline'
-      | 'availabilityMethod'
-      | 'responseRate'
-      | 'showTimezone'
-      | 'timezone'
-      | 'hideWhenOffline',
-    value: string,
+      | "onlineHours"
+      | "isOnline"
+      | "availabilityMethod"
+      | "responseRate"
+      | "showTimezone"
+      | "timezone"
+      | "hideWhenOffline",
+    value: string
   ) => void;
   isOnline: boolean;
   hideWhenOffline?: boolean;
@@ -37,7 +37,7 @@ type Props = {
 
 class Availability extends React.Component<Props> {
   onSelectChange = (e, name) => {
-    let value = '';
+    let value = "";
 
     if (e) {
       value = e.value;
@@ -54,11 +54,11 @@ class Availability extends React.Component<Props> {
 
   onOnlineHoursChange = (onlineHours) => {
     this.setState({ onlineHours });
-    this.props.onChange('onlineHours', onlineHours);
+    this.props.onChange("onlineHours", onlineHours);
   };
 
   renderOnlineHours() {
-    if (this.props.availabilityMethod === 'manual') {
+    if (this.props.availabilityMethod === "manual") {
       return null;
     }
 
@@ -71,11 +71,11 @@ class Availability extends React.Component<Props> {
   }
 
   renderIsOnline() {
-    if (this.props.availabilityMethod === 'auto') {
+    if (this.props.availabilityMethod === "auto") {
       return null;
     }
 
-    const onChange = (e) => this.onChangeFunction('isOnline', e.target.checked);
+    const onChange = (e) => this.onChangeFunction("isOnline", e.target.checked);
 
     return (
       <FormGroup>
@@ -95,36 +95,36 @@ class Availability extends React.Component<Props> {
   }
 
   renderShowTimezone() {
-    const { timezone = '' } = this.props;
+    const { timezone = "" } = this.props;
 
     const onChange = (e) =>
-      this.onChangeFunction('showTimezone', e.target.checked);
+      this.onChangeFunction("showTimezone", e.target.checked);
 
-    const timezoneOnChange = (e) => this.onSelectChange(e, 'timezone');
+    const timezoneOnChange = (e) => this.onSelectChange(e, "timezone");
 
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>{__('Default Timezone')}</ControlLabel>
+          <ControlLabel>{__("Default Timezone")}</ControlLabel>
           <Description>
             {__(
-              "This timezone will be calculated if supporters haven't chosen one.",
+              "This timezone will be calculated if supporters haven't chosen one."
             )}
           </Description>
-          {/* <Select
-            value={timezone}
+          <Select
+            value={timezones.find((o) => o.value === timezone)}
             options={timezones}
             onChange={timezoneOnChange}
-          /> */}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>
-            {__('Display Operator Timezone')}
+            {__("Display Operator Timezone")}
           </ControlLabel>
           <Description>
-            {' '}
+            {" "}
             {__(
-              'Display chat operator timezone set in their location in team member profiles',
+              "Display chat operator timezone set in their location in team member profiles"
             )}
           </Description>
           <ToggleWrapper>
@@ -145,22 +145,22 @@ class Availability extends React.Component<Props> {
   renderOfflineOption() {
     const { availabilityMethod, hideWhenOffline } = this.props;
 
-    if (availabilityMethod === 'manual') {
+    if (availabilityMethod === "manual") {
       return null;
     }
 
     const onChange = (e) =>
-      this.onChangeFunction('hideWhenOffline', e.target.checked);
+      this.onChangeFunction("hideWhenOffline", e.target.checked);
 
     return (
       <React.Fragment>
         <FormGroup>
           <ControlLabel>
-            {__('Hide messenger during offline hours')}
+            {__("Hide messenger during offline hours")}
           </ControlLabel>
           <Description>
             {__(
-              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors.",
+              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
             )}
           </Description>
 
@@ -182,11 +182,11 @@ class Availability extends React.Component<Props> {
   render() {
     const onChange = (e) =>
       this.onChangeFunction(
-        'availabilityMethod',
-        (e.currentTarget as HTMLInputElement).value,
+        "availabilityMethod",
+        (e.currentTarget as HTMLInputElement).value
       );
 
-    const respondTypeOnChange = (e) => this.onSelectChange(e, 'responseRate');
+    const respondTypeOnChange = (e) => this.onSelectChange(e, "responseRate");
 
     return (
       <FlexItem>
@@ -195,21 +195,21 @@ class Availability extends React.Component<Props> {
             <FormControl
               value="manual"
               componentClass="radio"
-              checked={this.props.availabilityMethod === 'manual'}
+              checked={this.props.availabilityMethod === "manual"}
               onChange={onChange}
               inline={true}
             >
-              {__('Turn online/offline manually')}
+              {__("Turn online/offline manually")}
             </FormControl>
 
             <FormControl
               value="auto"
               componentClass="radio"
-              checked={this.props.availabilityMethod === 'auto'}
+              checked={this.props.availabilityMethod === "auto"}
               onChange={onChange}
               inline={true}
             >
-              {__('Set to follow your schedule')}
+              {__("Set to follow your schedule")}
             </FormControl>
           </FormGroup>
 
@@ -219,15 +219,17 @@ class Availability extends React.Component<Props> {
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
             <Description>
-              {__('Set to display your pre defined response rate')}
+              {__("Set to display your pre defined response rate")}
             </Description>
-            {/* <Select
+            <Select
               required={true}
-              value={this.props.responseRate}
+              value={RESPOND_RATES.find(
+                (o) => o.value === this.props.responseRate
+              )}
               options={RESPOND_RATES}
               onChange={respondTypeOnChange}
-              clearable={false}
-            /> */}
+              isClearable={false}
+            />
           </FormGroup>
 
           {this.renderShowTimezone()}

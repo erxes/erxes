@@ -1,15 +1,15 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-// import Select from 'react-select-plus';
-import React from 'react';
-import { WEBHOOK_ACTIONS } from '@erxes/ui-settings/src/constants';
-import { __ } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import React from "react";
+import { WEBHOOK_ACTIONS } from "@erxes/ui-settings/src/constants";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -67,8 +67,8 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
     selectedActions.map(
       (selectedAction) =>
         WEBHOOK_ACTIONS.find(
-          (action) => action.label === selectedAction.label,
-        ) || {},
+          (action) => action.label === selectedAction.label
+        ) || {}
     );
 
   generateDoc = (values: { _id?: string; url: string }) => {
@@ -104,13 +104,15 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Actions</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose actions')}
+          <Select
+            placeholder={__("Choose actions")}
             options={this.generateActions()}
-            value={this.state.selectedActions}
-            onChange={this.select.bind(this, 'selectedActions')}
-            multi={true}
-          /> */}
+            value={this.generateActions().filter((o) =>
+              this.state.selectedActions.includes(o.value)
+            )}
+            onChange={this.select.bind(this, "selectedActions")}
+            isMulti={true}
+          />
         </FormGroup>
 
         <ModalFooter>
@@ -124,7 +126,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'integration',
+            name: "integration",
             values: this.generateDoc(values),
             isSubmitted,
             callback,

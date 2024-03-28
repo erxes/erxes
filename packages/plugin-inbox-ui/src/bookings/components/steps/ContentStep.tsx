@@ -1,37 +1,36 @@
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
+import { Description, SubHeading } from "@erxes/ui-settings/src/styles";
 import {
   Flex,
   FlexHeight as FlexItemContainer,
-} from '@erxes/ui/src/styles/main';
-import { __, extractAttachment } from 'coreui/utils';
+} from "@erxes/ui/src/styles/main";
+import { __, extractAttachment } from "coreui/utils";
 
-import { BOOKING_DISPLAY_BLOCK } from '../../constants';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IField } from '@erxes/ui/src/types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
-// import Select from "react-select-plus";
-import SelectProductCategory from '../../containers/SelectProductCategory';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { BOOKING_DISPLAY_BLOCK } from "../../constants";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexItem } from "@erxes/ui/src/layout/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IField } from "@erxes/ui/src/types";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
+import Select from "react-select";
+import SelectProductCategory from "../../containers/SelectProductCategory";
+import Uploader from "@erxes/ui/src/components/Uploader";
 
 type Name =
-  | 'name'
-  | 'description'
-  | 'userFilters'
-  | 'productCategoryId'
-  | 'image'
-  | 'fieldsGroup'
-  | 'line'
-  | 'columns'
-  | 'rows'
-  | 'margin'
-  | 'navigationText'
-  | 'bookingFormText'
-  | 'productFieldIds';
+  | "name"
+  | "description"
+  | "userFilters"
+  | "productCategoryId"
+  | "image"
+  | "fieldsGroup"
+  | "line"
+  | "columns"
+  | "rows"
+  | "margin"
+  | "navigationText"
+  | "bookingFormText"
+  | "productFieldIds";
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
@@ -95,7 +94,7 @@ function ContentStep({
               <FormControl
                 type="text"
                 value={name}
-                onChange={(e: any) => onChangeBooking('name', e.target.value)}
+                onChange={(e: any) => onChangeBooking("name", e.target.value)}
               />
             </FormGroup>
           </FlexItem>
@@ -107,7 +106,7 @@ function ContentStep({
             type="text"
             value={description}
             onChange={(e: any) =>
-              onChangeBooking('description', e.target.value)
+              onChangeBooking("description", e.target.value)
             }
           />
         </FormGroup>
@@ -116,16 +115,16 @@ function ContentStep({
           <ControlLabel>Booking Image</ControlLabel>
           <Uploader
             defaultFileList={images}
-            onChange={(e) => onChangeBooking('image', e.length ? e[0] : null)}
+            onChange={(e) => onChangeBooking("image", e.length ? e[0] : null)}
             multiple={false}
             single={true}
           />
         </FormGroup>
         <br />
-        <SubHeading>{__('Widget Header')}</SubHeading>
+        <SubHeading>{__("Widget Header")}</SubHeading>
 
         <FormGroup>
-          <ControlLabel>{__('Navigation')}</ControlLabel>
+          <ControlLabel>{__("Navigation")}</ControlLabel>
           <Description>
             Type in a word to display as the navigation button text
           </Description>
@@ -133,7 +132,7 @@ function ContentStep({
             type="text"
             value={navigationText}
             onChange={(e: any) =>
-              onChangeBooking('navigationText', e.target.value)
+              onChangeBooking("navigationText", e.target.value)
             }
           />
         </FormGroup>
@@ -142,18 +141,19 @@ function ContentStep({
   };
 
   const renderDisplayBlock = () => {
+    const options = generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST);
     return (
       <>
         <Flex>
           <FlexItem count={3}>
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
-              {/* <Select
-                options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
+              <Select
+                options={options}
                 placeholder="Choose line"
-                value={line}
+                value={options.find((option) => option.value === line)}
                 onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
-              /> */}
+              />
             </FormGroup>
           </FlexItem>
 
@@ -165,7 +165,7 @@ function ContentStep({
                 min={0}
                 value={columns}
                 onChange={(e: any) =>
-                  onChangeBooking('columns', e.target.value)
+                  onChangeBooking("columns", e.target.value)
                 }
               />
             </FormGroup>
@@ -178,7 +178,7 @@ function ContentStep({
                 type="number"
                 min={0}
                 value={rows}
-                onChange={(e: any) => onChangeBooking('rows', e.target.value)}
+                onChange={(e: any) => onChangeBooking("rows", e.target.value)}
               />
             </FormGroup>
           </FlexItem>
@@ -190,7 +190,7 @@ function ContentStep({
                 type="number"
                 min={0}
                 value={margin}
-                onChange={(e: any) => onChangeBooking('margin', e.target.value)}
+                onChange={(e: any) => onChangeBooking("margin", e.target.value)}
               />
             </FormGroup>
           </FlexItem>
@@ -202,19 +202,19 @@ function ContentStep({
   const renderProductDetails = () => {
     return (
       <>
-        <SubHeading>{__('Products')}</SubHeading>
+        <SubHeading>{__("Products")}</SubHeading>
         <FormGroup>
           <ControlLabel required={true}>
-            {__('Main Product Category')}
+            {__("Main Product Category")}
           </ControlLabel>
           <Description>
             Select the main Product Category of the products and services you
             want to display. If you haven't created one, please go to
-            <a href="/settings/product-service">{__(' Product & Service ')}</a>
+            <a href="/settings/product-service">{__(" Product & Service ")}</a>
             to organize your product first.
           </Description>
           <SelectProductCategory
-            onChange={(e: any) => onChangeSelect('productCategoryId', e)}
+            onChange={(e: any) => onChangeSelect("productCategoryId", e)}
             value={productCategoryId}
             placeholder="Choose product category"
           />
@@ -223,7 +223,7 @@ function ContentStep({
         {renderDisplayBlock()}
 
         <FormGroup>
-          <SubHeading>{__('Booking Form Button Text')}</SubHeading>
+          <SubHeading>{__("Booking Form Button Text")}</SubHeading>
           <Description>
             Type in a word to display as the booking form button text in the
             product detail page.
@@ -232,17 +232,17 @@ function ContentStep({
             type="text"
             value={bookingFormText}
             onChange={(e: any) =>
-              onChangeBooking('bookingFormText', e.target.value)
+              onChangeBooking("bookingFormText", e.target.value)
             }
           />
         </FormGroup>
 
         <FormGroup>
-          <SubHeading>{__('Product details')}</SubHeading>
+          <SubHeading>{__("Product details")}</SubHeading>
           <Description>
             Select custom properties to display on the product detail page.
           </Description>
-          {/* <Select
+          <Select
             options={generateSelectOptions(productFields)}
             onChange={(e: any) =>
               onChangeBooking(
@@ -250,10 +250,12 @@ function ContentStep({
                 e.map((field) => field.value)
               )
             }
-            value={productFieldIds}
-            multi={true}
+            value={generateSelectOptions(productFields).filter((option) =>
+              productFieldIds?.includes(option.value)
+            )}
+            isMulti={true}
             placeholder="Choose custom properties"
-          /> */}
+          />
         </FormGroup>
       </>
     );

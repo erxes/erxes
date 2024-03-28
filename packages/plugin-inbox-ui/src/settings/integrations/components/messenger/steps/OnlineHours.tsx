@@ -1,14 +1,14 @@
-import { days, hours } from '@erxes/ui/src/constants/integrations';
+import { days, hours } from "@erxes/ui/src/constants/integrations";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-// import Select from 'react-select-plus';
-import styled from 'styled-components';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexRow } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IOnlineHour } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Select from "react-select";
+import styled from "styled-components";
 
 const FillContent = styled.div`
   flex: 1;
@@ -80,50 +80,50 @@ class OnlineHours extends React.Component<Props, State> {
     };
 
     const onDayChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'day', e.value);
+      this.onTimeItemChange(onlineHour._id, "day", e.value);
     };
 
     const onFromChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'from', e.value);
+      this.onTimeItemChange(onlineHour._id, "from", e.value);
     };
 
     const onToChange = (e) => {
-      this.onTimeItemChange(onlineHour._id, 'to', e.value);
+      this.onTimeItemChange(onlineHour._id, "to", e.value);
     };
 
     const { _id, day, from, to } = onlineHour;
     return (
       <FlexRow key={_id}>
         <FillContent>
-          {/* <Select
+          <Select
             className="flex-item"
-            value={day}
+            value={days.find((o) => o.value === day)}
             options={days}
             onChange={onDayChange}
-            clearable={false}
-          /> */}
+            isClearable={false}
+          />
         </FillContent>
 
         <span>from</span>
         <FillContent>
-          {/* <Select
+          <Select
             className="flex-item"
             onChange={onFromChange}
-            value={from}
+            value={hours.find((o) => o.value === from)}
             options={hours}
-            clearable={false}
-          /> */}
+            isClearable={false}
+          />
         </FillContent>
 
         <span>to</span>
         <FillContent>
-          {/* <Select
+          <Select
             className="flex-item"
             onChange={onToChange}
-            value={to}
+            value={hours.find((o) => o.value === to)}
             options={hours}
-            clearable={false}
-          /> */}
+            isClearable={false}
+          />
         </FillContent>
 
         <Button size="small" btnStyle="danger" onClick={remove}>
@@ -139,7 +139,7 @@ class OnlineHours extends React.Component<Props, State> {
         <ControlLabel>Online hours</ControlLabel>
 
         {this.state.onlineHours.map((onlineHour) =>
-          this.renderOnlineHour(onlineHour),
+          this.renderOnlineHour(onlineHour)
         )}
 
         <br />

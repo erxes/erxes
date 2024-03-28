@@ -16,7 +16,7 @@ import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from 'coreui/utils';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 
 type Props = {
   onChange: (
@@ -221,13 +221,13 @@ const OptionStep = (props: Props) => {
 
         <FormGroup>
           <ControlLabel>Language</ControlLabel>
-          {/* <Select
+          <Select
             id="language"
-            value={language}
+            value={LANGUAGES.find(o => o.value === language)}
             options={LANGUAGES}
             onChange={onChangeLanguage}
-            clearable={false}
-          /> */}
+            isClearable={false}
+          />
         </FormGroup>
 
         <FormGroup>

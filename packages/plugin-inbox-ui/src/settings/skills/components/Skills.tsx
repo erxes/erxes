@@ -97,7 +97,7 @@ function Skills(props: Props) {
 
   function renderData() {
     return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>

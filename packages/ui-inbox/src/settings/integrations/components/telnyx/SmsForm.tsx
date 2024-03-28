@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IIntegrationWithPhone } from '@erxes/ui-engage/src/types';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import colors from '@erxes/ui/src/styles/colors';
-// import Select from 'react-select-plus';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegrationWithPhone } from "@erxes/ui-engage/src/types";
+import { ISelectedOption } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import colors from "@erxes/ui/src/styles/colors";
+import Select from "react-select";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const SMSInfo = styled.div`
   display: flex;
@@ -47,8 +47,8 @@ class SmsForm extends React.Component<Props, State> {
 
     this.state = {
       characterCount: 160,
-      message: '',
-      integrationId: '',
+      message: "",
+      integrationId: "",
     };
   }
 
@@ -68,7 +68,7 @@ class SmsForm extends React.Component<Props, State> {
         value: i._id,
         label: `${i.name} (${i.phoneNumber})`,
         disabled: !i.isActive,
-      }),
+      })
     );
 
     return options;
@@ -94,9 +94,9 @@ class SmsForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="message"
-          disabled={hasContent === '' || !primaryPhone}
+          disabled={hasContent === "" || !primaryPhone}
         >
-          {__('Send')}
+          {__("Send")}
         </Button>
       </ButtonWrapper>
     );
@@ -109,7 +109,7 @@ class SmsForm extends React.Component<Props, State> {
       this.setState({ message: (e.target as HTMLInputElement).value });
 
     const onChangeFrom = (value: ISelectedOption) => {
-      const userId = value ? value.value : '';
+      const userId = value ? value.value : "";
 
       this.setState({ integrationId: userId });
     };
@@ -127,17 +127,19 @@ class SmsForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel>From:</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose phone number')}
-            value={this.state.integrationId}
+          <Select
+            placeholder={__("Choose phone number")}
+            value={this.fromSelectOptions().find(
+              (o) => o.value === this.state.integrationId
+            )}
             onChange={onChangeFrom}
             options={this.fromSelectOptions()}
-            optionRenderer={this.fromOptionRenderer}
-          /> */}
+            // optionRenderer={this.fromOptionRenderer}
+          />
         </FormGroup>
         <FormGroup>
           <SMSInfo>
-            <ControlLabel>{__('SMS content')}:</ControlLabel>
+            <ControlLabel>{__("SMS content")}:</ControlLabel>
             <Char count={characterCount}>{characterCount}</Char>
           </SMSInfo>
           <FormControl
