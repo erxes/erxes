@@ -58,7 +58,7 @@
     "cookie-parser": "^1.4.6",
     "dataloader": "^2.0.0",
     "erxes-telemetry": "^1.0.4",
-    "express": "^4.17.2",
+    "express": "^4.19.2",
     "validator": "^13.5.2",
     "underscore": "^1.13.2"
   }
