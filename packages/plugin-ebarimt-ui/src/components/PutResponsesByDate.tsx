@@ -1,14 +1,15 @@
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { DataWithLoader, Pagination, Table } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import { IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { DataWithLoader, Pagination, Table } from "@erxes/ui/src/components";
 
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IPutResponse } from '../types';
-import RightMenu from './RightMenu';
-import { SUB_MENUS } from '../constants';
-import { TableWrapper } from '../styles';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IPutResponse } from "../types";
+import { IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
+import RightMenu from "./RightMenu";
+import { SUB_MENUS } from "../constants";
+import { TableWrapper } from "../styles";
+import { __ } from "@erxes/ui/src/utils";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps {
@@ -61,26 +62,26 @@ const PutResponsesByDate: React.FC<IProps> = (props: IProps) => {
 
   const mainContent = errorMsg ? (
     <EmptyState
-      text={errorMsg.replace('GraphQL error: ', '')}
+      text={errorMsg.replace("GraphQL error: ", "")}
       size="full"
-      image={'/images/actions/11.svg'}
+      image={"/images/actions/11.svg"}
     />
   ) : (
     <TableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>{__('№')}</th>
-            <th>{__('Date')}</th>
-            <th>{__('Count')}</th>
-            <th>{__('CityTax')}</th>
-            <th>{__('Vat')}</th>
-            <th>{__('Amount')}</th>
+            <th>{__("№")}</th>
+            <th>{__("Date")}</th>
+            <th>{__("Count")}</th>
+            <th>{__("CityTax")}</th>
+            <th>{__("Vat")}</th>
+            <th>{__("Amount")}</th>
           </tr>
         </thead>
         <tbody id="putResponses">
           {(putResponses || []).map((putResponse, index) =>
-            renderRow(putResponse, index),
+            renderRow(putResponse, index)
           )}
         </tbody>
       </Table>
@@ -94,7 +95,7 @@ const PutResponsesByDate: React.FC<IProps> = (props: IProps) => {
     isFiltered,
     clearFilter,
     queryParams,
-    showMenu: errorMsg ? true : false,
+    showMenu: !!errorMsg,
   };
 
   const actionBarRight = (

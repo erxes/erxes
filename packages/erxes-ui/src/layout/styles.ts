@@ -41,7 +41,6 @@ const PageHeader = styled.div`
 const Contents = styledTS<{ $hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
-  margin: ${dimensions.unitSpacing}px 0 0 ${dimensions.unitSpacing}px;
   max-height: 100%;
   position: absolute;
   left: 0;
@@ -87,6 +86,7 @@ const MainContent = styledTS<{
   box-shadow: ${(props) =>
     !props.$transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${(props) => props.$center && '100%'};
+  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 const ContentBox = styledTS<{
@@ -150,12 +150,9 @@ const SideContent = styledTS<{
   width: ${(props) => (props.$wide ? '340px' : '290px')};
   flex: ${(props) => (props.$half ? '1' : 'none')};
   background: ${(props) => (props.$full ? colors.colorWhite : 'none')};
-  margin: 0 ${dimensions.unitSpacing}px;
   margin: ${(props) => props.$hasBorder && 0};
   border-right: ${(props) =>
     props.$hasBorder && `1px solid ${colors.borderPrimary}`};
-  box-shadow: ${(props) =>
-    props.$full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;
@@ -210,7 +207,7 @@ const SidebarBox = styledTS<{
   noBackground?: boolean;
   $noShadow?: boolean;
   $collapsible?: boolean;
-  full?: boolean;
+  $full?: boolean;
   $noMargin?: boolean;
 }>(styled.div)`
   background-color: ${(props) => (props.noBackground ? '' : colors.colorWhite)};
@@ -218,12 +215,12 @@ const SidebarBox = styledTS<{
   box-shadow: ${(props) =>
     props.$noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${(props) =>
-    props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
-  position: ${(props) => (props.full ? 'initial' : 'relative')};
+    props.$collapsible ? `${dimensions.unitSpacing}px` : '0'};
+  position: ${(props) => (props.$full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
-  overflow: ${(props) => (props.collapsible ? 'hidden' : 'initial')};
-  display: ${(props) => props.full && 'flex'};
+  overflow: ${(props) => (props.$collapsible ? 'hidden' : 'initial')};
+  display: ${(props) => props.$full && 'flex'};
   &:last-child {
     margin-bottom: 0;
   }

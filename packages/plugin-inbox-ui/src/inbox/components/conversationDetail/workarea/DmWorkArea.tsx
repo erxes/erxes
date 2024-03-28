@@ -12,6 +12,7 @@ import {
 
 import ActionBar from './ActionBar';
 import CallPro from './callpro/Callpro';
+import GrandStream from './grandStream/GrandStream';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
@@ -211,7 +212,7 @@ export default class WorkArea extends React.Component<Props, State> {
     if (kind === 'calls') {
       return (
         <>
-          <CallPro conversation={currentConversation} />
+          <GrandStream conversation={currentConversation} />
           {this.renderMessages(messages, firstMessage)}
         </>
       );
@@ -236,6 +237,7 @@ export default class WorkArea extends React.Component<Props, State> {
       kind === 'lead' ||
       kind === 'booking' ||
       kind === 'imap' ||
+      kind === 'calls' ||
       kind === 'webhook';
 
     const typingIndicator = typingInfo ? (

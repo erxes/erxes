@@ -24,11 +24,13 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
+  messages: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
+      messages = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
       selectedItem = "",
@@ -50,6 +52,10 @@ class MailChooser extends React.Component<Props> {
       },
     ];
 
+    let defaultEmail = "";
+    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
+      defaultEmail = messages[0].mailData.to[0].email;
+    }
     return (
       <Wrapper>
         <FormGroup>

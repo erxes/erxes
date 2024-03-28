@@ -251,8 +251,8 @@ export type TagAdd = (params: {
 
 export type IEmailFormProps = {
   onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value?: IEngageEmail | IEngageScheduleDate | string,
+    name: 'email' | 'content' | 'fromUserId',
+    value?: IEngageEmail | string
   ) => void;
   message?: string;
   users: IUser[];
@@ -261,7 +261,6 @@ export type IEmailFormProps = {
   email: IEngageEmail;
   fromUserId: string;
   content: string;
-  scheduleDate: IEngageScheduleDate;
   isSaved?: boolean;
 };
 

@@ -29,7 +29,7 @@ class UnreadCountContainer extends React.Component<FinalProps> {
       unreadConversationsCountQuery.subscribeToMore({
         // listen for all conversation changes
         document: gql(subscriptions.conversationClientMessageInserted),
-        variables: { subdomain: getSubdomain(), userId: currentUser._id },
+        variables: { userId: currentUser._id },
         updateQuery: (prev, { subscriptionData: { data } }) => {
           const { conversationClientMessageInserted } = data;
           const { content } = conversationClientMessageInserted || {};

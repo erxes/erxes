@@ -1,12 +1,10 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
 import {
   sectionSchema,
   ISection,
   ISectionDocument,
 } from './definitions/insight';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
 
 export interface ISectionModel extends Model<ISectionDocument> {
   getSection(_id: string): Promise<ISectionDocument>;

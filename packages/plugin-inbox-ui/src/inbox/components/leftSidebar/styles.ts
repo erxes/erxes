@@ -198,7 +198,6 @@ const LeftContent = styledTS<{ $isOpen?: boolean }>(styled.div)`
   flex-direction: row;
   padding-left: ${(props) => props.$isOpen && '200px'};
   transition: padding 0.3s ease;
-  box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
 
   > section {
     margin: 0;

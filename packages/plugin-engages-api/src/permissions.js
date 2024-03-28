@@ -26,7 +26,7 @@ module.exports = {
       },
       {
         name: 'engageMessageSetLiveManual',
-        description: 'Set a manual broadcast live'
+        description: 'Set a broadcast live'
       },
       {
         name: 'engageMessageRemove',

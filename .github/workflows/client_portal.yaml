@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - rc
       - staging
       - build-test
     paths:
@@ -13,8 +14,8 @@ on:
   pull_request:
     branches:
       - master
+      - rc
       - dev
-      - masterelop
       - apm
       - staging
     paths:
@@ -54,7 +55,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd client-portal
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

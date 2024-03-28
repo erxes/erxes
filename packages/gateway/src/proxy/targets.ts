@@ -47,22 +47,33 @@ async function ensureGraphqlEndpointIsUp({
 
   const endponit = `${address}/graphql`;
 
+  /*
+    query: 'query SubgraphIntrospectQuery {\n' +
+      '    # eslint-disable-next-line\n' +
+      '    _service {\n' +
+      '        sdl\n' +
+      '    }\n' +
+      '}',
+
+  */
   const res = await fetch(endponit, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      variables: null,
       query: `
-          query _ErxesGatewaySubgraphCheck_ {
+          query SubgraphIntrospectQuery {
             _service {
               sdl
             }
           }
           `,
+      operationName: 'SubgraphIntrospectQuery',
     }),
   });
-  if (res.status === 200) {
+  if (res.ok) {
     return;
   }
 
@@ -74,14 +85,13 @@ async function ensureGraphqlEndpointIsUp({
 async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
   const { name, address } = target;
   const endpoint = `${address}/graphql`;
-  const intervalSeconds = 1;
   await retry({
     fn: () => ensureGraphqlEndpointIsUp(target),
-    intervalMs: intervalSeconds * 1000,
+    intervalMs: 5 * 1000,
     maxTries: maxPluginRetry,
-    retryExhaustedLog: `Plugin ${name}'s graphql endpoint ${endpoint} is still not ready after checking for ${maxPluginRetry} times with ${intervalSeconds} second(s) interval. Retry exhausted.`,
-    retryLog: `Waiting for service ${name}'s graphql endpoint ${endpoint} to be up.`,
-    successLog: `Plugin ${name}'s graphql endpoint ${endpoint} is up.`,
+    retryExhaustedLog: `ERROR: ${name} graphql endpoint ${endpoint} isn't running.`,
+    retryLog: `WAITING FOR: ${name} graphql endpoint ${endpoint}`,
+    successLog: `UP: ${name} graphql endpoint ${endpoint}`,
   });
 }
 

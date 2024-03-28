@@ -1,11 +1,10 @@
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Box from "@erxes/ui/src/components/Box";
 import React from "react";
 import { categoryStatusChoises } from "../../../utils";
-// import { withRouter } from 'react-router-dom';
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   searchable?: boolean;
@@ -87,4 +86,3 @@ const CategoryStatusFilter: React.FC<Props> = (props) => {
 };
 
 export default CategoryStatusFilter;
-// export default withRouter<IRouterProps>(CategoryStatusFilter);
