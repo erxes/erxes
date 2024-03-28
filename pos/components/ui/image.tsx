@@ -23,6 +23,7 @@ const Image: FC<
     fallBack,
     sizes,
     className,
+    quality,
     ...rest
   } = props
   const fixedSrc = readFile(src || "")
@@ -30,6 +31,11 @@ const Image: FC<
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [srcI, setSrcI] = useState(fixedSrc || fallBack || "/product.png")
   const handleComplete = () => setIsImageLoading(false)
+  const fromCF = srcI.includes("https://imagedelivery.net/")
+  const getLoader = () => {
+    if (srcI.includes("//:localhost") || srcI.startsWith("/")) return undefined
+    return cloudflareLoader
+  }
 
   useEffect(() => {
     if (src) {
@@ -56,7 +62,16 @@ const Image: FC<
   return (
     <NextImage
       {...updatedProps}
-      loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
+      src={
+        fromCF
+          ? cloudflareLoader({
+              src: srcI,
+              width: parseInt(width?.toString() || "500"),
+              quality: parseInt(quality?.toString() || "75"),
+            })
+          : srcI
+      }
+      loader={getLoader()}
       onLoad={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
       sizes={
@@ -70,8 +85,17 @@ const Image: FC<
 }
 
 export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
-  const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"]
-  return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
+  const params = [`width=${width}`, "format=avif"]
+  const trimmedSrc = src.trim()
+
+  if (trimmedSrc.startsWith("https://imagedelivery.net/")) {
+    return `${trimmedSrc.slice(0, -6)}${params.join(",")}`
+  }
+
+  const q = `quality=${quality || 75}`
+  return `https://erxes.io/cdn-cgi/image/${params
+    .concat([q])
+    .join(",")}/${trimmedSrc}`
 }
 
 export default Image

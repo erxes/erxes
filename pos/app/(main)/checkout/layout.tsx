@@ -10,8 +10,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const mode = useAtomValue(modeAtom)
   return (
     <>
-      {["main", "coffee-shop", "restaurant"].includes(mode) && <Main>{children}</Main>}
+      {["main", "coffee-shop", "restaurant"].includes(mode) && (
+        <Main>{children}</Main>
+      )}
       {mode === "kiosk" && <Kiosk>{children}</Kiosk>}
+      {mode === "mobile" && (
+        <div className="relative flex flex-auto items-center justify-center bg-neutral-50">
+          {children}
+        </div>
+      )}
     </>
   )
 }
