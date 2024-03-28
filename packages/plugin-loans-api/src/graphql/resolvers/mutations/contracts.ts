@@ -6,8 +6,8 @@ import {
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
-  sendCardsMessage,
   sendCoreMessage,
+  sendDealsMessage,
   sendMessageBroker,
 } from '../../../messageBroker';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
@@ -17,7 +17,7 @@ const contractMutations = {
   contractsAdd: async (
     _root,
     doc: IContract,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.createContract(doc);
 
@@ -40,7 +40,7 @@ const contractMutations = {
   contractsEdit: async (
     _root,
     { _id, ...doc }: IContractDocument,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.getContract({ _id });
     const updated = await models.Contracts.updateContract(_id, doc);
@@ -71,7 +71,7 @@ const contractMutations = {
   contractsDealEdit: async (
     _root,
     { _id, ...doc }: IContractDocument,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain }: IContext
   ) => {
     const checkOtherDeals = await models.Contracts.countDocuments({
       dealId: doc.dealId,
@@ -81,7 +81,7 @@ const contractMutations = {
     if (!!checkOtherDeals) {
       await models.Contracts.updateMany(
         { dealId: doc.dealId, _id: { $ne: _id } },
-        { $set: { dealId: undefined } },
+        { $set: { dealId: undefined } }
       );
     }
 
@@ -131,7 +131,7 @@ const contractMutations = {
   contractsRemove: async (
     _root,
     { contractIds }: { contractIds: string[] },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain }: IContext
   ) => {
     const contracts = await models.Contracts.find({
       _id: { $in: contractIds },
@@ -159,7 +159,7 @@ const contractMutations = {
   getProductsData: async (
     _root,
     { contractId }: { contractId: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.getContract({
       _id: contractId,
@@ -180,15 +180,15 @@ const contractMutations = {
       return contract;
     }
 
-    const deals = await sendCardsMessage({
+    const deals = await sendDealsMessage({
       subdomain,
-      action: 'deals.find',
+      action: 'find',
       data: { _id: { $in: dealIds } },
       isRPC: true,
     });
 
     const oldCollateralIds = contract.collateralsData.map(
-      (item) => item.collateralId,
+      (item) => item.collateralId
     );
 
     const collateralsData: ICollateralData[] = contract.collateralsData;
@@ -219,7 +219,7 @@ const contractMutations = {
           data: { _id: data.collateralId },
           isRPC: true,
         },
-        'products',
+        'products'
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -253,7 +253,7 @@ const contractMutations = {
       interestAmount: number;
       lossAmount: number;
     },
-    { models }: IContext,
+    { models }: IContext
   ) => {
     const updatedContract = await models.InterestCorrection.stopInterest({
       contractId,
@@ -278,7 +278,7 @@ const contractMutations = {
       interestAmount: number;
       lossAmount: number;
     },
-    { models }: IContext,
+    { models }: IContext
   ) => {
     const updatedContract = await models.InterestCorrection.interestChange({
       contractId,
@@ -300,7 +300,7 @@ const contractMutations = {
       invDate: Date;
       interestAmount: number;
     },
-    { models }: IContext,
+    { models }: IContext
   ) => {
     const updatedContract = await models.InterestCorrection.interestReturn({
       contractId,

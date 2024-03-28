@@ -40,7 +40,7 @@ export const setupMessageConsumers = async () => {
           customerId: data.customerId,
         }).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue('savings:contracts.update', async ({ subdomain, data }) => {
@@ -71,7 +71,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.ContractTypes.findOne(data).lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -86,7 +86,7 @@ export const setupMessageConsumers = async () => {
           contractId: { $in: contracts.map((c) => c._id) },
         }).lean(),
       };
-    },
+    }
   );
 };
 
@@ -94,7 +94,6 @@ export const sendMessageBroker = async (
   args: MessageArgsOmitService,
   name:
     | 'core'
-    | 'cards'
     | 'reactions'
     | 'contacts'
     | 'products'
@@ -102,7 +101,7 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'loans',
+    | 'loans'
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,
@@ -111,7 +110,7 @@ export const sendMessageBroker = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -119,17 +118,8 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
 export const sendReactionsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
