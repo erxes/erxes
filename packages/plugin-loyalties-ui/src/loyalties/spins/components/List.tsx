@@ -24,6 +24,7 @@ import SpinForm from "../containers/Form";
 import SpinRow from "./Row";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { menuLoyalties } from "../../common/constants";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -109,7 +110,7 @@ class SpinsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

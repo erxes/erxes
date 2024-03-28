@@ -5,14 +5,15 @@ import {
   SortHandler,
   Table,
   Wrapper,
-} from '@erxes/ui/src';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import React from 'react';
-import SyncHistorySidebar from './syncHistorySidebar';
-import dayjs from 'dayjs';
+import React from "react";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { __ } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
 // import { withRouter } from 'react-router-dom';
-import { menuMultierkhet } from '../constants';
+import { menuMultierkhet } from "../constants";
 
 interface IProps extends IRouterProps {
   syncHistories: any[];
@@ -34,7 +35,7 @@ const SyncHistoryList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -43,23 +44,23 @@ const SyncHistoryList = (props: IProps) => {
   };
 
   const mainContent = (
-    <Table whiteSpace="nowrap" bordered={true} hover={true}>
+    <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
       <thead>
         <tr>
           <th>
-            <SortHandler sortField={'createdAt'} label={__('Date')} />
+            <SortHandler sortField={"createdAt"} label={__("Date")} />
           </th>
           <th>
-            <SortHandler sortField={'createdBy'} label={__('User')} />
+            <SortHandler sortField={"createdBy"} label={__("User")} />
           </th>
           <th>
-            <SortHandler sortField={'contentType'} label={__('Content Type')} />
+            <SortHandler sortField={"contentType"} label={__("Content Type")} />
           </th>
           <th>
-            <SortHandler sortField={'content'} label={__('Content')} />
+            <SortHandler sortField={"content"} label={__("Content")} />
           </th>
           <th>
-            <SortHandler sortField={'error'} label={__('Error')} />
+            <SortHandler sortField={"error"} label={__("Error")} />
           </th>
         </tr>
       </thead>
@@ -69,21 +70,21 @@ const SyncHistoryList = (props: IProps) => {
             title="Sync erkhet information"
             trigger={
               <tr key={item._id}>
-                <td>{dayjs(item.createdAt).format('lll')}</td>
+                <td>{dayjs(item.createdAt).format("lll")}</td>
                 <td>{item.createdUser?.email}</td>
                 <td>{item.contentType}</td>
                 <td>{item.content}</td>
                 <td>
-                  {(item.responseStr || '').includes('timedout')
+                  {(item.responseStr || "").includes("timedout")
                     ? item.responseStr
-                    : '' ||
+                    : "" ||
                       `
-                      ${item.responseData?.extra_info?.warnings || ''}
-                      ${item.responseData?.message || ''}
-                      ${item.error || ''}
-                      ${(item.responseData?.error || '').replace(
-                        'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                        '',
+                      ${item.responseData?.extra_info?.warnings || ""}
+                      ${item.responseData?.message || ""}
+                      ${item.error || ""}
+                      ${(item.responseData?.error || "").replace(
+                        "ЕБаримт руу илгээгдээгүй түр баримт болно.",
+                        ""
                       )}
                       `}
                 </td>

@@ -15,9 +15,9 @@ import HeaderDescription from "./MainHead";
 import React from "react";
 import RightMenu from "./RightMenu";
 import { TableWrapper } from "../../styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 // import { withRouter } from 'react-router-dom';
 import { menuPos } from "../../constants";
-import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   history: any;
@@ -92,7 +92,7 @@ const Summary = (props: Props) => {
 
     return (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

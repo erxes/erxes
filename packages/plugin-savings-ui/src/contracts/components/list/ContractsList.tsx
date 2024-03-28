@@ -11,8 +11,7 @@ import {
   Wrapper,
   confirm,
 } from "@erxes/ui/src";
-import React, { useState, useRef } from "react";
-import { menuContracts } from "../../../constants";
+import React, { useRef, useState } from "react";
 
 import ContractForm from "../../containers/ContractForm";
 // import ContractsMerge from '../detail/ContractsMerge';
@@ -24,6 +23,7 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import RightMenu from "./RightMenu";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
+import { menuContracts } from "../../../constants";
 // import { withRouter } from 'react-router-dom';
 import withConsumer from "../../../withConsumer";
 
@@ -117,7 +117,12 @@ const ContractsList = (props: IProps) => {
 
   const mainContent = (
     <ContractsTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

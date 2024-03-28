@@ -1,18 +1,19 @@
 import {
-  EmptyContent,
   Button,
   DataWithLoader,
+  EmptyContent,
   Pagination,
   SortHandler,
-  __,
   Table,
   Wrapper,
-} from '@erxes/ui/src';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IPos } from '../../types';
-import Row from './Row';
-import { Title } from '@erxes/ui-settings/src/styles';
+  __,
+} from "@erxes/ui/src";
+
+import { IPos } from "../../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import Row from "./Row";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   posList: IPos[];
@@ -45,7 +46,7 @@ const List = (props: Props) => {
   queryParams.loadingMainQuery = loading;
 
   const onChange = () => {
-    toggleAll(posList, 'posList');
+    toggleAll(posList, "posList");
   };
 
   const renderRow = () => {
@@ -61,7 +62,7 @@ const List = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const actionBarLeft = <Title>{__('Pos')}</Title>;
+    const actionBarLeft = <Title>{__("Pos")}</Title>;
 
     const actionBarRight = (
       <Link to={`/pos/create`}>
@@ -82,21 +83,21 @@ const List = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <Table whiteSpace="nowrap" hover={true}>
+      <Table $whiteSpace="nowrap" $hover={true}>
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
-            <th>{__('Is Online')}</th>
-            <th>{__('On Server')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Created by')}</th>
+            <th>{__("Is Online")}</th>
+            <th>{__("On Server")}</th>
+            <th>{__("Branch")}</th>
+            <th>{__("Department")}</th>
+            <th>{__("Created by")}</th>
             <th>
-              <SortHandler sortField={'createdDate'} label={__('Created at')} />
+              <SortHandler sortField={"createdDate"} label={__("Created at")} />
             </th>
-            <th>{__('Actions')}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -108,10 +109,10 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('POS')}
+          title={__("POS")}
           breadcrumb={[
-            { title: 'Settings', link: '/settings' },
-            { title: __('POS list') },
+            { title: "Settings", link: "/settings" },
+            { title: __("POS list") },
           ]}
           queryParams={queryParams}
         />
@@ -126,14 +127,14 @@ const List = (props: Props) => {
           emptyContent={
             <EmptyContent
               content={{
-                title: __('Getting Started with erxes POS'),
-                description: __('replace description text'),
+                title: __("Getting Started with erxes POS"),
+                description: __("replace description text"),
                 steps: [
                   {
-                    title: __('Create POS'),
-                    description: __('Fill out the details and create your POS'),
+                    title: __("Create POS"),
+                    description: __("Fill out the details and create your POS"),
                     url: `/pos/create`,
-                    urlText: 'Create POS',
+                    urlText: "Create POS",
                   },
                 ],
               }}

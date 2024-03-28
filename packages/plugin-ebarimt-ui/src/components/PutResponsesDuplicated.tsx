@@ -1,20 +1,20 @@
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   DataWithLoader,
   ModalTrigger,
   Pagination,
   Table,
-} from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import { Wrapper, BarItems } from '@erxes/ui/src/layout';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+} from "@erxes/ui/src/components";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import { TableWrapper } from '../styles';
-import { IPutResponse } from '../types';
-import RightMenu from './RightMenuDuplicated';
-import { SUB_MENUS } from '../constants';
-import DetailDuplicated from '../containers/DetailDuplicated';
+import DetailDuplicated from "../containers/DetailDuplicated";
+import { IPutResponse } from "../types";
+import React from "react";
+import RightMenu from "./RightMenuDuplicated";
+import { SUB_MENUS } from "../constants";
+import { TableWrapper } from "../styles";
+import { __ } from "@erxes/ui/src/utils";
+import { withRouter } from "react-router-dom";
 
 interface IProps extends IRouterProps {
   errorMsg: string;
@@ -61,7 +61,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
         autoOpenKey="showProductModal"
         paddingContent="less-padding"
         content={modalContent}
-        size={'xl'}
+        size={"xl"}
       />
     );
   }
@@ -81,18 +81,18 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
 
     const mainContent = (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
-              <th>{__('№')}</th>
-              <th>{__('Date')}</th>
-              <th>{__('Number')}</th>
-              <th>{__('Count')}</th>
+              <th>{__("№")}</th>
+              <th>{__("Date")}</th>
+              <th>{__("Number")}</th>
+              <th>{__("Count")}</th>
             </tr>
           </thead>
           <tbody id="putResponses">
             {(putResponsesDuplicated || []).map((putResponse, index) =>
-              this.renderRow(putResponse, index),
+              this.renderRow(putResponse, index)
             )}
           </tbody>
         </Table>
@@ -139,8 +139,8 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
             loading={loading}
             count={totalCount}
             emptyText={
-              errorMsg.replace('GraphQL error: ', '') ||
-              'not found duplicated putResponse!'
+              errorMsg.replace("GraphQL error: ", "") ||
+              "not found duplicated putResponse!"
             }
             emptyImage="/images/actions/1.svg"
           />

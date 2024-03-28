@@ -131,7 +131,7 @@ class PermissionList extends React.Component<Props> {
 
   renderData() {
     return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
           <tr>
             <th>{__("Module")}</th>

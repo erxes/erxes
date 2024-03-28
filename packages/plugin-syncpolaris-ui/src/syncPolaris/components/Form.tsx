@@ -1,9 +1,10 @@
-import React from "react";
+import { Table, Wrapper } from "@erxes/ui/src";
+
+import Button from "@erxes/ui/src/components/Button";
 import Form from "@erxes/ui/src/components/form/Form";
 import { FormControl } from "@erxes/ui/src/components/form";
-import Button from "@erxes/ui/src/components/Button";
+import React from "react";
 import Row from "./Row";
-import { Table, Wrapper } from "@erxes/ui/src";
 
 type Props = {
   toSyncPolaris: (type: string, items: any[]) => void;
@@ -47,7 +48,7 @@ const TypeForm = (props: Props) => {
     return (
       <>
         {actionBar}
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
           <thead>
             <tr>
               <th>

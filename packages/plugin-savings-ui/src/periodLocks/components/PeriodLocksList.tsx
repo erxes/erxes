@@ -12,6 +12,7 @@ import {
   confirm,
   router,
 } from "@erxes/ui/src";
+import React, { useRef, useState } from "react";
 
 import { IPeriodLock } from "../types";
 import { IRouterProps } from "@erxes/ui/src/types";
@@ -19,7 +20,6 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import PeriodLockForm from "../containers/PeriodLockForm";
 import PeriodLockRow from "./PeriodLockRow";
 import { PeriodLocksTableWrapper } from "../styles";
-import React, { useRef, useState } from "react";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 // import { withRouter } from 'react-router-dom';
@@ -100,7 +100,12 @@ const PeriodLocksList = (props: IProps) => {
 
   const mainContent = (
     <PeriodLocksTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

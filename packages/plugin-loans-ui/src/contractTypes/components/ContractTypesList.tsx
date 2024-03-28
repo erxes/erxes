@@ -17,6 +17,7 @@ import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -91,7 +92,12 @@ const ContractTypesList = (props: IProps) => {
 
   const mainContent = (
     <ContractTypesTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

@@ -1,20 +1,21 @@
+import { Alert, __, confirm, router as routerUtils } from "@erxes/ui/src/utils";
+
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import { EMPTY_CONTENT_FORUMS } from "@erxes/ui-settings/src/constants";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import { Flex } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IPage } from "../../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PageForm from "./PageForm";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";
 import Row from "./Row";
 import SortHandler from "@erxes/ui/src/components/SortHandler";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { IPage } from "../../types";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import PageForm from "./PageForm";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { Alert, confirm, __, router as routerUtils } from "@erxes/ui/src/utils";
-import { Flex } from "@erxes/ui/src/styles/main";
 
 type Props = {
   pages: IPage[];
@@ -129,7 +130,7 @@ class List extends React.Component<Props> {
     );
 
     const content = (
-      <Table whiteSpace="nowrap" hover={true}>
+      <Table $whiteSpace="nowrap" $hover={true}>
         <thead>
           <tr>
             <th>

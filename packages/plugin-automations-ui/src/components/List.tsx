@@ -141,7 +141,7 @@ class AutomationsList extends React.Component<IProps, State> {
 
     const mainContent = (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

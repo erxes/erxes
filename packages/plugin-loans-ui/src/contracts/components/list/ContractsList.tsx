@@ -1,30 +1,29 @@
-import Alert from "@erxes/ui/src/utils/Alert";
-import Button from "@erxes/ui/src/components/Button";
-import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-
-import SortHandler from "@erxes/ui/src/components/SortHandler";
-import Table from "@erxes/ui/src/components/table";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { IRouterProps } from "@erxes/ui/src/types";
-import React, { useRef, useState } from "react";
 // import { withRouter } from 'react-router-dom';
 import { ORGANIZATION_TYPE, menuContracts } from "../../../constants";
+import React, { useRef, useState } from "react";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
 import ClassificationForm from "../../containers/ClassificationForm";
 import ContractForm from "../../containers/ContractForm";
 import ContractRow from "./ContractRow";
 import { ContractsTableWrapper } from "../../styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import { IContract } from "../../types";
+import { IRouterProps } from "@erxes/ui/src/types";
 // import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from "@erxes/ui/src/auth/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import RightMenu from "./RightMenu";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { router } from '@erxes/ui/src/utils';
 import withConsumer from "../../../withConsumer";
 
@@ -116,7 +115,12 @@ const ContractsList = (props: IProps) => {
 
   const mainContent = (
     <ContractsTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

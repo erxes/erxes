@@ -6,18 +6,18 @@ import {
   Table,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import HeaderDescription from './MainHead';
-import { IOrder } from '../types';
-import React from 'react';
-import RightMenu from './RightMenu';
-import Row from './Row';
-import { TableWrapper } from '../../styles';
+import HeaderDescription from "./MainHead";
+import { IOrder } from "../types";
+import React from "react";
+import RightMenu from "./RightMenu";
+import Row from "./Row";
+import { TableWrapper } from "../../styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 // import { withRouter } from 'react-router-dom';
-import { menuPos } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { menuPos } from "../../constants";
 
 type Props = {
   orders: IOrder[];
@@ -52,11 +52,11 @@ const List = (props: Props) => {
     onReturnBill,
   } = props;
 
-  const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+  const staticKeys = ["count", "totalAmount", "cashAmount", "mobileAmount"];
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -70,7 +70,7 @@ const List = (props: Props) => {
       queryParams,
     };
 
-    const actionBarLeft = <Title>{__('Pos Orders')}</Title>;
+    const actionBarLeft = <Title>{__("Pos Orders")}</Title>;
 
     const actionBarRight = (
       <BarItems>
@@ -83,50 +83,50 @@ const List = (props: Props) => {
 
   const renderContent = () => {
     const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
-      .filter((a) => !['_id'].includes(a))
+      .filter((a) => !["_id"].includes(a))
       .filter((a) => !staticKeys.includes(a))
       .sort();
 
     return (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={'number'} label={__('Bill number')} />
+                <SortHandler sortField={"number"} label={__("Bill number")} />
               </th>
               <th>
-                <SortHandler sortField={'paidDate'} label={__('Date')} />
+                <SortHandler sortField={"paidDate"} label={__("Date")} />
               </th>
               <th>
                 <SortHandler
-                  sortField={'cashAmount'}
-                  label={__('Cash Amount')}
+                  sortField={"cashAmount"}
+                  label={__("Cash Amount")}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'mobileAmount'}
-                  label={__('Mobile Amount')}
+                  sortField={"mobileAmount"}
+                  label={__("Mobile Amount")}
                 />
               </th>
               {otherPayTitles.map((key) => (
                 <th key={Math.random()}>{__(key)}</th>
               ))}
               <th>
-                <SortHandler sortField={'totalAmount'} label={__('Amount')} />
+                <SortHandler sortField={"totalAmount"} label={__("Amount")} />
               </th>
               <th>
-                <SortHandler sortField={'customerId'} label={__('Customer')} />
+                <SortHandler sortField={"customerId"} label={__("Customer")} />
               </th>
               <th>
-                <SortHandler sortField={'posName'} label={__('Pos')} />
+                <SortHandler sortField={"posName"} label={__("Pos")} />
               </th>
               <th>
-                <SortHandler sortField={'type'} label={__('Type')} />
+                <SortHandler sortField={"type"} label={__("Type")} />
               </th>
               <th>
-                <SortHandler sortField={'user'} label={__('User')} />
+                <SortHandler sortField={"user"} label={__("User")} />
               </th>
               <th>Үйлдлүүд</th>
             </tr>

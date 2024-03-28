@@ -1,3 +1,5 @@
+import React, { useRef, useState } from "react";
+
 import Alert from "@erxes/ui/src/utils/Alert";
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
@@ -8,15 +10,13 @@ import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import PeriodLockForm from "../containers/PeriodLockForm";
+import PeriodLockRow from "./PeriodLockRow";
+import { PeriodLocksTableWrapper } from "../styles";
 import SortHandler from "@erxes/ui/src/components/SortHandler";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
-import React, { useRef, useState } from "react";
-
-import PeriodLockForm from "../containers/PeriodLockForm";
-import { PeriodLocksTableWrapper } from "../styles";
-import PeriodLockRow from "./PeriodLockRow";
 import { can } from "@erxes/ui/src/utils/core";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { withRouter } from 'react-router-dom';
@@ -97,7 +97,12 @@ const PeriodLocksList = (props: IProps) => {
 
   const mainContent = (
     <PeriodLocksTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

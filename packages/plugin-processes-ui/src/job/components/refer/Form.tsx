@@ -1,3 +1,12 @@
+import { DURATION_TYPES, JOB_TYPE_CHOISES } from "../../../constants";
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IJobCategory, IJobRefer } from "../../types";
+
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Button from "@erxes/ui/src/components/Button";
 import CategoryForm from "../../containers/category/Form";
@@ -5,26 +14,18 @@ import CommonForm from "@erxes/ui/src/components/form/Form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
-import React from "react";
-import Tip from "@erxes/ui/src/components/Tip";
-import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
-import { __ } from "coreui/utils";
-import { DURATION_TYPES, JOB_TYPE_CHOISES } from "../../../constants";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { IJobCategory, IJobRefer } from "../../types";
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-} from "@erxes/ui/src/styles/main";
-import { ProductButton } from "@erxes/ui-cards/src/deals/styles";
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
-import { TableOver } from "../../../styles";
 import { IProduct } from "@erxes/ui-products/src/types";
 import { IProductsData } from "../../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ProductButton } from "@erxes/ui-cards/src/deals/styles";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import React from "react";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import { TableOver } from "../../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -226,11 +227,11 @@ class Form extends React.Component<Props, State> {
     return (
       <withTableWrapper.Wrapper>
         <TableOver
-          whiteSpace="nowrap"
-          hover={true}
-          bordered={true}
-          responsive={true}
-          wideHeader={true}
+          $whiteSpace="nowrap"
+          $hover={true}
+          $bordered={true}
+          $responsive={true}
+          $wideHeader={true}
         >
           <thead>
             <tr>

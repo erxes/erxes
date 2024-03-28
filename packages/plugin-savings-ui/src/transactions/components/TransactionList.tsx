@@ -1,16 +1,16 @@
 import {
   Alert,
+  BarItems,
   Button,
   DataWithLoader,
+  DropdownToggle,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
-  DropdownToggle,
-  Icon,
   confirm,
 } from "@erxes/ui/src";
 
@@ -90,7 +90,12 @@ const TransactionsList = (props: IProps) => {
 
   const mainContent = (
     <ContractsTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

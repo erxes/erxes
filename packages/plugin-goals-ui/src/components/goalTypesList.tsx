@@ -115,7 +115,7 @@ const goalTypesList = (props: Props) => {
   const renderContent = () => {
     return (
       <GoalTypesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

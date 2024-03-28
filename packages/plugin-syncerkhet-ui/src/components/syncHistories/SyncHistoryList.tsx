@@ -7,15 +7,15 @@ import {
   Table,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
-import React from 'react';
-import SyncHistorySidebar from './syncHistorySidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
-import dayjs from 'dayjs';
+import React from "react";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import dayjs from "dayjs";
 // import { withRouter } from 'react-router-dom';
-import { menuSyncerkhet } from '../../constants';
+import { menuSyncerkhet } from "../../constants";
 
 interface IProps extends IRouterProps {
   syncHistories: any[];
@@ -40,7 +40,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
 
   moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -52,14 +52,14 @@ class SyncHistoryList extends React.Component<IProps, {}> {
     const { history, syncHistories, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
+    const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
         <thead>
           <tr>
             {tablehead.map((p) => (
-              <th key={p}>{p || ''}</th>
+              <th key={p}>{p || ""}</th>
             ))}
           </tr>
         </thead>
@@ -70,23 +70,23 @@ class SyncHistoryList extends React.Component<IProps, {}> {
               title="Sync erkhet information"
               trigger={
                 <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
+                  <td>{dayjs(item.createdAt).format("lll")}</td>
                   <td>{item.createdUser?.email}</td>
                   <td>{item.contentType}</td>
                   <td>{item.content}</td>
                   <td>
-                    {(item.responseStr || '').includes('timedout')
+                    {(item.responseStr || "").includes("timedout")
                       ? item.responseStr
-                      : '' ||
+                      : "" ||
                         `
-                      ${item.responseData?.extra_info?.warnings || ''}
-                      ${item.responseData?.message || ''}
-                      ${item.error || ''}
+                      ${item.responseData?.extra_info?.warnings || ""}
+                      ${item.responseData?.message || ""}
+                      ${item.error || ""}
                       ${
-                        typeof (item.responseData?.error || '') === 'string' &&
-                        typeof (item.responseData?.error || '').replace(
-                          'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                          '',
+                        typeof (item.responseData?.error || "") === "string" &&
+                        typeof (item.responseData?.error || "").replace(
+                          "ЕБаримт руу илгээгдээгүй түр баримт болно.",
+                          ""
                         )
                       }
                       `}

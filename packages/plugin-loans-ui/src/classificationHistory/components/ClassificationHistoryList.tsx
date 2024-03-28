@@ -1,14 +1,13 @@
+import React, { useRef, useState } from "react";
+
 import Alert from "@erxes/ui/src/utils/Alert";
 import { BarItems } from "@erxes/ui/src/layout/styles";
-
-import { IRouterProps } from "@erxes/ui/src/types";
-import React, { useState, useRef } from "react";
-
+import Button from "@erxes/ui/src/components/Button";
 import { ClassificationHistoryTableWrapper } from "../styles";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IPeriodLock } from "../types";
-import { can } from "@erxes/ui/src/utils/core";
+import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import PeriodLockRow from "./ClassificationHistoryRow";
@@ -16,11 +15,11 @@ import SortHandler from "@erxes/ui/src/components/SortHandler";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { withRouter } from 'react-router-dom';
 import { menuContracts } from "../../constants";
 import withConsumer from "../../withConsumer";
-import Button from "@erxes/ui/src/components/Button";
 
 interface IProps extends IRouterProps {
   classificationHistory: IPeriodLock[];
@@ -96,7 +95,12 @@ const ClassificationHistoryList = (props: IProps) => {
 
   const mainContent = (
     <ClassificationHistoryTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

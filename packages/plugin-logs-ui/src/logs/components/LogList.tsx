@@ -1,24 +1,24 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { __, router } from '@erxes/ui/src/utils';
-
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ILog } from '../types';
-import LogRow from './LogRow';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Sidebar from './Sidebar';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
+import { __, router } from "@erxes/ui/src/utils";
+
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ILog } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import LogRow from "./LogRow";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Sidebar from "./Sidebar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 type Props = {
   history: any;
@@ -38,8 +38,8 @@ type State = {
 };
 
 const breadcrumb = [
-  { title: 'Settings', link: '/settings' },
-  { title: __('Logs') }
+  { title: "Settings", link: "/settings" },
+  { title: __("Logs") },
 ];
 
 class LogList extends React.Component<Props, State> {
@@ -49,11 +49,11 @@ class LogList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.queryParams.searchValue || ''
+      searchValue: this.props.queryParams.searchValue || "",
     };
   }
 
-  searchHandler = e => {
+  searchHandler = (e) => {
     const { history } = this.props;
 
     if (this.timer) {
@@ -64,7 +64,7 @@ class LogList extends React.Component<Props, State> {
     this.setState({ searchValue: inputValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue: inputValue });
     }, 500);
   };
@@ -86,15 +86,20 @@ class LogList extends React.Component<Props, State> {
 
   renderContent() {
     return (
-      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+      <Table
+        $whiteSpace="wrap"
+        $hover={true}
+        $bordered={true}
+        $condensed={true}
+      >
         <thead>
           <tr>
-            <th>{__('Date')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Module')}</th>
-            <th>{__('Action')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Changes')}</th>
+            <th>{__("Date")}</th>
+            <th>{__("Created by")}</th>
+            <th>{__("Module")}</th>
+            <th>{__("Action")}</th>
+            <th>{__("Description")}</th>
+            <th>{__("Changes")}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -113,7 +118,7 @@ class LogList extends React.Component<Props, State> {
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.searchHandler}
                 autoFocus={true}
                 value={searchValue}
@@ -128,10 +133,10 @@ class LogList extends React.Component<Props, State> {
   render() {
     const { isLoading, count, errorMessage, queryParams, history } = this.props;
 
-    if (errorMessage.indexOf('Permission required') !== -1) {
+    if (errorMessage.indexOf("Permission required") !== -1) {
       return (
         <EmptyState
-          text={__('Permission denied')}
+          text={__("Permission denied")}
           image="/images/actions/21.svg"
         />
       );
@@ -141,7 +146,7 @@ class LogList extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Logs')}
+            title={__("Logs")}
             breadcrumb={breadcrumb}
             queryParams={queryParams}
           />
@@ -160,7 +165,7 @@ class LogList extends React.Component<Props, State> {
             data={this.renderContent()}
             loading={isLoading}
             count={count}
-            emptyText={__('There are no logs recorded')}
+            emptyText={__("There are no logs recorded")}
             emptyImage="/images/actions/21.svg"
           />
         }

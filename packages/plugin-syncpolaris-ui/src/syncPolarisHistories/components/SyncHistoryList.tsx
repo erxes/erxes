@@ -1,10 +1,10 @@
-import { __, DataWithLoader, Pagination, Table, Wrapper } from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { menuSyncpolaris } from '../../constants';
-import SyncHistorySidebar from './syncHistorySidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { __, DataWithLoader, Pagination, Table, Wrapper } from "@erxes/ui/src";
+import dayjs from "dayjs";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React from "react";
+import { menuSyncpolaris } from "../../constants";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 interface IProps extends IRouterProps {
   syncHistoriesPolaris: any[];
@@ -18,31 +18,31 @@ class SyncHistoryList extends React.Component<IProps> {
     const { history, syncHistoriesPolaris, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
+    const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
         <thead>
           <tr>
             {tablehead.map((p) => (
-              <th key={p}>{p || ''}</th>
+              <th key={p}>{p || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="SyncHistories">
           {(syncHistoriesPolaris || []).map((item) => (
             <tr key={item._id}>
-              <td>{dayjs(item.createdAt).format('lll')}</td>
+              <td>{dayjs(item.createdAt).format("lll")}</td>
               <td>{item.createdUser?.email}</td>
               <td>{item.contentType}</td>
               <td>{item.content}</td>
               <td>
-                {(item.responseStr || '').includes('timedout')
+                {(item.responseStr || "").includes("timedout")
                   ? item.responseStr
                   : `
-                        ${item.responseData?.extra_info?.warnings || ''}
-                        ${item.responseData?.message || ''}
-                        ${item.error || ''}
+                        ${item.responseData?.extra_info?.warnings || ""}
+                        ${item.responseData?.message || ""}
+                        ${item.error || ""}
                         `}
               </td>
             </tr>

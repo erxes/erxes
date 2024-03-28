@@ -10,14 +10,16 @@ import {
   Table,
   Wrapper,
 } from "@erxes/ui/src";
-import { IRouterProps } from "@erxes/ui/src/types";
-import React, { useState, useRef } from "react";
-import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import React, { useRef, useState } from "react";
+
 import { IInsuranceType } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
 import InsuranceTypeForm from "../containers/InsuranceTypeForm";
 import InsuranceTypeRow from "./InsuranceTypeRow";
 import { InsuranceTypesTableWrapper } from "../styles";
 import { __ } from "coreui/utils";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -92,7 +94,12 @@ const InsuranceTypesList = (props: IProps) => {
 
   const mainContent = (
     <InsuranceTypesTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>

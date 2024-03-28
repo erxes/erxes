@@ -4,16 +4,22 @@ import {
   Button,
   DataWithLoader,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  Icon,
 } from "@erxes/ui/src";
+import {
+  FlexItem,
+  FlexRow,
+  InputBar,
+  Title,
+} from "@erxes/ui-settings/src/styles";
+import React, { useRef, useState } from "react";
 import { isEnabled, router } from "@erxes/ui/src/utils/core";
-import React, { useState, useRef } from "react";
-import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+
 import CarForm from "../../containers/CarForm";
 import CarRow from "./CarRow";
 import CarsMerge from "../detail/CarsMerge";
@@ -21,12 +27,7 @@ import { CarsTableWrapper } from "../../styles";
 import { ICar } from "../../types";
 import { IRouterProps } from "@erxes/ui/src/types";
 import Sidebar from "./Sidebar";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
 
 type Props = {
   cars: ICar[];
@@ -203,7 +204,7 @@ const CarsList = (props: Props) => {
   const renderContent = () => {
     return (
       <CarsTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

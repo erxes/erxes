@@ -24,6 +24,7 @@ import React from "react";
 import Sidebar from "./Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
 import { menuLoyalties } from "../../common/constants";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -109,7 +110,7 @@ class DonatesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>

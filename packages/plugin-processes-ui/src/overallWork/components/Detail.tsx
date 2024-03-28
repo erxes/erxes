@@ -1,28 +1,28 @@
-import { FieldStyle, SidebarCounter, Table } from '@erxes/ui/src';
-import { FinanceAmount, FlexRow } from '../../styles';
+import { FieldStyle, SidebarCounter, Table } from "@erxes/ui/src";
+import { FinanceAmount, FlexRow } from "../../styles";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DetailLeftSidebar from './DetailLeftSidebar';
-import DetailRightSidebar from './DetailRightSidebar';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '../../performs/containers/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IOverallWorkDet } from '../types';
-import { IPerform } from '../../performs/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import DetailLeftSidebar from "./DetailLeftSidebar";
+import DetailRightSidebar from "./DetailRightSidebar";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "../../performs/containers/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IOverallWorkDet } from "../types";
+import { IPerform } from "../../performs/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 // import { withRouter } from 'react-router-dom';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import PerformRow from './PerformRow';
-import React from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import _ from 'lodash';
-import { __ } from 'coreui/utils';
-import { menuNavs } from '../../constants';
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import PerformRow from "./PerformRow";
+import React from "react";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import _ from "lodash";
+import { __ } from "coreui/utils";
+import { menuNavs } from "../../constants";
 
 type Props = {
   history: any;
@@ -94,7 +94,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       <li>
         <FlexRow>
           <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || '-'}</SidebarCounter>
+          <SidebarCounter>{value || "-"}</SidebarCounter>
         </FlexRow>
       </li>
     );
@@ -119,7 +119,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
-    let value = firstName ? firstName.toUpperCase() : '';
+    let value = firstName ? firstName.toUpperCase() : "";
 
     if (lastName) {
       value = `${value} ${lastName}`;
@@ -146,24 +146,24 @@ class OverallWorkDetail extends React.Component<Props, State> {
     if (errorMsg) {
       return (
         <EmptyState
-          text={errorMsg.replace('GraphQL error: ', '')}
+          text={errorMsg.replace("GraphQL error: ", "")}
           size="full"
-          image={'/images/actions/11.svg'}
+          image={"/images/actions/11.svg"}
         />
       );
     }
 
     return (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>{__('Start At')}</th>
-            <th>{__('Count')}</th>
-            <th>{__('End At')}</th>
-            <th>{__('Modified by')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Start At")}</th>
+            <th>{__("Count")}</th>
+            <th>{__("End At")}</th>
+            <th>{__("Modified by")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="overallWorks">
@@ -197,7 +197,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     );
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add performance')}
+        {__("Add performance")}
       </Button>
     );
 
@@ -212,7 +212,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         <ModalTrigger
-          title={__('Add Performance')}
+          title={__("Add Performance")}
           size="xl"
           trigger={trigger}
           autoOpenKey="showProductModal"
@@ -221,7 +221,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const actionBarLeft = <Title>{'Performances'}</Title>;
+    const actionBarLeft = <Title>{"Performances"}</Title>;
 
     return (
       <Wrapper

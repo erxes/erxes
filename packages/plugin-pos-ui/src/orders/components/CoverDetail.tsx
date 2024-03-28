@@ -1,19 +1,21 @@
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import * as moment from "moment";
+
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
   Table,
   __,
-} from '@erxes/ui/src';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import _ from 'lodash';
-import * as moment from 'moment';
-import React, { useState } from 'react';
-import { FinanceAmount, FlexRow } from '../../styles';
-import { IPos } from '../../types';
-import { ICover } from '../types';
+} from "@erxes/ui/src";
+import { FinanceAmount, FlexRow } from "../../styles";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICover } from "../types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IPos } from "../../types";
+import _ from "lodash";
 
 type Props = {
   onChangeNote: (_id: string, note: string) => void;
@@ -24,7 +26,7 @@ type Props = {
 const CoverDetail = (props: Props) => {
   const { cover, onChangeNote } = props;
 
-  const [note, setNote] = useState(cover.note || '');
+  const [note, setNote] = useState(cover.note || "");
 
   const displayValue = (cover, name) => {
     const value = _.get(cover, name);
@@ -36,7 +38,7 @@ const CoverDetail = (props: Props) => {
       <li>
         <FlexRow>
           <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || '-'}</SidebarCounter>
+          <SidebarCounter>{value || "-"}</SidebarCounter>
         </FlexRow>
       </li>
     );
@@ -50,14 +52,14 @@ const CoverDetail = (props: Props) => {
   const save = () => {
     const { note } = cover;
 
-    onChangeNote(cover._id || '', note || '');
+    onChangeNote(cover._id || "", note || "");
   };
 
   const generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
-    let value = firstName ? firstName.toUpperCase() : '';
+    let value = firstName ? firstName.toUpperCase() : "";
 
     if (lastName) {
       value = `${value} ${lastName}`;
@@ -74,36 +76,36 @@ const CoverDetail = (props: Props) => {
 
   const renderDetail = (det) => {
     if (!det) {
-      return '';
+      return "";
     }
 
-    if (typeof det === 'object') {
+    if (typeof det === "object") {
       return JSON.stringify(det);
     }
 
-    return (det || '').toString();
+    return (det || "").toString();
   };
 
   return (
     <SidebarList>
       {renderRow(
-        'Begin Date',
-        moment(cover.beginDate).format('YYYY-MM-DD HH:mm'),
+        "Begin Date",
+        moment(cover.beginDate).format("YYYY-MM-DD HH:mm")
       )}
-      {renderRow('End Date', moment(cover.endDate).format('YYYY-MM-DD HH:mm'))}
-      {renderRow('User', cover.user.email)}
-      {renderRow('POS', cover.posName)}
+      {renderRow("End Date", moment(cover.endDate).format("YYYY-MM-DD HH:mm"))}
+      {renderRow("User", cover.user.email)}
+      {renderRow("POS", cover.posName)}
 
-      {renderRow('Total Amount', displayValue(cover, 'totalAmount'))}
+      {renderRow("Total Amount", displayValue(cover, "totalAmount"))}
 
-      {renderRow('Description', cover.description)}
+      {renderRow("Description", cover.description)}
 
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th colSpan={3}>{__('Type')}</th>
-            <th>{__('Summary')}</th>
-            <th>{__('Detail')}</th>
+            <th colSpan={3}>{__("Type")}</th>
+            <th>{__("Summary")}</th>
+            <th>{__("Detail")}</th>
           </tr>
         </thead>
         <tbody id="coverDetails">
@@ -114,7 +116,7 @@ const CoverDetail = (props: Props) => {
                 <td>
                   {(detail.paidSummary || []).reduce(
                     (sum, cur) => sum + cur.amount,
-                    0,
+                    0
                   )}
                 </td>
                 <td>{renderDetail(detail.paidDetail)}</td>

@@ -1,17 +1,19 @@
-import * as dayjs from 'dayjs';
-import { Link } from 'react-router-dom';
-import _ from 'lodash';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import * as dayjs from "dayjs";
+
+import { DetailRow, FinanceAmount, FlexRow } from "../../styles";
 import {
-  __,
   FieldStyle,
   SidebarCounter,
   SidebarList,
   Table,
-} from '@erxes/ui/src';
-import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+  __,
+} from "@erxes/ui/src";
+
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import _ from "lodash";
 
 type Props = {
   order: any;
@@ -30,7 +32,7 @@ const OrderDetail = (props: Props) => {
       <li>
         <FlexRow>
           <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || '-'}</SidebarCounter>
+          <SidebarCounter>{value || "-"}</SidebarCounter>
         </FlexRow>
       </li>
     );
@@ -72,14 +74,14 @@ const OrderDetail = (props: Props) => {
       return <></>;
     }
 
-    return renderRow('Delivery info', deliveryInfo.description);
+    return renderRow("Delivery info", deliveryInfo.description);
   };
 
   const generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
-    let value = firstName ? firstName.toUpperCase() : '';
+    let value = firstName ? firstName.toUpperCase() : "";
 
     if (lastName) {
       value = `${value} ${lastName}`;
@@ -97,44 +99,44 @@ const OrderDetail = (props: Props) => {
   return (
     <SidebarList>
       {renderRow(
-        `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
-        order.customer ? generateLabel(order.customer) : '',
+        `${(order.customerType || "Customer").toLocaleUpperCase()}`,
+        order.customer ? generateLabel(order.customer) : ""
       )}
-      {renderRow('Bill Number', order.number)}
+      {renderRow("Bill Number", order.number)}
       {renderRow(
-        'Date',
-        dayjs(order.paidDate || order.createdAt).format('lll'),
+        "Date",
+        dayjs(order.paidDate || order.createdAt).format("lll")
       )}
       {renderDeliveryInfo()}
       {order.multiErkhetInfo
-        ? renderRow('Erkhet Info', order.multiErkhetInfo)
-        : ''}
+        ? renderRow("Erkhet Info", order.multiErkhetInfo)
+        : ""}
 
       {order.convertDealId
         ? renderRow(
-            'Deal',
-            <Link to={order.dealLink || ''}>{order.deal?.name || 'deal'}</Link>,
+            "Deal",
+            <Link to={order.dealLink || ""}>{order.deal?.name || "deal"}</Link>
           )
-        : ''}
+        : ""}
       <>
         {(order.putResponses || []).map((p) => {
           return (
             <DetailRow key={Math.random()}>
-              {renderRow('Bill ID', p.billId)}
-              {renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
+              {renderRow("Bill ID", p.billId)}
+              {renderRow("Ebarimt Date", dayjs(p.date).format("lll"))}
             </DetailRow>
           );
         })}
       </>
 
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>{__('Product')}</th>
-            <th>{__('Count')}</th>
-            <th>{__('Unit Price')}</th>
-            <th>{__('Amount')}</th>
-            <th>{__('Diff')}</th>
+            <th>{__("Product")}</th>
+            <th>{__("Count")}</th>
+            <th>{__("Unit Price")}</th>
+            <th>{__("Amount")}</th>
+            <th>{__("Diff")}</th>
           </tr>
         </thead>
         <tbody id="orderItems">
@@ -150,11 +152,11 @@ const OrderDetail = (props: Props) => {
         </tbody>
       </Table>
 
-      {renderRow('Total Amount', displayValue(order, 'totalAmount'))}
+      {renderRow("Total Amount", displayValue(order, "totalAmount"))}
 
       <ul>
-        {renderEditRow('Cash Amount', 'cashAmount')}
-        {renderEditRow('Mobile Amount', 'mobileAmount')}
+        {renderEditRow("Cash Amount", "cashAmount")}
+        {renderEditRow("Mobile Amount", "mobileAmount")}
         {renderEditPaid()}
       </ul>
     </SidebarList>

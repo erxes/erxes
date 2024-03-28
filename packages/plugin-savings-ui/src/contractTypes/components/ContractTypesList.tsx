@@ -12,14 +12,15 @@ import {
   confirm,
   router,
 } from "@erxes/ui/src";
+import React, { useEffect, useRef, useState } from "react";
 
 import ContractTypeForm from "../containers/ContractTypeForm";
 import ContractTypeRow from "./ContractTypeRow";
 import { ContractTypesTableWrapper } from "../styles";
 import { IContractType } from "../types";
 import { IRouterProps } from "@erxes/ui/src/types";
-import React, { useEffect, useRef, useState } from "react";
 import { __ } from "coreui/utils";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -97,7 +98,7 @@ const ContractTypesList = (props: IProps) => {
 
   const mainContent = (
     <ContractTypesTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             <th>

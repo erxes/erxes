@@ -1,24 +1,24 @@
 import {
   FilterItem,
-  FilterWrapper
-} from '@erxes/ui-settings/src/permissions/styles';
-import { ICategory, IPermission, IUserGroupDocument } from '../../types';
-import { __, router } from '@erxes/ui/src/utils';
-import { correctValue, generateModuleParams, generatedList } from '../../utils';
+  FilterWrapper,
+} from "@erxes/ui-settings/src/permissions/styles";
+import { ICategory, IPermission, IUserGroupDocument } from "../../types";
+import { __, router } from "@erxes/ui/src/utils";
+import { correctValue, generateModuleParams, generatedList } from "../../utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import GroupList from '../../containers/permission/GroupList';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { PERMISSIONS } from '../../constants';
-import PermissionForm from './PermissionForm';
-import PermissionRow from '../../containers/permission/PermissionRow';
-import React from 'react';
-import Select from 'react-select-plus';
-import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { isObject } from 'util';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import GroupList from "../../containers/permission/GroupList";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { PERMISSIONS } from "../../constants";
+import PermissionForm from "./PermissionForm";
+import PermissionRow from "../../containers/permission/PermissionRow";
+import React from "react";
+import Select from "react-select-plus";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { isObject } from "util";
 
 type Props = {
   history: any;
@@ -39,7 +39,7 @@ class PermissionList extends React.Component<Props> {
     router.setParams(history, {
       [name]: isObject(item) ? correctValue(item) : item,
       page: null,
-      perPage: null
+      perPage: null,
     });
   };
 
@@ -52,22 +52,22 @@ class PermissionList extends React.Component<Props> {
 
     return (
       <FilterWrapper>
-        <strong>{__('Filters')}:</strong>
+        <strong>{__("Filters")}:</strong>
         <FilterItem id="permission-choose-module">
           <Select
-            placeholder={__('Choose category')}
+            placeholder={__("Choose category")}
             value={queryParams.categoryId}
             options={generateModuleParams(categoryList || [])}
-            onChange={this.setFilter.bind(this, 'categoryId')}
+            onChange={this.setFilter.bind(this, "categoryId")}
           />
         </FilterItem>
 
         <FilterItem id="permission-choose-action">
           <Select
-            placeholder={__('Choose permission')}
+            placeholder={__("Choose permission")}
             value={queryParams.permission}
             options={generateModuleParams(PERMISSIONS)}
-            onChange={this.setFilter.bind(this, 'permission')}
+            onChange={this.setFilter.bind(this, "permission")}
           />
         </FilterItem>
       </FilterWrapper>
@@ -76,13 +76,13 @@ class PermissionList extends React.Component<Props> {
 
   renderData() {
     return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
           <tr>
-            <th>{__('Category')}</th>
-            <th>{__('Permission')}</th>
-            <th>{__('Group')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Category")}</th>
+            <th>{__("Permission")}</th>
+            <th>{__("Group")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -90,14 +90,14 @@ class PermissionList extends React.Component<Props> {
     );
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     const { categoryList, queryParams, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
       groupId: queryParams.groupId,
       categoryList,
-      refetchQueries
+      refetchQueries,
     };
 
     return <PermissionForm {...extendedProps} />;
@@ -115,7 +115,7 @@ class PermissionList extends React.Component<Props> {
     );
 
     const title = (
-      <Title>{this.props.currentGroupName || __('All permissions')}</Title>
+      <Title>{this.props.currentGroupName || __("All permissions")}</Title>
     );
 
     const actionBarRight = (
@@ -146,7 +146,7 @@ class PermissionList extends React.Component<Props> {
           data={this.renderData()}
           loading={isLoading || false}
           count={permissions.length}
-          emptyText={__('There is no permissions in this group')}
+          emptyText={__("There is no permissions in this group")}
           emptyImage="/images/actions/11.svg"
         />
       </>
@@ -157,15 +157,15 @@ class PermissionList extends React.Component<Props> {
     const { queryParams, permissionGroups } = this.props;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: __('Forum Permissions') }
+      { title: "Settings", link: "/settings" },
+      { title: __("Forum Permissions") },
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Forum Permissions')}
+            title={__("Forum Permissions")}
             breadcrumb={breadcrumb}
           />
         }

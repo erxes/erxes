@@ -75,7 +75,7 @@ const List = (props: Props) => {
   queryParams.loadingMainQuery = loading;
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
           <th>{__("Date")}</th>
