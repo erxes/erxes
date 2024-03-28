@@ -148,7 +148,7 @@ class CollapsibleList extends React.Component<Props, State> {
 
     return (
       <FlexRow key={item._id}>
-        <SidebarListItem isActive={this.isActive(item._id)}>
+        <SidebarListItem $isActive={this.isActive(item._id)}>
           {icon && <Icon className="list-icon" icon={icon} />}
           {this.renderIcons(item, hasChildren, isOpen)}
           {this.renderItemText(item)}

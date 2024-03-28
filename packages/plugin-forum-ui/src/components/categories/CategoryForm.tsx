@@ -304,13 +304,13 @@ const CategoryForm: React.FC<Props> = ({
         <Info>
           <p>
             If "Also requires permission group" is&nbsp;
-            <TextInfo textStyle="danger">checked, both 2</TextInfo>&nbsp;
+            <TextInfo $textStyle="danger">checked, both 2</TextInfo>&nbsp;
             conditions are required for a user to be able to perform the action.
           </p>
           <p>
             If "Also requires permission group" is&nbsp;
-            <TextInfo textStyle="danger">unchecked</TextInfo>, only&nbsp;
-            <TextInfo textStyle="danger">one</TextInfo>&nbsp; of 2 conditions is
+            <TextInfo $textStyle="danger">unchecked</TextInfo>, only&nbsp;
+            <TextInfo $textStyle="danger">one</TextInfo>&nbsp; of 2 conditions is
             required for a user to be able to perform the action.
           </p>
           <Divider />

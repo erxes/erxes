@@ -124,12 +124,12 @@ class FileDetail extends React.Component<Props, State> {
       <>
         <withTableWrapper.Wrapper>
           <Table
-            whiteSpace="wrap"
-            hover={true}
-            bordered={true}
-            condensed={true}
-            responsive={true}
-            wideHeader={true}
+            $whiteSpace="wrap"
+            $hover={true}
+            $bordered={true}
+            $condensed={true}
+            $responsive={true}
+            $wideHeader={true}
           >
             <thead>
               <tr>

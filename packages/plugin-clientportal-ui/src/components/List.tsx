@@ -104,7 +104,7 @@ function ClientPortalList({
 
   return (
     <LeftSidebar wide={true} header={renderSidebarHeader()} hasBorder>
-      <SidebarList noTextColor noBackground id={'ClientPortalSidebar'}>
+      <SidebarList $noTextColor $noBackground id={'ClientPortalSidebar'}>
         {renderRow()}
         <LoadMore all={totalCount} loading={loading} />
       </SidebarList>

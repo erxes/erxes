@@ -1,16 +1,16 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IUser, IUserDetails, IUserLinks } from '@erxes/ui/src/auth/types';
-import { __, getConstantFromStore } from '@erxes/ui/src/utils';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IUser, IUserDetails, IUserLinks } from "@erxes/ui/src/auth/types";
+import { __, getConstantFromStore } from "@erxes/ui/src/utils";
 
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import React from 'react';
-// import Select from 'react-select-plus';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import React from "react";
+import Select from "react-select";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import UserCommonInfos from "@erxes/ui-settings/src/common/components/UserCommonInfos";
 
 type Props = {
   channels: any[]; // check - IChannel
@@ -36,7 +36,7 @@ class UserForm extends React.Component<Props, State> {
     super(props);
 
     const user = props.object || { details: {} };
-    const defaultAvatar = '/images/avatar-colored.svg';
+    const defaultAvatar = "/images/avatar-colored.svg";
 
     this.state = {
       avatar:
@@ -61,7 +61,7 @@ class UserForm extends React.Component<Props, State> {
   };
 
   collectValues = (items) => {
-    return items.map((item) => (typeof item === 'string' ? item : item.value));
+    return items.map((item) => (typeof item === "string" ? item : item.value));
   };
 
   renderGroups() {
@@ -78,11 +78,11 @@ class UserForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose groups')}
+          placeholder={__("Choose groups")}
           value={self.state.selectedGroups}
           options={self.generateParams(groups)}
           onChange={onChange}
-          multi={true}
+          isMulti={true}
         />
       </FormGroup>
     );
@@ -129,13 +129,13 @@ class UserForm extends React.Component<Props, State> {
         <ControlLabel>Choose the channels</ControlLabel>
         <br />
 
-        {/* <Select
-          placeholder={__('Choose channels')}
+        <Select
+          placeholder={__("Choose channels")}
           value={self.state.selectedChannels}
           options={self.generateParams(channels)}
           onChange={onChange}
-          multi={true}
-        /> */}
+          isMulti={true}
+        />
       </FormGroup>
     );
   }
@@ -151,7 +151,7 @@ class UserForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach((link) => {
+    getConstantFromStore("social_links").forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -194,7 +194,7 @@ class UserForm extends React.Component<Props, State> {
           formProps={formProps}
         />
 
-        <CollapseContent title={__('Other')} compact={true}>
+        <CollapseContent title={__("Other")} compact={true}>
           {this.renderChannels()}
           {this.renderGroups()}
           {this.renderBrands()}

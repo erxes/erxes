@@ -226,11 +226,11 @@ class Form extends React.Component<Props, State> {
     return (
       <withTableWrapper.Wrapper>
         <TableOver
-          whiteSpace="nowrap"
-          hover={true}
-          bordered={true}
-          responsive={true}
-          wideHeader={true}
+          $whiteSpace="nowrap"
+          $hover={true}
+          $bordered={true}
+          $responsive={true}
+          $wideHeader={true}
         >
           <thead>
             <tr>

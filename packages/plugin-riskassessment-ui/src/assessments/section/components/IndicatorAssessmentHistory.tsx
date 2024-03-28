@@ -109,12 +109,12 @@ class AssessmentHistory extends React.Component<Props, State> {
         <Tip
           text={
             <FormContainer column gapBetween={5}>
-              <TextInfo textStyle="simple">
+              <TextInfo $textStyle="simple">
                 {`Started At: ${moment(assessmentHistory.createdAt).format(
                   'll HH:mm'
                 )}`}
               </TextInfo>
-              <TextInfo textStyle="simple">
+              <TextInfo $textStyle="simple">
                 {`End At: ${moment(assessmentHistory.closedAt).format(
                   'll HH:mm'
                 )}`}

@@ -94,7 +94,7 @@ class GroupList extends React.Component<IProps> {
     const { objects } = this.props;
 
     return (
-      <SidebarList noBackground={true} noTextColor={true}>
+      <SidebarList $noBackground={true} $noTextColor={true}>
         {this.renderObjects(objects)}
       </SidebarList>
     );

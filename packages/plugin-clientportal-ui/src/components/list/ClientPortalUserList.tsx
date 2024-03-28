@@ -94,11 +94,11 @@ const ClientportalUserList: React.FC<IProps> = ({
     return (
       <withTableWrapper.Wrapper>
         <Table
-          whiteSpace="nowrap"
-          hover={true}
-          bordered={true}
-          responsive={true}
-          wideHeader={true}
+          $whiteSpace="nowrap"
+          $hover={true}
+          $bordered={true}
+          $responsive={true}
+          $wideHeader={true}
         >
           <thead>
             <tr>

@@ -5,7 +5,7 @@ import { IFormProps } from '../types';
 import Icon from './Icon';
 import React from 'react';
 import { __ } from '../utils/core';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -255,15 +255,15 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     return (
       <Wrapper>
         <FillContent>
-          {/* <Select
+          <Select
             placeholder={`${__('Choose a Primary')} ${__(name)}`}
-            searchable={false}
-            value={selectedOption}
-            valueComponent={this.renderValue}
+            isSearchable={false}
+            value={this.generateOptions().find(o=>o.value === selectedOption)}
+            // valueComponent={this.renderValue}
             onChange={onChange}
             options={this.generateOptions()}
-            optionComponent={Option}
-          /> */}
+            // optionComponent={Option}
+          />
         </FillContent>
 
         <Button

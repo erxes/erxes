@@ -163,13 +163,13 @@ class HistoryRow extends React.Component<Props> {
     if (history.error) {
       return (
         <Tip placement="top" text={history.error}>
-          <TextInfo textStyle="danger"> failed </TextInfo>
+          <TextInfo $textStyle="danger"> failed </TextInfo>
         </Tip>
       );
     }
 
     return (
-      <TextInfo textStyle="warning">
+      <TextInfo $textStyle="warning">
         {`${history.status}  ${history.percentage}%`}
       </TextInfo>
     );
