@@ -12,8 +12,25 @@ Thank you for considering to contribute to erxes! This document will outline how
 
 1. Before you start working on a change, please make sure there is an issue with what you will be working on. You can either find an <a href="https://github.com/erxes/erxes/issues" target="_blank">existing issue</a> or <a href="https://github.com/erxes/erxes/issues/new/choose" target="_blank">open a new issue</a> if none exists. Doing this ensures that others can contribute with thoughts or suggest alternatives, ultimately making sure that we only add changes that make the most sense to erxes future.
 2. When you are ready to start working on a change, you should first <a href="https://help.github.com/en/github/getting-started-with-github/fork-a-repo" target="_blank">fork the erxes repo</a> and <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-and-deleting-branches-within-your-repository" target="_blank">branch out</a> from the develop branch.
-3. Make your changes.
-4. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork" target="_blank">Open a pull request towards the development branch in the erxes repo</a>. Within a couple of days, erxes team members will review, comment, and eventually approve your PR.
+3. When you are ready to start working on a change, you should first fork the erxes repo
+4. Clone the repository in you local with URL of your forked version
+```
+   git clone https://github.com/yourusername/erxes.git
+```
+5.  Add the Original Repository as a Remote:
+```
+  git remote add upstream https://github.com/erxes/erxes.git
+```
+6. Fetch the "develop" Branch:
+```
+git fetch upstream
+```
+7. Create your Local branch from the "develop" Branch:
+```
+ git checkout -b develop upstream/my_develop_branch
+```
+8. Make your changes.
+9. <a href="https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork" target="_blank">Open a pull request towards the development branch in the erxes repo</a>. Within a couple of days, erxes team members will review, comment, and eventually approve your PR.
 
 ## Workflow
 
