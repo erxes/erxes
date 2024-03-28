@@ -214,13 +214,11 @@ class Row extends React.Component<Props> {
           <TextInfo ignoreTrans={true}>{lead.viewCount || 0}</TextInfo>
         </td>
         <td>
-          ignoreTrans
           <TextInfo $textStyle="primary" ignoreTrans={true}>
             {percentage.substring(0, 4)} %
           </TextInfo>
         </td>
         <td>
-          ignoreTrans
           <TextInfo $textStyle="danger" ignoreTrans={true}>
             {lead.contactsGathered || 0}
           </TextInfo>

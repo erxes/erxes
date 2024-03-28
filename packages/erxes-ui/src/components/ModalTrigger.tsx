@@ -84,7 +84,6 @@ const ModalTrigger: React.FC<Props> = ({
   }, [addisOpenToQueryParam, isOpen]);
 
   const openModal = () => {
-    console.log("aaaa", isOpenTrigger);
     setIsOpen(true);
   };
 
@@ -115,7 +114,7 @@ const ModalTrigger: React.FC<Props> = ({
         onClick: openModal,
       })
     : null;
-  console.log("isOpen:", isOpenTrigger);
+
   return (
     <>
       {triggerComponent}
@@ -128,8 +127,9 @@ const ModalTrigger: React.FC<Props> = ({
           className={`${dialogClassName} relative z-10`}
           initialFocus={(enforceFocus as any) || false}
         >
-          <Transition.Child
+          <Transition
             as={Fragment}
+            show={isOpenTrigger}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -138,16 +138,14 @@ const ModalTrigger: React.FC<Props> = ({
             leaveTo="opacity-0"
           >
             <ModalOverlay />
-          </Transition.Child>
+          </Transition>
           <DialogWrapper>
             <DialogContent>
               <Dialog.Panel className={`${paddingContent} dialog-size-${size}`}>
                 {renderHeader()}
-                <Transition.Child>
-                  <div className="dialog-description">
-                    {content({ closeModal })}
-                  </div>
-                </Transition.Child>
+                <div className="dialog-description">
+                  {content({ closeModal })}
+                </div>
               </Dialog.Panel>
             </DialogContent>
           </DialogWrapper>

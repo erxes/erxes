@@ -124,7 +124,6 @@ const MiddleContent = styledTS<{ $transparent?: boolean; $shrink?: boolean }>(
   styled.div,
 )`
   width: 900px;
-
   background: ${(props) => !props.$transparent && colors.colorWhite};
   margin: 10px 0;
 

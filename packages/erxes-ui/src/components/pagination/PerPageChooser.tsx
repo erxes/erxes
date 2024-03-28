@@ -1,10 +1,9 @@
 import { Option, PerPageButton } from "./styles";
 import { __, router } from "../../utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import Icon from "../Icon";
-import { Menu } from "@headlessui/react";
 import React from "react";
+import Dropdown from "../Dropdown";
 
 type Props = {
   count?: number;
@@ -20,7 +19,7 @@ const PerPageChooser = ({ count }: Props) => {
   const onClick = (perPage) => {
     if (perPage !== currentPerPage) {
       router.setParams(navigate, location, { perPage });
-      router.setParams(navigate, location, { page: 1 });
+      // router.setParams(navigate, location, { page: 1 });
 
       const storageValue = window.localStorage.getItem("pagination:perPage");
 
@@ -47,19 +46,19 @@ const PerPageChooser = ({ count }: Props) => {
   };
 
   return (
-    <Menu as="div" className="relative">
-      <Menu.Button>
+    <Dropdown
+      toggleComponent={
         <PerPageButton>
           {currentPerPage} {__("per page")} <Icon icon="angle-up" />
         </PerPageButton>
-      </Menu.Button>
-      <Menu.Items className="absolute">
-        {renderOption(20)}
-        {renderOption(50)}
-        {renderOption(100)}
-        {renderOption(200)}
-      </Menu.Items>
-    </Menu>
+      }
+      drop="up"
+    >
+      {renderOption(20)}
+      {renderOption(50)}
+      {renderOption(100)}
+      {renderOption(200)}
+    </Dropdown>
   );
 };
 

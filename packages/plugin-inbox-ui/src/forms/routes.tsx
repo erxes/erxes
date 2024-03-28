@@ -4,29 +4,29 @@ import {
   useLocation,
   useNavigate,
   useParams,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const CreateLead = asyncComponent(
-  () => import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead'),
+  () => import(/* webpackChunkName: "CreateLead" */ "./containers/CreateLead")
 );
 
 const EditLead = asyncComponent(
-  () => import(/* webpackChunkName: "EditLead" */ './containers/EditLead'),
+  () => import(/* webpackChunkName: "EditLead" */ "./containers/EditLead")
 );
 
 const List = asyncComponent(
-  () => import(/* webpackChunkName: "List - Form" */ './containers/List'),
+  () => import(/* webpackChunkName: "List - Form" */ "./containers/List")
 );
 
 const ResponseList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
-    ),
+      /* webpackChunkName: "List - FormResponse" */ "./containers/ResponseList"
+    )
 );
 
 const Forms = () => {
@@ -67,25 +67,25 @@ const ResponseListComponent = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route key="/forms" path="/forms" element={<Forms />} />
+      <Route path="/forms" element={<Forms />}>
+        <Route
+          key="/forms/create"
+          path="/forms/create"
+          element={<CreateLead />}
+        />
 
-      <Route
-        key="/forms/create"
-        path="/forms/create"
-        element={<CreateLead />}
-      />
+        <Route
+          key="/forms/edit/:contentTypeId?/:formId?"
+          path="/forms/edit/:contentTypeId/:formId?"
+          element={<EditLeadComponent />}
+        />
 
-      <Route
-        key="/forms/edit/:contentTypeId?/:formId?"
-        path="/forms/edit/:contentTypeId/:formId?"
-        element={<EditLeadComponent />}
-      />
-
-      <Route
-        key="/forms/responses/:integrationId?/:formId?"
-        path="/forms/responses/:integrationId?/:formId?"
-        element={<ResponseListComponent />}
-      />
+        <Route
+          key="/forms/responses/:integrationId?/:formId?"
+          path="/forms/responses/:integrationId?/:formId?"
+          element={<ResponseListComponent />}
+        />
+      </Route>
     </Routes>
   );
 };
