@@ -9,7 +9,7 @@ import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { IScript } from "../types";
 import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
 import React from "react";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
@@ -107,13 +107,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Forms</ControlLabel>
 
-          {/* <Select
-            placeholder={__('Choose the form to add in the script')}
+          <Select
+            placeholder={__("Choose the form to add in the script")}
             onChange={this.onChangeLeads}
             value={this.state.leads}
             options={this.generateLeadOptions(leads)}
-            multi={true}
-          /> */}
+            isMulti={true}
+          />
         </FormGroup>
 
         <FormGroup>

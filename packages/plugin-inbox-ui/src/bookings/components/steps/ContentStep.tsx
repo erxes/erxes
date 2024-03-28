@@ -13,10 +13,9 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IField } from "@erxes/ui/src/types";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import React from "react";
-// import Select from "react-select-plus";
+import Select from "react-select";
 import SelectProductCategory from "../../containers/SelectProductCategory";
 import Uploader from "@erxes/ui/src/components/Uploader";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Name =
   | "name"
@@ -142,18 +141,19 @@ function ContentStep({
   };
 
   const renderDisplayBlock = () => {
+    const options = generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST);
     return (
       <>
         <Flex>
           <FlexItem count={3}>
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
-              {/* <Select
-                options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
+              <Select
+                options={options}
                 placeholder="Choose line"
-                value={line}
+                value={options.find((option) => option.value === line)}
                 onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
-              /> */}
+              />
             </FormGroup>
           </FlexItem>
 
@@ -242,7 +242,7 @@ function ContentStep({
           <Description>
             Select custom properties to display on the product detail page.
           </Description>
-          {/* <Select
+          <Select
             options={generateSelectOptions(productFields)}
             onChange={(e: any) =>
               onChangeBooking(
@@ -250,10 +250,12 @@ function ContentStep({
                 e.map((field) => field.value)
               )
             }
-            value={productFieldIds}
-            multi={true}
+            value={generateSelectOptions(productFields).filter((option) =>
+              productFieldIds?.includes(option.value)
+            )}
+            isMulti={true}
             placeholder="Choose custom properties"
-          /> */}
+          />
         </FormGroup>
       </>
     );

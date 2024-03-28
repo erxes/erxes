@@ -7,11 +7,11 @@ import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Form from "@erxes/ui/src/components/form/Form";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import SelectStructureMembers from "../SelectStructureMembers";
 import { __ } from "modules/common/utils";
 
-// import { generateUserOptions } from '@erxes/ui/src/team/containers/SelectDepartments';
+import { generateUserOptions } from "@erxes/ui/src/team/containers/SelectDepartments";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -45,9 +45,9 @@ export default function DepartmentForm(props: Props) {
     };
   };
 
-  // const onChangeDepartment = (parent: any) => {
-  //   setDepartmentId(parent.value);
-  // };
+  const onChangeDepartment = (parent: any) => {
+    setDepartmentId(parent.value);
+  };
 
   const onSelectUsers = (options) => {
     setUserIds(options.map((option) => option.value));
@@ -109,12 +109,14 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Department")}</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose department')}
-            value={departmentId}
+          <Select
+            placeholder={__("Choose department")}
+            value={generateUserOptions(departments).find(
+              (o) => o.value === departmentId
+            )}
             onChange={onChangeDepartment}
             options={generateUserOptions(departments)}
-          /> */}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Team Members")}</ControlLabel>

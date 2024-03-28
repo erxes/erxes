@@ -3,7 +3,7 @@ import { IApp, IAppParams } from "../types";
 
 import Button from "modules/common/components/Button";
 import ControlLabel from "modules/common/components/form/Label";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import Datetime from "@nateradebaugh/react-datetime";
 import FormControl from "modules/common/components/form/Control";
 import FormGroup from "modules/common/components/form/Group";
@@ -104,23 +104,25 @@ export default class AppForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("User group")}</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose user group')}
+          <Select
+            placeholder={__("Choose user group")}
             options={options}
-            value={this.state.userGroupId}
-            onChange={opt => onGroupChange(opt)}
-          /> */}
+            value={options.find(
+              (option) => option.value === this.state.userGroupId
+            )}
+            onChange={(opt) => onGroupChange(opt)}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__("Expire date")}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: __("Click to select a date") }}
-            dateFormat="YYYY/MM/DD"
+            // inputProps={{ placeholder: __("Click to select a date") }}
+            dateFormat="yyyy/mm/dd"
             timeFormat={false}
             value={expireDate}
-            closeOnSelect={true}
-            utc={true}
-            input={false}
+            // closeOnSelect={true}
+            // utc={true}
+            // input={false}
             onChange={onDateChange}
           />
         </FormGroup>

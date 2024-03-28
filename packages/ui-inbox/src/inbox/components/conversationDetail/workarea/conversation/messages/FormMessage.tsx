@@ -21,7 +21,7 @@ import FilePreview from "@erxes/ui/src/components/FilePreview";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IMessage } from "../../../../../types";
 import React from "react";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import { Table } from "@erxes/ui/src/components";
 import Tip from "@erxes/ui/src/components/Tip";
@@ -122,16 +122,15 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderMultiSelect(value: string) {
     const selectValues = value.split(",");
+    const options = selectValues.map((e) => ({ value: e, label: e }));
 
-    return null;
-
-    // return (
-    //   <Select
-    //     value={value}
-    //     options={selectValues.map(e => ({ value: e, label: e }))}
-    //     multi={true}
-    //   />
-    // );
+    return (
+      <Select
+        value={options.filter((o) => value.includes(o.value))}
+        options={options}
+        isMulti={true}
+      />
+    );
   }
 
   renderProductData = (field) => {

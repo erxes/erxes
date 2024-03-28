@@ -8,7 +8,7 @@ import { IOnlineHour } from "@erxes/ui-inbox/src/settings/integrations/types";
 import OnlineHours from "./OnlineHours";
 import { RESPOND_RATES } from "../../../constants";
 import React from "react";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { ToggleWrapper } from "../widgetPreview/styles";
 import { __ } from "@erxes/ui/src/utils";
@@ -111,11 +111,11 @@ class Availability extends React.Component<Props> {
               "This timezone will be calculated if supporters haven't chosen one."
             )}
           </Description>
-          {/* <Select
-            value={timezone}
+          <Select
+            value={timezones.find((o) => o.value === timezone)}
             options={timezones}
             onChange={timezoneOnChange}
-          /> */}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>
@@ -221,13 +221,15 @@ class Availability extends React.Component<Props> {
             <Description>
               {__("Set to display your pre defined response rate")}
             </Description>
-            {/* <Select
+            <Select
               required={true}
-              value={this.props.responseRate}
+              value={RESPOND_RATES.find(
+                (o) => o.value === this.props.responseRate
+              )}
               options={RESPOND_RATES}
               onChange={respondTypeOnChange}
-              clearable={false}
-            /> */}
+              isClearable={false}
+            />
           </FormGroup>
 
           {this.renderShowTimezone()}

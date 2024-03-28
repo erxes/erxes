@@ -1,21 +1,21 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from "coreui/utils";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components/form';
+} from "@erxes/ui/src/components/form";
 import {
   ISkillDocument,
   ISkillTypesDocument,
-} from '@erxes/ui-inbox/src/settings/skills/types';
-import React, { useState } from 'react';
+} from "@erxes/ui-inbox/src/settings/skills/types";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-// import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import mutations from '../graphql/mutations';
+import Button from "@erxes/ui/src/components/Button";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import mutations from "../graphql/mutations";
 
 type Props = {
   skill: ISkillDocument;
@@ -41,7 +41,7 @@ function SkillForm({
   refetchQueries,
 }: Props) {
   const [isSubmitted, setSubmitted] = useState(false);
-  const [name, setName] = useState<string>(skill.name || '');
+  const [name, setName] = useState<string>(skill.name || "");
   const [type, setType] = useState(getSkillType(skill, skillTypes));
   const [memberIds, setMemberIds] = useState<string[]>(skill.memberIds || []);
 
@@ -51,15 +51,15 @@ function SkillForm({
     e.preventDefault();
 
     if (name.length === 0) {
-      return Alert.error('Please enter a name');
+      return Alert.error("Please enter a name");
     }
 
     if (!type) {
-      return Alert.error('Please select a type');
+      return Alert.error("Please select a type");
     }
 
     if (memberIds.length === 0) {
-      return Alert.error('Please add at least one team member');
+      return Alert.error("Please add at least one team member");
     }
 
     return setSubmitted(true);
@@ -73,7 +73,7 @@ function SkillForm({
     const doc: { [key: string]: string | string[] } = {
       name,
       memberIds,
-      typeId: typeof type === 'string' ? type : type.value,
+      typeId: typeof type === "string" ? type : type.value,
       ...(skill ? { _id: skill._id } : {}),
     };
 
@@ -102,12 +102,12 @@ function SkillForm({
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Skill type</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose a skill type')}
-            value={type}
+          <Select
+            placeholder={__("Choose a skill type")}
+            value={generateSkillTypes().find((o) => o.value === type)}
             options={generateSkillTypes()}
             onChange={handleTypeSelect}
-          /> */}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>Team members</ControlLabel>
@@ -125,7 +125,7 @@ function SkillForm({
   const mutateProps = {
     mutation: skill._id ? mutations.skillEdit : mutations.skillAdd,
     successMessage: __(
-      `You successfully ${skill._id ? 'updated' : 'added'} a skill`,
+      `You successfully ${skill._id ? "updated" : "added"} a skill`
     ),
   };
 

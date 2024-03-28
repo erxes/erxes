@@ -358,8 +358,8 @@ class PipelineForm extends React.Component<Props, State> {
               <ControlLabel>Metric</ControlLabel>
               <Select
                 placeholder={__("Choose a metric")}
-                value={metricOptions.find(
-                  (option) => option.options.value === metric
+                value={metricOptions.map((option) =>
+                  option.options.find((item) => item.value === metric)
                 )}
                 options={metricOptions}
                 onChange={onChangeMetric}

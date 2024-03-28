@@ -21,7 +21,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import Info from "@erxes/ui/src/components/Info";
 import React from "react";
 
-// import Select from 'react-select-plus';
+import Select from "react-select";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -253,6 +253,18 @@ class UserInvitationForm extends React.Component<Props, State> {
       return this.renderMultipleEmail();
     }
 
+    const channelOptions = this.generateChannelOptions(this.props.channels);
+    const unitOptions = this.generateChannelOptions(this.props.units);
+    const departmentOptions = generateTree(
+      this.props.departments,
+      null,
+      (node, level) => ({
+        value: node._id,
+        label: `${"---".repeat(level)} ${node.title}`,
+      })
+    );
+    const branchOptions = generetaOption(this.props.branches);
+
     return (
       <>
         <FormTable>
@@ -328,47 +340,48 @@ class UserInvitationForm extends React.Component<Props, State> {
                 </td>
 
                 <td>
-                  {/* <Select
-                    value={entries[i].channelIds}
-                    options={this.generateChannelOptions(this.props.channels)}
-                    onChange={this.onChange.bind(this, i, 'channelIds')}
-                    placeholder={__('Choose channels ...')}
-                    multi={true}
-                  /> */}
-                </td>
-
-                <td>
-                  {/* <Select
-                    value={entries[i].unitId}
-                    options={this.generateChannelOptions(this.props.units)}
-                    onChange={this.onChange.bind(this, i, 'unitId')}
-                    placeholder={__('Choose unit ...')}
-                  /> */}
-                </td>
-
-                <td>
-                  {/* <Select
-                    value={entries[i].departmentId}
-                    options={generateTree(
-                      this.props.departments,
-                      null,
-                      (node, level) => ({
-                        value: node._id,
-                        label: `${'---'.repeat(level)} ${node.title}`,
-                      }),
+                  <Select
+                    value={channelOptions.filter((o) =>
+                      entries[i].channelIds.includes(o.value)
                     )}
-                    onChange={this.onChange.bind(this, i, 'departmentId')}
-                    placeholder={__('Choose department ...')}
-                  /> */}
+                    options={channelOptions}
+                    onChange={this.onChange.bind(this, i, "channelIds")}
+                    placeholder={__("Choose channels ...")}
+                    isMulti={true}
+                  />
                 </td>
 
                 <td>
-                  {/* <Select
-                    value={entries[i].branchId}
-                    options={generetaOption(this.props.branches)}
-                    onChange={this.onChange.bind(this, i, 'branchId')}
-                    placeholder={__('Choose branch ...')}
-                  /> */}
+                  <Select
+                    value={unitOptions.find(
+                      (o) => o.value === entries[i].unitId
+                    )}
+                    options={unitOptions}
+                    onChange={this.onChange.bind(this, i, "unitId")}
+                    placeholder={__("Choose unit ...")}
+                  />
+                </td>
+
+                <td>
+                  <Select
+                    value={departmentOptions.find(
+                      (o) => o.value === entries[i].departmentId
+                    )}
+                    options={departmentOptions}
+                    onChange={this.onChange.bind(this, i, "departmentId")}
+                    placeholder={__("Choose department ...")}
+                  />
+                </td>
+
+                <td>
+                  <Select
+                    value={branchOptions.find(
+                      (o) => o.value === entries[i].branchId
+                    )}
+                    options={branchOptions}
+                    onChange={this.onChange.bind(this, i, "branchId")}
+                    placeholder={__("Choose branch ...")}
+                  />
                 </td>
 
                 <td>{this.renderRemoveInput(i)}</td>

@@ -1,7 +1,13 @@
 import { Alert, __ } from "modules/common/utils";
 import { Divider, StepBody, StepHeader, StepItem } from "../styles";
 import { IActions, IModule } from "../types";
-import { correctValue, generatedList } from "./utils";
+import {
+  correctValue,
+  filterActions,
+  generatedList,
+  generateListParams,
+  generateModuleParams,
+} from "./utils";
 
 import Button from "modules/common/components/Button";
 import ButtonMutate from "modules/common/components/ButtonMutate";
@@ -14,7 +20,7 @@ import { ModalFooter } from "modules/common/styles/main";
 import React from "react";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import TextInfo from "modules/common/components/TextInfo";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import { mutations } from "../graphql";
 
 type Props = {
@@ -117,9 +123,9 @@ class PermissionForm extends React.Component<Props, State> {
   };
 
   renderContent() {
-    // const { modules, actions, groups } = this.props;
+    const { modules, actions, groups } = this.props;
     const {
-      // selectedModule,
+      selectedModule,
       selectedActions,
       selectedUserIds,
       selectedGroups,
@@ -137,7 +143,7 @@ class PermissionForm extends React.Component<Props, State> {
             When a team member is part of two or more User Groups with different
             levels of permissions,
           </span>
-          <TextInfo textStyle="danger">
+          <TextInfo $textStyle="danger">
             the negative permission will overrule.
           </TextInfo>
           <br />
@@ -146,7 +152,7 @@ class PermissionForm extends React.Component<Props, State> {
             permissions allowed, but you've included yourself in the "Support
             Group" with fewer permissions,
           </span>
-          <TextInfo textStyle="danger">
+          <TextInfo $textStyle="danger">
             you might not be able to do certain actions.
           </TextInfo>
         </Info>
@@ -160,24 +166,26 @@ class PermissionForm extends React.Component<Props, State> {
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the module</ControlLabel>
-              {/* <Select
-                placeholder={__('Choose module')}
+              <Select
+                placeholder={__("Choose module")}
                 options={generateModuleParams(modules)}
-                value={selectedModule}
-                onChange={this.changeModule}
-              /> */}
+                value={generateModuleParams(modules).find(
+                  (o) => o.value === selectedModule
+                )}
+                onChange={() => this.changeModule}
+              />
             </FormGroup>
             <Divider>{__("Then")}</Divider>
             <FormGroup>
               <ControlLabel required={true}>Choose the actions</ControlLabel>
-              {/* <Select
-                placeholder={__('Choose actions')}
-                options={filterActions(actions, selectedModule)}
+              <Select
+                placeholder={__("Choose actions")}
+                options={filterActions(actions, selectedModule) || []}
                 value={selectedActions}
-                disabled={!this.isModuleSelected()}
-                onChange={this.select.bind(this, 'selectedActions')}
-                multi={true}
-              /> */}
+                isDisabled={!this.isModuleSelected()}
+                onChange={this.select.bind(this, "selectedActions")}
+                isMulti={true}
+              />
             </FormGroup>
           </StepBody>
         </StepItem>
@@ -194,13 +202,13 @@ class PermissionForm extends React.Component<Props, State> {
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the groups</ControlLabel>
-              {/* <Select
-                placeholder={__('Choose groups')}
-                options={generateListParams(groups)}
+              <Select
+                placeholder={__("Choose groups")}
+                options={generateListParams(groups) || []}
                 value={selectedGroups}
-                onChange={this.select.bind(this, 'selectedGroups')}
-                multi={true}
-              /> */}
+                onChange={this.select.bind(this, "selectedGroups")}
+                isMulti={true}
+              />
             </FormGroup>
             <Divider>{__("Or")}</Divider>
             <FormGroup>

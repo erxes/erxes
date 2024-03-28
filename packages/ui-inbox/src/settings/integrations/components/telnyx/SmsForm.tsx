@@ -7,7 +7,7 @@ import { ISelectedOption } from "@erxes/ui/src/types";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import colors from "@erxes/ui/src/styles/colors";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
@@ -127,13 +127,15 @@ class SmsForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel>From:</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose phone number')}
-            value={this.state.integrationId}
+          <Select
+            placeholder={__("Choose phone number")}
+            value={this.fromSelectOptions().find(
+              (o) => o.value === this.state.integrationId
+            )}
             onChange={onChangeFrom}
             options={this.fromSelectOptions()}
-            optionRenderer={this.fromOptionRenderer}
-          /> */}
+            // optionRenderer={this.fromOptionRenderer}
+          />
         </FormGroup>
         <FormGroup>
           <SMSInfo>

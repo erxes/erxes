@@ -2,7 +2,7 @@ import * as React from "react";
 
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IIntegration } from "../../types";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 import styled from "styled-components";
 
@@ -59,13 +59,14 @@ class MailChooser extends React.Component<Props> {
     return (
       <Wrapper>
         <FormGroup>
-          {/* <Select
-            placeholder={__('Choose email to send from')}
-            value={selectedItem}
-            defaultValue={defaultEmail}
+          <Select
+            placeholder={__("Choose email to send from")}
+            value={options.map((o) =>
+              o.options.find((item) => item.value === selectedItem)
+            )}
             onChange={onSelectChange}
             options={options}
-          /> */}
+          />
         </FormGroup>
       </Wrapper>
     );

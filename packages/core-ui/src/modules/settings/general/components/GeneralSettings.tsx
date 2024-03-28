@@ -9,6 +9,8 @@ import {
   FILE_MIME_TYPES,
   KEY_LABELS,
   LANGUAGES,
+  FILE_SYSTEM_TYPES,
+  DATA_RETENTION_DURATION,
   LOG_RETENTION_DURATION,
   SERVICE_TYPES,
 } from "@erxes/ui-settings/src/general/constants";
@@ -21,7 +23,7 @@ import {
 
 import ActivateInstallation from "./ActivateInstallation";
 import Button from "modules/common/components/Button";
-// import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import CollapseContent from "modules/common/components/CollapseContent";
 import ControlLabel from "modules/common/components/form/Label";
 import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConfigForm";
@@ -34,7 +36,7 @@ import Info from "modules/common/components/Info";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Popover from "react-bootstrap/Popover";
 import React from "react";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import { SelectTeamMembers } from "@erxes/ui/src";
 import TwitterPicker from "react-color/lib/Twitter";
 import Wrapper from "modules/layout/components/Wrapper";
@@ -201,10 +203,10 @@ class GeneralSettings extends React.Component<Props, State> {
   renderConstant(kind: string) {
     const { constants } = this.props;
     const { configsMap } = this.state;
-    // const allValues = constants.allValues || {};
+    const allValues = constants.allValues || {};
     const defaultValues = constants.defaultValues || {};
 
-    // const constant = allValues[kind] || [];
+    const constant = allValues[kind] || [];
 
     let value = configsMap[kind];
 
@@ -212,16 +214,20 @@ class GeneralSettings extends React.Component<Props, State> {
       value = defaultValues[kind] || "";
     }
 
+    const optionValue = value.every((i) => typeof i === "string")
+      ? constant.filter((o) => value.includes(o.value))
+      : value;
+
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
 
-        {/* <Select
+        <Select
           options={constant}
-          value={value}
+          value={optionValue}
           onChange={this.onChangeMultiCombo.bind(this, kind)}
-          multi={true}
-        /> */}
+          isMulti={true}
+        />
       </FormGroup>
     );
   }
@@ -290,6 +296,11 @@ class GeneralSettings extends React.Component<Props, State> {
       "Comma-separated list of media types. Leave it blank for accepting all media types"
     );
 
+    const emailServiceOptions = [
+      { label: "SES", value: "SES" },
+      { label: "Custom", value: "custom" },
+    ];
+
     const content = (
       <ContentBox id={"GeneralSettingsMenu"}>
         <CollapseContent
@@ -299,24 +310,26 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
-            {/* <Select
+            <Select
               options={LANGUAGES}
-              value={language}
+              value={LANGUAGES.find((o) => o.value === language)}
               onChange={this.onLanguageChange}
-              searchable={false}
-              clearable={false}
-              placeholder={__('Select')}
-            /> */}
+              isSearchable={false}
+              isClearable={false}
+              placeholder={__("Select")}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Currency</ControlLabel>
-            {/* <Select
+            <Select
               options={CURRENCIES}
-              value={configsMap.dealCurrency}
-              onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
-              multi={true}
-            /> */}
+              value={CURRENCIES.filter((o) =>
+                configsMap.dealCurrency.includes(o.value)
+              )}
+              onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
+              isMulti={true}
+            />
           </FormGroup>
 
           <FormGroup>
@@ -410,62 +423,70 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              {/* <Select
-                value={configsMap.UPLOAD_FILE_TYPES}
+              <Select
+                value={mimeTypeOptions.filter((o) =>
+                  (configsMap.UPLOAD_FILE_TYPES || []).includes(o.value)
+                )}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'UPLOAD_FILE_TYPES',
+                  "UPLOAD_FILE_TYPES"
                 )}
-                multi={true}
+                isMulti={true}
                 delimiter=","
-                simpleValue={true}
-              /> */}
+                // simpleValue={true}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}
               </ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              {/* <Select
-                value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+              <Select
+                value={mimeTypeOptions.filter((o) =>
+                  (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
+                )}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'WIDGETS_UPLOAD_FILE_TYPES',
+                  "WIDGETS_UPLOAD_FILE_TYPES"
                 )}
-                multi={true}
+                isMulti={true}
                 delimiter=","
-                simpleValue={true}
-              /> */}
+                // simpleValue={true}
+              />
             </FormGroup>
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
-              {/* <Select
+              <Select
                 options={SERVICE_TYPES}
-                value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
-                clearable={false}
+                value={SERVICE_TYPES.find(
+                  (o) => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
+                )}
+                isClearable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'UPLOAD_SERVICE_TYPE',
+                  "UPLOAD_SERVICE_TYPE"
                 )}
-              /> */}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
-              {/* <Select
+              <Select
                 options={FILE_SYSTEM_TYPES}
-                value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
-                clearable={false}
-                searchable={false}
+                value={FILE_SYSTEM_TYPES.find(
+                  (o) => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'FILE_SYSTEM_PUBLIC',
+                  "FILE_SYSTEM_PUBLIC"
                 )}
-              /> */}
+              />
             </FormGroup>
           </FlexRow>
         </CollapseContent>
@@ -621,19 +642,18 @@ class GeneralSettings extends React.Component<Props, State> {
                 "Choose your email service name. The default email service is SES."
               )}
             </p>
-            {/* <Select
-              options={[
-                { label: 'SES', value: 'SES' },
-                { label: 'Custom', value: 'custom' },
-              ]}
-              value={configsMap.DEFAULT_EMAIL_SERVICE || 'SES'}
-              clearable={false}
-              searchable={false}
+            <Select
+              options={emailServiceOptions}
+              value={emailServiceOptions.find(
+                (o) => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
+              )}
+              isClearable={false}
+              isSearchable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
-                'DEFAULT_EMAIL_SERVICE',
+                "DEFAULT_EMAIL_SERVICE"
               )}
-            /> */}
+            />
           </FormGroup>
         </CollapseContent>
 
@@ -672,29 +692,34 @@ class GeneralSettings extends React.Component<Props, State> {
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
               </ControlLabel>
-              {/* <Select
+              <Select
                 options={DATA_RETENTION_DURATION}
-                value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
-                clearable={false}
-                searchable={false}
+                value={DATA_RETENTION_DURATION.find(
+                  (o) =>
+                    o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'NOTIFICATION_DATA_RETENTION',
+                  "NOTIFICATION_DATA_RETENTION"
                 )}
-              /> */}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
-              {/* <Select
+              <Select
                 options={LOG_RETENTION_DURATION}
-                value={configsMap.LOG_DATA_RETENTION || 1}
-                clearable={false}
-                searchable={false}
+                value={LOG_RETENTION_DURATION.find(
+                  (o) => o.value === (configsMap.LOG_DATA_RETENTION || 1)
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'LOG_DATA_RETENTION',
+                  "LOG_DATA_RETENTION"
                 )}
-              /> */}
+              />
             </FormGroup>
           </FlexRow>
         </CollapseContent>

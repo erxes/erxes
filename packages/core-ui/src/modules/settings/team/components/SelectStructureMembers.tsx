@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { IUser } from '@erxes/ui/src/auth/types';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { __ } from 'modules/common/utils';
 import { gql } from '@apollo/client';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { useQuery } from '@apollo/client';
+import React from 'react';
 
 type Props = {
   onSelect: (value: string[] | string) => void;
@@ -47,23 +48,23 @@ export default function SelectStructureMembers({
     }
   }, [excludeUserIds, data, loading, queryName]);
 
-  return null;
+  const options =users.map(user => ({
+    value: user._id,
+    label: user.details
+      ? user.details.fullName || user.details.firstName || user.email
+      : user.username || user.email,
+    avatar: user.details ? user.details.avatar : ''
+  }))
 
-  // return (
-  //   <Select
-  //     name={name}
-  //     multi={multi}
-  //     placeholder={placeholder}
-  //     label={__('Choose team members')}
-  //     value={value}
-  //     onChange={onSelect}
-  //     options={users.map(user => ({
-  //       value: user._id,
-  //       label: user.details
-  //         ? user.details.fullName || user.details.firstName || user.email
-  //         : user.username || user.email,
-  //       avatar: user.details ? user.details.avatar : ''
-  //     }))}
-  //   />
-  // );
+  return (
+    <Select
+      name={name}
+      isMulti={multi}
+      placeholder={placeholder}
+      // label={__('Choose team members')}
+      value={options.filter(o=>value?.includes(o.value))}
+      onChange={onSelect}
+      options={options}
+    />
+  );
 }
