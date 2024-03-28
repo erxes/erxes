@@ -1,43 +1,45 @@
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import {
   ContentBox,
   FlexRow,
   ImageWrapper,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 import {
   FILE_MIME_TYPES,
   KEY_LABELS,
   LANGUAGES,
+  FILE_SYSTEM_TYPES,
+  DATA_RETENTION_DURATION,
   LOG_RETENTION_DURATION,
   SERVICE_TYPES,
-} from '@erxes/ui-settings/src/general/constants';
+} from "@erxes/ui-settings/src/general/constants";
 import {
   __,
   loadDynamicComponent,
   readFile,
   uploadHandler,
-} from 'modules/common/utils';
+} from "modules/common/utils";
 
-import ActivateInstallation from './ActivateInstallation';
-import Button from 'modules/common/components/Button';
-// import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import ControlLabel from 'modules/common/components/form/Label';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
-import { FormControl } from 'modules/common/components/form';
-import FormGroup from 'modules/common/components/form/Group';
-import Header from '@erxes/ui-settings/src/general/components/Header';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
-import Icon from 'modules/common/components/Icon';
-import Info from 'modules/common/components/Info';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-// import Select from 'react-select-plus';
-import { SelectTeamMembers } from '@erxes/ui/src';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Wrapper from 'modules/layout/components/Wrapper';
+import ActivateInstallation from "./ActivateInstallation";
+import Button from "modules/common/components/Button";
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import CollapseContent from "modules/common/components/CollapseContent";
+import ControlLabel from "modules/common/components/form/Label";
+import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConfigForm";
+import { FormControl } from "modules/common/components/form";
+import FormGroup from "modules/common/components/form/Group";
+import Header from "@erxes/ui-settings/src/general/components/Header";
+import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
+import Icon from "modules/common/components/Icon";
+import Info from "modules/common/components/Info";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import React from "react";
+import Select from "react-select";
+import { SelectTeamMembers } from "@erxes/ui/src";
+import TwitterPicker from "react-color/lib/Twitter";
+import Wrapper from "modules/layout/components/Wrapper";
 
 type Props = {
   currentLanguage: string;
@@ -85,9 +87,9 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeEmailConfig = (emailConfig: any) => {
-    this.onChangeConfig('COMPANY_EMAIL_FROM', emailConfig.email);
-    this.onChangeConfig('COMPANY_EMAIL_TEMPLATE_TYPE', emailConfig.type);
-    this.onChangeConfig('COMPANY_EMAIL_TEMPLATE', emailConfig.template);
+    this.onChangeConfig("COMPANY_EMAIL_FROM", emailConfig.email);
+    this.onChangeConfig("COMPANY_EMAIL_TEMPLATE_TYPE", emailConfig.type);
+    this.onChangeConfig("COMPANY_EMAIL_TEMPLATE", emailConfig.template);
   };
 
   onChangeMultiCombo = (code: string, values) => {
@@ -201,27 +203,31 @@ class GeneralSettings extends React.Component<Props, State> {
   renderConstant(kind: string) {
     const { constants } = this.props;
     const { configsMap } = this.state;
-    // const allValues = constants.allValues || {};
+    const allValues = constants.allValues || {};
     const defaultValues = constants.defaultValues || {};
 
-    // const constant = allValues[kind] || [];
+    const constant = allValues[kind] || [];
 
     let value = configsMap[kind];
 
     if (!value || value.length === 0) {
-      value = defaultValues[kind] || '';
+      value = defaultValues[kind] || "";
     }
+
+    const optionValue = value.every((i) => typeof i === "string")
+      ? constant.filter((o) => value.includes(o.value))
+      : value;
 
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
 
-        {/* <Select
+        <Select
           options={constant}
-          value={value}
+          value={optionValue}
           onChange={this.onChangeMultiCombo.bind(this, kind)}
-          multi={true}
-        /> */}
+          isMulti={true}
+        />
       </FormGroup>
     );
   }
@@ -232,30 +238,30 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         transparent={true}
-        title={__('Cloudflare')}
-        description={__('Cloudflare R2 Bucket, Images & Stream CDN configs')}
+        title={__("Cloudflare")}
+        description={__("Cloudflare R2 Bucket, Images & Stream CDN configs")}
         beforeTitle={<Icon icon="comment-upload" />}
       >
         <FlexRow alignItems="flex-start" justifyContent="space-between">
-          {this.renderItem('CLOUDFLARE_ACCOUNT_ID')}
-          {this.renderItem('CLOUDFLARE_API_TOKEN')}
+          {this.renderItem("CLOUDFLARE_ACCOUNT_ID")}
+          {this.renderItem("CLOUDFLARE_API_TOKEN")}
         </FlexRow>
         <FlexRow alignItems="flex-start" justifyContent="space-between">
-          {this.renderItem('CLOUDFLARE_ACCESS_KEY_ID')}
-          {this.renderItem('CLOUDFLARE_SECRET_ACCESS_KEY')}
+          {this.renderItem("CLOUDFLARE_ACCESS_KEY_ID")}
+          {this.renderItem("CLOUDFLARE_SECRET_ACCESS_KEY")}
         </FlexRow>
         <FlexRow alignItems="flex-start" justifyContent="space-between">
-          {this.renderItem('CLOUDFLARE_BUCKET_NAME')}
-          {this.renderItem('CLOUDFLARE_ACCOUNT_HASH')}
+          {this.renderItem("CLOUDFLARE_BUCKET_NAME")}
+          {this.renderItem("CLOUDFLARE_ACCOUNT_HASH")}
         </FlexRow>
         <FormGroup>
           <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
-          <p>{__('Upload images/videos to Cloudflare cdn')}</p>
+          <p>{__("Upload images/videos to Cloudflare cdn")}</p>
           <FormControl
-            componentClass={'checkbox'}
+            componentClass={"checkbox"}
             checked={configsMap.CLOUDFLARE_USE_CDN}
             onChange={(e: any) => {
-              this.onChangeConfig('CLOUDFLARE_USE_CDN', e.target.checked);
+              this.onChangeConfig("CLOUDFLARE_USE_CDN", e.target.checked);
             }}
           />
         </FormGroup>
@@ -267,8 +273,8 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap, language } = this.state;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('General system config') },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("General system config") },
     ];
 
     const actionButtons = (
@@ -287,47 +293,54 @@ class GeneralSettings extends React.Component<Props, State> {
       label: `${item.label} (${item.extension})`,
     }));
     const mimeTypeDesc = __(
-      'Comma-separated list of media types. Leave it blank for accepting all media types',
+      "Comma-separated list of media types. Leave it blank for accepting all media types"
     );
 
+    const emailServiceOptions = [
+      { label: "SES", value: "SES" },
+      { label: "Custom", value: "custom" },
+    ];
+
     const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         <CollapseContent
           transparent={true}
-          title={__('General settings')}
+          title={__("General settings")}
           beforeTitle={<Icon icon="settings" />}
         >
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
-            {/* <Select
+            <Select
               options={LANGUAGES}
-              value={language}
+              value={LANGUAGES.find((o) => o.value === language)}
               onChange={this.onLanguageChange}
-              searchable={false}
-              clearable={false}
-              placeholder={__('Select')}
-            /> */}
+              isSearchable={false}
+              isClearable={false}
+              placeholder={__("Select")}
+            />
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Currency</ControlLabel>
-            {/* <Select
+            <Select
               options={CURRENCIES}
-              value={configsMap.dealCurrency}
-              onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
-              multi={true}
-            /> */}
+              value={CURRENCIES.filter((o) =>
+                configsMap.dealCurrency.includes(o.value)
+              )}
+              onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
+              isMulti={true}
+            />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('with team member restrictions')}</ControlLabel>
+            <ControlLabel>{__("with team member restrictions")}</ControlLabel>
             <FormControl
               componentClass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
               onChange={(e) =>
                 this.onChangeConfig(
-                  'CHECK_TEAM_MEMBER_SHOWN',
-                  (e.target as any).checked,
+                  "CHECK_TEAM_MEMBER_SHOWN",
+                  (e.target as any).checked
                 )
               }
             />
@@ -337,7 +350,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <>
               <FormGroup>
                 <ControlLabel>
-                  {__('Team members who can access every branches')}
+                  {__("Team members who can access every branches")}
                 </ControlLabel>
                 <SelectTeamMembers
                   name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
@@ -348,7 +361,7 @@ class GeneralSettings extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <ControlLabel>
-                  {__('Team members who can access every departments')}
+                  {__("Team members who can access every departments")}
                 </ControlLabel>
                 <SelectTeamMembers
                   name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
@@ -363,38 +376,38 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent
           transparent={true}
-          title={__('Theme')}
+          title={__("Theme")}
           beforeTitle={<Icon icon="puzzle" />}
         >
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderUploadImage(
-              'THEME_LOGO',
-              'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.',
+              "THEME_LOGO",
+              "Transparent PNG, around 3:1 aspect ratio. Max width: 600px."
             )}
             {this.renderUploadImage(
-              'THEME_FAVICON',
-              '16x16px transparent PNG.',
+              "THEME_FAVICON",
+              "16x16px transparent PNG."
             )}
             <FormGroup>
-              <ControlLabel>{__('Text color')}</ControlLabel>
-              <p>{__('Used on the login page text')}</p>
-              {this.renderColorPicker('THEME_TEXT_COLOR')}
+              <ControlLabel>{__("Text color")}</ControlLabel>
+              <p>{__("Used on the login page text")}</p>
+              {this.renderColorPicker("THEME_TEXT_COLOR")}
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>{__('Background')}</ControlLabel>
-              <p>{__('Used on the login background')}</p>
-              {this.renderColorPicker('THEME_BACKGROUND')}
+              <ControlLabel>{__("Background")}</ControlLabel>
+              <p>{__("Used on the login background")}</p>
+              {this.renderColorPicker("THEME_BACKGROUND")}
             </FormGroup>
           </FlexRow>
-          {this.renderItem('THEME_MOTTO', '', 'textarea')}
+          {this.renderItem("THEME_MOTTO", "", "textarea")}
 
-          {this.renderItem('THEME_LOGIN_PAGE_DESCRIPTION', '', 'textarea')}
+          {this.renderItem("THEME_LOGIN_PAGE_DESCRIPTION", "", "textarea")}
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('File upload')}
+          title={__("File upload")}
           beforeTitle={<Icon icon="file-upload-alt" />}
         >
           <Info>
@@ -403,76 +416,84 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set file uploading') + '.'}
+              {__("Learn how to set file uploading") + "."}
             </a>
           </Info>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              {/* <Select
-                value={configsMap.UPLOAD_FILE_TYPES}
+              <Select
+                value={mimeTypeOptions.filter((o) =>
+                  (configsMap.UPLOAD_FILE_TYPES || []).includes(o.value)
+                )}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'UPLOAD_FILE_TYPES',
+                  "UPLOAD_FILE_TYPES"
                 )}
-                multi={true}
+                isMulti={true}
                 delimiter=","
-                simpleValue={true}
-              /> */}
+                // simpleValue={true}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}
               </ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
-              {/* <Select
-                value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+              <Select
+                value={mimeTypeOptions.filter((o) =>
+                  (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
+                )}
                 options={mimeTypeOptions}
                 onChange={this.onChangeMultiCombo.bind(
                   this,
-                  'WIDGETS_UPLOAD_FILE_TYPES',
+                  "WIDGETS_UPLOAD_FILE_TYPES"
                 )}
-                multi={true}
+                isMulti={true}
                 delimiter=","
-                simpleValue={true}
-              /> */}
+                // simpleValue={true}
+              />
             </FormGroup>
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
-              {/* <Select
+              <Select
                 options={SERVICE_TYPES}
-                value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
-                clearable={false}
+                value={SERVICE_TYPES.find(
+                  (o) => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
+                )}
+                isClearable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'UPLOAD_SERVICE_TYPE',
+                  "UPLOAD_SERVICE_TYPE"
                 )}
-              /> */}
+              />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
-              {/* <Select
+              <Select
                 options={FILE_SYSTEM_TYPES}
-                value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
-                clearable={false}
-                searchable={false}
+                value={FILE_SYSTEM_TYPES.find(
+                  (o) => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'FILE_SYSTEM_PUBLIC',
+                  "FILE_SYSTEM_PUBLIC"
                 )}
-              /> */}
+              />
             </FormGroup>
           </FlexRow>
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Google Cloud Storage')}
+          title={__("Google Cloud Storage")}
           beforeTitle={<Icon icon="cloud-1" />}
         >
           <Info>
@@ -482,13 +503,13 @@ class GeneralSettings extends React.Component<Props, State> {
               rel="noopener noreferrer"
             >
               {__(
-                'Learn how to create or find your Google Cloud Storage bucket',
+                "Learn how to create or find your Google Cloud Storage bucket"
               )}
             </a>
           </Info>
           <FormGroup>
             <ControlLabel>Google Bucket Name</ControlLabel>
-            {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
+            {this.renderItem("GOOGLE_CLOUD_STORAGE_BUCKET")}
           </FormGroup>
         </CollapseContent>
 
@@ -505,22 +526,22 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set AWS S3 Variables')}
+              {__("Learn how to set AWS S3 Variables")}
             </a>
           </Info>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('AWS_ACCESS_KEY_ID')}
-            {this.renderItem('AWS_SECRET_ACCESS_KEY')}
+            {this.renderItem("AWS_ACCESS_KEY_ID")}
+            {this.renderItem("AWS_SECRET_ACCESS_KEY")}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('AWS_BUCKET')}
-            {this.renderItem('AWS_PREFIX')}
+            {this.renderItem("AWS_BUCKET")}
+            {this.renderItem("AWS_PREFIX")}
           </FlexRow>
           {this.renderItem(
-            'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-            __('Used when using s3 compatible service'),
+            "AWS_COMPATIBLE_SERVICE_ENDPOINT",
+            __("Used when using s3 compatible service")
           )}
-          {this.renderItem('AWS_FORCE_PATH_STYLE')}
+          {this.renderItem("AWS_FORCE_PATH_STYLE")}
         </CollapseContent>
 
         <CollapseContent
@@ -531,24 +552,24 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <p>
               {__(
-                'In this field, the AWS SES configuration is dedicated to providing transaction emails',
-              ) + '.'}
+                "In this field, the AWS SES configuration is dedicated to providing transaction emails"
+              ) + "."}
             </p>
             <a
               target="_blank"
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set Amazon SES variables')}
+              {__("Learn how to set Amazon SES variables")}
             </a>
           </Info>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
-            {this.renderItem('AWS_SES_SECRET_ACCESS_KEY')}
+            {this.renderItem("AWS_SES_ACCESS_KEY_ID")}
+            {this.renderItem("AWS_SES_SECRET_ACCESS_KEY")}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('AWS_REGION')}
-            {this.renderItem('AWS_SES_CONFIG_SET')}
+            {this.renderItem("AWS_REGION")}
+            {this.renderItem("AWS_SES_CONFIG_SET")}
           </FlexRow>
         </CollapseContent>
 
@@ -563,35 +584,35 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set Google variables')}
+              {__("Learn how to set Google variables")}
             </a>
           </Info>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('GOOGLE_PROJECT_ID')}
-            {this.renderItem('GOOGLE_CLIENT_ID')}
+            {this.renderItem("GOOGLE_PROJECT_ID")}
+            {this.renderItem("GOOGLE_CLIENT_ID")}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderItem(
-              'GOOGLE_CLIENT_SECRET',
-              'Client Secret key are required for authentication and authorization purposes',
+              "GOOGLE_CLIENT_SECRET",
+              "Client Secret key are required for authentication and authorization purposes"
             )}
             {this.renderItem(
-              'GOOGLE_GMAIL_TOPIC',
-              'The topic value created in Gmail setup',
+              "GOOGLE_GMAIL_TOPIC",
+              "The topic value created in Gmail setup"
             )}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             {this.renderItem(
-              'GOOGLE_APPLICATION_CREDENTIALS_JSON',
-              'Firebase config for notifications',
+              "GOOGLE_APPLICATION_CREDENTIALS_JSON",
+              "Firebase config for notifications"
             )}
-            {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
+            {this.renderItem("GOOGLE_MAP_API_KEY", "Google Map Api Key")}
           </FlexRow>
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Common mail config')}
+          title={__("Common mail config")}
           beforeTitle={<Icon icon="envelopes" />}
         >
           <Info>
@@ -600,7 +621,7 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn more about Email Settings')}
+              {__("Learn more about Email Settings")}
             </a>
           </Info>
 
@@ -618,28 +639,27 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>
             <p>
               {__(
-                'Choose your email service name. The default email service is SES.',
+                "Choose your email service name. The default email service is SES."
               )}
             </p>
-            {/* <Select
-              options={[
-                { label: 'SES', value: 'SES' },
-                { label: 'Custom', value: 'custom' },
-              ]}
-              value={configsMap.DEFAULT_EMAIL_SERVICE || 'SES'}
-              clearable={false}
-              searchable={false}
+            <Select
+              options={emailServiceOptions}
+              value={emailServiceOptions.find(
+                (o) => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
+              )}
+              isClearable={false}
+              isSearchable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
-                'DEFAULT_EMAIL_SERVICE',
+                "DEFAULT_EMAIL_SERVICE"
               )}
-            /> */}
+            />
           </FormGroup>
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Custom mail service')}
+          title={__("Custom mail service")}
           beforeTitle={<Icon icon="server-alt" />}
         >
           <Info>
@@ -648,23 +668,23 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/conversations"
               rel="noopener noreferrer"
             >
-              {__('Learn the case of custom email service')}
+              {__("Learn the case of custom email service")}
             </a>
           </Info>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('MAIL_SERVICE')}
-            {this.renderItem('MAIL_PORT')}
+            {this.renderItem("MAIL_SERVICE")}
+            {this.renderItem("MAIL_PORT")}
           </FlexRow>
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('MAIL_USER')}
-            {this.renderItem('MAIL_PASS')}
+            {this.renderItem("MAIL_USER")}
+            {this.renderItem("MAIL_PASS")}
           </FlexRow>
-          {this.renderItem('MAIL_HOST')}
+          {this.renderItem("MAIL_HOST")}
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Data retention')}
+          title={__("Data retention")}
           beforeTitle={<Icon icon="cloud-data-connection" />}
         >
           <FlexRow alignItems="flex-start" justifyContent="space-between">
@@ -672,46 +692,51 @@ class GeneralSettings extends React.Component<Props, State> {
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
               </ControlLabel>
-              {/* <Select
+              <Select
                 options={DATA_RETENTION_DURATION}
-                value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
-                clearable={false}
-                searchable={false}
+                value={DATA_RETENTION_DURATION.find(
+                  (o) =>
+                    o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'NOTIFICATION_DATA_RETENTION',
+                  "NOTIFICATION_DATA_RETENTION"
                 )}
-              /> */}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
-              {/* <Select
+              <Select
                 options={LOG_RETENTION_DURATION}
-                value={configsMap.LOG_DATA_RETENTION || 1}
-                clearable={false}
-                searchable={false}
+                value={LOG_RETENTION_DURATION.find(
+                  (o) => o.value === (configsMap.LOG_DATA_RETENTION || 1)
+                )}
+                isClearable={false}
+                isSearchable={false}
                 onChange={this.onChangeSingleCombo.bind(
                   this,
-                  'LOG_DATA_RETENTION',
+                  "LOG_DATA_RETENTION"
                 )}
-              /> */}
+              />
             </FormGroup>
           </FlexRow>
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Constants')}
+          title={__("Constants")}
           beforeTitle={<Icon icon="link-1" />}
         >
-          {this.renderConstant('sex_choices')}
-          {this.renderConstant('company_industry_types')}
-          {this.renderConstant('social_links')}
+          {this.renderConstant("sex_choices")}
+          {this.renderConstant("company_industry_types")}
+          {this.renderConstant("social_links")}
         </CollapseContent>
 
         <CollapseContent
           transparent={true}
-          title={__('Connectivity Services')}
+          title={__("Connectivity Services")}
           beforeTitle={<Icon icon="share-alt" />}
         >
           <ActivateInstallation />
@@ -723,15 +748,15 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="comment-alt-verify" />}
         >
           <FlexRow alignItems="flex-start" justifyContent="space-between">
-            {this.renderItem('MESSAGE_PRO_API_KEY')}
-            {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
+            {this.renderItem("MESSAGE_PRO_API_KEY")}
+            {this.renderItem("MESSAGE_PRO_PHONE_NUMBER")}
           </FlexRow>
         </CollapseContent>
 
         {loadDynamicComponent(
-          'extendSystemConfig',
+          "extendSystemConfig",
           { ...this.props, onChangeConfig: this.onChangeConfig },
-          true,
+          true
         )}
       </ContentBox>
     );
@@ -740,7 +765,7 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('System Configuration')}
+            title={__("System Configuration")}
             breadcrumb={breadcrumb}
           />
         }
@@ -749,14 +774,14 @@ class GeneralSettings extends React.Component<Props, State> {
             title="System configuration"
             description={
               __(
-                'Set up your initial account settings so that things run smoothly in unison',
-              ) + '.'
+                "Set up your initial account settings so that things run smoothly in unison"
+              ) + "."
             }
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('System Configuration')}</Title>}
+            left={<Title>{__("System Configuration")}</Title>}
             right={actionButtons}
           />
         }

@@ -9,7 +9,7 @@ const Settings = asyncComponent(
 
 const routes = () => (
   <Routes>
-    <Route path="/settings" element={Settings} />
+    <Route path="/settings" element={<Settings/>} />
   </Routes>
 );
 

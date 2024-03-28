@@ -13,7 +13,7 @@ const GeneralSettings = asyncComponent(
 const routes = () => {
   return (
     <Routes>
-      <Route path="/settings/general/" element={GeneralSettings} />
+      <Route path="/settings/general/" element={<GeneralSettings/>} />
     </Routes>
   );
 };

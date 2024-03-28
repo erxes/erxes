@@ -1,15 +1,15 @@
-import { Alert, __ } from 'modules/common/utils';
-import { IApp, IAppParams } from '../types';
+import { Alert, __ } from "modules/common/utils";
+import { IApp, IAppParams } from "../types";
 
-import Button from 'modules/common/components/Button';
-import ControlLabel from 'modules/common/components/form/Label';
-// import Select from 'react-select-plus';
-import Datetime from '@nateradebaugh/react-datetime';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import { ModalFooter } from 'modules/common/styles/main';
-import React from 'react';
-import dayjs from 'dayjs';
+import Button from "modules/common/components/Button";
+import ControlLabel from "modules/common/components/form/Label";
+import Select from "react-select";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import { ModalFooter } from "modules/common/styles/main";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   userGroups: any[];
@@ -33,9 +33,9 @@ export default class AppForm extends React.Component<Props, State> {
 
     const {
       app = {
-        userGroupId: '',
-        name: '',
-        expireDate: dayjs().add(30, 'day').toDate(),
+        userGroupId: "",
+        name: "",
+        expireDate: dayjs().add(30, "day").toDate(),
       },
     } = props;
 
@@ -54,7 +54,7 @@ export default class AppForm extends React.Component<Props, State> {
       this.state;
 
     const onGroupChange = (option) => {
-      const value = option ? option.value : '';
+      const value = option ? option.value : "";
 
       this.setState({ userGroupId: value });
     };
@@ -68,14 +68,14 @@ export default class AppForm extends React.Component<Props, State> {
     const onSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 
-      const el = document.getElementById('app-name') as HTMLInputElement;
+      const el = document.getElementById("app-name") as HTMLInputElement;
 
       if (!(el && el.value)) {
-        return Alert.warning(__('App name must not be empty'));
+        return Alert.warning(__("App name must not be empty"));
       }
       if (!userGroupId && !allowAllPermission) {
         return Alert.warning(
-          __('User group or allow all permission must be chosen'),
+          __("User group or allow all permission must be chosen")
         );
       }
 
@@ -99,23 +99,25 @@ export default class AppForm extends React.Component<Props, State> {
     return (
       <form onSubmit={onSubmit}>
         <FormGroup>
-          <ControlLabel required={true}>{__('Name')}</ControlLabel>
+          <ControlLabel required={true}>{__("Name")}</ControlLabel>
           <FormControl defaultValue={app && app.name} id="app-name" />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('User group')}</ControlLabel>
-          {/* <Select
-            placeholder={__('Choose user group')}
+          <ControlLabel>{__("User group")}</ControlLabel>
+          <Select
+            placeholder={__("Choose user group")}
             options={options}
-            value={this.state.userGroupId}
-            onChange={opt => onGroupChange(opt)}
-          /> */}
+            value={options.find(
+              (option) => option.value === this.state.userGroupId
+            )}
+            onChange={(opt) => onGroupChange(opt)}
+          />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Expire date')}</ControlLabel>
+          <ControlLabel>{__("Expire date")}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
-            dateFormat="YYYY/MM/DD"
+            inputProps={{ placeholder: __("Click to select a date") }}
+            dateFormat="yyyy/mm/dd"
             timeFormat={false}
             value={expireDate}
             closeOnSelect={true}
@@ -125,7 +127,7 @@ export default class AppForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('No expire')}</ControlLabel>
+          <ControlLabel>{__("No expire")}</ControlLabel>
           <FormControl
             checked={this.state.noExpire}
             componentClass="checkbox"
@@ -133,7 +135,7 @@ export default class AppForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Allow all permission')}</ControlLabel>
+          <ControlLabel>{__("Allow all permission")}</ControlLabel>
           <FormControl
             checked={this.state.allowAllPermission}
             componentClass="checkbox"
@@ -151,10 +153,10 @@ export default class AppForm extends React.Component<Props, State> {
             onClick={closeModal}
             icon="cancel-1"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           <Button btnStyle="success" type="submit" icon="checked-1">
-            {__(app ? 'Edit' : 'Add')}
+            {__(app ? "Edit" : "Add")}
           </Button>
         </ModalFooter>
       </form>

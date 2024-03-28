@@ -62,7 +62,7 @@ export default class AppList extends React.Component<Props> {
 
   renderContent() {
     return (
-      <FixedTable whiteSpace="wrap" bordered={true} condensed={true}>
+      <FixedTable $whiteSpace="wrap" $bordered={true} $condensed={true}>
         <thead>
           <tr>
             <th>{__('Date')}</th>

@@ -58,10 +58,9 @@ const Positions = asyncComponent(
 
 const TeamComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Home queryParams={queryParams} history={navigate} />;
+  return <Home queryParams={queryParams} />;
 };
 
 const BranchesComponent = () => {

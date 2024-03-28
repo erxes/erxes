@@ -12,7 +12,7 @@ const Apps = asyncComponent(
 
 const routes = () => (
   <Routes>
-    <Route path="/settings/apps/" element={Apps} />
+    <Route path="/settings/apps/" element={<Apps/>} />
   </Routes>
 );
 
