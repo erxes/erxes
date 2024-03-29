@@ -1,7 +1,7 @@
 import { getFullDate, getTomorrow } from './utils';
 import { paginate, regexSearchText } from '@erxes/api-utils/src';
 import {
-  sendCardsMessage,
+  sendDealsMessage,
   sendLoansMessage,
   sendPosMessage,
 } from '../../../messageBroker';
@@ -60,7 +60,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
         if (params.stageId) {
           dealsFilter.stageId = params.stageId;
         } else {
-          const stages = await sendCardsMessage({
+          const stages = await sendDealsMessage({
             subdomain,
             action: 'stages.find',
             data: { pipelineId: params.pipelineId },
@@ -75,9 +75,9 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
       }
 
       if (Object.keys(dealsFilter).length) {
-        const deals = await sendCardsMessage({
+        const deals = await sendDealsMessage({
           subdomain,
-          action: 'deals.find',
+          action: 'find',
           data: { ...dealsFilter },
           isRPC: true,
         });
@@ -200,7 +200,7 @@ const queries = {
   putResponses: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
@@ -209,14 +209,14 @@ const queries = {
       {
         page: params.page || 1,
         perPage: params.perPage,
-      },
+      }
     );
   },
 
   putResponsesCount: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain },
+    { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
@@ -226,7 +226,7 @@ const queries = {
   putResponsesAmount: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain },
+    { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
     const res = await models.PutResponses.aggregate([
@@ -245,7 +245,7 @@ const queries = {
   putResponsesByDate: async (
     _root,
     params,
-    { commonQuerySelector, models, subdomain }: IContext,
+    { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const { createdStartDate, createdEndDate, paidDate } = params;
 
@@ -293,7 +293,7 @@ const queries = {
   },
 
   getDealLink: async (_root, param, { subdomain }) => {
-    return await sendCardsMessage({
+    return await sendDealsMessage({
       subdomain,
       action: 'getLink',
       data: { _id: param._id, type: 'deal' },
@@ -304,7 +304,7 @@ const queries = {
   ebarimtGetCompany: async (
     _root,
     { companyRD }: { companyRD: string },
-    { subdomain },
+    { subdomain }
   ) => {
     return getCompany(subdomain, companyRD);
   },
@@ -367,7 +367,7 @@ const queries = {
   putResponsesDuplicatedDetail: async (
     _root,
     { contentId, taxType },
-    { models },
+    { models }
   ) => {
     return models.PutResponses.find({ contentId, taxType }).lean();
   },

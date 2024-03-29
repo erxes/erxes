@@ -42,7 +42,7 @@ export const setupMessageConsumers = async () => {
           .sort(sort || {})
           .lean(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -93,10 +93,10 @@ export const setupMessageConsumers = async () => {
             contentType,
             contentId,
           },
-          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
+          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config }
         ),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -146,7 +146,7 @@ export const setupMessageConsumers = async () => {
         mainConfig,
         contentType,
         contentId,
-        orderInfo,
+        orderInfo
       );
       const ebarimtResponses: any[] = [];
 
@@ -169,7 +169,7 @@ export const setupMessageConsumers = async () => {
         } else {
           ebarimtResponse = await models.PutResponses.putData(
             ebarimtData,
-            mainConfig,
+            mainConfig
           );
         }
         if (ebarimtResponse._id) {
@@ -181,7 +181,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: ebarimtResponses,
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -197,10 +197,10 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.PutResponses.returnBill(
           { contentType, contentId, number },
-          mainConfig,
+          mainConfig
         ),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -213,10 +213,10 @@ export const setupMessageConsumers = async () => {
         data: await models.PutResponses.updateOne(
           { _id },
           { $set: { ...doc } },
-          { upsert: true },
+          { upsert: true }
         ),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -232,7 +232,7 @@ export const setupMessageConsumers = async () => {
           taxType,
         }),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -247,7 +247,7 @@ export const setupMessageConsumers = async () => {
           contentId,
         }),
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -260,7 +260,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -270,12 +270,12 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await getCompany(subdomain, companyRD),
       };
-    },
+    }
   );
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -284,7 +284,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
@@ -293,7 +293,7 @@ export const sendPosMessage = async (
 };
 
 export const sendLoansMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'loans',
@@ -302,7 +302,7 @@ export const sendLoansMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -311,7 +311,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -319,17 +319,17 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+export const sendDealsMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'deals',
     ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

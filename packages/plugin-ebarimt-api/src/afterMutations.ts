@@ -4,17 +4,17 @@ import { PutData } from './models/utils';
 import { getConfig, getPostData } from './utils';
 
 export default {
-  'cards:deal': ['update'],
+  'deals:deal': ['update'],
 };
 
 export const afterMutationHandlers = async (
   models: IModels,
   subdomain,
-  params,
+  params
 ) => {
   const { type, action, user } = params;
 
-  if (type === 'cards:deal') {
+  if (type === 'deals:deal') {
     if (action === 'update') {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
@@ -29,7 +29,7 @@ export const afterMutationHandlers = async (
       const returnConfigs = await getConfig(
         subdomain,
         'returnStageInEbarimt',
-        {},
+        {}
       );
 
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
@@ -45,7 +45,7 @@ export const afterMutationHandlers = async (
             contentId: deal._id,
             number: deal.number,
           },
-          returnConfig,
+          returnConfig
         );
 
         if (returnResponses.length) {
@@ -100,17 +100,16 @@ export const afterMutationHandlers = async (
           try {
             ebarimtResponse = await models.PutResponses.putData(
               ebarimtData,
-              config,
+              config
             );
           } catch (e) {
             ebarimtResponse = {
               _id: `Err${Math.random()}`,
               billId: 'Error',
               success: 'false',
-              message: e.message
-            }
+              message: e.message,
+            };
           }
-
         }
         if (ebarimtResponse._id) {
           ebarimtResponses.push(ebarimtResponse);
