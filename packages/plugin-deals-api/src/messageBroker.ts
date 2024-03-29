@@ -307,6 +307,18 @@ export const setupMessageConsumers = async () => {
     }
   );
 
+  consumeRPCQueue(
+    'deals:updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Deals.updateOne(selector, modifier),
+        status: 'success',
+      };
+    }
+  );
+
   consumeRPCQueue('deals:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

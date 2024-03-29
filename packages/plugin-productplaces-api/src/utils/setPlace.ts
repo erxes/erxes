@@ -1,4 +1,4 @@
-import { sendCardsMessage } from '../messageBroker';
+import { sendDealsMessage } from '../messageBroker';
 import { checkCondition, getChildCategories, getChildTags } from './utils';
 
 export const setPlace = async (
@@ -16,7 +16,7 @@ export const setPlace = async (
   const pdatas = productsData;
 
   const conditions = config.conditions.filter(
-    c => c.branchId || c.departmentId
+    (c) => c.branchId || c.departmentId
   );
 
   // const categoryIds =
@@ -32,7 +32,7 @@ export const setPlace = async (
       );
 
       condition.calcedCatIds = includeCatIds.filter(
-        c => !excludeCatIds.includes(c)
+        (c) => !excludeCatIds.includes(c)
       );
     } else {
       condition.calcedCatIds = [];
@@ -49,7 +49,7 @@ export const setPlace = async (
       );
 
       condition.calcedTagIds = includeTagIds.filter(
-        c => !excludeTagIds.includes(c)
+        (c) => !excludeTagIds.includes(c)
       );
     } else {
       condition.calcedTagIds = [];
@@ -66,14 +66,14 @@ export const setPlace = async (
     }
   }
 
-  await sendCardsMessage({
+  await sendDealsMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: 'updateOne',
     data: {
       selector: { _id: dealId },
-      modifier: { $set: { productsData: pdatas } }
+      modifier: { $set: { productsData: pdatas } },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return pdatas;
