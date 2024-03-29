@@ -1,8 +1,8 @@
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
-  sendCardsMessage,
   sendCoreMessage,
+  sendDealsMessage,
   sendPricingMessage,
   sendProductsMessage,
 } from './messageBroker';
@@ -11,13 +11,13 @@ import { splitData } from './utils/splitData';
 import { getConfig, getCustomer } from './utils/utils';
 
 export default {
-  'cards:deal': ['update'],
+  'deals:deal': ['update'],
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
-  if (type === 'cards:deal') {
+  if (type === 'deals:deal') {
     if (action === 'update') {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
@@ -34,17 +34,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
       const splitConfigs = await getConfig(
         subdomain,
         'dealsProductsDataSplit',
-        {},
+        {}
       );
       const placeConfigs = await getConfig(
         subdomain,
         'dealsProductsDataPlaces',
-        {},
+        {}
       );
       const printConfigs = await getConfig(
         subdomain,
         'dealsProductsDataPrint',
-        {},
+        {}
       );
 
       if (
@@ -79,7 +79,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           deal._id,
           pDatas,
           splitConfigs[destinationStageId],
-          productById,
+          productById
         );
       }
 
@@ -90,7 +90,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           deal._id,
           pDatas,
           placeConfig,
-          productById,
+          productById
         );
 
         if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
@@ -123,7 +123,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
                   data: {
                     prioritizeRule: 'exclude',
                     totalAmount: perDatas.reduce(
-                      (sum, cur) => (sum + cur.amount, 0),
+                      (sum, cur) => (sum + cur.amount, 0)
                     ),
                     departmentId: departmentId,
                     branchId: branchId,
@@ -149,7 +149,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
                         (
                           (discount.value / (item.unitPrice || 1)) *
                           100
-                        ).toFixed(2),
+                        ).toFixed(2)
                       );
                       item.discount = discount.value * item.quantity;
                       item.amount =
@@ -172,9 +172,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
           }
 
           if (isSetPricing) {
-            await sendCardsMessage({
+            await sendDealsMessage({
               subdomain,
-              action: 'deals.updateOne',
+              action: 'updateOne',
               data: {
                 selector: { _id: deal._id },
                 modifier: { $set: { productsData: afterPricingData } },
@@ -192,7 +192,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (printConfig.conditions.length) {
           const { customerCode, customerName } = await getCustomer(
             subdomain,
-            deal,
+            deal
           );
 
           const branchIds = pDatas.map((pd) => pd.branchId);
@@ -233,7 +233,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             const filteredData = pDatas.filter(
               (pd) =>
                 pd.branchId === condition.branchId &&
-                pd.departmentId === condition.departmentId,
+                pd.departmentId === condition.departmentId
             );
             if (filteredData.length) {
               content.push({
