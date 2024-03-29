@@ -1,9 +1,3 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
-import React from "react";
-import Select from "react-select-plus";
-import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   CollapseContent,
@@ -12,13 +6,20 @@ import {
   FormGroup,
   Icon,
 } from "@erxes/ui/src/components";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import { IConfigsMap } from "../types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+
 import { BlockRow } from "../styles";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { IConfigsMap } from "../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import React from "react";
+import Select from "react-select-plus";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   configsMap: IConfigsMap;
