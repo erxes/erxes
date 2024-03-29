@@ -11,7 +11,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { Formgroup } from "@erxes/ui/src/components/form/styles";
 import PasswordConfig from "./PasswordConfig";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "@erxes/ui/src/utils";
@@ -238,6 +238,10 @@ function General({
       handleFormChange("otpConfig", obj);
     };
 
+    const options = smsConfigs.filter((obj, index) => {
+      return index === smsConfigs.findIndex((o) => obj.value === o.value);
+    });
+
     return (
       <CollapseContent title={__("OTP")} compact={true} open={false}>
         <ToggleWrap>
@@ -260,12 +264,8 @@ function General({
               <ControlLabel>Sms Configuration</ControlLabel>
               <Select
                 placeholder="Choose a configuration"
-                value={obj.smsTransporterType}
-                options={smsConfigs.filter((obj, index) => {
-                  return (
-                    index === smsConfigs.findIndex((o) => obj.value === o.value)
-                  );
-                })}
+                value={options.find((o) => o.value === obj.smsTransporterType)}
+                options={options}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
               />

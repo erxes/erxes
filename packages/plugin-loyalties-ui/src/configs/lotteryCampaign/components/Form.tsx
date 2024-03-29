@@ -1,6 +1,6 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import { extractAttachment, __, Alert } from '@erxes/ui/src/utils';
+import React from "react";
+import Select from "react-select";
+import { extractAttachment, __, Alert } from "@erxes/ui/src/utils";
 import {
   Button,
   ControlLabel,
@@ -9,22 +9,22 @@ import {
   FormControl,
   FormGroup,
   Uploader,
-} from '@erxes/ui/src/components';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+} from "@erxes/ui/src/components";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
   MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { ILotteryCampaign, ILotteryCampaignAward } from '../types';
-import { IVoucherCampaign } from '../../voucherCampaign/types';
+} from "@erxes/ui/src/types";
+import { ILotteryCampaign, ILotteryCampaignAward } from "../types";
+import { IVoucherCampaign } from "../../voucherCampaign/types";
 
 type Props = {
   lotteryCampaign?: ILotteryCampaign;
@@ -45,7 +45,7 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       lotteryCampaign: this.props.lotteryCampaign || {},
-      perFormatType: '',
+      perFormatType: "",
       perFormatLen: 6,
     };
   }
@@ -68,7 +68,7 @@ class Form extends React.Component<Props, State> {
     const updatedLotteryCampaign = { ...lotteryCampaign }; // Create a copy of lotteryCampaign
 
     updatedLotteryCampaign.buyScore = Number(
-      updatedLotteryCampaign.buyScore || 0,
+      updatedLotteryCampaign.buyScore || 0
     );
 
     // Create a sorted copy of the awards array with null checks
@@ -76,7 +76,7 @@ class Form extends React.Component<Props, State> {
     const sortedAwards =
       (updatedLotteryCampaign.awards &&
         [...updatedLotteryCampaign.awards].sort(
-          (a, b) => (a?.count || 0) - (b?.count || 0),
+          (a, b) => (a?.count || 0) - (b?.count || 0)
         )) ||
       [];
 
@@ -137,9 +137,9 @@ class Form extends React.Component<Props, State> {
     const { awards = [] } = lotteryCampaign;
     awards.push({
       _id: Math.random().toString(),
-      name: '',
+      name: "",
       count: 0,
-      voucherCampaignId: '',
+      voucherCampaignId: "",
     });
     lotteryCampaign.awards = awards;
     this.setState({ lotteryCampaign });
@@ -156,25 +156,30 @@ class Form extends React.Component<Props, State> {
     const changeAward = (key, value) => {
       const { lotteryCampaign } = this.state;
       const awards = (lotteryCampaign.awards || []).map(
-        (a) => (a._id === award._id && { ...a, [key]: value }) || a,
+        (a) => (a._id === award._id && { ...a, [key]: value }) || a
       );
       this.setState({ lotteryCampaign: { ...lotteryCampaign, awards } });
     };
     const onChangeName = (e) => {
       e.preventDefault();
       const value = e.target.value;
-      changeAward('name', value);
+      changeAward("name", value);
     };
     const onChangeCount = (e) => {
       e.preventDefault();
       const value = e.target.value;
-      changeAward('count', value);
+      changeAward("count", value);
     };
 
     const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
-      changeAward('voucherCampaignId', value);
+      changeAward("voucherCampaignId", value);
     };
+
+    const voucherOptions = this.props.voucherCampaigns.map((voucher) => ({
+      label: `${voucher.title}`,
+      value: voucher._id,
+    }));
 
     return (
       <FormWrapper key={award._id}>
@@ -189,15 +194,14 @@ class Form extends React.Component<Props, State> {
         </FormColumn>
         <FormColumn>
           <Select
-            placeholder={__('Choose voucher')}
-            value={award.voucherCampaignId}
-            options={this.props.voucherCampaigns.map((voucher) => ({
-              label: `${voucher.title}`,
-              value: voucher._id,
-            }))}
+            placeholder={__("Choose voucher")}
+            value={voucherOptions.find(
+              (o) => o.value === award.voucherCampaignId
+            )}
+            options={voucherOptions}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
-            loadingPlaceholder={__('Loading...')}
+            // loadingPlaceholder={__('Loading...')}
           />
         </FormColumn>
         <FormColumn>
@@ -225,12 +229,12 @@ class Form extends React.Component<Props, State> {
 
   renderAwards = (formProps) => {
     return (this.state.lotteryCampaign.awards || []).map((award) =>
-      this.renderAward(award, formProps),
+      this.renderAward(award, formProps)
     );
   };
 
   onSelectPerFormat = (value) => {
-    this.setState({ perFormatType: value ? value.value : '' });
+    this.setState({ perFormatType: value ? value.value : "" });
   };
 
   onChangePerLen = (e) => {
@@ -240,11 +244,11 @@ class Form extends React.Component<Props, State> {
   onAddFormat = () => {
     const { perFormatType, perFormatLen } = this.state;
     if (!perFormatType || !perFormatLen) {
-      return Alert.error('must choose format type and format len');
+      return Alert.error("must choose format type and format len");
     }
     let { numberFormat } = this.state.lotteryCampaign;
     numberFormat = `${
-      numberFormat || ''
+      numberFormat || ""
     }${`{ [${perFormatType}] * ${perFormatLen} }`}`;
     this.setState({
       lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat },
@@ -252,10 +256,10 @@ class Form extends React.Component<Props, State> {
   };
 
   numberFormatKey = (e: React.KeyboardEvent) => {
-    if (['Backspace', 'Delete'].includes(e.key)) {
+    if (["Backspace", "Delete"].includes(e.key)) {
       e.preventDefault();
       this.setState({
-        lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat: '' },
+        lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat: "" },
       });
     }
   };
@@ -276,6 +280,16 @@ class Form extends React.Component<Props, State> {
       (lotteryCampaign.attachment &&
         extractAttachment([lotteryCampaign.attachment])) ||
       [];
+
+    const numberFormatOptions = [
+      { value: "0-9", label: "[0-9]" },
+      { value: "a-z", label: "[a-z]" },
+      { value: "A-Z", label: "[A-Z]" },
+      { value: "a-Z", label: "[a-z][A-Z]" },
+      { value: "0-z", label: "[0-9][a-z]" },
+      { value: "0-Z", label: "[0-9][A-Z]" },
+      { value: "0-zZ", label: "[0-9][a-z][A-Z]" },
+    ];
 
     return (
       <>
@@ -301,9 +315,9 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="startDate"
-                    placeholder={__('Start date')}
+                    placeholder={__("Start date")}
                     value={lotteryCampaign.startDate}
-                    onChange={this.onDateInputChange.bind(this, 'startDate')}
+                    onChange={this.onDateInputChange.bind(this, "startDate")}
                   />
                 </DateContainer>
               </FormGroup>
@@ -317,9 +331,9 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="endDate"
-                    placeholder={__('End date')}
+                    placeholder={__("End date")}
                     value={lotteryCampaign.endDate}
-                    onChange={this.onDateInputChange.bind(this, 'endDate')}
+                    onChange={this.onDateInputChange.bind(this, "endDate")}
                   />
                 </DateContainer>
               </FormGroup>
@@ -333,11 +347,11 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="finishDateOfUse"
-                    placeholder={__('Finish Date of Use')}
+                    placeholder={__("Finish Date of Use")}
                     value={lotteryCampaign.finishDateOfUse}
                     onChange={this.onDateInputChange.bind(
                       this,
-                      'finishDateOfUse',
+                      "finishDateOfUse"
                     )}
                   />
                 </DateContainer>
@@ -367,19 +381,13 @@ class Form extends React.Component<Props, State> {
             <FormWrapper>
               <FormColumn>
                 <Select
-                  options={[
-                    { value: '0-9', label: '[0-9]' },
-                    { value: 'a-z', label: '[a-z]' },
-                    { value: 'A-Z', label: '[A-Z]' },
-                    { value: 'a-Z', label: '[a-z][A-Z]' },
-                    { value: '0-z', label: '[0-9][a-z]' },
-                    { value: '0-Z', label: '[0-9][A-Z]' },
-                    { value: '0-zZ', label: '[0-9][a-z][A-Z]' },
-                  ]}
-                  value={this.state.perFormatType}
+                  options={numberFormatOptions}
+                  value={numberFormatOptions.find(
+                    (o) => o.value === this.state.perFormatType
+                  )}
                   name="perFormatType"
                   onChange={this.onSelectPerFormat}
-                  placeholder={__('Choose allow chars')}
+                  placeholder={__("Choose allow chars")}
                 />
               </FormColumn>
               <FormColumn>
@@ -394,7 +402,7 @@ class Form extends React.Component<Props, State> {
               </FormColumn>
               <FormColumn>
                 <Button btnStyle="simple" onClick={this.onAddFormat}>
-                  {__('Add format')}
+                  {__("Add format")}
                 </Button>
               </FormColumn>
 
@@ -421,7 +429,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Count</ControlLabel>
             </FormColumn>
             <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
-              {__('Add level')}
+              {__("Add level")}
             </Button>
           </FormWrapper>
           {this.renderAwards(formProps)}
@@ -430,20 +438,20 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <RichTextEditor
-              content={lotteryCampaign.description || ''}
+              content={lotteryCampaign.description || ""}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`lotteryCampaign_description_${lotteryCampaign.description}`}
               toolbar={[
-                'bold',
-                'italic',
-                'orderedList',
-                'bulletList',
-                'link',
-                'unlink',
-                '|',
-                'image',
+                "bold",
+                "italic",
+                "orderedList",
+                "bulletList",
+                "link",
+                "unlink",
+                "|",
+                "image",
               ]}
             />
           </FormGroup>
@@ -470,7 +478,7 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'lottery Campaign',
+            name: "lottery Campaign",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

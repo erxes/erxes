@@ -23,7 +23,7 @@ import Label from "@erxes/ui/src/components/Label";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import RTG from "react-transition-group";
 import React from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import ShareForm from "../containers/ShareForm";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
@@ -118,7 +118,10 @@ class FileManager extends React.Component<Props, State> {
         <ControlLabel>By file type</ControlLabel>
         <Select
           placeholder={__("Filter by type")}
-          value={types}
+          value={[
+            { value: "simple", label: "Simple file" },
+            { value: "dynamic", label: "Dynamic file" },
+          ].find((o) => o.value === types)}
           options={[
             { value: "simple", label: "Simple file" },
             { value: "dynamic", label: "Dynamic file" },
@@ -126,7 +129,7 @@ class FileManager extends React.Component<Props, State> {
           isClearable={true}
           name="type"
           onChange={onTypeSelect}
-          loadingPlaceholder={__("Loading...")}
+          // loadingPlaceholder={__('Loading...')}
         />
         <ControlLabel>By created date</ControlLabel>
         <CustomRangeContainer>

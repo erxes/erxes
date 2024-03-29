@@ -31,7 +31,7 @@ import { callActions, formatPhone, getSpentTime, renderKeyPad } from '../utils';
 import { callPropType, sipPropType } from '../lib/types';
 
 import { FormControl } from '@erxes/ui/src/components/form';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -447,11 +447,11 @@ const KeyPad = (props: Props, context) => {
         <p>{__('Calling from your own phone number')}</p>
         <Select
           placeholder={__('Choose phone number')}
-          value={callFrom}
+          value={ourPhone.find((o) => o.value === callFrom)}
           onChange={onStatusChange}
-          clearable={false}
+          isClearable={false}
           options={ourPhone}
-          scrollMenuIntoView={true}
+          // scrollMenuIntoView={true}
           onBlur={() => setSelectFocus(!selectFocus)}
         />
         <>

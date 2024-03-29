@@ -26,7 +26,7 @@ import { FilterContainer } from "@erxes/ui-settings/src/styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IGoalType } from "../../types";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
@@ -181,10 +181,10 @@ const Form = (props: Props) => {
             <ControlLabel>{__("Choose Entity")}</ControlLabel>
             <Select
               placeholder={__("Choose a entity")}
-              value={entity}
+              value={generateOptions(ENTITY).find((o) => o.value === entity)}
               onChange={(selectedOption) => setEntity(selectedOption.value)}
               options={generateOptions(ENTITY)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
@@ -273,12 +273,14 @@ const Form = (props: Props) => {
 
             <Select
               placeholder={__("Choose goal type")}
-              value={goalTypeChoose}
+              value={generateOptions(GOAL_TYPE).find(
+                (o) => o.value === goalTypeChoose
+              )}
               onChange={(selectedOption) =>
                 setGoalTypeChoose(selectedOption.value)
               }
               options={generateOptions(GOAL_TYPE)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
@@ -287,12 +289,14 @@ const Form = (props: Props) => {
 
             <Select
               placeholder={__("Choose a contribution type")}
-              value={contributionType}
+              value={generateOptions(CONTRIBUTION).find(
+                (o) => o.value === contributionType
+              )}
               onChange={(selectedOption) =>
                 setContributionType(selectedOption.value)
               }
               options={generateOptions(CONTRIBUTION)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
@@ -315,12 +319,14 @@ const Form = (props: Props) => {
 
               <Select
                 placeholder={__("Choose Structure")}
-                value={teamGoalType}
+                value={generateOptions(GOAL_STRUCTURE).find(
+                  (o) => o.value === teamGoalType
+                )}
                 onChange={(selectedOption) =>
                   setTeamGoalType(selectedOption.value)
                 }
                 options={generateOptions(GOAL_STRUCTURE)}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
           )}
@@ -369,10 +375,10 @@ const Form = (props: Props) => {
 
             <Select
               placeholder={__("choose metric")}
-              value={metric}
+              value={generateOptions(METRIC).find((o) => o.value === metric)}
               onChange={(selectedOption) => setMetric(selectedOption.value)}
               options={generateOptions(METRIC)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
@@ -393,10 +399,12 @@ const Form = (props: Props) => {
 
             <Select
               placeholder={__("choose specific period goals")}
-              value={periodGoal}
+              value={generateOptions(SPECIFIC_PERIOD_GOAL).find(
+                (o) => o.value === periodGoal
+              )}
               onChange={(selectedOption) => setPeriodGoal(selectedOption.value)}
               options={generateOptions(SPECIFIC_PERIOD_GOAL)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 

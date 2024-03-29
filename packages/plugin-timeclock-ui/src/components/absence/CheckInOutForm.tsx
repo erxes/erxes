@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import {
@@ -268,7 +268,10 @@ function CheckoutForm(props: Props) {
         <Select
           placeholder="Pick a timeclock to finish"
           onChange={onSelectTimeclock}
-          value={selectedTimeclockId}
+          value={(timeclocksPerUser && isCheckOutRequest
+            ? generateTimeclockSelectOptionsForShiftEnd()
+            : generateTimeclockSelectOptionsForShiftStart()
+          ).find((o) => o.value === selectedTimeclockId)}
           options={
             timeclocksPerUser && isCheckOutRequest
               ? generateTimeclockSelectOptionsForShiftEnd()
@@ -304,7 +307,10 @@ function CheckoutForm(props: Props) {
           <Select
             placeholder="Pick shift start"
             onChange={onShiftStartChange}
-            value={shiftStart}
+            value={
+              timelogsPerUser &&
+              generateTimelogOptions().find((o) => o.value === shiftStart)
+            }
             options={timelogsPerUser && generateTimelogOptions()}
           />
         </ToggleDisplay>

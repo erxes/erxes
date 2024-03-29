@@ -1,15 +1,15 @@
-import { __ } from '@erxes/ui/src';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { __ } from "@erxes/ui/src";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import {
   CustomRangeContainer,
-  EndDateContainer
-} from '@erxes/ui-forms/src/forms/styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Select from 'react-select-plus';
-import { Features } from '../../../../styles';
+  EndDateContainer,
+} from "@erxes/ui-forms/src/forms/styles";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Select from "react-select";
+import { Features } from "../../../../styles";
 
 type Props = {
   config?: any;
@@ -20,9 +20,9 @@ type State = {
   selectDateType: string;
 };
 
-const types = ['default', 'range', 'cycle'];
+const types = ["default", "range", "cycle"];
 
-const capitalizeFirstLetter = text => {
+const capitalizeFirstLetter = (text) => {
   return text[0].toUpperCase() + text.slice(1);
 };
 
@@ -33,7 +33,7 @@ class DateSettings extends React.Component<Props, State> {
     const selectDateType = props?.config?.dateConfig?.type;
 
     this.state = {
-      selectDateType: selectDateType || 'default'
+      selectDateType: selectDateType || "default",
     };
   }
 
@@ -45,7 +45,7 @@ class DateSettings extends React.Component<Props, State> {
             <DateControl
               value={dateConfig?.startDate}
               placeholder="select start date "
-              onChange={e => onChangeDate(e, 'startDate')}
+              onChange={(e) => onChangeDate(e, "startDate")}
             />
           </DateContainer>
           <EndDateContainer>
@@ -53,7 +53,7 @@ class DateSettings extends React.Component<Props, State> {
               <DateControl
                 value={dateConfig?.endDate}
                 placeholder="select  end date "
-                onChange={e => onChangeDate(e, 'endDate')}
+                onChange={(e) => onChangeDate(e, "endDate")}
               />
             </DateContainer>
           </EndDateContainer>
@@ -65,52 +65,54 @@ class DateSettings extends React.Component<Props, State> {
   renderCycleTypeComponent(dateConfig, onChangeDate) {
     const frequencyOptions = [
       {
-        value: 'everyYear',
-        label: 'Every Year'
+        value: "everyYear",
+        label: "Every Year",
       },
       {
-        value: 'everyMonth',
-        label: 'Every Month'
-      }
+        value: "everyMonth",
+        label: "Every Month",
+      },
     ];
 
     const renderDateFormat = () => {
-      if (dateConfig?.frequencyType === 'everyMonth') {
-        return 'DD';
+      if (dateConfig?.frequencyType === "everyMonth") {
+        return "DD";
       }
-      return 'MMM,DD';
+      return "MMM,DD";
     };
 
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Frequency Type')}</ControlLabel>
+          <ControlLabel>{__("Frequency Type")}</ControlLabel>
           <Select
             options={frequencyOptions}
-            onChange={({ value }) => onChangeDate(value, 'frequencyType')}
-            value={dateConfig?.frequencyType}
+            onChange={({ value }) => onChangeDate(value, "frequencyType")}
+            value={frequencyOptions.find(
+              (o) => o.value === dateConfig?.frequencyType
+            )}
           />
         </FormGroup>
         <Features isToggled={dateConfig?.frequencyType}>
           <CustomRangeContainer>
             <DateContainer>
-              <ControlLabel>{__('Select a start date')}</ControlLabel>
+              <ControlLabel>{__("Select a start date")}</ControlLabel>
               <DateControl
                 placeholder="select a date"
                 value={dateConfig?.startDate}
                 dateFormat={renderDateFormat()}
-                onChange={date => onChangeDate(date, 'startDate')}
+                onChange={(date) => onChangeDate(date, "startDate")}
               />
             </DateContainer>
             <EndDateContainer>
               <DateContainer>
                 <ControlLabel>
-                  {__('Select a end date (optional)')}
+                  {__("Select a end date (optional)")}
                 </ControlLabel>
                 <DateControl
                   placeholder="select a date"
                   value={dateConfig?.endDate}
-                  onChange={date => onChangeDate(date, 'endDate')}
+                  onChange={(date) => onChangeDate(date, "endDate")}
                   dateFormat={renderDateFormat()}
                 />
               </DateContainer>
@@ -135,11 +137,11 @@ class DateSettings extends React.Component<Props, State> {
       onChange({ ...config, dateConfig });
     };
 
-    if (selectDateType === 'range') {
+    if (selectDateType === "range") {
       return this.renderRangeTypeComponent(dateConfig, onChangeDate);
     }
 
-    if (selectDateType === 'cycle') {
+    if (selectDateType === "cycle") {
       return this.renderCycleTypeComponent(dateConfig, onChangeDate);
     }
 
@@ -147,7 +149,7 @@ class DateSettings extends React.Component<Props, State> {
       <DateControl
         placeholder="select a date"
         value={dateConfig?.date}
-        onChange={e => onChangeDate(e, 'date')}
+        onChange={(e) => onChangeDate(e, "date")}
       />
     );
   }
@@ -164,16 +166,18 @@ class DateSettings extends React.Component<Props, State> {
       onChange(config);
     };
 
+    const options = types.map((type) => ({
+      value: type,
+      label: capitalizeFirstLetter(type),
+    }));
+
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Select Type')}</ControlLabel>
+          <ControlLabel>{__("Select Type")}</ControlLabel>
           <Select
-            options={types.map(type => ({
-              value: type,
-              label: capitalizeFirstLetter(type)
-            }))}
-            value={selectDateType}
+            options={options}
+            value={options.find((o) => o.value === selectDateType)}
             onChange={onSelectType}
           />
         </FormGroup>

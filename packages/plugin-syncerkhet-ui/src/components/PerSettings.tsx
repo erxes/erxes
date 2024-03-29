@@ -11,7 +11,7 @@ import { gql } from "@apollo/client";
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { __ } from "@erxes/ui/src/utils";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import Select from "react-select-plus";
+import Select from "react-select";
 import React from "react";
 import { IConfigsMap } from "../types";
 import { FieldsCombinedByType } from "../../../ui-forms/src/settings/properties/types";
@@ -145,6 +145,15 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
+    const payOptions = [
+      { value: "debtAmount", label: "debtAmount" },
+      { value: "cashAmount", label: "cashAmount" },
+      { value: "cardAmount", label: "cardAmount" },
+    ];
+    const responseFieldOptions = (this.state.fieldsCombined || []).map((f) => ({
+      value: f.name,
+      label: f.label,
+    }));
     return (
       <CollapseContent
         title={__(config.title)}
@@ -179,12 +188,11 @@ class PerSettings extends React.Component<Props, State> {
               <ControlLabel>{__("Choose response field")}</ControlLabel>
               <Select
                 name="responseField"
-                value={config.responseField}
+                value={responseFieldOptions.find(
+                  (o) => o.value === config.responseField
+                )}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map((f) => ({
-                  value: f.name,
-                  label: f.label,
-                }))}
+                options={responseFieldOptions}
               />
             </FormGroup>
           </FormColumn>
@@ -196,15 +204,11 @@ class PerSettings extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{"defaultPay"}</ControlLabel>
               <Select
-                value={config.defaultPay}
+                value={payOptions.find((o) => o.value === config.defaultPay)}
                 onChange={this.onChangeCombo}
-                clearable={false}
+                isClearable={false}
                 required={true}
-                options={[
-                  { value: "debtAmount", label: "debtAmount" },
-                  { value: "cashAmount", label: "cashAmount" },
-                  { value: "cardAmount", label: "cardAmount" },
-                ]}
+                options={payOptions}
               />
             </FormGroup>
           </FormColumn>

@@ -4,12 +4,12 @@ import {
   Spinner,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import React from 'react';
-import { queries } from '../section/graphql';
-import { gql } from '@apollo/client';
-import Select from 'react-select-plus';
-import { useQuery } from '@apollo/client';
+} from "@erxes/ui/src";
+import React from "react";
+import { queries } from "../section/graphql";
+import { gql } from "@apollo/client";
+import Select from "react-select";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   label: string;
@@ -30,24 +30,26 @@ const SelectActionsComponent: React.FC<Props> = (props) => {
     [];
 
   const handleSelect = (option) => {
-    const value = option?.value || '';
-    const scope = list.find((item) => item.action === value)?.scope || '';
+    const value = option?.value || "";
+    const scope = list.find((item) => item.action === value)?.scope || "";
 
     onSelect(value, name, scope);
   };
+
+  const options = list.map((item) => ({
+    value: item.action,
+    label: item.label,
+  }));
 
   return (
     <Select
       placeholder={__(label)}
       name={name}
-      multi={false}
+      isMulti={false}
       onChange={handleSelect}
-      value={initialValue}
+      value={options.find((o) => o.value === initialValue)}
       isLoading={loading}
-      options={list.map((item) => ({
-        value: item.action,
-        label: item.label,
-      }))}
+      options={options}
     />
   );
 };
@@ -111,7 +113,7 @@ export const DefaultWrapper = ({
           data={content}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__('No data')}
+          emptyText={__("No data")}
         />
       }
       leftSidebar={sidebar}

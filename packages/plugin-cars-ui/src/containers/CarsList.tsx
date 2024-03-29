@@ -17,14 +17,15 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const CarsListContainer = (props: Props) => {
-  const { history, queryParams } = props;
+  const navigate = useNavigate()
+  const { queryParams } = props;
 
   const carsMainQuery = useQuery<MainQueryResponse>(gql(queries.carsMain), {
     variables: {
@@ -72,7 +73,7 @@ const CarsListContainer = (props: Props) => {
       .then((response) => {
         Alert.success('You successfully merged cars');
         callback();
-        history.push(
+        navigate(
           `/erxes-plugin-car/details/${response.data.carsMerge._id}`,
         );
       })

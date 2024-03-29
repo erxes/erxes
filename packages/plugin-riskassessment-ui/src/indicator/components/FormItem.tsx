@@ -1,3 +1,7 @@
+import { gql } from "@apollo/client";
+import CreateForm from "@erxes/ui-forms/src/forms/containers/CreateForm";
+import EditForm from "@erxes/ui-forms/src/forms/containers/EditForm";
+import { ShowPreview } from "@erxes/ui-forms/src/forms/styles";
 import {
   Button,
   Form as CommonForm,
@@ -11,7 +15,7 @@ import {
   colors,
   confirm,
 } from "@erxes/ui/src";
-import { COLORS, calculateMethods } from "../../common/constants";
+import client from "@erxes/ui/src/apolloClient";
 import {
   ColorPick,
   ColorPicker,
@@ -19,6 +23,12 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
+import { IField, IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import Select from "react-select";
+import { COLORS, calculateMethods } from "../../common/constants";
 import {
   ContentWrapper,
   FormContainer,
@@ -26,19 +36,7 @@ import {
   PreviewWrapper,
   RemoveRow,
 } from "../../styles";
-import { IField, IFormProps } from "@erxes/ui/src/types";
-
-import CreateForm from "@erxes/ui-forms/src/forms/containers/CreateForm";
-import EditForm from "@erxes/ui-forms/src/forms/containers/EditForm";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import React from "react";
 import { RiskCalculateLogicType } from "../common/types";
-import Select from "react-select-plus";
-import { ShowPreview } from "@erxes/ui-forms/src/forms/styles";
-import TwitterPicker from "react-color/lib/Twitter";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
 import { mutations } from "../graphql";
 
 type Props = {
@@ -207,8 +205,15 @@ class Item extends React.Component<Props, State> {
     };
 
     const renderColorSelect = (selectedColor) => {
-      const popoverBottom = (
-        <Popover id="color-picker">
+      return (
+        <Popover
+          placement="bottom-start"
+          trigger={
+            <ColorPick>
+              <ColorPicker style={{ backgroundColor: selectedColor }} />
+            </ColorPick>
+          }
+        >
           <TwitterPicker
             width="266px"
             triangle="hide"
@@ -217,19 +222,6 @@ class Item extends React.Component<Props, State> {
             colors={COLORS}
           />
         </Popover>
-      );
-
-      return (
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom-start"
-          overlay={popoverBottom}
-        >
-          <ColorPick>
-            <ColorPicker style={{ backgroundColor: selectedColor }} />
-          </ColorPick>
-        </OverlayTrigger>
       );
     };
 
@@ -381,9 +373,11 @@ class Item extends React.Component<Props, State> {
               <ControlLabel>{__("Calculate Methods")}</ControlLabel>
               <Select
                 placeholder={__("Select Calculate Method")}
-                value={doc?.calculateMethod}
+                value={calculateMethods.find(
+                  (o) => o.value === doc?.calculateMethod
+                )}
                 options={calculateMethods}
-                multi={false}
+                isMulti={false}
                 onChange={handleChangeCalculateMethod}
               />
             </FormGroup>

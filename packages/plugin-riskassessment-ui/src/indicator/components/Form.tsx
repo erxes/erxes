@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 import {
   BarItems,
   Button,
@@ -14,44 +15,41 @@ import {
   __,
   confirm,
 } from "@erxes/ui/src";
-import { COLORS, calculateMethods } from "../../common/constants";
+import client from "@erxes/ui/src/apolloClient";
+import {
+  ControlWrapper,
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
 } from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IRouterProps,
+} from "@erxes/ui/src/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import Select from "react-select";
+import { COLORS, calculateMethods } from "../../common/constants";
+import { SelectOperations } from "../../common/utils";
 import {
   CommonFormContainer,
   FormContainer,
   FormContent,
   Header,
 } from "../../styles";
-import {
-  ControlWrapper,
-  StepWrapper,
-} from "@erxes/ui/src/components/step/styles";
-import {
-  IButtonMutateProps,
-  IFormProps,
-  IRouterProps,
-} from "@erxes/ui/src/types";
 import { RiskCalculateLogicType, RiskIndicatorsType } from "../common/types";
-
-import FormItem from "./FormItem";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import React from "react";
-import Select from "react-select-plus";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { SelectOperations } from "../../common/utils";
 import { SelectTags } from "../common/utils";
-import TwitterPicker from "react-color/lib/Twitter";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { mutations } from "../graphql";
+import FormItem from "./FormItem";
 
 type Props = {
   detail?: RiskIndicatorsType;
@@ -196,8 +194,15 @@ class Form extends React.Component<Props, State> {
     };
 
     const renderColorSelect = (selectedColor) => {
-      const popoverBottom = (
-        <Popover id="color-picker">
+      return (
+        <Popover
+          placement="bottom-start"
+          trigger={
+            <ColorPick>
+              <ColorPicker style={{ backgroundColor: selectedColor }} />
+            </ColorPick>
+          }
+        >
           <TwitterPicker
             width="266px"
             triangle="hide"
@@ -206,19 +211,6 @@ class Form extends React.Component<Props, State> {
             colors={COLORS}
           />
         </Popover>
-      );
-
-      return (
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom-start"
-          overlay={popoverBottom}
-        >
-          <ColorPick>
-            <ColorPicker style={{ backgroundColor: selectedColor }} />
-          </ColorPick>
-        </OverlayTrigger>
       );
     };
 
@@ -342,9 +334,11 @@ class Form extends React.Component<Props, State> {
           <ControlLabel>{__("Calculate Methods")}</ControlLabel>
           <Select
             placeholder={__("Select Calculate Method")}
-            value={riskIndicator?.calculateMethod}
+            value={calculateMethods.find(
+              (o) => o.value === riskIndicator?.calculateMethod
+            )}
             options={calculateMethods}
-            multi={false}
+            isMulti={false}
             onChange={handleChangeCalculateMethod}
           />
         </FormGroup>

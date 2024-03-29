@@ -1,9 +1,9 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import React from "react";
-import Select from "react-select-plus";
-import { UnEnroll } from "../../../styles";
-import { __ } from "@erxes/ui/src/utils/core";
+import React from 'react';
+import Select from 'react-select';
+import { __ } from '@erxes/ui/src/utils/core';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { UnEnroll } from '../../../styles';
 
 type Props = {};
 
@@ -71,8 +71,8 @@ class UnEnrollment extends React.Component<Props> {
             }
           </p>
           <Select
-            isRequired={true}
-            value={""}
+            required={true}
+            value={''}
             options={[]}
             placeholder={__("Select")}
           />

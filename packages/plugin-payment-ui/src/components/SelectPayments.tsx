@@ -1,12 +1,12 @@
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IOption } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import Select from "react-select";
+import styled from "styled-components";
 
-import { IPaymentDocument } from '../types';
+import { IPaymentDocument } from "../types";
 
 const LeftContent = styled.div`
   display: flex;
@@ -58,19 +58,21 @@ const SelectPayments: React.FC<Props> = (props) => {
     <FormGroup>
       <ControlLabel required={isRequired}>Payments</ControlLabel>
       <p>
-        {' '}
+        {" "}
         {description
           ? description
-          : __('Select payments that you want to use ')}
+          : __("Select payments that you want to use ")}
       </p>
       <Row>
         <LeftContent>
           <Select
-            placeholder={__('Select payments')}
-            value={defaultValue}
+            placeholder={__("Select payments")}
+            value={generateOptions(payments).filter((o) =>
+              defaultValue?.includes(o.value)
+            )}
             onChange={onChangePayment}
             options={generateOptions(payments)}
-            multi={true}
+            isMulti={true}
           />
         </LeftContent>
       </Row>

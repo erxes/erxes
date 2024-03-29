@@ -1,25 +1,24 @@
-import {
-  DateContainer,
-  FormColumn,
-  FormWrapper,
-} from "@erxes/ui/src/styles/main";
-import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
-import { REPEAT_OPTIONS, WEEK_OPTIONS } from "../../../constants";
-import React, { useEffect, useState } from "react";
-
+import React from "react";
+import Datetime from "@nateradebaugh/react-datetime";
+import Select from "react-select";
 // erxes
 import Button from "@erxes/ui/src/components/Button";
-import Datetime from "@nateradebaugh/react-datetime";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import FormLabel from "@erxes/ui/src/components/form/Label";
-import { PricingPlan } from "../../../types";
-import Select from "react-select-plus";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import Tip from "@erxes/ui/src/components/Tip";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import { __ } from "@erxes/ui/src/utils";
+import {
+  DateContainer,
+  FormWrapper,
+  FormColumn,
+} from "@erxes/ui/src/styles/main";
 // local
 import { Table } from "../../../styles";
-import Tip from "@erxes/ui/src/components/Tip";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { __ } from "@erxes/ui/src/utils";
+import { WEEK_OPTIONS, REPEAT_OPTIONS } from "../../../constants";
+import { PricingPlan } from "../../../types";
 
 type Props = {
   formValues: PricingPlan;
@@ -93,11 +92,11 @@ export default function Repeat(props: Props) {
     <FormGroup key={`weekForm-${index}`}>
       <Select
         name="weekForm"
-        value={item.weekValue}
+        value={WEEK_OPTIONS.filter((o) => item.weekValue.includes(o.value))}
         placeholder={__("Select a weekday")}
         options={WEEK_OPTIONS}
         onChange={(value: any) => handleChange(index, "weekValue", value)}
-        multi
+        isMulti={true}
       />
     </FormGroup>
   );
@@ -118,11 +117,13 @@ export default function Repeat(props: Props) {
       <FormGroup key={`monthForm-${index}`}>
         <Select
           name="monthForm"
-          value={item.monthValue || []}
+          value={options.filter((o) =>
+            (item.monthValue || []).includes(o.value)
+          )}
           placeholder={__("Select a day")}
           options={options}
           onChange={(value: any) => handleChange(index, "monthValue", value)}
-          multi
+          isMulti
         />
       </FormGroup>
     );

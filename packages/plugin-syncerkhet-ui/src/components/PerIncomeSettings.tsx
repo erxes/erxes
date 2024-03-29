@@ -2,7 +2,7 @@ import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSel
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import React from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
@@ -300,6 +300,10 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
+    const responseFieldOptions = (this.state.fieldsCombined || []).map((f) => ({
+      value: f.name,
+      label: f.label,
+    }));
     return (
       <CollapseContent
         title={__(config.title)}
@@ -334,12 +338,11 @@ class PerSettings extends React.Component<Props, State> {
               <ControlLabel>{__("Choose response field")}</ControlLabel>
               <Select
                 name="responseField"
-                value={config.responseField}
+                value={responseFieldOptions.find(
+                  (o) => o.value === config.responseField
+                )}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map((f) => ({
-                  value: f.name,
-                  label: f.label,
-                }))}
+                options={responseFieldOptions}
               />
             </FormGroup>
           </FormColumn>

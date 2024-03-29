@@ -1,5 +1,5 @@
 import React from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -34,12 +34,12 @@ class FormList extends React.Component<Props, {}> {
 
     return (
       <Container>
-        {/* <Select
+        <Select
           placeholder="Forms"
           onChange={onChange}
-          value={stage.formId}
+          value={this.generateForms(forms).find((o) => o.value === stage.formId)}
           options={this.generateForms(forms)}
-        /> */}
+        />
       </Container>
     );
   }

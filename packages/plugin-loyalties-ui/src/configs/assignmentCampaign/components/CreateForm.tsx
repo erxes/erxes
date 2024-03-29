@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Button,
   ControlLabel,
@@ -8,29 +8,29 @@ import {
   DateControl,
   Uploader,
   DataWithLoader,
-} from '@erxes/ui/src/components';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+} from "@erxes/ui/src/components";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleDateContainer as DateContainer,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { IAssignmentCampaign } from '../types';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import Select from 'react-select-plus';
-import { IVoucherCampaign } from '../../voucherCampaign/types';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Sidebar from '../../general/components/Sidebar';
-import { FormFooter, SettingsContent } from '../../../styles';
-import { Link } from 'react-router-dom';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+} from "@erxes/ui/src/types";
+import { IAssignmentCampaign } from "../types";
+import { extractAttachment, __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import Select from "react-select";
+import { IVoucherCampaign } from "../../voucherCampaign/types";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Sidebar from "../../general/components/Sidebar";
+import { FormFooter, SettingsContent } from "../../../styles";
+import { Link } from "react-router-dom";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
@@ -141,6 +141,11 @@ class CreateForm extends React.Component<Props, State> {
       history.push(`/erxes-plugin-loyalty/settings/assignment`);
     };
 
+    const selectOptions = this.props.voucherCampaigns.map((voucher) => ({
+      label: `${voucher.title}`,
+      value: voucher._id,
+    }));
+
     return (
       <>
         <FormGroup>
@@ -164,9 +169,9 @@ class CreateForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="startDate"
-                  placeholder={__('Start date')}
+                  placeholder={__("Start date")}
                   value={assignmentCampaign.startDate}
-                  onChange={this.onDateInputChange.bind(this, 'startDate')}
+                  onChange={this.onDateInputChange.bind(this, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -180,9 +185,9 @@ class CreateForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="endDate"
-                  placeholder={__('End date')}
+                  placeholder={__("End date")}
                   value={assignmentCampaign.endDate}
-                  onChange={this.onDateInputChange.bind(this, 'endDate')}
+                  onChange={this.onDateInputChange.bind(this, "endDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -196,25 +201,25 @@ class CreateForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="finishDateOfUse"
-                  placeholder={__('Finish date of use')}
+                  placeholder={__("Finish date of use")}
                   value={assignmentCampaign.finishDateOfUse}
                   onChange={this.onDateInputChange.bind(
                     this,
-                    'finishDateOfUse',
+                    "finishDateOfUse"
                   )}
                 />
               </DateContainer>
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled('segments') && isEnabled('contacts') && (
+        {isEnabled("segments") && isEnabled("contacts") && (
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
                 name="segmentIds"
                 label="Choose segments"
-                contentTypes={['contacts:customer', 'contacts:lead']}
+                contentTypes={["contacts:customer", "contacts:lead"]}
                 initialValue={this.state.assignmentCampaign.segmentIds}
                 multi={true}
                 onSelect={onChangeSegments}
@@ -225,34 +230,33 @@ class CreateForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
-            placeholder={__('Choose voucher campaign')}
-            value={this.state.assignmentCampaign.voucherCampaignId}
-            options={this.props.voucherCampaigns.map((voucher) => ({
-              label: `${voucher.title}`,
-              value: voucher._id,
-            }))}
+            placeholder={__("Choose voucher campaign")}
+            value={selectOptions.find(
+              (o) => o.value === this.state.assignmentCampaign.voucherCampaignId
+            )}
+            options={selectOptions}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
-            loadingPlaceholder={__('Loading...')}
+            // loadingPlaceholder={__('Loading...')}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <RichTextEditor
-            content={assignmentCampaign.description || ''}
+            content={assignmentCampaign.description || ""}
             onChange={this.onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
             toolbar={[
-              'bold',
-              'italic',
-              'orderedList',
-              'bulletList',
-              'link',
-              'unlink',
-              '|',
-              'image',
+              "bold",
+              "italic",
+              "orderedList",
+              "bulletList",
+              "link",
+              "unlink",
+              "|",
+              "image",
             ]}
           />
         </FormGroup>
@@ -279,7 +283,7 @@ class CreateForm extends React.Component<Props, State> {
             </Button>
           </Link>
           {renderButton({
-            name: 'Assignment Campaign',
+            name: "Assignment Campaign",
             values: this.generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
@@ -292,8 +296,8 @@ class CreateForm extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Assignment Campaign') },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Assignment Campaign") },
     ];
 
     const content = (
@@ -305,13 +309,13 @@ class CreateForm extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Create Assignment Campaign')}
+            title={__("Create Assignment Campaign")}
             breadcrumb={breadcrumb}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Create Assignment Campaign')}</Title>}
+            left={<Title>{__("Create Assignment Campaign")}</Title>}
           />
         }
         content={

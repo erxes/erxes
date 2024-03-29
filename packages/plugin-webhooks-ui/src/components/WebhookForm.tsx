@@ -1,16 +1,16 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
-import { WEBHOOK_DOC_URL } from '@erxes/ui/src/constants/integrations';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IWebhook } from '../types';
-import { getWebhookActions } from '../utils';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Formgroup } from "@erxes/ui/src/components/form/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __, Alert } from "@erxes/ui/src/utils";
+import { WEBHOOK_DOC_URL } from "@erxes/ui/src/constants/integrations";
+import React, { useEffect, useState } from "react";
+import Select from "react-select";
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IWebhook } from "../types";
+import { getWebhookActions } from "../utils";
 
 type Props = {
   object?: IWebhook;
@@ -61,8 +61,8 @@ const WebhookForm = (props: Props) => {
     return selectedActions.map(
       (selectedAction) =>
         getWebhookActions(webhookActions).find(
-          (action) => action?.label === selectedAction?.label,
-        ) || {},
+          (action) => action?.label === selectedAction?.label
+        ) || {}
     );
   };
 
@@ -70,7 +70,7 @@ const WebhookForm = (props: Props) => {
     const finalValues = values;
 
     if (!selectedActions) {
-      return Alert.error('Choose action!');
+      return Alert.error("Choose action!");
     }
 
     if (object) {
@@ -101,7 +101,7 @@ const WebhookForm = (props: Props) => {
           <FormControl
             {...formProps}
             name="url"
-            defaultValue={object?.url || ''}
+            defaultValue={object?.url || ""}
             required={true}
             autoFocus={true}
           />
@@ -110,17 +110,17 @@ const WebhookForm = (props: Props) => {
         <FormGroup>
           <ControlLabel required={true}>Actions</ControlLabel>
           <Select
-            placeholder={__('Choose actions')}
+            placeholder={__("Choose actions")}
             options={generateActions()}
-            value={selectedActions}
+            value={generateActions().find((o) => o.value === selectedActions)}
             onChange={handleSelect}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 
         <Formgroup>
           <p>
-            {'For more information, please review the '}
+            {"For more information, please review the "}
             <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
               documentaion.
             </a>

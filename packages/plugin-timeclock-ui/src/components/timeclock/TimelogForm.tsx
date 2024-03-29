@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   CustomRangeContainer,
@@ -201,7 +201,10 @@ export const TimelogForm = (props: Props) => {
           <Select
             placeholder="Shift start"
             onChange={onShiftStartChange}
-            value={shiftStart}
+            value={
+              timelogsPerUser &&
+              generateSelectOptions().find((o) => o.value === shiftStart)
+            }
             options={timelogsPerUser && generateSelectOptions()}
           />
         </ToggleDisplay>
@@ -254,7 +257,10 @@ export const TimelogForm = (props: Props) => {
             <Select
               placeholder="Shift end"
               onChange={onShiftEndChange}
-              value={shiftEnd}
+              value={
+                timelogsPerUser &&
+                generateSelectOptions().find((o) => o.value === shiftEnd)
+              }
               options={timelogsPerUser && generateSelectOptions()}
             />
           </ToggleDisplay>

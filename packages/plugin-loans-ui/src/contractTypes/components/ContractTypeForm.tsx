@@ -17,7 +17,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IProductCategory } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { ORGANIZATION_TYPE } from "../../constants";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { __ } from "coreui/utils";
 
 type Props = {
@@ -157,6 +157,13 @@ const ContractTypeForm = (props: Props) => {
       setProductCategoryIds(values.map((item) => item.value));
     };
 
+    const productCategoriesOption = props.productCategories.map((category) => ({
+      value: category._id,
+      label: `${"\u00A0  ".repeat(
+        (category.order.match(/[/]/gi) || []).length
+      )}${category.code} - ${category.name}`,
+    }));
+
     return (
       <>
         <ScrollWrapper>
@@ -195,15 +202,12 @@ const ContractTypeForm = (props: Props) => {
                   <Select
                     className="flex-item"
                     placeholder={__("Select product categories")}
-                    value={productCategoryIds}
+                    value={productCategoriesOption.filter((o) =>
+                      productCategoryIds.includes(o.value)
+                    )}
                     onChange={onSelectProductCategory}
-                    multi={true}
-                    options={props.productCategories.map((category) => ({
-                      value: category._id,
-                      label: `${"\u00A0  ".repeat(
-                        (category.order.match(/[/]/gi) || []).length
-                      )}${category.code} - ${category.name}`,
-                    }))}
+                    isMulti={true}
+                    options={productCategoriesOption}
                   />
                 </FormGroup>
               )}

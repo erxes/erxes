@@ -1,37 +1,37 @@
-import React from 'react';
+import React from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleDateContainer as DateContainer,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { IAssignmentCampaign } from '../types';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import Select from 'react-select-plus';
-import { IVoucherCampaign } from '../../voucherCampaign/types';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Sidebar from '../../general/components/Sidebar';
-import { FormFooter, SettingsContent } from '../../../styles';
-import { Link } from 'react-router-dom';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import SegmentFields from '../common/SegmentFields';
+} from "@erxes/ui/src/types";
+import { IAssignmentCampaign } from "../types";
+import { extractAttachment, __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import Select from "react-select";
+import { IVoucherCampaign } from "../../voucherCampaign/types";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Sidebar from "../../general/components/Sidebar";
+import { FormFooter, SettingsContent } from "../../../styles";
+import { Link } from "react-router-dom";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import SegmentFields from "../common/SegmentFields";
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
@@ -81,11 +81,11 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onChangeDescription = (content: string) => {
-    this.onChange(content, 'description');
+    this.onChange(content, "description");
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.onChange(files.length ? files[0] : undefined, 'attachment');
+    this.onChange(files.length ? files[0] : undefined, "attachment");
   };
 
   onDateInputChange = (type: string, date) => {
@@ -107,11 +107,11 @@ class EditForm extends React.Component<Props, State> {
     const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
 
-      this.onChange(value, 'voucherCampaignId');
+      this.onChange(value, "voucherCampaignId");
     };
 
     const onChangeSegments = (segmentIds) => {
-      this.onChange(segmentIds, 'segmentIds');
+      this.onChange(segmentIds, "segmentIds");
     };
 
     const { assignmentCampaign } = this.state;
@@ -125,6 +125,11 @@ class EditForm extends React.Component<Props, State> {
       const { history } = this.props;
       history.push(`/erxes-plugin-loyalty/settings/assignment`);
     };
+
+    const voucherOptions = this.props.voucherCampaigns.map((voucher) => ({
+      label: `${voucher.title}`,
+      value: voucher._id,
+    }));
 
     return (
       <>
@@ -149,9 +154,9 @@ class EditForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="startDate"
-                  placeholder={__('Start date')}
+                  placeholder={__("Start date")}
                   value={assignmentCampaign.startDate}
-                  onChange={this.onDateInputChange.bind(this, 'startDate')}
+                  onChange={this.onDateInputChange.bind(this, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -165,9 +170,9 @@ class EditForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="endDate"
-                  placeholder={__('End date')}
+                  placeholder={__("End date")}
                   value={assignmentCampaign.endDate}
-                  onChange={this.onDateInputChange.bind(this, 'endDate')}
+                  onChange={this.onDateInputChange.bind(this, "endDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -181,18 +186,18 @@ class EditForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="finishDateOfUse"
-                  placeholder={__('Finish date of use')}
+                  placeholder={__("Finish date of use")}
                   value={assignmentCampaign.finishDateOfUse}
                   onChange={this.onDateInputChange.bind(
                     this,
-                    'finishDateOfUse',
+                    "finishDateOfUse"
                   )}
                 />
               </DateContainer>
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled('segments') && isEnabled('contacts') && (
+        {isEnabled("segments") && isEnabled("contacts") && (
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
@@ -200,7 +205,7 @@ class EditForm extends React.Component<Props, State> {
                 name="segmentIds"
                 label="Choose segments"
                 initialValue={this.state.assignmentCampaign.segmentIds}
-                contentTypes={['contacts:customer', 'contacts:lead']}
+                contentTypes={["contacts:customer", "contacts:lead"]}
                 multi={true}
                 onSelect={(segmentIds) => onChangeSegments(segmentIds)}
               />
@@ -215,34 +220,33 @@ class EditForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
-            placeholder={__('Choose voucher campaign')}
-            value={this.state.assignmentCampaign.voucherCampaignId}
-            options={this.props.voucherCampaigns.map((voucher) => ({
-              label: `${voucher.title}`,
-              value: voucher._id,
-            }))}
+            placeholder={__("Choose voucher campaign")}
+            value={voucherOptions.find(
+              (o) => o.value === this.state.assignmentCampaign.voucherCampaignId
+            )}
+            options={voucherOptions}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
-            loadingPlaceholder={__('Loading...')}
+            // loadingPlaceholder={__('Loading...')}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <RichTextEditor
-            content={assignmentCampaign.description || ''}
+            content={assignmentCampaign.description || ""}
             onChange={this.onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
             toolbar={[
-              'bold',
-              'italic',
-              'orderedList',
-              'bulletList',
-              'link',
-              'unlink',
-              '|',
-              'image',
+              "bold",
+              "italic",
+              "orderedList",
+              "bulletList",
+              "link",
+              "unlink",
+              "|",
+              "image",
             ]}
           />
         </FormGroup>
@@ -260,13 +264,13 @@ class EditForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>
-            {__('Allow Multiple Wins')}
+            {__("Allow Multiple Wins")}
             <Toggle
               checked={assignmentCampaign?.allowMultiWin}
               onChange={() =>
                 this.onChange(
                   !assignmentCampaign?.allowMultiWin,
-                  'allowMultiWin',
+                  "allowMultiWin"
                 )
               }
             />
@@ -285,7 +289,7 @@ class EditForm extends React.Component<Props, State> {
           </Link>
 
           {renderButton({
-            name: 'Assignment Campaign',
+            name: "Assignment Campaign",
             values: this.generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
@@ -298,8 +302,8 @@ class EditForm extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Assignment Campaign') },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Assignment Campaign") },
     ];
 
     const content = (
@@ -312,13 +316,13 @@ class EditForm extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Edit Assignment Campaign')}
+            title={__("Edit Assignment Campaign")}
             breadcrumb={breadcrumb}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Edit Assignment Campaign')}</Title>}
+            left={<Title>{__("Edit Assignment Campaign")}</Title>}
           />
         }
         content={

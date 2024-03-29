@@ -5,6 +5,7 @@ import {
 } from "@erxes/ui/src/components/step/style";
 import { __, readFile, uploadHandler } from "@erxes/ui/src/utils";
 
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FORM_SUCCESS_ACTIONS } from "@erxes/ui/src/constants/integrations";
@@ -15,13 +16,12 @@ import { ILeadData } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import React from "react";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import Toggle from "@erxes/ui/src/components/Toggle";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import Toggle from "@erxes/ui/src/components/Toggle";
 
 type Name =
   | "successAction"
@@ -198,12 +198,14 @@ class SuccessStep extends React.Component<Props, State> {
             <label>Email templates:</label>
             <p>{__("Insert email template to content")}</p>
 
-            {/* <Select
-              value={leadData.templateId}
+            <Select
+              value={generateEmailTemplateParams(
+                this.props.emailTemplates
+              ).find((o) => o.value === leadData.templateId)}
               onChange={this.templateChange}
               options={generateEmailTemplateParams(this.props.emailTemplates)}
-              clearable={false}
-            /> */}
+              isClearable={false}
+            />
           </FormGroup>
         )}
         <FormGroup>

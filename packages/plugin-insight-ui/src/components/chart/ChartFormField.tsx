@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
+import React, { useEffect, useState } from "react";
+import Select from "react-select";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 
-import DateRange from '../utils/DateRange';
-import { MarginY } from '../../styles';
-import { IFieldLogic } from '../../types';
-import { stringify } from 'querystring';
-import { SelectWithAssets } from '../utils/SelectAssets';
+import DateRange from "../utils/DateRange";
+import { MarginY } from "../../styles";
+import { IFieldLogic } from "../../types";
+import { stringify } from "querystring";
+import { SelectWithAssets } from "../utils/SelectAssets";
 
 type Props = {
   fieldType: string;
@@ -54,10 +54,9 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
-
     if (!selectedOption) {
-      setFieldValue('');
-      onChange('');
+      setFieldValue("");
+      onChange("");
     }
 
     if (multi && Array.isArray(selectedOption)) {
@@ -77,19 +76,27 @@ const ChartFormField = (props: Props) => {
     const { startDate, endDate } = dateRange;
 
     if (setFilter) {
-      setFilter('startDate', startDate);
-      setFilter('endDate', endDate);
+      setFilter("startDate", startDate);
+      setFilter("endDate", endDate);
     }
   };
 
   const OnSaveBrands = (brandIds: string[] | string) => {
     if (setFilter) {
-      setFilter('brandIds', brandIds);
+      setFilter("brandIds", brandIds);
     }
   };
 
+  const groupsOptions = fieldOptions?.map((group) => ({
+    label: group.label,
+    options: group.value?.map((field) => ({
+      value: field._id,
+      label: field.text,
+    })),
+  }));
+
   switch (fieldQuery) {
-    case 'users':
+    case "users":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -104,7 +111,7 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'departments':
+    case "departments":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -120,7 +127,7 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'branches':
+    case "branches":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -136,20 +143,20 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'brands':
+    case "brands":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectBrands
             multi={true}
             name="selectedBrands"
-            label={'Choose brands'}
+            label={"Choose brands"}
             onSelect={OnSaveBrands}
             initialValue={fieldValue}
           />
         </div>
       );
-    case 'assets':
+    case "assets":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -159,23 +166,23 @@ const ChartFormField = (props: Props) => {
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
-            customOption={{ value: '', label: 'Choose Asset' }}
+            customOption={{ value: "", label: "Choose Asset" }}
           />
         </div>
       );
-    case 'date':
+    case "date":
       return (
         <>
           <div>
             <ControlLabel>{fieldLabel}</ControlLabel>
             <Select
-              value={fieldValue}
+              value={fieldOptions.find((o) => o.value === fieldValue)}
               onChange={onSelect}
               options={fieldOptions}
               placeholder={fieldLabel}
             />
           </div>
-          {fieldValue === 'customDate' && (
+          {fieldValue === "customDate" && (
             <MarginY margin={15}>
               <DateRange
                 showTime={false}
@@ -193,32 +200,28 @@ const ChartFormField = (props: Props) => {
   }
 
   switch (fieldType) {
-    case 'groups':
+    case "groups":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={fieldValue}
-            multi={multi}
+            value={groupsOptions.map((o) =>
+              o.options.find((item) => item.value === fieldValue)
+            )}
+            isMulti={multi}
             onChange={onSelect}
-            options={fieldOptions?.map((group) => ({
-              label: group.label,
-              options: group.value?.map((field) => ({
-                value: field._id,
-                label: field.text,
-              })),
-            }))}
+            options={groupsOptions}
             placeholder={fieldLabel}
           />
         </div>
       );
-    case 'select':
+    case "select":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={fieldValue}
-            multi={multi}
+            value={fieldOptions.filter((o) => fieldValue.includes(o.value))}
+            isMulti={multi}
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}

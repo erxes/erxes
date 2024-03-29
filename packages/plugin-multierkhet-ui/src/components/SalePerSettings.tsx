@@ -6,21 +6,20 @@ import {
   FormGroup,
   Tip,
 } from "@erxes/ui/src/components";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useState } from "react";
-
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
-import { GroupWrapper } from "@erxes/ui-segments/src/styles";
-import { IConfigsMap } from "../types";
-import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import Select from "react-select-plus";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import { __ } from "@erxes/ui/src/utils";
 import client from "@erxes/ui/src/apolloClient";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { gql } from "@apollo/client";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { __ } from "@erxes/ui/src/utils";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import Select from "react-select";
+import React, { useState, useEffect } from "react";
+import { IConfigsMap } from "../types";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { GroupWrapper } from "@erxes/ui-segments/src/styles";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -154,6 +153,12 @@ const PerSettings = (props: Props) => {
   };
 
   const renderPerConfig = () => {
+    const options = [
+      { value: "debtAmount", label: "debtAmount" },
+      { value: "cashAmount", label: "cashAmount" },
+      { value: "cardAmount", label: "cardAmount" },
+    ];
+
     return Object.keys(brandRules).map((key) => {
       return (
         <GroupWrapper key={key}>
@@ -198,17 +203,15 @@ const PerSettings = (props: Props) => {
               <FormGroup>
                 <ControlLabel>default Pay</ControlLabel>
                 <Select
-                  value={brandRules[key].defaultPay}
+                  value={options.find(
+                    (o) => o.value === brandRules[key].defaultPay
+                  )}
                   onChange={(option) =>
                     updateConfig(key, "defaultPay", option.value)
                   }
-                  clearable={false}
+                  isClearable={false}
                   required={true}
-                  options={[
-                    { value: "debtAmount", label: "debtAmount" },
-                    { value: "cashAmount", label: "cashAmount" },
-                    { value: "cardAmount", label: "cardAmount" },
-                  ]}
+                  options={options}
                 />
               </FormGroup>
               <FormGroup>
@@ -235,6 +238,11 @@ const PerSettings = (props: Props) => {
       );
     });
   };
+
+  const responseFieldOptions = (fieldsCombined || []).map((f) => ({
+    value: f.name,
+    label: f.label,
+  }));
 
   return (
     <CollapseContent
@@ -269,12 +277,11 @@ const PerSettings = (props: Props) => {
             <ControlLabel>{__("Choose response field")}</ControlLabel>
             <Select
               name="responseField"
-              value={config.responseField}
+              value={responseFieldOptions.find(
+                (o) => o.value === config.responseField
+              )}
               onChange={onresponseCustomFieldChange}
-              options={(fieldsCombined || []).map((f) => ({
-                value: f.name,
-                label: f.label,
-              }))}
+              options={responseFieldOptions}
             />
           </FormGroup>
         </FormColumn>

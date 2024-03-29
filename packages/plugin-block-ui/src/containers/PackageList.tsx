@@ -11,7 +11,6 @@ import PackageList from '../components/PackageList';
 import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
-  history: any;
   type: string;
 };
 

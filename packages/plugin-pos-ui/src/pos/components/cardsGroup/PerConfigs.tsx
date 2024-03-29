@@ -1,17 +1,17 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { Alert, __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import Select from "react-select";
 
 type Props = {
   config: any;
@@ -48,7 +48,7 @@ const PerConfigs = (props: Props) => {
   };
 
   const onMapCustomFieldChange = (option) => {
-    const value = !option ? '' : option.value.toString();
+    const value = !option ? "" : option.value.toString();
     setConfig((prevConfig) => ({ ...prevConfig, mapCustomField: value }));
   };
 
@@ -56,7 +56,7 @@ const PerConfigs = (props: Props) => {
     e.preventDefault();
 
     if (!config.branchId) {
-      return Alert.error('Please select the branch!');
+      return Alert.error("Please select the branch!");
     }
 
     save(configKey, config);
@@ -78,12 +78,17 @@ const PerConfigs = (props: Props) => {
     }));
   };
 
+  const mapFieldOptions = (fieldsCombined || []).map((f) => ({
+    value: f.name,
+    label: f.label,
+  }));
+
   return (
-    <CollapseContent title={__(config.title || 'new Config')}>
+    <CollapseContent title={__(config.title || "new Config")}>
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
+          defaultValue={config["title"]}
           name="title"
           onChange={onChangeInput}
           required={true}
@@ -94,7 +99,7 @@ const PerConfigs = (props: Props) => {
       <FormGroup>
         <ControlLabel>Choose Branch</ControlLabel>
         <SelectBranches
-          label={__('Choose branch')}
+          label={__("Choose branch")}
           name="branchIds"
           multi={false}
           initialValue={config.branchId}
@@ -119,7 +124,7 @@ const PerConfigs = (props: Props) => {
       <FormGroup>
         <ControlLabel>Choose assigned users</ControlLabel>
         <SelectTeamMembers
-          label={__('Choose team member')}
+          label={__("Choose team member")}
           name="assignedUserIds"
           initialValue={config.assignedUserIds}
           onSelect={onChangeAsssignedUserIds}
@@ -127,15 +132,12 @@ const PerConfigs = (props: Props) => {
       </FormGroup>
 
       <FormGroup>
-        <ControlLabel>{__('Choose map field')}</ControlLabel>
+        <ControlLabel>{__("Choose map field")}</ControlLabel>
         <Select
           name="deliveryMapField"
-          value={config.mapCustomField}
+          value={mapFieldOptions.find((o) => o.value === config.mapCustomField)}
           onChange={onMapCustomFieldChange}
-          options={(fieldsCombined || []).map((f) => ({
-            value: f.name,
-            label: f.label,
-          }))}
+          options={mapFieldOptions}
         />
       </FormGroup>
 

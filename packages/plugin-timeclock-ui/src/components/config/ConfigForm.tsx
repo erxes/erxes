@@ -1,6 +1,6 @@
 import { __ } from "@erxes/ui/src/utils";
 import React, { useState } from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import {
   CustomRangeContainer,
@@ -349,6 +349,20 @@ function ConfigForm(props: Props) {
   const renderAbsenceContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
+    const requestOptions = [
+      "shift request",
+      "paid absence",
+      "unpaid absence",
+    ].map((ipt) => ({
+      value: ipt,
+      label: __(ipt),
+    }));
+
+    const periosOptions = ["by day", "by hour"].map((ipt) => ({
+      value: ipt,
+      label: __(ipt),
+    }));
+
     return (
       <ConfigFormWrapper>
         <FlexColumn marginNum={30}>
@@ -364,29 +378,21 @@ function ConfigForm(props: Props) {
           <ControlLabel required={true}>Request Type</ControlLabel>
 
           <Select
-            value={requestType}
+            value={requestOptions.find((o) => o.value === requestType)}
             onChange={toggleRequestType}
             placeholder="Select type"
-            multi={false}
-            options={["shift request", "paid absence", "unpaid absence"].map(
-              (ipt) => ({
-                value: ipt,
-                label: __(ipt),
-              })
-            )}
+            isMulti={false}
+            options={requestOptions}
           />
 
           <ControlLabel required={true}>Request Time Period</ControlLabel>
 
           <Select
-            value={requestTime}
+            value={periosOptions.find((o) => o.value === requestTime)}
             onChange={toggleRequestTime}
             placeholder="Select type"
-            multi={false}
-            options={["by day", "by hour"].map((ipt) => ({
-              value: ipt,
-              label: __(ipt),
-            }))}
+            isMulti={false}
+            options={periosOptions}
           />
           <ToggleDisplay display={requestTime === "by day"}>
             <FlexRow>

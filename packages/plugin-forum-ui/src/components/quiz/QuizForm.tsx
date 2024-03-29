@@ -1,21 +1,20 @@
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import React from "react";
+import { IQuiz, ICategory, ICompany, ITag } from "../../types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { ICategory, ICompany, IQuiz, ITag } from "../../types";
-
-import Button from "@erxes/ui/src/components/Button";
+import { __ } from "@erxes/ui/src/utils";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Button from "@erxes/ui/src/components/Button";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { MarginAuto } from "../../styles";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import QuestionForm from "../../containers/quiz/QuestionForm";
-import QuestionList from "../../containers/quiz/QuestionList";
-import React from "react";
-import Select from "react-select-plus";
-import { __ } from "@erxes/ui/src/utils";
+import Select from "react-select";
 import { quizState } from "../../constants";
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import QuestionList from "../../containers/quiz/QuestionList";
+import QuestionForm from "../../containers/quiz/QuestionForm";
+import { MarginAuto } from "../../styles";
 
 type Props = {
   quiz?: IQuiz;
@@ -89,11 +88,14 @@ class QuizForm extends React.Component<Props, State> {
   };
 
   renderTagOptions = () => {
-    return this.props.tags.map((tag) => ({
-      value: tag._id,
-      label: tag.name,
-      _id: tag._id,
-    }));
+    return (
+      this.props.tags &&
+      this.props.tags.map((tag) => ({
+        value: tag._id,
+        label: tag.name,
+        _id: tag._id,
+      }))
+    );
   };
 
   onChangeTag = (tags) => {
@@ -105,17 +107,17 @@ class QuizForm extends React.Component<Props, State> {
     e.preventDefault();
 
     this.setState({ state: e.target.value });
-    this.props.changeState(e.target.value, this.props.quiz._id);
+    this.props.quiz &&
+      this.props.changeState(e.target.value, this.props.quiz._id || "");
   };
 
-  renderQuestionForm = (props) => (
-    <QuestionForm {...props} quizId={this.props.quiz._id} />
-  );
+  renderQuestionForm = (props) =>
+    this.props.quiz && <QuestionForm {...props} quizId={this.props.quiz._id} />;
 
   renderQuestionList = () => {
     const { quiz, onDelete } = this.props;
 
-    if (quiz.questions?.length > 0) {
+    if (quiz && quiz.questions && quiz.questions.length > 0) {
       return quiz.questions.map((q, i) => (
         <QuestionList key={q._id} _id={q._id} index={i} onDelete={onDelete} />
       ));
@@ -222,9 +224,11 @@ class QuizForm extends React.Component<Props, State> {
           <Select
             placeholder={__("Choose tags")}
             options={this.renderTagOptions()}
-            value={this.state.selectedTags}
+            value={(this.renderTagOptions() || []).filter((o) =>
+              this.state.selectedTags.includes(o.value)
+            )}
             onChange={this.onChangeTag}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 
@@ -245,7 +249,7 @@ class QuizForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: Object.keys(quiz).length > 0 && quiz,
+            object: quiz && Object.keys(quiz).length > 0 && quiz,
           })}
         </ModalFooter>
       </>

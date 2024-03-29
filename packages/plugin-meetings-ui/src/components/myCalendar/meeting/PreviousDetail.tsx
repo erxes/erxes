@@ -1,10 +1,10 @@
-import React from 'react';
-import { IMeeting } from '../../../types';
-import Select from 'react-select-plus';
-import moment from 'moment';
-import Detail from '../../../containers/myCalendar/meeting/Detail';
-import { FeatureRowItem } from '../../../styles';
-import { EmptyState } from '@erxes/ui/src/components';
+import React from "react";
+import { IMeeting } from "../../../types";
+import Select from "react-select";
+import moment from "moment";
+import Detail from "../../../containers/myCalendar/meeting/Detail";
+import { FeatureRowItem } from "../../../styles";
+import { EmptyState } from "@erxes/ui/src/components";
 
 type Props = {
   meetings: IMeeting[];
@@ -19,7 +19,7 @@ class PreviousDetailComponents extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { selectedMeetingId: props.meetings?.[0]?._id || '' };
+    this.state = { selectedMeetingId: props.meetings?.[0]?._id || "" };
   }
 
   render() {
@@ -29,7 +29,7 @@ class PreviousDetailComponents extends React.Component<Props, State> {
     const selectedValues =
       meetings?.map(({ _id, startDate }) => ({
         value: _id,
-        label: moment(startDate || '').format('ddd, MMMM DD, YYYY • HH:mm a')
+        label: moment(startDate || "").format("ddd, MMMM DD, YYYY • HH:mm a"),
       })) || {};
 
     const onSelect = ({ value }) => {
@@ -40,8 +40,8 @@ class PreviousDetailComponents extends React.Component<Props, State> {
       <>
         <FeatureRowItem>
           <Select
-            placeholder={'Choose times'}
-            value={selectedMeetingId}
+            placeholder={"Choose times"}
+            value={selectedValues.find((o) => o.value === selectedMeetingId)}
             options={selectedValues}
             onChange={onSelect}
           />

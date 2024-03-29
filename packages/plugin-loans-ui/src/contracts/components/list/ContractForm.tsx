@@ -29,7 +29,7 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { LEASE_TYPES } from "../../../contractTypes/constants";
 import React from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
@@ -821,6 +821,11 @@ class ContractForm extends React.Component<Props, State> {
       this.setState({ schedule: [...schedule] });
     };
 
+    const scheduleOptions = new Array(31).fill(1).map((row, index) => ({
+      value: row + index,
+      label: row + index,
+    }));
+
     return (
       <>
         <ScrollWrapper>
@@ -924,13 +929,12 @@ class ContractForm extends React.Component<Props, State> {
                     required
                     className="flex-item"
                     placeholder={__("Choose an schedule Days")}
-                    value={this.state.scheduleDays}
+                    value={scheduleOptions.filter((o) =>
+                      this.state.scheduleDays.includes(o.value)
+                    )}
                     onChange={onSelectScheduleDays}
-                    multi={true}
-                    options={new Array(31).fill(1).map((row, index) => ({
-                      value: row + index,
-                      label: row + index,
-                    }))}
+                    isMulti={true}
+                    options={scheduleOptions}
                   />
                 </FormGroup>
               )}
@@ -982,7 +986,7 @@ class ContractForm extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
           {this.state.repayment === "custom" && (
-            <Table striped>
+            <Table $striped>
               <thead>
                 <tr>
                   <th></th>

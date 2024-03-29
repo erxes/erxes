@@ -1,59 +1,54 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const GeneralSettings = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Automation General Settings" */ './settings/general/containers'
-    ),
+      /* webpackChunkName: "Automation General Settings" */ "./settings/general/containers"
+    )
 );
 
 const BotsSettings = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Automation Bots Settings" */ './settings/bots/containers'
-    ),
+      /* webpackChunkName: "Automation Bots Settings" */ "./settings/bots/containers"
+    )
 );
 
 const Details = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "AutomationDetails" */ './containers/forms/EditAutomation'
-    ),
+      /* webpackChunkName: "AutomationDetails" */ "./containers/forms/EditAutomation"
+    )
 );
 
 const List = asyncComponent(
-  () => import(/* webpackChunkName: "AutomationsList" */ './containers/List'),
+  () => import(/* webpackChunkName: "AutomationsList" */ "./containers/List")
 );
 
-const generalSettings = ({ location, history }) => {
-  return (
-    <GeneralSettings
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const GeneralSettingsComponent = () => {
+  const location = useLocation();
+  return <GeneralSettings queryParams={queryString.parse(location.search)} />;
 };
 
-const botsSettings = ({ location, history }) => {
-  return (
-    <BotsSettings
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const BotsSettingsComponent = () => {
+  const location = useLocation();
+  return <BotsSettings queryParams={queryString.parse(location.search)} />;
 };
 
-const details = ({ match, location }) => {
-  const id = match.params.id;
+const DetailsComponent = () => {
+  const location = useLocation();
+  const { id } = useParams();
   const queryParams = queryString.parse(location.search);
 
   return <Details id={id} queryParams={queryParams} />;
 };
 
-const list = ({ location }) => {
+const ListComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <List queryParams={queryParams} />;
@@ -61,27 +56,27 @@ const list = ({ location }) => {
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/settings/automations/general"
-        component={generalSettings}
-        exact
+        element={<GeneralSettingsComponent />}
       />
-      <Route path="/settings/automations/bots" component={botsSettings} exact />
+      <Route
+        path="/settings/automations/bots"
+        element={<BotsSettingsComponent />}
+      />
 
       <Route
         key="/automations/details/:id"
-        exact={true}
         path="/automations/details/:id"
-        component={details}
+        element={<DetailsComponent />}
       />
       <Route
         path="/automations"
-        exact={true}
         key="/automations"
-        component={list}
+        element={<ListComponent />}
       />
-    </>
+    </Routes>
   );
 };
 
