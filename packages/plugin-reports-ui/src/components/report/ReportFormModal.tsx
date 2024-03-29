@@ -1,17 +1,18 @@
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import { Form } from '@erxes/ui/src';
 import {
   Button,
   ControlLabel,
   FormControl,
   TabTitle,
   Tabs,
-} from '@erxes/ui/src/components';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
-import { CenterBar, FlexCenter, FlexColumn } from '../../styles';
-import SelectMembersForm from '../utils/SelectMembersForm';
+} from "@erxes/ui/src/components";
+import { CenterBar, FlexCenter, FlexColumn } from "../../styles";
+import React, { useEffect, useState } from "react";
+
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import { Form } from "@erxes/ui/src";
+import { IFormProps } from "@erxes/ui/src/types";
+import SelectMembersForm from "../utils/SelectMembersForm";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   history: any;
@@ -37,7 +38,7 @@ const ReportFormModal = (props: Props) => {
   } = props;
 
   const [totalFilters, setTotalFilters] = useState<any[]>([{}]);
-  const [visibility, setVisibility] = useState('public');
+  const [visibility, setVisibility] = useState("public");
   const [userIds, setUserIds] = useState([]);
   const [departmentIds, setDepartmentIds] = useState([]);
 
@@ -45,7 +46,7 @@ const ReportFormModal = (props: Props) => {
     [templateType: string]: boolean;
   }>({});
 
-  const [name, setName] = useState(reportName || '');
+  const [name, setName] = useState(reportName || "");
 
   const emptyChartsOfReportTemplate =
     !chartsOfReportTemplate || !chartsOfReportTemplate.length;
@@ -119,7 +120,7 @@ const ReportFormModal = (props: Props) => {
     const { values } = formProps;
 
     return (
-      <FlexColumn style={{ gap: '30px' }}>
+      <FlexColumn style={{ gap: "30px" }}>
         <div>
           <ControlLabel>Report Name</ControlLabel>
           <FormControl
@@ -135,28 +136,28 @@ const ReportFormModal = (props: Props) => {
           <CenterBar>
             <Tabs full={true}>
               <TabTitle
-                className={visibility === 'public' ? 'active' : ''}
-                onClick={() => setVisibility('public')}
+                className={visibility === "public" ? "active" : ""}
+                onClick={() => setVisibility("public")}
               >
-                {__('Public')}
+                {__("Public")}
               </TabTitle>
               <TabTitle
-                className={visibility === 'private' ? 'active' : ''}
-                onClick={() => setVisibility('private')}
+                className={visibility === "private" ? "active" : ""}
+                onClick={() => setVisibility("private")}
               >
-                {__('Private')}
+                {__("Private")}
               </TabTitle>
             </Tabs>
           </CenterBar>
         </FlexRow>
-        {visibility === 'private' && (
+        {visibility === "private" && (
           <SelectMembersForm
             handleDepartmentChange={handleDepartmentChange}
             handleUserChange={handleUserChange}
           />
         )}
 
-        <FlexColumn style={{ gap: '20px' }}>
+        <FlexColumn style={{ gap: "20px" }}>
           {chartTemplates
             .filter((c) => c.templateType in templateCharts)
             .map((chartTemplate) => {
@@ -167,7 +168,7 @@ const ReportFormModal = (props: Props) => {
                 >
                   <ControlLabel>{chartTemplate.name}</ControlLabel>
                   <FormControl
-                    componentClass="checkbox"
+                    componentclass="checkbox"
                     name={chartTemplate.templateType}
                     checked={templateCharts[chartTemplate.templateType]}
                     key={chartTemplate.name}

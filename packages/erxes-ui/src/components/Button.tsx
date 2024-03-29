@@ -1,11 +1,11 @@
-import { darken, lighten } from '../styles/ecolor';
-import styled, { css } from 'styled-components';
+import { darken, lighten } from "../styles/ecolor";
+import styled, { css } from "styled-components";
 
-import Icon from './Icon';
-import React from 'react';
-import { __ } from '../utils/core';
-import { colors } from '../styles';
-import styledTS from 'styled-components-ts';
+import Icon from "./Icon";
+import React from "react";
+import { __ } from "../utils/core";
+import { colors } from "../styles";
+import styledTS from "styled-components-ts";
 
 const types = {
   default: {
@@ -26,32 +26,32 @@ const types = {
     border: darken(colors.colorCoreYellow, 25),
   },
   simple: {
-    background: 'rgba(0,0,0,0.05)',
+    background: "rgba(0,0,0,0.05)",
     color: colors.colorCoreGray,
     border: colors.colorCoreGray,
   },
   link: {
-    background: 'transparent',
+    background: "transparent",
     color: colors.colorCoreGray,
   },
   white: {
-    background: 'white',
+    background: "white",
     color: colors.colorPrimary,
   },
 };
 
 const sizes = {
   large: {
-    padding: '10px 30px',
-    fontSize: '13px',
+    padding: "10px 30px",
+    fontSize: "13px",
   },
   medium: {
-    padding: '7px 20px',
-    fontSize: '12px',
+    padding: "7px 20px",
+    fontSize: "12px",
   },
   small: {
-    padding: '5px 15px',
-    fontSize: '10px',
+    padding: "5px 15px",
+    fontSize: "10px",
   },
 };
 
@@ -72,21 +72,21 @@ const ButtonStyled = styledTS<{
     font-size: ${props.$uppercase
       ? sizes[props.hugeness].fontSize
       : `calc(${sizes[props.hugeness].fontSize} + 1px)`};
-    text-transform: ${props.$uppercase ? 'uppercase' : 'none'};
+    text-transform: ${props.$uppercase ? "uppercase" : "none"};
     color: ${types[props.$btnStyle].color
       ? types[props.$btnStyle].color
       : colors.colorWhite} !important;
     border: none;
-    display: ${props.$block && 'block'};
-    width: ${props.$block && '100%'};
-    font-weight: ${!props.$uppercase && '500'};
+    display: ${props.$block && "block"};
+    width: ${props.$block && "100%"};
+    font-weight: ${!props.$uppercase && "500"};
 
     &:hover {
       cursor: pointer;
       text-decoration: none;
       color: ${types[props.$btnStyle].color &&
       darken(types[props.$btnStyle].color, 35)};
-      background: ${props.$btnStyle !== 'link' &&
+      background: ${props.$btnStyle !== "link" &&
       `${darken(types[props.$btnStyle].background, 20)}`};
     }
 
@@ -95,7 +95,7 @@ const ButtonStyled = styledTS<{
       box-shadow: ${types[props.$btnStyle].border
         ? `0 0 0 0.2rem ${lighten(types[props.$btnStyle].border, 65)}`
         : `0 0 0 0.2rem ${lighten(types[props.$btnStyle].background, 65)}`};
-      box-shadow: ${props.$btnStyle === 'link' && 'none'};
+      box-shadow: ${props.$btnStyle === "link" && "none"};
     }
 
     &:disabled {
@@ -121,14 +121,14 @@ const ButtonStyled = styledTS<{
   }
 `;
 
-const ButtonLink = styledTS<{ disabled?: boolean }>(
-  styled(styled.a(ButtonStyled)),
+const ButtonLink = styledTS<{ $disabled?: boolean }>(
+  styled(styled.a(ButtonStyled))
 )`
   text-decoration: inherit;
   text-align: center;
 
   ${(props) =>
-    props.disabled &&
+    props.$disabled &&
     css`
       cursor: not-allowed !important;
       opacity: 0.75;
@@ -144,7 +144,7 @@ const ButtonGroup = styledTS<{ $hasGap: boolean }>(styled.div)`
 
   button + a,
   a + button {
-    margin-left: ${(props) => props.$hasGap && '10px'};
+    margin-left: ${(props) => props.$hasGap && "10px"};
   }
 
   ${(props) =>
@@ -200,16 +200,23 @@ export default class Button extends React.Component<ButtonProps> {
   static Group = Group;
 
   static defaultProps = {
-    btnStyle: 'default',
-    size: 'medium',
+    btnStyle: "default",
+    size: "medium",
     block: false,
-    type: 'button',
+    type: "button",
     $uppercase: false,
   };
 
   render() {
-    const { size, iconColor, uppercase, btnStyle, block, ...sizeExcluded } =
-      this.props;
+    const {
+      size,
+      iconColor,
+      uppercase,
+      btnStyle,
+      block,
+      disabled,
+      ...sizeExcluded
+    } = this.props;
     const { href, children, ignoreTrans, icon, img } = sizeExcluded;
     const props = {
       ...sizeExcluded,
@@ -217,6 +224,7 @@ export default class Button extends React.Component<ButtonProps> {
       $uppercase: uppercase,
       $btnStyle: btnStyle,
       $block: block,
+      $disabled: disabled,
     };
 
     // TODO: fix
@@ -225,7 +233,7 @@ export default class Button extends React.Component<ButtonProps> {
 
     let content = children;
 
-    if (!ignoreTrans && typeof content === 'string' && __) {
+    if (!ignoreTrans && typeof content === "string" && __) {
       content = __(content);
     }
 

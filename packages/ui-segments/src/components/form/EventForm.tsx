@@ -1,16 +1,15 @@
-import { IConditionFilter, IEvent, ISegmentCondition } from "../../types";
-import Select from "react-select";
-
-import FormControl from "@erxes/ui/src/components/form/Control";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-
-import React from "react";
-import { OperatorList, SegmentBackIcon } from "../styles";
-import { CenterContent } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-import Button from "@erxes/ui/src/components/Button";
 import { DEFAULT_OPERATORS, EVENT_OCCURENCES } from "../constants";
+import { IConditionFilter, IEvent, ISegmentCondition } from "../../types";
+import { OperatorList, SegmentBackIcon } from "../styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import { CenterContent } from "@erxes/ui/src/styles/main";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Select from "react-select";
 
 type Props = {
   events: IEvent[];
@@ -140,7 +139,7 @@ class EventForm extends React.Component<Props, State> {
               <div key={index}>
                 <FormControl
                   key={Math.random()}
-                  componentClass="radio"
+                  componentclass="radio"
                   value={attributeName}
                   onChange={this.onClickAttribute.bind(this, attributeName)}
                   checked={this.isChecked(attributeName)}

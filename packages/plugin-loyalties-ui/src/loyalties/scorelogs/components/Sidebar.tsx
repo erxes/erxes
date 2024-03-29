@@ -1,10 +1,10 @@
-import * as path from 'path';
+import * as path from "path";
 
 import {
   ClearBtnContainer,
   FilterRowContainer,
-  PaddingTop
-} from '../../../styles';
+  PaddingTop,
+} from "../../../styles";
 import {
   ControlLabel,
   DateControl,
@@ -14,27 +14,27 @@ import {
   SelectTeamMembers,
   Tip,
   Wrapper,
-  router
-} from '@erxes/ui/src';
-import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
+  router,
+} from "@erxes/ui/src";
+import { DateContainer, ScrollWrapper } from "@erxes/ui/src/styles/main";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+      /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
 );
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
 );
 interface LayoutProps {
@@ -67,7 +67,7 @@ class SideBar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      variables: this.props?.queryParams
+      variables: this.props?.queryParams,
     };
   }
 
@@ -77,7 +77,7 @@ class SideBar extends React.Component<Props, State> {
 
     const handleClear = (e: any, type: string) => {
       router.removeParams(history, type);
-      variables[type] = '';
+      variables[type] = "";
       refetch(variables);
       // this.setState({variables:variables})
     };
@@ -89,7 +89,7 @@ class SideBar extends React.Component<Props, State> {
       const result = { ...variables, [name]: value };
       this.setState({ variables: result });
       router.setParams(history, { [name]: value });
-      name !== 'orderType' && refetch(result);
+      name !== "orderType" && refetch(result);
     };
 
     const handleDate = (e: any, type: string) => {
@@ -100,18 +100,18 @@ class SideBar extends React.Component<Props, State> {
       refetch(result);
     };
 
-    const checkParams = type => {
+    const checkParams = (type) => {
       return router.getParam(history, type) ? true : false;
     };
 
-    const handleOwnerId = e => {
+    const handleOwnerId = (e) => {
       const result = { ...variables, ownerId: String(e) };
       this.setState({ variables: result });
       router.setParams(history, { ownerId: String(e) });
       refetch(result);
     };
     const renderOwner = () => {
-      if (isEnabled('contacts') && variables.ownerType === 'customer') {
+      if (isEnabled("contacts") && variables.ownerType === "customer") {
         return (
           <SelectCustomers
             label="Team Members"
@@ -123,7 +123,7 @@ class SideBar extends React.Component<Props, State> {
         );
       }
 
-      if (variables.ownerType === 'user') {
+      if (variables.ownerType === "user") {
         return (
           <SelectTeamMembers
             label="Team Members"
@@ -135,7 +135,7 @@ class SideBar extends React.Component<Props, State> {
         );
       }
 
-      if (isEnabled('contacts')) {
+      if (isEnabled("contacts")) {
         return (
           <SelectCompanies
             label="Compnay"
@@ -158,9 +158,9 @@ class SideBar extends React.Component<Props, State> {
           {props.clearable && (
             <ClearBtnContainer
               tabIndex={0}
-              onClick={e => handleClear(e, props.type)}
+              onClick={(e) => handleClear(e, props.type)}
             >
-              <Tip text={'Clear filter'} placement="bottom">
+              <Tip text={"Clear filter"} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </ClearBtnContainer>
@@ -177,92 +177,92 @@ class SideBar extends React.Component<Props, State> {
           </Wrapper.Sidebar.Section.Title>
           <Form
             label="Owner Type"
-            clearable={checkParams('ownerType')}
+            clearable={checkParams("ownerType")}
             type="ownerType"
           >
             <FormControl
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               value={variables?.ownerType}
               required={true}
               onChange={handleValue}
             >
-              <option key={'customer'} value={'customer'}>
-                {'customer'}
+              <option key={"customer"} value={"customer"}>
+                {"customer"}
               </option>
-              <option key={'user'} value={'user'}>
-                {'user'}
+              <option key={"user"} value={"user"}>
+                {"user"}
               </option>
-              <option key={'company'} value={'company'}>
-                {'company'}
+              <option key={"company"} value={"company"}>
+                {"company"}
               </option>
             </FormControl>
           </Form>
-          <Form label="Owner" clearable={checkParams('ownerId')} type="ownerId">
+          <Form label="Owner" clearable={checkParams("ownerId")} type="ownerId">
             {renderOwner()}
           </Form>
           <Form
             label="Order Type"
-            clearable={checkParams('orderType')}
+            clearable={checkParams("orderType")}
             type="orderType"
           >
             <FormControl
               name="orderType"
-              componentClass="select"
+              componentclass="select"
               value={variables?.orderType}
-              placeholder={'Select Order Type'}
+              placeholder={"Select Order Type"}
               required={true}
               onChange={handleValue}
             >
-              <option key={'Date'} value={'createdAt'}>
-                {'Date'}
+              <option key={"Date"} value={"createdAt"}>
+                {"Date"}
               </option>
-              <option key={'Changed Score'} value={'changeScore'}>
-                {'Changed Score'}
+              <option key={"Changed Score"} value={"changeScore"}>
+                {"Changed Score"}
               </option>
             </FormControl>
           </Form>
-          <Form label="Order" clearable={checkParams('order')} type="order">
+          <Form label="Order" clearable={checkParams("order")} type="order">
             <FormControl
               name="order"
-              componentClass="select"
+              componentclass="select"
               value={variables?.order}
-              placeholder={'Select Order'}
+              placeholder={"Select Order"}
               required={true}
               onChange={handleValue}
               disabled={!variables?.orderType}
             >
-              <option key={'Ascending'} value={1}>
-                {'Ascending'}
+              <option key={"Ascending"} value={1}>
+                {"Ascending"}
               </option>
-              <option key={'Descending'} value={-1}>
-                {'Descending'}
+              <option key={"Descending"} value={-1}>
+                {"Descending"}
               </option>
             </FormControl>
           </Form>
           <Form
             label="From"
-            clearable={checkParams('fromDate')}
+            clearable={checkParams("fromDate")}
             type="fromDate"
           >
             <DateContainer>
               <DateControl
                 required={true}
                 name="startDate"
-                placeholder={'Choose start date'}
+                placeholder={"Choose start date"}
                 value={variables?.fromDate}
-                onChange={e => handleDate(e, 'fromDate')}
+                onChange={(e) => handleDate(e, "fromDate")}
               />
             </DateContainer>
           </Form>
-          <Form label="To" clearable={checkParams('toDate')} type="toDate">
+          <Form label="To" clearable={checkParams("toDate")} type="toDate">
             <DateContainer>
               <DateControl
                 required={true}
                 name="fromDate"
-                placeholder={'Choose from date'}
+                placeholder={"Choose from date"}
                 value={variables?.toDate}
-                onChange={e => handleDate(e, 'toDate')}
+                onChange={(e) => handleDate(e, "toDate")}
               />
             </DateContainer>
           </Form>

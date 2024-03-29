@@ -3,29 +3,29 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
-import { __, getEnv } from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/styles/main";
+import { __, getEnv } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Datetime from '@nateradebaugh/react-datetime';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React, { useState } from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import WithPermission from 'coreui/withPermission';
-import client from '@erxes/ui/src/apolloClient';
-import { colors } from '@erxes/ui/src/styles';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { Label } from "@erxes/ui/src/components/form/styles";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React, { useState } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import WithPermission from "coreui/withPermission";
+import client from "@erxes/ui/src/apolloClient";
+import { colors } from "@erxes/ui/src/styles";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export const ActionItem = styled.button`
   width: 100%;
@@ -70,7 +70,7 @@ type Props = {
 };
 
 const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
-  const [selectedDocumentId, setSelectedDocumentId] = useState('');
+  const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const [documents, setDocuments] = useState([] as any);
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -81,21 +81,21 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
       id: b._id,
       c: 1,
       product: b,
-    })),
+    }))
   );
   const [copies, setCopies] = useState(
-    Number(localStorage.getItem('erxes_products_documents_copies') || 1),
+    Number(localStorage.getItem("erxes_products_documents_copies") || 1)
   );
   const [width, setWidth] = useState(
-    Number(localStorage.getItem('erxes_products_documents_width') || 300),
+    Number(localStorage.getItem("erxes_products_documents_width") || 300)
   );
   const [isDate, setIsDate] = useState(false);
   const [date, setDate] = useState(new Date());
   const [branchId, setBranchId] = useState(
-    localStorage.getItem('erxes_products_documents_branchId') || '',
+    localStorage.getItem("erxes_products_documents_branchId") || ""
   );
   const [departmentId, setDepartmentId] = useState(
-    localStorage.getItem('erxes_products_documents_departmentId') || '',
+    localStorage.getItem("erxes_products_documents_departmentId") || ""
   );
 
   const loadDocuments = () => {
@@ -106,13 +106,13 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
         id: b._id,
         c: 1,
         product: b,
-      })),
+      }))
     );
 
     client
       .mutate({
         mutation: gql(queries.documents),
-        variables: { contentType: 'products' },
+        variables: { contentType: "products" },
       })
       .then(({ data }) => {
         setDocuments(data.documents);
@@ -128,10 +128,10 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
       `${
         getEnv().REACT_APP_API_URL
       }/pl:documents/print?_id=${selectedDocumentId}&productIds=${JSON.stringify(
-        copyInfos.map((c) => ({ id: c.id, c: c.c })),
+        copyInfos.map((c) => ({ id: c.id, c: c.c }))
       )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}&date=${date}&isDate=${
-        isDate || ''
-      }`,
+        isDate || ""
+      }`
     );
   };
 
@@ -143,22 +143,22 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
   const onChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    if (name === 'copies') {
+    if (name === "copies") {
       setCopies(value);
       localStorage.setItem(`erxes_products_documents_copies`, value);
     }
-    if (name === 'width') {
+    if (name === "width") {
       setWidth(value);
       localStorage.setItem(`erxes_products_documents_width`, value);
     }
   };
 
   const onChangeSelect = (name, value) => {
-    if (name === 'branchId') {
+    if (name === "branchId") {
       setBranchId(value);
       localStorage.setItem(`erxes_products_documents_branchId`, value);
     }
-    if (name === 'departmentId') {
+    if (name === "departmentId") {
       setDepartmentId(value);
       localStorage.setItem(`erxes_products_documents_departmentId`, value);
     }
@@ -176,13 +176,13 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
     }
 
     document
-      .getElementsByClassName('canFocus')
-      [next].getElementsByTagName('input')[0]
+      .getElementsByClassName("canFocus")
+      [next].getElementsByTagName("input")[0]
       .focus();
   };
 
   const onKeyDown = (ind, e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (e.shiftKey) {
         focusNext(ind, -1);
@@ -227,43 +227,43 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
               <FormGroup>
                 <ControlLabel>Branch</ControlLabel>
                 <SelectBranches
-                  label={__('Choose branch')}
+                  label={__("Choose branch")}
                   name="branchId"
                   multi={false}
                   initialValue={branchId}
-                  onSelect={(branchId) => onChangeSelect('branchId', branchId)}
+                  onSelect={(branchId) => onChangeSelect("branchId", branchId)}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Department</ControlLabel>
                 <SelectDepartments
-                  label={__('Choose branch')}
+                  label={__("Choose branch")}
                   name="departmentId"
                   multi={false}
                   initialValue={departmentId}
                   onSelect={(departmentId) =>
-                    onChangeSelect('departmentId', departmentId)
+                    onChangeSelect("departmentId", departmentId)
                   }
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Date</ControlLabel>
                 <Datetime
-                  inputProps={{ placeholder: 'Click to select a date' }}
+                  inputProps={{ placeholder: "Click to select a date" }}
                   dateFormat="YYYY-MM-DD"
                   timeFormat="HH:mm"
-                  viewMode={'days'}
+                  viewMode={"days"}
                   closeOnSelect={true}
                   utc={true}
                   input={true}
                   value={date || null}
-                  onChange={(date) => setDate(new Date(date || ''))}
+                  onChange={(date) => setDate(new Date(date || ""))}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>is Date</ControlLabel>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   required={true}
                   name="isDate"
                   checked={isDate}
@@ -292,8 +292,8 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
                                 ...c,
                                 c: (e.target as any).value,
                               }
-                            : c,
-                        ),
+                            : c
+                        )
                       )
                     }
                   />
@@ -320,7 +320,7 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
 
   const trigger = (
     <Button btnStyle="success" onClick={loadDocuments}>
-      {__('Print document')}
+      {__("Print document")}
     </Button>
   );
 

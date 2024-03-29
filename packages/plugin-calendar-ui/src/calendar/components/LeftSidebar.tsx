@@ -1,19 +1,19 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { IBoard, IGroup } from '../types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { STORAGE_CALENDAR_IDS } from '../constants';
-import EventForm from '../containers/EventForm';
-import { CalendarItem, SidebarHeading } from '../styles';
-import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { IAccount, INylasCalendar } from '../types';
-import BoardChooser from './BoardChooser';
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { IBoard, IGroup } from "../types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { STORAGE_CALENDAR_IDS } from "../constants";
+import EventForm from "../containers/EventForm";
+import { CalendarItem, SidebarHeading } from "../styles";
+import { MenuFooter } from "@erxes/ui-cards/src/boards/styles/rightMenu";
+import { IAccount, INylasCalendar } from "../types";
+import BoardChooser from "./BoardChooser";
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
@@ -38,7 +38,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     this.state = {
       isPopupVisible: false,
-      calendarIds: this.getCalendarIds(props.accounts)
+      calendarIds: this.getCalendarIds(props.accounts),
     };
   }
 
@@ -67,12 +67,12 @@ class LeftSidebar extends React.Component<Props, State> {
       return JSON.parse(storedCalendarIds);
     }
 
-    accounts.map(acc => {
+    accounts.map((acc) => {
       calendarIds.push(acc._id);
 
       return acc.calendars
-        .filter(c => !c.readOnly)
-        .map(cal => calendarIds.push(cal.providerCalendarId));
+        .filter((c) => !c.readOnly)
+        .map((cal) => calendarIds.push(cal.providerCalendarId));
     });
 
     localStorage.setItem(STORAGE_CALENDAR_IDS, JSON.stringify(calendarIds));
@@ -82,7 +82,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
   onHideModal = () => {
     this.setState({
-      isPopupVisible: !this.state.isPopupVisible
+      isPopupVisible: !this.state.isPopupVisible,
     });
   };
 
@@ -113,7 +113,7 @@ class LeftSidebar extends React.Component<Props, State> {
     const checked = (e.target as HTMLInputElement).checked;
     let calendarIds = this.state.calendarIds || [];
     const providerCalendarIds = account.calendars.map(
-      c => c.providerCalendarId
+      (c) => c.providerCalendarId
     );
 
     const ids = [account._id, ...providerCalendarIds];
@@ -121,7 +121,7 @@ class LeftSidebar extends React.Component<Props, State> {
     if (checked) {
       calendarIds = calendarIds.concat(ids);
     } else {
-      ids.map(id => {
+      ids.map((id) => {
         const index = calendarIds.indexOf(id);
         return index >= 0 && calendarIds.splice(index, 1);
       });
@@ -139,7 +139,7 @@ class LeftSidebar extends React.Component<Props, State> {
   ) => {
     const { calendarIds } = this.state;
 
-    return calendars.map(calendar => {
+    return calendars.map((calendar) => {
       const calendarId = calendar.providerCalendarId;
 
       return (
@@ -148,7 +148,7 @@ class LeftSidebar extends React.Component<Props, State> {
           <FormControl
             key={calendar._id}
             className="toggle-message"
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={this.toggleCheckbox.bind(this, calendarId)}
             checked={calendarIds.includes(calendarId)}
             color={calendar.color || color}
@@ -168,7 +168,7 @@ class LeftSidebar extends React.Component<Props, State> {
         <MenuFooter>
           <Link
             to={`/settings/calendars?boardId=${
-              currentBoard ? currentBoard._id : ''
+              currentBoard ? currentBoard._id : ""
             }`}
           >
             <Button block={true} btnStyle="success" icon="cog">
@@ -182,7 +182,7 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SidebarHeading>My Calendars</SidebarHeading>
-        {this.props.accounts.map(account => {
+        {this.props.accounts.map((account) => {
           const calendarCount = account.calendars.length;
           return (
             <div key={account._id}>
@@ -190,7 +190,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 <CalendarItem>
                   <FormControl
                     className="toggle-message"
-                    componentClass="checkbox"
+                    componentclass="checkbox"
                     onChange={this.toggleAccountCheckbox.bind(this, account)}
                     checked={this.state.calendarIds.includes(account._id)}
                     color={account.color}
@@ -217,7 +217,7 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <MenuFooter>
         <Button
-          btnStyle={!disabled ? 'success' : 'simple'}
+          btnStyle={!disabled ? "success" : "simple"}
           onClick={this.onHideModal}
           block={true}
           icon="plus-circle"
@@ -235,13 +235,8 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      currentDate,
-      dateOnChange,
-      currentGroup,
-      currentBoard,
-      boards
-    } = this.props;
+    const { currentDate, dateOnChange, currentGroup, currentBoard, boards } =
+      this.props;
 
     if (!currentBoard) {
       return (
@@ -266,7 +261,7 @@ class LeftSidebar extends React.Component<Props, State> {
       <Sidebar full={true} header={this.renderSidebarHeader()}>
         <FormGroup>
           <Datetime
-            inputProps={{ placeholder: 'Click to select a date' }}
+            inputProps={{ placeholder: "Click to select a date" }}
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
             closeOnSelect={true}
@@ -275,9 +270,9 @@ class LeftSidebar extends React.Component<Props, State> {
             value={currentDate}
             onChange={dateOnChange}
             defaultValue={dayjs()
-              .startOf('day')
-              .add(12, 'hour')
-              .format('YYYY-MM-DD HH:mm:ss')}
+              .startOf("day")
+              .add(12, "hour")
+              .format("YYYY-MM-DD HH:mm:ss")}
           />
         </FormGroup>
 

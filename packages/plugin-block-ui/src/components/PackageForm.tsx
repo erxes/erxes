@@ -9,12 +9,12 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { LEVEL } from '../constants';
-import { IPackage, IPackageDoc } from '../types';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import Select from "react-select-plus";
+import { LEVEL } from "../constants";
+import { IPackage, IPackageDoc } from "../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -26,10 +26,10 @@ const PackageForm: React.FC<Props> = (props: Props) => {
   const { data = {} as IPackage, closeModal, renderButton } = props;
 
   const [state, setState] = useState({
-    name: data.name || '',
-    wpId: data.wpId || '',
+    name: data.name || "",
+    wpId: data.wpId || "",
 
-    level: data.level || '',
+    level: data.level || "",
     price: data.price || 0,
     duration: data.duration || 0,
     profit: data.profit || 0,
@@ -78,16 +78,16 @@ const PackageForm: React.FC<Props> = (props: Props) => {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderFormGroup('Name', {
+              {renderFormGroup("Name", {
                 ...formProps,
-                name: 'name',
-                defaultValue: data.name || '',
+                name: "name",
+                defaultValue: data.name || "",
               })}
 
-              {renderFormGroup('WP Id', {
+              {renderFormGroup("WP Id", {
                 ...formProps,
-                name: 'wpId',
-                defaultValue: data.wpId || '',
+                name: "wpId",
+                defaultValue: data.wpId || "",
               })}
 
               <FormGroup>
@@ -102,25 +102,25 @@ const PackageForm: React.FC<Props> = (props: Props) => {
             </FormColumn>
 
             <FormColumn>
-              {renderFormGroup('Price', {
+              {renderFormGroup("Price", {
                 ...formProps,
-                name: 'price',
+                name: "price",
                 defaultValue: data.price || 0,
-                type: 'number',
+                type: "number",
               })}
 
-              {renderFormGroup('Duration', {
+              {renderFormGroup("Duration", {
                 ...formProps,
-                name: 'duration',
+                name: "duration",
                 defaultValue: data.duration || 0,
-                type: 'number',
+                type: "number",
               })}
 
-              {renderFormGroup('Profit', {
+              {renderFormGroup("Profit", {
                 ...formProps,
-                name: 'profit',
+                name: "profit",
                 defaultValue: data.profit || 0,
-                type: 'number',
+                type: "number",
               })}
             </FormColumn>
           </FormWrapper>
@@ -132,8 +132,8 @@ const PackageForm: React.FC<Props> = (props: Props) => {
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
-                  defaultValue={data.description || ''}
+                  componentclass="textarea"
+                  defaultValue={data.description || ""}
                 />
               </FormGroup>
             </FormColumn>
@@ -146,7 +146,7 @@ const PackageForm: React.FC<Props> = (props: Props) => {
           </Button>
 
           {renderButton({
-            passedName: 'package',
+            passedName: "package",
             values: generateDoc(values),
             callback: closeModal,
             isSubmitted,

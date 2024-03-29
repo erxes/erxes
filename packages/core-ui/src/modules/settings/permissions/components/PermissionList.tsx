@@ -104,7 +104,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.module
             )}
             options={generateModuleParams(modules)}
-            onChange={setFilter.bind(this, "module")}
+            onChange={() => setFilter.bind(this, "module")}
           />
         </FilterItem>
 
@@ -115,7 +115,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.action
             )}
             options={filterActions(actions, queryParams.module)}
-            onChange={setFilter.bind(this, "action")}
+            onChange={() => setFilter.bind(this, "action")}
           />
         </FilterItem>
         <FilterItem id="permission-choose-users">
@@ -131,7 +131,7 @@ const PermissionList = (props: Props) => {
         <div>
           <strong>{__("Granted")}:</strong>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={queryParams.allowed !== "notAllowed"}
             id="allowed"
             onChange={allowedOnChange}

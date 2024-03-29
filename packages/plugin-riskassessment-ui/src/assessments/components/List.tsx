@@ -1,19 +1,20 @@
-import Button from '@erxes/ui/src/components/Button';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import * as _loadash from 'lodash';
-import React from 'react';
-import { headers } from '../common/Headers';
-import { DetailPopOver } from '../common/utils';
-import { Statistics } from '../containers/Statistic';
-import { TableHead } from './ListHead';
-import Row from './Row';
-import { SideBar } from './SideBar';
+import * as _loadash from "lodash";
+
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { DetailPopOver } from "../common/utils";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import { SideBar } from "./SideBar";
+import { Statistics } from "../containers/Statistic";
+import Table from "@erxes/ui/src/components/table";
+import { TableHead } from "./ListHead";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
+import { headers } from "../common/Headers";
 
 type Props = {
   list: any[];
@@ -32,7 +33,7 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedAssessmentIds: []
+      selectedAssessmentIds: [],
     };
   }
 
@@ -44,8 +45,8 @@ class List extends React.Component<Props, State> {
       if (selectedAssessmentIds.includes(id)) {
         return this.setState({
           selectedAssessmentIds: selectedAssessmentIds.filter(
-            selectedId => selectedId !== id
-          )
+            (selectedId) => selectedId !== id
+          ),
         });
       }
 
@@ -55,7 +56,7 @@ class List extends React.Component<Props, State> {
     const handleSelectAll = () => {
       if (!selectedAssessmentIds.length) {
         this.setState({
-          selectedAssessmentIds: list.map(assessment => assessment._id)
+          selectedAssessmentIds: list.map((assessment) => assessment._id),
         });
       } else {
         this.setState({ selectedAssessmentIds: [] });
@@ -68,17 +69,17 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={_loadash.isEqual(
                   selectedAssessmentIds,
-                  list.map(assessment => assessment._id)
+                  list.map((assessment) => assessment._id)
                 )}
                 onChange={handleSelectAll}
               />
             </th>
-            <th>{__('Card type')}</th>
-            <th>{__('Card Name')}</th>
-            {headers(queryParams, history).map(header => (
+            <th>{__("Card type")}</th>
+            <th>{__("Card Name")}</th>
+            {headers(queryParams, history).map((header) => (
               <TableHead
                 key={header.name}
                 filter={header.filter}
@@ -87,11 +88,11 @@ class List extends React.Component<Props, State> {
                 {header.label}
               </TableHead>
             ))}
-            <th>{__('Action')}</th>
+            <th>{__("Action")}</th>
           </tr>
         </thead>
         <tbody>
-          {(list || []).map(item => (
+          {(list || []).map((item) => (
             <Row
               item={item}
               key={item._id}
@@ -128,7 +129,7 @@ class List extends React.Component<Props, State> {
         <DetailPopOver
           customComponent={
             <Button icon="chart-bar" btnStyle="simple">
-              {__('See Statistic')}
+              {__("See Statistic")}
             </Button>
           }
           title=""
@@ -146,7 +147,7 @@ class List extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={'Assessment'} />}
+        header={<Wrapper.Header title={"Assessment"} />}
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }

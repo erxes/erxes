@@ -1,24 +1,25 @@
 import {
   Button,
-  confirm,
-  ControlLabel,
   Form as CommonForm,
+  ControlLabel,
   FormControl,
   FormGroup,
-  __
-} from '@erxes/ui/src';
+  __,
+  confirm,
+} from "@erxes/ui/src";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { FormContainer } from '../../../styles';
-import { SelectTags } from '../../common/utils';
-import { IIndicatorsGroups } from '../common/types';
-import GroupingIndicators from './GroupingIndicators';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import { FormContainer } from "../../../styles";
+import GroupingIndicators from "./GroupingIndicators";
+import { IIndicatorsGroups } from "../common/types";
+import React from "react";
+import { SelectTags } from "../../common/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   detail?: IIndicatorsGroups;
@@ -35,7 +36,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      detail: props.detail || {}
+      detail: props.detail || {},
     };
 
     this.renderContent = this.renderContent.bind(this);
@@ -53,7 +54,7 @@ class Form extends React.Component<Props, State> {
         ...group,
         calculateLogics: (group?.calculateLogics || []).map(
           ({ __typename, ...logic }: any) => logic
-        )
+        ),
       };
     });
 
@@ -68,7 +69,7 @@ class Form extends React.Component<Props, State> {
     const handleClose = () => {
       if (!this.props.detail && detail) {
         return confirm(
-          'Are you sure you want to close.You will lose your filled data if you close the form '
+          "Are you sure you want to close.You will lose your filled data if you close the form "
         ).then(() => {
           this.props.closeModal();
         });
@@ -76,15 +77,15 @@ class Form extends React.Component<Props, State> {
       this.props.closeModal();
     };
 
-    const handleChange = doc => {
+    const handleChange = (doc) => {
       this.setState({ detail: { ...this.props.detail, ...doc } });
     };
 
     const handleSelect = (values, name) => {
-      this.setState(prev => ({ detail: { ...prev.detail, [name]: values } }));
+      this.setState((prev) => ({ detail: { ...prev.detail, [name]: values } }));
     };
 
-    const toggleProperty = e => {
+    const toggleProperty = (e) => {
       const { name } = e.currentTarget as HTMLInputElement;
       this.setState({ detail: { ...detail, [name]: !detail[name] } });
     };
@@ -92,7 +93,7 @@ class Form extends React.Component<Props, State> {
     return (
       <FormContainer column gap>
         <FormGroup>
-          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__("Name")}</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
@@ -102,18 +103,18 @@ class Form extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
+          <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass="textarea"
+            componentclass="textarea"
             name="description"
             defaultValue={detail?.name}
             required
           />
         </FormGroup>
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <FormGroup>
-            <ControlLabel>{__('Tag')}</ControlLabel>
+            <ControlLabel>{__("Tag")}</ControlLabel>
             <SelectTags
               name="tagIds"
               label="Choose Tag"
@@ -128,13 +129,13 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <FormControl
                 name="ignoreZeros"
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={detail.ignoreZeros}
                 onChange={toggleProperty}
               />
               <ControlLabel>
                 {__(
-                  'Ignore Zeros ( ignore percent weight if assessment equals zero )'
+                  "Ignore Zeros ( ignore percent weight if assessment equals zero )"
                 )}
               </ControlLabel>
             </FormGroup>
@@ -145,19 +146,19 @@ class Form extends React.Component<Props, State> {
           indicatorGroups={detail.groups}
           generalConfig={{
             calculateLogics: detail.calculateLogics,
-            calculateMethod: detail.calculateMethod
+            calculateMethod: detail.calculateMethod,
           }}
         />
         <ModalFooter>
           <Button btnStyle="simple" onClick={handleClose}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           {this.props.renderButton({
-            text: 'Indicators Groups',
+            text: "Indicators Groups",
             values: this.generateDoc(values),
             isSubmitted,
             callback: () => this.props.closeModal(),
-            object: this.props.detail
+            object: this.props.detail,
           })}
         </ModalFooter>
       </FormContainer>

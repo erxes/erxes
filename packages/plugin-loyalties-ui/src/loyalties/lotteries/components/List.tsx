@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -7,23 +7,24 @@ import {
   Pagination,
   SortHandler,
   Table,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 import {
   MainStyleCount as Count,
   MainStyleTitle as Title,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { ILottery } from '../types';
-import { ILotteryCampaign } from '../../../configs/lotteryCampaign/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import LotteryForm from '../containers/Form';
-import LotteryRow from './Row';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import React from 'react';
-import Sidebar from './Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { menuLoyalties } from '../../common/constants';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { ILottery } from "../types";
+import { ILotteryCampaign } from "../../../configs/lotteryCampaign/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import LotteryForm from "../containers/Form";
+import LotteryRow from "./Row";
+import { LoyaltiesTableWrapper } from "../../common/styles";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { menuLoyalties } from "../../common/constants";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -40,7 +41,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeLotteries: (
     doc: { lotteryIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -63,7 +64,7 @@ class LotteriesList extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, lotteries } = this.props;
-    toggleAll(lotteries, 'lotteries');
+    toggleAll(lotteries, "lotteries");
   };
 
   search = (e) => {
@@ -76,7 +77,7 @@ class LotteriesList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -93,7 +94,7 @@ class LotteriesList extends React.Component<IProps, State> {
 
   moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -112,30 +113,30 @@ class LotteriesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
               <th>
-                <SortHandler sortField={'createdAt'} label={__('Created')} />
+                <SortHandler sortField={"createdAt"} label={__("Created")} />
               </th>
               <th>
-                <SortHandler sortField={'number'} label={__('Number')} />
+                <SortHandler sortField={"number"} label={__("Number")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
+                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerId'} label={__('Owner')} />
+                <SortHandler sortField={"ownerId"} label={__("Owner")} />
               </th>
               <th>
-                <SortHandler sortField={'status'} label={__('Status')} />
+                <SortHandler sortField={"status"} label={__("Status")} />
               </th>
               <th>Actions</th>
             </tr>
@@ -195,7 +196,7 @@ class LotteriesList extends React.Component<IProps, State> {
         <BarItems>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={this.search}
             value={this.state.searchValue}
             autoFocus={true}
@@ -216,7 +217,7 @@ class LotteriesList extends React.Component<IProps, State> {
     const actionBarLeft = (
       <Title>
         {(currentCampaign && `${currentCampaign.title}`) ||
-          'All lottery campaigns'}{' '}
+          "All lottery campaigns"}{" "}
       </Title>
     );
     const actionBar = (
@@ -244,7 +245,7 @@ class LotteriesList extends React.Component<IProps, State> {
         content={
           <>
             <Count>
-              {totalCount} lottery{totalCount > 1 && 's'}
+              {totalCount} lottery{totalCount > 1 && "s"}
             </Count>
             <DataWithLoader
               data={mainContent}

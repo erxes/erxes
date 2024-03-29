@@ -73,7 +73,7 @@ const Row = (props: Props) => {
         <td onClick={onClick} rowSpan={brandLen}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -89,7 +89,7 @@ const Row = (props: Props) => {
           {isUnsynced && (
             <FormControl
               checked={isUnsynced}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           )}

@@ -204,7 +204,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           </Description>
           <FormControl
             id="multipleEmailValue"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             required={true}
           />
@@ -329,7 +329,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     name="groupId"
-                    componentClass="select"
+                    componentclass="select"
                     options={[
                       { value: "", label: "Choose group ..." },
                       ...this.generateGroupsChoices(),

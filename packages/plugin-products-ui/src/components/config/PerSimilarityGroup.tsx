@@ -119,7 +119,7 @@ const PerSettings: React.FC<Props> = (props) => {
               <ControlLabel>Field Group</ControlLabel>
               <FormControl
                 name="groupId"
-                componentClass="select"
+                componentclass="select"
                 options={[
                   { value: "", label: "Empty" },
                   ...(fieldGroups || []).map((fg) => ({
@@ -137,7 +137,7 @@ const PerSettings: React.FC<Props> = (props) => {
               <ControlLabel>Field</ControlLabel>
               <FormControl
                 name="fieldId"
-                componentClass="select"
+                componentclass="select"
                 options={[
                   { value: "", label: "Empty" },
                   ...(
@@ -221,7 +221,7 @@ const PerSettings: React.FC<Props> = (props) => {
             <ControlLabel>{"Filter Field"}</ControlLabel>
             <FormControl
               name={"filterField"}
-              componentClass="select"
+              componentclass="select"
               defaultValue={config["filterField"] || "code"}
               onChange={onChange}
               required={true}

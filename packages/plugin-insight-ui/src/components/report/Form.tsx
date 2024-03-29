@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { FormContent, FormFooter } from "../../styles";
+import { IReport, IReportTemplate } from "../../types";
+import React, { useEffect, useState } from "react";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Button from '@erxes/ui/src/components/Button';
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import { Form as CommonForm } from '@erxes/ui/src/components/form';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/index';
-
-import ReportTemplate from '../template/Report';
-import SelectMembersForm from '../utils/SelectMembersForm';
-import SelectSections from '../../containers/utils/SelectSections';
-import { FormFooter, FormContent } from '../../styles';
-import { IReport, IReportTemplate } from '../../types';
-import { getService } from '../../utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Button from "@erxes/ui/src/components/Button";
+import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFormProps } from "@erxes/ui/src/types";
+import ReportTemplate from "../template/Report";
+import SelectMembersForm from "../utils/SelectMembersForm";
+import SelectSections from "../../containers/utils/SelectSections";
+import { __ } from "@erxes/ui/src/utils/index";
+import { getService } from "../../utils";
 
 type Props = {
   queryParams: any;
@@ -30,19 +29,19 @@ type Props = {
 const Form = (props: Props) => {
   const { report, reportTemplates, handleMutation, closeDrawer } = props;
 
-  const [name, setName] = useState(report?.name || '');
+  const [name, setName] = useState(report?.name || "");
   const [userIds, setUserIds] = useState(report?.assignedUserIds || []);
-  const [sectionId, setSectionId] = useState<string>(report?.sectionId || '');
+  const [sectionId, setSectionId] = useState<string>(report?.sectionId || "");
   const [departmentIds, setDepartmentIds] = useState(
-    report?.assignedDepartmentIds || [],
+    report?.assignedDepartmentIds || []
   );
-  const [visibility, setVisibility] = useState(report?.visibility || 'public');
+  const [visibility, setVisibility] = useState(report?.visibility || "public");
   const [serviceType, setServiceType] = useState<string>(
-    report?.serviceType || '',
+    report?.serviceType || ""
   );
   const [templateCharts, setTemplateCharts] = useState<string[]>([]);
   const [serviceName, setServiceName] = useState<string>(
-    report?.serviceName || '',
+    report?.serviceName || ""
   );
 
   useEffect(() => {
@@ -61,7 +60,7 @@ const Form = (props: Props) => {
 
   const handleSubmit = () => {
     if (!name || !serviceName || !sectionId) {
-      return Alert.warning(__('Please fill the required fields'));
+      return Alert.warning(__("Please fill the required fields"));
     }
 
     handleMutation({
@@ -82,7 +81,7 @@ const Form = (props: Props) => {
 
     const isTemplateSelected = serviceType.includes(templateType);
     const isNameDefault = reportTemplates.some(
-      (report) => report.title === name,
+      (report) => report.title === name
     );
 
     if (!isTemplateSelected) {
@@ -93,11 +92,11 @@ const Form = (props: Props) => {
         setName(title);
       }
     } else if (!serviceType) {
-      setServiceName('');
-      setServiceType('');
+      setServiceName("");
+      setServiceType("");
 
       if (name && isNameDefault) {
-        setName('');
+        setName("");
       }
     }
   };
@@ -113,7 +112,7 @@ const Form = (props: Props) => {
   const renderReportTemplates = () => {
     const templates = report
       ? reportTemplates.filter((template) =>
-          template.serviceType.includes(serviceType || ''),
+          template.serviceType.includes(serviceType || "")
         )
       : reportTemplates;
 
@@ -143,13 +142,13 @@ const Form = (props: Props) => {
               name="name"
               value={name}
               required={true}
-              placeholder={__('Report Name')}
+              placeholder={__("Report Name")}
               onChange={(e) => setName((e.target as any).value)}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel required={true}>{__('Choose Section')}</ControlLabel>
+            <ControlLabel required={true}>{__("Choose Section")}</ControlLabel>
             <SelectSections
               sectionId={sectionId}
               setSectionId={setSectionId}
@@ -162,26 +161,26 @@ const Form = (props: Props) => {
 
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="public"
-              checked={visibility === 'public'}
-              onChange={() => setVisibility('public')}
+              checked={visibility === "public"}
+              onChange={() => setVisibility("public")}
             >
-              {__('Public')}
+              {__("Public")}
             </FormControl>
 
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="private"
-              checked={visibility === 'private'}
-              onChange={() => setVisibility('private')}
+              checked={visibility === "private"}
+              onChange={() => setVisibility("private")}
             >
-              {__('Private')}
+              {__("Private")}
             </FormControl>
           </FormGroup>
 
-          {visibility === 'private' && (
+          {visibility === "private" && (
             <FormGroup>
               <SelectMembersForm
                 userIds={userIds}

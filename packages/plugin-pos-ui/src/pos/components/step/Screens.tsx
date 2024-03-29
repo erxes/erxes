@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { IPos, IScreenConfig } from '../../../types';
+import React, { useState } from "react";
+import { IPos, IScreenConfig } from "../../../types";
 import {
   __,
   ControlLabel,
   FormControl,
   FormGroup,
   Toggle,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 import {
   Block,
   BlockRow,
@@ -14,11 +14,11 @@ import {
   FlexColumn,
   FlexItem,
   DomainRow,
-} from '../../../styles';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+} from "../../../styles";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
 
 type Props = {
-  onChange: (name: 'pos', value: any) => void;
+  onChange: (name: "pos", value: any) => void;
   pos: IPos;
   checkRemainder: boolean;
 };
@@ -31,30 +31,30 @@ const ScreensConfig = (props: Props) => {
       ? pos.erkhetConfig
       : {
           isSyncErkhet: false,
-          userEmail: '',
-          defaultPay: '',
+          userEmail: "",
+          defaultPay: "",
           getRemainder: false,
-        },
+        }
   );
 
   const [checkRemainder, setCheckRemainder] = useState<boolean>(
-    props.checkRemainder,
+    props.checkRemainder
   );
 
   const renderWaitingScreen = () => {
     let waitingScreen: IScreenConfig = {
       isActive: false,
-      type: 'time',
+      type: "time",
       value: 0,
-      contentUrl: '',
+      contentUrl: "",
     };
 
     if (pos) {
       waitingScreen = pos.waitingScreen || {
         isActive: false,
-        type: 'time',
+        type: "time",
         value: 0,
-        contentUrl: '',
+        contentUrl: "",
       };
     }
 
@@ -68,7 +68,7 @@ const ScreensConfig = (props: Props) => {
 
     const onChangeType = (e) => {
       e.preventDefault();
-      onChange('pos', {
+      onChange("pos", {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
@@ -79,7 +79,7 @@ const ScreensConfig = (props: Props) => {
 
     const onChangeValue = (e) => {
       e.preventDefault();
-      onChange('pos', {
+      onChange("pos", {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
@@ -90,7 +90,7 @@ const ScreensConfig = (props: Props) => {
 
     const onChangeContentUrl = (e) => {
       e.preventDefault();
-      onChange('pos', {
+      onChange("pos", {
         ...pos,
         waitingScreen: {
           ...waitingScreen,
@@ -100,12 +100,12 @@ const ScreensConfig = (props: Props) => {
     };
 
     const typeOptions = [
-      { label: 'Time', value: 'time' },
-      { label: 'Count', value: 'count' },
+      { label: "Time", value: "time" },
+      { label: "Count", value: "count" },
     ];
 
     const valueTitle =
-      waitingScreen.type === 'time' ? 'Change time (min)' : 'Change count';
+      waitingScreen.type === "time" ? "Change time (min)" : "Change count";
 
     return (
       <FormGroup>
@@ -113,8 +113,8 @@ const ScreensConfig = (props: Props) => {
           <ControlLabel>Change type</ControlLabel>
           <FormControl
             name="changeType"
-            componentClass="select"
-            placeholder={__('Select type')}
+            componentclass="select"
+            placeholder={__("Select type")}
             defaultValue={waitingScreen.type}
             onChange={onChangeType}
             required={true}
@@ -144,7 +144,7 @@ const ScreensConfig = (props: Props) => {
           <FormControl
             id="contentUrl"
             type="text"
-            value={waitingScreen.contentUrl || ''}
+            value={waitingScreen.contentUrl || ""}
             onChange={onChangeContentUrl}
           />
         </DomainRow>
@@ -154,7 +154,7 @@ const ScreensConfig = (props: Props) => {
 
   const renderFilterProducts = () => {
     const showType = pos.kitchenScreen.showType;
-    if (showType !== 'filtered') {
+    if (showType !== "filtered") {
       return <></>;
     }
 
@@ -164,8 +164,8 @@ const ScreensConfig = (props: Props) => {
   const renderKitchen = () => {
     let kitchenScreen: IScreenConfig = {
       isActive: false,
-      showType: '',
-      type: 'time',
+      showType: "",
+      type: "time",
       value: 0,
     };
 
@@ -173,15 +173,15 @@ const ScreensConfig = (props: Props) => {
       kitchenScreen = pos.kitchenScreen || {
         isActive: false,
         isPrint: false,
-        showType: '',
-        type: 'time',
+        showType: "",
+        type: "time",
         value: 0,
       };
     }
 
     if (!kitchenScreen.isActive) {
       const onChangeSwitchIsPrint = (e) => {
-        onChange('pos', {
+        onChange("pos", {
           ...pos,
           kitchenScreen: { ...pos.kitchenScreen, isPrint: e.target.checked },
         });
@@ -192,7 +192,7 @@ const ScreensConfig = (props: Props) => {
           <DomainRow>
             <ControlLabel>Print</ControlLabel>
             <Toggle
-              id={'isPrint'}
+              id={"isPrint"}
               checked={
                 pos && pos.kitchenScreen ? pos.kitchenScreen.isPrint : false
               }
@@ -211,7 +211,7 @@ const ScreensConfig = (props: Props) => {
       e.preventDefault();
       const name = e.target.name;
       const value = e.target.value;
-      onChange('pos', {
+      onChange("pos", {
         ...pos,
         kitchenScreen: {
           ...kitchenScreen,
@@ -222,7 +222,7 @@ const ScreensConfig = (props: Props) => {
 
     const onChangeValue = (e) => {
       e.preventDefault();
-      onChange('pos', {
+      onChange("pos", {
         ...pos,
         kitchenScreen: {
           ...kitchenScreen,
@@ -232,15 +232,15 @@ const ScreensConfig = (props: Props) => {
     };
 
     const typeOptions = [
-      { label: 'Time', value: 'time' },
-      { label: 'Manual', value: 'manual' },
+      { label: "Time", value: "time" },
+      { label: "Manual", value: "manual" },
     ];
 
     const showOptions = [
-      { label: 'All saved orders', value: '' },
-      { label: 'Paid all orders', value: 'paid' },
+      { label: "All saved orders", value: "" },
+      { label: "Paid all orders", value: "paid" },
       // { label: 'Orders containing certain products', value: 'filtered' },
-      { label: 'Defined orders only', value: 'click' },
+      { label: "Defined orders only", value: "click" },
     ];
 
     return (
@@ -249,8 +249,8 @@ const ScreensConfig = (props: Props) => {
           <ControlLabel>show types</ControlLabel>
           <FormControl
             name="showType"
-            componentClass="select"
-            placeholder={__('Select type')}
+            componentclass="select"
+            placeholder={__("Select type")}
             defaultValue={kitchenScreen.showType}
             onChange={onChangeType}
             required={true}
@@ -267,8 +267,8 @@ const ScreensConfig = (props: Props) => {
           <ControlLabel>Status change /leave/</ControlLabel>
           <FormControl
             name="type"
-            componentClass="select"
-            placeholder={__('Select type')}
+            componentclass="select"
+            placeholder={__("Select type")}
             defaultValue={kitchenScreen.type}
             onChange={onChangeType}
             required={true}
@@ -283,7 +283,7 @@ const ScreensConfig = (props: Props) => {
 
           <br />
 
-          {kitchenScreen.type === 'time' ? (
+          {kitchenScreen.type === "time" ? (
             <>
               <ControlLabel>Time (minute)</ControlLabel>
               <FormControl
@@ -300,7 +300,7 @@ const ScreensConfig = (props: Props) => {
   };
 
   const onChangeSwitch = (e) => {
-    onChange('pos', {
+    onChange("pos", {
       ...pos,
       [e.target.id]: { ...pos[e.target.id], isActive: e.target.checked },
     });
@@ -311,12 +311,12 @@ const ScreensConfig = (props: Props) => {
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__('Main')}</h4>
+            <h4>{__("Main")}</h4>
             <BlockRow>
               <FormGroup>
                 <ControlLabel>Kitchen screen</ControlLabel>
                 <Toggle
-                  id={'kitchenScreen'}
+                  id={"kitchenScreen"}
                   checked={
                     pos && pos.kitchenScreen
                       ? pos.kitchenScreen.isActive
@@ -332,7 +332,7 @@ const ScreensConfig = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Waiting screen</ControlLabel>
                 <Toggle
-                  id={'waitingScreen'}
+                  id={"waitingScreen"}
                   checked={
                     pos && pos.waitingScreen
                       ? pos.waitingScreen.isActive

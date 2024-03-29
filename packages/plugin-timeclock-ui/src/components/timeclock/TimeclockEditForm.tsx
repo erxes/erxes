@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import { ITimeclock } from '../../../src/types';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
-import Button from '@erxes/ui/src/components/Button';
-import { Alert } from '@erxes/ui/src/utils';
+import React, { useState } from "react";
+import Modal from "react-bootstrap/Modal";
+import { ITimeclock } from "../../../src/types";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
+import Button from "@erxes/ui/src/components/Button";
+import { Alert } from "@erxes/ui/src/utils";
 import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
   FlexRowEven,
-} from '../../styles';
+} from "../../styles";
 
 type Props = {
   timeclock: any;
@@ -29,11 +29,11 @@ const TimeclockEditForm = ({
   const [show, setShow] = useState(showModal);
 
   const [shiftStartInsert, setShiftStartInsert] = useState(
-    timeclock.shiftStart,
+    timeclock.shiftStart
   );
 
   const [shiftEndInsert, setShiftEndInsert] = useState(
-    timeclock.shiftEnd || timeclock.shiftStart,
+    timeclock.shiftEnd || timeclock.shiftStart
   );
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive);
@@ -66,7 +66,7 @@ const TimeclockEditForm = ({
     let inDeviceType;
 
     if (shiftStartInsert !== timeclock.shiftStart) {
-      inDeviceType = 'edit';
+      inDeviceType = "edit";
     }
 
     if (!shiftEnded) {
@@ -79,7 +79,7 @@ const TimeclockEditForm = ({
     }
 
     if (shiftEndInsert !== timeclock.shiftEnd) {
-      outDeviceType = 'edit';
+      outDeviceType = "edit";
     }
 
     return {
@@ -99,7 +99,7 @@ const TimeclockEditForm = ({
       shiftEndInsert &&
       new Date(shiftEndInsert).getTime() < new Date(shiftStartInsert).getTime()
     ) {
-      Alert.error('Shift end can not be sooner than shift start');
+      Alert.error("Shift end can not be sooner than shift start");
       return false;
     }
 
@@ -112,7 +112,7 @@ const TimeclockEditForm = ({
         <Modal.Title>Edit Timeclock</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <FlexColumn style={{ gap: '20px' }}>
+        <FlexColumn style={{ gap: "20px" }}>
           <FlexRow>
             <ControlLabel>In Device</ControlLabel>
             <ControlLabel>Location</ControlLabel>
@@ -137,7 +137,7 @@ const TimeclockEditForm = ({
               <FormControl
                 name="shiftActive"
                 defaultChecked={shiftEnded}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={toggleShiftActive}
               />
               <div>Ended</div>
@@ -147,9 +147,9 @@ const TimeclockEditForm = ({
             <DateControl
               value={shiftStartInsert}
               name="startDate"
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-              timeFormat={'HH:mm'}
+              placeholder={"Starting date"}
+              dateFormat={"YYYY-MM-DD"}
+              timeFormat={"HH:mm"}
               onChange={onShiftStartInsertChange}
             />
           </CustomRangeContainer>
@@ -162,9 +162,9 @@ const TimeclockEditForm = ({
                 <DateControl
                   value={shiftEndInsert}
                   name="startDate"
-                  placeholder={'Starting date'}
-                  dateFormat={'YYYY-MM-DD'}
-                  timeFormat={'HH:mm'}
+                  placeholder={"Starting date"}
+                  dateFormat={"YYYY-MM-DD"}
+                  timeFormat={"HH:mm"}
                   onChange={onShiftEndInsertChange}
                 />
               </CustomRangeContainer>

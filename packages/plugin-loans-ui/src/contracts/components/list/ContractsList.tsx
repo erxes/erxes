@@ -1,32 +1,31 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useRef, useState } from 'react';
 // import { withRouter } from 'react-router-dom';
-import { ORGANIZATION_TYPE, menuContracts } from '../../../constants';
-import ClassificationForm from '../../containers/ClassificationForm';
-import ContractForm from '../../containers/ContractForm';
-import ContractRow from './ContractRow';
-import { ContractsTableWrapper } from '../../styles';
-import { IContract } from '../../types';
+import { ORGANIZATION_TYPE, menuContracts } from "../../../constants";
+import React, { useRef, useState } from "react";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import ClassificationForm from "../../containers/ClassificationForm";
+import ContractForm from "../../containers/ContractForm";
+import ContractRow from "./ContractRow";
+import { ContractsTableWrapper } from "../../styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IContract } from "../../types";
+import { IRouterProps } from "@erxes/ui/src/types";
 // import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import RightMenu from './RightMenu';
-import { __ } from 'coreui/utils';
-import { can } from '@erxes/ui/src/utils/core';
+import { IUser } from "@erxes/ui/src/auth/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import RightMenu from "./RightMenu";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 // import { router } from '@erxes/ui/src/utils';
-import withConsumer from '../../../withConsumer';
+import withConsumer from "../../../withConsumer";
 
 // import Sidebar from './Sidebar';
 
@@ -44,7 +43,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeContracts: (
     doc: { contractIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   // mergeContracts: () => void;
   history: any;
@@ -80,7 +79,7 @@ const ContractsList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(contracts, 'contracts');
+    toggleAll(contracts, "contracts");
   };
 
   const search = (e) => {
@@ -110,80 +109,85 @@ const ContractsList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const mainContent = (
     <ContractsTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'type'} label={__('Type')} />
+              <SortHandler sortField={"type"} label={__("Type")} />
             </th>
             <th>
               <SortHandler
-                sortField={'contractType'}
-                label={__('Contract Type')}
+                sortField={"contractType"}
+                label={__("Contract Type")}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'classification'}
-                label={__('Classification')}
+                sortField={"classification"}
+                label={__("Classification")}
               />
             </th>
             <th>
-              <SortHandler sortField={'number'} label={__('Contract Number')} />
+              <SortHandler sortField={"number"} label={__("Contract Number")} />
             </th>
             <th>
-              <SortHandler sortField={'firstName'} label={__('First Name')} />
+              <SortHandler sortField={"firstName"} label={__("First Name")} />
             </th>
             <th>
-              <SortHandler sortField={'code'} label={__('Code')} />
+              <SortHandler sortField={"code"} label={__("Code")} />
             </th>
             <th>
               <SortHandler
-                sortField={'loanBalanceAmount'}
-                label={__('Loan Balance')}
+                sortField={"loanBalanceAmount"}
+                label={__("Loan Balance")}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'leaseAmount'}
-                label={__('leaseAmount')}
+                sortField={"leaseAmount"}
+                label={__("leaseAmount")}
               />
             </th>
 
             <th>
-              <SortHandler sortField={'tenor'} label={__('Tenor')} />
+              <SortHandler sortField={"tenor"} label={__("Tenor")} />
             </th>
             <th>
               <SortHandler
-                sortField={'interestRate'}
-                label={__('Interest Rate')}
+                sortField={"interestRate"}
+                label={__("Interest Rate")}
               />
             </th>
             <th>
-              <SortHandler sortField={'repayment'} label={__('Repayment')} />
+              <SortHandler sortField={"repayment"} label={__("Repayment")} />
             </th>
 
             <th>
               <SortHandler
-                sortField={'scheduleDays'}
-                label={__('Schedule Day')}
+                sortField={"scheduleDays"}
+                label={__("Schedule Day")}
               />
             </th>
             <th>
-              <SortHandler sortField={'tenor'} label={__('Status')} />
+              <SortHandler sortField={"tenor"} label={__("Status")} />
             </th>
             <th />
           </tr>
@@ -205,7 +209,7 @@ const ContractsList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add contract')}
+      {__("Add contract")}
     </Button>
   );
 
@@ -228,10 +232,10 @@ const ContractsList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         <ModalTrigger
-          title={`${__('Change classification')}`}
+          title={`${__("Change classification")}`}
           trigger={
             <Button btnStyle="warning" icon="cancel-1">
-              {__('Change classification')}
+              {__("Change classification")}
             </Button>
           }
           autoOpenKey="showTransactionModal"
@@ -241,13 +245,13 @@ const ContractsList = (props: IProps) => {
         />
         {currentUser?.configs?.loansConfig?.organizationType ===
           ORGANIZATION_TYPE.ENTITY &&
-          can('contractsRemove', currentUser) && (
+          can("contractsRemove", currentUser) && (
             <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-              {__('Delete')}
+              {__("Delete")}
             </Button>
           )}
         {alerts.map((mur) => (
-          <Button onClick={() => onSelect(mur.filter, 'ids')}>
+          <Button onClick={() => onSelect(mur.filter, "ids")}>
             {mur.name}:{mur.count}
           </Button>
         ))}
@@ -257,7 +261,7 @@ const ContractsList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         {alerts.map((mur) => (
-          <Button onClick={() => onSelect(mur.filter, 'ids')}>
+          <Button onClick={() => onSelect(mur.filter, "ids")}>
             {mur.name}:{mur.count}
           </Button>
         ))}
@@ -281,15 +285,15 @@ const ContractsList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
         onFocus={moveCursorAtTheEnd}
       />
-      {can('contractsAdd', currentUser) && (
+      {can("contractsAdd", currentUser) && (
         <ModalTrigger
-          title={`${__('New contract')}`}
+          title={`${__("New contract")}`}
           trigger={addTrigger}
           autoOpenKey="showContractModal"
           size="xl"
@@ -312,7 +316,7 @@ const ContractsList = (props: IProps) => {
           title={__(`Contracts`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

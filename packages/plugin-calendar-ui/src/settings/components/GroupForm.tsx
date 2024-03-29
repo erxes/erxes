@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
-import { IBoard, IGroup } from '../types';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import Select from "react-select-plus";
+import { IBoard, IGroup } from "../types";
 
 type Props = {
   show: boolean;
@@ -32,17 +32,17 @@ class GroupForm extends React.Component<Props, State> {
     const group = this.props.group || ({} as IGroup);
 
     this.state = {
-      boardId: group.boardId || '',
+      boardId: group.boardId || "",
       isPrivate: group.isPrivate || false,
-      selectedMemberIds: group ? group.memberIds || [] : []
+      selectedMemberIds: group ? group.memberIds || [] : [],
     };
   }
 
-  onChangeMembers = items => {
+  onChangeMembers = (items) => {
     this.setState({ selectedMemberIds: items });
   };
 
-  onChangeIsPrivate = e => {
+  onChangeIsPrivate = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ isPrivate: isChecked });
   };
@@ -64,27 +64,27 @@ class GroupForm extends React.Component<Props, State> {
       ...finalValues,
       memberIds: selectedMemberIds,
       isPrivate,
-      boardId
+      boardId,
     };
   };
 
-  renderOptions = array => {
-    return array.map(obj => ({
+  renderOptions = (array) => {
+    return array.map((obj) => ({
       value: obj._id,
-      label: obj.name
+      label: obj.name,
     }));
   };
 
   renderBoards() {
     const { boards } = this.props;
 
-    const onChange = item => this.setState({ boardId: item.value });
+    const onChange = (item) => this.setState({ boardId: item.value });
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
-          placeholder={__('Choose a board')}
+          placeholder={__("Choose a board")}
           value={this.state.boardId}
           options={this.renderOptions(boards)}
           onChange={onChange}
@@ -119,7 +119,7 @@ class GroupForm extends React.Component<Props, State> {
     const { group, renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
     const object = group || ({} as IGroup);
-    const groupName = 'group';
+    const groupName = "group";
 
     return (
       <div id="manage-group-modal">
@@ -150,7 +150,7 @@ class GroupForm extends React.Component<Props, State> {
               {...formProps}
               name="isPrivate"
               defaultChecked={this.state.isPrivate}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={this.onChangeIsPrivate}
             />
           </FormGroup>
@@ -173,7 +173,7 @@ class GroupForm extends React.Component<Props, State> {
               isSubmitted,
               callback: closeModal,
               object: group,
-              confirmationUpdate: true
+              confirmationUpdate: true,
             })}
           </Modal.Footer>
         </Modal.Body>

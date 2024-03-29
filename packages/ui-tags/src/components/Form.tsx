@@ -153,7 +153,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
             name="type"
             defaultValue={object.type || tagType}
             required={true}
-            componentClass="select"
+            componentclass="select"
           >
             {types.map((type: any, index: number) => (
               <option value={type.contentType} key={index}>
@@ -170,7 +170,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
             <FormControl
               {...formProps}
               name="parentId"
-              componentClass="select"
+              componentclass="select"
               defaultValue={object.parentId}
             >
               <option value="" />

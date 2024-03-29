@@ -1,9 +1,9 @@
-import Form from '../../containers/label/LabelsForm';
-import React, { useState, useRef } from 'react';
-import Sidebar from './Sidebar';
-import SidebarWrapper from '../Sidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import Form from "../../containers/label/LabelsForm";
+import React, { useState, useRef } from "react";
+import Sidebar from "./Sidebar";
+import SidebarWrapper from "../Sidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
@@ -11,15 +11,15 @@ import {
   Icon,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { ISPLabel } from '../../types';
-import Row from './LabelsRow';
+} from "@erxes/ui/src/components";
+import { ISPLabel } from "../../types";
+import Row from "./LabelsRow";
 import {
   FlexItem,
   FlexRow,
   InputBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 
 type Props = {
   spLabels: ISPLabel[];
@@ -40,8 +40,8 @@ type Props = {
 };
 
 const breadcrumb = [
-  { title: __('Settings'), link: '/settings' },
-  { title: __('Sales Plans Labels') },
+  { title: __("Settings"), link: "/settings" },
+  { title: __("Sales Plans Labels") },
 ];
 
 const List = (props: Props) => {
@@ -60,7 +60,7 @@ const List = (props: Props) => {
     emptyBulk,
   } = props;
 
-  const [search, setSearch] = React.useState(searchValue || '');
+  const [search, setSearch] = React.useState(searchValue || "");
   const timerRef = useRef<number | null>(null);
 
   const handleSearch = (e) => {
@@ -73,14 +73,14 @@ const List = (props: Props) => {
 
     timerRef.current = window.setTimeout(() => {
       router.setParams(history, { searchValue: value });
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
     }, 500);
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -141,7 +141,7 @@ const List = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={search}
               autoFocus={true}
@@ -160,7 +160,7 @@ const List = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__('Sales Plans Labels')}</Title>;
+    const leftActionBar = <Title>{__("Sales Plans Labels")}</Title>;
 
     return <Wrapper.ActionBar left={leftActionBar} right={actionBarRight()} />;
   };
@@ -173,14 +173,14 @@ const List = (props: Props) => {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={() => toggleAll(spLabels, 'spLabels')}
+                componentclass="checkbox"
+                onChange={() => toggleAll(spLabels, "spLabels")}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Effect')}</th>
-            <th>{__('Color')}</th>
-            <th>{__('Status')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Effect")}</th>
+            <th>{__("Color")}</th>
+            <th>{__("Status")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -192,7 +192,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Sales Plans Labels')}
+          title={__("Sales Plans Labels")}
           breadcrumb={breadcrumb}
         />
       }

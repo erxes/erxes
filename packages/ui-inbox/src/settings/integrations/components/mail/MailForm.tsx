@@ -599,7 +599,7 @@ class MailForm extends React.Component<Props, State> {
         <label>Cc:</label>
         <FormControl
           autoFocus={true}
-          componentClass="textarea"
+          componentclass="textarea"
           onChange={this.onSelectChange.bind(this, "cc")}
           name="cc"
           value={cc}
@@ -621,7 +621,7 @@ class MailForm extends React.Component<Props, State> {
         <FormControl
           autoFocus={true}
           onChange={this.onSelectChange.bind(this, "bcc")}
-          componentClass="textarea"
+          componentclass="textarea"
           name="bcc"
           value={bcc}
         />

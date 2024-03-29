@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import React, { useState } from "react";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { IReserveRem } from '../types';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import Form from '../containers/Form';
-import { SUBMENU } from '../../constants';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+} from "@erxes/ui/src/components";
+import { IReserveRem } from "../types";
+import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
+import Form from "../containers/Form";
+import { SUBMENU } from "../../constants";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 
 type Props = {
   reserveRems: IReserveRem[];
@@ -33,7 +33,7 @@ type Props = {
 
 const ReserveRems: React.FC<Props> = (props) => {
   let timer;
-  const [searchValue, setSearchValue] = useState(props.searchValue || '');
+  const [searchValue, setSearchValue] = useState(props.searchValue || "");
   const {
     toggleAll,
     reserveRems,
@@ -58,7 +58,7 @@ const ReserveRems: React.FC<Props> = (props) => {
     setSearchValue(searchValue);
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -66,12 +66,12 @@ const ReserveRems: React.FC<Props> = (props) => {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const onChange = () => {
-    toggleAll(reserveRems, 'reserveRems');
+    toggleAll(reserveRems, "reserveRems");
   };
 
   const renderRow = () => {
@@ -134,14 +134,14 @@ const ReserveRems: React.FC<Props> = (props) => {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={search}
           value={searchValue}
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
-          size={'lg'}
+          size={"lg"}
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
@@ -158,16 +158,16 @@ const ReserveRems: React.FC<Props> = (props) => {
           <th style={{ width: 60 }}>
             <FormControl
               checked={isAllSelected}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           </th>
-          <th>{__('Branch')}</th>
-          <th>{__('Department')}</th>
-          <th>{__('Product')}</th>
-          <th>{__('Uom')}</th>
-          <th>{__('Remainder')}</th>
-          <th>{__('')}</th>
+          <th>{__("Branch")}</th>
+          <th>{__("Department")}</th>
+          <th>{__("Product")}</th>
+          <th>{__("Uom")}</th>
+          <th>{__("Remainder")}</th>
+          <th>{__("")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -177,11 +177,11 @@ const ReserveRems: React.FC<Props> = (props) => {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Sales Year plans')} submenu={SUBMENU} />
+        <Wrapper.Header title={__("Sales Year plans")} submenu={SUBMENU} />
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Reserve Remainders')}</Title>}
+          left={<Title>{__("Reserve Remainders")}</Title>}
           right={actionBarRight()}
         />
       }

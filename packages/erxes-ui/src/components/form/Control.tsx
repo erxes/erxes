@@ -6,13 +6,13 @@ import {
   Radio,
   Select,
   SelectWrapper,
-} from './styles';
+} from "./styles";
 
-import { Column } from '@erxes/ui/src/styles/main';
-import NumberInput from './NumberInput';
-import ProgressBar from '../ProgressBar';
-import React from 'react';
-import Textarea from './Textarea';
+import { Column } from "@erxes/ui/src/styles/main";
+import NumberInput from "./NumberInput";
+import ProgressBar from "../ProgressBar";
+import React from "react";
+import Textarea from "./Textarea";
 
 type Props = {
   children?: React.ReactNode;
@@ -35,7 +35,7 @@ type Props = {
   autoFocus?: boolean;
   autoComplete?: string;
   onFocus?: (e: React.FormEvent<HTMLElement>) => void;
-  componentClass?: string;
+  componentclass?: string;
   min?: number;
   max?: number;
   rows?: number;
@@ -57,7 +57,7 @@ const renderElement = (Element, attributes, type, child) => {
     <FormLabel key={attributes.key ? attributes.key : null}>
       <Element {...attributes} type={type} />
       <span>
-        {child && '\u00a0\u00a0'}
+        {child && "\u00a0\u00a0"}
         {child}
       </span>
     </FormLabel>
@@ -66,7 +66,7 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component<Props> {
   static defaultProps = {
-    componentClass: 'input',
+    componentclass: "input",
     required: false,
     defaultChecked: false,
     disabled: false,
@@ -83,8 +83,8 @@ class FormControl extends React.Component<Props> {
   render() {
     const props = this.props;
     const childnode = props.children;
-    const elementType = props.componentClass;
-    const errorMessage = props.errors && props.errors[props.name || ''];
+    const elementType = props.componentclass;
+    const errorMessage = props.errors && props.errors[props.name || ""];
 
     // cancel custom browser default form validation error
     const onChange = (e) => {
@@ -101,7 +101,7 @@ class FormControl extends React.Component<Props> {
       onBlur: props.onBlur,
       value: props.value,
       defaultValue: props.defaultValue,
-      [props.defaultChecked ? 'defaultChecked' : 'checked']:
+      [props.defaultChecked ? "defaultChecked" : "checked"]:
         props.defaultChecked ? props.defaultChecked : props.checked,
       placeholder: props.placeholder,
       $hasError: errorMessage ? true : false,
@@ -122,7 +122,7 @@ class FormControl extends React.Component<Props> {
       align: props.align,
     };
 
-    if (elementType === 'select') {
+    if (elementType === "select") {
       if (props.options) {
         return (
           <Column>
@@ -132,10 +132,10 @@ class FormControl extends React.Component<Props> {
                   return (
                     <option
                       key={index}
-                      value={option.value || ''}
+                      value={option.value || ""}
                       disabled={option.disabled}
                     >
-                      {option.label || ''}
+                      {option.label || ""}
                     </option>
                   );
                 })}
@@ -156,14 +156,14 @@ class FormControl extends React.Component<Props> {
       );
     }
 
-    if (elementType === 'radio') {
+    if (elementType === "radio") {
       if (props.options) {
         return props.options.map((option, index) => {
           return renderElement(
             Radio,
             { key: index, ...attributes, ...option },
             elementType,
-            option.childnode,
+            option.childnode
           );
         });
       }
@@ -171,7 +171,7 @@ class FormControl extends React.Component<Props> {
       return renderElement(Radio, attributes, elementType, childnode);
     }
 
-    if (elementType === 'poll') {
+    if (elementType === "poll") {
       const options = props.options;
       if (options) {
         const count = options.length;
@@ -194,11 +194,11 @@ class FormControl extends React.Component<Props> {
       return null;
     }
 
-    if (elementType === 'checkbox') {
+    if (elementType === "checkbox") {
       return renderElement(Checkbox, attributes, elementType, childnode);
     }
 
-    if (elementType === 'textarea') {
+    if (elementType === "textarea") {
       return (
         <Column>
           <Textarea {...props} hasError={errorMessage} />
@@ -207,7 +207,7 @@ class FormControl extends React.Component<Props> {
       );
     }
 
-    if (props.type === 'number' && props.useNumberFormat) {
+    if (props.type === "number" && props.useNumberFormat) {
       return (
         <Column>
           <NumberInput {...attributes} fixed={props.fixed} />

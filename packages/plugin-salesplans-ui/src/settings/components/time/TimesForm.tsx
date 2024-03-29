@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import { __ } from '@erxes/ui/src/utils';
+import React, { useState, useEffect } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import {
   ITimeframe,
   ITimeProportion,
   ITimeProportionParams,
-} from '../../types';
+} from "../../types";
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
+} from "@erxes/ui/src/styles/eindex";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 type Props = {
   timeframes: ITimeframe[];
@@ -34,7 +34,7 @@ const Form = (props: Props) => {
   const [timesParams, setTimesParams] = useState<ITimeProportionParams>({
     percents: timeframes.map((tf) => ({
       _id: String(Math.random()),
-      timeId: tf._id || '',
+      timeId: tf._id || "",
       percent: tf.percent || 0,
     })),
   });
@@ -44,7 +44,7 @@ const Form = (props: Props) => {
       ? timeframes
           .map((tf) => tf?.percent || 0)
           .reduce((sum, per) => sum + per, 0)
-      : 0,
+      : 0
   );
 
   const generateDoc = (values: { _id?: string }) => {
@@ -77,7 +77,7 @@ const Form = (props: Props) => {
 
       setTimesParams((prevTimesParams) => {
         const updatedPercents = (prevTimesParams.percents || []).map((p) =>
-          p.timeId === percent.timeId ? { ...p, percent: value } : p,
+          p.timeId === percent.timeId ? { ...p, percent: value } : p
         );
 
         const newTimesParams = {
@@ -89,7 +89,7 @@ const Form = (props: Props) => {
         setSumPercent(
           pers && pers.length
             ? pers.map((tf) => tf.percent).reduce((sum, per) => sum + per)
-            : 0,
+            : 0
         );
 
         return newTimesParams;
@@ -110,7 +110,7 @@ const Form = (props: Props) => {
         <FlexItem>
           <FormControl
             type="number"
-            componentClass="number"
+            componentclass="number"
             min={0}
             max={100}
             id={`${percent._id}`}
@@ -160,8 +160,8 @@ const Form = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="branchId"
-            initialValue={''}
-            onSelect={(branchIds) => onSelectChange('branchIds', branchIds)}
+            initialValue={""}
+            onSelect={(branchIds) => onSelectChange("branchIds", branchIds)}
             multi={false}
           />
         </FormGroup>
@@ -170,9 +170,9 @@ const Form = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="departmentId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(departmentIds) =>
-              onSelectChange('departmentIds', departmentIds)
+              onSelectChange("departmentIds", departmentIds)
             }
             multi={false}
           />
@@ -182,9 +182,9 @@ const Form = (props: Props) => {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(categoryId) =>
-              onSelectChange('productCategoryId', categoryId)
+              onSelectChange("productCategoryId", categoryId)
             }
             multi={false}
           />

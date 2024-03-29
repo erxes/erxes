@@ -169,8 +169,10 @@ class PermissionForm extends React.Component<Props, State> {
               <Select
                 placeholder={__("Choose module")}
                 options={generateModuleParams(modules)}
-                value={generateModuleParams(modules).find(o=>o.value ===selectedModule)}
-                onChange={this.changeModule}
+                value={generateModuleParams(modules).find(
+                  (o) => o.value === selectedModule
+                )}
+                onChange={() => this.changeModule}
               />
             </FormGroup>
             <Divider>{__("Then")}</Divider>
@@ -178,7 +180,7 @@ class PermissionForm extends React.Component<Props, State> {
               <ControlLabel required={true}>Choose the actions</ControlLabel>
               <Select
                 placeholder={__("Choose actions")}
-                options={filterActions(actions, selectedModule)}
+                options={filterActions(actions, selectedModule) || []}
                 value={selectedActions}
                 isDisabled={!this.isModuleSelected()}
                 onChange={this.select.bind(this, "selectedActions")}
@@ -202,7 +204,7 @@ class PermissionForm extends React.Component<Props, State> {
               <ControlLabel required={true}>Choose the groups</ControlLabel>
               <Select
                 placeholder={__("Choose groups")}
-                options={generateListParams(groups)}
+                options={generateListParams(groups) || []}
                 value={selectedGroups}
                 onChange={this.select.bind(this, "selectedGroups")}
                 isMulti={true}
@@ -231,7 +233,7 @@ class PermissionForm extends React.Component<Props, State> {
               <ControlLabel>Allow</ControlLabel>
 
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 defaultChecked={false}
                 id="allowed"
                 onChange={this.onChange}

@@ -1,9 +1,9 @@
-import { Button, FormControl, ModalTrigger, Tip } from '@erxes/ui/src';
-import moment from 'moment';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IMovementType } from '../../../common/types';
-import Form from '../containers/Form';
+import { Button, FormControl, ModalTrigger, Tip } from "@erxes/ui/src";
+import moment from "moment";
+import React from "react";
+import { Link } from "react-router-dom";
+import { IMovementType } from "../../../common/types";
+import Form from "../containers/Form";
 
 type Props = {
   movement: IMovementType;
@@ -12,7 +12,7 @@ type Props = {
   toggleBulk?: (
     movement: IMovementType,
     movementId: string,
-    isChecked?: boolean,
+    isChecked?: boolean
   ) => void;
   queryParams: any;
 };
@@ -32,7 +32,7 @@ const Row = (props: Props) => {
 
   const onChange = (e) => {
     if (toggleBulk) {
-      toggleBulk(movement, _id || '', e.target.checked);
+      toggleBulk(movement, _id || "", e.target.checked);
     }
   };
 
@@ -41,19 +41,19 @@ const Row = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>
-        <Link to={user ? `/settings/team/details/${user._id}` : '/'}>
+        <Link to={user ? `/settings/team/details/${user._id}` : "/"}>
           {user?.details?.fullName}
         </Link>
       </td>
-      <td>{moment(movedAt || '').format('YYYY-MM-DD HH:mm')}</td>
+      <td>{moment(movedAt || "").format("YYYY-MM-DD HH:mm")}</td>
       <td>{description}</td>
-      <td>{moment(createdAt || '').format('YYYY-MM-DD HH:mm')}</td>
-      <td>{moment(modifiedAt || '').format('YYYY-MM-DD HH:mm')}</td>
+      <td>{moment(createdAt || "").format("YYYY-MM-DD HH:mm")}</td>
+      <td>{moment(modifiedAt || "").format("YYYY-MM-DD HH:mm")}</td>
       <td>
         <Tip text="see movement assets">
           <Button btnStyle="link" icon="list-2" onClick={handleItems} />

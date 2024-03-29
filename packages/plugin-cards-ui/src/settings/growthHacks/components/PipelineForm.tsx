@@ -1,11 +1,16 @@
 import { ColorPick, ColorPicker, Flex } from "@erxes/ui/src/styles/main";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
 import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
 import { IButtonMutateProps, IFormProps, IOption } from "@erxes/ui/src/types";
 
 import BoardNumberConfigs from "../../boards/components/numberConfig/BoardNumberConfigs";
 import { Box } from "@erxes/ui-contacts/src/customers/styles";
 import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
 import { COLORS } from "@erxes/ui/src/constants/colors";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
@@ -14,6 +19,8 @@ import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
 import Select from "react-select";
@@ -26,13 +33,6 @@ import { colors } from "@erxes/ui/src/styles";
 import { gql } from "@apollo/client";
 import { metricOptions } from "../constants";
 import { queries } from "../graphql";
-import { Dialog, Transition } from "@headlessui/react";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import {
-  DialogContent,
-  DialogWrapper,
-  ModalOverlay,
-} from "@erxes/ui/src/styles/main";
 
 type Props = {
   type: string;
@@ -375,7 +375,7 @@ class PipelineForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     name="visibility"
-                    componentClass="select"
+                    componentclass="select"
                     value={visibility}
                     onChange={this.onChangeVisibility}
                   >

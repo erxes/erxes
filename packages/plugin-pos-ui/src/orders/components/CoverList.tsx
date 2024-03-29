@@ -6,17 +6,17 @@ import {
   Table,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+} from "@erxes/ui/src";
+import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
 
 // import { withRouter } from 'react-router-dom';
-import CoverSidebar from './CoverSidebar';
-import { ICover } from '../types';
-import React from 'react';
-import Row from './CoverRow';
-import { TableWrapper } from '../../styles';
-import { menuPos } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
+import CoverSidebar from "./CoverSidebar";
+import { ICover } from "../types";
+import React from "react";
+import Row from "./CoverRow";
+import { TableWrapper } from "../../styles";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { menuPos } from "../../constants";
 
 type Props = {
   covers: ICover[];
@@ -40,33 +40,33 @@ const CoverList = (props: Props) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const renderActionBar = () => {
-    return <Wrapper.ActionBar left={<Title>{__('Pos Covers')}</Title>} />;
+    return <Wrapper.ActionBar left={<Title>{__("Pos Covers")}</Title>} />;
   };
 
   const renderContent = () => {
     return (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={'beginDate'} label={__('Begin Date')} />
+                <SortHandler sortField={"beginDate"} label={__("Begin Date")} />
               </th>
               <th>
-                <SortHandler sortField={'endDate'} label={__('End Date')} />
+                <SortHandler sortField={"endDate"} label={__("End Date")} />
               </th>
               <th>
-                <SortHandler sortField={'posToken'} label={__('POS')} />
+                <SortHandler sortField={"posToken"} label={__("POS")} />
               </th>
               <th>
-                <SortHandler sortField={'user'} label={__('User')} />
+                <SortHandler sortField={"user"} label={__("User")} />
               </th>
-              <th>{__('Actions')}</th>
+              <th>{__("Actions")}</th>
             </tr>
           </thead>
           <tbody id="covers">

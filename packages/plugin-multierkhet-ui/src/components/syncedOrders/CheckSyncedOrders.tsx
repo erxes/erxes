@@ -1,13 +1,13 @@
-import Button from '@erxes/ui/src/components/Button';
-import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React, { useState } from 'react';
-import Row from './CheckSyncedOrdersRow';
-import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
-import { Title } from '@erxes/ui/src/styles/main';
-import { menuMultierkhet } from '../../constants';
+import Button from "@erxes/ui/src/components/Button";
+import CheckSyncedOrdersSidebar from "./CheckSyncedOrdersSidebar";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import React, { useState } from "react";
+import Row from "./CheckSyncedOrdersRow";
+import { __, DataWithLoader, Pagination, Table } from "@erxes/ui/src";
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { Title } from "@erxes/ui/src/styles/main";
+import { menuMultierkhet } from "../../constants";
 
 type Props = {
   totalCount: number;
@@ -20,7 +20,7 @@ type Props = {
   emptyBulk: () => void;
   checkSynced: (
     doc: { orderIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
@@ -65,7 +65,7 @@ const CheckSyncedOrders = (props: Props) => {
   };
 
   const onChange = () => {
-    toggleAll(orders, 'orders');
+    toggleAll(orders, "orders");
   };
 
   const checkSynced = async (_orders: any) => {
@@ -79,16 +79,16 @@ const CheckSyncedOrders = (props: Props) => {
   };
 
   const tablehead = [
-    'Number',
-    'Total Amount',
-    'Created At',
-    'Paid At',
-    'Synced',
-    'Brand',
-    'Synced Date',
-    'Synced bill Number',
-    'Synced customer',
-    'Sync Actions',
+    "Number",
+    "Total Amount",
+    "Created At",
+    "Paid At",
+    "Synced",
+    "Brand",
+    "Synced Date",
+    "Synced bill Number",
+    "Synced customer",
+    "Sync Actions",
   ];
   const Content = (
     <Table>
@@ -97,11 +97,11 @@ const CheckSyncedOrders = (props: Props) => {
           <th style={{ width: 60 }}>
             <FormControl
               checked={isAllSelected}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           </th>
-          {tablehead?.map((p) => <th key={p}>{p || ''}</th>)}
+          {tablehead?.map((p) => <th key={p}>{p || ""}</th>)}
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>

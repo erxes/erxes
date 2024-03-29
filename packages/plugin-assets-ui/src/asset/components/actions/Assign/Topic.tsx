@@ -1,10 +1,10 @@
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { IAsset } from '../../../../common/types';
-import { KbCategoriesContainer, KbTopics } from '../../../../style';
-import { ControlLabel, EmptyState, FormControl } from '@erxes/ui/src';
-import { ContainerBox } from '../../../../style';
-import Category from './Category';
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import { IAsset } from "../../../../common/types";
+import { KbCategoriesContainer, KbTopics } from "../../../../style";
+import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
+import { ContainerBox } from "../../../../style";
+import Category from "./Category";
 
 type Props = {
   objects?: IAsset[];
@@ -76,7 +76,7 @@ const Topic = (props: Props) => {
   const handleAllCategoriesSelect = () => {
     if (articleIds.every((articleId) => selectedArticles.includes(articleId))) {
       const updatedSelectedArticleIds = selectedArticles.filter(
-        (articleId) => !articleIds.includes(articleId),
+        (articleId) => !articleIds.includes(articleId)
       );
       return setSelectedArticles(updatedSelectedArticleIds);
     }
@@ -89,7 +89,7 @@ const Topic = (props: Props) => {
         <ContainerBox spaceBetween={true} align="center">
           <ContainerBox gap={5} align="center">
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={() => handleAllCategoriesSelect()}
               checked={checked}
             />

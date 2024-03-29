@@ -1,16 +1,16 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { Icon, Tip } from '@erxes/ui/src/components';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import { Icon, Tip } from "@erxes/ui/src/components";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
 
-import React from 'react';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { SidebarFilters } from '../../common/styles';
+import React from "react";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { SidebarFilters } from "../../common/styles";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -24,7 +24,7 @@ class FilterCampaign extends React.Component<IProps> {
     router.setParams(this.props.history, {
       ownerId: null,
       ownerType: null,
-      status: null
+      status: null,
     });
   };
 
@@ -38,17 +38,17 @@ class FilterCampaign extends React.Component<IProps> {
       <Sidebar>
         <Section maxHeight={188} collapsible={false}>
           <Section.Title>
-            {__('Addition filters')}
+            {__("Addition filters")}
             <Section.QuickButtons>
-              {(router.getParam(this.props.history, 'status') ||
-                router.getParam(this.props.history, 'ownerType') ||
-                router.getParam(this.props.history, 'ownerID')) && (
+              {(router.getParam(this.props.history, "status") ||
+                router.getParam(this.props.history, "ownerType") ||
+                router.getParam(this.props.history, "ownerID")) && (
                 <a
                   href="#cancel"
                   tabIndex={0}
                   onClick={this.clearCategoryFilter}
                 >
-                  <Tip text={__('Clear filter')} placement="bottom">
+                  <Tip text={__("Clear filter")} placement="bottom">
                     <Icon icon="cancel-1" />
                   </Tip>
                 </a>
@@ -60,27 +60,27 @@ class FilterCampaign extends React.Component<IProps> {
               <ControlLabel>Status</ControlLabel>
               <FormControl
                 name="status"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={queryParams.status}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.setFilter(
-                    'status',
+                    "status",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
-                <option key={''} value={''}>
-                  {' '}
-                  {'All status'}{' '}
+                <option key={""} value={""}>
+                  {" "}
+                  {"All status"}{" "}
                 </option>
-                <option key={'new'} value={'new'}>
-                  {' '}
-                  {'new'}{' '}
+                <option key={"new"} value={"new"}>
+                  {" "}
+                  {"new"}{" "}
                 </option>
-                <option key={'used'} value={'used'}>
-                  {' '}
-                  {'used'}{' '}
+                <option key={"used"} value={"used"}>
+                  {" "}
+                  {"used"}{" "}
                 </option>
               </FormControl>
             </FormGroup>
@@ -88,31 +88,31 @@ class FilterCampaign extends React.Component<IProps> {
               <ControlLabel>Owner type</ControlLabel>
               <FormControl
                 name="ownerType"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={queryParams.ownerType}
                 required={false}
-                onChange={e =>
+                onChange={(e) =>
                   this.setFilter(
-                    'ownerType',
+                    "ownerType",
                     (e.currentTarget as HTMLInputElement).value
                   )
                 }
               >
-                <option key={''} value={''}>
-                  {' '}
-                  {'All types'}{' '}
+                <option key={""} value={""}>
+                  {" "}
+                  {"All types"}{" "}
                 </option>
-                <option key={'customer'} value={'customer'}>
-                  {' '}
-                  {'customer'}{' '}
+                <option key={"customer"} value={"customer"}>
+                  {" "}
+                  {"customer"}{" "}
                 </option>
-                <option key={'user'} value={'user'}>
-                  {' '}
-                  {'user'}{' '}
+                <option key={"user"} value={"user"}>
+                  {" "}
+                  {"user"}{" "}
                 </option>
-                <option key={'company'} value={'company'}>
-                  {' '}
-                  {'company'}{' '}
+                <option key={"company"} value={"company"}>
+                  {" "}
+                  {"company"}{" "}
                 </option>
               </FormControl>
             </FormGroup>
@@ -120,28 +120,28 @@ class FilterCampaign extends React.Component<IProps> {
               <ControlLabel>Customer</ControlLabel>
               <SelectCustomers
                 customOption={{
-                  value: '',
-                  label: 'All customers'
+                  value: "",
+                  label: "All customers",
                 }}
                 label="Customer"
                 name="ownerId"
                 multi={false}
                 initialValue={queryParams.ownerId}
-                onSelect={customerId => this.setFilter('ownerId', customerId)}
+                onSelect={(customerId) => this.setFilter("ownerId", customerId)}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Team member</ControlLabel>
               <SelectTeamMembers
                 customOption={{
-                  value: '',
-                  label: 'All team members'
+                  value: "",
+                  label: "All team members",
                 }}
                 label="Team member"
                 name="ownerId"
                 multi={false}
                 initialValue={queryParams.ownerId}
-                onSelect={userId => this.setFilter('ownerId', userId)}
+                onSelect={(userId) => this.setFilter("ownerId", userId)}
               />
             </FormGroup>
           </SidebarFilters>

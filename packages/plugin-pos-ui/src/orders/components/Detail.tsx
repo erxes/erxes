@@ -1,21 +1,23 @@
-import * as dayjs from 'dayjs';
-import { Link } from 'react-router-dom';
-import _ from 'lodash';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React, { useState } from 'react';
+import * as dayjs from "dayjs";
+
+import { DetailRow, FinanceAmount, FlexRow } from "../../styles";
 import {
-  __,
   FieldStyle,
   SidebarCounter,
   SidebarList,
   Table,
-} from '@erxes/ui/src';
-import { Alert } from '@erxes/ui/src/utils';
-import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
-import { IOrderDet } from '../types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IPos } from '../../types';
+  __,
+} from "@erxes/ui/src";
+import React, { useState } from "react";
+
+import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IOrderDet } from "../types";
+import { IPos } from "../../types";
+import { Link } from "react-router-dom";
+import _ from "lodash";
 
 type Props = {
   order: IOrderDet;
@@ -23,7 +25,7 @@ type Props = {
     _id: string,
     cashAmount: number,
     mobileAmount: number,
-    paidAmounts: any[],
+    paidAmounts: any[]
   ) => void;
   pos?: IPos;
 };
@@ -36,7 +38,7 @@ const Detail = (props: Props) => {
     const paidKeys = amounts.map((pa) => pa.type);
 
     for (const emptyType of (pos?.paymentTypes || []).filter(
-      (pt) => !paidKeys.includes(pt.type),
+      (pt) => !paidKeys.includes(pt.type)
     )) {
       amounts.push({
         _id: Math.random().toString(),
@@ -64,7 +66,7 @@ const Detail = (props: Props) => {
       <li>
         <FlexRow>
           <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || '-'}</SidebarCounter>
+          <SidebarCounter>{value || "-"}</SidebarCounter>
         </FlexRow>
       </li>
     );
@@ -92,7 +94,7 @@ const Detail = (props: Props) => {
     setState((prevState) => ({
       ...prevState,
       paidAmounts: prevState.paidAmounts.map((pa) =>
-        pa._id === name ? { ...pa, amount: value } : pa,
+        pa._id === name ? { ...pa, amount: value } : pa
       ),
     }));
   };
@@ -109,10 +111,10 @@ const Detail = (props: Props) => {
                 `${
                   (
                     (paymentTypes || []).find(
-                      (pt) => pt.type === paidAmount.type,
+                      (pt) => pt.type === paidAmount.type
                     ) || {}
                   ).title || paidAmount.type
-                }`,
+                }`
               )}
               :
             </FieldStyle>
@@ -134,7 +136,7 @@ const Detail = (props: Props) => {
       return <></>;
     }
 
-    return renderRow('Delivery info', deliveryInfo.description);
+    return renderRow("Delivery info", deliveryInfo.description);
   };
 
   const save = () => {
@@ -146,11 +148,11 @@ const Detail = (props: Props) => {
         mobileAmount +
         (paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
-          0,
+          0
         ) !==
       totalAmount
     ) {
-      Alert.error('Is not balanced');
+      Alert.error("Is not balanced");
       return;
     }
 
@@ -159,7 +161,7 @@ const Detail = (props: Props) => {
         order._id,
         cashAmount,
         mobileAmount,
-        (paidAmounts || []).filter((pa) => Number(pa.amount) !== 0),
+        (paidAmounts || []).filter((pa) => Number(pa.amount) !== 0)
       );
   };
 
@@ -167,7 +169,7 @@ const Detail = (props: Props) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
-    let value = firstName ? firstName.toUpperCase() : '';
+    let value = firstName ? firstName.toUpperCase() : "";
 
     if (lastName) {
       value = `${value} ${lastName}`;
@@ -188,52 +190,52 @@ const Detail = (props: Props) => {
     }
 
     return renderRow(
-      'return Date',
-      dayjs(order.returnInfo.returnAt).format('lll'),
+      "return Date",
+      dayjs(order.returnInfo.returnAt).format("lll")
     );
   };
 
   return (
     <SidebarList>
       {renderRow(
-        `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
-        order.customer ? generateLabel(order.customer) : '',
+        `${(order.customerType || "Customer").toLocaleUpperCase()}`,
+        order.customer ? generateLabel(order.customer) : ""
       )}
-      {renderRow('Bill Number', order.number)}
+      {renderRow("Bill Number", order.number)}
       {renderRow(
-        'Date',
-        dayjs(order.paidDate || order.createdAt).format('lll'),
+        "Date",
+        dayjs(order.paidDate || order.createdAt).format("lll")
       )}
       {renderDeliveryInfo()}
       {order.syncErkhetInfo
-        ? renderRow('Erkhet Info', order.syncErkhetInfo)
-        : ''}
+        ? renderRow("Erkhet Info", order.syncErkhetInfo)
+        : ""}
 
       {order.convertDealId
         ? renderRow(
-            'Deal',
-            <Link to={order.dealLink || ''}>{order.deal?.name || 'deal'}</Link>,
+            "Deal",
+            <Link to={order.dealLink || ""}>{order.deal?.name || "deal"}</Link>
           )
-        : ''}
+        : ""}
       <>
         {(order.putResponses || []).map((p) => {
           return (
             <DetailRow key={Math.random()}>
-              {renderRow('Bill ID', p.billId)}
-              {renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
+              {renderRow("Bill ID", p.billId)}
+              {renderRow("Ebarimt Date", dayjs(p.date).format("lll"))}
             </DetailRow>
           );
         })}
       </>
 
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>{__('Product')}</th>
-            <th>{__('Count')}</th>
-            <th>{__('Unit Price')}</th>
-            <th>{__('Amount')}</th>
-            <th>{__('Diff')}</th>
+            <th>{__("Product")}</th>
+            <th>{__("Count")}</th>
+            <th>{__("Unit Price")}</th>
+            <th>{__("Amount")}</th>
+            <th>{__("Diff")}</th>
           </tr>
         </thead>
         <tbody id="orderItems">
@@ -249,12 +251,12 @@ const Detail = (props: Props) => {
         </tbody>
       </Table>
 
-      {renderRow('Total Amount', displayValue(order, 'totalAmount'))}
+      {renderRow("Total Amount", displayValue(order, "totalAmount"))}
       {renderReturnInfo()}
       {pos && (
         <ul>
-          {renderEditRow('Cash Amount', 'cashAmount')}
-          {renderEditRow('Mobile Amount', 'mobileAmount')}
+          {renderEditRow("Cash Amount", "cashAmount")}
+          {renderEditRow("Mobile Amount", "mobileAmount")}
           {renderEditPaid()}
         </ul>
       )}

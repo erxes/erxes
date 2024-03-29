@@ -5,20 +5,21 @@ import {
   HeaderDescription,
   SortHandler,
   Table,
-  __
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import _loadash from 'lodash';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { subMenu } from '../../common/constants';
-import { ICommonListProps } from '../../common/types';
-import { DefaultWrapper } from '../../common/utils';
-import { FlexRow, HeaderContent } from '../../styles';
-import { RiskIndicatorsType } from '../common/types';
-import TableRow from './Row';
-import SideBar from './SideBar';
+  __,
+} from "@erxes/ui/src";
+import { FlexRow, HeaderContent } from "../../styles";
+
+import { DefaultWrapper } from "../../common/utils";
+import { ICommonListProps } from "../../common/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { RiskIndicatorsType } from "../common/types";
+import SideBar from "./SideBar";
+import TableRow from "./Row";
+import _loadash from "lodash";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { subMenu } from "../../common/constants";
 
 type Props = {
   queryParams: any;
@@ -26,7 +27,7 @@ type Props = {
   totalCount: number;
   refetch: ({
     perPage,
-    searchValue
+    searchValue,
   }: {
     perPage: number;
     searchValue: string;
@@ -48,7 +49,7 @@ class ListComp extends React.Component<Props, IState> {
     this.state = {
       selectedItems: [],
       perPage: 20,
-      searchValue: ''
+      searchValue: "",
     };
     this.selectItem = this.selectItem.bind(this);
   }
@@ -56,7 +57,7 @@ class ListComp extends React.Component<Props, IState> {
   selectItem(id: string) {
     const { selectedItems } = this.state;
     if (selectedItems.includes(id)) {
-      const newSelectedValue = selectedItems.filter(p => p !== id);
+      const newSelectedValue = selectedItems.filter((p) => p !== id);
       return this.setState({ selectedItems: newSelectedValue });
     }
     this.setState({ selectedItems: [...selectedItems, id] });
@@ -65,13 +66,13 @@ class ListComp extends React.Component<Props, IState> {
   selectAllValue(items) {
     if (
       _loadash.isEqual(
-        items.map(object => object._id),
+        items.map((object) => object._id),
         this.state.selectedItems
       )
     ) {
       return this.setState({ selectedItems: [] });
     }
-    const ids = items.map(item => item._id);
+    const ids = items.map((item) => item._id);
     this.setState({ selectedItems: ids });
   }
 
@@ -82,7 +83,7 @@ class ListComp extends React.Component<Props, IState> {
     this.setState({ selectedItems: [] });
   };
 
-  handleSearch = e => {
+  handleSearch = (e) => {
     const { value } = e.currentTarget as HTMLInputElement;
 
     const { perPage } = this.state;
@@ -117,26 +118,26 @@ class ListComp extends React.Component<Props, IState> {
             <th>
               {list && (
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={_loadash.isEqual(
                     selectedItems,
-                    list.map(object => object._id)
+                    list.map((object) => object._id)
                   )}
                   onChange={() => this.selectAllValue(list)}
                 />
               )}
             </th>
-            <th>{__('Name')}</th>
-            {isEnabled('tags') && <th>{__('Tags')}</th>}
+            <th>{__("Name")}</th>
+            {isEnabled("tags") && <th>{__("Tags")}</th>}
             <th>
               <SortHandler />
-              {__('Create At')}
+              {__("Create At")}
             </th>
             <th>
               <SortHandler />
-              {__('Modified At')}
+              {__("Modified At")}
             </th>
-            <th>{__('Action')}</th>
+            <th>{__("Action")}</th>
           </tr>
         </thead>
         <tbody>
@@ -147,7 +148,7 @@ class ListComp extends React.Component<Props, IState> {
               queryParams,
               history,
               handleDuplicate: duplicate,
-              onChange: this.selectItem
+              onChange: this.selectItem,
             };
 
             return <TableRow key={i} {...updatedProps} />;
@@ -175,7 +176,7 @@ class ListComp extends React.Component<Props, IState> {
         )}
         <Button btnStyle="success">
           <Link to={`/settings/risk-indicators/add`}>
-            {__('Add New Indicator')}
+            {__("Add New Indicator")}
           </Link>
         </Button>
       </BarItems>
@@ -199,14 +200,14 @@ class ListComp extends React.Component<Props, IState> {
 
     const updatedProps = {
       ...this.props,
-      title: 'Indicator List',
+      title: "Indicator List",
       rightActionBar: rightActionBar,
       leftActionBar,
       content: this.renderContent(list),
       sidebar: (
         <SideBar queryParams={queryParams} history={this.props.history} />
       ),
-      subMenu
+      subMenu,
     };
 
     return <DefaultWrapper {...updatedProps} />;

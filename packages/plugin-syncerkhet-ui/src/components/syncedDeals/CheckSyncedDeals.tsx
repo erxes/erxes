@@ -1,20 +1,20 @@
-import Button from '@erxes/ui/src/components/Button';
-import CheckSyncedDealsSidebar from './CheckSyncedDealsSidebar';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
-import Row from './CheckSyncedDealsRow';
+import Button from "@erxes/ui/src/components/Button";
+import CheckSyncedDealsSidebar from "./CheckSyncedDealsSidebar";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import React from "react";
+import Row from "./CheckSyncedDealsRow";
 import {
   __,
   BarItems,
   Wrapper,
   DataWithLoader,
   Pagination,
-  Table
-} from '@erxes/ui/src';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+  Table,
+} from "@erxes/ui/src";
+import { Alert, confirm } from "@erxes/ui/src/utils";
 
-import { menuSyncerkhet } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { menuSyncerkhet } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   totalCount: number;
@@ -55,14 +55,14 @@ class CheckSyncedDeals extends React.Component<Props> {
       bulk,
       unSyncedDealIds,
       toSyncDeals,
-      syncedDealInfos
+      syncedDealInfos,
     } = this.props;
 
-    const toSync = dealIds => {
+    const toSync = (dealIds) => {
       toSyncDeals(dealIds, queryParams.configStageId, queryParams.dateType);
     };
 
-    return deals.map(deal => (
+    return deals.map((deal) => (
       <Row
         history={history}
         key={deal._id}
@@ -78,13 +78,13 @@ class CheckSyncedDeals extends React.Component<Props> {
 
   onChange = () => {
     const { toggleAll, deals } = this.props;
-    toggleAll(deals, 'deals');
+    toggleAll(deals, "deals");
   };
 
-  checkSynced = async deals => {
+  checkSynced = async (deals) => {
     const dealIds: string[] = [];
 
-    deals.forEach(deal => {
+    deals.forEach((deal) => {
       dealIds.push(deal._id);
     });
 
@@ -99,21 +99,21 @@ class CheckSyncedDeals extends React.Component<Props> {
       isAllSelected,
       bulk,
       unSyncedDealIds,
-      toSyncDeals
+      toSyncDeals,
     } = this.props;
 
     const tablehead = [
-      'deal name',
-      'deal number',
-      'Amount',
-      'created At',
-      'modified At',
-      'stage Changed Date',
-      'Un Synced',
-      'Synced Date',
-      'Synced bill Number',
-      'Synced Customer',
-      'Sync Actions'
+      "deal name",
+      "deal number",
+      "Amount",
+      "created At",
+      "modified At",
+      "stage Changed Date",
+      "Un Synced",
+      "Synced Date",
+      "Synced bill Number",
+      "Synced Customer",
+      "Sync Actions",
     ];
 
     const Content = (
@@ -123,12 +123,12 @@ class CheckSyncedDeals extends React.Component<Props> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            {tablehead.map(p => (
-              <th key={p}>{p || ''}</th>
+            {tablehead.map((p) => (
+              <th key={p}>{p || ""}</th>
             ))}
           </tr>
         </thead>
@@ -150,7 +150,7 @@ class CheckSyncedDeals extends React.Component<Props> {
           await this.checkSynced(bulk);
           this.setState({ contentLoading: false });
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
           this.setState({ contentLoading: false });
         });
@@ -165,7 +165,7 @@ class CheckSyncedDeals extends React.Component<Props> {
             queryParams.dateType
           );
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 

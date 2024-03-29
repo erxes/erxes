@@ -1,9 +1,9 @@
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React, { useEffect, useState } from 'react';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { __ } from '@erxes/ui/src/utils';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import React, { useEffect, useState } from "react";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import TwitterPicker from "react-color/lib/Twitter";
+import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   ControlLabel,
@@ -11,7 +11,7 @@ import {
   FormControl,
   FormGroup,
   Icon,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 import {
   ColorPick,
   ColorPicker,
@@ -19,17 +19,17 @@ import {
   FormColumn,
   FormWrapper,
   LinkButton,
-} from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ILabelRule, ISPLabel } from '../../types';
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ILabelRule, ISPLabel } from "../../types";
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import { LevelOption, LevelWrapper, RemoveRow } from '../../../styles';
-import { FlexContent } from '@erxes/ui/src/layout';
-import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
-import Select from 'react-select-plus';
+} from "@erxes/ui/src/styles/eindex";
+import { LevelOption, LevelWrapper, RemoveRow } from "../../../styles";
+import { FlexContent } from "@erxes/ui/src/layout";
+import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
+import Select from "react-select-plus";
 
 type Props = {
   spLabel?: ISPLabel;
@@ -45,15 +45,15 @@ const Form = (props: Props) => {
       rules: [
         {
           id: Math.random().toString(),
-          productCategoryId: '',
+          productCategoryId: "",
           multiplier: 1,
         },
       ],
-    },
+    }
   );
 
-  console.log('spLabel', spLabel);
-  console.log('label', label);
+  console.log("spLabel", spLabel);
+  console.log("label", label);
 
   const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
@@ -93,7 +93,7 @@ const Form = (props: Props) => {
 
     rules.push({
       id: Math.random().toString(),
-      productCategoryId: '',
+      productCategoryId: "",
       multiplier: 1,
     });
 
@@ -115,7 +115,7 @@ const Form = (props: Props) => {
 
       rule[key] = value;
       newLabel.rules = (newLabel.rules || []).map(
-        (a) => (a.id === rule.id && rule) || a,
+        (a) => (a.id === rule.id && rule) || a
       );
       setLabel(newLabel);
     };
@@ -123,11 +123,11 @@ const Form = (props: Props) => {
     const onChangeMultiplier = (e) => {
       e.preventDefault();
       const value = e.target.value;
-      changeRule('multiplier', Number(value));
+      changeRule("multiplier", Number(value));
     };
 
     const onChangeProductCategory = (categoryId) => {
-      changeRule('productCategoryId', categoryId);
+      changeRule("productCategoryId", categoryId);
     };
 
     return (
@@ -171,11 +171,11 @@ const Form = (props: Props) => {
         <FormWrapper>
           <FormColumn>
             <ControlLabel required={true}>
-              {__('Product Category')}
+              {__("Product Category")}
             </ControlLabel>
           </FormColumn>
           <FormColumn>
-            <ControlLabel required={true}>{__('Multiplier')}</ControlLabel>
+            <ControlLabel required={true}>{__("Multiplier")}</ControlLabel>
           </FormColumn>
         </FormWrapper>
         {(label.rules || []).map((rule) => renderRule(rule, formProps))}
@@ -232,7 +232,7 @@ const Form = (props: Props) => {
           <ControlLabel>Description</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass="textarea"
+            componentclass="textarea"
             name="description"
             defaultValue={label.description}
             onChange={onInputChange}
@@ -246,8 +246,8 @@ const Form = (props: Props) => {
                 <ControlLabel>Status</ControlLabel>
                 <Select
                   id="status"
-                  value={label.status || 'active'}
-                  options={['active', 'archived'].map((option) => ({
+                  value={label.status || "active"}
+                  options={["active", "archived"].map((option) => ({
                     value: option,
                     label: option,
                   }))}
@@ -258,7 +258,7 @@ const Form = (props: Props) => {
               </FormGroup>
             </ExpandWrapper>
             <FormGroup>
-              <ControlLabel>{__('Color')}</ControlLabel>
+              <ControlLabel>{__("Color")}</ControlLabel>
               <div>
                 <OverlayTrigger
                   trigger="click"
@@ -279,7 +279,7 @@ const Form = (props: Props) => {
 
         <LevelOption>
           <LinkButton onClick={onAddRule}>
-            <Icon icon="add" /> {__('Add another level')}
+            <Icon icon="add" /> {__("Add another level")}
           </LinkButton>
         </LevelOption>
 

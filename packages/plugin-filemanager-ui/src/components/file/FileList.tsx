@@ -1,15 +1,15 @@
-import { IFile, IFolder } from '../../types';
+import { IFile, IFolder } from "../../types";
 
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FileRow from './FileRow';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { ItemName } from '../../styles';
-import React from 'react';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FileRow from "./FileRow";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ItemName } from "../../styles";
+import React from "react";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 type Props = {
   files: IFile[];
@@ -42,23 +42,23 @@ class FileList extends React.Component<Props> {
               <th>
                 <FormControl
                   checked={false}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
-              <th style={{ paddingLeft: '0' }}>
-                <SortHandler sortField={'name'} label={__('Name')} />
+              <th style={{ paddingLeft: "0" }}>
+                <SortHandler sortField={"name"} label={__("Name")} />
               </th>
               <th>
                 <SortHandler
-                  sortField={'createdAt'}
-                  label={__('Created Date')}
+                  sortField={"createdAt"}
+                  label={__("Created Date")}
                 />
               </th>
               <th>
-                <SortHandler sortField={'size'} label={__('Size')} />
+                <SortHandler sortField={"size"} label={__("Size")} />
               </th>
-              <th>{__('Actions')}</th>
+              <th>{__("Actions")}</th>
             </tr>
           </thead>
           <tbody id="fileManagerfiles">
@@ -71,7 +71,7 @@ class FileList extends React.Component<Props> {
                   isFolder={true}
                 />
               ))}
-              {files.map(file => (
+              {files.map((file) => (
                 <FileRow
                   key={file._id}
                   item={file}

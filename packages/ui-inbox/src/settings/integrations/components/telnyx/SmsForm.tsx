@@ -143,7 +143,7 @@ class SmsForm extends React.Component<Props, State> {
             <Char count={characterCount}>{characterCount}</Char>
           </SMSInfo>
           <FormControl
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={this.state.message}
             onBlur={onChangeContent}
             onChange={onChangeSmsContent}

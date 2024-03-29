@@ -1,8 +1,8 @@
-import { __ } from '../utils/core';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
+import React from "react";
+import { __ } from "../utils/core";
+import { colors } from "../styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const types = {
   default: {
@@ -27,9 +27,9 @@ const types = {
 
 const Text = styledTS<{ $textStyle: string; hugeness: string }>(styled.span)`
   text-transform: uppercase;
-  font-size: ${(props) => (props.hugeness !== 'small' ? '14px' : '10px')};
+  font-size: ${(props) => (props.hugeness !== "small" ? "14px" : "10px")};
   font-weight: bold;
-  color: ${(props) => types[props.$textStyle || 'default'].color}
+  color: ${(props) => types[props.$textStyle || "default"].color}
 `;
 
 type Props = {
@@ -40,24 +40,24 @@ type Props = {
 };
 
 const defaultProps = {
-  $textStyle: 'default',
-  hugeness: 'small',
+  $textStyle: "default",
+  hugeness: "small",
 };
 
 class TextInfo extends React.PureComponent<Props> {
   render() {
-    const { ignoreTrans, children } = this.props;
+    const { ignoreTrans, children, $textStyle, hugeness } = this.props;
 
     let content;
 
     if (ignoreTrans) {
       content = children;
-    } else if (typeof children === 'string') {
+    } else if (typeof children === "string") {
       content = __(children);
     }
 
     return (
-      <Text {...defaultProps} {...this.props}>
+      <Text {...defaultProps} $textStyle={$textStyle} $hugeness={hugeness}>
         {content}
       </Text>
     );

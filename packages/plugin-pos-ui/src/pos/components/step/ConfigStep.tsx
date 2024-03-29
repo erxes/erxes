@@ -1,8 +1,8 @@
-import CatProdItem from '../../components/productGroup/CatProdItem';
-import GroupForm from '../../components/productGroup/GroupForm';
-import React, { useState } from 'react';
-import { CatProd, IPos, IProductGroup } from '../../../types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import CatProdItem from "../../components/productGroup/CatProdItem";
+import GroupForm from "../../components/productGroup/GroupForm";
+import React, { useState } from "react";
+import { CatProd, IPos, IProductGroup } from "../../../types";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   FormGroup,
   ControlLabel,
@@ -12,8 +12,8 @@ import {
   ModalTrigger,
   __,
   FormControl,
-} from '@erxes/ui/src';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+} from "@erxes/ui/src";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import {
   ActionButtons,
   Description,
@@ -21,11 +21,11 @@ import {
   FlexItem,
   Block,
   BlockRow,
-} from '../../../styles';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+} from "../../../styles";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 
 type Props = {
-  onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
+  onChange: (name: "pos" | "description" | "groups", value: any) => void;
   pos: IPos;
   groups: IProductGroup[];
   catProdMappings: CatProd[];
@@ -33,7 +33,7 @@ type Props = {
 
 type State = {
   groups: IProductGroup[];
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
   mappings: CatProd[];
   initialCategoryIds: string[];
   kioskExcludeCategoryIds: string[];
@@ -69,26 +69,26 @@ const ConfigStep = (props: Props) => {
       newGroups.push(group);
     }
 
-    onChange('groups', newGroups);
+    onChange("groups", newGroups);
   };
 
   const renderGroupFormTrigger = (
     trigger: React.ReactNode,
-    group?: IProductGroup,
+    group?: IProductGroup
   ) => {
     const content = (props) => (
       <GroupForm {...props} group={group} onSubmit={onSubmitGroup} />
     );
 
-    const title = group ? 'Edit group' : 'Add group';
+    const title = group ? "Edit group" : "Add group";
 
     return <ModalTrigger title={title} trigger={trigger} content={content} />;
   };
 
   const renderEditAction = (group: IProductGroup) => {
     const trigger = (
-      <Button btnStyle="link" style={{ float: 'right' }}>
-        <Tip text={__('Edit')} placement="bottom">
+      <Button btnStyle="link" style={{ float: "right" }}>
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -104,12 +104,12 @@ const ConfigStep = (props: Props) => {
       newGroups = state.groups.filter((e) => e._id !== group._id);
 
       setState((prevState) => ({ ...prevState, groups: newGroups }));
-      onChange('groups', newGroups);
+      onChange("groups", newGroups);
     };
 
     return (
-      <Button btnStyle="link" onClick={remove} style={{ float: 'right' }}>
-        <Tip text={__('Remove')} placement="bottom">
+      <Button btnStyle="link" onClick={remove} style={{ float: "right" }}>
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -138,8 +138,8 @@ const ConfigStep = (props: Props) => {
       _id: cat._id,
       categoryId: cat.categoryId,
       productId: cat.productId,
-      code: cat.code || '',
-      name: cat.name || '',
+      code: cat.code || "",
+      name: cat.name || "",
     });
 
     // for omitting react __typename field
@@ -147,8 +147,8 @@ const ConfigStep = (props: Props) => {
       _id: m._id,
       categoryId: m.categoryId,
       productId: m.productId,
-      code: m.code || '',
-      name: m.name || '',
+      code: m.code || "",
+      name: m.name || "",
     }));
 
     const editMapping = (item: CatProd) => {
@@ -163,7 +163,7 @@ const ConfigStep = (props: Props) => {
 
       setState((prevState) => ({ ...prevState, mappings }));
 
-      onChange('pos', { ...pos, catProdMappings: mappings });
+      onChange("pos", { ...pos, catProdMappings: mappings });
     };
 
     const removeMapping = (_id: string) => {
@@ -171,7 +171,7 @@ const ConfigStep = (props: Props) => {
 
       setState((prevState) => ({ ...prevState, mappings: excluded }));
 
-      onChange('pos', { ...pos, catProdMappings: excluded });
+      onChange("pos", { ...pos, catProdMappings: excluded });
     };
 
     return (
@@ -188,7 +188,7 @@ const ConfigStep = (props: Props) => {
   const onChangeValue = (name, value) => {
     setState((prevState) => ({ ...prevState, [name]: value }));
 
-    onChange('pos', { ...pos, [name]: value });
+    onChange("pos", { ...pos, [name]: value });
   };
 
   const groupTrigger = (
@@ -202,8 +202,8 @@ const ConfigStep = (props: Props) => {
 
     m.push({
       _id: Math.random().toString(),
-      categoryId: '',
-      productId: '',
+      categoryId: "",
+      productId: "",
     });
 
     setState((prevState) => ({ ...prevState, mappings: m }));
@@ -214,14 +214,14 @@ const ConfigStep = (props: Props) => {
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__('Product Groups')}</h4>
+            <h4>{__("Product Groups")}</h4>
             <FormGroup>{groups.map((group) => renderGroup(group))}</FormGroup>
 
             {renderGroupFormTrigger(groupTrigger)}
           </Block>
 
           <Block>
-            <h4>{__('Initial product categories')}</h4>
+            <h4>{__("Initial product categories")}</h4>
             <Description></Description>
             <FormGroup>
               <ControlLabel>Product Category</ControlLabel>
@@ -230,11 +230,11 @@ const ConfigStep = (props: Props) => {
                 name="productCategoryId"
                 initialValue={state.initialCategoryIds}
                 customOption={{
-                  value: '',
-                  label: '...Clear product category filter',
+                  value: "",
+                  label: "...Clear product category filter",
                 }}
                 onSelect={(categoryIds) =>
-                  onChangeValue('initialCategoryIds', categoryIds)
+                  onChangeValue("initialCategoryIds", categoryIds)
                 }
                 multi={true}
               />
@@ -242,15 +242,15 @@ const ConfigStep = (props: Props) => {
           </Block>
 
           <Block>
-            <h4>{__('kiosk exclude products')}</h4>
+            <h4>{__("kiosk exclude products")}</h4>
             <FormGroup>
               <ControlLabel>Categories</ControlLabel>
               <SelectProductCategory
-                label={'kiosk'}
+                label={"kiosk"}
                 name="kioskExcludeCategoryIds"
                 initialValue={state.kioskExcludeCategoryIds}
                 onSelect={(categoryIds) =>
-                  onChangeValue('kioskExcludeCategoryIds', categoryIds)
+                  onChangeValue("kioskExcludeCategoryIds", categoryIds)
                 }
                 multi={true}
               />
@@ -258,11 +258,11 @@ const ConfigStep = (props: Props) => {
             <FormGroup>
               <ControlLabel>Products</ControlLabel>
               <SelectProducts
-                label={'kiosk'}
+                label={"kiosk"}
                 name="kioskExcludeProductIds"
                 initialValue={state.kioskExcludeProductIds}
                 onSelect={(productIds) =>
-                  onChangeValue('kioskExcludeProductIds', productIds)
+                  onChangeValue("kioskExcludeProductIds", productIds)
                 }
                 multi={true}
               />
@@ -270,7 +270,7 @@ const ConfigStep = (props: Props) => {
           </Block>
 
           <Block>
-            <h4>{__('Product & category mappings')}</h4>
+            <h4>{__("Product & category mappings")}</h4>
             <Description>
               Map a product to category. When a product within that category is
               sold in pos system with "take" option, then the mapped product
@@ -285,25 +285,25 @@ const ConfigStep = (props: Props) => {
           </Block>
 
           <Block>
-            <h4>{__('Remainder configs')}</h4>
+            <h4>{__("Remainder configs")}</h4>
             <Description></Description>
             <FormGroup>
               <FormControl
                 checked={state.isCheckRemainder}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={(e) => {
-                  onChangeValue('isCheckRemainder', (e.target as any).checked);
+                  onChangeValue("isCheckRemainder", (e.target as any).checked);
                 }}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Exclude Categories</ControlLabel>
               <SelectProductCategory
-                label={'kiosk'}
+                label={"kiosk"}
                 name="checkExcludeCategoryIds"
                 initialValue={state.checkExcludeCategoryIds}
                 onSelect={(categoryIds) =>
-                  onChangeValue('checkExcludeCategoryIds', categoryIds)
+                  onChangeValue("checkExcludeCategoryIds", categoryIds)
                 }
                 multi={true}
               />
@@ -312,9 +312,9 @@ const ConfigStep = (props: Props) => {
               <ControlLabel>Ban Fractions</ControlLabel>
               <FormControl
                 checked={state.banFractions}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={(e) => {
-                  onChangeValue('banFractions', (e.target as any).checked);
+                  onChangeValue("banFractions", (e.target as any).checked);
                 }}
               />
             </FormGroup>

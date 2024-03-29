@@ -1,15 +1,15 @@
-import { Alert, __, router } from 'coreui/utils';
+import { Alert, __, router } from "coreui/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { INotification } from '@erxes/ui-notifications/src/types';
-import React, { useState } from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { INotification } from "@erxes/ui-notifications/src/types";
+import React, { useState } from "react";
 // import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { NotifList } from '@erxes/ui-notifications/src/components/styles';
+import { IRouterProps } from "@erxes/ui/src/types";
+import { NotifList } from "@erxes/ui-notifications/src/components/styles";
 
 type Props = {
   notifications: INotification[];
@@ -37,7 +37,7 @@ const NotificationList = (props: Props) => {
     });
 
     if (unreadNotifications.length === 0) {
-      Alert.success('This page has no notification');
+      Alert.success("This page has no notification");
       return;
     }
 
@@ -68,10 +68,10 @@ const NotificationList = (props: Props) => {
     const actionBarLeft = (
       <FormControl
         id="isFilter"
-        componentClass="checkbox"
+        componentclass="checkbox"
         onClick={handleFilterByUnread}
       >
-        <label htmlFor="isFilter">{__('Show unread')}</label>
+        <label htmlFor="isFilter">{__("Show unread")}</label>
       </FormControl>
     );
 
@@ -101,8 +101,8 @@ const NotificationList = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Notifications')}
-          breadcrumb={[{ title: __('Notifications') }]}
+          title={__("Notifications")}
+          breadcrumb={[{ title: __("Notifications") }]}
         />
       }
       actionBar={renderActionBar()}

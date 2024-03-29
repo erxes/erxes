@@ -5,20 +5,20 @@ import {
   TicketComment,
   TicketContent,
   TicketLabel,
-} from './styles';
-import { __, readFile } from '@erxes/ui/src/utils';
+} from "./styles";
+import React, { useState } from "react";
+import { __, readFile } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React, { useState } from 'react';
-import { colors } from '@erxes/ui/src/styles';
-import dayjs from 'dayjs';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { colors } from "@erxes/ui/src/styles";
+import dayjs from "dayjs";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 type Props = {
   comments: any[];
@@ -53,7 +53,7 @@ const Container: React.FC<Props> = ({
   handleRemoveComment,
   handleSubmit,
 }: Props) => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
 
   const handleChange = (e) => {
     setContent(e.target.value);
@@ -64,7 +64,7 @@ const Container: React.FC<Props> = ({
   };
 
   const createComment = () => {
-    setContent('');
+    setContent("");
 
     handleSubmit({ content });
   };
@@ -104,8 +104,8 @@ const Container: React.FC<Props> = ({
                     />
                   </CommentContent>
                   <span>
-                    Reported{' '}
-                    {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+                    Reported{" "}
+                    {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
                   </span>
                 </div>
                 <div className="actions">
@@ -129,7 +129,7 @@ const Container: React.FC<Props> = ({
         <TicketContent>
           <FormControl
             value={content}
-            componentClass="textarea"
+            componentclass="textarea"
             onChange={handleChange}
           />
           {content.length !== 0 && (
@@ -138,7 +138,7 @@ const Container: React.FC<Props> = ({
                 btnStyle="success"
                 size="small"
                 icon="message"
-                onClick={createComment.bind(this, '')}
+                onClick={createComment.bind(this, "")}
               >
                 Save
               </Button>
@@ -153,7 +153,7 @@ const Container: React.FC<Props> = ({
   const trigger = (
     <TriggerButton>
       <Icon icon="comment-1" />
-      {__('Comments')}
+      {__("Comments")}
     </TriggerButton>
   );
 

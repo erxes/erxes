@@ -1,15 +1,15 @@
-import Chooser from '@erxes/ui/src/components/Chooser';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Chooser from "@erxes/ui/src/components/Chooser";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 
-import { __ } from 'coreui/utils';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import React, { useState } from 'react';
+import { __ } from "coreui/utils";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import { IProduct } from "@erxes/ui-products/src/types";
+import React, { useState } from "react";
 
-import InsuranceTypeChooser from '../../../insuranceTypes/containers/InsuranceTypeChooser';
-import { IInsuranceType } from '../../../insuranceTypes/types';
+import InsuranceTypeChooser from "../../../insuranceTypes/containers/InsuranceTypeChooser";
+import { IInsuranceType } from "../../../insuranceTypes/types";
 import {
   CollateralButton,
   CollateralItemContainer,
@@ -18,10 +18,10 @@ import {
   ContentRow,
   ItemRow,
   ItemText,
-} from '../../styles';
-import { ICollateralData } from '../../types';
-import CollateralRow from './CollateralRow';
-import SelectSavingContract from './SelectSavingContract';
+} from "../../styles";
+import { ICollateralData } from "../../types";
+import CollateralRow from "./CollateralRow";
+import SelectSavingContract from "./SelectSavingContract";
 
 type Props = {
   collateralsData?: ICollateralData[];
@@ -32,16 +32,16 @@ type Props = {
 };
 
 const CollateralItem = (props: Props) => {
-  const [collateralType, setCollateralType] = useState('other');
-  const [categoryId, setCategoryId] = useState('');
+  const [collateralType, setCollateralType] = useState("other");
+  const [categoryId, setCategoryId] = useState("");
   const [currentCollateral, setCurrentCollateral] = useState(
-    props.currentCollateral,
+    props.currentCollateral
   );
   const [insurancePercent, setInsurancePercent] = useState(
     (props.collateralData &&
       props.collateralData.insuranceType &&
       props.collateralData.insuranceType.percent) ||
-      0,
+      0
   );
 
   const onFieldClick = (e) => {
@@ -51,13 +51,13 @@ const CollateralItem = (props: Props) => {
   const onChangeField = (
     type: string,
     value: string | boolean | IProduct | IInsuranceType | number | undefined,
-    collateralDataId: string,
+    collateralDataId: string
   ) => {
     const { collateralsData, onChangeCollateralsData } = props;
 
     if (collateralsData) {
       const collateralData = collateralsData.find(
-        (p) => p._id === collateralDataId,
+        (p) => p._id === collateralDataId
       );
       if (collateralData) {
         collateralData[type] = value;
@@ -72,7 +72,7 @@ const CollateralItem = (props: Props) => {
   const renderCollateralTrigger = (collateral?: IProduct) => {
     let content = (
       <div>
-        {__('Choose Collateral')} <Icon icon="plus-circle" />
+        {__("Choose Collateral")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -98,9 +98,9 @@ const CollateralItem = (props: Props) => {
         collaterals && collaterals.length === 1 ? collaterals[0] : null;
 
       if (collateral) {
-        onChangeField('collateral', collateral, collateralData._id);
-        onChangeField('cost', collateral.unitPrice, collateralData._id);
-        onCalc('cost', collateral.unitPrice, collateralData);
+        onChangeField("collateral", collateral, collateralData._id);
+        onChangeField("cost", collateral.unitPrice, collateralData._id);
+        onCalc("cost", collateral.unitPrice, collateralData);
         changeCurrentCollateral(collateral._id);
       }
     };
@@ -112,7 +112,7 @@ const CollateralItem = (props: Props) => {
         onChangeCategory={onChangeCategory}
         categoryId={categoryId}
         data={{
-          name: 'Collateral',
+          name: "Collateral",
           products: collateralData.collateral
             ? [collateralData.collateral]
             : [],
@@ -135,7 +135,7 @@ const CollateralItem = (props: Props) => {
   const renderInsuranceTypeTrigger = (insuranceType?: IInsuranceType) => {
     let content = (
       <div>
-        {__('Choose Collateral')} <Icon icon="plus-circle" />
+        {__("Choose Collateral")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -158,21 +158,21 @@ const CollateralItem = (props: Props) => {
           : null;
 
       if (!insuranceType) {
-        onChangeField('insuranceType', undefined, collateralData._id);
-        onChangeField('insuranceTypeId', '', collateralData._id);
+        onChangeField("insuranceType", undefined, collateralData._id);
+        onChangeField("insuranceTypeId", "", collateralData._id);
         setInsurancePercent(0);
-        onChangeField('insuranceAmount', 0, collateralData._id);
+        onChangeField("insuranceAmount", 0, collateralData._id);
         return;
       }
 
-      onChangeField('insuranceType', insuranceType, collateralData._id);
-      onChangeField('insuranceTypeId', insuranceType._id, collateralData._id);
+      onChangeField("insuranceType", insuranceType, collateralData._id);
+      onChangeField("insuranceTypeId", insuranceType._id, collateralData._id);
 
       setInsurancePercent(insuranceType.percent);
       onChangeField(
-        'insuranceAmount',
+        "insuranceAmount",
         (collateralData.cost / 100) * insuranceType.percent,
-        collateralData._id,
+        collateralData._id
       );
     };
 
@@ -181,7 +181,7 @@ const CollateralItem = (props: Props) => {
         {...props}
         onSelect={insuranceTypeOnChange}
         data={{
-          name: 'InsuranceType',
+          name: "InsuranceType",
           insuranceTypes: collateralData.insuranceType
             ? [collateralData.insuranceType]
             : [],
@@ -204,7 +204,7 @@ const CollateralItem = (props: Props) => {
     onChangeField(
       (e.target as HTMLInputElement).name,
       (e.target as HTMLInputElement).value,
-      props.collateralData._id,
+      props.collateralData._id
     );
 
   const onCalcInsurance = (collateralData) => {
@@ -213,70 +213,70 @@ const CollateralItem = (props: Props) => {
     }
 
     onChangeField(
-      'insuranceAmount',
+      "insuranceAmount",
       (collateralData.cost / 100) * collateralData.insuranceType.percent,
-      collateralData._id,
+      collateralData._id
     );
   };
 
   const onCalc = (name, value, collateralData) => {
     onChangeField(name, value, collateralData._id);
 
-    if (name === 'cost') {
+    if (name === "cost") {
       onChangeField(
-        'marginAmount',
+        "marginAmount",
         (Number(value) / 100) * (collateralData.percent || 0),
-        collateralData._id,
+        collateralData._id
       );
       onChangeField(
-        'leaseAmount',
+        "leaseAmount",
         (Number(value) / 100) * (100 - collateralData.percent || 0),
-        collateralData._id,
+        collateralData._id
       );
       onCalcInsurance(collateralData);
       return;
     }
 
-    if (name === 'percent') {
+    if (name === "percent") {
       onChangeField(
-        'marginAmount',
+        "marginAmount",
         (collateralData.cost / 100) * Number(value),
-        collateralData._id,
+        collateralData._id
       );
       onChangeField(
-        'leaseAmount',
+        "leaseAmount",
         (collateralData.cost / 100) * (100 - Number(value)),
-        collateralData._id,
+        collateralData._id
       );
       onCalcInsurance(collateralData);
       return;
     }
 
-    if (name === 'marginAmount' && collateralData.cost) {
+    if (name === "marginAmount" && collateralData.cost) {
       onChangeField(
-        'percent',
+        "percent",
         (Number(value) * 100) / collateralData.cost,
-        collateralData._id,
+        collateralData._id
       );
       onChangeField(
-        'leaseAmount',
+        "leaseAmount",
         collateralData.cost - Number(value),
-        collateralData._id,
+        collateralData._id
       );
       onCalcInsurance(collateralData);
       return;
     }
 
-    if (name === 'leaseAmount' && collateralData.cost) {
+    if (name === "leaseAmount" && collateralData.cost) {
       onChangeField(
-        'marginAmount',
+        "marginAmount",
         collateralData.cost - Number(value),
-        collateralData._id,
+        collateralData._id
       );
       onChangeField(
-        'percent',
+        "percent",
         100 - (Number(value) * 100) / collateralData.cost,
-        collateralData._id,
+        collateralData._id
       );
       onCalcInsurance(collateralData);
       return;
@@ -299,24 +299,24 @@ const CollateralItem = (props: Props) => {
 
   const changeCurrentCollateral = (collateralId: string) => {
     setCurrentCollateral(
-      currentCollateral === collateralId ? '' : collateralId,
+      currentCollateral === collateralId ? "" : collateralId
     );
   };
 
   const renderForm = () => {
     const { collateralData } = props;
 
-    if (collateralType === 'saving')
+    if (collateralType === "saving")
       return (
         <CollateralItemContainer key={collateralData._id}>
           <ContentRow>
             <CollateralSettings>
               <ItemRow>
-                <ItemText>{__('Collateral type')}:</ItemText>
+                <ItemText>{__("Collateral type")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     name="collateralType"
-                    componentClass="select"
+                    componentclass="select"
                     value={collateralType}
                     onChange={(e) => {
                       const name = (e.target as HTMLInputElement).name;
@@ -324,7 +324,7 @@ const CollateralItem = (props: Props) => {
                       setCollateralType(value);
                     }}
                   >
-                    {['other', 'saving'].map((type, index) => (
+                    {["other", "saving"].map((type, index) => (
                       <option key={index} value={type}>
                         {__(type)}
                       </option>
@@ -333,11 +333,11 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <SelectSavingContract
-                label={__('Choose an contract')}
+                label={__("Choose an contract")}
                 name="depositAccount"
                 initialValue={currentCollateral}
                 onSelect={(v) => {
-                  if (typeof v === 'string') {
+                  if (typeof v === "string") {
                     setCurrentCollateral(v);
                   }
                 }}
@@ -357,11 +357,11 @@ const CollateralItem = (props: Props) => {
           <ContentRow>
             <CollateralSettings>
               <ItemRow>
-                <ItemText>{__('Collateral type')}:</ItemText>
+                <ItemText>{__("Collateral type")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     name="collateralType"
-                    componentClass="select"
+                    componentclass="select"
                     value={collateralType}
                     onChange={(e) => {
                       const name = (e.target as HTMLInputElement).name;
@@ -369,7 +369,7 @@ const CollateralItem = (props: Props) => {
                       setCollateralType(value as any);
                     }}
                   >
-                    {['other', 'saving'].map((type, index) => (
+                    {["other", "saving"].map((type, index) => (
                       <option key={index} value={type}>
                         {__(type)}
                       </option>
@@ -378,16 +378,16 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Choose Collateral')}:</ItemText>
+                <ItemText>{__("Choose Collateral")}:</ItemText>
                 <ContentColumn flex="3">
                   {renderCollateralModal(collateralData)}
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Certificate')}:</ItemText>
+                <ItemText>{__("Certificate")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
-                    value={collateralData.certificate || ''}
+                    value={collateralData.certificate || ""}
                     type="text"
                     name="certificate"
                     onChange={onChange}
@@ -396,10 +396,10 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('VINNumber')}:</ItemText>
+                <ItemText>{__("VINNumber")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
-                    value={collateralData.vinNumber || ''}
+                    value={collateralData.vinNumber || ""}
                     type="text"
                     name="vinNumber"
                     onChange={onChange}
@@ -408,7 +408,7 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Cost')}:</ItemText>
+                <ItemText>{__("Cost")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     value={collateralData.cost || 0}
@@ -421,7 +421,7 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Percent')}:</ItemText>
+                <ItemText>{__("Percent")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     value={collateralData.percent || 0}
@@ -434,7 +434,7 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Margin Amount')}:</ItemText>
+                <ItemText>{__("Margin Amount")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     value={collateralData.marginAmount || 0}
@@ -447,7 +447,7 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Lease Amount')}:</ItemText>
+                <ItemText>{__("Lease Amount")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     value={collateralData.leaseAmount || 0}
@@ -462,13 +462,13 @@ const CollateralItem = (props: Props) => {
             </CollateralSettings>
             <ContentColumn>
               <ItemRow>
-                <ItemText>{__('Choose Insurance Type')}:</ItemText>
+                <ItemText>{__("Choose Insurance Type")}:</ItemText>
                 <ContentColumn flex="3">
                   {renderInsuranceTypeModal(collateralData)}
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Insurance Percent')}:</ItemText>
+                <ItemText>{__("Insurance Percent")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
                     value={insurancePercent || 0}
@@ -480,10 +480,10 @@ const CollateralItem = (props: Props) => {
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
-                <ItemText>{__('Insurance Amount')}:</ItemText>
+                <ItemText>{__("Insurance Amount")}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
-                    value={collateralData.insuranceAmount || ''}
+                    value={collateralData.insuranceAmount || ""}
                     type="number"
                     placeholder="0"
                     name="insuranceAmount"

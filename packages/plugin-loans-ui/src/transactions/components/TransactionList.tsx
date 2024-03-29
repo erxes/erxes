@@ -1,34 +1,34 @@
 import {
   Alert,
+  BarItems,
   Button,
   DataWithLoader,
+  DropdownToggle,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
-  DropdownToggle,
-  Icon,
   confirm,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 // import { withRouter } from 'react-router-dom';
-import { ORGANIZATION_TYPE, menuContracts } from '../../constants';
+import { ORGANIZATION_TYPE, menuContracts } from "../../constants";
 
-import { ContractsTableWrapper } from '../../contracts/styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { ITransaction } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import InterestChange from '../../contracts/containers/detail/InterestChange';
-import React from 'react';
-import RightMenu from './RightMenu';
-import TransactionForm from '../containers/TransactionForm';
-import TransactionRow from './TransactionRow';
-import { __ } from 'coreui/utils';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
+import { ContractsTableWrapper } from "../../contracts/styles";
+import Dropdown from "react-bootstrap/Dropdown";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { ITransaction } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InterestChange from "../../contracts/containers/detail/InterestChange";
+import React from "react";
+import RightMenu from "./RightMenu";
+import TransactionForm from "../containers/TransactionForm";
+import TransactionRow from "./TransactionRow";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
+import withConsumer from "../../withConsumer";
 
 interface IProps extends IRouterProps {
   transactions: ITransaction[];
@@ -42,7 +42,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeTransactions: (
     doc: { transactionIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
 
   onSearch: (search: string) => void;
@@ -72,7 +72,7 @@ const TransactionsList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(transactions, 'transactions');
+    toggleAll(transactions, "transactions");
   };
 
   const removeTransactions = (transactions) => {
@@ -87,57 +87,62 @@ const TransactionsList = (props: IProps) => {
 
   const mainContent = (
     <ContractsTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'contract.number'}
-                label={__('Contract Number')}
+                sortField={"contract.number"}
+                label={__("Contract Number")}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'contract.description'}
-                label={__('Description')}
+                sortField={"contract.description"}
+                label={__("Description")}
               />
             </th>
             <th>
-              <SortHandler sortField={'payDate'} label={__('Date')} />
+              <SortHandler sortField={"payDate"} label={__("Date")} />
             </th>
             <th>
-              <SortHandler sortField={'payment'} label={__('Payment')} />
+              <SortHandler sortField={"payment"} label={__("Payment")} />
             </th>
             <th>
               <SortHandler
-                sortField={'interestEve'}
-                label={__('Interest Eve')}
+                sortField={"interestEve"}
+                label={__("Interest Eve")}
               />
             </th>
             <th>
               <SortHandler
-                sortField={'interestNonce'}
-                label={__('Interest Nonce')}
+                sortField={"interestNonce"}
+                label={__("Interest Nonce")}
               />
             </th>
             <th>
-              <SortHandler sortField={'undue'} label={__('Loss')} />
+              <SortHandler sortField={"undue"} label={__("Loss")} />
             </th>
             <th>
-              <SortHandler sortField={'insurance'} label={__('Insurance')} />
+              <SortHandler sortField={"insurance"} label={__("Insurance")} />
             </th>
             <th>
-              <SortHandler sortField={'total'} label={__('Total')} />
+              <SortHandler sortField={"total"} label={__("Total")} />
             </th>
             <th>
-              <SortHandler sortField={'ebarimt'} label={__('EBarimt')} />
+              <SortHandler sortField={"ebarimt"} label={__("EBarimt")} />
             </th>
             <th></th>
           </tr>
@@ -173,9 +178,9 @@ const TransactionsList = (props: IProps) => {
       <BarItems>
         {currentUser?.configs?.loansConfig?.organizationType ===
           ORGANIZATION_TYPE.ENTITY &&
-          can('transactionsRemove', currentUser) && (
+          can("transactionsRemove", currentUser) && (
             <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-              {__('Delete')}
+              {__("Delete")}
             </Button>
           )}
       </BarItems>
@@ -210,11 +215,11 @@ const TransactionsList = (props: IProps) => {
 
   const actionBarRight = (
     <BarItems>
-      {can('manageTransactions', currentUser) && (
+      {can("manageTransactions", currentUser) && (
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="success" size="medium">
-              {__('New transaction')}
+              {__("New transaction")}
               <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
@@ -222,32 +227,32 @@ const TransactionsList = (props: IProps) => {
           <Dropdown.Menu>
             <li>
               <ModalTrigger
-                title={`${__('Repayment Transaction')}`}
-                trigger={<a href="#Repayment">{__('Repayment Transaction')}</a>}
+                title={`${__("Repayment Transaction")}`}
+                trigger={<a href="#Repayment">{__("Repayment Transaction")}</a>}
                 size="lg"
                 content={repaymentForm}
               />
             </li>
             <li>
               <ModalTrigger
-                title={`${__('Give Transaction')}`}
-                trigger={<a href="#Give">{__('Give Transaction')}</a>}
+                title={`${__("Give Transaction")}`}
+                trigger={<a href="#Give">{__("Give Transaction")}</a>}
                 size="lg"
                 content={giveForm}
               />
             </li>
             <li>
               <ModalTrigger
-                title={__('Interest Change')}
-                trigger={<a href="#Interest Change">{__('Interest Change')}</a>}
+                title={__("Interest Change")}
+                trigger={<a href="#Interest Change">{__("Interest Change")}</a>}
                 size="lg"
                 content={interestChangeForm}
               />
             </li>
             <li>
               <ModalTrigger
-                title={__('Interest Return')}
-                trigger={<a href="#Interest Return">{__('Interest Return')}</a>}
+                title={__("Interest Return")}
+                trigger={<a href="#Interest Return">{__("Interest Return")}</a>}
                 size="lg"
                 content={interestReturnForm}
               />
@@ -271,7 +276,7 @@ const TransactionsList = (props: IProps) => {
           title={__(`Transactions`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

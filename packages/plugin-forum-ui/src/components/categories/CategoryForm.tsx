@@ -1,18 +1,18 @@
-import { Divider, StepBody, StepHeader, StepItem } from '../../styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { READ_CP_USER_LEVELS, WRITE_CP_USER_LEVELS } from '../../constants';
-import React, { useState } from 'react';
+import { Divider, StepBody, StepHeader, StepItem } from "../../styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { READ_CP_USER_LEVELS, WRITE_CP_USER_LEVELS } from "../../constants";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICategory } from '../../types';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICategory } from "../../types";
+import Info from "@erxes/ui/src/components/Info";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   category?: ICategory;
@@ -25,32 +25,30 @@ const CategoryForm: React.FC<Props> = ({
   category = {} as any,
   renderButton,
   closeModal,
-  categories
+  categories,
 }) => {
   const [userLevelReqPostRead, setUserLevelReqPostRead] = useState(
-    category?.userLevelReqPostRead || 'GUEST'
+    category?.userLevelReqPostRead || "GUEST"
   );
   const [userLevelReqPostWrite, setUserLevelReqPostWrite] = useState(
-    category?.userLevelReqPostWrite || 'REGISTERED'
+    category?.userLevelReqPostWrite || "REGISTERED"
   );
   const [userLevelReqCommentWrite, setUserLevelReqCommentWrite] = useState(
-    category?.userLevelReqCommentWrite || 'REGISTERED'
+    category?.userLevelReqCommentWrite || "REGISTERED"
   );
   const [postsReqCrmApproval, setPostsReqCrmApproval] = useState(
     category?.postsReqCrmApproval || false
   );
 
-  const [
-    postReadRequiresPermissionGroup,
-    setPostReadRequiresPermissionGroup
-  ] = useState(category?.postReadRequiresPermissionGroup || false);
+  const [postReadRequiresPermissionGroup, setPostReadRequiresPermissionGroup] =
+    useState(category?.postReadRequiresPermissionGroup || false);
   const [
     postWriteRequiresPermissionGroup,
-    setPostWriteRequiresPermissionGroup
+    setPostWriteRequiresPermissionGroup,
   ] = useState(category?.postWriteRequiresPermissionGroup || false);
   const [
     commentWriteRequiresPermissionGroup,
-    setCommentWriteRequiresPermissionGroup
+    setCommentWriteRequiresPermissionGroup,
   ] = useState(category?.commentWriteRequiresPermissionGroup || false);
 
   const generateDoc = (values: {
@@ -71,15 +69,15 @@ const CategoryForm: React.FC<Props> = ({
       finalValues._id = category._id;
     }
 
-    if (finalValues.userLevelReqPostRead === 'GUEST') {
+    if (finalValues.userLevelReqPostRead === "GUEST") {
       setPostReadRequiresPermissionGroup(false);
     }
 
-    if (finalValues.userLevelReqCommentWrite === 'GUEST') {
+    if (finalValues.userLevelReqCommentWrite === "GUEST") {
       setCommentWriteRequiresPermissionGroup(false);
     }
 
-    if (finalValues.userLevelReqPostWrite === 'GUEST') {
+    if (finalValues.userLevelReqPostWrite === "GUEST") {
       setPostWriteRequiresPermissionGroup(false);
     }
 
@@ -88,20 +86,20 @@ const CategoryForm: React.FC<Props> = ({
       _id: finalValues._id,
       name: finalValues.name,
       code: finalValues.code || null,
-      order: parseInt(finalValues.order || '', 10),
+      order: parseInt(finalValues.order || "", 10),
       description: finalValues.description,
       parentId: finalValues.parentId || null,
       thumbnail: finalValues.thumbnail || null,
-      userLevelReqPostRead: finalValues.userLevelReqPostRead || 'GUEST',
-      userLevelReqPostWrite: finalValues.userLevelReqPostWrite || 'REGISTERED',
+      userLevelReqPostRead: finalValues.userLevelReqPostRead || "GUEST",
+      userLevelReqPostWrite: finalValues.userLevelReqPostWrite || "REGISTERED",
       userLevelReqCommentWrite:
-        finalValues.userLevelReqCommentWrite || 'REGISTERED',
+        finalValues.userLevelReqCommentWrite || "REGISTERED",
       postsReqCrmApproval: postsReqCrmApproval || false,
       postReadRequiresPermissionGroup: postReadRequiresPermissionGroup || false,
       postWriteRequiresPermissionGroup:
         postWriteRequiresPermissionGroup || false,
       commentWriteRequiresPermissionGroup:
-        commentWriteRequiresPermissionGroup || false
+        commentWriteRequiresPermissionGroup || false,
     };
   };
 
@@ -150,14 +148,14 @@ const CategoryForm: React.FC<Props> = ({
           <FormControl
             {...formProps}
             name="parentId"
-            componentClass="select"
-            defaultValue={category.parentId || ''}
+            componentclass="select"
+            defaultValue={category.parentId || ""}
           >
             <option key="null" value="">
               No parent (root category)
             </option>
             {categories &&
-              categories.map(p => (
+              categories.map((p) => (
                 <option key={p._id} value={p._id}>
                   {p.name}
                 </option>
@@ -180,7 +178,7 @@ const CategoryForm: React.FC<Props> = ({
             {...formProps}
             name="postsReqCrmApproval"
             className="toggle-message"
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={postsReqCrmApproval}
             onChange={() => {
               setPostsReqCrmApproval(!postsReqCrmApproval);
@@ -191,7 +189,7 @@ const CategoryForm: React.FC<Props> = ({
         <h3>User level based permissions</h3>
 
         <StepItem>
-          <StepHeader>{__('Post')}</StepHeader>
+          <StepHeader>{__("Post")}</StepHeader>
           <StepBody>
             <FormGroup>
               <ControlLabel>Read</ControlLabel>
@@ -199,10 +197,10 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="userLevelReqPostRead"
                 defaultValue={userLevelReqPostRead}
-                componentClass="select"
-                onChange={e => setUserLevelReqPostRead(e)}
+                componentclass="select"
+                onChange={(e) => setUserLevelReqPostRead(e)}
               >
-                {Object.keys(READ_CP_USER_LEVELS).map(enumVal => (
+                {Object.keys(READ_CP_USER_LEVELS).map((enumVal) => (
                   <option key={enumVal} value={enumVal}>
                     {enumVal}
                   </option>
@@ -215,8 +213,8 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="postReadRequiresPermissionGroup"
                 className="toggle-message"
-                disabled={userLevelReqPostRead === 'GUEST'}
-                componentClass="checkbox"
+                disabled={userLevelReqPostRead === "GUEST"}
+                componentclass="checkbox"
                 checked={postReadRequiresPermissionGroup}
                 onChange={() => {
                   setPostReadRequiresPermissionGroup(
@@ -231,10 +229,10 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="userLevelReqPostWrite"
                 defaultValue={userLevelReqPostWrite}
-                componentClass="select"
-                onChange={e => setUserLevelReqPostWrite(e)}
+                componentclass="select"
+                onChange={(e) => setUserLevelReqPostWrite(e)}
               >
-                {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
+                {Object.keys(WRITE_CP_USER_LEVELS).map((enumVal) => (
                   <option key={enumVal} value={enumVal}>
                     {enumVal}
                   </option>
@@ -247,8 +245,8 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="postWriteRequiresPermissionGroup"
                 className="toggle-message"
-                disabled={userLevelReqPostWrite === 'GUEST'}
-                componentClass="checkbox"
+                disabled={userLevelReqPostWrite === "GUEST"}
+                componentclass="checkbox"
                 checked={postWriteRequiresPermissionGroup}
                 onChange={() => {
                   setPostWriteRequiresPermissionGroup(
@@ -261,7 +259,7 @@ const CategoryForm: React.FC<Props> = ({
         </StepItem>
 
         <StepItem>
-          <StepHeader>{__('Comment')}</StepHeader>
+          <StepHeader>{__("Comment")}</StepHeader>
           <StepBody>
             <FormGroup>
               <ControlLabel>Read</ControlLabel> Guest
@@ -272,10 +270,10 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="userLevelReqCommentWrite"
                 defaultValue={userLevelReqCommentWrite}
-                componentClass="select"
-                onChange={e => setUserLevelReqCommentWrite(e)}
+                componentclass="select"
+                onChange={(e) => setUserLevelReqCommentWrite(e)}
               >
-                {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
+                {Object.keys(WRITE_CP_USER_LEVELS).map((enumVal) => (
                   <option key={enumVal} value={enumVal}>
                     {enumVal}
                   </option>
@@ -288,8 +286,8 @@ const CategoryForm: React.FC<Props> = ({
                 {...formProps}
                 name="commentWriteRequiresPermissionGroup"
                 className="toggle-message"
-                disabled={userLevelReqCommentWrite === 'GUEST'}
-                componentClass="checkbox"
+                disabled={userLevelReqCommentWrite === "GUEST"}
+                componentclass="checkbox"
                 checked={commentWriteRequiresPermissionGroup}
                 onChange={() => {
                   setCommentWriteRequiresPermissionGroup(
@@ -323,17 +321,17 @@ const CategoryForm: React.FC<Props> = ({
           </p>
         </Info>
 
-        <ModalFooter id={'AddTagButtons'}>
+        <ModalFooter id={"AddTagButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 
           {renderButton({
-            name: 'category',
+            name: "category",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

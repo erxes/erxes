@@ -11,20 +11,20 @@ import {
   DataWithLoader,
   Pagination,
   Icon,
-} from '@erxes/ui/src';
-import React, { useRef, useState } from 'react';
-import { menuMovements } from '../../../common/constant';
-import { IMovementType } from '../../../common/types';
-import { ContainerBox } from '../../../style';
-import Form from '../containers/Form';
-import Sidebar from './Sidebar';
-import Row from './Row';
+} from "@erxes/ui/src";
+import React, { useRef, useState } from "react";
+import { menuMovements } from "../../../common/constant";
+import { IMovementType } from "../../../common/types";
+import { ContainerBox } from "../../../style";
+import Form from "../containers/Form";
+import Sidebar from "./Sidebar";
+import Row from "./Row";
 import {
   InputBar,
   Title,
   FlexItem,
   FlexRow,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 
 type Props = {
   movements: IMovementType[];
@@ -51,7 +51,7 @@ const List = (props: Props) => {
     toggleBulk,
   } = props;
 
-  const [searchValue, setSearchValue] = useState(queryParams.searchValue || '');
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || "");
   const [selectedRows, setSelectedRows] = useState<any>([]);
 
   const timerRef = useRef<number | null>(null);
@@ -66,7 +66,7 @@ const List = (props: Props) => {
     setSearchValue(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue: value });
     }, 500);
   };
@@ -81,17 +81,17 @@ const List = (props: Props) => {
   };
 
   const onchange = () => {
-    toggleAll(movements, 'movements');
+    toggleAll(movements, "movements");
 
     setSelectedRows(
-      !isAllSelected ? movements.map((movement) => movement._id || '') : [],
+      !isAllSelected ? movements.map((movement) => movement._id || "") : []
     );
   };
 
   const handleSelecteRow = (
     movement: IMovementType,
     movementId: string,
-    isChecked?: boolean,
+    isChecked?: boolean
   ) => {
     toggleBulk(movement, isChecked!);
 
@@ -123,16 +123,16 @@ const List = (props: Props) => {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onchange}
               />
             </th>
-            <th>{__('User')}</th>
-            <th>{__('Moved At')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('Action')}</th>
+            <th>{__("User")}</th>
+            <th>{__("Moved At")}</th>
+            <th>{__("Description")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("Action")}</th>
           </tr>
         </thead>
         <tbody>{renderRow(props)}</tbody>
@@ -148,7 +148,7 @@ const List = (props: Props) => {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -180,7 +180,7 @@ const List = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={searchValue}
               autoFocus={true}
@@ -203,7 +203,7 @@ const List = (props: Props) => {
 
     const leftActionBar = (
       <ContainerBox row>
-        <Title>{'All Movements'}</Title>
+        <Title>{"All Movements"}</Title>
       </ContainerBox>
     );
 
@@ -214,7 +214,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={'Asset Movement Items'}
+          title={"Asset Movement Items"}
           submenu={menuMovements}
         />
       }
@@ -225,7 +225,7 @@ const List = (props: Props) => {
           data={renderContent()}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__('No data')}
+          emptyText={__("No data")}
         />
       }
       hasBorder={true}

@@ -116,13 +116,13 @@ export default class AppForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__("Expire date")}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: __("Click to select a date") }}
+            // inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="yyyy/mm/dd"
             timeFormat={false}
             value={expireDate}
-            closeOnSelect={true}
-            utc={true}
-            input={false}
+            // closeOnSelect={true}
+            // utc={true}
+            // input={false}
             onChange={onDateChange}
           />
         </FormGroup>
@@ -130,7 +130,7 @@ export default class AppForm extends React.Component<Props, State> {
           <ControlLabel>{__("No expire")}</ControlLabel>
           <FormControl
             checked={this.state.noExpire}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={() => this.setState({ noExpire: !this.state.noExpire })}
           />
         </FormGroup>
@@ -138,7 +138,7 @@ export default class AppForm extends React.Component<Props, State> {
           <ControlLabel>{__("Allow all permission")}</ControlLabel>
           <FormControl
             checked={this.state.allowAllPermission}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={() =>
               this.setState({
                 allowAllPermission: !this.state.allowAllPermission,

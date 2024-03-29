@@ -1,35 +1,35 @@
 import {
   DepartmentsMainQueryResponse,
-  IDepartment
-} from '@erxes/ui/src/team/types';
+  IDepartment,
+} from "@erxes/ui/src/team/types";
 import {
   FilterContainer,
   InputBar,
   LeftActionBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
-import { __, router } from '@erxes/ui/src/utils';
+  Title,
+} from "@erxes/ui-settings/src/styles";
+import { __, router } from "@erxes/ui/src/utils";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { BarItems } from 'modules/layout/styles';
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Form from '../../containers/common/BlockForm';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import React from 'react';
-import SettingsSideBar from '../../containers/common/SettingSideBar';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
-import Table from 'modules/common/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { generateTree } from '../../utils';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui/src/team/graphql';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import { BarItems } from "modules/layout/styles";
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import Form from "../../containers/common/BlockForm";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import React from "react";
+import SettingsSideBar from "../../containers/common/SettingSideBar";
+import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
+import Table from "modules/common/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "modules/layout/components/Wrapper";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { generateTree } from "../../utils";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui/src/team/graphql";
 
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
@@ -49,7 +49,7 @@ class MainList extends React.Component<Props, State> {
     super(props);
     this.state = {
       selectedItems: [],
-      searchValue: props.queryParams.searchValue || ''
+      searchValue: props.queryParams.searchValue || "",
     };
   }
 
@@ -59,9 +59,9 @@ class MainList extends React.Component<Props, State> {
       variables: {
         withoutUserFilter: true,
         searchValue: undefined,
-        ...generatePaginationParams(this.props.queryParams || {})
-      }
-    }
+        ...generatePaginationParams(this.props.queryParams || {}),
+      },
+    },
   ];
 
   remove = (_id?: string) => {
@@ -79,7 +79,7 @@ class MainList extends React.Component<Props, State> {
   renderForm() {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add Department')}
+        {__("Add Department")}
       </Button>
     );
 
@@ -101,7 +101,7 @@ class MainList extends React.Component<Props, State> {
   }
 
   renderSearch() {
-    const search = e => {
+    const search = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -112,15 +112,15 @@ class MainList extends React.Component<Props, State> {
       this.setState({ searchValue });
 
       this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
+        router.removeParams(history, "page");
         router.setParams(history, { searchValue });
       }, 500);
     };
 
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
 
@@ -130,7 +130,7 @@ class MainList extends React.Component<Props, State> {
           <Icon icon="search-1" size={20} />
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={search}
             value={this.state.searchValue}
             autoFocus={true}
@@ -147,20 +147,20 @@ class MainList extends React.Component<Props, State> {
     const handleSelect = () => {
       if (selectedItems.includes(department._id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== department._id
+          (selectItem) => selectItem !== department._id
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
       this.setState({ selectedItems: [...selectedItems, department._id] });
     };
 
-    const onclick = e => {
+    const onclick = (e) => {
       e.stopPropagation();
     };
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
@@ -170,14 +170,14 @@ class MainList extends React.Component<Props, State> {
       <tr key={department._id}>
         <td onClick={onclick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(department._id)}
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${department.code}`)}</td>
+        <td>{__(`${"\u00A0 \u00A0 ".repeat(level)}  ${department.code}`)}</td>
         <td>{__(department.title)}</td>
-        <td>{__(department?.supervisor?.email || '-')}</td>
+        <td>{__(department?.supervisor?.email || "-")}</td>
         <td>{department.userCount}</td>
         <td>
           <ActionButtons>
@@ -194,7 +194,7 @@ class MainList extends React.Component<Props, State> {
               )}
               trigger={trigger}
             />
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
                 onClick={() => this.remove(department._id)}
@@ -214,7 +214,7 @@ class MainList extends React.Component<Props, State> {
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const departmentIds = departments.map(department => department._id);
+        const departmentIds = departments.map((department) => department._id);
         return this.setState({ selectedItems: departmentIds });
       }
 
@@ -227,23 +227,23 @@ class MainList extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={departments?.length === selectedItems.length}
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Title')}</th>
-            <th>{__('Supervisor')}</th>
-            <th>{__('Team member count')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Supervisor")}</th>
+            <th>{__("Team member count")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
           {generateTree(departments, null, (department, level) => {
             return this.renderRow(department, level);
           })}
-          {generateTree(departments, '', (department, level) => {
+          {generateTree(departments, "", (department, level) => {
             return this.renderRow(department, level);
           })}
         </tbody>
@@ -282,8 +282,8 @@ class MainList extends React.Component<Props, State> {
           <Wrapper.Header
             title="Departments"
             breadcrumb={[
-              { title: __('Settings'), link: '/settings' },
-              { title: __('Departments') }
+              { title: __("Settings"), link: "/settings" },
+              { title: __("Departments") },
             ]}
           />
         }
@@ -293,7 +293,7 @@ class MainList extends React.Component<Props, State> {
             left={
               <LeftActionBar>
                 <Title capitalize={true}>
-                  {__('Departments')}&nbsp;
+                  {__("Departments")}&nbsp;
                   {`(${totalCount || 0})`}
                 </Title>
                 {leftActionBar}

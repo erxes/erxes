@@ -1,10 +1,10 @@
-import * as dayjs from 'dayjs';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Detail from '../../containers/PosOrderDetail';
+import * as dayjs from "dayjs";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Tip from "@erxes/ui/src/components/Tip";
+import React from "react";
+import Button from "@erxes/ui/src/components/Button";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Detail from "../../containers/PosOrderDetail";
 
 type Props = {
   order: any;
@@ -44,7 +44,7 @@ const Row = (props: Props) => {
   const onTrClick = () => {};
 
   const { number, createdAt, totalAmount, paidDate } = order;
-  const firstBrand = mustBrands[0] || '';
+  const firstBrand = mustBrands[0] || "";
   const firstInfo = syncedInfo[firstBrand] || {};
   const otherBrands = mustBrands.splice(1, brandLen) || [];
 
@@ -58,13 +58,13 @@ const Row = (props: Props) => {
 
       return (
         <tr key={`${otherInfo._id}_${ob}`}>
-          <td>{otherInfo.brandName || ''}</td>
+          <td>{otherInfo.brandName || ""}</td>
           <td>
             {otherInfo.syncedDate &&
-              dayjs(otherInfo.syncedDate || '').format('ll')}
+              dayjs(otherInfo.syncedDate || "").format("ll")}
           </td>
-          <td>{otherInfo.syncedBillNumber || ''}</td>
-          <td>{otherInfo.syncedCustomer || ''}</td>
+          <td>{otherInfo.syncedBillNumber || ""}</td>
+          <td>{otherInfo.syncedCustomer || ""}</td>
         </tr>
       );
     });
@@ -76,31 +76,31 @@ const Row = (props: Props) => {
         <td onClick={onClick} rowSpan={brandLen}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
         <td rowSpan={brandLen}>{number}</td>
         <td rowSpan={brandLen}>{totalAmount.toLocaleString()}</td>
-        <td rowSpan={brandLen}>{dayjs(createdAt).format('lll')}</td>
-        <td rowSpan={brandLen}>{dayjs(paidDate).format('lll')}</td>
+        <td rowSpan={brandLen}>{dayjs(createdAt).format("lll")}</td>
+        <td rowSpan={brandLen}>{dayjs(paidDate).format("lll")}</td>
         <td onClick={onClick} rowSpan={brandLen}>
           {isUnsynced && (
             <FormControl
               checked={isUnsynced}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           )}
         </td>
 
-        <td>{firstInfo.brandName || ''}</td>
+        <td>{firstInfo.brandName || ""}</td>
         <td>
           {firstInfo?.syncedDate &&
-            dayjs(firstInfo?.syncedDate || '').format('ll')}
+            dayjs(firstInfo?.syncedDate || "").format("ll")}
         </td>
-        <td>{firstInfo?.syncedBillNumber || ''}</td>
-        <td>{firstInfo?.syncedCustomer || ''}</td>
+        <td>{firstInfo?.syncedBillNumber || ""}</td>
+        <td>{firstInfo?.syncedCustomer || ""}</td>
         <td rowSpan={brandLen}>
           {isUnsynced && (
             <Tip text="Sync">
@@ -128,7 +128,7 @@ const Row = (props: Props) => {
       trigger={trigger}
       autoOpenKey="showProductModal"
       content={modalContent}
-      size={'lg'}
+      size={"lg"}
     />
   );
 };

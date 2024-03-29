@@ -1,20 +1,20 @@
-import { Alert, __ } from 'coreui/utils';
-import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
+import { Alert, __ } from "coreui/utils";
+import { ContentBox, FlexRow } from "@erxes/ui-settings/src/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { Recipient, Recipients } from "@erxes/ui-engage/src/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import { Verify } from '@erxes/ui-settings/src/general/components/styles';
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import { FormControl } from "@erxes/ui/src/components/form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Info from "@erxes/ui/src/components/Info";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { Verify } from "@erxes/ui-settings/src/general/components/styles";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -42,13 +42,13 @@ type State = {
 };
 
 type CommonFields =
-  | 'emailToVerify'
-  | 'testFrom'
-  | 'testTo'
-  | 'testContent'
-  | 'telnyxApiKey'
-  | 'telnyxPhone'
-  | 'telnyxProfileId';
+  | "emailToVerify"
+  | "testFrom"
+  | "testTo"
+  | "testContent"
+  | "telnyxApiKey"
+  | "telnyxPhone"
+  | "telnyxProfileId";
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -57,14 +57,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
     const { configsMap } = props;
 
     this.state = {
-      secretAccessKey: configsMap.secretAccessKey || '',
-      accessKeyId: configsMap.accessKeyId || '',
-      region: configsMap.region || '',
-      configSet: configsMap.configSet || '',
-      emailVerificationType: configsMap.emailVerificationType || '',
-      telnyxApiKey: configsMap.telnyxApiKey || '',
-      telnyxPhone: configsMap.telnyxPhone || '',
-      telnyxProfileId: configsMap.telnyxProfileId || '',
+      secretAccessKey: configsMap.secretAccessKey || "",
+      accessKeyId: configsMap.accessKeyId || "",
+      region: configsMap.region || "",
+      configSet: configsMap.configSet || "",
+      emailVerificationType: configsMap.emailVerificationType || "",
+      telnyxApiKey: configsMap.telnyxApiKey || "",
+      telnyxPhone: configsMap.telnyxPhone || "",
+      telnyxProfileId: configsMap.telnyxProfileId || "",
     };
   }
 
@@ -83,13 +83,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
       return this.props.verifyEmail(emailToVerify);
     }
 
-    return Alert.error('Write your email to verify!');
+    return Alert.error("Write your email to verify!");
   };
 
   onSendTestEmail = () => {
     const { testFrom, testTo, testContent } = this.state;
 
-    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
+    this.props.sendTestEmail(testFrom || "", testTo || "", testContent || "");
   };
 
   onRemoveVerifiedEmail = (email: string) => {
@@ -105,7 +105,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <h4>{__('Verified emails')}:</h4>
+        <h4>{__("Verified emails")}:</h4>
 
         <Recipients>
           {verifiedEmails.map((email, index) => (
@@ -130,15 +130,15 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account',
-            ) + '.'}
+              "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account"
+            ) + "."}
           </p>
           <a
             target="_blank"
             href="https://docs.erxes.io/conversations"
             rel="noopener noreferrer"
           >
-            {__('Learn more about Amazon SES configuration')}
+            {__("Learn more about Amazon SES configuration")}
           </a>
         </Info>
         <FlexRow alignItems="flex-start" justifyContent="space-between">
@@ -225,7 +225,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         </FlexRow>
         <ModalFooter>
           {renderButton({
-            name: 'configsMap',
+            name: "configsMap",
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.configsMap,
@@ -237,7 +237,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
   render() {
     return (
-      <ContentBox id={'EngageSettingsMenu'}>
+      <ContentBox id={"EngageSettingsMenu"}>
         <CollapseContent
           beforeTitle={<Icon icon="settings" />}
           transparent={true}
@@ -249,7 +249,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <CollapseContent
           beforeTitle={<Icon icon="shield-check" />}
           transparent={true}
-          title={__('Verify the email addresses that you send email from')}
+          title={__("Verify the email addresses that you send email from")}
         >
           {this.renderVerifiedEmails()}
 
@@ -257,7 +257,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <ControlLabel required={true}>Email</ControlLabel>
             <FormControl
               type="email"
-              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+              onChange={this.onChangeCommon.bind(this, "emailToVerify")}
             />
 
             <Button
@@ -272,14 +272,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <CollapseContent
           beforeTitle={<Icon icon="envelope-upload" />}
           transparent={true}
-          title={__('Send your first testing email')}
+          title={__("Send your first testing email")}
         >
           <FlexRow alignItems="flex-start" justifyContent="space-between">
             <FormGroup>
               <ControlLabel>From</ControlLabel>
               <FormControl
                 placeholder="from@email.com"
-                onChange={this.onChangeCommon.bind(this, 'testFrom')}
+                onChange={this.onChangeCommon.bind(this, "testFrom")}
               />
             </FormGroup>
 
@@ -287,16 +287,16 @@ class EngageSettingsContent extends React.Component<Props, State> {
               <ControlLabel>To</ControlLabel>
               <FormControl
                 placeholder="to@email.com"
-                onChange={this.onChangeCommon.bind(this, 'testTo')}
+                onChange={this.onChangeCommon.bind(this, "testTo")}
               />
             </FormGroup>
           </FlexRow>
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl
-              placeholder={__('Write your content') + '...'}
-              componentClass="textarea"
-              onChange={this.onChangeCommon.bind(this, 'testContent')}
+              placeholder={__("Write your content") + "..."}
+              componentclass="textarea"
+              onChange={this.onChangeCommon.bind(this, "testContent")}
             />
           </FormGroup>
 

@@ -1,12 +1,12 @@
-import { darken, rgba } from '../styles/ecolor';
-import styled, { css } from 'styled-components';
+import { darken, rgba } from "../styles/ecolor";
+import styled, { css } from "styled-components";
 
-import React from 'react';
-import { __ } from '../utils/core';
-import { shake as animationShake } from '../utils/animations';
-import color from 'color';
-import { colors } from '../styles';
-import styledTS from 'styled-components-ts';
+import React from "react";
+import { __ } from "../utils/core";
+import { shake as animationShake } from "../utils/animations";
+import color from "color";
+import { colors } from "../styles";
+import styledTS from "styled-components-ts";
 
 const types = {
   default: {
@@ -54,7 +54,7 @@ const LabelStyled = styledTS<{
       ? css`
           ${animationShake} 3.5s ease infinite
         `
-      : 'none'};
+      : "none"};
 
   ${(props) =>
     props.$shake &&
@@ -90,14 +90,14 @@ const Label: React.FC<Props> = ({
   ignoreTrans,
   children,
   lblColor,
-  lblStyle = 'default',
+  lblStyle = "default",
   shake = false,
 }) => {
   const updatedProps = {
     $lblColor: lblColor ? lblColor : types[lblStyle].color,
     $shake: shake,
     $isLightColor: lblColor
-      ? color(lblColor ?? '')?.isLight()
+      ? color(lblColor ?? "")?.isLight()
       : color(types[lblStyle].color)?.isLight(),
   };
 
@@ -105,7 +105,7 @@ const Label: React.FC<Props> = ({
 
   if (ignoreTrans) {
     content = children;
-  } else if (typeof children === 'string') {
+  } else if (typeof children === "string") {
     content = __(children);
   }
 

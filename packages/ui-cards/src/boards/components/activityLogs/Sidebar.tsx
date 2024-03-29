@@ -1,14 +1,14 @@
 import { FieldStyle, RowFill } from "../../styles/activityLogs";
+import React, { useState } from "react";
 import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // import { withRouter } from 'react-router-dom';
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
-import React, {useState} from "react";
 import { SEARCH_ACTIVITY_CHECKBOX } from "../../constants";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -84,7 +84,7 @@ const Sidebar = (props: Props) => {
           <label>
             <RowFill>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 options={activityValues}
                 onChange={onChangeAll}
                 checked={actionQP.split(",").length === 5}
@@ -98,7 +98,7 @@ const Sidebar = (props: Props) => {
             <label>
               <RowFill>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   name="activityLogViewGeneral"
                   options={activityValues}
                   value={action}

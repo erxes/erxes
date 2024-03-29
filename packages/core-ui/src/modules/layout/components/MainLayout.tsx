@@ -1,22 +1,21 @@
-import { Layout, MainWrapper } from '../styles';
-import React, { useEffect, useState } from 'react';
-import { bustIframe, getEnv } from 'modules/common/utils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Layout, MainWrapper } from "../styles";
+import React, { useEffect, useState } from "react";
+import { bustIframe, getEnv } from "modules/common/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import DetectBrowser from './DetectBrowser';
-import { IUser } from 'modules/auth/types';
-import Navigation from './navigation';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import dayjs from 'dayjs';
-// import { withRouter } from 'react-router-dom';
-import { getVersion } from '@erxes/ui/src/utils/core';
-import { pluginsInnerWidgets } from 'pluginUtils';
+import DetectBrowser from "./DetectBrowser";
+import { IUser } from "modules/auth/types";
+import Navigation from "./navigation";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import dayjs from "dayjs";
+import { getVersion } from "@erxes/ui/src/utils/core";
+import { pluginsInnerWidgets } from "pluginUtils";
 
 const MainBar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar'
-    ),
+      /* webpackChunkName: "MainBar" */ "modules/layout/components/MainBar"
+    )
 );
 
 interface IProps {
@@ -39,8 +38,8 @@ function MainLayout({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.pathname !== '/reset-password' && !currentUser) {
-      navigate('/sign-in');
+    if (location.pathname !== "/reset-password" && !currentUser) {
+      navigate("/sign-in");
     }
 
     // if (currentUser && process.env.NODE_ENV === 'production') {
@@ -49,7 +48,7 @@ function MainLayout({
 
       const { currentOrganization } = currentUser;
 
-      if (VERSION && VERSION === 'saas' && currentOrganization) {
+      if (VERSION && VERSION === "saas" && currentOrganization) {
         const details = currentUser.details || {};
         const links = currentUser.links || {};
 
@@ -71,43 +70,43 @@ function MainLayout({
         (window as any).erxesSettings = {
           messenger: {
             email: currentUser.email,
-            brand_id: '5fkS4v',
+            brand_id: "5fkS4v",
             data: {
-              isOwner: currentUser.isOwner ? 'true' : 'false',
-              firstName: details.fullName || '',
-              avatar: details.avatar || '',
-              position: details.position || '',
-              description: details.description || '',
+              isOwner: currentUser.isOwner ? "true" : "false",
+              firstName: details.fullName || "",
+              avatar: details.avatar || "",
+              position: details.position || "",
+              description: details.description || "",
               username: currentUser.username,
               organizationName: name,
               organizationSubDomain: subdomain,
               organizationExpierence: experienceName,
-              organizationBundles: bundleNames.map((b) => b).join(', '),
+              organizationBundles: bundleNames.map((b) => b).join(", "),
               organizationPlan: plan,
-              organizationIsPaid: isPaid ? 'true' : 'false',
+              organizationIsPaid: isPaid ? "true" : "false",
               organizationIsExpired:
-                plan === 'growth' && !isPaid ? 'true' : 'false',
+                plan === "growth" && !isPaid ? "true" : "false",
               organizationExpiryDate:
-                expiryDate && dayjs(expiryDate).format('YYYY-MM-DD'),
+                expiryDate && dayjs(expiryDate).format("YYYY-MM-DD"),
               promoCodeCount: promoCodes ? promoCodes.length : 0,
-              isWhiteLabel: isWhiteLabel ? 'true' : 'false',
+              isWhiteLabel: isWhiteLabel ? "true" : "false",
               isDataImportSetupService: setupService.dataImport
-                ? 'true'
-                : 'false',
+                ? "true"
+                : "false",
               isEventTrackingInstallationSetupService:
-                setupService.eventTrackingInstallation ? 'true' : 'false',
+                setupService.eventTrackingInstallation ? "true" : "false",
               isWidgetInstallationSetupService: setupService.widgetInstallation
-                ? 'true'
-                : 'false',
-              isWebhookSetupService: setupService.webhooks ? 'true' : 'false',
+                ? "true"
+                : "false",
+              isWebhookSetupService: setupService.webhooks ? "true" : "false",
               organizationCreatedAt:
-                createdAt && dayjs(createdAt).format('YYYY-MM-DD'),
-              'links.linkedIn': links.linkedIn || '',
-              'links.twitter': links.twitter || '',
-              'links.facebook': links.facebook || '',
-              'links.github': links.github || '',
-              'links.youtube': links.youtube || '',
-              'links.website': links.website || '',
+                createdAt && dayjs(createdAt).format("YYYY-MM-DD"),
+              "links.linkedIn": links.linkedIn || "",
+              "links.twitter": links.twitter || "",
+              "links.facebook": links.facebook || "",
+              "links.github": links.github || "",
+              "links.youtube": links.youtube || "",
+              "links.website": links.website || "",
               isSubscribed: currentUser.isSubscribed,
             },
             companyData: {
@@ -126,12 +125,12 @@ function MainLayout({
         };
 
         (() => {
-          const script = document.createElement('script');
+          const script = document.createElement("script");
           script.src =
-            'https://w.office.erxes.io/build/messengerWidget.bundle.js';
+            "https://w.office.erxes.io/build/messengerWidget.bundle.js";
           script.async = true;
 
-          const entry = document.getElementsByTagName('script')[0] as any;
+          const entry = document.getElementsByTagName("script")[0] as any;
           entry.parentNode.insertBefore(script, entry);
         })();
       } else {
@@ -139,22 +138,22 @@ function MainLayout({
 
         if (!REACT_APP_HIDE_MESSENGER) {
           const userDetail = (currentUser && currentUser.details) || {
-            firstName: '',
-            lastName: '',
+            firstName: "",
+            lastName: "",
           };
           (window as any).erxesSettings = {
             messenger: {
-              brand_id: '5fkS4v',
-              email: (currentUser && currentUser.email) || '',
+              brand_id: "5fkS4v",
+              email: (currentUser && currentUser.email) || "",
               firstName: userDetail.firstName,
               lastName: userDetail.lastName,
             },
           };
 
-          const script = document.createElement('script');
+          const script = document.createElement("script");
           script.src =
-            'https://w.office.erxes.io/build/messengerWidget.bundle.js';
-          const entry = document.getElementsByTagName('script')[0];
+            "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+          const entry = document.getElementsByTagName("script")[0];
           (entry as any).parentNode.insertBefore(script, entry);
         }
         pluginsInnerWidgets();
@@ -166,26 +165,26 @@ function MainLayout({
           (currentUser.createdAt
             ? new Date(currentUser.createdAt)
             : new Date()
-          ).getTime() / 1000,
+          ).getTime() / 1000
         ),
-        account_token: 'NPS-477ee032', // This is your unique account token.
+        account_token: "NPS-477ee032", // This is your unique account token.
       };
 
-      const wootricScript = document.createElement('script');
-      wootricScript.src = 'https://cdn.wootric.com/wootric-sdk.js';
+      const wootricScript = document.createElement("script");
+      wootricScript.src = "https://cdn.wootric.com/wootric-sdk.js";
 
       document.head.appendChild(wootricScript);
 
       wootricScript.onload = () => {
-        (window as any).wootric('run');
+        (window as any).wootric("run");
       };
     } // end currentUser checking
 
     if (enabledServices && Object.keys(enabledServices).length !== 0) {
-      localStorage.setItem('enabledServices', JSON.stringify(enabledServices));
+      localStorage.setItem("enabledServices", JSON.stringify(enabledServices));
     }
 
-    const navNumber = localStorage.getItem('navigationNumber');
+    const navNumber = localStorage.getItem("navigationNumber");
     setNavCollapse(navNumber ? parseInt(navNumber) : 2);
 
     // click-jack attack defense
@@ -194,7 +193,7 @@ function MainLayout({
 
   const onClickHandleIcon = (type: string) => {
     let collapse;
-    if (type === 'plus') {
+    if (type === "plus") {
       collapse = navCollapse + 1;
     } else {
       collapse = navCollapse - 1;
@@ -202,16 +201,16 @@ function MainLayout({
 
     setNavCollapse(collapse);
 
-    localStorage.setItem('navigationNumber', collapse.toString());
+    localStorage.setItem("navigationNumber", collapse.toString());
   };
 
-  if (location.pathname.startsWith('/videoCall')) {
+  if (location.pathname.startsWith("/videoCall")) {
     return children;
   }
 
   return (
     <>
-      <div id="anti-clickjack" style={{ display: 'none' }} />
+      <div id="anti-clickjack" style={{ display: "none" }} />
 
       <Layout $isSqueezed={isShownIndicator}>
         <Navigation

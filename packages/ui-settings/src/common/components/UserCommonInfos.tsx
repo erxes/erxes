@@ -1,17 +1,18 @@
-import { router } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import timezones from '@erxes/ui/src/constants/timezones';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import SelectPositions from '@erxes/ui/src/team/containers/SelectPositions';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __, getConstantFromStore } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import React from 'react';
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { __, getConstantFromStore } from "@erxes/ui/src/utils";
+
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFormProps } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import SelectPositions from "@erxes/ui/src/team/containers/SelectPositions";
+import dayjs from "dayjs";
+import { router } from "@erxes/ui/src";
+import timezones from "@erxes/ui/src/constants/timezones";
 
 type Props = {
   user: IUser;
@@ -41,7 +42,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
         <FormControl
           type="url"
           name={link.value}
-          defaultValue={links[link.value] || ''}
+          defaultValue={links[link.value] || ""}
           {...formProps}
         />
       </FormGroup>
@@ -50,7 +51,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
 
   render() {
     const { user, onAvatarUpload, formProps, history } = this.props;
-    console.log(user, 'init');
+    console.log(user, "init");
     const details = user.details || {};
     const positionIds = this.state.positionIds;
 
@@ -62,7 +63,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
     return (
       <>
         <CollapseContent
-          title={__('General Information')}
+          title={__("General Information")}
           open={true}
           compact={true}
         >
@@ -77,7 +78,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                 <FormControl
                   type="text"
                   name="firstName"
-                  defaultValue={details.firstName || ''}
+                  defaultValue={details.firstName || ""}
                   {...formProps}
                 />
               </FormGroup>
@@ -86,7 +87,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                 <FormControl
                   type="text"
                   name="lastName"
-                  defaultValue={details.lastName || ''}
+                  defaultValue={details.lastName || ""}
                   {...formProps}
                 />
               </FormGroup>
@@ -106,8 +107,8 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                   type="text"
                   name="description"
                   max={250}
-                  componentClass="textarea"
-                  defaultValue={details.description || ''}
+                  componentclass="textarea"
+                  defaultValue={details.description || ""}
                   {...formProps}
                 />
               </FormGroup>
@@ -140,8 +141,8 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                   type="date"
                   name="workStartedDate"
                   defaultValue={dayjs(
-                    details.workStartedDate || new Date(),
-                  ).format('YYYY-MM-DD')}
+                    details.workStartedDate || new Date()
+                  ).format("YYYY-MM-DD")}
                   {...formProps}
                 />
               </FormGroup>
@@ -152,7 +153,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                 <FormControl
                   type="text"
                   name="middleName"
-                  defaultValue={details.middleName || ''}
+                  defaultValue={details.middleName || ""}
                   {...formProps}
                 />
               </FormGroup>
@@ -161,7 +162,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                 <FormControl
                   type="text"
                   name="shortName"
-                  defaultValue={details.shortName || ''}
+                  defaultValue={details.shortName || ""}
                   {...formProps}
                 />
               </FormGroup>
@@ -191,7 +192,7 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                   type="date"
                   name="birthDate"
                   defaultValue={dayjs(details.birthDate || new Date()).format(
-                    'YYYY-MM-DD',
+                    "YYYY-MM-DD"
                   )}
                   {...formProps}
                 />
@@ -201,14 +202,14 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
                 <FormControl
                   type="text"
                   name="operatorPhone"
-                  defaultValue={details.operatorPhone || ''}
+                  defaultValue={details.operatorPhone || ""}
                   {...formProps}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Location</ControlLabel>
                 <FormControl
-                  componentClass="select"
+                  componentclass="select"
                   defaultValue={details.location}
                   name="location"
                   options={timezones}
@@ -219,11 +220,11 @@ class UserCommonInfos extends React.PureComponent<Props, State> {
           </FormWrapper>
         </CollapseContent>
 
-        <CollapseContent title={__('Links')} compact={true}>
+        <CollapseContent title={__("Links")} compact={true}>
           <FormWrapper>
             <FormColumn>
-              {getConstantFromStore('social_links').map((link) =>
-                this.renderLink(link),
+              {getConstantFromStore("social_links").map((link) =>
+                this.renderLink(link)
               )}
             </FormColumn>
           </FormWrapper>

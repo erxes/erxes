@@ -12,9 +12,9 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { IProduct } from "@erxes/ui-products/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Select from "react-select";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import React from "react";
+import Select from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -228,7 +228,7 @@ class ProductItem extends React.Component<Props, State> {
         return (
           <VoucherCard>
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               checked={isSelectedVoucher}
               onChange={() => this.toggleVoucherCardChecBox()}
             />
@@ -513,14 +513,14 @@ class ProductItem extends React.Component<Props, State> {
         </td>
         <td>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={productData.tickUsed}
             onChange={this.onTickUse}
           />
         </td>
         <td>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             disabled={true}
             value={productData.isVatApplied}
             checked={productData.isVatApplied}

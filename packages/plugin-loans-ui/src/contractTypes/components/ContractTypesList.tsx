@@ -1,23 +1,25 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import ContractTypeForm from '../containers/ContractTypeForm';
-import ContractTypeRow from './ContractTypeRow';
-import { ContractTypesTableWrapper } from '../styles';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IContractType } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import ContractTypeRow from "./ContractTypeRow";
+import { ContractTypesTableWrapper } from "../styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IContractType } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+
 // import { withRouter } from 'react-router-dom';
 
-import { __ } from 'coreui/utils';
 interface IProps extends IRouterProps {
   contractTypes: IContractType[];
   loading: boolean;
@@ -31,7 +33,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removeContractTypes: (
     doc: { contractTypeIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -54,7 +56,7 @@ const ContractTypesList = (props: IProps) => {
   } = props;
 
   const onChange = () => {
-    toggleAll(contractTypes, 'contractTypes');
+    toggleAll(contractTypes, "contractTypes");
   };
 
   const search = (e) => {
@@ -84,32 +86,37 @@ const ContractTypesList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const mainContent = (
     <ContractTypesTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'code'} label={__('Code')} />
+              <SortHandler sortField={"code"} label={__("Code")} />
             </th>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
             <th>
-              <SortHandler sortField={'number'} label={__('Start Number')} />
+              <SortHandler sortField={"number"} label={__("Start Number")} />
             </th>
-            <th>{__('After vacancy count')}</th>
+            <th>{__("After vacancy count")}</th>
             <th></th>
           </tr>
         </thead>
@@ -130,7 +137,7 @@ const ContractTypesList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add contractType')}
+      {__("Add contractType")}
     </Button>
   );
 
@@ -149,7 +156,7 @@ const ContractTypesList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-          {__('Delete')}
+          {__("Delete")}
         </Button>
       </BarItems>
     );
@@ -163,7 +170,7 @@ const ContractTypesList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -193,8 +200,8 @@ const ContractTypesList = (props: IProps) => {
           title={__(`ContractTypes`) + ` (${totalCount})`}
           queryParams={queryParams}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Contract Type') },
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Contract Type") },
           ]}
         />
       }

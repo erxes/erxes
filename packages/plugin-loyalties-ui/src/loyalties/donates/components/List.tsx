@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -7,23 +7,24 @@ import {
   Pagination,
   SortHandler,
   Table,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 import {
   MainStyleCount as Count,
   MainStyleTitle as Title,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import DonateForm from '../containers/Form';
-import DonateRow from './Row';
-import { IDonate } from '../types';
-import { IDonateCampaign } from '../../../configs/donateCampaign/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import React from 'react';
-import Sidebar from './Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { menuLoyalties } from '../../common/constants';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import DonateForm from "../containers/Form";
+import DonateRow from "./Row";
+import { IDonate } from "../types";
+import { IDonateCampaign } from "../../../configs/donateCampaign/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { LoyaltiesTableWrapper } from "../../common/styles";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { menuLoyalties } from "../../common/constants";
+
 // import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -60,7 +61,7 @@ class DonatesList extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, donates } = this.props;
-    toggleAll(donates, 'donates');
+    toggleAll(donates, "donates");
   };
 
   search = (e) => {
@@ -73,7 +74,7 @@ class DonatesList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -90,7 +91,7 @@ class DonatesList extends React.Component<IProps, State> {
 
   moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -109,29 +110,29 @@ class DonatesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
               <th>
-                <SortHandler sortField={'createdAt'} label={__('Created')} />
+                <SortHandler sortField={"createdAt"} label={__("Created")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
+                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerId'} label={__('Owner')} />
+                <SortHandler sortField={"ownerId"} label={__("Owner")} />
               </th>
               <th>
                 <SortHandler
-                  sortField={'donateScore'}
-                  label={__('Donate Score')}
+                  sortField={"donateScore"}
+                  label={__("Donate Score")}
                 />
               </th>
               <th>Actions</th>
@@ -192,7 +193,7 @@ class DonatesList extends React.Component<IProps, State> {
         <BarItems>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={this.search}
             value={this.state.searchValue}
             autoFocus={true}
@@ -213,7 +214,7 @@ class DonatesList extends React.Component<IProps, State> {
     const actionBarLeft = (
       <Title>
         {(currentCampaign && `${currentCampaign.title}`) ||
-          'All donate campaigns'}{' '}
+          "All donate campaigns"}{" "}
       </Title>
     );
     const actionBar = (
@@ -240,7 +241,7 @@ class DonatesList extends React.Component<IProps, State> {
         content={
           <>
             <Count>
-              {totalCount} donate{totalCount > 1 && 's'}
+              {totalCount} donate{totalCount > 1 && "s"}
             </Count>
             <DataWithLoader
               data={mainContent}

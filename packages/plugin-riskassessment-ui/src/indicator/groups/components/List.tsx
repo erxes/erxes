@@ -6,17 +6,18 @@ import {
   ModalTrigger,
   Table,
   __,
-  router
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { subMenu } from '../../../common/constants';
-import { DefaultWrapper } from '../../../common/utils';
-import { FlexRow, HeaderContent } from '../../../styles';
-import Sidebar from '../../components/SideBar';
-import { IIndicatorsGroups } from '../common/types';
-import Form from '../containers/Form';
-import Row from './Row';
+  router,
+} from "@erxes/ui/src";
+import { FlexRow, HeaderContent } from "../../../styles";
+
+import { DefaultWrapper } from "../../../common/utils";
+import Form from "../containers/Form";
+import { IIndicatorsGroups } from "../common/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "../../components/SideBar";
+import { subMenu } from "../../../common/constants";
 
 type Props = {
   queryParams: any;
@@ -36,17 +37,17 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: props.queryParams.searchValue || '',
-      selectedItems: []
+      searchValue: props.queryParams.searchValue || "",
+      selectedItems: [],
     };
   }
 
   addIndicatorGroups() {
     const trigger = (
-      <Button btnStyle="success">{__('Add Grouping Indicators')}</Button>
+      <Button btnStyle="success">{__("Add Grouping Indicators")}</Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <Form queryParams={this.props.queryParams} {...props} />
     );
 
@@ -62,7 +63,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderSearchField = () => {
-    const handleSearch = e => {
+    const handleSearch = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -70,7 +71,7 @@ class List extends React.Component<Props, State> {
       const searchValue = e.target.value;
       this.setState({ searchValue });
       this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
+        router.removeParams(history, "page");
         router.setParams(history, { searchValue });
       }, 500);
     };
@@ -93,7 +94,7 @@ class List extends React.Component<Props, State> {
 
     return (
       <Button btnStyle="danger" onClick={handleRemove}>
-        {__('Remove')}
+        {__("Remove")}
       </Button>
     );
   };
@@ -104,16 +105,16 @@ class List extends React.Component<Props, State> {
 
     const selectAll = () => {
       if (!selectedItems.length) {
-        const ids = list.map(item => item._id);
+        const ids = list.map((item) => item._id);
         return this.setState({ selectedItems: ids });
       }
 
       this.setState({ selectedItems: [] });
     };
 
-    const selectItem = id => {
+    const selectItem = (id) => {
       if (selectedItems.includes(id)) {
-        const newselectedItems = selectedItems.filter(p => p !== id);
+        const newselectedItems = selectedItems.filter((p) => p !== id);
         return this.setState({ selectedItems: newselectedItems });
       }
       this.setState({ selectedItems: [...selectedItems, id] });
@@ -124,17 +125,17 @@ class List extends React.Component<Props, State> {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onClick={selectAll} />
+              <FormControl componentclass="checkbox" onClick={selectAll} />
             </th>
-            <th>{__('Name')}</th>
-            <th>{__('Tags')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Tags")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("")}</th>
           </tr>
         </thead>
         <tbody>
-          {list.map(item => (
+          {list.map((item) => (
             <Row
               key={item._id}
               indicatorsGroups={item}
@@ -176,13 +177,13 @@ class List extends React.Component<Props, State> {
     );
 
     const updatedProps = {
-      title: 'Indicators Groups',
+      title: "Indicators Groups",
       rightActionBar,
       leftActionBar,
       sidebar: <Sidebar queryParams={queryParams} history={history} />,
       content: this.renderContent(),
       totalCount,
-      subMenu
+      subMenu,
     };
 
     return <DefaultWrapper {...updatedProps} />;

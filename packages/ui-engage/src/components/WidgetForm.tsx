@@ -154,7 +154,7 @@ class WidgetForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Channel:</ControlLabel>
           <FormControl
-            componentClass="select"
+            componentclass="select"
             onChange={this.onChannelChange}
             defaultValue={this.state.channel}
           >
@@ -193,7 +193,7 @@ class WidgetForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Brand:</ControlLabel>
 
-              <FormControl id="brandId" componentClass="select" required={true}>
+              <FormControl id="brandId" componentclass="select" required={true}>
                 <option />
                 {this.props.brands.map((b, index) => (
                   <option key={`brand-${index}`} value={b._id}>
@@ -210,7 +210,7 @@ class WidgetForm extends React.Component<Props, State> {
 
                     <FormControl
                       id="messengerKind"
-                      componentClass="select"
+                      componentclass="select"
                       required={true}
                     >
                       <option />
@@ -229,7 +229,7 @@ class WidgetForm extends React.Component<Props, State> {
                     <FormControl
                       id="sentAs"
                       defaultValue={this.state.sentAs}
-                      componentClass="select"
+                      componentclass="select"
                       onChange={this.onSentAsChange}
                     >
                       {this.props.sentAsChoices.map((t, index) => (

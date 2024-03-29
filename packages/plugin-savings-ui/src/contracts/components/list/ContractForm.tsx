@@ -9,30 +9,30 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IContract, IContractDoc } from '../../types';
-import { Tabs as MainTabs, TabTitle } from '@erxes/ui/src/components/tabs';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IContract, IContractDoc } from "../../types";
+import { Tabs as MainTabs, TabTitle } from "@erxes/ui/src/components/tabs";
 import SelectContractType, {
   ContractTypeById,
-} from '../../../contractTypes/containers/SelectContractType';
+} from "../../../contractTypes/containers/SelectContractType";
 
-import ContractsCustomFields from './ContractsCustomFields';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IContractType } from '../../../contractTypes/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectContracts from '../common/SelectContract';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { __ } from 'coreui/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ContractsCustomFields from "./ContractsCustomFields";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IContractType } from "../../../contractTypes/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectContracts from "../common/SelectContract";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { __ } from "coreui/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   currentUser: IUser;
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean },
+    props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
   contract: IContract;
   closeModal: () => void;
@@ -92,7 +92,7 @@ export function Tabs({ tabs }: ITabs) {
       <MainTabs>
         {tabs.map((tab, index) => (
           <TabTitle
-            className={tabIndex === index ? 'active' : ''}
+            className={tabIndex === index ? "active" : ""}
             key={`tab${tab.label}`}
             onClick={() => setTabIndex(index)}
           >
@@ -101,7 +101,7 @@ export function Tabs({ tabs }: ITabs) {
         ))}
       </MainTabs>
 
-      <div style={{ width: '100%', marginTop: 20 }}>
+      <div style={{ width: "100%", marginTop: 20 }}>
         {tabs?.[tabIndex]?.component}
       </div>
     </>
@@ -127,7 +127,7 @@ class ContractForm extends React.Component<Props, State> {
       contractTypeId: contract.contractTypeId,
       storeInterestInterval: contract.storeInterestInterval,
       customerId: contract.customerId,
-      customerType: contract.customerType || 'customer',
+      customerType: contract.customerType || "customer",
       currency:
         contract.currency || this.props.currentUser.configs?.dealCurrency?.[0],
       interestGiveType: contract.interestGiveType,
@@ -172,7 +172,7 @@ class ContractForm extends React.Component<Props, State> {
   renderFormGroup = (label, props) => {
     return (
       <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
+        <ControlLabel required={!label.includes("Amount")}>
           {__(label)}
         </ControlLabel>
         <FormControl {...props} />
@@ -192,19 +192,19 @@ class ContractForm extends React.Component<Props, State> {
     var changingStateValue: any = { contractTypeId: value };
 
     //get default value from contract type
-    changingStateValue['interestRate'] = Number(contractTypeObj?.interestRate);
-    changingStateValue['closeInterestRate'] = Number(
-      contractTypeObj?.closeInterestRate,
+    changingStateValue["interestRate"] = Number(contractTypeObj?.interestRate);
+    changingStateValue["closeInterestRate"] = Number(
+      contractTypeObj?.closeInterestRate
     );
-    changingStateValue['storeInterestInterval'] =
+    changingStateValue["storeInterestInterval"] =
       contractTypeObj?.storeInterestInterval;
-    changingStateValue['interestCalcType'] = contractTypeObj?.interestCalcType;
-    changingStateValue['isAllowIncome'] = contractTypeObj?.isAllowIncome;
-    changingStateValue['isAllowOutcome'] = contractTypeObj?.isAllowOutcome;
-    changingStateValue['isDeposit'] = contractTypeObj?.isDeposit;
+    changingStateValue["interestCalcType"] = contractTypeObj?.interestCalcType;
+    changingStateValue["isAllowIncome"] = contractTypeObj?.isAllowIncome;
+    changingStateValue["isAllowOutcome"] = contractTypeObj?.isAllowOutcome;
+    changingStateValue["isDeposit"] = contractTypeObj?.isDeposit;
 
     if (!this.state.duration && contractTypeObj?.config?.minDuration) {
-      changingStateValue['duration'] = contractTypeObj?.config?.minDuration;
+      changingStateValue["duration"] = contractTypeObj?.config?.minDuration;
     }
 
     this.setState({ ...changingStateValue });
@@ -224,7 +224,7 @@ class ContractForm extends React.Component<Props, State> {
 
   onCheckCustomerType = (e) => {
     this.setState({
-      customerType: e.target.checked ? 'company' : 'customer',
+      customerType: e.target.checked ? "company" : "customer",
     });
   };
 
@@ -232,7 +232,7 @@ class ContractForm extends React.Component<Props, State> {
     const errors: any = {};
 
     function errorWrapper(text: string) {
-      return <label style={{ color: 'red' }}>{text}</label>;
+      return <label style={{ color: "red" }}>{text}</label>;
     }
 
     if (
@@ -240,7 +240,7 @@ class ContractForm extends React.Component<Props, State> {
       isGreaterNumber(this.state.interestRate, this.state.config.maxInterest)
     )
       errors.interestMonth = errorWrapper(
-        `${__('Interest must less than')} ${this.state.config.maxInterest}`,
+        `${__("Interest must less than")} ${this.state.config.maxInterest}`
       );
 
     return errors;
@@ -264,21 +264,21 @@ class ContractForm extends React.Component<Props, State> {
           <FormWrapper>
             {!change && (
               <FormColumn>
-                <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                  {this.renderFormGroup('Is Organization', {
+                <div style={{ paddingBottom: "13px", paddingTop: "20px" }}>
+                  {this.renderFormGroup("Is Organization", {
                     ...formProps,
-                    className: 'flex-item',
-                    type: 'checkbox',
-                    componentClass: 'checkbox',
-                    name: 'customerType',
-                    checked: this.state.customerType === 'company',
+                    className: "flex-item",
+                    type: "checkbox",
+                    componentClass: "checkbox",
+                    name: "customerType",
+                    checked: this.state.customerType === "company",
                     onChange: this.onCheckCustomerType,
                   })}
                 </div>
-                {this.state.customerType === 'customer' && (
+                {this.state.customerType === "customer" && (
                   <FormGroup>
                     <ControlLabel required={true}>
-                      {__('Customer')}
+                      {__("Customer")}
                     </ControlLabel>
                     <SelectCustomers
                       label="Choose customer"
@@ -290,9 +290,9 @@ class ContractForm extends React.Component<Props, State> {
                   </FormGroup>
                 )}
 
-                {this.state.customerType === 'company' && (
+                {this.state.customerType === "company" && (
                   <FormGroup>
-                    <ControlLabel required={true}>{__('Company')}</ControlLabel>
+                    <ControlLabel required={true}>{__("Company")}</ControlLabel>
                     <SelectCompanies
                       label="Choose company"
                       name="customerId"
@@ -304,12 +304,12 @@ class ContractForm extends React.Component<Props, State> {
                 )}
                 <FormGroup>
                   <ControlLabel required={true}>
-                    {__('Contract Type')}
+                    {__("Contract Type")}
                   </ControlLabel>
                   <SelectContractType
-                    label={__('Choose type')}
+                    label={__("Choose type")}
                     name="contractTypeId"
-                    value={this.state.contractTypeId || ''}
+                    value={this.state.contractTypeId || ""}
                     onSelect={this.onSelectContractType}
                     multi={false}
                   ></SelectContractType>
@@ -320,7 +320,7 @@ class ContractForm extends React.Component<Props, State> {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>
-                    {__('Start Date')}
+                    {__("Start Date")}
                   </ControlLabel>
                   <DateContainer>
                     <DateControl
@@ -333,21 +333,21 @@ class ContractForm extends React.Component<Props, State> {
                     />
                   </DateContainer>
                 </FormGroup>
-                {this.renderFormGroup('Duration', {
+                {this.renderFormGroup("Duration", {
                   ...formProps,
-                  className: 'flex-item',
-                  type: 'number',
+                  className: "flex-item",
+                  type: "number",
                   useNumberFormat: true,
-                  name: 'duration',
+                  name: "duration",
                   value: this.state.duration,
                   onChange: this.onChangeField,
                 })}
-                {this.renderFormGroup('Saving Amount', {
+                {this.renderFormGroup("Saving Amount", {
                   ...formProps,
-                  className: 'flex-item',
-                  type: 'number',
+                  className: "flex-item",
+                  type: "number",
                   useNumberFormat: true,
-                  name: 'savingAmount',
+                  name: "savingAmount",
                   value: this.state.savingAmount,
                   onChange: this.onChangeField,
                 })}
@@ -355,77 +355,77 @@ class ContractForm extends React.Component<Props, State> {
             )}
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Branches')}</ControlLabel>
+                <ControlLabel>{__("Branches")}</ControlLabel>
                 <SelectBranches
                   name="branchId"
-                  label={__('Choose branch')}
+                  label={__("Choose branch")}
                   initialValue={this.state?.branchId}
                   onSelect={onChangeBranchId}
                   multi={false}
                 />
               </FormGroup>
-              {this.renderFormGroup('Interest Rate', {
+              {this.renderFormGroup("Interest Rate", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'number',
+                className: "flex-item",
+                type: "number",
                 useNumberFormat: true,
-                name: 'interestRate',
+                name: "interestRate",
                 value: this.state.interestRate,
                 onChange: this.onChangeField,
               })}
 
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Close or extend of time')}
+                  {__("Close or extend of time")}
                 </ControlLabel>
                 <FormControl
                   {...this.props}
                   name="closeOrExtendConfig"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.closeOrExtendConfig}
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['closeEndOfContract', 'autoExtend'].map(
+                  {["closeEndOfContract", "autoExtend"].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    ),
+                    )
                   )}
                 </FormControl>
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Interest give type')}
+                  {__("Interest give type")}
                 </ControlLabel>
                 <FormControl
                   {...this.props}
                   name="interestGiveType"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.interestGiveType}
                   required={true}
                   onChange={this.onChangeField}
                 >
-                  {['currentAccount', 'depositAccount'].map(
+                  {["currentAccount", "depositAccount"].map(
                     (typeName, index) => (
                       <option key={index} value={typeName}>
                         {__(typeName)}
                       </option>
-                    ),
+                    )
                   )}
                 </FormControl>
               </FormGroup>
-              {this.state.interestGiveType === 'depositAccount' && (
+              {this.state.interestGiveType === "depositAccount" && (
                 <FormGroup>
-                  <ControlLabel>{__('Deposit account')}</ControlLabel>
+                  <ControlLabel>{__("Deposit account")}</ControlLabel>
                   <SelectContracts
-                    label={__('Choose an contract')}
+                    label={__("Choose an contract")}
                     name="depositAccount"
                     initialValue={this.state.depositAccount}
                     filterParams={{ isDeposit: true }}
                     onSelect={(v) => {
-                      if (typeof v === 'string') {
+                      if (typeof v === "string") {
                         this.setState({
                           depositAccount: v,
                         });
@@ -441,13 +441,13 @@ class ContractForm extends React.Component<Props, State> {
             <FormWrapper>
               <FormColumn>
                 <FormGroup>
-                  <ControlLabel>{__('Description')}</ControlLabel>
+                  <ControlLabel>{__("Description")}</ControlLabel>
                   <FormControl
                     {...formProps}
                     max={140}
                     name="description"
-                    componentClass="textarea"
-                    value={this.state.description || ''}
+                    componentclass="textarea"
+                    value={this.state.description || ""}
                     onChange={this.onChangeField}
                   />
                 </FormGroup>
@@ -458,11 +458,11 @@ class ContractForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: this.generateDoc(values),
             disabled: !!Object.keys(this.checkValidation()).length,
             isSubmitted,
@@ -488,13 +488,13 @@ class ContractForm extends React.Component<Props, State> {
       <Tabs
         tabs={[
           {
-            label: 'Гэрээ',
+            label: "Гэрээ",
             component: <Form renderContent={this.renderContent} />,
           },
-          ...(isEnabled('forms')
+          ...(isEnabled("forms")
             ? [
                 {
-                  label: 'Бусад',
+                  label: "Бусад",
                   component: <Form renderContent={this.renderCustom} />,
                 },
               ]

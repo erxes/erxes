@@ -1,13 +1,13 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React, { useState } from 'react';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React, { useState } from "react";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -35,10 +35,10 @@ const CheckerSidebar = (props: IProps) => {
   const [paidStartDate, setPaidStartDate] = useState(queryParams.paidStartDate);
   const [paidEndDate, setPaidEndDate] = useState(queryParams.paidEndDate);
   const [createdStartDate, setCreatedStartDate] = useState(
-    queryParams.createdStartDate,
+    queryParams.createdStartDate
   );
   const [createdEndDate, setCreatedEndDate] = useState(
-    queryParams.createdEndDate,
+    queryParams.createdEndDate
   );
   const [userId, setUserId] = useState(queryParams.userId);
   const [posId, setPosId] = useState(queryParams.posId);
@@ -58,17 +58,17 @@ const CheckerSidebar = (props: IProps) => {
   };
 
   const onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    if (kind === 'paidStartDate') {
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
+    if (kind === "paidStartDate") {
       setPaidStartDate(cDate);
     }
-    if (kind === 'paidEndDate') {
+    if (kind === "paidEndDate") {
       setPaidEndDate(cDate);
     }
-    if (kind === 'createdStartDate') {
+    if (kind === "createdStartDate") {
       setCreatedStartDate(cDate);
     }
-    if (kind === 'createdEndDate') {
+    if (kind === "createdEndDate") {
       setCreatedEndDate(cDate);
     }
   };
@@ -76,8 +76,8 @@ const CheckerSidebar = (props: IProps) => {
   const renderRange = (dateType: string) => {
     const lblStart = `${dateType}StartDate`;
     const lblEnd = `${dateType}EndDate`;
-    const stateStart = dateType === 'paid' ? paidStartDate : createdStartDate;
-    const stateEnd = dateType === 'paid' ? paidEndDate : createdEndDate;
+    const stateStart = dateType === "paid" ? paidStartDate : createdStartDate;
+    const stateEnd = dateType === "paid" ? paidEndDate : createdEndDate;
 
     return (
       <>
@@ -85,7 +85,7 @@ const CheckerSidebar = (props: IProps) => {
           <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
 
           <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
             value={stateStart || null}
@@ -93,14 +93,14 @@ const CheckerSidebar = (props: IProps) => {
             utc={true}
             input={true}
             onChange={onChangeRangeFilter.bind(this, lblStart)}
-            viewMode={'days'}
-            className={'filterDate'}
+            viewMode={"days"}
+            className={"filterDate"}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
           <Datetime
-            inputProps={{ placeholder: __('Click to select a date') }}
+            inputProps={{ placeholder: __("Click to select a date") }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
             value={stateEnd}
@@ -108,8 +108,8 @@ const CheckerSidebar = (props: IProps) => {
             utc={true}
             input={true}
             onChange={onChangeRangeFilter.bind(this, lblEnd)}
-            viewMode={'days'}
-            className={'filterDate'}
+            viewMode={"days"}
+            className={"filterDate"}
           />
         </FormGroup>
       </>
@@ -125,10 +125,10 @@ const CheckerSidebar = (props: IProps) => {
     const value = (e.currentTarget as HTMLInputElement).value;
     const name = (e.currentTarget as HTMLInputElement).name;
 
-    if (name === 'posId') {
+    if (name === "posId") {
       setPosId(value);
     }
-    if (name === 'search') {
+    if (name === "search") {
       setSearch(value);
     }
   };
@@ -141,12 +141,12 @@ const CheckerSidebar = (props: IProps) => {
     <Wrapper.Sidebar>
       <Sidebar>
         <Section collapsible={false}>
-          <Section.Title>{__('Filters')}</Section.Title>
+          <Section.Title>{__("Filters")}</Section.Title>
           <FormGroup>
             <ControlLabel>Enter POS token</ControlLabel>
             <FormControl
               type="text"
-              placeholder={__('POS token')}
+              placeholder={__("POS token")}
               onChange={onChangePosToken}
               defaultValue={posToken}
               autoFocus={true}
@@ -157,8 +157,8 @@ const CheckerSidebar = (props: IProps) => {
             <SelectTeamMembers
               label="Choose users"
               name="userId"
-              customOption={{ label: 'Choose user', value: '' }}
-              initialValue={userId || ''}
+              customOption={{ label: "Choose user", value: "" }}
+              initialValue={userId || ""}
               onSelect={onUserChange}
               multi={false}
             />
@@ -166,12 +166,12 @@ const CheckerSidebar = (props: IProps) => {
           <FormGroup>
             <ControlLabel>POS</ControlLabel>
             <FormControl
-              name={'posId'}
-              componentClass="select"
+              name={"posId"}
+              componentclass="select"
               defaultValue={posId}
               onChange={onChangeInput}
             >
-              <option value="">{__('All')}</option>
+              <option value="">{__("All")}</option>
               {posList &&
                 Array.isArray(posList) &&
                 (posList || []).map((pos) => (
@@ -192,8 +192,8 @@ const CheckerSidebar = (props: IProps) => {
               autoFocus={true}
             />
           </FormGroup>
-          {renderRange('paid')}
-          {renderRange('created')}
+          {renderRange("paid")}
+          {renderRange("created")}
         </Section>
 
         <Button onClick={onFilter}>Filter</Button>

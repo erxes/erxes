@@ -1,11 +1,11 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Label from '@erxes/ui/src/components/Label';
-import moment from 'moment';
-import React, { useState, useRef } from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { colors, IDayPlan, IPlanValue } from '../types';
-import { FormControl } from '@erxes/ui/src/components';
-import { ITimeframe } from '../../settings/types';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Label from "@erxes/ui/src/components/Label";
+import moment from "moment";
+import React, { useState, useRef } from "react";
+import { __ } from "@erxes/ui/src/utils";
+import { colors, IDayPlan, IPlanValue } from "../types";
+import { FormControl } from "@erxes/ui/src/components";
+import { ITimeframe } from "../../settings/types";
 
 type Props = {
   dayPlan: IDayPlan;
@@ -27,9 +27,9 @@ const DayPlanRow = (props: Props) => {
     (dayPlan.values?.length && dayPlan.values) ||
       timeFrames.map((tf) => ({
         _id: Math.random().toString(),
-        timeId: tf._id || '',
+        timeId: tf._id || "",
         count: 0,
-      })),
+      }))
   );
 
   const onClick = (e) => {
@@ -75,22 +75,22 @@ const DayPlanRow = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>{moment(date).format('YYYY/MM/DD')}</td>
-      <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
-      <td>{department ? `${department.code} - ${department.title}` : ''}</td>
-      <td>{product ? `${product.code} - ${product.name}` : ''}</td>
-      <td>{uom || ''}</td>
+      <td>{moment(date).format("YYYY/MM/DD")}</td>
+      <td>{branch ? `${branch.code} - ${branch.title}` : ""}</td>
+      <td>{department ? `${department.code} - ${department.title}` : ""}</td>
+      <td>{product ? `${product.code} - ${product.name}` : ""}</td>
+      <td>{uom || ""}</td>
       <td>{(planCount || 0).toLocaleString()}</td>
       {(timeFrames || []).map((tf) => (
         <td key={tf._id}>
           <FormControl
             type="number"
             name={tf._id}
-            defaultValue={(valueById[tf._id || ''] || {}).count || 0}
+            defaultValue={(valueById[tf._id || ""] || {}).count || 0}
             onChange={onChangeValue}
           />
         </td>
@@ -100,28 +100,28 @@ const DayPlanRow = (props: Props) => {
       <td>
         <ActionButtons>
           <Label
-            lblColor={colors[status || ''] || '#0078bf'}
+            lblColor={colors[status || ""] || "#0078bf"}
             children={status}
           />
         </ActionButtons>
       </td>
       {(
         values.filter(
-          (v) => !timeFrames.map((t) => t._id).includes(v.timeId),
+          (v) => !timeFrames.map((t) => t._id).includes(v.timeId)
         ) || []
       ).map((val) =>
-        (valueById[val.timeId || ''] || {}).count ? (
+        (valueById[val.timeId || ""] || {}).count ? (
           <td key={val._id}>
             <FormControl
               type="number"
               name={val.timeId}
-              defaultValue={(valueById[val.timeId || ''] || {}).count}
+              defaultValue={(valueById[val.timeId || ""] || {}).count}
               onChange={onChangeValue}
             />
           </td>
         ) : (
-          ''
-        ),
+          ""
+        )
       )}
     </tr>
   );

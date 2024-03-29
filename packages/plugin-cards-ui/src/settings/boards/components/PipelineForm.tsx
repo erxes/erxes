@@ -373,7 +373,7 @@ class PipelineForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="visibility"
-                componentClass="select"
+                componentclass="select"
                 value={this.state.visibility}
                 onChange={this.onChangeVisibility}
               >
@@ -423,7 +423,7 @@ class PipelineForm extends React.Component<Props, State> {
               </ControlLabel>
               <span style={{ marginLeft: "10px" }}>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={this.state.isCheckDate}
                   onChange={this.onChangeIsCheckDate}
                 />
@@ -440,7 +440,7 @@ class PipelineForm extends React.Component<Props, State> {
               </ControlLabel>
               <span style={{ marginLeft: "10px" }}>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={this.state.isCheckUser}
                   onChange={this.onChangeIsCheckUser}
                 />
@@ -453,7 +453,7 @@ class PipelineForm extends React.Component<Props, State> {
               </ControlLabel>
               <span style={{ marginLeft: "10px" }}>
                 <FormControl
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   checked={this.state.isCheckDepartment}
                   onChange={this.onChangeIsCheckDepartment}
                 />

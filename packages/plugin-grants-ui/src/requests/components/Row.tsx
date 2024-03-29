@@ -1,10 +1,10 @@
-import React from 'react';
-import { IGrantRequest } from '../../common/type';
-import { Button, FormControl, Icon, Label, ModalTrigger } from '@erxes/ui/src';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
-import Form from '../containers/Form';
-import moment from 'moment';
+import React from "react";
+import { IGrantRequest } from "../../common/type";
+import { Button, FormControl, Icon, Label, ModalTrigger } from "@erxes/ui/src";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import Form from "../containers/Form";
+import moment from "moment";
 
 type Props = {
   request: IGrantRequest;
@@ -17,12 +17,12 @@ const Row: React.FC<Props> = (props) => {
 
   const lblStyle = () => {
     switch (request.status) {
-      case 'approved':
-        return 'success';
-      case 'declined':
-        return 'danger';
+      case "approved":
+        return "success";
+      case "declined":
+        return "danger";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -31,7 +31,7 @@ const Row: React.FC<Props> = (props) => {
 
   const trigger = (
     <Button btnStyle="link">
-      <Icon icon="file-search-alt" />{' '}
+      <Icon icon="file-search-alt" />{" "}
     </Button>
   );
 
@@ -61,14 +61,14 @@ const Row: React.FC<Props> = (props) => {
       <td onClick={onClick}>
         <FormControl
           checked={selecteRequests.includes(_id)}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={() => onChange(_id)}
         />
       </td>
       <td>{contentType}</td>
       <td>{detail?.name}</td>
       <td>
-        <LinkButton>{requester?.email || '-'}</LinkButton>
+        <LinkButton>{requester?.email || "-"}</LinkButton>
       </td>
       <td>
         <Assignees users={users || []} limit={5} />
@@ -76,8 +76,8 @@ const Row: React.FC<Props> = (props) => {
       <td>
         <Label lblStyle={lblStyle()}>{request.status}</Label>
       </td>
-      <td>{createdAt ? moment(createdAt).format('ll hh:mm') : '-'}</td>
-      <td>{resolvedAt ? moment(resolvedAt).format('ll hh:mm') : '-'}</td>
+      <td>{createdAt ? moment(createdAt).format("ll hh:mm") : "-"}</td>
+      <td>{resolvedAt ? moment(resolvedAt).format("ll hh:mm") : "-"}</td>
       <td>{detailBtn()}</td>
     </tr>
   );

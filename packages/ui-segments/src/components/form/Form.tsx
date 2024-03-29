@@ -173,7 +173,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         <FormControl
           {...formProps}
           name="subOf"
-          componentClass="select"
+          componentclass="select"
           value={this.state.subOf || ""}
           onChange={onChange}
         >
@@ -307,7 +307,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           <FlexItem>
             <FormControl
               name="shouldWriteActivityLogChange"
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onShouldWriteActivityLogChange}
               checked={shouldWriteActivityLog}
             >
@@ -522,7 +522,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       });
     }
 
-    if (chosenSegment && state === "propertyForm") {console.log("gsgsg", chosenSegment, state)
+    if (chosenSegment && state === "propertyForm") {
+      console.log("gsgsg", chosenSegment, state);
       return (
         <PropertyCondition
           key={Math.random()}

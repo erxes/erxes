@@ -2,18 +2,19 @@ import {
   BarItems,
   Button,
   FormControl,
-  generateTree,
   HeaderDescription,
   ModalTrigger,
-  router,
   Table,
-  __
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { DefaultWrapper } from '../../common/utils';
-import Form from '../containers/Form';
-import Row from './Row';
+  __,
+  generateTree,
+  router,
+} from "@erxes/ui/src";
+
+import { DefaultWrapper } from "../../common/utils";
+import Form from "../containers/Form";
+import { IRouterProps } from "@erxes/ui/src/types";
+import React from "react";
+import Row from "./Row";
 type Props = {
   queryParams: any;
   list: any[];
@@ -35,15 +36,15 @@ class List extends React.Component<Props, State> {
 
     this.state = {
       selectedItems: [],
-      searchValue: props.queryParams.searchValue || '',
-      perPage: 20
+      searchValue: props.queryParams.searchValue || "",
+      perPage: 20,
     };
   }
 
   renderAddButton = () => {
-    const trigger = <Button btnStyle="success">{__('Add Operation')}</Button>;
+    const trigger = <Button btnStyle="success">{__("Add Operation")}</Button>;
 
-    const content = props => (
+    const content = (props) => (
       <Form {...props} queryParams={this.props.queryParams} />
     );
 
@@ -62,13 +63,13 @@ class List extends React.Component<Props, State> {
 
     return (
       <Button btnStyle="danger" onClick={handleRemove}>
-        {__('Remove')}
+        {__("Remove")}
       </Button>
     );
   };
 
   renderSearchField = () => {
-    const search = e => {
+    const search = (e) => {
       if (this.timer) {
         clearTimeout(this.timer);
       }
@@ -79,14 +80,14 @@ class List extends React.Component<Props, State> {
       this.setState({ searchValue });
 
       this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
+        router.removeParams(history, "page");
         router.setParams(history, { searchValue });
       }, 500);
     };
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
     return (
@@ -106,17 +107,17 @@ class List extends React.Component<Props, State> {
     const { selectedItems } = this.state;
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = list.map(branch => branch._id);
+        const branchIds = list.map((branch) => branch._id);
         return this.setState({ selectedItems: branchIds });
       }
 
       this.setState({ selectedItems: [] });
     };
 
-    const handleSelect = id => {
+    const handleSelect = (id) => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== id
+          (selectItem) => selectItem !== id
         );
         return this.setState({ selectedItems: removedSelectedItems });
       }
@@ -124,8 +125,8 @@ class List extends React.Component<Props, State> {
     };
 
     const generateList = () => {
-      return list.map(operation =>
-        !list.find(op => op._id === operation.parentId)
+      return list.map((operation) =>
+        !list.find((op) => op._id === operation.parentId)
           ? { ...operation, parent: null }
           : operation
       );
@@ -137,15 +138,15 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -185,12 +186,12 @@ class List extends React.Component<Props, State> {
     );
 
     const updateProps = {
-      title: 'Operations',
+      title: "Operations",
       leftActionBar,
       rightActionBar,
       content: this.renderContent(),
       loading,
-      totalCount
+      totalCount,
     };
 
     return <DefaultWrapper {...updateProps} />;

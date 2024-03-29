@@ -1,11 +1,11 @@
-import Form from '../containers/DayPlanForm';
-import moment from 'moment';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React, { useState, useRef } from 'react';
-import Row from './DayPlanRow';
-import Sidebar from './DayPlanSidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/DayPlanForm";
+import moment from "moment";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React, { useState, useRef } from "react";
+import Row from "./DayPlanRow";
+import Sidebar from "./DayPlanSidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
@@ -13,17 +13,17 @@ import {
   Icon,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { IDayPlan, IDayPlanConfirmParams } from '../types';
-import { ITimeframe } from '../../settings/types';
-import { menuSalesplans } from '../../constants';
-import { TableWrapper } from '../../styles';
+} from "@erxes/ui/src/components";
+import { IDayPlan, IDayPlanConfirmParams } from "../types";
+import { ITimeframe } from "../../settings/types";
+import { menuSalesplans } from "../../constants";
+import { TableWrapper } from "../../styles";
 import {
   FlexItem,
   FlexRow,
   InputBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 
 type Props = {
   dayPlans: IDayPlan[];
@@ -67,7 +67,7 @@ const DayPlanList = (props: Props) => {
   const { date, branchId, departmentId, productCategoryId, productId } =
     queryParams;
 
-  const [search, setSearch] = useState<string>(searchValue || '');
+  const [search, setSearch] = useState<string>(searchValue || "");
   const timerRef = useRef<number | null>(null);
 
   const handleSearch = (e) => {
@@ -80,7 +80,7 @@ const DayPlanList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue: value });
     }, 500);
   };
@@ -88,12 +88,12 @@ const DayPlanList = (props: Props) => {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const onChange = () => {
-    toggleAll(dayPlans, 'dayPlans');
+    toggleAll(dayPlans, "dayPlans");
   };
 
   const renderRow = () => {
@@ -125,7 +125,7 @@ const DayPlanList = (props: Props) => {
   };
 
   const actionBarRight = () => {
-    const _date = new Date(moment(date).format('YYYY/MM/DD'));
+    const _date = new Date(moment(date).format("YYYY/MM/DD"));
 
     if (bulk.length) {
       const onClick = () =>
@@ -157,7 +157,7 @@ const DayPlanList = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={search}
               autoFocus={true}
@@ -180,27 +180,27 @@ const DayPlanList = (props: Props) => {
             toConfirm(
               {
                 date: _date,
-                departmentId: (departmentId || '').toString(),
-                branchId: (branchId || '').toString(),
-                productCategoryId: (productCategoryId || '').toString(),
-                productId: (productId || '').toString(),
+                departmentId: (departmentId || "").toString(),
+                branchId: (branchId || "").toString(),
+                productCategoryId: (productCategoryId || "").toString(),
+                productId: (productId || "").toString(),
                 ids: bulk.map((b) => b._id),
               },
-              emptyBulk,
+              emptyBulk
             )
           }
         >
-          {__('To Confirm')}
+          {__("To Confirm")}
         </Button>
       </FlexRow>
     );
   };
 
   const renderContent = () => {
-    const timeIds = Object.keys(totalSum).filter((k) => k !== 'planCount');
+    const timeIds = Object.keys(totalSum).filter((k) => k !== "planCount");
     const totalSumValue = timeIds.reduce(
       (sum, i) => Number(sum) + Number(totalSum[i]),
-      0,
+      0
     );
     const totalDiff = totalSumValue - totalSum.planCount;
 
@@ -212,34 +212,34 @@ const DayPlanList = (props: Props) => {
               <th rowSpan={2} style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
-              <th rowSpan={2}>{__('Date')}</th>
-              <th rowSpan={2}>{__('Branch')}</th>
-              <th rowSpan={2}>{__('Department')}</th>
-              <th rowSpan={2}>{__('Product')}</th>
-              <th>{__('Uom')}</th>
-              <th>{__('Plan')}</th>
+              <th rowSpan={2}>{__("Date")}</th>
+              <th rowSpan={2}>{__("Branch")}</th>
+              <th rowSpan={2}>{__("Department")}</th>
+              <th rowSpan={2}>{__("Product")}</th>
+              <th>{__("Uom")}</th>
+              <th>{__("Plan")}</th>
               {timeFrames.map((tf) => (
                 <th key={tf._id}>{tf.name}</th>
               ))}
 
-              <th>{__('Sum')}</th>
-              <th>{__('Diff')}</th>
-              <th>{__('')}</th>
+              <th>{__("Sum")}</th>
+              <th>{__("Diff")}</th>
+              <th>{__("")}</th>
             </tr>
             <tr>
-              <th>{__('Sum')}:</th>
+              <th>{__("Sum")}:</th>
               <th>{(totalSum.planCount || 0).toLocaleString()}</th>
               {timeFrames.map((tf) => (
-                <th key={tf._id}>{totalSum[tf._id || '']}</th>
+                <th key={tf._id}>{totalSum[tf._id || ""]}</th>
               ))}
 
               <th>{(totalSumValue || 0).toLocaleString()}</th>
               <th>{(totalDiff || 0).toLocaleString()}</th>
-              <th>{__('')}</th>
+              <th>{__("")}</th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
@@ -252,13 +252,13 @@ const DayPlanList = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Sales Day plans')}
+          title={__("Sales Day plans")}
           submenu={menuSalesplans}
         />
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Sales Day plans')}</Title>}
+          left={<Title>{__("Sales Day plans")}</Title>}
           right={actionBarRight()}
         />
       }

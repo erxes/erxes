@@ -1,10 +1,10 @@
-import * as dayjs from 'dayjs';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Detail from '../../containers/PosOrderDetail';
+import * as dayjs from "dayjs";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Tip from "@erxes/ui/src/components/Tip";
+import React from "react";
+import Button from "@erxes/ui/src/components/Button";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Detail from "../../containers/PosOrderDetail";
 
 type Props = {
   order: any;
@@ -21,7 +21,7 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
-  modalContent = _props => {
+  modalContent = (_props) => {
     const { order } = this.props;
 
     return <Detail order={order} />;
@@ -30,17 +30,17 @@ class Row extends React.Component<Props> {
   render() {
     const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(order, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
-    const onClickSync = e => {
+    const onClickSync = (e) => {
       e.stopPropagation();
       this.props.toSync([order._id]);
     };
@@ -54,29 +54,29 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
         <td>{number}</td>
         <td>{totalAmount.toLocaleString()}</td>
-        <td>{dayjs(createdAt).format('lll')}</td>
-        <td>{dayjs(paidDate).format('lll')}</td>
+        <td>{dayjs(createdAt).format("lll")}</td>
+        <td>{dayjs(paidDate).format("lll")}</td>
         <td onClick={onClick}>
           {isUnsynced && (
             <FormControl
               checked={isUnsynced}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           )}
         </td>
         <td>
           {syncedInfo?.syncedDate &&
-            dayjs(syncedInfo?.syncedDate || '').format('ll')}
+            dayjs(syncedInfo?.syncedDate || "").format("ll")}
         </td>
-        <td>{syncedInfo?.syncedBillNumber || ''}</td>
-        <td>{syncedInfo?.syncedCustomer || ''}</td>
+        <td>{syncedInfo?.syncedBillNumber || ""}</td>
+        <td>{syncedInfo?.syncedCustomer || ""}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">
@@ -102,7 +102,7 @@ class Row extends React.Component<Props> {
         trigger={trigger}
         autoOpenKey="showProductModal"
         content={this.modalContent}
-        size={'lg'}
+        size={"lg"}
       />
     );
   }

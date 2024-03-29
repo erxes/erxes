@@ -8,21 +8,21 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IInsuranceType, IInsuranceTypeDoc } from '../types';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IInsuranceType, IInsuranceTypeDoc } from "../types";
 
-import React, { useState } from 'react';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from "react";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    ),
+      /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
+    )
 );
 
 type Props = {
@@ -33,7 +33,7 @@ type Props = {
 
 const InsuranceTypeForm = (props: Props) => {
   const { insuranceType = {} as IInsuranceType } = props;
-  const [companyId, setCompanyId] = useState(insuranceType.companyId || '');
+  const [companyId, setCompanyId] = useState(insuranceType.companyId || "");
 
   const generateDoc = (values: { _id: string } & IInsuranceTypeDoc) => {
     const finalValues = values;
@@ -75,22 +75,22 @@ const InsuranceTypeForm = (props: Props) => {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderFormGroup('Code', {
+              {renderFormGroup("Code", {
                 ...formProps,
-                name: 'code',
+                name: "code",
                 required: true,
-                defaultValue: insuranceType.code || '',
+                defaultValue: insuranceType.code || "",
               })}
-              {renderFormGroup('Name', {
+              {renderFormGroup("Name", {
                 ...formProps,
-                name: 'name',
+                name: "name",
                 required: true,
-                defaultValue: insuranceType.name || '',
+                defaultValue: insuranceType.name || "",
               })}
 
-              {isEnabled('contacts') && (
+              {isEnabled("contacts") && (
                 <FormGroup>
-                  <ControlLabel required>{__('Company')}</ControlLabel>
+                  <ControlLabel required>{__("Company")}</ControlLabel>
                   <SelectCompanies
                     label="Choose an company"
                     name="companyId"
@@ -102,27 +102,27 @@ const InsuranceTypeForm = (props: Props) => {
                 </FormGroup>
               )}
 
-              {renderFormGroup('Percent', {
+              {renderFormGroup("Percent", {
                 ...formProps,
-                name: 'percent',
-                type: 'number',
+                name: "percent",
+                type: "number",
                 defaultValue: insuranceType.percent || 0,
               })}
 
-              {renderFormGroup('Year Percents', {
+              {renderFormGroup("Year Percents", {
                 ...formProps,
-                name: 'yearPercents',
-                defaultValue: insuranceType.yearPercents || '',
+                name: "yearPercents",
+                defaultValue: insuranceType.yearPercents || "",
               })}
 
               <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
+                <ControlLabel>{__("Description")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
-                  defaultValue={insuranceType.description || ''}
+                  componentclass="textarea"
+                  defaultValue={insuranceType.description || ""}
                 />
               </FormGroup>
             </FormColumn>
@@ -131,11 +131,11 @@ const InsuranceTypeForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'insuranceType',
+            name: "insuranceType",
             values: generateDoc(values),
             isSubmitted,
             object: props.insuranceType,

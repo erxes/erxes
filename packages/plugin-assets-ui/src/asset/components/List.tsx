@@ -246,7 +246,7 @@ const List = (props: Props) => {
           <th style={{ width: 60 }}>
             <FormControl
               checked={isAllSelected}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={handleSelectAllChange}
             />
           </th>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   BarItems,
   Button,
@@ -8,8 +8,8 @@ import {
   FormGroup,
   Icon,
   __,
-} from '@erxes/ui/src';
-import { IResponse } from '../containers/ResponseForm';
+} from "@erxes/ui/src";
+import { IResponse } from "../containers/ResponseForm";
 
 type Props = {
   closeModal: () => void;
@@ -18,14 +18,14 @@ type Props = {
 
 const ResponseComponent: React.FC<Props> = (props) => {
   const [state, setState] = useState({
-    description: '',
-    response: '',
+    description: "",
+    response: "",
   });
 
   const renderContent = () => {
     const { response, description } = state;
 
-    const handleResponse = (response: 'approved' | 'declined') => {
+    const handleResponse = (response: "approved" | "declined") => {
       props.response({ description, response });
     };
 
@@ -37,17 +37,17 @@ const ResponseComponent: React.FC<Props> = (props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
-          <FormControl componentClass="textarea" onChange={handleChange} />
+          <ControlLabel>{__("Description")}</ControlLabel>
+          <FormControl componentclass="textarea" onChange={handleChange} />
         </FormGroup>
         <BarItems>
-          <Button btnStyle="danger" onClick={() => handleResponse('declined')}>
-            {response === 'declined' && <Icon icon="check-1" />}
-            {__('Decline')}
+          <Button btnStyle="danger" onClick={() => handleResponse("declined")}>
+            {response === "declined" && <Icon icon="check-1" />}
+            {__("Decline")}
           </Button>
-          <Button btnStyle="success" onClick={() => handleResponse('approved')}>
-            {response === 'approved' && <Icon icon="check-1" />}
-            {__('Approve')}
+          <Button btnStyle="success" onClick={() => handleResponse("approved")}>
+            {response === "approved" && <Icon icon="check-1" />}
+            {__("Approve")}
           </Button>
         </BarItems>
       </>

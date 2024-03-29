@@ -1,8 +1,9 @@
-import Form from '../../containers/label/LabelsForm';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import { ISPLabel } from '../../types';
-import { FormControl, TextInfo, ModalTrigger } from '@erxes/ui/src/components';
+import { FormControl, ModalTrigger, TextInfo } from "@erxes/ui/src/components";
+
+import Form from "../../containers/label/LabelsForm";
+import { ISPLabel } from "../../types";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
 
 type Props = {
   spLabel: ISPLabel;
@@ -39,7 +40,7 @@ const Row = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>

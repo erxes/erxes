@@ -1,11 +1,11 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IClientPortalUser } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import colors from '@erxes/ui/src/styles/colors';
-import { formatValue } from '@erxes/ui/src/utils';
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IClientPortalUser } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import colors from "@erxes/ui/src/styles/colors";
+import { formatValue } from "@erxes/ui/src/utils";
 
 type Props = {
   index: number;
@@ -14,7 +14,7 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (
     clientPortalUser: IClientPortalUser,
-    isChecked?: boolean,
+    isChecked?: boolean
   ) => void;
 };
 
@@ -36,14 +36,14 @@ const Row: React.FC<Props> = ({
   };
 
   const onTrClick = () => {
-    if (clientPortalUser.type === 'customer') {
+    if (clientPortalUser.type === "customer") {
       return history.push(
-        `/settings/client-portal/users/details/${clientPortalUser._id}`,
+        `/settings/client-portal/users/details/${clientPortalUser._id}`
       );
     }
-    if (clientPortalUser.type === 'company') {
+    if (clientPortalUser.type === "company") {
       return history.push(
-        `/settings/client-portal/companies/details/${clientPortalUser._id}`,
+        `/settings/client-portal/companies/details/${clientPortalUser._id}`
       );
     }
   };
@@ -51,11 +51,11 @@ const Row: React.FC<Props> = ({
   const renderStatus = (verified: boolean) => {
     return (
       <Tip
-        text={`Status: ${verified ? 'verified' : 'not verified'}`}
+        text={`Status: ${verified ? "verified" : "not verified"}`}
         placement="top"
       >
         <Icon
-          icon={verified ? 'shield-check' : 'shield-slash'}
+          icon={verified ? "shield-check" : "shield-slash"}
           color={verified ? colors.colorCoreGreen : colors.colorCoreGray}
         />
       </Tip>
@@ -76,40 +76,40 @@ const Row: React.FC<Props> = ({
   } = clientPortalUser;
 
   const verificationRequest = clientPortalUser.verificationRequest || {
-    status: 'notVerified',
+    status: "notVerified",
   };
 
-  let verificationStatus = 'notVerified';
+  let verificationStatus = "notVerified";
 
   switch (verificationRequest.status) {
-    case 'verified':
-      verificationStatus = 'verified';
+    case "verified":
+      verificationStatus = "verified";
       break;
-    case 'pending':
-      verificationStatus = 'pending';
+    case "pending":
+      verificationStatus = "pending";
       break;
-    case 'notVerified':
-      verificationStatus = 'not verified';
+    case "notVerified":
+      verificationStatus = "not verified";
       break;
     default:
-      verificationStatus = 'not Verified';
+      verificationStatus = "not Verified";
       break;
   }
 
-  const status = clientPortalUser.isOnline ? 'online' : 'offline';
+  const status = clientPortalUser.isOnline ? "online" : "offline";
 
   return (
     <tr onClick={onTrClick}>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>{index.toString()}</td>
       <td>
-        {renderStatus(verificationStatus === 'verified')}
+        {renderStatus(verificationStatus === "verified")}
         {verificationStatus}
       </td>
       <td>
@@ -121,12 +121,12 @@ const Row: React.FC<Props> = ({
         {phone}
       </td>
       <td>{username}</td>
-      <td>{code || '-'}</td>
+      <td>{code || "-"}</td>
       <td>{firstName || companyName}</td>
       <td>{lastName}</td>
-      <td>{companyName || '-'}</td>
+      <td>{companyName || "-"}</td>
       <td>{type}</td>
-      <td>{clientPortal ? clientPortal.name : '-'}</td>
+      <td>{clientPortal ? clientPortal.name : "-"}</td>
       <td>
         <Label
           key={clientPortalUser._id}

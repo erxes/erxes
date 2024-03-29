@@ -1,14 +1,14 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IChannel } from '../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IChannel } from "../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 
 type Props = {
   channel?: IChannel;
@@ -26,7 +26,7 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: props.selectedMembers || []
+      selectedMembers: props.selectedMembers || [],
     };
   }
 
@@ -44,7 +44,7 @@ class ChannelForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      memberIds: this.state.selectedMembers
+      memberIds: this.state.selectedMembers,
     };
   };
 
@@ -55,7 +55,7 @@ class ChannelForm extends React.Component<Props, State> {
     const object = channel || ({} as IChannel);
     const self = this;
 
-    const onChange = items => {
+    const onChange = (items) => {
       self.setState({ selectedMembers: items });
     };
 
@@ -79,7 +79,7 @@ class ChannelForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={object.description}
           />
@@ -106,11 +106,11 @@ class ChannelForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'channel',
+            name: "channel",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: channel
+            object: channel,
           })}
         </ModalFooter>
       </>

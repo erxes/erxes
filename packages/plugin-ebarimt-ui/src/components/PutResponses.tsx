@@ -1,19 +1,20 @@
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   DataWithLoader,
   Pagination,
   SortHandler,
   Table,
-} from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import { IQueryParams } from '@erxes/ui/src/types';
+} from "@erxes/ui/src/components";
 
-import { IPutResponse } from '../types';
-import PutResponseRow from './PutResponseRow';
-import React from 'react';
-import RightMenu from './RightMenu';
-import { SUB_MENUS } from '../constants';
-import { TableWrapper } from '../styles';
+import { IPutResponse } from "../types";
+import { IQueryParams } from "@erxes/ui/src/types";
+import PutResponseRow from "./PutResponseRow";
+import React from "react";
+import RightMenu from "./RightMenu";
+import { SUB_MENUS } from "../constants";
+import { TableWrapper } from "../styles";
+import { __ } from "@erxes/ui/src/utils";
+
 // import { withRouter } from 'react-router-dom';
 
 type IProps = {
@@ -52,37 +53,37 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
 
   const mainContent = (
     <TableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={'billId'} label={__('BillID')} />
+              <SortHandler sortField={"billId"} label={__("BillID")} />
             </th>
             <th>
-              <SortHandler sortField={'number'} label={__('Number')} />
+              <SortHandler sortField={"number"} label={__("Number")} />
             </th>
             <th>
-              <SortHandler sortField={'date'} label={__('Date')} />
+              <SortHandler sortField={"date"} label={__("Date")} />
             </th>
             <th>
-              <SortHandler sortField={'success'} label={__('Success')} />
+              <SortHandler sortField={"success"} label={__("Success")} />
             </th>
             <th>
-              <SortHandler sortField={'billType'} label={__('Bill Type')} />
+              <SortHandler sortField={"billType"} label={__("Bill Type")} />
             </th>
             <th>
-              <SortHandler sortField={'taxType'} label={__('Tax Type')} />
+              <SortHandler sortField={"taxType"} label={__("Tax Type")} />
             </th>
             <th>
-              <SortHandler sortField={'amount'} label={__('Amount')} />
+              <SortHandler sortField={"amount"} label={__("Amount")} />
             </th>
             <th>
-              <SortHandler sortField={'message'} label={__('Message')} />
+              <SortHandler sortField={"message"} label={__("Message")} />
             </th>
             <th>
               <SortHandler
-                sortField={'returnBillId'}
-                label={__('Return BillID')}
+                sortField={"returnBillId"}
+                label={__("Return BillID")}
               />
             </th>
             <th>Үйлдлүүд</th>

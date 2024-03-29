@@ -11,20 +11,20 @@ import {
   Wrapper,
   confirm,
   router,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
+import React, { useRef, useState } from "react";
 
-import { IPeriodLock } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import PeriodLockForm from '../containers/PeriodLockForm';
-import PeriodLockRow from './PeriodLockRow';
-import { PeriodLocksTableWrapper } from '../styles';
-import React, { useRef, useState } from 'react';
-import { __ } from 'coreui/utils';
-import { can } from '@erxes/ui/src/utils/core';
+import { IPeriodLock } from "../types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import PeriodLockForm from "../containers/PeriodLockForm";
+import PeriodLockRow from "./PeriodLockRow";
+import { PeriodLocksTableWrapper } from "../styles";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
 // import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
-import withConsumer from '../../withConsumer';
+import { menuContracts } from "../../constants";
+import withConsumer from "../../withConsumer";
 
 interface IProps extends IRouterProps {
   periodLocks: IPeriodLock[];
@@ -39,7 +39,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   removePeriodLocks: (
     doc: { periodLockIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   history: any;
   queryParams: any;
@@ -64,7 +64,7 @@ const PeriodLocksList = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
 
   const onChange = () => {
-    toggleAll(periodLocks, 'periodLocks');
+    toggleAll(periodLocks, "periodLocks");
   };
 
   const search = (e) => {
@@ -94,24 +94,29 @@ const PeriodLocksList = (props: IProps) => {
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const mainContent = (
     <PeriodLocksTableWrapper>
-      <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
         <thead>
           <tr>
             <th>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
             <th>
-              <SortHandler sortField={'date'} label={__('Date')} />
+              <SortHandler sortField={"date"} label={__("Date")} />
             </th>
             <th></th>
           </tr>
@@ -133,7 +138,7 @@ const PeriodLocksList = (props: IProps) => {
 
   const addTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      {__('Add periodLock')}
+      {__("Add periodLock")}
     </Button>
   );
 
@@ -151,9 +156,9 @@ const PeriodLocksList = (props: IProps) => {
 
     actionBarLeft = (
       <BarItems>
-        {can('managePeriodLocks', currentUser) && (
+        {can("managePeriodLocks", currentUser) && (
           <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-            {__('Delete')}
+            {__("Delete")}
           </Button>
         )}
       </BarItems>
@@ -168,15 +173,15 @@ const PeriodLocksList = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
         onFocus={moveCursorAtTheEnd}
       />
-      {can('managePeriodLocks', currentUser) && (
+      {can("managePeriodLocks", currentUser) && (
         <ModalTrigger
-          title={__('New periodLock')}
+          title={__("New periodLock")}
           trigger={addTrigger}
           autoOpenKey="showPeriodLockModal"
           content={periodLockForm}
@@ -198,7 +203,7 @@ const PeriodLocksList = (props: IProps) => {
           title={__(`Period Locks`) + ` (${totalCount})`}
           queryParams={queryParams}
           submenu={menuContracts.filter((row) =>
-            can(row.permission, currentUser),
+            can(row.permission, currentUser)
           )}
         />
       }

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Button from "@erxes/ui/src/components/Button";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
 
-import ChartTemplates from '../../containers/template/Chart';
-import { IDashboard, IReport, IReportTemplate } from '../../types';
-import { FlexColumn, TemplateBox } from '../../styles';
+import ChartTemplates from "../../containers/template/Chart";
+import { IDashboard, IReport, IReportTemplate } from "../../types";
+import { FlexColumn, TemplateBox } from "../../styles";
 
 type Props = {
   report?: any;
@@ -31,13 +31,13 @@ const ReportTemplate = (props: Props) => {
   } = props;
 
   const [showMore, setShowMore] = useState<boolean>(
-    !!report && selectedTemplateType?.includes(template?.serviceType),
+    !!report && selectedTemplateType?.includes(template?.serviceType)
   );
 
   useEffect(() => {
-    if (report?.__typename === 'Report') {
+    if (report?.__typename === "Report") {
       setShowMore(
-        !!report && selectedTemplateType?.includes(template?.serviceType),
+        !!report && selectedTemplateType?.includes(template?.serviceType)
       );
     }
   }, [selectedTemplateType]);
@@ -53,7 +53,7 @@ const ReportTemplate = (props: Props) => {
           <p>{template.description}</p>
         </FlexColumn>
         <FormControl
-          componentClass="radio"
+          componentclass="radio"
           name={template.serviceType}
           onChange={() => handleTemplateClick(template)}
           checked={selectedTemplateType.includes(template.serviceType)}
@@ -70,9 +70,9 @@ const ReportTemplate = (props: Props) => {
             setTemplateCharts={setTemplateCharts}
           />
 
-          {report?.__typename !== 'Report' && !!selectedTemplateType.length && (
+          {report?.__typename !== "Report" && !!selectedTemplateType.length && (
             <Button onClick={() => setShowMore(!showMore)}>
-              {showMore ? 'Show less' : 'Show more'}
+              {showMore ? "Show less" : "Show more"}
             </Button>
           )}
         </>

@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { FormControl, formatValue } from '@erxes/ui/src';
-import React from 'react';
-import { FlexItem } from '../../styles';
-import { IContract } from '../../types';
+import _ from "lodash";
+import { FormControl, formatValue } from "@erxes/ui/src";
+import React from "react";
+import { FlexItem } from "../../styles";
+import { IContract } from "../../types";
 
 type Props = {
   contract: IContract;
@@ -14,23 +14,23 @@ type Props = {
 function displayValue(contract, name) {
   const value = _.get(contract, name);
 
-  if (name === 'primaryName') {
+  if (name === "primaryName") {
     return <FlexItem>{formatValue(contract.primaryName)}</FlexItem>;
   }
-  if (name.includes('Amount'))
+  if (name.includes("Amount"))
     return formatValue(value ? value?.toLocaleString() : value);
 
   return formatValue(value);
 }
 
 function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contract, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -43,18 +43,18 @@ function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'number'}>{displayValue(contract, 'number')} </td>
-      <td key={'number'}>{displayValue(contract.customers, 'firstName')} </td>
-      <td key={'number'}>{displayValue(contract.customers, 'code')} </td>
-      <td key={'savingAmount'}>{displayValue(contract, 'savingAmount')}</td>
-      <td key={'status'}>{displayValue(contract, 'status')}</td>
-      <td key={'tenor'}>{displayValue(contract, 'duration')}</td>
-      <td key={'interestRate'}>{displayValue(contract, 'interestRate')}</td>
+      <td key={"number"}>{displayValue(contract, "number")} </td>
+      <td key={"number"}>{displayValue(contract.customers, "firstName")} </td>
+      <td key={"number"}>{displayValue(contract.customers, "code")} </td>
+      <td key={"savingAmount"}>{displayValue(contract, "savingAmount")}</td>
+      <td key={"status"}>{displayValue(contract, "status")}</td>
+      <td key={"tenor"}>{displayValue(contract, "duration")}</td>
+      <td key={"interestRate"}>{displayValue(contract, "interestRate")}</td>
     </tr>
   );
 }

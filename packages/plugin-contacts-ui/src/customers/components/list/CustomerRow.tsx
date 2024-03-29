@@ -1,28 +1,28 @@
 import {
   BooleanStatus,
   ClickableRow,
-} from '@erxes/ui-contacts/src/customers/styles';
+} from "@erxes/ui-contacts/src/customers/styles";
 import {
   GENDER_TYPES,
   LEAD_STATUS_TYPES,
-} from '@erxes/ui-contacts/src/customers/constants';
-import { ICustomer, IVisitorContact } from '../../types';
+} from "@erxes/ui-contacts/src/customers/constants";
+import { ICustomer, IVisitorContact } from "../../types";
 
-import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import PrimaryEmail from '@erxes/ui-contacts/src/customers/components/common/PrimaryEmail';
-import PrimaryPhone from '@erxes/ui-contacts/src/customers/components/common/PrimaryPhone';
-import React from 'react';
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import _ from 'lodash';
-import { displayObjectListItem } from '../../utils';
-import { formatValue } from '@erxes/ui/src/utils';
-import parse from 'ua-parser-js';
-import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import PrimaryEmail from "@erxes/ui-contacts/src/customers/components/common/PrimaryEmail";
+import PrimaryPhone from "@erxes/ui-contacts/src/customers/components/common/PrimaryPhone";
+import React from "react";
+import Tags from "@erxes/ui/src/components/Tags";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import _ from "lodash";
+import { displayObjectListItem } from "../../utils";
+import { formatValue } from "@erxes/ui/src/utils";
+import parse from "ua-parser-js";
+import { renderFlag } from "@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection";
 
 type Props = {
   index: number;
@@ -36,7 +36,7 @@ type Props = {
 function displayValue(customer, name, group, index) {
   const value = _.get(customer, name);
 
-  if (name === 'firstName') {
+  if (name === "firstName") {
     return (
       <FlexContent>
         <NameCard.Avatar customer={customer} size={30} /> &emsp;
@@ -45,15 +45,15 @@ function displayValue(customer, name, group, index) {
     );
   }
 
-  if (name.includes('customFieldsData')) {
-    return displayObjectListItem(customer, 'customFieldsData', name, group);
+  if (name.includes("customFieldsData")) {
+    return displayObjectListItem(customer, "customFieldsData", name, group);
   }
 
-  if (name.includes('trackedData')) {
-    return displayObjectListItem(customer, 'trackedData', name, group);
+  if (name.includes("trackedData")) {
+    return displayObjectListItem(customer, "trackedData", name, group);
   }
 
-  if (name === 'location.country') {
+  if (name === "location.country") {
     if (customer.location && customer.location.country) {
       return (
         <>
@@ -62,11 +62,11 @@ function displayValue(customer, name, group, index) {
       );
     }
 
-    return '-';
+    return "-";
   }
 
-  if (name.includes('userAgent')) {
-    const ua = parse(value || ' ');
+  if (name.includes("userAgent")) {
+    const ua = parse(value || " ");
     return (
       <div>
         {ua.browser.name} {ua.browser.version} / {ua.os.name} {ua.os.version}
@@ -74,24 +74,24 @@ function displayValue(customer, name, group, index) {
     );
   }
 
-  if (name === 'primaryPhone') {
+  if (name === "primaryPhone") {
     return (
       <PrimaryPhone
         phone={value}
-        status={customer.phoneValidationStatus || ''}
+        status={customer.phoneValidationStatus || ""}
       />
     );
   }
 
-  if (name === 'sex') {
+  if (name === "sex") {
     return GENDER_TYPES()[value];
   }
 
-  if (name === 'leadStatus') {
+  if (name === "leadStatus") {
     return LEAD_STATUS_TYPES[value];
   }
 
-  if (name === 'visitorContactInfo') {
+  if (name === "visitorContactInfo") {
     const visitorContactInfo =
       customer.visitorContactInfo || ({} as IVisitorContact);
 
@@ -99,27 +99,27 @@ function displayValue(customer, name, group, index) {
       return formatValue(visitorContactInfo.email || visitorContactInfo.phone);
     }
 
-    return '-';
+    return "-";
   }
 
-  if (name === 'sessionCount') {
+  if (name === "sessionCount") {
     return (
-      <TextInfo $textStyle="primary">{value ? value.toString() : '-'}</TextInfo>
+      <TextInfo $textStyle="primary">{value ? value.toString() : "-"}</TextInfo>
     );
   }
 
-  if (name === 'isSubscribed' || name === 'code' || name === 'hasAuthority') {
+  if (name === "isSubscribed" || name === "code" || name === "hasAuthority") {
     return <TextInfo>{value}</TextInfo>;
   }
 
-  if (name === '#') {
+  if (name === "#") {
     return <TextInfo>{index.toString()}</TextInfo>;
   }
 
-  if (typeof value === 'boolean') {
+  if (typeof value === "boolean") {
     return (
       <BooleanStatus isTrue={value}>
-        <Icon icon={value ? 'check-1' : 'times'} />
+        <Icon icon={value ? "check-1" : "times"} />
       </BooleanStatus>
     );
   }
@@ -153,21 +153,21 @@ function CustomerRow({
 
   return (
     <tr className="crow">
-      <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
+      <td id="customersCheckBox" style={{ width: "50px" }} onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       {(columnsConfig || []).map(({ name, group }, i) => {
-        if (name === 'primaryEmail') {
+        if (name === "primaryEmail") {
           return (
             <td key={i}>
               <PrimaryEmail
                 customerId={customer._id}
                 email={_.get(customer, name)}
-                status={customer.emailValidationStatus || ''}
+                status={customer.emailValidationStatus || ""}
               />
             </td>
           );

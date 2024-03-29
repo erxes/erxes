@@ -1,5 +1,5 @@
-import React from 'react';
-import { IReport } from '../types';
+import React from "react";
+import { IReport } from "../types";
 import {
   ActionButtons,
   Button,
@@ -7,12 +7,12 @@ import {
   Icon,
   NameCard,
   Tags,
-  Tip
-} from '@erxes/ui/src/components';
-import { FlexCenter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import { Link } from 'react-router-dom';
-import * as dayjs from 'dayjs';
+  Tip,
+} from "@erxes/ui/src/components";
+import { FlexCenter } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
+import { Link } from "react-router-dom";
+import * as dayjs from "dayjs";
 
 type Props = {
   report: IReport;
@@ -31,7 +31,7 @@ const Row = (props: Props) => {
     return (
       <Link to={`/reports/details/${report._id}`}>
         <Button btnStyle="link">
-          <Tip text={__('Edit')} placement="top">
+          <Tip text={__("Edit")} placement="top">
             <Icon icon="edit-3" />
           </Tip>
         </Button>
@@ -42,7 +42,7 @@ const Row = (props: Props) => {
     const onRemove = () => removeReports([report._id]);
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__("Delete")} placement="top">
         <Button
           id="dashboardDelete"
           btnStyle="link"
@@ -53,7 +53,7 @@ const Row = (props: Props) => {
     );
   };
 
-  const onCheckReport = e => {
+  const onCheckReport = (e) => {
     if (toggleReport) {
       toggleReport(report._id, e.target.checked);
     }
@@ -64,8 +64,8 @@ const Row = (props: Props) => {
   };
 
   const returnFormattedDateTime = (dateVal: Date) => {
-    const date = dayjs(dateVal).format('DD/MM/YYYY');
-    const time = dayjs(dateVal).format('HH:mm');
+    const date = dayjs(dateVal).format("DD/MM/YYYY");
+    const time = dayjs(dateVal).format("HH:mm");
 
     return `${date} ${time}`;
   };
@@ -75,7 +75,7 @@ const Row = (props: Props) => {
       <td>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onCheckReport}
         />
       </td>
@@ -102,7 +102,7 @@ const Row = (props: Props) => {
         <span>
           {report.updatedAt
             ? returnFormattedDateTime(new Date(report.updatedAt))
-            : '-'}
+            : "-"}
         </span>
       </td>
       <td>
@@ -110,7 +110,7 @@ const Row = (props: Props) => {
         <span>
           {report.createdAt
             ? returnFormattedDateTime(new Date(report.createdAt))
-            : '-'}
+            : "-"}
         </span>
       </td>
       <td>

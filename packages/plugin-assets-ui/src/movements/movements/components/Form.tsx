@@ -408,7 +408,7 @@ const Form = (props: Props) => {
                     variables.length > 0 &&
                     variables.length === checkedItems.length
                   }
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                   color="#3B85F4"
                 />

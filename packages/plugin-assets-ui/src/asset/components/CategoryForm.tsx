@@ -27,15 +27,15 @@ const CategoryForm = (props: Props) => {
   const { renderButton, closeModal, category } = props;
 
   const [attachment, setAttachment] = useState<IAttachment | undefined>(
-    undefined,
+    undefined
   );
-  const [status, setStatus] = useState<string>('');
-  const [parentId, setParentId] = useState<string>('');
+  const [status, setStatus] = useState<string>("");
+  const [parentId, setParentId] = useState<string>("");
 
   useEffect(() => {
     if (category) {
-      setStatus(category.status || '');
-      setParentId(category.parentId || '');
+      setStatus(category.status || "");
+      setParentId(category.parentId || "");
     }
   }, []);
 
@@ -86,7 +86,7 @@ const CategoryForm = (props: Props) => {
           <FormControl
             name="description"
             {...formProps}
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={object.description}
           />
         </CommonFormGroup>
@@ -112,7 +112,7 @@ const CategoryForm = (props: Props) => {
                 multi={false}
                 initialValue={object.parentId}
                 onSelect={(value) => setParentId(value as string)}
-                customOption={{ value: '', label: 'Choose Asset Category' }}
+                customOption={{ value: "", label: "Choose Asset Category" }}
                 {...formProps}
               />
             </CommonFormGroup>
@@ -134,7 +134,7 @@ const CategoryForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            text: 'Asset Category',
+            text: "Asset Category",
             values: generateDocs(values),
             isSubmitted,
             callback: closeModal,

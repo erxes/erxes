@@ -1,20 +1,20 @@
-import Form from '../../containers/time/TimesForm';
-import ManageConfigsContainer from '../../containers/ManageConfigs';
-import React from 'react';
-import Row from './TimesRow';
-import Sidebar from './Sidebar';
-import SidebarWrapper from '../Sidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import Form from "../../containers/time/TimesForm";
+import ManageConfigsContainer from "../../containers/ManageConfigs";
+import React from "react";
+import Row from "./TimesRow";
+import Sidebar from "./Sidebar";
+import SidebarWrapper from "../Sidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Table,
-} from '@erxes/ui/src/components';
-import { ITimeProportion } from '../../types';
-import { FlexRow, Title } from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui/src/components";
+import { ITimeProportion } from "../../types";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   timeProportions: ITimeProportion[];
@@ -31,8 +31,8 @@ type Props = {
 };
 
 const breadcrumb = [
-  { title: __('Settings'), link: '/settings' },
-  { title: __('Sales Plans Times') },
+  { title: __("Settings"), link: "/settings" },
+  { title: __("Sales Plans Times") },
 ];
 
 const List = (props: Props) => {
@@ -100,7 +100,7 @@ const List = (props: Props) => {
 
     const manageConfigTrigger = (
       <Button type="button" icon="processor">
-        {__('Manage Day interval')}
+        {__("Manage Day interval")}
       </Button>
     );
 
@@ -114,7 +114,7 @@ const List = (props: Props) => {
       <FlexRow>
         <ModalTrigger
           size="lg"
-          title={__('Manage Day interval')}
+          title={__("Manage Day interval")}
           autoOpenKey="showSLManageDayConfigs"
           trigger={manageConfigTrigger}
           content={manageConfigContent}
@@ -131,7 +131,7 @@ const List = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftAcrionBar = <Title>{__('Sales Plans Times')}</Title>;
+    const leftAcrionBar = <Title>{__("Sales Plans Times")}</Title>;
 
     return <Wrapper.ActionBar left={leftAcrionBar} right={actionBarRight()} />;
   };
@@ -144,14 +144,14 @@ const List = (props: Props) => {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={() => toggleAll(timeProportions, 'timeProportions')}
+                componentclass="checkbox"
+                onChange={() => toggleAll(timeProportions, "timeProportions")}
               />
             </th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Product Category')}</th>
-            <th>{__('Percents')}</th>
+            <th>{__("Branch")}</th>
+            <th>{__("Department")}</th>
+            <th>{__("Product Category")}</th>
+            <th>{__("Percents")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -163,7 +163,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Sales Plans Times')}
+          title={__("Sales Plans Times")}
           breadcrumb={breadcrumb}
         />
       }

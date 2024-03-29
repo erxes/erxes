@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 const tableHoverColor = '#f5f5f5';
 
 const StyledTable = styledTS<{
-  whiteSpace?: string;
+  $whiteSpace?: string;
   $alignTop?: boolean;
   $hover?: boolean;
   $bordered?: boolean;
@@ -19,7 +19,7 @@ const StyledTable = styledTS<{
     max-width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
-    white-space: ${props.whiteSpace || ''};
+    white-space: ${props.$whiteSpace || ''};
 
     tr {
       margin: 0 20px;
@@ -96,8 +96,7 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${(props) =>
-            props.$wideHeader
+        padding: ${props.$wideHeader
               ? `${dimensions.unitSpacing + 2}px`
               : `${dimensions.unitSpacing - 2}`}
           ${dimensions.coreSpacing - 2}px;

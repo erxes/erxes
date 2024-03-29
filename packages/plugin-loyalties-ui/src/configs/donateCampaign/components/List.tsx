@@ -1,4 +1,4 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -6,23 +6,23 @@ import {
   HeaderDescription,
   ModalTrigger,
   Pagination,
-  Table
-} from '@erxes/ui/src/components';
+  Table,
+} from "@erxes/ui/src/components";
 import {
   FilterContainer,
   FlexItem,
   FlexRow,
   InputBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
+  Title,
+} from "@erxes/ui-settings/src/styles";
 
-import Form from '../containers/Form';
-import { IDonateCampaign } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Row from './Row';
-import Sidebar from '../../general/components/Sidebar';
-import { Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/Form";
+import { IDonateCampaign } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "../../general/components/Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   donateCampaigns: IDonateCampaign[];
@@ -52,12 +52,12 @@ class DonateCampaigns extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue || '',
-      filterStatus: this.props.filterStatus || ''
+      searchValue: this.props.searchValue || "",
+      filterStatus: this.props.filterStatus || "",
     };
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -68,7 +68,7 @@ class DonateCampaigns extends React.Component<Props, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -76,19 +76,19 @@ class DonateCampaigns extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
   onChange = () => {
     const { toggleAll, donateCampaigns } = this.props;
-    toggleAll(donateCampaigns, 'donateCampaigns');
+    toggleAll(donateCampaigns, "donateCampaigns");
   };
 
   renderRow = () => {
     const { donateCampaigns, history, toggleBulk, bulk } = this.props;
 
-    return donateCampaigns.map(donateCampaign => (
+    return donateCampaigns.map((donateCampaign) => (
       <Row
         key={donateCampaign._id}
         history={history}
@@ -99,14 +99,14 @@ class DonateCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeDonateCampaigns = donateCampaigns => {
+  removeDonateCampaigns = (donateCampaigns) => {
     const donateCampaignIds: string[] = [];
 
-    donateCampaigns.forEach(donateCampaign => {
+    donateCampaigns.forEach((donateCampaign) => {
       donateCampaignIds.push(donateCampaign._id);
     });
 
@@ -122,7 +122,7 @@ class DonateCampaigns extends React.Component<Props, State> {
           .then(() => {
             this.removeDonateCampaigns(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -152,7 +152,7 @@ class DonateCampaigns extends React.Component<Props, State> {
             <FlexItem>
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
                 value={this.state.searchValue}
                 autoFocus={true}
@@ -161,7 +161,7 @@ class DonateCampaigns extends React.Component<Props, State> {
             </FlexItem>
           </InputBar>
           <ModalTrigger
-            size={'lg'}
+            size={"lg"}
             title="Add donate campaign"
             trigger={trigger}
             autoOpenKey="showProductModal"
@@ -176,12 +176,12 @@ class DonateCampaigns extends React.Component<Props, State> {
     const { loading, isAllSelected, totalCount } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
+      { title: __("Settings"), link: "/settings" },
       {
-        title: __('Loyalties config'),
-        link: '/erxes-plugin-loyalty/settings/general'
+        title: __("Loyalties config"),
+        link: "/erxes-plugin-loyalty/settings/general",
       },
-      { title: __('Donate Campaign') }
+      { title: __("Donate Campaign") },
     ];
 
     const header = (
@@ -199,16 +199,16 @@ class DonateCampaigns extends React.Component<Props, State> {
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Start Date')}</th>
-            <th>{__('End Date')}</th>
-            <th>{__('Finish Date of Use')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Start Date")}</th>
+            <th>{__("End Date")}</th>
+            <th>{__("Finish Date of Use")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -219,13 +219,13 @@ class DonateCampaigns extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Donate Campaign')}
+            title={__("Donate Campaign")}
             breadcrumb={breadcrumb}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Donate Campaign')}</Title>}
+            left={<Title>{__("Donate Campaign")}</Title>}
             right={this.actionBarRight()}
           />
         }

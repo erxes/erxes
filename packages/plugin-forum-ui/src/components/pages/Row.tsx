@@ -1,16 +1,16 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IPage } from '../../types';
-import PageForm from './PageForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Link } from 'react-router-dom';
-import { DetailLink } from '../../styles';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import { DetailLink } from "../../styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IPage } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PageForm from "./PageForm";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   page: IPage;
@@ -25,13 +25,13 @@ class Row extends React.Component<Props> {
   renderEditAction(page) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <PageForm {...props} renderButton={this.props.renderButton} page={page} />
     );
 
@@ -51,7 +51,7 @@ class Row extends React.Component<Props> {
     const onClick = () => remove(page._id);
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__("Delete")} placement="top">
         <Button
           id="pageDelete"
           btnStyle="link"
@@ -65,13 +65,13 @@ class Row extends React.Component<Props> {
   render() {
     const { page, isChecked, toggleBulk } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(page, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -80,7 +80,7 @@ class Row extends React.Component<Props> {
         <td id="pagesCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>

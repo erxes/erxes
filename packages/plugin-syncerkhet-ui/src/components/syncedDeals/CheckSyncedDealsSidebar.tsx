@@ -1,17 +1,17 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { CustomRangeContainer, FilterContainer } from '../../styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { CustomRangeContainer, FilterContainer } from "../../styles";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -48,7 +48,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate: queryParams.stageChangedEndDate,
       dateType: queryParams.dateType,
       search: queryParams.search,
-      number: queryParams.number
+      number: queryParams.number,
     };
   }
 
@@ -57,7 +57,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       ownerId: null,
       ownerType: null,
       status: null,
-      voucherCampaignId: null
+      voucherCampaignId: null,
     });
   };
 
@@ -76,7 +76,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate,
       dateType,
       search,
-      number
+      number,
     } = this.state;
 
     router.setParams(this.props.history, {
@@ -90,12 +90,12 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate,
       dateType,
       search,
-      number
+      number,
     });
   };
 
   onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
     this.setState({ [kind]: cDate } as any);
   };
 
@@ -110,7 +110,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
           <CustomRangeContainer>
             <DateContainer>
               <Datetime
-                inputProps={{ placeholder: __('Choose Date') }}
+                inputProps={{ placeholder: __("Choose Date") }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat="HH:mm"
                 value={this.state[lblStart] || null}
@@ -118,14 +118,14 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 utc={true}
                 input={true}
                 onChange={this.onChangeRangeFilter.bind(this, lblStart)}
-                viewMode={'days'}
-                className={'filterDate'}
+                viewMode={"days"}
+                className={"filterDate"}
               />
             </DateContainer>
             <EndDateContainer>
               <DateContainer>
                 <Datetime
-                  inputProps={{ placeholder: __('Choose Date') }}
+                  inputProps={{ placeholder: __("Choose Date") }}
                   dateFormat="YYYY-MM-DD"
                   timeFormat="HH:mm"
                   value={this.state[lblEnd]}
@@ -133,8 +133,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
                   utc={true}
                   input={true}
                   onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
-                  viewMode={'days'}
-                  className={'filterDate'}
+                  viewMode={"days"}
+                  className={"filterDate"}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -153,7 +153,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       configStageId,
       dateType,
       search,
-      number
+      number,
     } = this.state;
 
     const onChangeBoard = (boardId: string) => {
@@ -172,13 +172,13 @@ class CheckerSidebar extends React.Component<IProps, State> {
       this.setState({ configStageId: stageId });
     };
 
-    const onUserChange = userId => {
+    const onUserChange = (userId) => {
       this.setState({ userId });
     };
 
     const onChangeType = (e: React.FormEvent<HTMLElement>) => {
       this.setState({
-        dateType: (e.currentTarget as HTMLInputElement).value
+        dateType: (e.currentTarget as HTMLInputElement).value,
       });
     };
 
@@ -190,16 +190,16 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     return (
       <Wrapper.Sidebar hasBorder={true}>
-        <Section.Title>{__('Filters')}</Section.Title>
+        <Section.Title>{__("Filters")}</Section.Title>
         <FilterContainer>
           <FormGroup>
             <ControlLabel>Choose Filter Stage</ControlLabel>
             <BoardSelectContainer
               type="deal"
               autoSelectStage={false}
-              boardId={boardId || ''}
-              pipelineId={pipelineId || ''}
-              stageId={stageId || ''}
+              boardId={boardId || ""}
+              pipelineId={pipelineId || ""}
+              stageId={stageId || ""}
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
               onChangeStage={onChangeStage}
@@ -210,8 +210,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
             <SelectTeamMembers
               label="Choose users"
               name="userId"
-              customOption={{ label: 'Choose user', value: '' }}
-              initialValue={userId || ''}
+              customOption={{ label: "Choose user", value: "" }}
+              initialValue={userId || ""}
               onSelect={onUserChange}
               multi={false}
             />
@@ -237,15 +237,15 @@ class CheckerSidebar extends React.Component<IProps, State> {
             />
           </FormGroup>
 
-          {this.renderRange('stageChanged')}
+          {this.renderRange("stageChanged")}
           <FormGroup>
             <ControlLabel>Choose Get Config Stage</ControlLabel>
             <BoardSelectContainer
               type="deal"
               autoSelectStage={false}
-              boardId={boardId || ''}
-              pipelineId={pipelineId || ''}
-              stageId={configStageId || stageId || ''}
+              boardId={boardId || ""}
+              pipelineId={pipelineId || ""}
+              stageId={configStageId || stageId || ""}
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
               onChangeStage={onChangeConfigStage}
@@ -254,20 +254,20 @@ class CheckerSidebar extends React.Component<IProps, State> {
           <FormGroup>
             <ControlLabel>Date type</ControlLabel>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               value={dateType}
               name="dateType"
               onChange={onChangeType}
             >
-              <option value={''}>Now</option>
-              <option value={'lastMove'}>Last move at</option>
-              <option value={'created'}>Created At</option>
-              <option value={'closeOrCreated'}>Close date or created at</option>
-              <option value={'closeOrMove'}>Close date or last move at</option>
-              <option value={'firstOrMove'}>
+              <option value={""}>Now</option>
+              <option value={"lastMove"}>Last move at</option>
+              <option value={"created"}>Created At</option>
+              <option value={"closeOrCreated"}>Close date or created at</option>
+              <option value={"closeOrMove"}>Close date or last move at</option>
+              <option value={"firstOrMove"}>
                 First synced or last move at
               </option>
-              <option value={'firstOrCreated'}>
+              <option value={"firstOrCreated"}>
                 First synced or created at
               </option>
             </FormControl>
@@ -279,7 +279,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
             onClick={this.onFilter}
             icon="filter"
           >
-            {__('Filter')}
+            {__("Filter")}
           </Button>
         </FilterContainer>
       </Wrapper.Sidebar>

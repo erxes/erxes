@@ -2,20 +2,20 @@ import {
   ChecklistItem,
   ChecklistText,
   FormControlWrapper,
-  FormWrapper
-} from '../styles';
-import React, { useEffect, useState } from 'react';
+  FormWrapper,
+} from "../styles";
+import React, { useEffect, useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IChecklistItem } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import debounce from 'lodash/debounce';
-import { isEmptyContent } from '@erxes/ui/src/utils';
-import { urlify } from '@erxes/ui/src/utils/urlParser';
-import xss from 'xss';
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IChecklistItem } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import debounce from "lodash/debounce";
+import { isEmptyContent } from "@erxes/ui/src/utils";
+import { urlify } from "@erxes/ui/src/utils/urlParser";
+import xss from "xss";
 
 type Props = {
   item: IChecklistItem;
@@ -52,7 +52,7 @@ function Item(props: Props) {
   }
 
   function onKeyPress(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
 
       handleSave();
@@ -108,7 +108,7 @@ function Item(props: Props) {
   }
 
   function renderContent() {
-    const onChangeContent = e => {
+    const onChangeContent = (e) => {
       setContent((e.currentTarget as HTMLTextAreaElement).value);
     };
 
@@ -122,7 +122,7 @@ function Item(props: Props) {
         <FormWrapper onSubmit={onSubmit} onBlur={onBlur}>
           <FormControlWrapper>
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               autoFocus={true}
               onFocus={onFocus}
               onChange={onChangeContent}
@@ -179,7 +179,7 @@ function Item(props: Props) {
   return (
     <ChecklistItem>
       <FormControl
-        componentClass="checkbox"
+        componentclass="checkbox"
         checked={isChecked}
         onChange={onCheckChange}
       />

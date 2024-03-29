@@ -1,30 +1,31 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import {
   Box,
   Button,
+  FormGroup as CommonFormGroup,
+  Sidebar as CommonSideBar,
   ControlLabel,
   DateControl,
-  FormGroup as CommonFormGroup,
+  FormControl,
   Icon,
-  router,
-  Sidebar as CommonSideBar,
   Tip,
   Wrapper,
   __,
-  FormControl,
-} from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import moment from 'moment';
-import React, { useState } from 'react';
-import { SelectWithAssets } from '../../../common/utils';
+  router,
+} from "@erxes/ui/src";
 import {
   ContainerBox,
   CustomRangeContainer,
   EndDateContainer,
-} from '../../../style';
+} from "../../../style";
+import React, { useState } from "react";
+
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { SelectWithAssets } from "../../../common/utils";
+import moment from "moment";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -34,14 +35,14 @@ type Props = {
 };
 
 const fields = [
-  'branchId',
-  'departmentId',
-  'teamMemberId',
-  'companyId',
-  'customerId',
-  'assetId',
-  'createdAtFrom',
-  'createdAtTo',
+  "branchId",
+  "departmentId",
+  "teamMemberId",
+  "companyId",
+  "customerId",
+  "assetId",
+  "createdAtFrom",
+  "createdAtTo",
 ];
 
 const Sidebar = (props: Props) => {
@@ -50,7 +51,7 @@ const Sidebar = (props: Props) => {
   console.log(props);
 
   const handleSelect = (value, name) => {
-    if (['createdAtFrom', 'createdAtTo'].includes(name)) {
+    if (["createdAtFrom", "createdAtTo"].includes(name)) {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
     }
 
@@ -115,7 +116,7 @@ const Sidebar = (props: Props) => {
   return (
     <CommonSideBar>
       <Section.Title>
-        {__('Addition Filters')}
+        {__("Addition Filters")}
         <Section.QuickButtons>
           {fields.some((field) => queryParams[field]) && extraButton}
         </Section.QuickButtons>
@@ -130,9 +131,9 @@ const Sidebar = (props: Props) => {
             label="Choose Branch"
             name="branchId"
             multi={false}
-            initialValue={queryParams?.branchId || ''}
+            initialValue={queryParams?.branchId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Branch' }}
+            customOption={{ value: "", label: "Choose Branch" }}
           />
         </FormGroup>
         <FormGroup
@@ -144,9 +145,9 @@ const Sidebar = (props: Props) => {
             label="Choose Department"
             name="departmentId"
             multi={false}
-            initialValue={queryParams?.departmentId || ''}
+            initialValue={queryParams?.departmentId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Department' }}
+            customOption={{ value: "", label: "Choose Department" }}
           />
         </FormGroup>
         <FormGroup
@@ -158,9 +159,9 @@ const Sidebar = (props: Props) => {
             label="Choose Team Member"
             name="teamMemberId"
             multi={false}
-            initialValue={queryParams?.teamMemberId || ''}
+            initialValue={queryParams?.teamMemberId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Team Member' }}
+            customOption={{ value: "", label: "Choose Team Member" }}
           />
         </FormGroup>
         <FormGroup
@@ -172,9 +173,9 @@ const Sidebar = (props: Props) => {
             label="Choose Company"
             name="companyId"
             multi={false}
-            initialValue={queryParams?.companyId || ''}
+            initialValue={queryParams?.companyId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Company' }}
+            customOption={{ value: "", label: "Choose Company" }}
           />
         </FormGroup>
         <FormGroup
@@ -186,9 +187,9 @@ const Sidebar = (props: Props) => {
             label="Choose Customer"
             name="customerId"
             multi={false}
-            initialValue={queryParams?.customerId || ''}
+            initialValue={queryParams?.customerId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Customer' }}
+            customOption={{ value: "", label: "Choose Customer" }}
           />
         </FormGroup>
         <FormGroup
@@ -200,9 +201,9 @@ const Sidebar = (props: Props) => {
             label="Choose Asset"
             name="assetId"
             multi={false}
-            initialValue={queryParams?.assetId || ''}
+            initialValue={queryParams?.assetId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '', label: 'Choose Asset' }}
+            customOption={{ value: "", label: "Choose Asset" }}
           />
         </FormGroup>
         <FormGroup
@@ -214,23 +215,23 @@ const Sidebar = (props: Props) => {
             label="Choose Parent"
             name="parentId"
             multi={false}
-            initialValue={queryParams?.parentId || ''}
+            initialValue={queryParams?.parentId || ""}
             onSelect={handleSelect}
-            customOption={{ value: '*', label: 'Without Parent' }}
+            customOption={{ value: "*", label: "Without Parent" }}
           />
         </FormGroup>
         <FormGroup
           label="Created Date Range"
           clearable={!!queryParams?.createdAtFrom || !!queryParams?.createdAtTo}
-          field={['createdAtFrom', 'createdAtTo']}
+          field={["createdAtFrom", "createdAtTo"]}
         >
           <CustomRangeContainer>
             <DateContainer>
               <DateControl
                 name="createdAtFrom"
                 placeholder="Choose start date"
-                value={queryParams?.createdAtFrom || ''}
-                onChange={(e) => handleSelect(e, 'createdAtFrom')}
+                value={queryParams?.createdAtFrom || ""}
+                onChange={(e) => handleSelect(e, "createdAtFrom")}
               />
             </DateContainer>
             <EndDateContainer>
@@ -238,8 +239,8 @@ const Sidebar = (props: Props) => {
                 <DateControl
                   name="createdAtTo"
                   placeholder="Choose end date"
-                  value={queryParams?.createdAtTo || ''}
-                  onChange={(e) => handleSelect(e, 'createdAtTo')}
+                  value={queryParams?.createdAtTo || ""}
+                  onChange={(e) => handleSelect(e, "createdAtTo")}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -248,13 +249,13 @@ const Sidebar = (props: Props) => {
         <CommonFormGroup>
           <FormControl
             name="onlyCurrent"
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={!!queryParams.onlyCurrent}
             onChange={() =>
-              handleToggle(queryParams.onlyCurrent, 'onlyCurrent')
+              handleToggle(queryParams.onlyCurrent, "onlyCurrent")
             }
           />
-          <ControlLabel>{__('only last movement of per assets')}</ControlLabel>
+          <ControlLabel>{__("only last movement of per assets")}</ControlLabel>
         </CommonFormGroup>
       </ContainerBox>
     </CommonSideBar>

@@ -157,7 +157,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Columns</ControlLabel>
               <FormControl
@@ -171,7 +171,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Rows</ControlLabel>
               <FormControl
@@ -183,7 +183,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Margin</ControlLabel>
               <FormControl

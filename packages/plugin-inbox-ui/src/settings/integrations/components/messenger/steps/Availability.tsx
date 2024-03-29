@@ -194,7 +194,7 @@ class Availability extends React.Component<Props> {
           <FormGroup>
             <FormControl
               value="manual"
-              componentClass="radio"
+              componentclass="radio"
               checked={this.props.availabilityMethod === "manual"}
               onChange={onChange}
               inline={true}
@@ -204,7 +204,7 @@ class Availability extends React.Component<Props> {
 
             <FormControl
               value="auto"
-              componentClass="radio"
+              componentclass="radio"
               checked={this.props.availabilityMethod === "auto"}
               onChange={onChange}
               inline={true}

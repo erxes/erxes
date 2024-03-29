@@ -93,7 +93,7 @@ class StageItem extends React.Component<Props> {
 
         <FormControl
           defaultValue={stage.probability}
-          componentClass="select"
+          componentclass="select"
           name="probability"
           onChange={onChangeFormControl.bind(this, stage._id)}
         >
@@ -106,7 +106,7 @@ class StageItem extends React.Component<Props> {
 
         <FormControl
           defaultValue={stage.status}
-          componentClass="select"
+          componentclass="select"
           name="status"
           className={""}
           onChange={onChangeFormControl.bind(this, stage._id)}
@@ -121,7 +121,7 @@ class StageItem extends React.Component<Props> {
 
         <FormControl
           defaultValue={stage.visibility}
-          componentClass="select"
+          componentclass="select"
           name="visibility"
           onChange={onChangeFormControl.bind(this, stage._id)}
         >
@@ -151,7 +151,7 @@ class StageItem extends React.Component<Props> {
 
         {(["deal", "purchase"].includes(type) && (
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={
               stage.defaultTick === undefined || stage.defaultTick === null
                 ? true

@@ -1,24 +1,24 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import React from "react";
+import Select from "react-select-plus";
+import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
-} from '@erxes/ui/src/components';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { IConfigsMap } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { BlockRow } from '../styles';
+  Icon,
+} from "@erxes/ui/src/components";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { IConfigsMap } from "../types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { BlockRow } from "../styles";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -35,14 +35,14 @@ type State = {
 };
 
 const paymentTypes = [
-  { type: 'prepay' },
-  { type: 'cash' },
-  { type: 'bank' },
-  { type: 'pos' },
-  { type: 'wallet' },
-  { type: 'barter' },
-  { type: 'after' },
-  { type: 'other' }
+  { type: "prepay" },
+  { type: "cash" },
+  { type: "bank" },
+  { type: "pos" },
+  { type: "wallet" },
+  { type: "barter" },
+  { type: "after" },
+  { type: "other" },
 ];
 
 class PerSettings extends React.Component<Props, State> {
@@ -52,20 +52,20 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      fieldsCombined: []
+      fieldsCombined: [],
     };
 
-    if (isEnabled('forms')) {
+    if (isEnabled("forms")) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal'
-          }
+            contentType: "cards:deal",
+          },
         })
         .then(({ data }) => {
           this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [],
           });
         });
     }
@@ -83,7 +83,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { stageInIncomeConfig } = configsMap;
@@ -95,11 +95,11 @@ class PerSettings extends React.Component<Props, State> {
     newstageInIncomeConfig[key] = config;
     this.props.save({
       ...configsMap,
-      stageInIncomeConfig: newstageInIncomeConfig
+      stageInIncomeConfig: newstageInIncomeConfig,
     });
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -123,14 +123,14 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({
       config: {
         ...config,
-        payAccounts: { ...(config.payAccounts || {}), [type]: value }
-      }
+        payAccounts: { ...(config.payAccounts || {}), [type]: value },
+      },
     });
   };
 
-  onresponseCustomFieldChange = option => {
-    const value = !option ? '' : option.value.toString();
-    this.onChangeConfig('responseField', value);
+  onresponseCustomFieldChange = (option) => {
+    const value = !option ? "" : option.value.toString();
+    this.onChangeConfig("responseField", value);
   };
 
   renderInput = (key: string, title?: string, description?: string) => {
@@ -159,7 +159,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           checked={config[key]}
           onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
+          componentclass="checkbox"
         />
       </FormGroup>
     );
@@ -171,11 +171,11 @@ class PerSettings extends React.Component<Props, State> {
 
     catAccLocMap.push({
       _id: Math.random().toString(),
-      category: '',
-      branch: '',
-      department: '',
-      account: '',
-      location: ''
+      category: "",
+      branch: "",
+      department: "",
+      account: "",
+      location: "",
     });
 
     this.setState({ config: { ...config, catAccLocMap } });
@@ -212,14 +212,14 @@ class PerSettings extends React.Component<Props, State> {
     );
 
     const editMapping = (id, e) => {
-      const index = catAccLocMap.findIndex(i => i._id === id);
+      const index = catAccLocMap.findIndex((i) => i._id === id);
 
       const name = e.target.name;
       const value = e.target.value;
 
       const item = {
-        ...(catAccLocMap.find(cal => cal._id === id) || {}),
-        [name]: value
+        ...(catAccLocMap.find((cal) => cal._id === id) || {}),
+        [name]: value,
       };
 
       if (index !== -1) {
@@ -232,7 +232,7 @@ class PerSettings extends React.Component<Props, State> {
     };
 
     const removeMapping = (_id: string) => {
-      const excluded = catAccLocMap.filter(m => m._id !== _id);
+      const excluded = catAccLocMap.filter((m) => m._id !== _id);
 
       this.setState({ config: { ...config, catAccLocMap: excluded } });
     };
@@ -305,15 +305,15 @@ class PerSettings extends React.Component<Props, State> {
         title={__(config.title)}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
-        open={this.props.currentConfigKey === 'newIncomeConfig' ? true : false}
+        open={this.props.currentConfigKey === "newIncomeConfig" ? true : false}
       >
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>{'Title'}</ControlLabel>
+              <ControlLabel>{"Title"}</ControlLabel>
               <FormControl
                 defaultValue={config.title}
-                onChange={this.onChangeInput.bind(this, 'title')}
+                onChange={this.onChangeInput.bind(this, "title")}
                 required={true}
                 autoFocus={true}
               />
@@ -331,34 +331,34 @@ class PerSettings extends React.Component<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('Choose response field')}</ControlLabel>
+              <ControlLabel>{__("Choose response field")}</ControlLabel>
               <Select
                 name="responseField"
                 value={config.responseField}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map(f => ({
+                options={(this.state.fieldsCombined || []).map((f) => ({
                   value: f.name,
-                  label: f.label
+                  label: f.label,
                 }))}
               />
             </FormGroup>
           </FormColumn>
           <FormColumn>
-            {this.renderInput('userEmail', 'User Email', '')}
-            {this.renderInput('defaultCustomer', 'Default Customer', '')}
-            {this.renderCheckbox('hasVat', 'hasVat', '')}
-            {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-            {this.renderInput('vatRow', 'Vat Row number', '')}
-            {this.renderInput('defaultPayAccount', 'Default Pay Account', '')}
+            {this.renderInput("userEmail", "User Email", "")}
+            {this.renderInput("defaultCustomer", "Default Customer", "")}
+            {this.renderCheckbox("hasVat", "hasVat", "")}
+            {this.renderCheckbox("hasCitytax", "hasCitytax", "")}
+            {this.renderInput("vatRow", "Vat Row number", "")}
+            {this.renderInput("defaultPayAccount", "Default Pay Account", "")}
           </FormColumn>
         </FormWrapper>
         <BlockRow>
-          {(paymentTypes || []).map(pt => (
+          {(paymentTypes || []).map((pt) => (
             <FormGroup key={pt.type}>
               <ControlLabel>{pt.type}</ControlLabel>
               <FormControl
-                defaultValue={(config.payAccounts || {})[pt.type] || ''}
-                onChange={e =>
+                defaultValue={(config.payAccounts || {})[pt.type] || ""}
+                onChange={(e) =>
                   this.onChangePayAccount(pt.type, (e.target as any).value)
                 }
                 required={true}

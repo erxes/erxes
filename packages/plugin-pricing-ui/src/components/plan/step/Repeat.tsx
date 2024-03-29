@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import Datetime from '@nateradebaugh/react-datetime';
-import Select from 'react-select-plus';
-// erxes
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Tip from '@erxes/ui/src/components/Tip';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
 import {
   DateContainer,
+  FormColumn,
   FormWrapper,
-  FormColumn
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import { REPEAT_OPTIONS, WEEK_OPTIONS } from "../../../constants";
+import React, { useEffect, useState } from "react";
+
+// erxes
+import Button from "@erxes/ui/src/components/Button";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import { PricingPlan } from "../../../types";
+import Select from "react-select-plus";
 // local
-import { Table } from '../../../styles';
-import { WEEK_OPTIONS, REPEAT_OPTIONS } from '../../../constants';
-import { PricingPlan } from '../../../types';
+import { Table } from "../../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   formValues: PricingPlan;
@@ -33,19 +34,19 @@ export default function Repeat(props: Props) {
     const temp = [...formValues.repeatRules];
     temp[index][key] = value;
 
-    handleState('repeatRules', temp);
+    handleState("repeatRules", temp);
   };
 
   const handleAdd = () => {
     const temp = [...formValues.repeatRules];
-    temp.push({ type: 'everyDay' });
-    handleState('repeatRules', temp);
+    temp.push({ type: "everyDay" });
+    handleState("repeatRules", temp);
   };
 
   const handleDelete = (index: number) => {
     const temp = [...formValues.repeatRules];
     if (temp.length >= 1) temp.splice(index, 1);
-    handleState('repeatRules', temp);
+    handleState("repeatRules", temp);
   };
 
   const renderDayForm = (item: any, index: number) => (
@@ -54,7 +55,7 @@ export default function Repeat(props: Props) {
         <FormGroup>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __('Start Time') }}
+              inputProps={{ placeholder: __("Start Time") }}
               closeOnSelect={true}
               timeFormat={true}
               dateFormat={false}
@@ -62,7 +63,7 @@ export default function Repeat(props: Props) {
               value={item.dayStartValue || null}
               onChange={(value: any) => {
                 console.log(value);
-                handleChange(index, 'dayStartValue', value);
+                handleChange(index, "dayStartValue", value);
               }}
             />
           </DateContainer>
@@ -72,14 +73,14 @@ export default function Repeat(props: Props) {
         <FormGroup>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __('End Time') }}
+              inputProps={{ placeholder: __("End Time") }}
               closeOnSelect={true}
               timeFormat={true}
               dateFormat={false}
               utc={true}
               value={item.dayEndValue || null}
               onChange={(value: any) =>
-                handleChange(index, 'dayEndValue', value)
+                handleChange(index, "dayEndValue", value)
               }
             />
           </DateContainer>
@@ -93,9 +94,9 @@ export default function Repeat(props: Props) {
       <Select
         name="weekForm"
         value={item.weekValue}
-        placeholder={__('Select a weekday')}
+        placeholder={__("Select a weekday")}
         options={WEEK_OPTIONS}
-        onChange={(value: any) => handleChange(index, 'weekValue', value)}
+        onChange={(value: any) => handleChange(index, "weekValue", value)}
         multi
       />
     </FormGroup>
@@ -104,12 +105,12 @@ export default function Repeat(props: Props) {
   const renderMonthForm = (item: any, index: number) => {
     let options: any = [];
 
-    options.push({ label: 'Last day of the month', value: 'lastDay' });
+    options.push({ label: "Last day of the month", value: "lastDay" });
 
     for (let i = 1; i <= 31; i++) {
       options.push({
         label: i,
-        value: i.toString()
+        value: i.toString(),
       });
     }
 
@@ -118,9 +119,9 @@ export default function Repeat(props: Props) {
         <Select
           name="monthForm"
           value={item.monthValue || []}
-          placeholder={__('Select a day')}
+          placeholder={__("Select a day")}
           options={options}
-          onChange={(value: any) => handleChange(index, 'monthValue', value)}
+          onChange={(value: any) => handleChange(index, "monthValue", value)}
           multi
         />
       </FormGroup>
@@ -133,14 +134,14 @@ export default function Repeat(props: Props) {
         <FormGroup>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __('Start Date') }}
+              inputProps={{ placeholder: __("Start Date") }}
               dateFormat="MM/DD/YYYY"
               closeOnSelect={true}
               timeFormat={false}
               utc={true}
               value={item.yearStartValue || null}
               onChange={(value: any) =>
-                handleChange(index, 'yearStartValue', value)
+                handleChange(index, "yearStartValue", value)
               }
             />
           </DateContainer>
@@ -150,14 +151,14 @@ export default function Repeat(props: Props) {
         <FormGroup>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __('End Date') }}
+              inputProps={{ placeholder: __("End Date") }}
               dateFormat="MM/DD/YYYY"
               closeOnSelect={true}
               timeFormat={false}
               utc={true}
               value={item.yearEndValue || null}
               onChange={(value: any) =>
-                handleChange(index, 'yearEndValue', value)
+                handleChange(index, "yearEndValue", value)
               }
             />
           </DateContainer>
@@ -168,13 +169,13 @@ export default function Repeat(props: Props) {
 
   const renderInputForm = (item: any, index: number) => {
     switch (item.type) {
-      case 'everyDay':
+      case "everyDay":
         return renderDayForm(item, index);
-      case 'everyWeek':
+      case "everyWeek":
         return renderWeekForm(item, index);
-      case 'everyMonth':
+      case "everyMonth":
         return renderMonthForm(item, index);
-      case 'everyYear':
+      case "everyYear":
         return renderYearForm(item, index);
       default:
         return;
@@ -182,21 +183,21 @@ export default function Repeat(props: Props) {
   };
 
   const renderRow = (item: any, index: number) => (
-    <tr key={'repeat' + index}>
+    <tr key={"repeat" + index}>
       <td>
         <FormGroup>
           <FormControl
             name="type"
-            componentClass="select"
+            componentclass="select"
             options={REPEAT_OPTIONS}
-            onChange={(e: any) => handleChange(index, 'type', e.target.value)}
-            value={item.type || 'everyDay'}
+            onChange={(e: any) => handleChange(index, "type", e.target.value)}
+            value={item.type || "everyDay"}
           />
         </FormGroup>
       </td>
       <td>{renderInputForm(item, index)}</td>
       <td>
-        <Tip text={__('Delete')} placement="bottom">
+        <Tip text={__("Delete")} placement="bottom">
           <Button
             btnStyle="danger"
             icon="trash"
@@ -210,10 +211,10 @@ export default function Repeat(props: Props) {
 
   const renderToggle = () => (
     <FormGroup>
-      <FormLabel>{__('Set repeat')}</FormLabel>
+      <FormLabel>{__("Set repeat")}</FormLabel>
       <Toggle
         checked={formValues.isRepeatEnabled}
-        onChange={(e: any) => handleState('isRepeatEnabled', e.target.checked)}
+        onChange={(e: any) => handleState("isRepeatEnabled", e.target.checked)}
       />
     </FormGroup>
   );
@@ -225,9 +226,9 @@ export default function Repeat(props: Props) {
           <Table>
             <thead>
               <tr>
-                <th>{__('Rule type')}</th>
-                <th>{__('Rule value')}</th>
-                <th>{__('Actions')}</th>
+                <th>{__("Rule type")}</th>
+                <th>{__("Rule value")}</th>
+                <th>{__("Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -236,14 +237,14 @@ export default function Repeat(props: Props) {
               )}
             </tbody>
           </Table>
-          <div style={{ display: 'block', textAlign: 'right' }}>
+          <div style={{ display: "block", textAlign: "right" }}>
             <Button
               btnStyle="success"
               icon="plus"
               size="small"
               onClick={handleAdd}
             >
-              {__('Add row')}
+              {__("Add row")}
             </Button>
           </div>
         </>

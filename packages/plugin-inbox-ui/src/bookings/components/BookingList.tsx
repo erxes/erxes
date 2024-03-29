@@ -1,22 +1,22 @@
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_BOOKINGS } from '../constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IBookingIntegration } from '../types';
-import { IntegrationsCount } from '@erxes/ui-leads/src/types';
-import { Link } from 'react-router-dom';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './BookingRow';
-import Sidebar from './Sidebar';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { EMPTY_CONTENT_BOOKINGS } from "../constants";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IBookingIntegration } from "../types";
+import { IntegrationsCount } from "@erxes/ui-leads/src/types";
+import { Link } from "react-router-dom";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./BookingRow";
+import Sidebar from "./Sidebar";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Table from "@erxes/ui/src/components/table";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
@@ -52,7 +52,7 @@ function BookingList(props: Props) {
   } = props;
 
   const onChange = () => {
-    toggleAll(integrations, 'integrations');
+    toggleAll(integrations, "integrations");
   };
 
   const renderRow = () => {
@@ -80,7 +80,7 @@ function BookingList(props: Props) {
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <TaggerPopover
             type={TAG_TYPES.INTEGRATION}
             successCallback={emptyBulk}
@@ -105,24 +105,24 @@ function BookingList(props: Props) {
   );
 
   const content = (
-    <Table whiteSpace="nowrap" $hover={true}>
+    <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
           <th>
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               checked={isAllSelected}
               onChange={onChange}
             />
           </th>
-          <th>{__('Listings')}</th>
-          <th>{__('Brand')}</th>
-          <th>{__('Views')}</th>
-          <th>{__('Status')}</th>
-          <th>{__('Created by')}</th>
-          <th>{__('Created at')}</th>
-          <th>{__('Tags')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Listings")}</th>
+          <th>{__("Brand")}</th>
+          <th>{__("Views")}</th>
+          <th>{__("Status")}</th>
+          <th>{__("Created by")}</th>
+          <th>{__("Created at")}</th>
+          <th>{__("Tags")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -133,8 +133,8 @@ function BookingList(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Bookings')}
-          breadcrumb={[{ title: __('Bookings') }]}
+          title={__("Bookings")}
+          breadcrumb={[{ title: __("Bookings") }]}
           queryParams={queryParams}
         />
       }

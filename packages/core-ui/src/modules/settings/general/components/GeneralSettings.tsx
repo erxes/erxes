@@ -122,7 +122,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          componentClass={componentClass}
+          componentclass={componentClass}
           defaultValue={configsMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
         />
@@ -258,7 +258,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <ControlLabel>{KEY_LABELS.CLOUDFLARE_USE_CDN}</ControlLabel>
           <p>{__("Upload images/videos to Cloudflare cdn")}</p>
           <FormControl
-            componentClass={"checkbox"}
+            componentclass={"checkbox"}
             checked={configsMap.CLOUDFLARE_USE_CDN}
             onChange={(e: any) => {
               this.onChangeConfig("CLOUDFLARE_USE_CDN", e.target.checked);
@@ -335,7 +335,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__("with team member restrictions")}</ControlLabel>
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
               onChange={(e) =>
                 this.onChangeConfig(

@@ -7,16 +7,16 @@ import {
   FormGroup,
   Icon,
   Spinner,
-} from '@erxes/ui/src/components';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { queries } from '@erxes/ui-products/src/graphql';
-import React, { useState, useEffect } from 'react';
-import { ContentBox } from '../../styles';
-import { IConfigsMap, IUom } from '../../types';
-import Header from './Header';
-import Sidebar from './Sidebar';
+} from "@erxes/ui/src/components";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { __ } from "@erxes/ui/src/utils";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { queries } from "@erxes/ui-products/src/graphql";
+import React, { useState, useEffect } from "react";
+import { ContentBox } from "../../styles";
+import { IConfigsMap, IUom } from "../../types";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -27,17 +27,17 @@ type Props = {
 
 const GeneralSettings: React.FC<Props> = (props) => {
   const [currentMap, setCurrentMap] = useState<IConfigsMap>(
-    props.configsMap || {},
+    props.configsMap || {}
   );
   const [is_uom, setIs_uom] = useState(props.configsMap.isRequireUOM || false);
   const [defaultUOM, setDefaultUOM] = useState(
-    props.configsMap.defaultUOM ? props.configsMap.defaultUOM : '',
+    props.configsMap.defaultUOM ? props.configsMap.defaultUOM : ""
   );
 
   useEffect(() => {
     setCurrentMap(props.configsMap || {});
     setIs_uom(props.configsMap.isRequireUOM || false);
-    setDefaultUOM(props.configsMap.defaultUOM || '');
+    setDefaultUOM(props.configsMap.defaultUOM || "");
   }, [props.configsMap]);
 
   const save = (e) => {
@@ -63,13 +63,13 @@ const GeneralSettings: React.FC<Props> = (props) => {
 
   const onChangeUom = ({ selectedOption }) => {
     setDefaultUOM(selectedOption);
-    onChangeConfig('defaultUOM', selectedOption);
+    onChangeConfig("defaultUOM", selectedOption);
   };
 
   const renderCheckbox = (
     key: string,
     title?: string,
-    description?: string,
+    description?: string
   ) => {
     return (
       <FormGroup>
@@ -78,7 +78,7 @@ const GeneralSettings: React.FC<Props> = (props) => {
         <FormControl
           checked={currentMap[key]}
           onChange={onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
+          componentclass="checkbox"
         />
       </FormGroup>
     );
@@ -87,7 +87,7 @@ const GeneralSettings: React.FC<Props> = (props) => {
   const renderCombobox = (
     key: string,
     title?: string,
-    description?: string,
+    description?: string
   ) => {
     const { uoms } = props;
 
@@ -114,22 +114,22 @@ const GeneralSettings: React.FC<Props> = (props) => {
     }
 
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         <CollapseContent
           title="General settings"
           beforeTitle={<Icon icon="settings" />}
           transparent={true}
         >
-          {renderCheckbox('isRequireUOM', 'is Required UOM', '')}
-          {is_uom && renderCombobox('defaultUOM', 'default uom')}
+          {renderCheckbox("isRequireUOM", "is Required UOM", "")}
+          {is_uom && renderCombobox("defaultUOM", "default uom")}
         </CollapseContent>
       </ContentBox>
     );
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Products config') },
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Products config") },
   ];
 
   const actionButtons = (
@@ -146,12 +146,12 @@ const GeneralSettings: React.FC<Props> = (props) => {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Products config')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Products config")} breadcrumb={breadcrumb} />
       }
       mainHead={<Header />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Products configs')}</Title>}
+          left={<Title>{__("Products configs")}</Title>}
           right={actionButtons}
           wideSpacing
         />

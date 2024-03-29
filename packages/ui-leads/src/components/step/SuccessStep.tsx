@@ -2,44 +2,44 @@ import {
   FlexItem,
   ImagePreview,
   ImageUpload,
-} from '@erxes/ui/src/components/step/style';
-import { __, readFile, uploadHandler } from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/components/step/style";
+import { __, readFile, uploadHandler } from "@erxes/ui/src/utils";
 
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FORM_SUCCESS_ACTIONS } from '@erxes/ui/src/constants/integrations';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { ILeadData } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FORM_SUCCESS_ACTIONS } from "@erxes/ui/src/constants/integrations";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFormData } from "@erxes/ui-forms/src/forms/types";
+import { ILeadData } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 // import Select from 'react-select-plus';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import Toggle from '@erxes/ui/src/components/Toggle';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Name =
-  | 'successAction'
-  | 'fromEmail'
-  | 'userEmailTitle'
-  | 'userEmailContent'
-  | 'adminEmails'
-  | 'adminEmailTitle'
-  | 'adminEmailContent'
-  | 'redirectUrl'
-  | 'thankContent'
-  | 'thankTitle'
-  | 'templateId'
-  | 'attachments'
-  | 'successImageSize'
-  | 'successImage'
-  | 'successPreviewStyle'
-  | 'verifyEmail';
+  | "successAction"
+  | "fromEmail"
+  | "userEmailTitle"
+  | "userEmailContent"
+  | "adminEmails"
+  | "adminEmailTitle"
+  | "adminEmailContent"
+  | "redirectUrl"
+  | "thankContent"
+  | "thankTitle"
+  | "templateId"
+  | "attachments"
+  | "successImageSize"
+  | "successImage"
+  | "successPreviewStyle"
+  | "verifyEmail";
 
 type Props = {
   type: string;
@@ -78,12 +78,12 @@ class SuccessStep extends React.Component<Props, State> {
 
   handleSuccessActionChange = () => {
     const element = document.getElementById(
-      'successAction',
+      "successAction"
     ) as HTMLInputElement;
     const value = element.value;
 
     this.setState({ successAction: value });
-    this.props.onChange('successAction', value);
+    this.props.onChange("successAction", value);
   };
 
   onChangeFunction = (name: Name, value: string) => {
@@ -102,7 +102,7 @@ class SuccessStep extends React.Component<Props, State> {
       return template.content;
     }
 
-    return '';
+    return "";
   };
 
   templateChange = (e) => {
@@ -110,8 +110,8 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.setState({ leadData: { userEmailContent, templateId: e.value } });
 
-    this.props.onChange('userEmailContent', this.findTemplate(e.value));
-    this.props.onChange('templateId', e.value);
+    this.props.onChange("userEmailContent", this.findTemplate(e.value));
+    this.props.onChange("templateId", e.value);
   };
 
   onChangeAttachment = (attachments) => {
@@ -120,40 +120,40 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.setState({ leadData });
 
-    this.props.onChange('attachments', attachments);
+    this.props.onChange("attachments", attachments);
   };
 
   renderEmailFields(leadData: ILeadData) {
-    if (this.state.successAction !== 'email') {
+    if (this.state.successAction !== "email") {
       return null;
     }
 
     const fromEmailOnChange = (e) =>
       this.onChangeFunction(
-        'fromEmail',
-        (e.currentTarget as HTMLInputElement).value,
+        "fromEmail",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     const userEmailTitle = (e) =>
       this.onChangeFunction(
-        'userEmailTitle',
-        (e.currentTarget as HTMLInputElement).value,
+        "userEmailTitle",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     const adminEmails = (e) =>
       this.onChangeFunction(
-        'adminEmails',
-        (e.currentTarget as HTMLInputElement).value,
+        "adminEmails",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     const adminEmailTitle = (e) =>
       this.onChangeFunction(
-        'adminEmailTitle',
-        (e.currentTarget as HTMLInputElement).value,
+        "adminEmailTitle",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     const { type, formId } = this.props;
-    const editorSubName = `${type}_${formId || 'create'}`;
+    const editorSubName = `${type}_${formId || "create"}`;
 
     return (
       <div>
@@ -161,12 +161,12 @@ class SuccessStep extends React.Component<Props, State> {
           <ControlLabel>
             Verify the responder's email address with a confirmation email
           </ControlLabel>
-          <p>{__('Verification button would be added to the email.')}</p>
+          <p>{__("Verification button would be added to the email.")}</p>
           <Toggle
             id="saveAsCustomer"
             checked={this.props.verifyEmail || false}
             onChange={(e: any) => {
-              this.onChangeFunction('verifyEmail', e.target.checked);
+              this.onChangeFunction("verifyEmail", e.target.checked);
             }}
             icons={{
               checked: <span>Yes</span>,
@@ -193,10 +193,10 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        {isEnabled('engages') && (
+        {isEnabled("engages") && (
           <FormGroup>
             <label>Email templates:</label>
-            <p>{__('Insert email template to content')}</p>
+            <p>{__("Insert email template to content")}</p>
 
             {/* <Select
               value={leadData.templateId}
@@ -209,8 +209,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Message</label>
           <RichTextEditor
-            content={leadData.userEmailContent || ''}
-            onChange={this.onEditorChange('userEmailContent')}
+            content={leadData.userEmailContent || ""}
+            onChange={this.onEditorChange("userEmailContent")}
             height={500}
             name={`lead_user_email_${editorSubName}`}
           />
@@ -231,7 +231,7 @@ class SuccessStep extends React.Component<Props, State> {
             id="adminEmails"
             type="text"
             defaultValue={
-              leadData.adminEmails ? leadData.adminEmails.join(',') : ''
+              leadData.adminEmails ? leadData.adminEmails.join(",") : ""
             }
             onChange={adminEmails}
           />
@@ -248,8 +248,8 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <label>Message</label>
           <RichTextEditor
-            content={leadData.adminEmailContent || ''}
-            onChange={this.onEditorChange('adminEmailContent')}
+            content={leadData.adminEmailContent || ""}
+            onChange={this.onEditorChange("adminEmailContent")}
             height={500}
             name={`lead_admin_email_${editorSubName}`}
           />
@@ -259,14 +259,14 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(leadData) {
-    if (this.state.successAction !== 'redirect') {
+    if (this.state.successAction !== "redirect") {
       return null;
     }
 
     const onChange = (e) =>
       this.onChangeFunction(
-        'redirectUrl',
-        (e.currentTarget as HTMLInputElement).value,
+        "redirectUrl",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     return (
@@ -290,21 +290,21 @@ class SuccessStep extends React.Component<Props, State> {
 
     const onChangeImageWidth = (e) =>
       this.onChangeFunction(
-        'successImageSize',
-        (e.currentTarget as HTMLInputElement).value,
+        "successImageSize",
+        (e.currentTarget as HTMLInputElement).value
       );
 
     const onChangeTitle = (e) => {
       this.onChangeFunction(
-        'thankTitle',
-        (e.currentTarget as HTMLInputElement).value,
+        "thankTitle",
+        (e.currentTarget as HTMLInputElement).value
       );
     };
 
     const onChangeContent = (e) => {
       this.onChangeFunction(
-        'thankContent',
-        (e.currentTarget as HTMLInputElement).value,
+        "thankContent",
+        (e.currentTarget as HTMLInputElement).value
       );
     };
 
@@ -319,7 +319,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             id="thankTitle"
             type="text"
-            componentClass="textinput"
+            componentclass="textinput"
             defaultValue={thankTitle}
             onChange={onChangeTitle}
           />
@@ -329,26 +329,26 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             id="thankContent"
             type="text"
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={thankContent}
             onChange={onChangeContent}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Featured image</ControlLabel>
-          <p>{__('You can upload only image file')}</p>
+          <p>{__("You can upload only image file")}</p>
           {this.renderUploadImage()}
         </FormGroup>
         <FormGroup>
           <ControlLabel>Confirm image size</ControlLabel>
           <FormControl
             id="validation"
-            componentClass="select"
+            componentclass="select"
             value={successImageSize}
             onChange={onChangeImageWidth}
           >
-            <option value="100%">{__('Full width')}</option>
-            <option value="50%">{__('Half width')}</option>
+            <option value="100%">{__("Full width")}</option>
+            <option value="50%">{__("Half width")}</option>
           </FormControl>
         </FormGroup>
       </div>
@@ -357,11 +357,11 @@ class SuccessStep extends React.Component<Props, State> {
 
   renderSelectOptions() {
     const hasEmailField = this.props.formData?.fields?.find(
-      (e) => e.type === 'email' || e.validation === 'email',
+      (e) => e.type === "email" || e.validation === "email"
     );
 
     return FORM_SUCCESS_ACTIONS.ALL_LIST.map((e) => {
-      if (e.value === 'email' && !hasEmailField) {
+      if (e.value === "email" && !hasEmailField) {
         return null;
       }
 
@@ -374,7 +374,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   removeImage = () => {
-    this.props.onChange('successImage', '');
+    this.props.onChange("successImage", "");
   };
 
   handleImage = (e: React.FormEvent<HTMLInputElement>) => {
@@ -384,13 +384,13 @@ class SuccessStep extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.props.onChange('successPreviewStyle', { opacity: '0.9' });
+        this.props.onChange("successPreviewStyle", { opacity: "0.9" });
       },
 
       afterUpload: ({ response }) => {
-        this.props.onChange('successPreviewStyle', { opacity: '1' });
+        this.props.onChange("successPreviewStyle", { opacity: "1" });
 
-        this.props.onChange('successImage', response);
+        this.props.onChange("successImage", response);
       },
     });
   };
@@ -398,7 +398,7 @@ class SuccessStep extends React.Component<Props, State> {
   renderImagePreview() {
     const { successImage, successPreviewStyle } = this.props;
 
-    if (successPreviewStyle && successPreviewStyle.opacity === '0.9') {
+    if (successPreviewStyle && successPreviewStyle.opacity === "0.9") {
       return <Spinner />;
     }
 
@@ -406,7 +406,7 @@ class SuccessStep extends React.Component<Props, State> {
       return (
         <>
           <Icon icon="plus" />
-          {__('Upload')}
+          {__("Upload")}
         </>
       );
     }
@@ -458,7 +458,7 @@ class SuccessStep extends React.Component<Props, State> {
               {__(`You can set only one confirmation message type at a time.`)}
             </p>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               defaultValue={successAction}
               onChange={this.handleSuccessActionChange}
               id="successAction"

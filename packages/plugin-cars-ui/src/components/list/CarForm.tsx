@@ -13,25 +13,25 @@ import {
   SelectTeamMembers,
   generateCategoryOptions,
   extractAttachment,
-} from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
+} from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
 import {
   IButtonMutateProps,
   IFormProps,
   IAttachment,
-} from '@erxes/ui/src/types';
-import { ChooseColor, BackgroundSelector } from '../../styles';
-import React, { useEffect, useReducer, useState } from 'react';
-import Select from 'react-select-plus';
+} from "@erxes/ui/src/types";
+import { ChooseColor, BackgroundSelector } from "../../styles";
+import React, { useEffect, useReducer, useState } from "react";
+import Select from "react-select-plus";
 
 import {
   CAR_BODY_TYPES,
   CAR_FUEL_TYPES,
   CAR_GEAR_BOXS,
   COLORS,
-} from '../../constants';
-import { ICar, ICarCategory, ICarDoc } from '../../types';
-import { Uploader } from '@erxes/ui/src';
+} from "../../constants";
+import { ICar, ICarCategory, ICarDoc } from "../../types";
+import { Uploader } from "@erxes/ui/src";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -66,22 +66,22 @@ const CarForm = (props: Props) => {
   const nowYear = new Date().getFullYear();
 
   const [state, setState] = useState<State>({
-    ownerId: car.ownerId || '',
+    ownerId: car.ownerId || "",
     users: [],
-    plateNumber: car.plateNumber || '',
-    vinNumber: car.vinNumber || '',
-    colorCode: car.colorCode || '',
+    plateNumber: car.plateNumber || "",
+    vinNumber: car.vinNumber || "",
+    colorCode: car.colorCode || "",
     attachment: car.attachment || undefined,
-    categoryId: car.categoryId || '',
+    categoryId: car.categoryId || "",
 
-    bodyType: car.bodyType || '',
-    fuelType: car.fuelType || '',
-    gearBox: car.gearBox || '',
+    bodyType: car.bodyType || "",
+    fuelType: car.fuelType || "",
+    gearBox: car.gearBox || "",
 
     vintageYear: car.vintageYear || nowYear,
     importYear: car.importYear || nowYear,
     nowYear,
-    description: car.description || '',
+    description: car.description || "",
   });
 
   const generateDoc = (values: { _id: string } & ICarDoc) => {
@@ -170,23 +170,23 @@ const CarForm = (props: Props) => {
               <FormControl
                 {...formProps}
                 name="categoryId"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={state.categoryId}
                 required={true}
               >
-                {generateCategoryOptions(carCategories, '', true)}
+                {generateCategoryOptions(carCategories, "", true)}
               </FormControl>
             </FormGroup>
 
-            {renderFormGroup('Plate number', {
+            {renderFormGroup("Plate number", {
               ...formProps,
-              name: 'plateNumber',
+              name: "plateNumber",
               defaultValue: state.plateNumber,
             })}
 
-            {renderFormGroup('VIN number', {
+            {renderFormGroup("VIN number", {
               ...formProps,
-              name: 'vinNumber',
+              name: "vinNumber",
               defaultValue: state.vinNumber,
             })}
 
@@ -210,20 +210,20 @@ const CarForm = (props: Props) => {
           </FormColumn>
 
           <FormColumn>
-            {renderFormGroup('Vintage Year', {
+            {renderFormGroup("Vintage Year", {
               ...formProps,
-              name: 'vintageYear',
+              name: "vintageYear",
               defaultValue: state.vintageYear || state.nowYear,
-              type: 'number',
-              min: '1950',
+              type: "number",
+              min: "1950",
               max: state.nowYear,
             })}
 
-            {renderFormGroup('Import Year', {
+            {renderFormGroup("Import Year", {
               ...formProps,
-              name: 'importYear',
+              name: "importYear",
               defaultValue: state.importYear || state.nowYear,
-              type: 'number',
+              type: "number",
               min: 1950,
               max: state.nowYear,
             })}
@@ -278,8 +278,8 @@ const CarForm = (props: Props) => {
                 {...formProps}
                 max={140}
                 name="description"
-                componentClass="textarea"
-                defaultValue={state.description || ''}
+                componentclass="textarea"
+                defaultValue={state.description || ""}
               />
             </FormGroup>
           </FormColumn>
@@ -291,7 +291,7 @@ const CarForm = (props: Props) => {
           </Button>
 
           {renderButton({
-            name: 'car',
+            name: "car",
             values: generateDoc(values),
             isSubmitted,
             object: props.car,

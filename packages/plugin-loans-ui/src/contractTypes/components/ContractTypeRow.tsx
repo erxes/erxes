@@ -1,13 +1,12 @@
-import { formatValue } from '@erxes/ui/src/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import _ from 'lodash';
-import React from 'react';
-
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractType } from '../types';
-import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
-import Icon from '@erxes/ui/src/components/Icon';
+import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IContractType } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import _ from "lodash";
+import { formatValue } from "@erxes/ui/src/utils";
 
 type Props = {
   contractType: IContractType;
@@ -30,7 +29,7 @@ function renderFormTrigger(
   trigger: React.ReactNode,
   contractType: IContractType
 ) {
-  const content = props => (
+  const content = (props) => (
     <ContractTypeForm {...props} contractType={contractType} />
   );
 
@@ -47,7 +46,7 @@ function renderFormTrigger(
 function renderEditAction(contractType: IContractType) {
   const trigger = (
     <ActionButton
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
       children={<Icon icon="edit-1" />}
     />
   );
@@ -59,13 +58,13 @@ function ContractTypeRow(
   { contractType, history, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contractType, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -80,15 +79,15 @@ function ContractTypeRow(
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(contractType, 'code')}</td>
-      <td key={'name'}>{displayValue(contractType, 'name')}</td>
-      <td key={'number'}>{displayValue(contractType, 'number')}</td>
-      <td key={'vacancy'}>{displayValue(contractType, 'vacancy')}</td>
+      <td key={"code"}>{displayValue(contractType, "code")}</td>
+      <td key={"name"}>{displayValue(contractType, "name")}</td>
+      <td key={"number"}>{displayValue(contractType, "number")}</td>
+      <td key={"vacancy"}>{displayValue(contractType, "vacancy")}</td>
 
       <td onClick={onClick}>{renderEditAction(contractType)}</td>
     </tr>
