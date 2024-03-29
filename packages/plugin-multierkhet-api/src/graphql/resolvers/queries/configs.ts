@@ -2,7 +2,7 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
-import { sendCardsMessage, sendProductsMessage } from '../../../messageBroker';
+import { sendDealsMessage, sendProductsMessage } from '../../../messageBroker';
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ const configQueries = {
   async multierkhetConfigsGetValue(
     _root,
     { code }: { code: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Configs.findOne({ code }).lean();
   },
@@ -25,11 +25,11 @@ const configQueries = {
   async dealPayAmountByBrand(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
-    const deal = await sendCardsMessage({
+    const deal = await sendDealsMessage({
       subdomain,
-      action: 'deals.findOne',
+      action: 'findOne',
       data: { _id },
       isRPC: true,
     });
@@ -49,7 +49,7 @@ const configQueries = {
           name: '',
           amount: deal.productsData.reduce(
             (sum, pd) => Number(sum) + Number(pd.amount),
-            0,
+            0
           ),
         },
       ];

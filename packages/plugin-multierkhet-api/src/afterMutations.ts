@@ -10,7 +10,7 @@ import { generateModels } from './connectionResolver';
 import { getSyncLogDoc } from './utils/utils';
 
 const allowTypes = {
-  'cards:deal': ['update'],
+  'deals:deal': ['update'],
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
@@ -30,7 +30,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (type === 'cards:deal') {
+  if (type === 'deals:deal') {
     if (action === 'update') {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
@@ -47,12 +47,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       const saleConfigs = await models.Configs.getConfig(
         'stageInSaleConfig',
-        {},
+        {}
       );
 
       const returnConfigs = await models.Configs.getConfig(
         'stageInReturnConfig',
-        {},
+        {}
       );
 
       // return
@@ -61,7 +61,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         const sameSaleStageId = (Object.keys(saleConfigs).filter(
           (stageId) =>
-            saleConfigs[stageId].pipelineId === returnConfig.pipelineId,
+            saleConfigs[stageId].pipelineId === returnConfig.pipelineId
         ) || [])[0];
 
         if (!sameSaleStageId) {
@@ -100,7 +100,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             orderInfos: JSON.stringify(orderInfos),
           };
           const syncLog = await models.SyncLogs.syncLogsAdd(
-            getSyncLogDoc(params),
+            getSyncLogDoc(params)
           );
           const resp = await sendRPCMessage(
             models,
@@ -112,7 +112,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: true,
               payload: JSON.stringify(postData),
               thirdService: true,
-            },
+            }
           );
 
           ebarimtResponses.push(resp);
@@ -145,7 +145,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const brandRules = saleConfigs[destinationStageId].brandRules || {};
 
         const brandIds = Object.keys(brandRules).filter((b) =>
-          Object.keys(mainConfigs).includes(b),
+          Object.keys(mainConfigs).includes(b)
         );
 
         const configs = {};
@@ -177,7 +177,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           models,
           user,
           configs,
-          deal,
+          deal
         )) as any;
 
         const ebarimtResponses: any[] = [];
@@ -194,7 +194,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               payload: JSON.stringify(postData),
               isJson: false,
               thirdService: true,
-            },
+            }
           );
 
           ebarimtResponses.push(response);
