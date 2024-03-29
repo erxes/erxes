@@ -425,15 +425,6 @@ export const sendEngagesMessage = (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
 export const sendTicketsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -554,7 +545,7 @@ export const fetchSegment = (
   });
 
 export const sendCallsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'calls',
