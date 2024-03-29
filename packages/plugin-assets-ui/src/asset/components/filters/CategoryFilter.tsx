@@ -13,6 +13,7 @@ import { IAssetCategoryTypes } from '../../../common/types';
 import { router } from '@erxes/ui/src/utils/core';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import CategoryForm from '../../containers/CategoryForm';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   assetCategories: IAssetCategoryTypes[];
@@ -21,7 +22,6 @@ type Props = {
   remove: (_id) => any;
   refetchAssetCategories: () => void;
   queryParams: any;
-  history: any;
 };
 
 const CategoryFilter = (props: Props) => {
@@ -32,8 +32,9 @@ const CategoryFilter = (props: Props) => {
     remove,
     refetchAssetCategories,
     queryParams,
-    history,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const renderEditAction = (category) => {
     const trigger = (
@@ -76,8 +77,8 @@ const CategoryFilter = (props: Props) => {
   };
 
   const handleClick = (categoryId) => {
-    router.setParams(history, { assetCategoryId: categoryId });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { assetCategoryId: categoryId });
+    router.removeParams(navigate, location, 'page');
   };
 
   const renderContent = () => {

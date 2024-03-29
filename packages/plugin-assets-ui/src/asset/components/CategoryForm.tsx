@@ -9,7 +9,7 @@ import { IFormProps } from '@erxes/ui/src/types';
 import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import React, { useState, useEffect } from 'react';
-// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { extractAttachment } from '@erxes/ui/src/utils/core';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
@@ -94,14 +94,14 @@ const CategoryForm = (props: Props) => {
         <FormWrapper>
           <FormColumn>
             <CommonFormGroup label="Status" required={true}>
-              {/* <Select
+              <Select
                 placeholder={__('Choose status')}
-                value={status}
+                value={ASSET_CATEGORY_STATUSES.find(o=>o.value ===status)}
                 options={ASSET_CATEGORY_STATUSES}
                 onChange={(option) => setStatus(option.value)}
-                clearable={false}
+                isClearable={false}
                 {...formProps}
-              /> */}
+              />
             </CommonFormGroup>
           </FormColumn>
           <FormColumn>

@@ -1,56 +1,58 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import queryString from 'query-string';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import queryString from "query-string";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const AssetList = asyncComponent(
   () =>
-    import(/* webpackChunkName: "List - Assets" */ './asset/containers/List'),
+    import(/* webpackChunkName: "List - Assets" */ "./asset/containers/List")
 );
 
 const AssetMovements = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - Assets" */ './movements/movements/containers/List'
-    ),
+      /* webpackChunkName: "List - Assets" */ "./movements/movements/containers/List"
+    )
 );
 
 const AssetMovementItems = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - Asset Movement Item" */ './movements/assets/containers/List'
-    ),
+      /* webpackChunkName: "List - Asset Movement Item" */ "./movements/assets/containers/List"
+    )
 );
 
 const AssetDetail = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "List - Assets" */ './asset/containers/detail/Detail'
-    ),
+      /* webpackChunkName: "List - Assets" */ "./asset/containers/detail/Detail"
+    )
 );
 
-const assets = ({ history, location }) => {
+const Assets = () => {
+  const location = useLocation();
+
   return (
     <AssetList
-      history={history}
       queryParams={queryString.parse(location.search)}
     />
   );
 };
 
-const detail = ({ history, location, match }) => {
-  const id = match.params.id;
+const Detail = () => {
+  const location = useLocation();
+  const { id } = useParams();
 
   return (
     <AssetDetail
-      history={history}
       queryParams={queryString.parse(location.search)}
       id={id}
     />
   );
 };
 
-const movements = (props) => {
+const Movements = (props) => {
   return (
     <AssetMovements
       {...props}
@@ -59,7 +61,7 @@ const movements = (props) => {
   );
 };
 
-const movementItems = (props) => {
+const MovementItems = (props) => {
   return (
     <AssetMovementItems
       {...props}
@@ -70,21 +72,16 @@ const movementItems = (props) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/settings/assets/" exact={true} component={assets} />
+    <Routes>
+      <Route path="/settings/assets/" element={<Assets />} />
       <Route
         path="/settings/assets/detail/:id"
-        exact={true}
         key="/settings/assets/detail/:id"
-        component={detail}
+        element={<Detail />}
       />
-      <Route path="/asset-movements" exact={true} component={movements} />
-      <Route
-        path="/asset-movement-items"
-        exact={true}
-        component={movementItems}
-      />
-    </React.Fragment>
+      <Route path="/asset-movements" element={<Movements />} />
+      <Route path="/asset-movement-items" element={<MovementItems />} />
+    </Routes>
   );
 };
 

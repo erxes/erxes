@@ -11,59 +11,61 @@ import {
   Tip,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import dayjs from 'dayjs';
-import React from 'react';
+} from "@erxes/ui/src";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import dayjs from "dayjs";
+import React from "react";
 import {
   ContainerBox,
   CustomRangeContainer,
   EndDateContainer,
-} from '../../../style';
+} from "../../../style";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const fields = [
-  'userId',
-  'createdAtFrom',
-  'createdAtTo',
-  'movedAtFrom',
-  'movedAtTo',
-  'modifiedAtFrom',
-  'modifiedAtTo',
+  "userId",
+  "createdAtFrom",
+  "createdAtTo",
+  "movedAtFrom",
+  "movedAtTo",
+  "modifiedAtFrom",
+  "modifiedAtTo",
 ];
 
 const { Section } = Wrapper.Sidebar;
 
 const Sidebar = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleDate = (field, date) => {
     if (dayjs(date).isValid()) {
-      const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
+      const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
 
-      router.setParams(history, { [field]: cDate });
-      router.removeParams(history, 'page');
+      router.setParams(navigate, location, { [field]: cDate });
+      router.removeParams(navigate, location, "page");
     }
   };
 
   const handleValue = (value, name) => {
-    if (value === '') {
-      return router.removeParams(history, 'userId');
+    if (value === "") {
+      return router.removeParams(navigate, location, "userId");
     }
-    router.setParams(history, { userId: value });
+    router.setParams(navigate, location, { userId: value });
   };
 
   const clearParams = (field) => {
     if (Array.isArray(field)) {
       field.forEach((name) => {
-        return router.removeParams(history, name);
+        return router.removeParams(navigate, location, name);
       });
     }
-    router.removeParams(history, field);
+    router.removeParams(navigate, location, field);
   };
 
   const FormGroup = ({
@@ -103,7 +105,7 @@ const Sidebar = (props: Props) => {
   return (
     <CommonSideBar>
       <Section.Title>
-        {__('Addition Filters')}
+        {__("Addition Filters")}
         <Section.QuickButtons>
           {fields.some((field) => queryParams[field]) && extraButton}
         </Section.QuickButtons>
@@ -120,12 +122,12 @@ const Sidebar = (props: Props) => {
             multi={false}
             onSelect={handleValue}
             initialValue={queryParams.userId}
-            customOption={{ value: '', label: 'Choose Moved User' }}
+            customOption={{ value: "", label: "Choose Moved User" }}
           />
         </FormGroup>
         <FormGroup
           label="Created Date Range"
-          field={['createdAtFrom', 'createdAtTo']}
+          field={["createdAtFrom", "createdAtTo"]}
           clearable={queryParams?.createdAtFrom || queryParams?.createdAtTo}
         >
           <CustomRangeContainer>
@@ -133,8 +135,8 @@ const Sidebar = (props: Props) => {
               <DateControl
                 name="createdAtFrom"
                 placeholder="Choose start date"
-                value={queryParams?.createdAtFrom || ''}
-                onChange={(e) => handleDate('createdAtFrom', e)}
+                value={queryParams?.createdAtFrom || ""}
+                onChange={(e) => handleDate("createdAtFrom", e)}
               />
             </DateContainer>
             <EndDateContainer>
@@ -142,8 +144,8 @@ const Sidebar = (props: Props) => {
                 <DateControl
                   name="createdAtTo"
                   placeholder="Choose end date"
-                  value={queryParams?.createdAtTo || ''}
-                  onChange={(e) => handleDate('createdAtTo', e)}
+                  value={queryParams?.createdAtTo || ""}
+                  onChange={(e) => handleDate("createdAtTo", e)}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -151,7 +153,7 @@ const Sidebar = (props: Props) => {
         </FormGroup>
         <FormGroup
           label="Moved Date Range"
-          field={['movedAtFrom', 'movedAtTo']}
+          field={["movedAtFrom", "movedAtTo"]}
           clearable={queryParams?.movedAtFrom || queryParams?.movedAtTo}
         >
           <CustomRangeContainer>
@@ -159,8 +161,8 @@ const Sidebar = (props: Props) => {
               <DateControl
                 name="movedAtFrom"
                 placeholder="Choose start date"
-                value={queryParams?.movedAtFrom || ''}
-                onChange={(e) => handleDate('movedAtFrom', e)}
+                value={queryParams?.movedAtFrom || ""}
+                onChange={(e) => handleDate("movedAtFrom", e)}
               />
             </DateContainer>
             <EndDateContainer>
@@ -168,8 +170,8 @@ const Sidebar = (props: Props) => {
                 <DateControl
                   name="movedAtTo"
                   placeholder="Choose end date"
-                  value={queryParams?.movedAtTo || ''}
-                  onChange={(e) => handleDate('movedAtTo', e)}
+                  value={queryParams?.movedAtTo || ""}
+                  onChange={(e) => handleDate("movedAtTo", e)}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -177,7 +179,7 @@ const Sidebar = (props: Props) => {
         </FormGroup>
         <FormGroup
           label="Modified Date Range"
-          field={['modifiedAtFrom', 'modifiedAtTo']}
+          field={["modifiedAtFrom", "modifiedAtTo"]}
           clearable={queryParams?.modifiedAtFrom || queryParams?.modifiedAtTo}
         >
           <CustomRangeContainer>
@@ -185,8 +187,8 @@ const Sidebar = (props: Props) => {
               <DateControl
                 name="modifiedAtFrom"
                 placeholder="Choose start date"
-                value={queryParams?.modifiedAtFrom || ''}
-                onChange={(e) => handleDate('modifiedAtFrom', e)}
+                value={queryParams?.modifiedAtFrom || ""}
+                onChange={(e) => handleDate("modifiedAtFrom", e)}
               />
             </DateContainer>
             <EndDateContainer>
@@ -194,8 +196,8 @@ const Sidebar = (props: Props) => {
                 <DateControl
                   name="modifiedAtTo"
                   placeholder="Choose end date"
-                  value={queryParams?.modifiedAtTo || ''}
-                  onChange={(e) => handleDate('modifiedAtTo', e)}
+                  value={queryParams?.modifiedAtTo || ""}
+                  onChange={(e) => handleDate("modifiedAtTo", e)}
                 />
               </DateContainer>
             </EndDateContainer>

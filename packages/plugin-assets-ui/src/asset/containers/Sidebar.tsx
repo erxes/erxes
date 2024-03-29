@@ -8,10 +8,10 @@ import {
 import { Alert, confirm } from '@erxes/ui/src';
 import Sidebar from '../components/Sidebar';
 
-type Props = { history?: any; queryParams: any };
+type Props = { queryParams: any };
 
 const SidebarContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const assetCategoriesQuery = useQuery<IAssetCategoryQeuryResponse>(
     gql(queries.assetCategory),
@@ -63,7 +63,6 @@ const SidebarContainer = (props: Props) => {
     remove: removeAssetCategory,
     refetchAssetCategories: refetchCategory,
     queryParams,
-    history,
   };
 
   return <Sidebar {...updateProps} />;

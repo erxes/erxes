@@ -13,10 +13,10 @@ import {
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import AssetForm from '../containers/AssetForm';
 import AssignArticles from '../containers/actions/Assign';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   asset: IAsset;
-  history: any;
   queryParams: any;
   isChecked: boolean;
   toggleBulk: (asset: IAsset, isChecked?: boolean) => void;
@@ -29,12 +29,13 @@ type Props = {
 const Row = (props: Props) => {
   const {
     asset,
-    history,
     queryParams,
     isChecked,
     toggleBulk,
     assignKbArticles,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { code, name, category, parent, childAssetCount, unitPrice } = asset;
 
@@ -69,7 +70,7 @@ const Row = (props: Props) => {
   };
 
   const onRowClick = () => {
-    history.push(`/settings/assets/detail/${asset._id}`);
+    navigate(`/settings/assets/detail/${asset._id}`);
   };
 
   const onCellClick = (e) => {
@@ -84,9 +85,9 @@ const Row = (props: Props) => {
 
   const handleParent = () => {
     if (queryParams.categoryId) {
-      router.removeParams(history, 'categoryId');
+      router.removeParams(navigate, location, 'categoryId');
     }
-    router.setParams(history, { assetId: asset._id });
+    router.setParams(navigate, location, { assetId: asset._id });
   };
 
   const content = (formProps) => <AssetForm {...formProps} asset={asset} />;

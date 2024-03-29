@@ -17,7 +17,6 @@ type Props = {
   remove: (_id) => any;
   refetchAssetCategories: () => void;
   queryParams: any;
-  history: any;
 };
 const Sidebar = (props: Props) => {
   const {
@@ -27,7 +26,6 @@ const Sidebar = (props: Props) => {
     remove,
     refetchAssetCategories,
     queryParams,
-    history,
   } = props;
 
   const trigger = (
@@ -65,18 +63,17 @@ const Sidebar = (props: Props) => {
       remove,
       refetchAssetCategories,
       queryParams,
-      history,
     };
 
     return <CategoryFilter {...updatedProps} />;
   };
 
   const renderStatusFilter = () => {
-    return <StatusFilter queryParams={queryParams} history={history} />;
+    return <StatusFilter queryParams={queryParams}  />;
   };
 
   const renderKnowledgebaseFilter = () => {
-    return <KnowledgebaseFilter queryParams={queryParams} history={history} />;
+    return <KnowledgebaseFilter queryParams={queryParams}  />;
   };
 
   return (

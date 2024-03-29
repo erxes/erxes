@@ -6,11 +6,10 @@ import KnowledgebaseFilter from '../../components/filters/knowledgebaseFilter/Kn
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const KnowledgebaseFilterContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const [articles, setArticles] = React.useState<any>([]);
 
@@ -37,7 +36,6 @@ const KnowledgebaseFilterContainer = (props: Props) => {
 
   const updatedProps = {
     queryParams,
-    history,
     knowledgeBaseTopics: knowledgeBaseTopics?.data?.knowledgeBaseTopics || [],
     loadArticles,
     loadedArticles: articles || [],

@@ -10,29 +10,30 @@ import {
   Tabs,
   Uploader,
   extractAttachment,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 import {
   CommonFormGroup,
   SelectWithAssetCategory,
   SelectWithAssets,
-} from '../../common/utils';
-import { FormColumn, ModalFooter } from '@erxes/ui/src/styles/main';
+} from "../../common/utils";
+import { FormColumn, ModalFooter } from "@erxes/ui/src/styles/main";
 import {
   FormWrapper,
   TabContainer,
   TabContent,
   TriggerTabs,
-} from '../../style';
-import { IAsset, IAssetCategoryTypes } from '../../common/types';
+} from "../../style";
+import { IAsset, IAssetCategoryTypes } from "../../common/types";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import React, { useEffect, useState } from 'react';
+} from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
 
-import CategoryForm from '../containers/CategoryForm';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import CategoryForm from "../containers/CategoryForm";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 
 type Props = {
   asset?: IAsset;
@@ -54,16 +55,16 @@ function AssetForm({
   const [assetCount, setAssetCount] = React.useState<number>(0);
   const [minimiumCount, setMinimiumCount] = React.useState<number>(0);
   const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
-    undefined,
+    undefined
   );
   const [attachmentMore, setAttachmentMore] = useState<
     IAttachment[] | undefined
   >(undefined);
-  const [vendorId, setVendorId] = useState<string>('');
-  const [parentId, setParentId] = useState<string>('');
-  const [categoryId, setCategoryId] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [currentTab, setCurrentTab] = useState<string>('Category');
+  const [vendorId, setVendorId] = useState<string>("");
+  const [parentId, setParentId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [currentTab, setCurrentTab] = useState<string>("Category");
 
   useEffect(() => {
     if (asset) {
@@ -71,11 +72,11 @@ function AssetForm({
       setMinimiumCount(asset ? asset.minimiumCount : 0);
       setAttachment(asset ? asset.attachment : undefined);
       setAttachmentMore(asset ? asset.attachmentMore : undefined);
-      setVendorId(asset ? asset.vendorId! : '');
-      setParentId(asset ? asset.parentId : '');
-      setCategoryId(asset ? asset.categoryId : '');
-      setDescription(asset ? asset.description : '');
-      setCurrentTab(asset ? (asset.parentId ? 'Parent' : 'Category') : '');
+      setVendorId(asset ? asset.vendorId! : "");
+      setParentId(asset ? asset.parentId : "");
+      setCategoryId(asset ? asset.categoryId : "");
+      setDescription(asset ? asset.description : "");
+      setCurrentTab(asset ? (asset.parentId ? "Parent" : "Category") : "");
     }
   }, []);
 
@@ -137,12 +138,12 @@ function AssetForm({
 
   const onChangeCurrentTab = (selecteTab) => {
     switch (selecteTab) {
-      case 'Parent':
-        setCategoryId('');
+      case "Parent":
+        setCategoryId("");
         setCurrentTab(selecteTab);
         break;
-      case 'Category':
-        setParentId('');
+      case "Category":
+        setParentId("");
         setCurrentTab(selecteTab);
         break;
     }
@@ -168,16 +169,16 @@ function AssetForm({
     const currentTabItem = () => {
       const handleSelect = (value, name) => {
         switch (name) {
-          case 'parentId':
+          case "parentId":
             setParentId(value);
             break;
-          case 'categoryId':
+          case "categoryId":
             setCategoryId(value);
             break;
         }
       };
 
-      if (currentTab === 'Parent') {
+      if (currentTab === "Parent") {
         return (
           <FormGroup>
             <ControlLabel required={true}>Parent</ControlLabel>
@@ -187,7 +188,7 @@ function AssetForm({
               multi={false}
               initialValue={object.parentId}
               onSelect={handleSelect}
-              customOption={{ value: '', label: 'Choose Asset' }}
+              customOption={{ value: "", label: "Choose Asset" }}
             />
           </FormGroup>
         );
@@ -213,7 +214,7 @@ function AssetForm({
               multi={false}
               initialValue={categoryDefaultValue()}
               onSelect={handleSelect}
-              customOption={{ value: '', label: 'Choose Asset Category' }}
+              customOption={{ value: "", label: "Choose Asset Category" }}
             />
             {renderFormTrigger(addCategoryTrigger)}
           </FormWrapper>
@@ -257,9 +258,9 @@ function AssetForm({
               <SelectCompanies
                 label="Choose an vendor"
                 name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
+                customOption={{ value: "", label: "No vendor chosen" }}
                 initialValue={object.vendorId}
-                onSelect={onComboEvent.bind(this, 'vendorId')}
+                onSelect={onComboEvent.bind(this, "vendorId")}
                 multi={false}
               />
             </FormGroup>
@@ -268,8 +269,8 @@ function AssetForm({
               <div>
                 <ControlLabel required={true}>Unit price</ControlLabel>
                 <p>
-                  Please ensure you have set the default currency in the{' '}
-                  <a href="/settings/general"> {'General Settings'}</a> of the
+                  Please ensure you have set the default currency in the{" "}
+                  <a href="/settings/general"> {"General Settings"}</a> of the
                   System Configuration.
                 </p>
               </div>
@@ -288,9 +289,9 @@ function AssetForm({
         <TabContainer>
           <TriggerTabs>
             <Tabs full={true}>
-              {['Category', 'Parent'].map((item) => (
+              {["Category", "Parent"].map((item) => (
                 <TabTitle
-                  className={currentTab === item ? 'active' : ''}
+                  className={currentTab === item ? "active" : ""}
                   key={item}
                   onClick={onChangeCurrentTab.bind(this, item)}
                 >
@@ -312,14 +313,14 @@ function AssetForm({
               isSubmitted={formProps.isSaved}
               name={`asset_description_${description}`}
               toolbar={[
-                'bold',
-                'italic',
-                'orderedList',
-                'bulletList',
-                'link',
-                'unlink',
-                '|',
-                'image',
+                "bold",
+                "italic",
+                "orderedList",
+                "bulletList",
+                "link",
+                "unlink",
+                "|",
+                "image",
               ]}
             />
           </FlexItem>
@@ -363,7 +364,7 @@ function AssetForm({
           </Button>
 
           {renderButton({
-            text: 'asset and movements',
+            text: "asset and movements",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

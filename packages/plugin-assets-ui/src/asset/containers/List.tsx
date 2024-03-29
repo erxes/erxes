@@ -1,13 +1,13 @@
-import React from 'react';
-import { Alert, Bulk, Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { generateParamsIds, getRefetchQueries } from '../../common/utils';
-import * as compose from 'lodash.flowright';
-import { queries, mutations } from '../graphql';
+import React from "react";
+import { Alert, Bulk, Spinner } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { graphql } from "@apollo/client/react/hoc";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { generateParamsIds, getRefetchQueries } from "../../common/utils";
+import * as compose from "lodash.flowright";
+import { queries, mutations } from "../graphql";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from "@apollo/client";
 import {
   AssetRemoveMutationResponse,
   IAssetCategoryDetailQueryResponse,
@@ -15,27 +15,28 @@ import {
   IAssetQueryResponse,
   IAssetTotalCountQueryResponse,
   MergeMutationResponse,
-} from '../../common/types';
-import List from '../components/List';
+} from "../../common/types";
+import List from "../components/List";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 const ListContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const navigate = useNavigate();
 
   const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets), {
     variables: generateQueryParams(queryParams),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const assetsCountQuery = useQuery<IAssetTotalCountQueryResponse>(
     gql(queries.assetsCount),
     {
       variables: generateQueryParams(queryParams),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const assetDetailQuery = useQuery<IAssetDetailQueryResponse>(
@@ -44,7 +45,7 @@ const ListContainer = (props: Props) => {
       variables: {
         _id: queryParams?.assetCategoryId,
       },
-    },
+    }
   );
 
   const assetCategoryDetailQuery = useQuery<IAssetCategoryDetailQueryResponse>(
@@ -53,7 +54,7 @@ const ListContainer = (props: Props) => {
       variables: {
         _id: queryParams?.assetCategoryId,
       },
-    },
+    }
   );
 
   const [assetsMerge] = useMutation(gql(mutations.assetsMerge));
@@ -64,7 +65,7 @@ const ListContainer = (props: Props) => {
     gql(mutations.assetsAssignKbArticles),
     {
       refetchQueries: getRefetchQueries(),
-    },
+    }
   );
 
   const remove = ({ assetIds }, emptyBulk) => {
@@ -76,9 +77,9 @@ const ListContainer = (props: Props) => {
 
         const status = removeStatus?.data?.assetsRemove;
 
-        status === 'deleted'
-          ? Alert.success('You successfully deleted a asset')
-          : Alert.warning('Asset status deleted');
+        status === "deleted"
+          ? Alert.success("You successfully deleted a asset")
+          : Alert.warning("Asset status deleted");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -90,7 +91,7 @@ const ListContainer = (props: Props) => {
       variables: { ids, ...generateQueryParams(queryParams), ...data },
     })
       .then(() => {
-        Alert.success('Success');
+        Alert.success("Success");
         callback();
       })
       .catch((e) => {
@@ -109,9 +110,9 @@ const ListContainer = (props: Props) => {
       .then((result: any) => {
         callback();
 
-        Alert.success('You successfully merged a asset');
-        history.push(
-          `/settings/asset-movements/detail/${result.data.assetsMerge._id}`,
+        Alert.success("You successfully merged a asset");
+        navigate(
+          `/settings/asset-movements/detail/${result.data.assetsMerge._id}`
         );
       })
       .catch((e) => {
@@ -132,7 +133,7 @@ const ListContainer = (props: Props) => {
       currentCategory:
         assetCategoryDetailQuery?.data?.assetCategoryDetail || {},
       currentParent: assetDetailQuery?.data?.assetDetail || {},
-      searchValue: queryParams.searchValue || '',
+      searchValue: queryParams.searchValue || "",
     };
 
     return <List {...bulkProps} {...updatedProps} />;
@@ -154,7 +155,7 @@ const generateQueryParams = (queryParams) => {
     irregular: Boolean(queryParams?.irregular),
     articleIds: generateParamsIds(queryParams?.articleIds),
     withKnowledgebase: queryParams?.state
-      ? queryParams?.state === 'Assigned'
+      ? queryParams?.state === "Assigned"
         ? true
         : false
       : undefined,

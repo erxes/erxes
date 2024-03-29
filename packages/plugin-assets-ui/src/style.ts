@@ -9,7 +9,7 @@ interface ContainerBoxType {
   row?: boolean;
   column?: boolean;
   gap?: number;
-  justifyCenter?: boolean;
+  $justifyCenter?: boolean;
   justifyEnd?: boolean;
   align?: string;
   spaceBetween?: boolean;
@@ -39,8 +39,8 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
       spaceBetween ? 'space-between' : ''};
     justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
-    justify-content: ${({ justifyCenter }) =>
-      justifyCenter ? 'center  ' : ''};
+    justify-content: ${({ $justifyCenter }) =>
+      $justifyCenter ? 'center  ' : ''};
     margin:${({ marginX, marginY }) =>
       `${marginX ? `${marginX}px` : '0px'} ${
         marginY ? `${marginY}px` : '0px'
