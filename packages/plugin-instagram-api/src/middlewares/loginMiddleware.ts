@@ -19,17 +19,20 @@ const loginMiddleware = async (req, res) => {
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/gateway/pl:instagram/iglogin`
+    `${DOMAIN}/pl:instagram/iglogin`
   );
+  //     scope: `${INSTAGRAM_PERMISSIONS},instagram_basic,instagram_manage_messages,business_management,instagram_content_publish,instagram_manage_comments,ads_management,pages_read_engagement,instagram_manage_insights,pages_show_list,pages_manage_posts,instagram_manage_events,instagram_graph_user_media
 
+  // `,
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
-    scope: `${INSTAGRAM_PERMISSIONS},instagram_basic,instagram_manage_messages,business_management`,
+
+    scope: `${INSTAGRAM_PERMISSIONS},pages_show_list,instagram_basic,instagram_manage_insights,instagram_manage_comments,instagram_manage_messages,business_management,instagram_content_publish,`,
+
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
   debugRequest(debugFacebook, req);

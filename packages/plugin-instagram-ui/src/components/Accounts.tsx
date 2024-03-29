@@ -63,14 +63,17 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     if (kind === 'instagram') {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon="facebook" />
-          {__('Continue with facebook')}
+          <Icon icon='instagram-official' />
+          {__('Continue with instagram')}
         </FacebookButton>
       );
     }
 
     return (
-      <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
+      <Button
+        btnStyle='primary'
+        icon='plus-circle'
+        onClick={onAdd}>
         Add Account
       </Button>
     );
@@ -92,11 +95,14 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts.length === 0) {
       return (
-        <EmptyState icon="user-6" text={__('There is no linked accounts')} />
+        <EmptyState
+          icon='user-6'
+          text={__('There is no linked accounts')}
+        />
       );
     }
 
-    return accounts.map(account => (
+    return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>{account.name}</span>
 
@@ -105,8 +111,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
             onClick={this.onSelectAccount.bind(this, account._id)}
             btnStyle={
               this.state.accountId === account._id ? 'primary' : 'simple'
-            }
-          >
+            }>
             {this.state.accountId === account._id
               ? __('Selected')
               : __('Select This Account')}
@@ -114,8 +119,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
-            btnStyle="danger"
-          >
+            btnStyle='danger'>
             {__('Remove')}
           </Button>
         </div>

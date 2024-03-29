@@ -4,6 +4,9 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
 import { getPageList } from './utils';
+import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
+import receiveComment from './receiveComment';
+
 import {
   debugError,
   debugInstagram,
@@ -73,12 +76,13 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
+    // console.log(data, 'data');
     if (data.object !== 'instagram') {
       return;
     }
     for (const entry of data.entry) {
       // receive chat
-      if (entry.messaging[0]) {
+      if (entry.messaging) {
         const messageData = entry.messaging[0];
         try {
           await receiveMessage(models, subdomain, messageData);
@@ -86,6 +90,48 @@ const init = async (app) => {
           return res.send('success');
         } catch (e) {
           return res.send('success');
+        }
+      }
+
+      if (entry.changes) {
+        for (const event of entry.changes) {
+          if (event.field === 'comments') {
+            debugInstagram(
+              `Received comment data ${JSON.stringify(event.value)}`
+            );
+            try {
+              await receiveComment(models, subdomain, event.value, entry.id);
+              debugInstagram(
+                `Successfully saved  ${JSON.stringify(event.value)}`
+              );
+              // console.log(JSON.stringify(event.value), 'Comment');
+              return res.end('success');
+            } catch (e) {
+              debugError(`Error processing comment: ${e.message}`);
+              return res.end('success');
+            }
+          }
+
+          if (INSTAGRAM_POST_TYPES.includes(event.value.item)) {
+            // console.log(event.value.item, 'event.value.item');
+            try {
+              debugInstagram(
+                `Received post data ${JSON.stringify(event.value)}`
+              );
+              //  await receivePost(models, subdomain, event.value, entry.id);
+              debugInstagram(
+                `Successfully saved post ${JSON.stringify(event.value)}`
+              );
+              // console.log(JSON.stringify(event.value), 'POST');
+
+              return res.end('success');
+            } catch (e) {
+              debugError(`Error processing post: ${e.message}`);
+              return res.end('success');
+            }
+          } else {
+            return res.end('success');
+          }
         }
       }
     }
