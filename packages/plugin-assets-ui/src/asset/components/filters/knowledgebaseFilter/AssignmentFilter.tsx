@@ -2,18 +2,20 @@ import React from 'react';
 import { router } from '@erxes/ui/src/utils/core';
 import { Box, FieldStyle, SidebarList, __ } from '@erxes/ui/src';
 import { checkKnowledge } from '../../../../common/constant';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const AssignmentFilter = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleWithKnowledge = (type) => {
-    router.setParams(history, { state: type });
-    router.removeParams(history, 'page');
+    router.setParams(navigate,location, { state: type });
+    router.removeParams(navigate,location, 'page');
   };
 
   const renderTypeContent = () => {

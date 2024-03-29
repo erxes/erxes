@@ -1,20 +1,20 @@
-import { CommonFormGroup, SelectWithAssetCategory } from "../../common/utils";
-import { FormColumn } from "@erxes/ui/src/styles/main";
-import { FormWrapper } from "@erxes/ui/src/styles/main";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { IAssetCategory, IAssetCategoryTypes } from "../../common/types";
-import { IAttachment } from "@erxes/ui/src/types";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IFormProps } from "@erxes/ui/src/types";
-import { ASSET_CATEGORY_STATUSES } from "../../common/constant";
-import CommonForm from "@erxes/ui/src/components/form/Form";
-import React, { useState, useEffect } from "react";
-// import Select from 'react-select-plus';
-import { extractAttachment } from "@erxes/ui/src/utils/core";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Button from "@erxes/ui/src/components/Button";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import { __ } from "@erxes/ui/src/utils";
+import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
+import { FormColumn } from '@erxes/ui/src/styles/main';
+import { FormWrapper } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
+import { IAttachment } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IFormProps } from '@erxes/ui/src/types';
+import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import { extractAttachment } from '@erxes/ui/src/utils/core';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Button from '@erxes/ui/src/components/Button';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -94,14 +94,14 @@ const CategoryForm = (props: Props) => {
         <FormWrapper>
           <FormColumn>
             <CommonFormGroup label="Status" required={true}>
-              {/* <Select
+              <Select
                 placeholder={__('Choose status')}
-                value={status}
+                value={ASSET_CATEGORY_STATUSES.find(o=>o.value ===status)}
                 options={ASSET_CATEGORY_STATUSES}
                 onChange={(option) => setStatus(option.value)}
-                clearable={false}
+                isClearable={false}
                 {...formProps}
-              /> */}
+              />
             </CommonFormGroup>
           </FormColumn>
           <FormColumn>

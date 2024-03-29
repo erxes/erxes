@@ -23,11 +23,11 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 import MergeAssets from "./actions/Merge";
 import AssignArticles from "../containers/actions/Assign";
 import Sidebar from "../containers/Sidebar";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   assets: IAsset[];
   assetsCount: number;
-  history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
@@ -51,7 +51,6 @@ const List = (props: Props) => {
   const {
     assets,
     assetsCount,
-    history,
     queryParams,
     isAllSelected,
     bulk,
@@ -70,6 +69,8 @@ const List = (props: Props) => {
 
   const [search, setSearch] = useState(searchValue);
   const timerRef = useRef<number | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     emptyBulk();
@@ -84,8 +85,8 @@ const List = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.setParams(history, { searchValue: value });
-      router.removeParams(history, "page");
+      router.setParams(navigate, location, { searchValue: value });
+      router.removeParams(navigate, location, "page");
     }, 500);
   };
 
@@ -103,7 +104,6 @@ const List = (props: Props) => {
   const renderRow = () => {
     return assets.map((asset) => (
       <Row
-        history={history}
         key={asset._id}
         asset={asset}
         toggleBulk={toggleBulk}
@@ -262,7 +262,7 @@ const List = (props: Props) => {
     </Table>
   );
 
-  const sidebar = <Sidebar queryParams={queryParams} history={history} />;
+  const sidebar = <Sidebar queryParams={queryParams} />;
 
   const leftActionBar = (
     <Title>{`${

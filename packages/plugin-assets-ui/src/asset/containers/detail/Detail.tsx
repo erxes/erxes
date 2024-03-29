@@ -8,7 +8,6 @@ import AssetDetails from '../../components/detail/Detail';
 
 type Props = {
   id: string;
-  history: any;
 };
 
 const AssetDetailContainer = (props: Props) => {

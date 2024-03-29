@@ -4,10 +4,10 @@ import { Box, SidebarList, __, router } from '@erxes/ui/src';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import KnowledgebaseAssignmentFilter from './AssignmentFilter';
 import ArticleFilter from '../../../containers/filters/ArticleFilter';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  history: any;
   knowledgeBaseTopics: any[];
   loadArticles: (categoryId: string[]) => void;
   loadedArticles: any[];
@@ -17,9 +17,10 @@ type Props = {
 };
 
 const KnowledgebaseFilter = (props: Props) => {
-  const { queryParams, history, knowledgeBaseTopics, loadedArticles, loading } =
+  const { queryParams, knowledgeBaseTopics, loadedArticles, loading } =
     props;
-
+    const location = useLocation();
+    const navigate = useNavigate();
   const [knowledgebase, setKnowledgebase] = useState<any[]>([]);
   const [queryParamName, setQueryParamName] = useState<string>(
     'knowledgebaseCategoryId',
@@ -56,7 +57,7 @@ const KnowledgebaseFilter = (props: Props) => {
       queryParams.knowledgebaseCategoryId === undefined ||
       queryParams.knowledgebaseCategoryId === null
     ) {
-      router.removeParams(history, 'articleIds');
+      router.removeParams(navigate,location, 'articleIds');
     }
   }, [queryParams.knowledgebaseCategoryId]);
 
@@ -78,8 +79,8 @@ const KnowledgebaseFilter = (props: Props) => {
     if (selectedCategory.__typename === 'KnowledgeBaseCategory') {
       setQueryParamName('knowledgebaseCategoryId');
       const articleIds = getArticlesCategory(id);
-      router.setParams(history, { knowledgebaseCategoryId: id });
-      router.setParams(history, { articleIds });
+      router.setParams(navigate,location, { knowledgebaseCategoryId: id });
+      router.setParams(navigate,location, { articleIds });
     }
   };
 
@@ -102,7 +103,6 @@ const KnowledgebaseFilter = (props: Props) => {
     <>
       <KnowledgebaseAssignmentFilter
         queryParams={queryParams}
-        history={history}
       />
       <Box
         title={__('Filter by Knowledgebase')}
@@ -116,7 +116,6 @@ const KnowledgebaseFilter = (props: Props) => {
         <ArticleFilter
           categoryIds={categoryIds}
           queryParams={queryParams}
-          history={history}
         />
       )}
     </>

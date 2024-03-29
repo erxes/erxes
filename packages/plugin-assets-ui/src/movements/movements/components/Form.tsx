@@ -460,7 +460,7 @@ const Form = (props: Props) => {
         {variables.length > 0 && renderGeneral()}
         {renderList()}
 
-        <ContainerBox justifyCenter>
+        <ContainerBox $justifyCenter={true}>
           {renderChooser(<Button icon="plus-circle">{__("Add Asset")}</Button>)}
         </ContainerBox>
         {renderButton && (
