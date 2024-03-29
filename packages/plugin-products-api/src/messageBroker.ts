@@ -33,7 +33,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Uoms.findOne({ _id: product.uom }).lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue('products:uoms.find', async ({ subdomain, data }) => {
@@ -67,7 +67,7 @@ export const setupMessageConsumers = async () => {
           : await models.ProductCategories.find(query).sort(sort).lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -109,7 +109,7 @@ export const setupMessageConsumers = async () => {
           .lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -120,7 +120,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ProductCategories.findOne(data).lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -132,7 +132,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ProductCategories.updateProductCategory(_id, doc),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -144,7 +144,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ProductCategories.createProductCategory(doc),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -156,7 +156,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ProductCategories.removeProductCategory(_id),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -213,7 +213,7 @@ export const setupMessageConsumers = async () => {
           .lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -237,7 +237,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Products.find(filter).count(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -249,7 +249,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ProductCategories.find(query).countDocuments(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -261,7 +261,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Products.createProduct(doc),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -273,7 +273,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Products.updateProduct(_id, doc),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -285,7 +285,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Products.removeProducts(_ids),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -297,7 +297,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Products.updateMany(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue('products:tag', async ({ subdomain, data }) => {
@@ -315,7 +315,7 @@ export const setupMessageConsumers = async () => {
       await models.Products.updateMany(
         { _id: { $in: data.targetIds } },
         { $set: { tagIds: data.tagIds } },
-        { multi: true },
+        { multi: true }
       );
 
       response = await models.Products.find({
@@ -343,7 +343,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: notifDoc,
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -356,12 +356,12 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.ProductsConfigs.getConfig(code, defaultValue),
       };
-    },
+    }
   );
 };
 
 export const sendFormsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -369,17 +369,17 @@ export const sendFormsMessage = (
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
+export const sendDealsMessage = (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'deals',
     ...args,
   });
 };
 
 export const sendProcessesMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'processes',
@@ -388,7 +388,7 @@ export const sendProcessesMessage = (
 };
 
 export const sendContactsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -404,7 +404,7 @@ export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -413,7 +413,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -431,7 +431,7 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
   sendSegmentsMessage({
     subdomain,

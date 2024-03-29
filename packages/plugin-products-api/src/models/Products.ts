@@ -2,7 +2,7 @@ import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
+import { sendContactsMessage, sendDealsMessage } from '../messageBroker';
 import {
   IProduct,
   IProductCategory,
@@ -26,7 +26,7 @@ export interface IProductModel extends Model<IProductDocument> {
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
-    productFields: IProduct,
+    productFields: IProduct
   ): Promise<IProductDocument>;
 }
 
@@ -66,7 +66,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
         if (variants) {
           const undefinedVariantCodes = Object.keys(variants).filter(
-            (key) => !(barcodes || []).includes(key),
+            (key) => !(barcodes || []).includes(key)
           );
           if (undefinedVariantCodes.length) {
             for (const unDefCode of undefinedVariantCodes) {
@@ -133,7 +133,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code,
         [],
-        doc.customFieldsData,
+        doc.customFieldsData
       );
 
       return models.Products.create({ ...doc, createdAt: new Date() });
@@ -168,7 +168,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code || product.code,
         product.customFieldsData,
-        doc.customFieldsData,
+        doc.customFieldsData
       );
       doc.sameMasks = await checkSameMaskConfig(models, subdomain, {
         ...product,
@@ -184,7 +184,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      const dealProductIds = await sendCardsMessage({
+      const dealProductIds = await sendDealsMessage({
         subdomain,
         action: 'findDealProductIds',
         data: {
@@ -211,7 +211,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           { _id: { $in: usedIds } },
           {
             $set: { status: PRODUCT_STATUSES.DELETED },
-          },
+          }
         );
         response = 'updated';
       }
@@ -227,14 +227,14 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
     public static async mergeProducts(
       productIds: string[],
-      productFields: IProduct,
+      productFields: IProduct
     ) {
       const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
 
       for (const field of fields) {
         if (!productFields[field]) {
           throw new Error(
-            `Can not merge products. Must choose ${field} field.`,
+            `Can not merge products. Must choose ${field} field.`
           );
         }
       }
@@ -301,7 +301,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         vendorId,
       });
 
-      const dealProductIds = await sendCardsMessage({
+      const dealProductIds = await sendDealsMessage({
         subdomain,
         action: 'findDealProductIds',
         data: {
@@ -316,9 +316,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await sendCardsMessage({
+      await sendDealsMessage({
         subdomain,
-        action: 'deals.updateMany',
+        action: 'updateMany',
         data: {
           selector: {
             'productsData.productId': { $in: usedIds },
@@ -342,11 +342,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCategory(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(
-    doc: IProductCategory,
+    doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   updateProductCategory(
     _id: string,
-    doc: IProductCategory,
+    doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
 }
@@ -403,7 +403,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async updateProductCategory(
       _id: string,
-      doc: IProductCategory,
+      doc: IProductCategory
     ) {
       const category = await models.ProductCategories.getProductCategory({
         _id,
@@ -441,7 +441,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } },
+          { $set: { order } }
         );
       });
 
@@ -472,7 +472,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async generateOrder(
       parentCategory: IProductCategory,
-      doc: IProductCategory,
+      doc: IProductCategory
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`
