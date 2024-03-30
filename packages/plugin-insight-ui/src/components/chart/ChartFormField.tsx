@@ -159,7 +159,6 @@ const ChartFormField = (props: Props) => {
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
-            customOption={{ value: '', label: 'Choose Asset' }}
           />
         </div>
       );
