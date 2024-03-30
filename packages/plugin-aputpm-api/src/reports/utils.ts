@@ -11,6 +11,7 @@ import {
   sendCoreMessage,
   sendLogsMessage,
 } from '../messageBroker';
+import { generateChildrenIds } from '../graphql/resolvers/utils';
 
 export const getDates = (startDate: Date, endDate: Date) => {
   const result: { start: Date; end: Date; label: string }[] = [];
@@ -222,6 +223,43 @@ export const returnDateRanges = (
   return dateRanges;
 };
 
+export const generateGroupIds = async (ids: string[], type: string, subdomain: string) => {
+
+  const childIds: { [parentId: string]: string[] }[] = [];
+
+  if (!ids) {
+    return []
+  }
+
+  if (type === "branch") {
+    for (const branchId of ids) {
+      const branchIds = await generateChildrenIds({
+        subdomain,
+        action: 'branches.find',
+        query: { _id: { $in: [branchId] } },
+        type: 'branch'
+      });
+      childIds.push({ [branchId]: branchIds });
+    }
+  }
+
+  if (type === "department") {
+    for (const departmentId of ids) {
+      const departmentIds = await generateChildrenIds(
+        {
+          subdomain,
+          action: 'departments.find',
+          query: { _id: { $in: [departmentId] } },
+          type: 'department'
+        }
+      )
+      childIds.push({ [departmentId]: departmentIds });
+    }
+  }
+
+  return childIds;
+}
+
 export const buildMatchFilter = async (filter, subdomain, type: string) => {
   const {
     branchIds,
@@ -239,11 +277,30 @@ export const buildMatchFilter = async (filter, subdomain, type: string) => {
   const getPipelineIds: string[] = [];
 
   if (branchIds && branchIds.length) {
-    matchfilter['branchIds'] = { $in: branchIds };
+
+    const getBranchIds = await generateChildrenIds(
+      {
+        subdomain,
+        action: 'branches.find',
+        query: { _id: { $in: branchIds } },
+        type: 'branch'
+      }
+    )
+
+    matchfilter['branchIds'] = { $in: getBranchIds };
   }
 
   if (departmentIds && departmentIds.length) {
-    matchfilter['departmentIds'] = { $in: departmentIds };
+
+    const getDepartmentIds = await generateChildrenIds(
+      {
+        subdomain,
+        action: 'departments.find',
+        query: { _id: { $in: departmentIds } },
+        type: 'department'
+      }
+    )
+    matchfilter['departmentIds'] = { $in: getDepartmentIds };
   }
 
   if (createdUserIds && createdUserIds.length) {
