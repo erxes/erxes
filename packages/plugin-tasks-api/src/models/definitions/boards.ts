@@ -138,7 +138,7 @@ export const attachmentSchema = new Schema(
     size: field({ type: Number, optional: true }),
     duration: field({ type: Number, optional: true }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // Mongoose schemas =======================
@@ -168,7 +168,7 @@ const timeTrackSchema = new Schema(
       default: TIME_TRACK_TYPES.STOPPED,
     }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 const relationSchema = new Schema(
@@ -177,7 +177,7 @@ const relationSchema = new Schema(
     start: field({ type: String }),
     end: field({ type: String }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const commonItemFieldsSchema = {
@@ -281,7 +281,7 @@ export const boardSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     ...commonFieldsSchema,
-  }),
+  })
 );
 
 export const pipelineSchema = new Schema({
@@ -326,17 +326,17 @@ export const pipelineSchema = new Schema({
   isCheckUser: field({
     type: Boolean,
     optional: true,
-    label: 'Show only the users created or assigned cards',
+    label: 'Show only the users created or assigned tasks',
   }),
   isCheckDepartment: field({
     type: Boolean,
     optional: true,
-    label: 'Show only the departments created or assigned cards',
+    label: 'Show only the departments created or assigned tasks',
   }),
   excludeCheckUserIds: field({
     type: [String],
     optional: true,
-    label: 'Users elligible to see all cards',
+    label: 'Users elligible to see all tasks',
   }),
   numberConfig: field({ type: String, optional: true, label: 'Number config' }),
   numberSize: field({ type: String, optional: true, label: 'Number count' }),

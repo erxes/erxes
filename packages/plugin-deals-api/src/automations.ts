@@ -349,31 +349,7 @@ export default {
   constants: {
     triggers: [
       {
-        type: 'cards:task',
-        img: 'automation3.svg',
-        icon: 'file-plus-alt',
-        label: 'Task',
-        description:
-          'Start with a blank workflow that enralls and is triggered off task',
-      },
-      {
-        type: 'cards:purchase',
-        img: 'automation3.svg',
-        icon: 'file-plus-alt',
-        label: 'Purchase',
-        description:
-          'Start with a blank workflow that enralls and is triggered off purchase',
-      },
-      {
-        type: 'cards:ticket',
-        img: 'automation3.svg',
-        icon: 'file-plus',
-        label: 'Ticket',
-        description:
-          'Start with a blank workflow that enralls and is triggered off ticket',
-      },
-      {
-        type: 'cards:deal',
+        type: 'deals:deal',
         img: 'automation3.svg',
         icon: 'piggy-bank',
         label: 'Sales pipeline',
@@ -383,31 +359,10 @@ export default {
     ],
     actions: [
       {
-        type: 'cards:task.create',
-        icon: 'file-plus-alt',
-        label: 'Create task',
-        description: 'Create task',
-        isAvailable: true,
-      },
-      {
-        type: 'cards:purchase.create',
-        icon: 'file-plus-alt',
-        label: 'Create purchase',
-        description: 'Create purchase',
-        isAvailable: true,
-      },
-      {
-        type: 'cards:deal.create',
+        type: 'deals:create',
         icon: 'piggy-bank',
         label: 'Create deal',
         description: 'Create deal',
-        isAvailable: true,
-      },
-      {
-        type: 'cards:ticket.create',
-        icon: 'file-plus',
-        label: 'Create ticket',
-        description: 'Create ticket',
         isAvailable: true,
       },
     ],
@@ -445,7 +400,7 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || '').replace('cards:', '') },
+        target: { ...target, type: (triggerType || '').replace('deals:', '') },
         isRelated: false,
       })
     : {};
@@ -468,7 +423,7 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: { ...target, type: (triggerType || '').replace('cards:', '') },
+      target: { ...target, type: (triggerType || '').replace('deals:', '') },
       relatedValueProps,
     })),
   };
@@ -531,7 +486,7 @@ const actionCreate = async ({
 
   if (newData.hasOwnProperty('attachments')) {
     const [serviceName, itemType] = triggerType.split(':');
-    if (serviceName === 'cards') {
+    if (serviceName === 'deals') {
       const modelsMap = {
         ticket: models.Tickets,
         task: models.Tasks,

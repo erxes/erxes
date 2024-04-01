@@ -10,7 +10,6 @@ import { generateModels } from './connectionResolver';
 import internalNotes from './internalNotes';
 import search from './search';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import documents from './documents';
 
 export default {
   name: 'growthhacks',
@@ -33,7 +32,6 @@ export default {
     internalNotes,
     search,
     permissions,
-    documents,
   },
 
   apolloServerContext: async (context, req, res) => {

@@ -20,7 +20,7 @@ const getCustomFields = async ({ subdomain }) => {
       action: 'fields.fieldsCombinedByContentType',
       isRPC: true,
       data: {
-        contentType: `cards:${cardType}`,
+        contentType: `purchases:${cardType}`,
       },
       defaultValue: [],
     });
@@ -62,8 +62,8 @@ const commonFields = [
 export default {
   types: [
     {
-      label: 'Cards',
-      type: 'cards',
+      label: 'purchases',
+      type: 'purchases',
       subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal'],
     },
   ],
@@ -96,7 +96,7 @@ export default {
       return '';
     }
     let item;
-    if (contentype == 'cards:stage') {
+    if (contentype == 'purchases:stage') {
       const items = await collection.find({
         stageId: stageId,
         _id: { $in: itemIds.split(',') },
@@ -106,7 +106,7 @@ export default {
         return '';
       }
 
-      item = await cardsStage(items);
+      item = await purchasesStage(items);
 
       if (!item) {
         return '';
@@ -446,7 +446,7 @@ export default {
   },
 };
 
-const cardsStage = async (items: any[]) => {
+const purchasesStage = async (items: any[]) => {
   try {
     const itemsArray = items;
     const aggregatedData: Record<string, any> = {

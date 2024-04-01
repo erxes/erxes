@@ -747,7 +747,7 @@ const boardQueries = {
         action: 'fieldsGroups.find',
         data: {
           query: {
-            contentType: `cards:${ct}`,
+            contentType: `tickets:${ct}`,
           },
         },
         isRPC: true,

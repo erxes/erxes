@@ -719,7 +719,7 @@ export const checkItemPermByUser = async (
     throw new Error('You do not have permission to view.');
   }
 
-  // pipeline is Show only the users assigned(created) cards checked
+  // pipeline is Show only the users assigned(created) tickets checked
   // and current user nothing dominant users
   // current user hans't this carts assigned and created
   if (
@@ -1143,7 +1143,7 @@ export const getItemList = async (
     data: {
       query: {
         showInCard: true,
-        contentType: `cards:${type}`,
+        contentType: `tickets:${type}`,
       },
     },
     isRPC: true,

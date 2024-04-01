@@ -218,7 +218,7 @@ export const collectItems = async (
   return tasks;
 };
 
-// contentType should come with "cards:deal|task|ticket|growthHack|purchase" format
+// contentType should come with "tickets:deal|task|ticket|growthHack|purchase" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }
@@ -293,7 +293,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       validation: e.validation,
       groupId,
       options: e.options,
-      contentType: `cards:${type}`,
+      contentType: `tickets:${type}`,
       isDefinedByErxes: true,
     });
   });

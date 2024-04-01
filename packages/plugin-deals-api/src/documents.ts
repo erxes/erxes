@@ -14,25 +14,24 @@ const toMoney = (value) => {
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
-  for (const cardType of ['task', 'ticket', 'deal', 'purchase']) {
-    let items = await sendFormsMessage({
-      subdomain,
-      action: 'fields.fieldsCombinedByContentType',
-      isRPC: true,
-      data: {
-        contentType: `cards:${cardType}`,
-      },
-      defaultValue: [],
-    });
+  let items = await sendFormsMessage({
+    subdomain,
+    action: 'fields.fieldsCombinedByContentType',
+    isRPC: true,
+    data: {
+      contentType: `deals:deal`,
+    },
+    defaultValue: [],
+  });
 
-    fields = [
-      ...fields,
-      ...items.map((f) => ({
-        value: f.name,
-        name: `${cardType}:${f.label}`,
-      })),
-    ];
-  }
+  fields = [
+    ...fields,
+    ...items.map((f) => ({
+      value: f.name,
+      name: `deal:${f.label}`,
+    })),
+  ];
+
   return fields;
 };
 
@@ -62,9 +61,9 @@ const commonFields = [
 export default {
   types: [
     {
-      label: 'Cards',
-      type: 'cards',
-      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal'],
+      label: 'Deals',
+      type: 'deals',
+      subTypes: ['deal', 'stageDeal'],
     },
   ],
 
@@ -96,7 +95,7 @@ export default {
       return '';
     }
     let item;
-    if (contentype == 'cards:stage') {
+    if (contentype == 'deals:stage') {
       const items = await collection.find({
         stageId: stageId,
         _id: { $in: itemIds.split(',') },
@@ -106,7 +105,7 @@ export default {
         return '';
       }
 
-      item = await cardsStage(items);
+      item = await dealsStage(items);
 
       if (!item) {
         return '';
@@ -446,7 +445,7 @@ export default {
   },
 };
 
-const cardsStage = async (items: any[]) => {
+const dealsStage = async (items: any[]) => {
   try {
     const itemsArray = items;
     const aggregatedData: Record<string, any> = {

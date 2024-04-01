@@ -728,7 +728,7 @@ export const checkItemPermByUser = async (
     throw new Error('You do not have permission to view.');
   }
 
-  // pipeline is Show only the users assigned(created) cards checked
+  // pipeline is Show only the users assigned(created) gh checked
   // and current user nothing dominant users
   // current user hans't this carts assigned and created
   if (
