@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/erxes/erxes/compare/1.7.3...1.7.4) (2024-04-01)
+
+
+### Bug Fixes
+
+* segment count rabbitmq message ([ebf63a2](https://github.com/erxes/erxes/commit/ebf63a27c6c2c494598c119eff3f2dbfd27ef312))
+
 ## [1.7.3](https://github.com/erxes/erxes/compare/1.7.2...1.7.3) (2024-03-27)
 
 
