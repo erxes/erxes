@@ -10,8 +10,6 @@ import {
 import { mutations, queries } from '../graphql';
 
 import { DonateCampaignDetailQueryResponse } from '../../../configs/donateCampaign/types';
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { queries as campaignQueries } from '../../../configs/donateCampaign/graphql';
@@ -20,14 +18,12 @@ import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   donatesMainQuery: MainQueryResponse;
   donateCampaignDetailQuery: DonateCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -48,7 +44,6 @@ class DonateListContainer extends React.Component<FinalProps, State> {
       donatesMainQuery,
       donateCampaignDetailQuery,
       donatesRemove,
-      history,
     } = this.props;
 
     if (

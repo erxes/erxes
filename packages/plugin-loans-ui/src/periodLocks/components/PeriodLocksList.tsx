@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IPeriodLock } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
@@ -19,12 +18,11 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-// import { withRouter } from 'react-router-dom';
 import { menuContracts } from "../../constants";
-import { router } from "@erxes/ui/src/utils/core";
 import withConsumer from "../../withConsumer";
+import { useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   periodLocks: IPeriodLock[];
   loading: boolean;
   searchValue: string;
@@ -39,7 +37,6 @@ interface IProps extends IRouterProps {
     doc: { periodLockIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
   currentUser: IUser;
 }
@@ -49,7 +46,6 @@ const PeriodLocksList = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
   const {
     periodLocks,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -60,6 +56,7 @@ const PeriodLocksList = (props: IProps) => {
     toggleAll,
   } = props;
 
+  const navigate = useNavigate()
   const onChange = () => {
     toggleAll(periodLocks, "periodLocks");
   };
@@ -69,13 +66,12 @@ const PeriodLocksList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -124,7 +120,6 @@ const PeriodLocksList = (props: IProps) => {
               periodLock={periodLock}
               isChecked={bulk.includes(periodLock)}
               key={periodLock._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

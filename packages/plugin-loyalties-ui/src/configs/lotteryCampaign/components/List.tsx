@@ -19,17 +19,17 @@ import {
 import Form from "../containers/Form";
 import { ILotteryCampaign } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
-import React from "react";
+import React, { useState } from "react";
 import Row from "./Row";
 import Sidebar from "../../general/components/Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   lotteryCampaigns: ILotteryCampaign[];
   loading: boolean;
   isAllSelected: boolean;
   toggleAll: (targets: ILotteryCampaign[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -43,58 +43,47 @@ type Props = {
   filterStatus: string;
 };
 
-type State = {
-  searchValue: string;
-  filterStatus: string;
-};
+const LotteryCampaigns = (props: Props) => {
+  let timer;
 
-class LotteryCampaigns extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue || "");
+  const [filterStatus, setFilterStatus] = useState(props.filterStatus || "");
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue || "",
-      filterStatus: this.props.filterStatus || "",
-    };
-  }
-
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    setSearchValue(searchValue);
 
-    this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+    timer = setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
     e.target.value = "";
     e.target.value = tmpValue;
-  }
+  };
 
-  onChange = () => {
-    const { toggleAll, lotteryCampaigns } = this.props;
+  const onChange = () => {
+    const { toggleAll, lotteryCampaigns } = props;
     toggleAll(lotteryCampaigns, "lotteryCampaigns");
   };
 
-  renderRow = () => {
-    const { lotteryCampaigns, history, toggleBulk, bulk } = this.props;
+  const renderRow = () => {
+    const { lotteryCampaigns, toggleBulk, bulk } = props;
 
     return lotteryCampaigns.map((lotteryCampaign) => (
       <Row
         key={lotteryCampaign._id}
-        history={history}
         lotteryCampaign={lotteryCampaign}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(lotteryCampaign)}
@@ -102,28 +91,28 @@ class LotteryCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = (props) => {
+  const modalContent = (props) => {
     return <Form {...props} />;
   };
 
-  removeLotteryCampaigns = (lotteryCampaigns) => {
+  const removeLotteryCampaigns = (lotteryCampaigns) => {
     const lotteryCampaignIds: string[] = [];
 
     lotteryCampaigns.forEach((lotteryCampaign) => {
       lotteryCampaignIds.push(lotteryCampaign._id);
     });
 
-    this.props.remove({ lotteryCampaignIds }, this.props.emptyBulk);
+    props.remove({ lotteryCampaignIds }, props.emptyBulk);
   };
 
-  actionBarRight() {
-    const { bulk } = this.props;
+  const actionBarRight = () => {
+    const { bulk } = props;
 
     if (bulk.length) {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeLotteryCampaigns(bulk);
+            removeLotteryCampaigns(bulk);
           })
           .catch((error) => {
             Alert.error(error.message);
@@ -156,10 +145,10 @@ class LotteryCampaigns extends React.Component<Props, State> {
               <FormControl
                 type="text"
                 placeholder={__("Type to search")}
-                onChange={this.search}
-                value={this.state.searchValue}
+                onChange={search}
+                value={searchValue}
                 autoFocus={true}
-                onFocus={this.moveCursorAtTheEnd}
+                onFocus={moveCursorAtTheEnd}
               />
             </FlexItem>
           </InputBar>
@@ -168,87 +157,85 @@ class LotteryCampaigns extends React.Component<Props, State> {
             title="Add lottery campaign"
             trigger={trigger}
             autoOpenKey="showProductModal"
-            content={this.modalContent}
+            content={modalContent}
           />
         </FlexRow>
       </FilterContainer>
     );
-  }
+  };
 
-  render() {
-    const { loading, isAllSelected, totalCount, lotteryCampaigns } = this.props;
+  const { loading, isAllSelected, totalCount, lotteryCampaigns } = props;
 
-    const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      {
-        title: __("Loyalties Config"),
-        link: "/erxes-plugin-loyalty/settings/general",
-      },
-      { title: __("Lottery Campaign") },
-    ];
+  const breadcrumb = [
+    { title: __("Settings"), link: "/settings" },
+    {
+      title: __("Loyalties Config"),
+      link: "/erxes-plugin-loyalty/settings/general",
+    },
+    { title: __("Lottery Campaign") },
+  ];
 
-    const header = (
-      <HeaderDescription
-        icon="/images/actions/25.svg"
-        title="Loyalty configs"
-        description=""
-      />
-    );
+  const header = (
+    <HeaderDescription
+      icon="/images/actions/25.svg"
+      title="Loyalty configs"
+      description=""
+    />
+  );
 
-    const content = (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentclass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__("Title")}</th>
-            <th>{__("Start Date")}</th>
-            <th>{__("End Date")}</th>
-            <th>{__("Finish date of Use")}</th>
-            <th>{__("Status")}</th>
-            <th>{__("Actions")}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
+  const content = (
+    <Table $hover={true}>
+      <thead>
+        <tr>
+          <th style={{ width: 60 }}>
+            <FormControl
+              checked={isAllSelected}
+              componentclass="checkbox"
+              onChange={onChange}
+            />
+          </th>
+          <th>{__("Title")}</th>
+          <th>{__("Start Date")}</th>
+          <th>{__("End Date")}</th>
+          <th>{__("Finish date of Use")}</th>
+          <th>{__("Status")}</th>
+          <th>{__("Actions")}</th>
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__("Lottery Campaign")}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title capitalize={true}>{__("Lottery Campaign")}</Title>}
-            right={this.actionBarRight()}
-          />
-        }
-        mainHead={header}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            count={lotteryCampaigns.length}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        leftSidebar={<Sidebar />}
-        transparent={true}
-        hasBorder={true}
-        footer={<Pagination count={totalCount && totalCount} />}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__("Lottery Campaign")}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title $capitalize={true}>{__("Lottery Campaign")}</Title>}
+          right={actionBarRight()}
+        />
+      }
+      mainHead={header}
+      content={
+        <DataWithLoader
+          data={content}
+          loading={loading}
+          count={lotteryCampaigns.length}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      leftSidebar={<Sidebar />}
+      transparent={true}
+      hasBorder={true}
+      footer={<Pagination count={totalCount && totalCount} />}
+    />
+  );
+};
 
 export default LotteryCampaigns;

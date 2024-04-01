@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -32,35 +32,27 @@ import { FormFooter, SettingsContent } from "../../../styles";
 import { Link } from "react-router-dom";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
 import SegmentFields from "../common/SegmentFields";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
   queryParams: any;
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  assignmentCampaign: IAssignmentCampaign;
-};
+const EditForm = (props: Props) => {
+  const [assignmentCampaign, setAssignmentCampaign] = useState(
+    props.assignmentCampaign || ({} as IAssignmentCampaign)
+  );
+  const navigate = useNavigate();
 
-class EditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      assignmentCampaign: this.props.assignmentCampaign || {},
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     attachment?: IAttachment;
     description: string;
   }) => {
     const finalValues = values;
-    const { assignmentCampaign } = this.state;
 
     if (assignmentCampaign._id) {
       finalValues._id = assignmentCampaign._id;
@@ -72,49 +64,43 @@ class EditForm extends React.Component<Props, State> {
     };
   };
 
-  onChange = (value, name) => {
-    const { assignmentCampaign } = this.state;
-
-    this.setState({
-      assignmentCampaign: { ...assignmentCampaign, [name]: value },
-    });
+  const onChange = (value, name) => {
+    setAssignmentCampaign({ ...assignmentCampaign, [name]: value });
   };
 
-  onChangeDescription = (content: string) => {
-    this.onChange(content, "description");
+  const onChangeDescription = (content: string) => {
+    onChange(content, "description");
   };
 
-  onChangeAttachment = (files: IAttachment[]) => {
-    this.onChange(files.length ? files[0] : undefined, "attachment");
+  const onChangeAttachment = (files: IAttachment[]) => {
+    onChange(files.length ? files[0] : undefined, "attachment");
   };
 
-  onDateInputChange = (type: string, date) => {
-    this.onChange(date, type);
+  const onDateInputChange = (type: string, date) => {
+    onChange(date, type);
   };
 
-  onInputChange = (e) => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.onChange(value, name);
+    onChange(value, name);
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
 
-      this.onChange(value, "voucherCampaignId");
+      onChange(value, "voucherCampaignId");
     };
 
     const onChangeSegments = (segmentIds) => {
-      this.onChange(segmentIds, "segmentIds");
+      onChange(segmentIds, "segmentIds");
     };
-
-    const { assignmentCampaign } = this.state;
 
     const attachments =
       (assignmentCampaign.attachment &&
@@ -122,11 +108,10 @@ class EditForm extends React.Component<Props, State> {
       [];
 
     const onSave = () => {
-      const { history } = this.props;
-      history.push(`/erxes-plugin-loyalty/settings/assignment`);
+      navigate(`/erxes-plugin-loyalty/settings/assignment`);
     };
 
-    const voucherOptions = this.props.voucherCampaigns.map((voucher) => ({
+    const voucherOptions = props.voucherCampaigns.map((voucher) => ({
       label: `${voucher.title}`,
       value: voucher._id,
     }));
@@ -141,7 +126,7 @@ class EditForm extends React.Component<Props, State> {
             defaultValue={assignmentCampaign.title}
             autoFocus={true}
             required={true}
-            onChange={this.onInputChange}
+            onChange={onInputChange}
           />
         </FormGroup>
 
@@ -156,7 +141,7 @@ class EditForm extends React.Component<Props, State> {
                   name="startDate"
                   placeholder={__("Start date")}
                   value={assignmentCampaign.startDate}
-                  onChange={this.onDateInputChange.bind(this, "startDate")}
+                  onChange={onDateInputChange.bind(this, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -172,7 +157,7 @@ class EditForm extends React.Component<Props, State> {
                   name="endDate"
                   placeholder={__("End date")}
                   value={assignmentCampaign.endDate}
-                  onChange={this.onDateInputChange.bind(this, "endDate")}
+                  onChange={onDateInputChange.bind(this, "endDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -188,10 +173,7 @@ class EditForm extends React.Component<Props, State> {
                   name="finishDateOfUse"
                   placeholder={__("Finish date of use")}
                   value={assignmentCampaign.finishDateOfUse}
-                  onChange={this.onDateInputChange.bind(
-                    this,
-                    "finishDateOfUse"
-                  )}
+                  onChange={onDateInputChange.bind(this, "finishDateOfUse")}
                 />
               </DateContainer>
             </FormGroup>
@@ -204,15 +186,15 @@ class EditForm extends React.Component<Props, State> {
               <SelectSegments
                 name="segmentIds"
                 label="Choose segments"
-                initialValue={this.state.assignmentCampaign.segmentIds}
+                initialValue={assignmentCampaign.segmentIds}
                 contentTypes={["contacts:customer", "contacts:lead"]}
                 multi={true}
                 onSelect={(segmentIds) => onChangeSegments(segmentIds)}
               />
             </FormGroup>
             <SegmentFields
-              onChange={this.onChange}
-              segmentIds={this.state.assignmentCampaign.segmentIds || []}
+              onChange={onChange}
+              segmentIds={assignmentCampaign.segmentIds || []}
               assignmentCampaign={assignmentCampaign}
             />
           </>
@@ -222,7 +204,7 @@ class EditForm extends React.Component<Props, State> {
           <Select
             placeholder={__("Choose voucher campaign")}
             value={voucherOptions.find(
-              (o) => o.value === this.state.assignmentCampaign.voucherCampaignId
+              (o) => o.value === assignmentCampaign.voucherCampaignId
             )}
             options={voucherOptions}
             name="voucherCampaignId"
@@ -234,7 +216,7 @@ class EditForm extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
           <RichTextEditor
             content={assignmentCampaign.description || ""}
-            onChange={this.onChangeDescription}
+            onChange={onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
@@ -256,7 +238,7 @@ class EditForm extends React.Component<Props, State> {
 
           <Uploader
             defaultFileList={attachments}
-            onChange={this.onChangeAttachment}
+            onChange={onChangeAttachment}
             multiple={false}
             single={true}
           />
@@ -268,10 +250,7 @@ class EditForm extends React.Component<Props, State> {
             <Toggle
               checked={assignmentCampaign?.allowMultiWin}
               onChange={() =>
-                this.onChange(
-                  !assignmentCampaign?.allowMultiWin,
-                  "allowMultiWin"
-                )
+                onChange(!assignmentCampaign?.allowMultiWin, "allowMultiWin")
               }
             />
           </ControlLabel>
@@ -290,7 +269,7 @@ class EditForm extends React.Component<Props, State> {
 
           {renderButton({
             name: "Assignment Campaign",
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
             callback: onSave,
@@ -300,45 +279,43 @@ class EditForm extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Assignment Campaign") },
-    ];
+  const breadcrumb = [
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Assignment Campaign") },
+  ];
 
-    const content = (
-      <SettingsContent>
-        <CommonForm renderContent={this.renderContent} />
-      </SettingsContent>
-    );
+  const content = (
+    <SettingsContent>
+      <CommonForm renderContent={renderContent} />
+    </SettingsContent>
+  );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__("Edit Assignment Campaign")}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__("Edit Assignment Campaign")}</Title>}
-          />
-        }
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        leftSidebar={<Sidebar />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__("Edit Assignment Campaign")}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__("Edit Assignment Campaign")}</Title>}
+        />
+      }
+      content={
+        <DataWithLoader
+          data={content}
+          loading={false}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      leftSidebar={<Sidebar />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
 export default EditForm;

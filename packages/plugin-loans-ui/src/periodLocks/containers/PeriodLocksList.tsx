@@ -9,7 +9,6 @@ import { useMutation, useQuery } from '@apollo/client';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const PeriodLockListContainer = (props: Props) => {

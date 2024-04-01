@@ -3,21 +3,17 @@ import * as compose from 'lodash.flowright';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 
 import { Bulk } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-// import { withRouter } from 'react-router-dom';
 import ScoreLogsListComponent from '../components/List';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 type Props = {
   queryParams: any;
-  history: any;
 };
 type FinalProps = {
   scoreLogs: any;
-} & Props &
-  IRouterProps;
+} & Props;
 
 type State = {
   loading: boolean;

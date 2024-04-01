@@ -1,19 +1,19 @@
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { queries } from '@erxes/ui-products/src/graphql';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { useQuery } from '@apollo/client';
+import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import { queries } from "@erxes/ui-products/src/graphql";
+import { gql } from "@apollo/client";
+import React from "react";
+import { useQuery } from "@apollo/client";
 
-import List from '../components/CategoryList';
+import List from "../components/CategoryList";
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 const CollateralListContainer = (props: Props) => {
   const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
     gql(queries.productCategories),
     {
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const collateralCategories =

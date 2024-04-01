@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   ControlLabel,
@@ -31,35 +31,27 @@ import Sidebar from "../../general/components/Sidebar";
 import { FormFooter, SettingsContent } from "../../../styles";
 import { Link } from "react-router-dom";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
   queryParams: any;
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  assignmentCampaign: IAssignmentCampaign;
-};
+const CreateForm = (props: Props) => {
+  const [assignmentCampaign, setAssignmentCampaign] = useState(
+    props.assignmentCampaign || ({} as IAssignmentCampaign)
+  );
+  const navigate = useNavigate();
 
-class CreateForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      assignmentCampaign: this.props.assignmentCampaign || {},
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     attachment?: IAttachment;
     description: string;
   }) => {
     const finalValues = values;
-    const { assignmentCampaign } = this.state;
 
     if (assignmentCampaign._id) {
       finalValues._id = assignmentCampaign._id;
@@ -71,65 +63,57 @@ class CreateForm extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = (content: string) => {
-    this.setState({
-      assignmentCampaign: {
-        ...this.state.assignmentCampaign,
-        description: content,
-      },
+  const onChangeDescription = (content: string) => {
+    setAssignmentCampaign({
+      ...assignmentCampaign,
+      description: content,
     });
   };
 
-  onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({
-      assignmentCampaign: {
-        ...this.state.assignmentCampaign,
-        attachment: files.length ? files[0] : undefined,
-      },
+  const onChangeAttachment = (files: IAttachment[]) => {
+    setAssignmentCampaign({
+      ...assignmentCampaign,
+      attachment: files.length ? files[0] : undefined,
     });
   };
 
-  onDateInputChange = (type: string, date) => {
-    this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [type]: date },
+  const onDateInputChange = (type: string, date) => {
+    setAssignmentCampaign({
+      ...assignmentCampaign,
+      [type]: date,
     });
   };
 
-  onInputChange = (e) => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value },
+    setAssignmentCampaign({
+      ...assignmentCampaign,
+      [name]: value,
     });
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
 
-      this.setState({
-        assignmentCampaign: {
-          ...this.state.assignmentCampaign,
-          voucherCampaignId: value,
-        },
+      setAssignmentCampaign({
+        ...assignmentCampaign,
+        voucherCampaignId: value,
       });
     };
 
     const onChangeSegments = (segmentIds) => {
-      this.setState({
-        assignmentCampaign: {
-          ...this.state.assignmentCampaign,
-          segmentIds,
-        },
+      setAssignmentCampaign({
+        ...assignmentCampaign,
+        segmentIds,
       });
     };
-
-    const { assignmentCampaign } = this.state;
 
     const attachments =
       (assignmentCampaign.attachment &&
@@ -137,11 +121,10 @@ class CreateForm extends React.Component<Props, State> {
       [];
 
     const onSave = () => {
-      const { history } = this.props;
-      history.push(`/erxes-plugin-loyalty/settings/assignment`);
+      navigate(`/erxes-plugin-loyalty/settings/assignment`);
     };
 
-    const selectOptions = this.props.voucherCampaigns.map((voucher) => ({
+    const selectOptions = props.voucherCampaigns.map((voucher) => ({
       label: `${voucher.title}`,
       value: voucher._id,
     }));
@@ -156,7 +139,7 @@ class CreateForm extends React.Component<Props, State> {
             defaultValue={assignmentCampaign.title}
             autoFocus={true}
             required={true}
-            onChange={this.onInputChange}
+            onChange={onInputChange}
           />
         </FormGroup>
 
@@ -171,7 +154,7 @@ class CreateForm extends React.Component<Props, State> {
                   name="startDate"
                   placeholder={__("Start date")}
                   value={assignmentCampaign.startDate}
-                  onChange={this.onDateInputChange.bind(this, "startDate")}
+                  onChange={onDateInputChange.bind(this, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -187,7 +170,7 @@ class CreateForm extends React.Component<Props, State> {
                   name="endDate"
                   placeholder={__("End date")}
                   value={assignmentCampaign.endDate}
-                  onChange={this.onDateInputChange.bind(this, "endDate")}
+                  onChange={onDateInputChange.bind(this, "endDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -203,10 +186,7 @@ class CreateForm extends React.Component<Props, State> {
                   name="finishDateOfUse"
                   placeholder={__("Finish date of use")}
                   value={assignmentCampaign.finishDateOfUse}
-                  onChange={this.onDateInputChange.bind(
-                    this,
-                    "finishDateOfUse"
-                  )}
+                  onChange={onDateInputChange.bind(this, "finishDateOfUse")}
                 />
               </DateContainer>
             </FormGroup>
@@ -220,7 +200,7 @@ class CreateForm extends React.Component<Props, State> {
                 name="segmentIds"
                 label="Choose segments"
                 contentTypes={["contacts:customer", "contacts:lead"]}
-                initialValue={this.state.assignmentCampaign.segmentIds}
+                initialValue={assignmentCampaign.segmentIds}
                 multi={true}
                 onSelect={onChangeSegments}
               />
@@ -232,7 +212,7 @@ class CreateForm extends React.Component<Props, State> {
           <Select
             placeholder={__("Choose voucher campaign")}
             value={selectOptions.find(
-              (o) => o.value === this.state.assignmentCampaign.voucherCampaignId
+              (o) => o.value === assignmentCampaign.voucherCampaignId
             )}
             options={selectOptions}
             name="voucherCampaignId"
@@ -244,7 +224,7 @@ class CreateForm extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
           <RichTextEditor
             content={assignmentCampaign.description || ""}
-            onChange={this.onChangeDescription}
+            onChange={onChangeDescription}
             height={150}
             isSubmitted={formProps.isSaved}
             name={`assignmentCampaign_description_${assignmentCampaign.description}`}
@@ -266,7 +246,7 @@ class CreateForm extends React.Component<Props, State> {
 
           <Uploader
             defaultFileList={attachments}
-            onChange={this.onChangeAttachment}
+            onChange={onChangeAttachment}
             multiple={false}
             single={true}
           />
@@ -284,7 +264,7 @@ class CreateForm extends React.Component<Props, State> {
           </Link>
           {renderButton({
             name: "Assignment Campaign",
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
             callback: onSave,
@@ -294,44 +274,42 @@ class CreateForm extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Assignment Campaign") },
-    ];
+  const breadcrumb = [
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Assignment Campaign") },
+  ];
 
-    const content = (
-      <SettingsContent>
-        <CommonForm renderContent={this.renderContent} />
-      </SettingsContent>
-    );
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__("Create Assignment Campaign")}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__("Create Assignment Campaign")}</Title>}
-          />
-        }
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        leftSidebar={<Sidebar />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  const content = (
+    <SettingsContent>
+      <CommonForm renderContent={renderContent} />
+    </SettingsContent>
+  );
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__("Create Assignment Campaign")}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__("Create Assignment Campaign")}</Title>}
+        />
+      }
+      content={
+        <DataWithLoader
+          data={content}
+          loading={false}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      leftSidebar={<Sidebar />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
 export default CreateForm;

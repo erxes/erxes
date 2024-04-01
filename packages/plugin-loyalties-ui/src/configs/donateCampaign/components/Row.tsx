@@ -12,7 +12,6 @@ import React from "react";
 
 type Props = {
   donateCampaign: IDonateCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (donateCampaign: IDonateCampaign, isChecked?: boolean) => void;
 };
@@ -30,7 +29,7 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    const { donateCampaign, history, toggleBulk, isChecked } = this.props;
+    const { donateCampaign, toggleBulk, isChecked } = this.props;
 
     const onChange = (e) => {
       if (toggleBulk) {

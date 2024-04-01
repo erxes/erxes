@@ -10,9 +10,7 @@ import {
   __,
 } from '@erxes/ui/src';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IScoreLogParams } from '../types';
-// import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import ScoreFormContainer from '../containers/Form';
@@ -21,11 +19,10 @@ import { Title } from '@erxes/ui/src/styles/main';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { menuLoyalties } from '../../common/constants';
 
-interface IProps extends IRouterProps {
+interface IProps  {
   loading: boolean;
   error: any;
   queryParams: any;
-  history: any;
   scoreLogs: [IScoreLogParams];
   total: number;
   refetch: (variables: any) => void;
@@ -37,7 +34,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
   }
 
   render() {
-    const { loading, queryParams, history, scoreLogs, total, error, refetch } =
+    const { loading, queryParams, scoreLogs, total, error, refetch } =
       this.props;
 
     const tablehead = [
@@ -136,7 +133,6 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       <Sidebar
         loadingMainQuery={loading}
         queryParams={queryParams}
-        history={history}
         refetch={refetch}
       />
     );

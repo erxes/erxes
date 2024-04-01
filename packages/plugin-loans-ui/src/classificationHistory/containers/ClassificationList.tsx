@@ -11,12 +11,11 @@ import { useMutation, useQuery } from '@apollo/client';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const ClassificationListContainer = (props: Props) => {
   const [loading, setLoading] = useState(false);
-  const { history, queryParams } = props;
+  const { queryParams } = props;
   const classifications = useQuery<MainQueryResponse>(
     gql(queries.classifications),
     {

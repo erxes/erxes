@@ -9,8 +9,6 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { VoucherCampaignDetailQueryResponse } from '../../../configs/voucherCampaign/types';
@@ -20,14 +18,12 @@ import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   vouchersMainQuery: MainQueryResponse;
   voucherCampaignDetailQuery: VoucherCampaignDetailQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
@@ -48,7 +44,6 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
       vouchersMainQuery,
       voucherCampaignDetailQuery,
       vouchersRemove,
-      history,
     } = this.props;
 
     if (

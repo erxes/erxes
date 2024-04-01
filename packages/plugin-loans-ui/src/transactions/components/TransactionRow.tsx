@@ -15,9 +15,9 @@ import TransactionForm from "../containers/TransactionForm";
 import { ITransaction } from "../types";
 import { __ } from "coreui/utils";
 import EBarimtForm from "./EBarimtForm";
+
 type Props = {
   transaction: ITransaction;
-  history: any;
   isChecked: boolean;
   toggleBulk: (transaction: ITransaction, isChecked?: boolean) => void;
 };
@@ -34,7 +34,6 @@ function displayNumber(transaction, name) {
 
 function TransactionRow({
   transaction,
-  history,
   isChecked,
   toggleBulk,
 }: Props) {

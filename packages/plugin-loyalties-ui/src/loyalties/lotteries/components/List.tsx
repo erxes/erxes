@@ -16,18 +16,16 @@ import {
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import { ILottery } from "../types";
 import { ILotteryCampaign } from "../../../configs/lotteryCampaign/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import LotteryForm from "../containers/Form";
 import LotteryRow from "./Row";
 import { LoyaltiesTableWrapper } from "../../common/styles";
-import React from "react";
+import React, {useState} from "react";
 import Sidebar from "./Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
 import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
+interface IProps  {
   lotteries: ILottery[];
   currentCampaign?: ILotteryCampaign;
   loading: boolean;
@@ -43,65 +41,52 @@ interface IProps extends IRouterProps {
     doc: { lotteryIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
-type State = {
-  searchValue?: string;
-};
-
-class LotteriesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, lotteries } = this.props;
+const  LotteriesList=(props:IProps)=> {
+  let timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue)
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const onChange = () => {
+    const { toggleAll, lotteries } = props;
     toggleAll(lotteries, "lotteries");
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+    setSearchValue( searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate,location, "page");
+      router.setParams(navigate,location, { searchValue });
     }, 500);
   };
 
-  removeLotteries = (lotteries) => {
+  const removeLotteries = (lotteries) => {
     const lotteryIds: string[] = [];
 
     lotteries.forEach((lottery) => {
       lotteryIds.push(lottery._id);
     });
 
-    this.props.removeLotteries({ lotteryIds }, this.props.emptyBulk);
+    props.removeLotteries({ lotteryIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       lotteries,
-      history,
       loading,
       toggleBulk,
       bulk,
@@ -109,7 +94,7 @@ class LotteriesList extends React.Component<IProps, State> {
       totalCount,
       queryParams,
       currentCampaign,
-    } = this.props;
+    } = props;
 
     const mainContent = (
       <LoyaltiesTableWrapper>
@@ -120,7 +105,7 @@ class LotteriesList extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentclass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th>
@@ -147,7 +132,6 @@ class LotteriesList extends React.Component<IProps, State> {
                 lottery={lottery}
                 isChecked={bulk.includes(lottery)}
                 key={lottery._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -173,7 +157,7 @@ class LotteriesList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeLotteries(bulk);
+              removeLotteries(bulk);
             })
             .catch((error) => {
               Alert.error(error.message);
@@ -197,10 +181,10 @@ class LotteriesList extends React.Component<IProps, State> {
           <FormControl
             type="text"
             placeholder={__("Type to search")}
-            onChange={this.search}
-            value={this.state.searchValue}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -238,7 +222,6 @@ class LotteriesList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
             isAward={true}
           />
         }
@@ -259,7 +242,7 @@ class LotteriesList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
 export default LotteriesList;

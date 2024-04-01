@@ -1,16 +1,16 @@
-import React from 'react';
-import queryString from 'query-string';
-import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import { IDonateCampaign } from '../../../configs/donateCampaign/types';
-import { Link } from 'react-router-dom';
-import { SidebarListItem } from '../../common/styles';
+import React from "react";
+import queryString from "query-string";
+import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import { IDonateCampaign } from "../../../configs/donateCampaign/types";
+import { Link } from "react-router-dom";
+import { SidebarListItem } from "../../common/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   refetch: any;
   donateCampaigns: IDonateCampaign[];
@@ -18,20 +18,23 @@ interface IProps {
   loading: boolean;
 }
 
-class List extends React.Component<IProps> {
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { campaignId: null });
+const List = (props: IProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const clearCategoryFilter = () => {
+    router.setParams(navigate, location, { campaignId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.campaignId || '';
+  const isActive = (id: string) => {
+    const { queryParams } = props;
+    const currentGroup = queryParams.campaignId || "";
 
     return currentGroup === id;
   };
 
-  renderContent() {
-    const { donateCampaigns, queryParams } = this.props;
+  const renderContent = () => {
+    const { donateCampaigns, queryParams } = props;
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
@@ -43,30 +46,27 @@ class List extends React.Component<IProps> {
       const name = `${campaign.title} (${campaign.donatesCount})`;
 
       result.push(
-        <SidebarListItem
-          key={campaign._id}
-          isActive={this.isActive(campaign._id)}
-        >
+        <SidebarListItem key={campaign._id} isActive={isActive(campaign._id)}>
           <Link to={`?${qryString}&campaignId=${campaign._id}`}>{name}</Link>
         </SidebarListItem>
       );
     }
 
     return result;
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     return (
       <>
         <Section.Title>
           <Link to={`/erxes-plugin-loyalty/settings/donate`}>
             <Icon icon="cog" />
-            {__('Manage Donate Campaigns')}
+            {__("Manage Donate Campaigns")}
           </Link>
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'campaignId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+            {router.getParam(location, "campaignId") && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -75,14 +75,14 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { donateCampaignsCount, loading } = this.props;
+  const renderCategoryList = () => {
+    const { donateCampaignsCount, loading } = props;
 
     return (
       <DataWithLoader
-        data={this.renderContent()}
+        data={renderContent()}
         loading={loading}
         count={donateCampaignsCount}
         emptyText="There is no donate campaigns"
@@ -90,21 +90,16 @@ class List extends React.Component<IProps> {
         size="small"
       />
     );
-  }
+  };
 
-  render() {
-    return (
-      <Sidebar hasBorder>
-        <Section
-          maxHeight={188}
-          collapsible={this.props.donateCampaignsCount > 5}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar hasBorder>
+      <Section maxHeight={188} $collapsible={props.donateCampaignsCount > 5}>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+    </Sidebar>
+  );
+};
 
 export default List;

@@ -17,7 +17,6 @@ import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 type Props = {
   donate: IDonate;
   currentCampaign?: IDonateCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (donate: IDonate, isChecked?: boolean) => void;
   queryParams: IQueryParams;

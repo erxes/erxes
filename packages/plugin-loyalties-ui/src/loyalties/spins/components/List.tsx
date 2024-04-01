@@ -14,20 +14,18 @@ import {
 } from "@erxes/ui/src/styles/eindex";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { ISpin } from "../types";
 import { ISpinCampaign } from "../../../configs/spinCampaign/types";
 import { LoyaltiesTableWrapper } from "../../common/styles";
-import React from "react";
+import React, {useState} from "react";
 import Sidebar from "./Sidebar";
 import SpinForm from "../containers/Form";
 import SpinRow from "./Row";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
+interface IProps  {
   spins: ISpin[];
   currentCampaign?: ISpinCampaign;
   loading: boolean;
@@ -40,65 +38,52 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   emptyBulk: () => void;
   removeSpins: (doc: { spinIds: string[] }, emptyBulk: () => void) => void;
-  history: any;
   queryParams: any;
 }
 
-type State = {
-  searchValue?: string;
-};
+const SpinsList =(props:IProps) => {
+  let timer;
+const [searchValue, setSearchValue ] = useState(props.searchValue)
+const navigate = useNavigate()
+const location = useLocation()
 
-class SpinsList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, spins } = this.props;
+const onChange = () => {
+    const { toggleAll, spins } = props;
     toggleAll(spins, "spins");
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+    setSearchValue( searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate,location, "page");
+      router.setParams(navigate,location, { searchValue });
     }, 500);
   };
 
-  removeSpins = (spins) => {
+  const removeSpins = (spins) => {
     const spinIds: string[] = [];
 
     spins.forEach((spin) => {
       spinIds.push(spin._id);
     });
 
-    this.props.removeSpins({ spinIds }, this.props.emptyBulk);
+    props.removeSpins({ spinIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       spins,
-      history,
       loading,
       toggleBulk,
       bulk,
@@ -106,7 +91,7 @@ class SpinsList extends React.Component<IProps, State> {
       totalCount,
       queryParams,
       currentCampaign,
-    } = this.props;
+    } = props;
 
     const mainContent = (
       <LoyaltiesTableWrapper>
@@ -117,7 +102,7 @@ class SpinsList extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentclass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th>
@@ -141,7 +126,6 @@ class SpinsList extends React.Component<IProps, State> {
                 spin={spin}
                 isChecked={bulk.includes(spin)}
                 key={spin._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -167,7 +151,7 @@ class SpinsList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeSpins(bulk);
+              removeSpins(bulk);
             })
             .catch((error) => {
               Alert.error(error.message);
@@ -191,10 +175,10 @@ class SpinsList extends React.Component<IProps, State> {
           <FormControl
             type="text"
             placeholder={__("Type to search")}
-            onChange={this.search}
-            value={this.state.searchValue}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -232,7 +216,6 @@ class SpinsList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
           />
         }
         content={
@@ -252,7 +235,7 @@ class SpinsList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
 export default SpinsList;

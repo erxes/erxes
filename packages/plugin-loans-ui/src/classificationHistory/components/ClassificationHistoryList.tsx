@@ -7,7 +7,6 @@ import { ClassificationHistoryTableWrapper } from "../styles";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IPeriodLock } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import PeriodLockRow from "./ClassificationHistoryRow";
@@ -17,11 +16,11 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-// import { withRouter } from 'react-router-dom';
 import { menuContracts } from "../../constants";
 import withConsumer from "../../withConsumer";
+import { useNavigate } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   classificationHistory: IPeriodLock[];
   loading: boolean;
   searchValue: string;
@@ -36,7 +35,6 @@ interface IProps extends IRouterProps {
     doc: { classificationIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
   currentUser: IUser;
 }
@@ -48,7 +46,6 @@ const ClassificationHistoryList = (props: IProps) => {
     toggleAll,
     classificationHistory,
     emptyBulk,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -57,6 +54,7 @@ const ClassificationHistoryList = (props: IProps) => {
     queryParams,
     currentUser,
   } = props;
+  const navigate = useNavigate()
 
   const onChange = () => {
     toggleAll(classificationHistory, "classificationHistory");
@@ -67,13 +65,12 @@ const ClassificationHistoryList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -134,7 +131,6 @@ const ClassificationHistoryList = (props: IProps) => {
               periodLock={periodLock}
               isChecked={bulk.includes(periodLock)}
               key={periodLock._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

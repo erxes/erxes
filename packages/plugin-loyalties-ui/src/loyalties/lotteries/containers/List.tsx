@@ -9,8 +9,6 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import React from 'react';
@@ -20,14 +18,12 @@ import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   lotteriesMainQuery: MainQueryResponse;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -48,7 +44,6 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
       lotteriesMainQuery,
       lotteryCampaignDetailQuery,
       lotteriesRemove,
-      history,
     } = this.props;
 
     if (

@@ -19,7 +19,6 @@ import _ from "lodash";
 type Props = {
   assignment: IAssignment;
   currentCampaign?: IAssignmentCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (assignment: IAssignment, isChecked?: boolean) => void;
   queryParams: IQueryParams;

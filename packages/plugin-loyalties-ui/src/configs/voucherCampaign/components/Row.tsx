@@ -13,7 +13,6 @@ import { VOUCHER_TYPES } from "../../../constants";
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (voucherCampaign: IVoucherCampaign, isChecked?: boolean) => void;
 };
@@ -31,7 +30,7 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    const { voucherCampaign, history, toggleBulk, isChecked } = this.props;
+    const { voucherCampaign, toggleBulk, isChecked } = this.props;
 
     const onChange = (e) => {
       if (toggleBulk) {

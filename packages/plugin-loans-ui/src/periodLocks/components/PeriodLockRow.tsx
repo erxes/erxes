@@ -8,10 +8,10 @@ import Icon from "@erxes/ui/src/components/Icon";
 import { formatValue } from "@erxes/ui/src/utils/core";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   periodLock: IPeriodLock;
-  history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
 };
@@ -43,7 +43,8 @@ function renderEditAction(periodLock: IPeriodLock) {
   return renderFormTrigger(trigger, periodLock);
 }
 
-function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
+function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate()
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
@@ -55,7 +56,7 @@ function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
   };
 
   const onTrClick = () => {
-    history.push(`/erxes-plugin-loan/periodLock-details/${periodLock._id}`);
+    navigate(`/erxes-plugin-loan/periodLock-details/${periodLock._id}`);
   };
 
   return (

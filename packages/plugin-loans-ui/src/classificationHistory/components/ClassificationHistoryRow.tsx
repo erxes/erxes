@@ -7,13 +7,8 @@ import { IPeriodLock } from "../types";
 
 type Props = {
   periodLock: IPeriodLock;
-  history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(periodLock, name, toFormatNumber?: boolean) {

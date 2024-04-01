@@ -13,20 +13,19 @@ import {
   MainStyleTitle as Title,
 } from "@erxes/ui/src/styles/eindex";
 
-// import { withRouter } from 'react-router-dom';
 import AssignmentForm from "../containers/Form";
 import AssignmentRow from "./Row";
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import { IAssignment } from "../types";
 import { IAssignmentCampaign } from "../../../configs/assignmentCampaign/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { LoyaltiesTableWrapper } from "../../common/styles";
-import React from "react";
+import React, {useState} from "react";
 import Sidebar from "./Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
 import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   assignments: IAssignment[];
   currentCampaign?: IAssignmentCampaign;
   loading: boolean;
@@ -41,7 +40,6 @@ interface IProps extends IRouterProps {
     doc: { assignmentIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
@@ -49,57 +47,49 @@ type State = {
   searchValue?: string;
 };
 
-class AssignmentsList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+const AssignmentsList =(props:IProps) => {
+  let timer;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState(props.searchValue)
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, assignments } = this.props;
+  const onChange = () => {
+    const { toggleAll, assignments } = props;
     toggleAll(assignments, "assignments");
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+    setSearchValue(searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate,location, "page");
+      router.setParams(navigate,location, { searchValue });
     }, 500);
   };
 
-  removeAssignments = (assignments) => {
+  const removeAssignments = (assignments) => {
     const assignmentIds: string[] = [];
 
     assignments.forEach((assignment) => {
       assignmentIds.push(assignment._id);
     });
 
-    this.props.removeAssignments({ assignmentIds }, this.props.emptyBulk);
+    props.removeAssignments({ assignmentIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       assignments,
-      history,
       loading,
       toggleBulk,
       bulk,
@@ -107,7 +97,7 @@ class AssignmentsList extends React.Component<IProps, State> {
       totalCount,
       queryParams,
       currentCampaign,
-    } = this.props;
+    } = props;
 
     const mainContent = (
       <LoyaltiesTableWrapper>
@@ -118,7 +108,7 @@ class AssignmentsList extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentclass="checkbox"
-                  onChange={this.onChange}
+                  onChange={onChange}
                 />
               </th>
               <th>
@@ -136,7 +126,6 @@ class AssignmentsList extends React.Component<IProps, State> {
                 assignment={assignment}
                 isChecked={bulk.includes(assignment)}
                 key={assignment._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -158,7 +147,6 @@ class AssignmentsList extends React.Component<IProps, State> {
         <AssignmentForm
           {...props}
           queryParams={queryParams}
-          history={history}
         />
       );
     };
@@ -168,7 +156,7 @@ class AssignmentsList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeAssignments(bulk);
+              removeAssignments(bulk);
             })
             .catch((error) => {
               Alert.error(error.message);
@@ -192,10 +180,10 @@ class AssignmentsList extends React.Component<IProps, State> {
           <FormControl
             type="text"
             placeholder={__("Type to search")}
-            onChange={this.search}
-            value={this.state.searchValue}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -233,7 +221,6 @@ class AssignmentsList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
           />
         }
         content={
@@ -253,7 +240,7 @@ class AssignmentsList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
 export default AssignmentsList;

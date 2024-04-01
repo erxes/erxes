@@ -2,7 +2,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const LogList = asyncComponent(
   () =>
@@ -11,10 +11,9 @@ const LogList = asyncComponent(
 
 const LogListComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <LogList queryParams={queryParams} history={navigate} />;
+  return <LogList queryParams={queryParams} />;
 };
 
 const routes = () => {
