@@ -4,6 +4,7 @@ import { numbers, symbols } from './constants';
 import { Icon } from '@erxes/ui/src/components';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
+import moment from 'moment';
 
 export const formatPhone = (phone) => {
   var num;
@@ -146,4 +147,17 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         isAvailable,
       }),
     );
+};
+
+export const calculateTimeElapsed = (startedMoment) => {
+  const now = moment(new Date());
+  return now.diff(startedMoment, 'seconds');
+};
+
+export const extractPhoneNumberFromCounterpart = (counterpart) => {
+  if (!counterpart) return '';
+  const startIndex = counterpart.indexOf(':') + 1;
+  const endIndex = counterpart.indexOf('@');
+  if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
+  return counterpart.slice(startIndex, endIndex);
 };

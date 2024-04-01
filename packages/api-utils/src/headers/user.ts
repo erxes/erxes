@@ -1,6 +1,6 @@
 import { IncomingHttpHeaders } from 'http';
 
-export const userHeaderName = 'erxes-user';
+export const userHeaderName = 'user';
 
 export function extractUserFromHeader(headers: IncomingHttpHeaders): any {
   const userHeader = headers[userHeaderName];
