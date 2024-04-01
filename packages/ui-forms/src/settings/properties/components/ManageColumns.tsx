@@ -1,4 +1,3 @@
-import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -23,6 +22,19 @@ const Header = styled.div`
     text-transform: uppercase;
     padding: 5px 20px 5px 30px;
     font-weight: bold;
+  }
+`;
+
+const Footer = styled.div`
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dotted ${colors.borderPrimary};
+  font-size: 11px;
+  ul {
+    float: left;
+  }
+  > i {
+    padding: 3px;
   }
 `;
 

@@ -3,7 +3,7 @@ import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import Icon from '@erxes/ui/src/components/Icon';
 import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
-import CommentForm from '@erxes/ui-cards/src/comment/containers/Form';
+import CommentForm from '@erxes/ui-tickets/src/comment/containers/Form';
 import React from 'react';
 import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
@@ -12,9 +12,9 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const TicketCommentForm = asyncComponent(
   () =>
-    isEnabled('cards') &&
+    isEnabled('tickets') &&
     import(
-      /* webpackChunkName: "TicketCommentForm" */ '@erxes/ui-cards/src/boards/containers/TicketCommentForm'
+      /* webpackChunkName: "TicketCommentForm" */ '@erxes/ui-tickets/src/boards/containers/TicketCommentForm'
     )
 );
 
@@ -39,12 +39,12 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       currentTab: isEnabled('internalnotes')
         ? 'newNote'
         : isEnabled('clientportal')
-        ? 'newComment'
-        : ''
+          ? 'newComment'
+          : '',
     };
   }
 
-  onChangeTab = currentTab => {
+  onChangeTab = (currentTab) => {
     this.setState({ currentTab });
   };
 
@@ -64,7 +64,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === 'ticket' && isEnabled('cards')) {
+    if (currentTab === 'ticket' && isEnabled('tickets')) {
       return (
         <TicketCommentForm
           contentType={`${contentType}_comment`}
