@@ -4,11 +4,11 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Tip
+  Tip,
 } from '@erxes/ui/src/components';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import Select from 'react-select-plus';
@@ -44,7 +44,7 @@ class PerSettings extends React.Component<Props, State> {
       config: props.config,
       hasOpen: false,
       brandRules: props.config.brandRules || {},
-      fieldsCombined: []
+      fieldsCombined: [],
     };
 
     if (isEnabled('forms')) {
@@ -52,12 +52,12 @@ class PerSettings extends React.Component<Props, State> {
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal'
-          }
+            contentType: 'deals:deal',
+          },
         })
         .then(({ data }) => {
           this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [],
           });
         });
     }
@@ -75,7 +75,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config, brandRules } = this.state;
@@ -86,13 +86,13 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
   };
 
-  onChangeCombo = option => {
+  onChangeCombo = (option) => {
     this.onChangeConfig('defaultPay', option.value);
   };
 
@@ -110,7 +110,7 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onresponseCustomFieldChange = option => {
+  onresponseCustomFieldChange = (option) => {
     const value = !option ? '' : option.value.toString();
     this.onChangeConfig('responseField', value);
   };
@@ -158,18 +158,18 @@ class PerSettings extends React.Component<Props, State> {
           hasPayment: true,
           hasVat: false,
           hasCitytax: false,
-          defaultPay: 'debtAmount'
-        }
-      }
+          defaultPay: 'debtAmount',
+        },
+      },
     });
   };
 
-  removeConfig = brandId => {
+  removeConfig = (brandId) => {
     const { brandRules } = this.state;
     const newConfig = { ...brandRules };
     delete newConfig[brandId];
     this.setState({
-      brandRules: newConfig
+      brandRules: newConfig,
     });
   };
 
@@ -181,14 +181,14 @@ class PerSettings extends React.Component<Props, State> {
     }
     brandRules[brandId] = { ...brandRules[brandId], [key]: value };
     this.setState({
-      brandRules: brandRules
+      brandRules: brandRules,
     });
   };
 
   renderPerConfig() {
     const { brandRules } = this.state;
 
-    return Object.keys(brandRules).map(key => {
+    return Object.keys(brandRules).map((key) => {
       return (
         <GroupWrapper key={key}>
           <FormGroup>
@@ -199,9 +199,9 @@ class PerSettings extends React.Component<Props, State> {
               name="brandId"
               customOption={{
                 label: 'No Brand (noBrand)',
-                value: 'noBrand'
+                value: 'noBrand',
               }}
-              onSelect={brand => this.updateConfig(brand, 'brandId', brand)}
+              onSelect={(brand) => this.updateConfig(brand, 'brandId', brand)}
               multi={false}
             />
           </FormGroup>
@@ -211,7 +211,7 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>User Email</ControlLabel>
                 <FormControl
                   value={brandRules[key].userEmail}
-                  onChange={e =>
+                  onChange={(e) =>
                     this.updateConfig(key, 'userEmail', (e.target as any).value)
                   }
                   required={true}
@@ -222,7 +222,7 @@ class PerSettings extends React.Component<Props, State> {
                 <FormControl
                   componentClass="checkbox"
                   checked={brandRules[key].hasVat}
-                  onChange={e =>
+                  onChange={(e) =>
                     this.updateConfig(key, 'hasVat', (e.target as any).checked)
                   }
                 />
@@ -233,7 +233,7 @@ class PerSettings extends React.Component<Props, State> {
                 <ControlLabel>default Pay</ControlLabel>
                 <Select
                   value={brandRules[key].defaultPay}
-                  onChange={option =>
+                  onChange={(option) =>
                     this.updateConfig(key, 'defaultPay', option.value)
                   }
                   clearable={false}
@@ -241,7 +241,7 @@ class PerSettings extends React.Component<Props, State> {
                   options={[
                     { value: 'debtAmount', label: 'debtAmount' },
                     { value: 'cashAmount', label: 'cashAmount' },
-                    { value: 'cardAmount', label: 'cardAmount' }
+                    { value: 'cardAmount', label: 'cardAmount' },
                   ]}
                 />
               </FormGroup>
@@ -250,7 +250,7 @@ class PerSettings extends React.Component<Props, State> {
                 <FormControl
                   componentClass="checkbox"
                   checked={brandRules[key].hasCitytax}
-                  onChange={e =>
+                  onChange={(e) =>
                     this.updateConfig(
                       key,
                       'hasCitytax',
@@ -313,9 +313,9 @@ class PerSettings extends React.Component<Props, State> {
                 name="responseField"
                 value={config.responseField}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map(f => ({
+                options={(this.state.fieldsCombined || []).map((f) => ({
                   value: f.name,
-                  label: f.label
+                  label: f.label,
                 }))}
               />
             </FormGroup>
