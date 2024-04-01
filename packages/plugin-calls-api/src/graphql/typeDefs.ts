@@ -45,8 +45,8 @@ const types = `
     _id: String 
     erxesApiId: String
     integrationId: String
-    senderPhoneNumber: String
-    recipientPhoneNumber: String
+    callerNumber: String
+    operatorPhone: String
     callId: String
     channels: [CallChannel]
   }

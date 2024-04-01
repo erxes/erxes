@@ -37,8 +37,8 @@ const receiveCall = async (
     try {
       conversation = await models.Conversations.create({
         callId: callID,
-        senderPhoneNumber: primaryPhone,
-        recipientPhoneNumber: recipientId,
+        callerNumber: primaryPhone,
+        operatorPhone: recipientId,
         integrationId: inboxIntegration._id,
       });
     } catch (e) {
@@ -91,7 +91,6 @@ const receiveCall = async (
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: user._id,
         }),
       },
       isRPC: true,

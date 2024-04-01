@@ -256,9 +256,16 @@ const KeyPad = (props: Props, context) => {
 
   const handleKeyDown = (event) => {
     const keyValue = event.key;
+    const input = inputRef.current;
 
     if (/^[0-9]$/.test(keyValue)) {
       setNumber((prevNumber) => prevNumber + keyValue);
+    } else if (
+      (keyValue === 'Delete' || keyValue === 'Backspace') &&
+      input.selectionStart === 0 &&
+      input.selectionEnd === number.length
+    ) {
+      setNumber('');
     } else if (
       (keyValue === 'Delete' || keyValue === 'Backspace') &&
       number.length > 0
@@ -269,6 +276,12 @@ const KeyPad = (props: Props, context) => {
     if (keyValue === 'Enter') {
       handleCall();
     }
+  };
+  const handlePaste = (event) => {
+    const pastedText = event.clipboardData?.getData('text');
+    const maxLength = 10;
+    const truncatedText = pastedText?.substring(0, maxLength);
+    setNumber(truncatedText || '');
   };
 
   const onBack = () => setShowTrigger(false);
@@ -453,6 +466,8 @@ const KeyPad = (props: Props, context) => {
             autoFocus={true}
             defaultValue={number}
             ref={inputRef}
+            onPaste={handlePaste}
+            autoComplete="off"
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
