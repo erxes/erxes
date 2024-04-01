@@ -1138,6 +1138,7 @@ export const uploadFile = async (
   models: IModels,
 ): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const VERSION = getEnv({ name: 'VERSION' });
   const UPLOAD_SERVICE_TYPE = await getConfig(
     'UPLOAD_SERVICE_TYPE',
     'AWS',
@@ -1155,7 +1156,7 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, false, models);
+    nameOrLink = await uploadFileCloudflare(file, VERSION === 'saas' ? true : false, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
