@@ -3,17 +3,7 @@ import { checkPermission, paginate, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 
 const findDetail = async (model, _id) => {
-  let detail = await model.findOne({
-    _id,
-  });
-
-  if (!detail) {
-    detail = await model.findOne({
-      code: _id,
-    });
-  }
-
-  return detail;
+  return await model.findOne({ $or: [{ _id }, { code: _id }] });
 };
 
 const buildQuery = (args: any) => {
