@@ -43,22 +43,16 @@ export const setupMessageConsumers = async () => {
     },
   );
 
-  consumeRPCQueue(
-    'savings:contracts.updateContractNumber',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('savings:contracts.update', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { selector, modifier } = data;
+    const result = await models.Contracts.updateOne(selector, modifier);
 
-      return {
-        status: 'success',
-        data: await models.Contracts.updateOne(
-          {
-            _id: data._id,
-          },
-          { $set: { number: data.number } },
-        ),
-      };
-    },
-  );
+    return {
+      status: 'success',
+      data: result,
+    };
+  });
 
   consumeRPCQueue('savings:transactions.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

@@ -9,22 +9,16 @@ module.exports = {
   generateResolvers: (graphqlPubsub) => {
     return {
       phoneCallReceived: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('phoneCallReceived'),
-          async (payload, variables) => {
-            const operatorIds = payload.phoneCallReceived.integration.operatorIds || [];
-
-            return operatorIds.includes(variables.userId);
-          }
-        ),
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `phoneCallReceived:${subdomain}:${userId}`,
+          ),
       },
       sessionTerminateRequested: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('sessionTerminateRequested'),
-          (payload, variables) => {
-            return payload.userId === variables.userId
-          }
-        )
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `sessionTerminateRequested:${subdomain}:${userId}`,
+          ),
       },
     };
   },

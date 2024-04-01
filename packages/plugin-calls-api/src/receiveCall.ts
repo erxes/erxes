@@ -26,8 +26,7 @@ const receiveCall = async (
   }
 
   params.recipientId = integration.phone;
-  const { inboxIntegrationId, primaryPhone, recipientId, direction, callID } =
-    params;
+  const { primaryPhone, recipientId, direction, callID } = params;
 
   const customer = await getOrCreateCustomer(models, subdomain, params);
 
@@ -40,7 +39,7 @@ const receiveCall = async (
         callId: callID,
         senderPhoneNumber: primaryPhone,
         recipientPhoneNumber: recipientId,
-        integrationId: inboxIntegrationId,
+        integrationId: inboxIntegration._id,
       });
     } catch (e) {
       throw new Error(
@@ -92,7 +91,7 @@ const receiveCall = async (
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: recipientId,
+          owner: user._id,
         }),
       },
       isRPC: true,
@@ -117,17 +116,20 @@ const receiveCall = async (
 
   for (const channel of channels) {
     for (const userId of channel.memberIds || []) {
-      graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
-        conversationClientMessageInserted: {
-          _id: Math.random().toString(),
-          content: 'new grandstream message',
-          createdAt: new Date(),
-          customerId: customer.erxesApiId,
-          conversationId: conversation.erxesApiId,
+      graphqlPubsub.publish(
+        `conversationClientMessageInserted:${subdomain}:${userId}`,
+        {
+          conversationClientMessageInserted: {
+            _id: Math.random().toString(),
+            content: 'new grandstream message',
+            createdAt: new Date(),
+            customerId: customer.erxesApiId,
+            conversationId: conversation.erxesApiId,
+          },
+          conversation,
+          integration: inboxIntegration,
         },
-        conversation,
-        integration: inboxIntegration,
-      });
+      );
     }
   }
 

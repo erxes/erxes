@@ -85,7 +85,7 @@ const MessageRowContainer = (props: FinalProps) => {
   const setPause = () =>
     doMutation(setPauseMutation, 'Your broadcast is paused for now.');
   const copy = () => {
-    doMutation(copyMutation, 'broadcast has been copied.').then(() => {
+    doMutation(copyMutation, 'broadcast has been duplicated.').then(() => {
       refetch();
     });
   };
@@ -135,31 +135,31 @@ export default withProps<Props>(
       {
         name: 'removeMutation',
         options: crudMutationsOptions,
-      },
+      }
     ),
     graphql<Props, SetPauseMutationResponse, MutationVariables>(
       gql(mutations.setPause),
       {
         name: 'setPauseMutation',
         options: statusMutationsOptions,
-      },
+      }
     ),
     graphql<Props, SetLiveMutationResponse, MutationVariables>(
       gql(mutations.setLive),
       {
         name: 'setLiveMutation',
         options: statusMutationsOptions,
-      },
+      }
     ),
     graphql<Props, SetLiveManualMutationResponse, MutationVariables>(
       gql(mutations.setLiveManual),
       {
         name: 'setLiveManualMutation',
         options: statusMutationsOptions,
-      },
+      }
     ),
     graphql(gql(mutations.engageMessageCopy), {
       name: 'copyMutation',
-    }),
-  )(withRouter<FinalProps>(MessageRowContainer)),
+    })
+  )(withRouter<FinalProps>(MessageRowContainer))
 );

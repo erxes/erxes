@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
-
 import { generateModels } from './connectionResolver';
 import { listenIntegration } from './utils';
 import {
@@ -116,12 +115,20 @@ export const setupMessageConsumers = async () => {
           data: integration,
         };
       }
-
       return {
         status: 'success',
       };
     },
   );
+
+  consumeRPCQueue('imap:imapMessage.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Messages.createSendMail(data, subdomain, models),
+    };
+  });
 
   // /imap/get-status'
   consumeRPCQueue(

@@ -69,11 +69,11 @@ const chatMutations = {
 
     for (const participant of allParticipantIds) {
       if (participant !== user._id) {
-        graphqlPubsub.publish('chatInserted', {
+        graphqlPubsub.publish(`chatInserted:${participant}`, {
           userId: participant,
         });
 
-        graphqlPubsub.publish('chatUnreadCountChanged', {
+        graphqlPubsub.publish(`chatUnreadCountChanged:${participant}`, {
           userId: participant,
         });
       }
@@ -203,9 +203,11 @@ const chatMutations = {
     const isPinnedUser = chat && chat.isPinnedUserIds.includes(user._id);
 
     if (chat) {
-      graphqlPubsub.publish('chatInserted', {
-        userId: chat.createdUser?._id,
-      });
+      if (chat.createdUser?._id) {
+        graphqlPubsub.publish(`chatInserted:${chat.createdUser._id}`, {
+          userId: chat.createdUser?._id,
+        });
+      }
 
       if (!isPinnedUser) {
         await models.Chats.updateOne(
@@ -238,9 +240,11 @@ const chatMutations = {
     const muteUser = chat && chat.muteUserIds.includes(user._id);
 
     if (chat) {
-      graphqlPubsub.publish('chatInserted', {
-        userId: chat.createdUser?._id,
-      });
+      if (chat.createdUser?._id) {
+        graphqlPubsub.publish(`chatInserted:${chat.createdUser._id}`, {
+          userId: chat.createdUser?._id,
+        });
+      }
 
       if (!muteUser) {
         await models.Chats.updateOne(
@@ -317,15 +321,15 @@ const chatMutations = {
 
     for (const reciever of recievers) {
       if (reciever !== user._id) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
+        graphqlPubsub.publish(`chatUnreadCountChanged:${reciever}`, {
           userId: reciever,
         });
 
-        graphqlPubsub.publish('chatInserted', {
+        graphqlPubsub.publish(`chatInserted:${reciever}`, {
           userId: reciever,
         });
 
-        graphqlPubsub.publish('chatMessageInserted', {
+        graphqlPubsub.publish(`chatMessageInserted:${message.chatId}`, {
           chatMessageInserted: message,
         });
       }
@@ -344,7 +348,7 @@ const chatMutations = {
     const message = await models.ChatMessages.findOne({ _id });
 
     if (message) {
-      graphqlPubsub.publish('chatMessageInserted', {
+      graphqlPubsub.publish(`chatMessageInserted:${message.chatId}`, {
         chatId: message.chatId,
       });
 
@@ -426,7 +430,7 @@ const chatMutations = {
   },
 
   chatTypingInfo(_root, args: { chatId: string; userId?: string }) {
-    graphqlPubsub.publish('chatTypingStatusChanged', {
+    graphqlPubsub.publish(`chatTypingStatusChanged:${args.chatId}`, {
       chatTypingStatusChanged: args,
     });
 
@@ -458,7 +462,7 @@ const chatMutations = {
           user._id,
         );
 
-        graphqlPubsub.publish('chatInserted', {
+        graphqlPubsub.publish(`chatInserted:${user._id}`, {
           userId: user._id,
         });
 
@@ -483,12 +487,8 @@ const chatMutations = {
       },
     );
 
-    graphqlPubsub.publish('chatMessageInserted', {
+    graphqlPubsub.publish(`chatMessageInserted:${message.chatId}`, {
       chatMessageInserted: message,
-    });
-
-    graphqlPubsub.publish('chatReceivedNotification', {
-      chatReceivedNotification: message,
     });
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
@@ -515,11 +515,11 @@ const chatMutations = {
 
     for (const reciever of recievers) {
       if (reciever !== user._id) {
-        graphqlPubsub.publish('chatUnreadCountChanged', {
+        graphqlPubsub.publish(`chatUnreadCountChanged:${reciever}`, {
           userId: reciever,
         });
 
-        graphqlPubsub.publish('chatInserted', {
+        graphqlPubsub.publish(`chatInserted:${reciever}`, {
           userId: reciever,
         });
       }

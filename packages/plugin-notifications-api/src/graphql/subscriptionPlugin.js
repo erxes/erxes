@@ -16,7 +16,7 @@ module.exports = {
           payload,
           _params,
           { dataSources: { gatewayDataSource } },
-          info
+          info,
         ) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
@@ -31,8 +31,10 @@ module.exports = {
           `,
           });
         },
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`notificationInserted:${userId}`),
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `notificationInserted:${subdomain}:${userId}`,
+          ),
       },
 
       notificationRead: {

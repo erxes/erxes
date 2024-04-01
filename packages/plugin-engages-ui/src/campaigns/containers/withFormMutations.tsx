@@ -84,14 +84,14 @@ function withSaveAndEdit<IComponentProps>(Component) {
           return doMutation(
             editMutation,
             { ...doc, _id: messageId },
-            `You successfully updated a broadcast`,
+            `You successfully updated a broadcast`
           );
         }
 
         return doMutation(
           addMutation,
           doc,
-          `You successfully added a broadcast.`,
+          `You successfully added a broadcast.`
         );
       };
 
@@ -118,7 +118,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         isMobile: false,
       };
 
-      const scheduleDate = message.scheduleDate;
+      const scheduleDate = message.scheduleDate || null;
 
       const updatedProps = {
         ...this.props,
@@ -174,7 +174,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
               _id: messageId,
             },
           }),
-        },
+        }
       ),
       graphql<Props, AllUsersQueryResponse>(gql(queries.users), {
         name: 'usersQuery',
@@ -186,7 +186,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
           options: {
             refetchQueries: engageRefetchQueries({}),
           },
-        },
+        }
       ),
       graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesEdit),
@@ -195,9 +195,9 @@ function withSaveAndEdit<IComponentProps>(Component) {
           options: {
             refetchQueries: engageRefetchQueries({ isEdit: true }),
           },
-        },
-      ),
-    )(withRouter<FinalProps>(Container)),
+        }
+      )
+    )(withRouter<FinalProps>(Container))
   );
 }
 

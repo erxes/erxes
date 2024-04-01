@@ -516,3 +516,12 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
+
+export const sendCallsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'calls',
+    ...args,
+  });
+};
