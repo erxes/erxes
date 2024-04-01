@@ -29,7 +29,7 @@ class CompanyDetails extends React.Component<Props> {
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
-      { title }
+      { title },
     ];
 
     const content = (
@@ -45,7 +45,7 @@ class CompanyDetails extends React.Component<Props> {
             target={company.primaryName || ''}
             contentId={company._id}
             contentType="contacts:company"
-            extraTabs={[{ name: 'cards:task', label: 'Task' }]}
+            extraTabs={[{ name: 'tasks:task', label: 'Task' }]}
           />
         )}
       </>

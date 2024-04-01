@@ -80,12 +80,12 @@ class CustomerDetails extends React.Component<Props> {
       fields,
       taggerRefetchQueries,
       fieldsVisibility,
-      deviceFieldsVisibility
+      deviceFieldsVisibility,
     } = this.props;
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
-      { title: renderFullName(customer) }
+      { title: renderFullName(customer) },
     ];
 
     const content = (
@@ -105,9 +105,9 @@ class CustomerDetails extends React.Component<Props> {
             extraTabs={[
               { name: 'inbox:conversation', label: 'Conversation' },
               { name: 'imap:email', label: 'Email' },
-              { name: 'cards:task', label: 'Task' },
+              { name: 'tasks:task', label: 'Task' },
               // { name: 'sms', label: 'SMS' },
-              { name: 'engages:campaign', label: 'Campaign' }
+              { name: 'engages:campaign', label: 'Campaign' },
             ]}
           />
         )}
