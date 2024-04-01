@@ -34,7 +34,8 @@ export default {
         const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
-        const document = await models.Documents.findOne({ _id });
+        // findOne _id or code
+        const document = await models.Documents.findOne({ $or: [{ _id }, { code: _id }] });
 
         if (!document) {
           return res.send('Not found');

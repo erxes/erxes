@@ -1,15 +1,17 @@
-import { IContentType, IEntryDoc } from '../../types';
+import { EntryContainer, EntryContent } from "./styles";
+import { IContentType, IEntryDoc } from "../../types";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { EntryContainer } from './styles';
-import EntryForm from '../../containers/entries/EntryForm';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Row from './Row';
-import { SubTitle } from '../sites/styles';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import { ContenFooter } from "@erxes/ui/src/layout/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import EntryForm from "../../containers/entries/EntryForm";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import { SubTitle } from "../sites/styles";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   loading: boolean;
@@ -23,7 +25,7 @@ class List extends React.Component<Props> {
   renderRow = () => {
     const { entries, remove, contentType } = this.props;
 
-    return entries.map(entry => (
+    return entries.map((entry) => (
       <Row
         key={entry._id}
         entry={entry}
@@ -61,17 +63,17 @@ class List extends React.Component<Props> {
     const { fields = [] } = contentType;
 
     let content = (
-      <Table hover={true}>
+      <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
-            {fields.map(field => {
+            {fields.map((field) => {
               if (!field.show) {
                 return;
               }
 
               return <th key={field.code}>{field.text}</th>;
             })}
-            <th>{__('Actions')}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -91,10 +93,13 @@ class List extends React.Component<Props> {
     return (
       <EntryContainer className="gjs-one-bg gjs-two-color">
         <SubTitle flexBetween={true}>
-          {contentType.displayName} {__('Entries')}
+          {contentType.displayName} {__("Entries")}
           {this.renderButtons()}
         </SubTitle>
-        {content}
+        <EntryContent>{content}</EntryContent>
+        <ContenFooter>
+          <Pagination count={entriesCount} />
+        </ContenFooter>
       </EntryContainer>
     );
   }

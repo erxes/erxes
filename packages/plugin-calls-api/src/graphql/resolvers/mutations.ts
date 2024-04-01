@@ -6,6 +6,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { ICallHistory } from '../../models/definitions/callHistories';
 import { sendInboxMessage } from '../../messageBroker';
+import { updateConfigs } from '../../helpers';
 
 export interface ISession {
   sessionCode: string;
@@ -159,6 +160,12 @@ const callsMutations = {
     }
 
     return history.remove();
+  },
+
+  async callsUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+    await updateConfigs(models, configsMap);
+
+    return { status: 'ok' };
   },
 };
 

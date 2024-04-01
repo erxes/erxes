@@ -9,6 +9,7 @@ module.exports = {
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
     "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
     "./integrationCustomActions": "./src/components/TokenButton.tsx",
+    './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
   },
 
   routes: {
@@ -26,6 +27,7 @@ module.exports = {
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   integrationDetailsForm: "./integrationDetailsForm",
   integrationCustomActions: "./integrationCustomActions",
+  inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxIntegrations: [
     {
       name: "Grand stream",

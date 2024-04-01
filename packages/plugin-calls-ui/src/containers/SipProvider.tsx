@@ -1,34 +1,37 @@
-import * as moment from "moment";
+import * as moment from 'moment';
 
-import React, { useState } from "react";
-import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import { mutations, queries, subscriptions } from "../graphql";
+import React, { useState } from 'react';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { mutations, queries, subscriptions } from '../graphql';
 
-import { Alert } from "@erxes/ui/src/utils";
-import { CALL_DIRECTION_INCOMING } from "../lib/enums";
-import CallIntegrationForm from "../components/Form";
-import IncomingCallContainer from "./IncomingCall";
-import { ModalTrigger } from "@erxes/ui/src/components";
-import SipProvider from "../components/SipProvider";
-import WidgetContainer from "./Widget";
-import { getSubdomain } from "@erxes/ui/src/utils/core";
-import { setLocalStorage } from "../utils";
-import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { Alert } from '@erxes/ui/src/utils';
+import { CALL_DIRECTION_INCOMING } from '../lib/enums';
+import CallIntegrationForm from '../components/Form';
+import IncomingCallContainer from './IncomingCall';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import SipProvider from '../components/SipProvider';
+import WidgetContainer from './Widget';
+import { getSubdomain } from '@erxes/ui/src/utils/core';
+import { setLocalStorage } from '../utils';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem("config:call_integrations") || "{}")
+    JSON.parse(localStorage.getItem('config:call_integrations') || '{}'),
   );
-  const callInfo = JSON.parse(localStorage.getItem("callInfo") || "{}");
+  const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
   const isConnectCallRequested = JSON.parse(
-    localStorage.getItem("isConnectCallRequested") || "{}"
+    localStorage.getItem('isConnectCallRequested') || '{}',
   );
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
+  const { data: callConfigData, loading: callConfigLoading } = useQuery(
+    gql(queries.callsGetConfigs),
+  );
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession)
+    gql(mutations.callTerminateSession),
   );
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
@@ -38,7 +41,7 @@ const SipProviderContainer = (props) => {
       if (
         !callInfo?.isRegistered ||
         isConnectCallRequested ||
-        isConnectCallRequested === "true"
+        isConnectCallRequested === 'true'
       ) {
         setConfig({
           inboxId: config?.inboxId,
@@ -49,7 +52,7 @@ const SipProviderContainer = (props) => {
           isAvailable: true,
         });
         setLocalStorage(true, true);
-        localStorage.removeItem("isConnectCallRequested");
+        localStorage.removeItem('isConnectCallRequested');
       } else {
         setConfig({
           inboxId: config?.inboxId,
@@ -60,7 +63,7 @@ const SipProviderContainer = (props) => {
           isAvailable: false,
         });
         setLocalStorage(false, false);
-        localStorage.removeItem("isConnectCallRequested");
+        localStorage.removeItem('isConnectCallRequested');
       }
     },
   });
@@ -97,13 +100,13 @@ const SipProviderContainer = (props) => {
     sessionId: string,
     callStartTime: Date,
     callEndTime: Date,
-    callStatus: string
+    callStatus: string,
   ) => {
     let duration = 0;
     if (callStartTime && callEndTime) {
       const startedMoment = moment(callStartTime);
       const endedMoment = moment(callEndTime);
-      duration = endedMoment.diff(startedMoment, "seconds");
+      duration = endedMoment.diff(startedMoment, 'seconds');
     }
 
     updateHistoryMutation({
@@ -114,7 +117,7 @@ const SipProviderContainer = (props) => {
         callDuration: duration,
         callStatus,
       },
-      refetchQueries: ["callHistories"],
+      refetchQueries: ['callHistories'],
     })
       .then()
       .catch((e) => {
@@ -122,7 +125,7 @@ const SipProviderContainer = (props) => {
       });
   };
 
-  if (loading) {
+  if (loading || callConfigLoading) {
     return null;
   }
   if (error) {
@@ -130,6 +133,8 @@ const SipProviderContainer = (props) => {
   }
 
   const { callUserIntegrations } = data;
+  const callsGetConfigs = callConfigData.callsGetConfigs;
+
   if (!callUserIntegrations || callUserIntegrations.length === 0) {
     return null;
   }
@@ -165,31 +170,44 @@ const SipProviderContainer = (props) => {
   }
 
   const filteredIntegration = callUserIntegrations.find(
-    (integrationConfig) => integrationConfig.phone === config.phone
+    (integrationConfig) => integrationConfig.phone === config.phone,
   );
   const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(":");
+  const [host, port] = wsServer?.split(':');
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
 
+  const configsMap = {};
+
+  for (const config of callsGetConfigs) {
+    configsMap[config.code] = config.value;
+  }
+
+  const {
+    STUN_SERVER_URL,
+    TURN_SERVER_URL,
+    TURN_SERVER_USERNAME,
+    TURN_SERVER_CREDENTIAL,
+  } = configsMap as any;
+
   const sipConfig = {
     host,
-    pathname: "/ws",
+    pathname: '/ws',
     user: gsUsername,
     password: gsPassword,
     // autoRegister: true,
-    port: parseInt(port?.toString() || "8089", 10),
+    port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: "stun:stun.l.google.com:19302",
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
       {
-        urls: "turn:relay8.expressturn.com:3478",
-        username: "efVCM7AV4B0436ZEJQ",
-        credential: "PtBTQUgzOtZ1T874",
+        urls: `turn:${TURN_SERVER_URL}` || '',
+        username: TURN_SERVER_USERNAME || '',
+        credential: TURN_SERVER_CREDENTIAL || '',
       },
     ],
   };
