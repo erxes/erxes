@@ -1,17 +1,17 @@
-import { colors, dimensions, typography } from '../../styles';
-import styled, { css } from 'styled-components';
+import { colors, dimensions, typography } from "../../styles";
+import styled, { css } from "styled-components";
 
-import { rgba } from '../../styles/ecolor';
-import styledTS from 'styled-components-ts';
+import { rgba } from "../../styles/ecolor";
+import styledTS from "styled-components-ts";
 
-const inputPadding = '0px';
-const inputHeight = '15px';
-const inputScale = '12px';
-const inputBorderWidth = '2px';
-const textInputHeight = '34px';
+const inputPadding = "0px";
+const inputHeight = "15px";
+const inputScale = "12px";
+const inputBorderWidth = "2px";
+const textInputHeight = "34px";
 
 const Label = styledTS<{ $uppercase?: boolean }>(styled.label)`
-  text-transform: ${(props) => (props.$uppercase ? 'uppercase' : 'none')};
+  text-transform: ${(props) => (props.$uppercase ? "uppercase" : "none")};
   display: inline-block;
   font-weight: ${typography.fontWeightMedium};
   color: ${colors.textPrimary};
@@ -22,12 +22,12 @@ const Label = styledTS<{ $uppercase?: boolean }>(styled.label)`
   }
 `;
 
-const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
+const Formgroup = styledTS<{ $horizontal?: boolean }>(styled.div)`
   margin-bottom: 20px;
   position: relative;
 
   ${(props) =>
-    props.horizontal &&
+    props.$horizontal &&
     css`
       display: flex;
       align-items: center;
@@ -76,7 +76,7 @@ const Input = styledTS<{
       `;
     }
 
-    return '';
+    return "";
   }};
 
   ${(props) => {
@@ -86,7 +86,7 @@ const Input = styledTS<{
       `;
     }
 
-    return '';
+    return "";
   }};
 
   &:hover {
@@ -141,7 +141,7 @@ const Select = styled(styled.select(Input as any))`
 
 const TextArea = styledTS<{
   maxHeight?: number;
-}>(styled(Input).attrs({ as: 'textarea' } as any))`
+}>(styled(Input).attrs({ as: "textarea" } as any))`
   transition: none;
   max-height: ${(props) => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
@@ -160,7 +160,7 @@ const FormLabel = styled.label`
 `;
 
 const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
-  styled.input,
+  styled.input
 )`
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
@@ -171,7 +171,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   position: absolute !important;
   width: 1px !important;
   white-space: nowrap !important;
-  cursor: ${(props) => props.disabled && 'not-allowed'}
+  cursor: ${(props) => props.disabled && "not-allowed"}
 
   &:focus {
     + span {
@@ -218,7 +218,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       display: inline-block;
       vertical-align: text-top;
       border-radius: 2px;
-      cursor: ${(props) => props.disabled && 'not-allowed'}
+      cursor: ${(props) => props.disabled && "not-allowed"}
     }
 
     &:after {
