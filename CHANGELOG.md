@@ -18,7 +18,7 @@
 
 - **segment:** fix segment db connection string ([9519038](https://github.com/erxes/erxes/commit/9519038f3a9e69e6788ef68cb2d3dc97ba59cf19))
 
-### Reverts
+### Bug Fixes
 
 - revert erxes request headers erxes-user to user ([cf0684b](https://github.com/erxes/erxes/commit/cf0684be5d2e7e8bceccd7bb47a4e79b7087a5f0))
 
