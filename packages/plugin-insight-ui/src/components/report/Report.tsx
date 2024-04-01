@@ -31,7 +31,6 @@ import {
 
 type Props = {
   queryParams: any;
-  history: any;
 
   report: IReport;
   loading: boolean;
@@ -45,7 +44,6 @@ type Props = {
 const Report = (props: Props) => {
   const {
     queryParams,
-    history,
     report,
     loading,
     reportChartsRemove,
@@ -100,7 +98,6 @@ const Report = (props: Props) => {
         </Button>
         <SelectDashboard
           queryParams={queryParams}
-          history={history}
           data={report}
         />
         <Dropdown drop="down" alignRight={true}>
@@ -212,7 +209,6 @@ const Report = (props: Props) => {
           </span>
         </ChartTitle>
         <ChartRenderer
-          history={history}
           queryParams={queryParams}
           chartType={chart.chartType}
           chartHeight={defaultLayout(chart, index).h * 160}
@@ -270,7 +266,6 @@ const Report = (props: Props) => {
             <RightDrawerContainer width={100}>
               {
                 <Form
-                  history={history}
                   queryParams={queryParams}
                   chart={currentChart}
                   item={report}

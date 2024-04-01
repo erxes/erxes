@@ -22,6 +22,7 @@ import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import { router } from '@erxes/ui/src/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -33,7 +34,6 @@ type Props = {
     contentType: string;
     subTypes: string[];
   }>;
-  history: any;
   remove: (_id: string) => void;
   loading: boolean;
 };
@@ -44,10 +44,12 @@ function List({
   contentTypes,
   list,
   totalCount,
-  history,
   remove,
   loading
 }: Props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   let timer;
 
   const typeObject = contentTypes.find(
@@ -62,8 +64,8 @@ function List({
     const inputValue = e.target.value;
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue: inputValue });
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue: inputValue });
     }, 500);
   };
 
@@ -87,7 +89,6 @@ function List({
     const props = {
       ...modalProps,
       contentType,
-      history
     };
 
     return <Form {...props} />;
@@ -151,7 +152,7 @@ function List({
   };
 
   const title = (
-    <Title capitalize={true}>
+    <Title $capitalize={true}>
       {__(` ${typeObject?.label || ''} Documents (${totalCount})`)}
     </Title>
   );

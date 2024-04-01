@@ -1,27 +1,27 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 
-import RTG from 'react-transition-group';
-import Dropdown from 'react-bootstrap/Dropdown';
+import RTG from "react-transition-group";
+import Dropdown from "react-bootstrap/Dropdown";
 
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import Box from '@erxes/ui/src/components/Box';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import Box from "@erxes/ui/src/components/Box";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import FormContainer from '../../containers/report/Form';
-import SectionList from '../../containers/section/List';
-import { RightDrawerContainer } from '../../styles';
-import { IReport, ISection } from '../../types';
+import FormContainer from "../../containers/report/Form";
+import SectionList from "../../containers/section/List";
+import { RightDrawerContainer } from "../../styles";
+import { IReport, ISection } from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 
   reports: IReport[];
@@ -32,8 +32,9 @@ type Props = {
 };
 
 const ReportSection = (props: Props) => {
-  const { queryParams, history, reports, sections, loading, removeReports } =
-    props;
+  const { queryParams, reports, sections, loading, removeReports } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const wrapperRef = useRef<any>(null);
 
@@ -60,7 +61,7 @@ const ReportSection = (props: Props) => {
           >
             <Icon icon="plus-1" />
 
-            {__('Report')}
+            {__("Report")}
           </a>
         </li>
       </Dropdown.Menu>
@@ -76,7 +77,7 @@ const ReportSection = (props: Props) => {
           setShowDrawer(!showDrawer);
         }}
       >
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -86,7 +87,7 @@ const ReportSection = (props: Props) => {
   const renderRemoveAction = (report: any) => {
     return (
       <Button btnStyle="link" onClick={() => removeReports([report._id])}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="times-circle" />
         </Tip>
       </Button>
@@ -94,14 +95,14 @@ const ReportSection = (props: Props) => {
   };
 
   const handleClick = (reportId) => {
-    router.removeParams(history, ...Object.keys(queryParams));
-    router.setParams(history, { reportId });
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
+    router.setParams(navigate, location, { reportId });
   };
 
   const renderListWithoutSection = () => {
     const items = reports.filter(
       (report) =>
-        report.sectionId === null || !report.hasOwnProperty('sectionId'),
+        report.sectionId === null || !report.hasOwnProperty("sectionId")
     );
 
     if (items.length === 0) {
@@ -176,7 +177,6 @@ const ReportSection = (props: Props) => {
             {
               <FormContainer
                 queryParams={queryParams}
-                history={history}
                 reportId={currentReport._id}
                 closeDrawer={closeDrawer}
               />

@@ -1,25 +1,25 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import RTG from 'react-transition-group';
-import { capitalize } from 'lodash';
+import Dropdown from "react-bootstrap/Dropdown";
+import RTG from "react-transition-group";
+import { capitalize } from "lodash";
 
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import Box from '@erxes/ui/src/components/Box';
-import Icon from '@erxes/ui/src/components/Icon';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Tip from "@erxes/ui/src/components/Tip";
+import Button from "@erxes/ui/src/components/Button";
+import Box from "@erxes/ui/src/components/Box";
+import Icon from "@erxes/ui/src/components/Icon";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import FormContainer from '../../containers/goal/Form';
-import { RightDrawerContainer } from '../../styles';
-import { IGoalType, ISection } from '../../types';
+import FormContainer from "../../containers/goal/Form";
+import { RightDrawerContainer } from "../../styles";
+import { IGoalType, ISection } from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 
   goals: IGoalType[];
@@ -29,7 +29,9 @@ type Props = {
 };
 
 const GoalSection = (props: Props) => {
-  const { goals, sections, queryParams, history, removeGoalTypes } = props;
+  const { goals, sections, queryParams, removeGoalTypes } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const wrapperRef = useRef<any>(null);
 
@@ -57,7 +59,7 @@ const GoalSection = (props: Props) => {
           >
             <Icon icon="plus-1" />
 
-            {__('Goal')}
+            {__("Goal")}
           </a>
         </li>
       </Dropdown.Menu>
@@ -73,7 +75,7 @@ const GoalSection = (props: Props) => {
           setShowDrawer(!showDrawer);
         }}
       >
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -83,7 +85,7 @@ const GoalSection = (props: Props) => {
   const renderRemoveAction = (goal: any) => {
     return (
       <Button btnStyle="link" onClick={() => removeGoalTypes([goal._id])}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="times-circle" />
         </Tip>
       </Button>
@@ -91,8 +93,8 @@ const GoalSection = (props: Props) => {
   };
 
   const handleClick = (goalId) => {
-    router.removeParams(history, ...Object.keys(queryParams));
-    router.setParams(history, { goalId });
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
+    router.setParams(navigate, location, { goalId });
   };
 
   const renderContent = () => {
@@ -140,7 +142,6 @@ const GoalSection = (props: Props) => {
             {
               <FormContainer
                 queryParams={queryParams}
-                history={history}
                 goalId={currentGoal._id}
                 closeDrawer={closeDrawer}
               />

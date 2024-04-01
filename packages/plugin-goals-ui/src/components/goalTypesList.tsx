@@ -18,7 +18,6 @@ import {
 import GoalRow from "./goalRow";
 import { GoalTypesTableWrapper } from "../styles";
 import { IGoalType } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import React from "react";
 import Sidebar from "./Sidebar";
 import { Title } from "@erxes/ui-settings/src/styles";
@@ -34,7 +33,6 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   remove: (doc: { goalTypeIds: string[] }, emptyBulk: () => void) => void;
-  history: any;
   queryParams: any;
 };
 
@@ -50,7 +48,6 @@ const goalTypesList = (props: Props) => {
     isAllSelected,
     emptyBulk,
     remove,
-    history,
     queryParams,
   } = props;
 
@@ -146,7 +143,6 @@ const goalTypesList = (props: Props) => {
                 goalType={goalType}
                 isChecked={bulk.includes(goalType)}
                 key={goalType._id}
-                history={history}
                 toggleBulk={toggleBulk}
               />
             ))}

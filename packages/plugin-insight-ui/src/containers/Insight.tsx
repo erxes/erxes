@@ -1,35 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { router } from '@erxes/ui/src/utils';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { router } from "@erxes/ui/src/utils";
 
-import Insight from '../components/Insight';
-import { queries } from '../graphql';
+import Insight from "../components/Insight";
+import { queries } from "../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Dashboard = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InsightList" */ '../containers/dashboard/Dashboard'
-    ),
+      /* webpackChunkName: "InsightList" */ "../containers/dashboard/Dashboard"
+    )
 );
 
 const Goal = asyncComponent(
-  () => import(/* webpackChunkName: "InsightList" */ '../containers/goal/Goal'),
+  () => import(/* webpackChunkName: "InsightList" */ "../containers/goal/Goal")
 );
 
 const Report = asyncComponent(
   () =>
-    import(/* webpackChunkName: "InsightList" */ '../containers/report/Report'),
+    import(/* webpackChunkName: "InsightList" */ "../containers/report/Report")
 );
 
 const Empty = asyncComponent(
-  () => import(/* webpackChunkName: "InsightList" */ '../components/Empty'),
+  () => import(/* webpackChunkName: "InsightList" */ "../components/Empty")
 );
 
 type FinalProps = {
-  history: any;
   queryParams: any;
   currentDashboardId: string;
   loading: boolean;
@@ -65,17 +65,19 @@ const InsightContainer = (props: FinalProps) => {
 };
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const withLastDashboard = (props: Props) => {
-  const { queryParams, history } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { queryParams } = props;
   const { goalId, dashboardId, reportId } = queryParams;
 
   const dashboardGetLastQuery = useQuery(gql(queries.insightGetLast), {
     skip: dashboardId || goalId || reportId,
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const dashboard = dashboardGetLastQuery?.data?.insightGetLast;
@@ -87,9 +89,10 @@ const withLastDashboard = (props: Props) => {
       !dashboardGetLastQuery.loading
     ) {
       router.setParams(
-        history,
-        { [dashboard?.type + 'Id']: dashboard?._id },
-        true,
+        navigate,
+        location,
+        { [dashboard?.type + "Id"]: dashboard?._id },
+        true
       );
       return;
     }

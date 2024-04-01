@@ -7,7 +7,6 @@ import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const ConfigsList: React.FC<Props> = (props) => {

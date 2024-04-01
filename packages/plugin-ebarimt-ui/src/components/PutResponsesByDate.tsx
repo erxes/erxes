@@ -21,7 +21,6 @@ interface IProps {
   sumAmount: number;
   bulk?: any[];
   isAllSelected?: boolean;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string, key?: string) => void;

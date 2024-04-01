@@ -38,7 +38,6 @@ const DIMENSION_OPTIONS = [
 ];
 
 type Props = {
-  history: any;
   queryParams: any;
 
   chart?: IChart;
@@ -56,7 +55,6 @@ type Props = {
 
 const Form = (props: Props) => {
   const {
-    history,
     queryParams,
     chart,
     item,
@@ -278,7 +276,6 @@ const Form = (props: Props) => {
                 chartVariables={{ serviceName, templateType }}
                 filter={filters}
                 dimension={dimension}
-                history={history}
                 queryParams={queryParams}
                 chartHeight={800}
               />

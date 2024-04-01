@@ -18,7 +18,6 @@ import { groupServiceTypesByServiceName } from "../../utils";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   dashboard?: IDashboard;
   reportTemplates: IReportTemplate[];

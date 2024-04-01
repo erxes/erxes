@@ -18,9 +18,9 @@ import FormContainer from '../../containers/dashboard/Form';
 import SectionList from '../../containers/section/List';
 import { RightDrawerContainer } from '../../styles';
 import { IDashboard, ISection } from '../../types';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
-  history: any;
   queryParams: any;
 
   sections: ISection[];
@@ -33,13 +33,14 @@ type Props = {
 const DashboardSection = (props: Props) => {
   const {
     queryParams,
-    history,
     sections,
     dashboards,
     loading,
     removeDashboard,
   } = props;
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const wrapperRef = useRef<any>(null);
 
   const [showDrawer, setShowDrawer] = useState<any>(false);
@@ -102,8 +103,8 @@ const DashboardSection = (props: Props) => {
   };
 
   const handleClick = (_id) => {
-    router.removeParams(history, ...Object.keys(queryParams));
-    router.setParams(history, { dashboardId: _id });
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
+    router.setParams(navigate, location, { dashboardId: _id });
   };
 
   const renderListWithoutSection = () => {
@@ -186,7 +187,6 @@ const DashboardSection = (props: Props) => {
             {
               <FormContainer
                 queryParams={queryParams}
-                history={history}
                 dashboardId={currentDashboard._id}
                 closeDrawer={closeDrawer}
               />

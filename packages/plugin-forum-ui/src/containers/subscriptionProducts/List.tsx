@@ -6,7 +6,6 @@ import { mutations, queries } from '../../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IProduct } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import ProductList from '../../components/subscriptionProducts/ProductList';
 import React from 'react';
 import { RemoveMutationResponse } from '../../types';
@@ -19,11 +18,9 @@ import { useQuery } from '@apollo/client';
 
 type FinalProps = {
   queryParams: any;
-  history?: any;
-} & RemoveMutationResponse &
-  IRouterProps;
+} & RemoveMutationResponse;
 
-function List({ removeMutation, queryParams, history }: FinalProps) {
+function List({ removeMutation, queryParams }: FinalProps) {
   const userType = queryParams.userType || null;
   const { loading, error, data } = useQuery(
     gql(queries.forumSubscriptionProductsQuery),
@@ -92,7 +89,6 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     <ProductList
       queryParams={queryParams}
       onDelete={onDelete}
-      history={history}
       renderButton={renderButton}
       products={data?.forumSubscriptionProducts}
     />

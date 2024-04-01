@@ -37,7 +37,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   goal?: IGoalType;
 

@@ -17,7 +17,6 @@ import { getService } from "../../utils";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   report?: IReport;
   reportTemplates: IReportTemplate[];
