@@ -16,6 +16,10 @@ const customersAdd = `
           senderPhoneNumber
           recipientPhoneNumber
           callId
+          channels {
+            _id
+            name
+          }
         }
       customer {
         _id
@@ -150,6 +154,12 @@ const callHistoryRemove = `
     callHistoryRemove(_id: $id)
 }`;
 
+const callsUpdateConfigs = `
+  mutation callsUpdateConfigs($configsMap: JSON!) {
+    callsUpdateConfigs(configsMap: $configsMap)
+  }
+`;
+
 export default {
   callsIntegrationUpdate,
   customersAdd,
@@ -159,4 +169,5 @@ export default {
   callDisconnect,
   callHistoryEdit,
   callHistoryRemove,
+  callsUpdateConfigs,
 };

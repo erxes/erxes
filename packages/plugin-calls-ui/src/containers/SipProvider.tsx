@@ -10,11 +10,9 @@ import CallIntegrationForm from '../components/Form';
 import IncomingCallContainer from './IncomingCall';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import SipProvider from '../components/SipProvider';
-import TerminateSessionForm from '../components/TerminateCallForm';
 import WidgetContainer from './Widget';
-import { setLocalStorage } from '../utils';
-
 import { getSubdomain } from '@erxes/ui/src/utils/core';
+import { setLocalStorage } from '../utils';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 const SipProviderContainer = (props) => {
@@ -22,13 +20,14 @@ const SipProviderContainer = (props) => {
     JSON.parse(localStorage.getItem('config:call_integrations') || '{}'),
   );
   const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
-  const sessionCode = sessionStorage.getItem('sessioncode');
-
   const isConnectCallRequested = JSON.parse(
     localStorage.getItem('isConnectCallRequested') || '{}',
   );
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
+  const { data: callConfigData, loading: callConfigLoading } = useQuery(
+    gql(queries.callsGetConfigs),
+  );
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
@@ -126,7 +125,7 @@ const SipProviderContainer = (props) => {
       });
   };
 
-  if (loading) {
+  if (loading || callConfigLoading) {
     return null;
   }
   if (error) {
@@ -134,6 +133,8 @@ const SipProviderContainer = (props) => {
   }
 
   const { callUserIntegrations } = data;
+  const callsGetConfigs = callConfigData.callsGetConfigs;
+
   if (!callUserIntegrations || callUserIntegrations.length === 0) {
     return null;
   }
@@ -152,36 +153,12 @@ const SipProviderContainer = (props) => {
     />
   );
 
-  const terminateContent = (args) => (
-    <TerminateSessionForm
-      {...args}
-      setConfig={handleSetConfig}
-      removeActiveSession={removeSession}
-    />
-  );
-
   if (!config || !config.inboxId) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
     );
   }
 
-  // if (activeSession && activeSession.callsActiveSession) {
-  //   if (
-  //     (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
-  //       isConnectCallRequested ||
-  //       isConnectCallRequested === "true") &&
-  //     !callInfo?.isUnRegistered
-  //   ) {
-  //     return (
-  //       <ModalTrigger
-  //         title="Call Config Modal"
-  //         content={terminateContent}
-  //         isOpen={true}
-  //       />
-  //     );
-  //   }
-  // }
   if (!config.isAvailable) {
     return (
       <WidgetContainer
@@ -203,6 +180,19 @@ const SipProviderContainer = (props) => {
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
 
+  const configsMap = {};
+
+  for (const config of callsGetConfigs) {
+    configsMap[config.code] = config.value;
+  }
+
+  const {
+    STUN_SERVER_URL,
+    TURN_SERVER_URL,
+    TURN_SERVER_USERNAME,
+    TURN_SERVER_CREDENTIAL,
+  } = configsMap as any;
+
   const sipConfig = {
     host,
     pathname: '/ws',
@@ -212,12 +202,12 @@ const SipProviderContainer = (props) => {
     port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: 'stun:stun.l.google.com:19302',
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
       {
-        urls: 'turn:relay8.expressturn.com:3478',
-        username: 'efVCM7AV4B0436ZEJQ',
-        credential: 'PtBTQUgzOtZ1T874',
+        urls: `turn:${TURN_SERVER_URL}` || '',
+        username: TURN_SERVER_USERNAME || '',
+        credential: TURN_SERVER_CREDENTIAL || '',
       },
     ],
   };

@@ -1,5 +1,6 @@
 import * as PropTypes from 'prop-types';
 
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   CallButton,
   IncomingActionButton,
@@ -10,7 +11,6 @@ import {
   NameCardContainer,
   PhoneNumber,
 } from '../styles';
-import { Alert, __ } from '@erxes/ui/src/utils';
 import { ICallConversation, ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import { callPropType, sipPropType } from '../lib/types';
@@ -157,15 +157,23 @@ const IncomingCall = (props: Props, context) => {
 
   const renderUserInfo = (type?: string) => {
     const inCall = type === 'incall' ? true : false;
+    const hasChannel = conversationDetail?.channels?.length > 0;
+    const channelName = conversationDetail?.channels?.[0]?.name || '';
 
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
         <Avatar user={customer} size={inCall ? 72 : 30} />
-        <h4>{renderFullName(customer || '')}</h4>
+        <h4>{renderFullName(customer || '', true)}</h4>
         {primaryPhone && (
           <PhoneNumber>
-            {primaryPhone} <br /> <h5>{caller.place}</h5>
+            {primaryPhone}
+            {hasChannel && (
+              <span>
+                {__('is calling to')} {channelName}
+              </span>
+            )}
+            <h5>{caller.place}</h5>
           </PhoneNumber>
         )}
       </NameCardContainer>

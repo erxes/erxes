@@ -15,12 +15,30 @@ const types = `
     _id: String! @external
   }
 
+   extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
   }
 
   input CallIntegrationConfigs {
     ${integrationCommonFields}
+  }
+
+  type CallChannel {
+    _id: String!
+    name: String!
+    description: String
+    integrationIds: [String]
+    memberIds: [String]
+    createdAt: Date
+    userId: String!
+    conversationCount: Int
+    openConversationCount: Int
+
+    members: [User]
   }
 
   type CallConversation {
@@ -30,6 +48,7 @@ const types = `
     senderPhoneNumber: String
     recipientPhoneNumber: String
     callId: String
+    channels: [CallChannel]
   }
 
   type CallConversationDetail {
@@ -94,6 +113,8 @@ const queries = `
   callsCustomerDetail(callerNumber: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
+  callsGetConfigs: JSON
+
 `;
 
 const mutations = `
@@ -105,6 +126,7 @@ const mutations = `
   callHistoryAdd(${commonHistoryFields}): CallHistory
   callHistoryEdit(${commonHistoryFields}): CallHistory
   callHistoryRemove(_id: String!): JSON
+  callsUpdateConfigs(configsMap: JSON!): JSON
 `;
 
 const typeDefs = async () => {

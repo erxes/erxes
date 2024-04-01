@@ -142,7 +142,7 @@ const pop = keyframes`
 
 const animationPulse = keyframes`
   0% {
-    box-shadow: 0 0 0 0px rgba(60, 205, 56, 0.2);
+    box-shadow: 0 0 0 0px rgba(60, 205, 56, 0.3);
   }
   100% {
     box-shadow: 0 0 0 10px rgba(60, 205, 56, 0);

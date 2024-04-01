@@ -6,6 +6,7 @@ import {
 } from '@erxes/ui/src/utils/animations';
 import styled, { keyframes } from 'styled-components';
 
+import { NameCardText } from '@erxes/ui/src/components/nameCard/NameCard';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';
@@ -32,23 +33,22 @@ export const Tab = styled(TabTitle)`
 export const TabsContainer = styled(Tabs)`
   height: fit-content;
   border-top: 1px solid ${colors.borderPrimary};
+  border-radius: 0 0 25px 10px;
+  overflow: hidden;
 `;
 
-export const TabContent = styledTS<{ show: boolean }>(styled.div)`
-  display:${(props) => (props.show ? 'block' : 'none')};
+export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
   margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 10px 10px 0 0;
 `;
 
 export const CallHistory = styled.div`
-  padding: 10px 20px 20px 20px;
   height: 392px;
   overflow: auto;
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
 
   h4 {
-    margin-bottom: 0;
+    margin: 10px 20px;
+    font-size: 16px;
   }
 `;
 
@@ -65,13 +65,57 @@ export const Contacts = styled.div`
   }
 `;
 
-export const CallDetail = styledTS<{ isMissedCall: boolean }>(styled.div)`
+export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+  ${(props) =>
+    props.shrink
+      ? `font-weight: 600;
+    font-size: 15px;`
+      : `font-weight: 500;
+    font-size: 18px;`}
+
+    > h5 {
+      margin: 0;
+    }
+
+    > span {
+      display: block;
+      color: ${colors.bgGray};
+      font-size: 13px;
+      margin-top: -5px;
+      margin-bottom: ${dimensions.unitSpacing}px;
+      font-style: italic;
+    }
+`;
+
+export const CallDetail = styledTS<{
+  isMissedCall: boolean;
+  isIncoming: boolean;
+}>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 5px 20px;
+  padding-left: ${(props) => props.isIncoming && '40px'};
+  cursor: pointer;
+  transition: all ease .3s;
 
-  span {
-    border: 1.2px solid ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
+  &:hover, &.active {
+    background: ${colors.bgActive};
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+
+    > i {
+      margin-right: 8px;
+      color: #666;
+    }
+
+    ${PhoneNumber} {
+        color: ${(props) =>
+          props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
+    }
   }
 
   a {
@@ -81,9 +125,14 @@ export const CallDetail = styledTS<{ isMissedCall: boolean }>(styled.div)`
 `;
 
 export const AdditionalDetail = styled.div`
-  color: #aaa;
+  color: #888;
   align-items: center;
   display: flex;
+
+  > span {
+    font-size: 11px;
+    margin-right: 5px;
+  }
 
   .dropdown-menu {
     right: 0;
@@ -121,8 +170,20 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
 
   input {
-    border-bottom: 0;
-    margin-left: 10px;
+    border: 0;
+    width: 100%;
+    color: ${colors.textPrimary};
+    padding: ${dimensions.unitSpacing}px 0;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: ${colors.colorSecondary};
+    }
+  
+    ::placeholder {
+      color: #aaa;
+    }
   }
 `;
 
@@ -325,19 +386,6 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
   width: 100%;
 `;
 
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
-  ${(props) =>
-    props.shrink
-      ? `font-weight: 700;
-    font-size: 15px;`
-      : `font-weight: 500;
-    font-size: 18px;`}
-
-    > h5 {
-      margin: 0;
-    }
-`;
-
 export const Actions = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -348,12 +396,21 @@ export const Actions = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    .coming-soon {
+      margin-bottom: -10px;
+      margin-top: -3px;
+      font-size: 10px;
+      color: #ddd;
+    }
   }
 `;
 
-export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
-  styled.div,
-)`
+export const CallAction = styledTS<{
+  isDecline?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+}>(styled.div)`
   width: 60px;
   height: 60px
   border-radius: 60px;
@@ -362,20 +419,30 @@ export const CallAction = styledTS<{ isDecline?: boolean; shrink?: boolean }>(
   justify-content: center;
   flex-direction: column;
   cursor: pointer;
-  color: ${colors.colorWhite};
-  background: rgba(255, 255, 255, 0.4);
+  color: ${(props) => (props.active ? colors.textPrimary : colors.colorWhite)};
+  background: ${(props) =>
+    props.disabled
+      ? colors.colorShadowGray
+      : props.isDecline
+        ? colors.colorCoreRed
+        : props.active
+          ? colors.colorWhite
+          : 'rgba(255, 255, 255, 0.4)'};
   margin-bottom: 5px;
   transition: all ease .3s;
 
   ${(props) =>
     props.isDecline &&
     `
-    background: ${colors.colorCoreRed};
+    justify-self: center;
+    grid-column-start: span 3;
   `}
 
   &:hover {
     background: ${(props) =>
-      props.isDecline ? 'rgba(234, 71, 93, 0.6)' : 'rgba(255, 255, 255, 0.2)'};
+      props.isDecline
+        ? 'rgba(234, 71, 93, 0.6)'
+        : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -452,12 +519,13 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
   }
 `;
 
-export const WidgetWrapper = styled.div`
+export const WidgetWrapper = styledTS<{ isConnected?: boolean }>(styled.div)`
   cursor: pointer;
   width: 56px;
   height: 56px;
   border-radius: 56px;
-  background: ${colors.colorCoreGreen};
+  background: ${(props) =>
+    props.isConnected ? colors.colorCoreRed : colors.colorCoreGreen};
   position: relative;
   color: ${colors.colorWhite};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
@@ -471,7 +539,8 @@ export const WidgetWrapper = styled.div`
   justify-content: center;
 
   &:before {
-    animation: ${animationPulse} 3s infinite;
+    animation: ${(props) =>
+      !props.isConnected && `${animationPulse} 2s infinite`};
     border-radius: 50%;
     color: inherit;
     content: '';
@@ -586,6 +655,7 @@ export const KeypadHeader = styled.div`
   padding: 10px 20px;
   background: #fcfcfd;
   border-bottom: 1px solid ${colors.borderPrimary};
+  border-radius: 10px 10px 0 0;
 `;
 
 export const HeaderItem = styled.div`
