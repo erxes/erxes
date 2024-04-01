@@ -1,4 +1,4 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
@@ -8,7 +8,7 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -37,7 +37,7 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      conditions: props.config.conditions || []
+      conditions: props.config.conditions || [],
     };
   }
 
@@ -53,7 +53,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -64,7 +64,7 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -118,7 +118,7 @@ class PerSettings extends React.Component<Props, State> {
                 label="Choose product category"
                 name="productCategoryIds"
                 initialValue={config.productCategoryIds || ''}
-                onSelect={categoryIds =>
+                onSelect={(categoryIds) =>
                   this.onChangeConfig('productCategoryIds', categoryIds)
                 }
                 multi={true}
@@ -130,7 +130,7 @@ class PerSettings extends React.Component<Props, State> {
                 name="excludeCategoryIds"
                 label="Choose categories to exclude"
                 initialValue={config.excludeCategoryIds}
-                onSelect={categoryIds =>
+                onSelect={(categoryIds) =>
                   this.onChangeConfig('excludeCategoryIds', categoryIds)
                 }
                 multi={true}
@@ -143,7 +143,7 @@ class PerSettings extends React.Component<Props, State> {
                 name="productTagIds"
                 label="Choose product tags"
                 initialValue={config.productTagIds || ''}
-                onSelect={tagsIds =>
+                onSelect={(tagsIds) =>
                   this.onChangeConfig('productTagIds', tagsIds)
                 }
                 multi={true}
@@ -156,7 +156,7 @@ class PerSettings extends React.Component<Props, State> {
                 name="excludeTagIds"
                 label="Choose tags to exclude"
                 initialValue={config.excludeTagIds}
-                onSelect={tagIds =>
+                onSelect={(tagIds) =>
                   this.onChangeConfig('excludeTagIds', tagIds)
                 }
                 multi={true}
@@ -168,7 +168,7 @@ class PerSettings extends React.Component<Props, State> {
                 name="excludeProductIds"
                 label="Choose products to exclude"
                 initialValue={config.excludeProductIds}
-                onSelect={productIds =>
+                onSelect={(productIds) =>
                   this.onChangeConfig('excludeProductIds', productIds)
                 }
                 multi={true}
@@ -182,7 +182,7 @@ class PerSettings extends React.Component<Props, State> {
                 contentTypes={['products:product']}
                 initialValue={config.segments}
                 multi={true}
-                onSelect={segmentIds =>
+                onSelect={(segmentIds) =>
                   this.onChangeConfig('segments', segmentIds)
                 }
               />

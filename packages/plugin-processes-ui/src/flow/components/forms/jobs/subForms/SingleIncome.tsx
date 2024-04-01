@@ -1,4 +1,4 @@
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import { ProductButton } from '@erxes/ui-deals/src/deals/styles';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
@@ -45,7 +45,7 @@ class JobForm extends React.Component<Props, State> {
       description: description || '',
       name:
         (product && `${product.code} - ${product.name}`) || 'Unknown product',
-      currentTab: 'inputs'
+      currentTab: 'inputs',
     };
   }
 
@@ -54,7 +54,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({
         productId: nextProps.activeFlowJob.productId,
         description: nextProps.activeFlowJob.description,
-        product: nextProps.product
+        product: nextProps.product,
       });
     }
   }
@@ -89,7 +89,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const productOnChange = prs => {
+    const productOnChange = (prs) => {
       let pr: any = {};
       if (!prs.length) {
         this.setState({ productId: '', product: undefined });
@@ -102,7 +102,7 @@ class JobForm extends React.Component<Props, State> {
 
     const { description } = this.state;
 
-    const content = props => {
+    const content = (props) => {
       const onCloseModal = () => {
         this.props.setUsedPopup(false);
         props.closeModal();
@@ -115,7 +115,7 @@ class JobForm extends React.Component<Props, State> {
           onSelect={productOnChange}
           data={{
             name: 'Product',
-            products: product ? [product] : []
+            products: product ? [product] : [],
           }}
           limit={1}
         />

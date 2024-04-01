@@ -10,7 +10,7 @@ import { ControlLabel } from '@erxes/ui/src/components/form';
 import { IJob } from '../../../../types';
 import { IJobRefer } from '../../../../../job/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import { ProductButton } from '@erxes/ui-deals/src/deals/styles';
 
 type Props = {
   closeModal: () => void;
@@ -47,7 +47,7 @@ class JobForm extends React.Component<Props, State> {
       description: description || '',
       currentTab: 'inputs',
 
-      categoryId: ''
+      categoryId: '',
     };
   }
 
@@ -56,7 +56,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({
         description: nextProps.activeFlowJob.description,
         jobReferId: nextProps.activeFlowJob.jobReferId,
-        jobRefer: nextProps.jobRefer
+        jobRefer: nextProps.jobRefer,
       });
     }
   }
@@ -90,13 +90,13 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const onChangeJob = jobRefers => {
+    const onChangeJob = (jobRefers) => {
       let selected: any;
       if (!jobRefers.length) {
         this.setState({ jobReferId: '', jobRefer: undefined }, () => {
           this.props.setMainState({
             product: undefined,
-            productId: ''
+            productId: '',
           });
         });
         return;
@@ -111,12 +111,12 @@ class JobForm extends React.Component<Props, State> {
         const endProduct = selected.resultProducts[0].product || {};
         this.props.setMainState({
           product: endProduct,
-          productId: endProduct._id
+          productId: endProduct._id,
         });
       });
     };
 
-    const content = props => {
+    const content = (props) => {
       const onCloseModal = () => {
         this.props.setUsedPopup(false);
         props.closeModal();
@@ -127,12 +127,12 @@ class JobForm extends React.Component<Props, State> {
           {...props}
           closeModal={onCloseModal}
           onSelect={onChangeJob}
-          onChangeCategory={categoryId => this.setState({ categoryId })}
+          onChangeCategory={(categoryId) => this.setState({ categoryId })}
           types={['end']}
           categoryId={this.state.categoryId}
           data={{
             name: 'Jobs',
-            jobRefers: jobRefer ? [jobRefer] : []
+            jobRefers: jobRefer ? [jobRefer] : [],
           }}
           limit={1}
         />
