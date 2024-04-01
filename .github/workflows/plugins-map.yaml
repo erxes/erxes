@@ -17,7 +17,7 @@ on:
       - master
       - rc
       - staging
-      - cards-separate
+
     paths:
       - 'scripts/pluginsMap.js'
       - '.github/workflows/plugins-map.yaml'

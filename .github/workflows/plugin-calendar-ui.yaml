@@ -32,7 +32,7 @@ on:
       - master
       - rc
       - staging
-      - cards-separate
+
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/ui-plugin-template/**'

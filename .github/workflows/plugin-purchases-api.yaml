@@ -18,7 +18,7 @@ on:
       - master
       - rc
       - staging
-      - cards-separate
+
     paths:
       - 'packages/api-utils/**'
       - 'packages/plugin-purchases-api/**'
