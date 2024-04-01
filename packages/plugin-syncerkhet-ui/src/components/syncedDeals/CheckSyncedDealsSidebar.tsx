@@ -1,4 +1,4 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
@@ -48,7 +48,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate: queryParams.stageChangedEndDate,
       dateType: queryParams.dateType,
       search: queryParams.search,
-      number: queryParams.number
+      number: queryParams.number,
     };
   }
 
@@ -57,7 +57,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       ownerId: null,
       ownerType: null,
       status: null,
-      voucherCampaignId: null
+      voucherCampaignId: null,
     });
   };
 
@@ -76,7 +76,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate,
       dateType,
       search,
-      number
+      number,
     } = this.state;
 
     router.setParams(this.props.history, {
@@ -90,7 +90,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageChangedEndDate,
       dateType,
       search,
-      number
+      number,
     });
   };
 
@@ -153,7 +153,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       configStageId,
       dateType,
       search,
-      number
+      number,
     } = this.state;
 
     const onChangeBoard = (boardId: string) => {
@@ -172,13 +172,13 @@ class CheckerSidebar extends React.Component<IProps, State> {
       this.setState({ configStageId: stageId });
     };
 
-    const onUserChange = userId => {
+    const onUserChange = (userId) => {
       this.setState({ userId });
     };
 
     const onChangeType = (e: React.FormEvent<HTMLElement>) => {
       this.setState({
-        dateType: (e.currentTarget as HTMLInputElement).value
+        dateType: (e.currentTarget as HTMLInputElement).value,
       });
     };
 

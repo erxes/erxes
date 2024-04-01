@@ -4,10 +4,10 @@ import { IContract } from '../../types';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-cards/src/deals/graphql';
-import Items from '@erxes/ui-cards/src/boards/components/portable/Items';
-import options from '@erxes/ui-cards/src/deals/options';
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
+import { queries } from '@erxes/ui-deals/src/deals/graphql';
+import Items from '@erxes/ui-deals/src/boards/components/portable/Items';
+import options from '@erxes/ui-deals/src/deals/options';
+import { IDeal } from '@erxes/ui-deals/src/deals/types';
 
 interface Props {
   contract: IContract;
@@ -35,9 +35,9 @@ export default withProps<Props>(
       name: 'dealsData',
       options: ({ contract }: any): any => {
         return {
-          variables: { _ids: [contract.dealId] }
+          variables: { _ids: [contract.dealId] },
         };
-      }
+      },
     })
   )(DealSection)
 );

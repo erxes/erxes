@@ -1,4 +1,4 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import React from 'react';
@@ -10,7 +10,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from '@erxes/ui/src/components';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -40,7 +40,7 @@ class PerSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      fieldsCombined: []
+      fieldsCombined: [],
     };
 
     if (isEnabled('forms')) {
@@ -48,12 +48,12 @@ class PerSettings extends React.Component<Props, State> {
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal'
-          }
+            contentType: 'deals:deal',
+          },
         })
         .then(({ data }) => {
           this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [],
           });
         });
     }
@@ -71,7 +71,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -82,7 +82,7 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -98,7 +98,7 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onresponseCustomFieldChange = option => {
+  onresponseCustomFieldChange = (option) => {
     const value = !option ? '' : option.value.toString();
     this.onChangeConfig('responseField', value);
   };
@@ -131,7 +131,7 @@ class PerSettings extends React.Component<Props, State> {
       account: '',
       location: '',
       moveAccount: '',
-      moveLocation: ''
+      moveLocation: '',
     });
 
     this.setState({ config: { ...config, catAccLocMap } });
@@ -174,14 +174,14 @@ class PerSettings extends React.Component<Props, State> {
     );
 
     const editMapping = (id, e) => {
-      const index = catAccLocMap.findIndex(i => i._id === id);
+      const index = catAccLocMap.findIndex((i) => i._id === id);
 
       const name = e.target.name;
       const value = e.target.value;
 
       const item = {
-        ...(catAccLocMap.find(cal => cal._id === id) || {}),
-        [name]: value
+        ...(catAccLocMap.find((cal) => cal._id === id) || {}),
+        [name]: value,
       };
 
       if (index !== -1) {
@@ -194,7 +194,7 @@ class PerSettings extends React.Component<Props, State> {
     };
 
     const removeMapping = (_id: string) => {
-      const excluded = catAccLocMap.filter(m => m._id !== _id);
+      const excluded = catAccLocMap.filter((m) => m._id !== _id);
 
       this.setState({ config: { ...config, catAccLocMap: excluded } });
     };
@@ -321,9 +321,9 @@ class PerSettings extends React.Component<Props, State> {
                 name="responseField"
                 value={config.responseField}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map(f => ({
+                options={(this.state.fieldsCombined || []).map((f) => ({
                   value: f.name,
-                  label: f.label
+                  label: f.label,
                 }))}
               />
             </FormGroup>
