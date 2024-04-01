@@ -6,11 +6,11 @@ import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import colors from "@erxes/ui/src/styles/colors";
 import { formatValue } from "@erxes/ui/src/utils";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   index: number;
   clientPortalUser: IClientPortalUser;
-  history: any;
   isChecked: boolean;
   toggleBulk: (
     clientPortalUser: IClientPortalUser,
@@ -20,11 +20,12 @@ type Props = {
 
 const Row: React.FC<Props> = ({
   clientPortalUser,
-  history,
   toggleBulk,
   isChecked,
   index,
 }: Props) => {
+  const navigate = useNavigate();
+
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(clientPortalUser, e.target.checked);
@@ -37,12 +38,12 @@ const Row: React.FC<Props> = ({
 
   const onTrClick = () => {
     if (clientPortalUser.type === "customer") {
-      return history.push(
+      return navigate(
         `/settings/client-portal/users/details/${clientPortalUser._id}`
       );
     }
     if (clientPortalUser.type === "company") {
-      return history.push(
+      return navigate(
         `/settings/client-portal/companies/details/${clientPortalUser._id}`
       );
     }

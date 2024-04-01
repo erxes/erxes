@@ -1,27 +1,28 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, router as routerUtils } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import React from 'react';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert, confirm, router as routerUtils } from "@erxes/ui/src/utils";
+import { gql } from "@apollo/client";
+import React from "react";
 
-import Component from '../components/List';
-import mutations from '../graphql/mutations';
-import queries from '../graphql/queries';
+import Component from "../components/List";
+import mutations from "../graphql/mutations";
+import queries from "../graphql/queries";
 import {
   ClientPortalConfigsQueryResponse,
   ClientPortalGetLastQueryResponse,
   ClientPortalTotalQueryResponse,
-} from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../types";
+import { useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type ListProps = {
   _id?: string;
-  kind: 'client' | 'vendor';
+  kind: "client" | "vendor";
   queryParams: any;
-} & IRouterProps;
+};
 
 const List: React.FC<ListProps> = (props: ListProps) => {
-  const { history, queryParams, kind } = props;
+  const { queryParams, kind } = props;
+  const navigate = useNavigate();
 
   const configsQuery = useQuery<ClientPortalConfigsQueryResponse>(
     gql(queries.getConfigs),
@@ -31,11 +32,11 @@ const List: React.FC<ListProps> = (props: ListProps) => {
         perPage: queryParams.perPage,
         kind,
       },
-    },
+    }
   );
 
   const totalCountQuery = useQuery<ClientPortalTotalQueryResponse>(
-    gql(queries.getTotalCount),
+    gql(queries.getTotalCount)
   );
 
   const [removeMutation] = useMutation(gql(mutations.remove), {
@@ -43,9 +44,9 @@ const List: React.FC<ListProps> = (props: ListProps) => {
       {
         query: gql(queries.getConfigs),
       },
-      'clientPortalGetLast',
-      'clientPortalGetConfig',
-      'clientPortalConfigsTotalCount',
+      "clientPortalGetLast",
+      "clientPortalGetConfig",
+      "clientPortalConfigsTotalCount",
     ],
   });
 
@@ -59,14 +60,14 @@ const List: React.FC<ListProps> = (props: ListProps) => {
         variables: { _id },
       })
         .then(() => {
-          Alert.success('You successfully deleted a business portal.');
+          Alert.success("You successfully deleted a business portal.");
 
           if (configs.length > 1) {
-            history.push(
-              `/settings/business-portal/${props.kind}?_id=${configs[0]._id}`,
+            navigate(
+              `/settings/business-portal/${props.kind}?_id=${configs[0]._id}`
             );
           } else {
-            history.push('/settings/business-portal');
+            navigate("/settings/business-portal");
           }
 
           configsQuery.refetch();
@@ -84,7 +85,6 @@ const List: React.FC<ListProps> = (props: ListProps) => {
 
   const updatedProps = {
     ...props,
-    history,
     remove,
     totalCount,
     configs,
@@ -97,17 +97,18 @@ const List: React.FC<ListProps> = (props: ListProps) => {
 const ListContainer = List;
 
 // Getting lastConfig id to currentConfig
-const LastConfig = (props: ListProps & IRouterProps) => {
-  const { history } = props;
+const LastConfig = (props: ListProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const configGetLastQuery = useQuery<ClientPortalGetLastQueryResponse>(
     gql(queries.getConfigLast),
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         kind: props.kind,
       },
-    },
+    }
   );
 
   if (configGetLastQuery.loading) {
@@ -118,7 +119,7 @@ const LastConfig = (props: ListProps & IRouterProps) => {
     configGetLastQuery.data && configGetLastQuery.data.clientPortalGetLast;
 
   if (lastConfig) {
-    routerUtils.setParams(history, { _id: lastConfig._id });
+    routerUtils.setParams(navigate, location, { _id: lastConfig._id });
   }
 
   const extendedProps = {
@@ -133,8 +134,9 @@ const LastConfigContainer = LastConfig;
 
 // Main home component
 const MainContainer = (props: ListProps) => {
-  const { history } = props;
-  const _id = routerUtils.getParam(history, '_id');
+  const location = useLocation();
+
+  const _id = routerUtils.getParam(location, "_id");
 
   if (_id) {
     const extendedProps = { ...props, _id };

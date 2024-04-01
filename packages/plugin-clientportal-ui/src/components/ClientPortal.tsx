@@ -1,7 +1,6 @@
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../containers/List';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -11,7 +10,7 @@ type Props = {
   queryParams: any;
   loading?: boolean;
   kind: 'client' | 'vendor';
-} & IRouterProps;
+};
 
 const ClientPortal: React.FC<Props> = (props: Props) => {
   const { queryParams, loading = false, kind } = props;
@@ -49,7 +48,6 @@ const ClientPortal: React.FC<Props> = (props: Props) => {
           data={
             <ClientPortalDetailContainer
               queryParams={queryParams}
-              history={history}
               kind={kind}
             />
           }
