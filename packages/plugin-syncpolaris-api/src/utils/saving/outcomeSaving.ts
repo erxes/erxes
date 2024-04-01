@@ -1,12 +1,13 @@
 import { outcomeDeposit } from '../deposit/outcomeDeposit';
-import { fetchPolaris, getSavingContract } from '../utils';
+import { fetchPolaris, getContract } from '../utils';
 
 export const outcomeSaving = async (subdomain, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    savingTransactionParams.savingContractId,
+    { _id: savingTransactionParams.contractId },
+    'savings',
   );
 
   if (!savingContract) {

@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 
-import { debugBase } from '../debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
@@ -123,7 +123,7 @@ export const engageTracker = async (req, res) => {
   req.on('end', async () => {
     const message = JSON.parse(chunks.join(''));
 
-    debugBase(`receiving on tracker: ${JSON.stringify(message)}`);
+    debugInfo(`receiving on tracker: ${JSON.stringify(message)}`);
 
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

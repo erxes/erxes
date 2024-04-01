@@ -107,6 +107,7 @@ export const commonFields = `
     _id
     name
     tagId
+    isCheckDate
 
     ${
       isEnabled('tags')
@@ -347,5 +348,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard
+  conversationConvertToCard,
 };

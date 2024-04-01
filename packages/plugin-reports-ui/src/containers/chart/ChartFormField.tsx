@@ -109,7 +109,7 @@ const ChartFormFieldList = (props: Props) => {
       }
     }
 
-    Alert.error(`Please ${fieldLabel}`);
+    Alert.info(`Please ${fieldLabel}`);
     return true;
   };
 

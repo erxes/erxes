@@ -3,36 +3,11 @@ import {
   fetchPolaris,
   getBranch,
   getCustomer,
-  getSavingProduct,
-  updateSavingNumber,
+  getProduct,
+  updateContract,
 } from '../utils';
 import { IPolarisDeposit } from './types';
 import { validateDepositObject } from './validator';
-
-function setValue(value) {
-  switch (value) {
-    case 'No':
-      return 'N';
-    case 'Yes':
-      return 'Y';
-    case 'Тийм':
-      return '1';
-    case 'Үгүй':
-      return '0';
-    case 'JOINT':
-      return 'J';
-    case 'SINGLE':
-      return 'S';
-    case 'өөр лүүгээ олгоно':
-      return '0';
-    case 'өөр CASA данс руу олгоно':
-      return '1';
-    case 'хугацаат хадгаламж руу олгоно':
-      return '2';
-    default:
-      return '';
-  }
-}
 
 export const createDeposit = async (subdomain: string, params) => {
   const deposit = params.updatedDocument || params.object;
@@ -42,9 +17,10 @@ export const createDeposit = async (subdomain: string, params) => {
     'savings:contract',
     deposit,
   );
-  const savingProduct = await getSavingProduct(
+  const savingProduct = await getProduct(
     subdomain,
     deposit.contractTypeId,
+    'savings',
   );
 
   const branch = await getBranch(subdomain, deposit.branchId);
@@ -83,7 +59,12 @@ export const createDeposit = async (subdomain: string, params) => {
   });
 
   if (typeof depositCode === 'string') {
-    await updateSavingNumber(subdomain, deposit._id, JSON.parse(depositCode));
+    await updateContract(
+      subdomain,
+      { _id: deposit._id },
+      { $set: { number: JSON.parse(depositCode) } },
+      'savings',
+    );
   }
 
   return depositCode;

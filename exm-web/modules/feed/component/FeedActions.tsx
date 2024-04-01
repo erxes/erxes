@@ -110,26 +110,6 @@ export default function FeedActions({
     )
   }
 
-  const editAction = () => {
-    const renderForm = () => {
-      return <FeedForm contentType={feed.contentType || "post"} />
-    }
-
-    return (
-      <>
-        <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-          <DialogTrigger asChild={true}>
-            <div className="text-black flex items-center">
-              <PencilIcon size={16} className="mr-1" /> Edit
-            </div>
-          </DialogTrigger>
-
-          {open ? renderForm() : null}
-        </Dialog>
-      </>
-    )
-  }
-
   return (
     <Popover>
       <PopoverTrigger asChild={true}>
@@ -164,7 +144,7 @@ export default function FeedActions({
           </div>
         )}
         <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-[#444] text-xs">
-          {editAction()}
+          <FeedForm contentType={feed.contentType || "post"} feed={feed} />
         </div>
         <div className="hover:bg-[#F0F0F0] p-2 rounded-md cursor-pointer text-xs">
           {deleteAction()}

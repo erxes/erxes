@@ -13,23 +13,18 @@ export interface IContext extends IMainContext {
   subdomain: string;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Exms = db.model<IExmDocument, IExmModel>(
     'exms',
-    loadExmClass(models, subdomain)
+    loadExmClass(models, subdomain),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

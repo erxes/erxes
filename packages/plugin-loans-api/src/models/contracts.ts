@@ -2,12 +2,12 @@ import {
   CONTRACT_STATUS,
   LEASE_TYPES,
   REPAYMENT,
-  SCHEDULE_STATUS
+  SCHEDULE_STATUS,
 } from './definitions/constants';
 import {
   contractSchema,
   ICloseVariable,
-  IContract
+  IContract,
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
 import {
@@ -15,7 +15,7 @@ import {
   calcInterest,
   getDiffDay,
   getFullDate,
-  getNumber
+  getNumber,
 } from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
@@ -28,7 +28,7 @@ import { reGenerateSchedules } from './utils/scheduleUtils';
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
-  collateralsData: ICollateralData[]
+  collateralsData: ICollateralData[],
 ) => {
   let result = 0;
   for (const data of insurancesData) {
@@ -42,7 +42,7 @@ const getInsurancAmount = (
 };
 export interface IContractModel extends Model<IContractDocument> {
   getContract(
-    selector: FilterQuery<IContractDocument>
+    selector: FilterQuery<IContractDocument>,
   ): Promise<IContractDocument>;
   createContract(doc: IContract): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
@@ -57,7 +57,7 @@ export const loadContractClass = (models: IModels) => {
      */
 
     public static async getContract(
-      selector: FilterQuery<IContractDocument>
+      selector: FilterQuery<IContractDocument>,
     ): Promise<IContractDocument> {
       const contract = await models.Contracts.findOne(selector);
 
@@ -85,7 +85,7 @@ export const loadContractClass = (models: IModels) => {
 
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
-        doc.collateralsData || []
+        doc.collateralsData || [],
       );
 
       if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
@@ -95,7 +95,7 @@ export const loadContractClass = (models: IModels) => {
       const contract = await models.Contracts.create(doc);
 
       if (doc.repayment === REPAYMENT.CUSTOM && schedule.length > 0) {
-        const schedules = schedule.map(a => {
+        const schedules = schedule.map((a) => {
           return {
             contractId: contract._id,
             status: SCHEDULE_STATUS.PENDING,
@@ -104,7 +104,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.total
+            total: a.total,
           };
         });
 
@@ -121,7 +121,7 @@ export const loadContractClass = (models: IModels) => {
         const interest = calcInterest({
           balance: doc.leaseAmount,
           interestRate: doc.interestRate,
-          dayOfMonth: diffDays
+          dayOfMonth: diffDays,
         });
 
         const schedules = [
@@ -132,15 +132,11 @@ export const loadContractClass = (models: IModels) => {
             balance: doc.leaseAmount,
             interestNonce: interest,
             payment: doc.leaseAmount,
-            total: doc.leaseAmount
-          }
+            total: doc.leaseAmount,
+          },
         ];
 
         await models.FirstSchedules.insertMany(schedules);
-      }
-
-      if (doc.leaseType === LEASE_TYPES.FINANCE) {
-        await reGenerateSchedules(models, contract, []);
       }
 
       return contract;
@@ -151,10 +147,10 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async updateContract(
       _id,
-      { schedule, ...doc }: IContract & { schedule: any }
+      { schedule, ...doc }: IContract & { schedule: any },
     ): Promise<IContractDocument | null> {
       const oldContract = await models.Contracts.getContract({
-        _id
+        _id,
       });
 
       if (oldContract.contractTypeId !== doc.contractTypeId) {
@@ -170,11 +166,11 @@ export const loadContractClass = (models: IModels) => {
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
-        doc.collateralsData || []
+        doc.collateralsData || [],
       );
       await models.Contracts.updateOne({ _id }, { $set: doc });
       const transactions = await models.Transactions.find({
-        contractId: _id
+        contractId: _id,
       }).lean();
       if (
         doc.repayment === REPAYMENT.CUSTOM &&
@@ -184,7 +180,7 @@ export const loadContractClass = (models: IModels) => {
         await models.FirstSchedules.deleteMany({ contractId: _id });
         await models.Schedules.deleteMany({ contractId: _id });
 
-        const schedules = schedule.map(a => {
+        const schedules = schedule.map((a) => {
           return {
             contractId: _id,
             status: SCHEDULE_STATUS.PENDING,
@@ -192,7 +188,7 @@ export const loadContractClass = (models: IModels) => {
             balance: a.balance,
             interestNonce: a.interestNonce,
             payment: a.payment,
-            total: a.interestNonce + a.payment
+            total: a.interestNonce + a.payment,
           };
         });
 
@@ -209,13 +205,13 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async closeContract(subdomain, doc: ICloseVariable) {
       const contract = await models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
       const closeInfo = await getCloseInfo(
         models,
         subdomain,
         contract,
-        doc.closeDate
+        doc.closeDate,
       );
 
       const trDoc: ITransaction = {
@@ -223,7 +219,7 @@ export const loadContractClass = (models: IModels) => {
         payDate: doc.closeDate,
         description: doc.description,
         currency: contract.currency,
-        total: closeInfo.total
+        total: closeInfo.total,
       };
       await models.Transactions.createTransaction(subdomain, trDoc);
 
@@ -234,13 +230,13 @@ export const loadContractClass = (models: IModels) => {
             closeDate: doc.closeDate,
             closeType: doc.closeType,
             closeDescription: doc.description,
-            status: CONTRACT_STATUS.CLOSED
-          }
-        }
+            status: CONTRACT_STATUS.CLOSED,
+          },
+        },
       );
 
       return models.Contracts.getContract({
-        _id: doc.contractId
+        _id: doc.contractId,
       });
     }
 
@@ -249,12 +245,12 @@ export const loadContractClass = (models: IModels) => {
      */
     public static async removeContracts(_ids) {
       const transactions = await models.Transactions.count({
-        contractId: _ids
+        contractId: _ids,
       });
       if (transactions > 0)
         throw new Error('You can not delete contract with transaction');
       await models.Schedules.deleteMany({
-        contractId: { $in: _ids }
+        contractId: { $in: _ids },
       });
 
       return models.Contracts.deleteMany({ _id: { $in: _ids } });

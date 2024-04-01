@@ -1,38 +1,50 @@
 import {
   getBranch,
   getCustomer,
-  getLoanProduct,
   getUser,
   fetchPolaris,
-  updateLoanNumber,
   customFieldToObject,
-  getSavingContract,
+  getDepositAccount,
+  updateContract,
+  getProduct,
+  getContract,
 } from '../utils';
 
-export const createLoan = async (subdomain, params) => {
+export const createSavingLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
   const customer = await getCustomer(subdomain, loan.customerId);
 
-  const loanProduct = await getLoanProduct(subdomain, loan.contractTypeId);
+  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
 
-  const savingContract = await getSavingContract(
+  const depositAccount = await getDepositAccount(subdomain, loan.customerId);
+
+  const savingContract = await getContract(
     subdomain,
-    loan.contractTypeId,
+    { _id: loan.savingContractId },
+    'savings',
   );
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
 
+  console.log('loanData===>', loanData);
+  console.log('customer===>', customer);
+  console.log('loanProduct===>', loanProduct);
+  console.log('depositAccount===>', depositAccount);
+  console.log('savingContract===>', savingContract);
+  console.log('leasingExpert===>', leasingExpert);
+  console.log('branch===>', branch);
+
   let sendData: any = [
     {
       txnAmount: loanData.leaseAmount,
       curCode: loanData.currency,
       rate: 1,
-      contAcntCode: '300031000042',
+      contAcntCode: depositAccount.number,
       contAmount: loanData.leaseAmount,
       contCurCode: loanData.currency,
       contRate: 1,
@@ -124,7 +136,12 @@ export const createLoan = async (subdomain, params) => {
   }).then((a) => JSON.parse(a));
 
   if (typeof result === 'string') {
-    await updateLoanNumber(subdomain, loan._id, result);
+    await updateContract(
+      subdomain,
+      { _id: loan._id },
+      { $set: { number: result } },
+      'loans',
+    );
   }
 
   return result;

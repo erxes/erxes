@@ -16,6 +16,10 @@ const customersAdd = `
           senderPhoneNumber
           recipientPhoneNumber
           callId
+          channels {
+            _id
+            name
+          }
         }
       customer {
         _id
@@ -126,11 +130,37 @@ const callDisconnect = `
   }
 `;
 
+const callHistoryEdit = `
+  mutation CallHistoryEdit($receiverNumber: String, $callerNumber: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $modifiedAt: Date, $createdAt: Date, $createdBy: String, $modifiedBy: String) {
+    callHistoryEdit(receiverNumber: $receiverNumber, callerNumber: $callerNumber, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, modifiedAt: $modifiedAt, createdAt: $createdAt, createdBy: $createdBy, modifiedBy: $modifiedBy) {
+      _id
+      receiverNumber
+      callerNumber
+      callDuration
+      callStartTime
+      callEndTime
+      callType
+      callStatus
+      sessionId
+      modifiedAt
+      createdAt
+      createdBy
+      modifiedBy
+    }
+}`;
+
+const callHistoryRemove = ` 
+  mutation CallHistoryRemove($id: String!) {
+    callHistoryRemove(_id: $id)
+}`;
+
 export default {
   callsIntegrationUpdate,
   customersAdd,
   conversationMessageAdd,
   addActiveSession,
   callTerminateSession,
-  callDisconnect
+  callDisconnect,
+  callHistoryEdit,
+  callHistoryRemove,
 };

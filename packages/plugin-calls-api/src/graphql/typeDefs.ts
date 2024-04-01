@@ -15,12 +15,30 @@ const types = `
     _id: String! @external
   }
 
+   extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
   }
 
   input CallIntegrationConfigs {
     ${integrationCommonFields}
+  }
+
+  type CallChannel {
+    _id: String!
+    name: String!
+    description: String
+    integrationIds: [String]
+    memberIds: [String]
+    createdAt: Date
+    userId: String!
+    conversationCount: Int
+    openConversationCount: Int
+
+    members: [User]
   }
 
   type CallConversation {
@@ -30,6 +48,7 @@ const types = `
     senderPhoneNumber: String
     recipientPhoneNumber: String
     callId: String
+    channels: [CallChannel]
   }
 
   type CallConversationDetail {
@@ -41,15 +60,59 @@ const types = `
     userId: String
     lastLoginDeviceId: String
   }
+   type CallHistory {
+    _id: String
+    receiverNumber: String
+    callerNumber: String
+    callDuration: Int
+    callStartTime: Date
+    callEndTime: Date
+    callType: String
+    callStatus: String
+    sessionId: String
+    modifiedAt: Date
+    createdAt: Date
+    createdBy: String
+    modifiedBy: String
+    customer: Customer
+  }
 `;
 
 export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
 
+const commonHistoryFields = `
+  receiverNumber: String
+  callerNumber: String
+  callDuration: Int
+  callStartTime: Date
+  callEndTime: Date
+  callType: String
+  callStatus: String
+  sessionId: String
+  modifiedAt: Date
+  createdAt: Date
+  createdBy: String
+  modifiedBy: String
+`;
+
+const mutationFilterParams = `
+  callStatus: String
+  callType: String
+  startDate: String
+  endDate: String
+`;
+
+const filterParams = `
+  limit: Int,
+  ${mutationFilterParams}
+`;
+
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
-  callIntegrationsOfUser: [CallsIntegrationDetailResponse]
+  callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(callerNumber: String): Customer
   callsActiveSession: CallActiveSession
+  callHistories(${filterParams}, skip: Int): [CallHistory]
 `;
 
 const mutations = `
@@ -58,6 +121,9 @@ const mutations = `
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String
+  callHistoryAdd(${commonHistoryFields}): CallHistory
+  callHistoryEdit(${commonHistoryFields}): CallHistory
+  callHistoryRemove(_id: String!): JSON
 `;
 
 const typeDefs = async () => {

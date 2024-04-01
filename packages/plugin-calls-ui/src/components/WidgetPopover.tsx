@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
-import Popover from 'react-bootstrap/Popover';
-import { Tab, TabsContainer, TabContent } from '../styles';
-import History from './History';
-import { Icon } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import KeyPadContainer from '../containers/KeyPad';
+import { Tab, TabContent, TabsContainer } from '../styles';
+
 import ContactsContainer from '../containers/Contacts';
+import HistoryContainer from '../containers/History';
+import { Icon } from '@erxes/ui/src/components';
+import KeyPadContainer from '../containers/KeyPad';
+import { __ } from '@erxes/ui/src/utils';
+import { ICallConfigDoc } from '../types';
 
 type Props = {
   autoOpenTab: string;
-  callIntegrationsOfUser?: any;
+  callUserIntegrations?: ICallConfigDoc[];
   setConfig?: any;
 };
 
 const WidgetPopover = ({
   autoOpenTab,
-  callIntegrationsOfUser,
-  setConfig
+  callUserIntegrations,
+  setConfig,
 }: Props) => {
   const [currentTab, setCurrentTab] = useState(autoOpenTab || 'Keyboard');
-  const onTabClick = newTab => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const onTabClick = (newTab) => {
     setCurrentTab(newTab);
+  };
+
+  const changeTab = (number, tab) => {
+    setCurrentTab(tab);
+    setPhoneNumber(number);
   };
 
   const historyOnClick = () => {
@@ -34,20 +42,28 @@ const WidgetPopover = ({
   const contactsOnClick = () => {
     onTabClick('Contact');
   };
+
+  const renderContent = () => {
+    if (currentTab === 'History') {
+      return <HistoryContainer changeMainTab={changeTab} />;
+    }
+
+    if (currentTab === 'Contact') {
+      return <ContactsContainer changeMainTab={changeTab} />;
+    }
+
+    return (
+      <KeyPadContainer
+        callUserIntegrations={callUserIntegrations}
+        setConfig={setConfig}
+        phoneNumber={phoneNumber}
+      />
+    );
+  };
+
   return (
-    <Popover id="call-popover" className="call-popover">
-      <TabContent show={currentTab === 'History'}>
-        <History />
-      </TabContent>
-      <TabContent show={currentTab === 'Keyboard'}>
-        <KeyPadContainer
-          callIntegrationsOfUser={callIntegrationsOfUser}
-          setConfig={setConfig}
-        />
-      </TabContent>
-      <TabContent show={currentTab === 'Contact'}>
-        <ContactsContainer />
-      </TabContent>
+    <>
+      <TabContent>{renderContent()}</TabContent>
       <TabsContainer full={true}>
         <Tab
           className={currentTab === 'History' ? 'active' : ''}
@@ -67,11 +83,11 @@ const WidgetPopover = ({
           className={currentTab === 'Contact' ? 'active' : ''}
           onClick={contactsOnClick}
         >
-          <Icon icon="book" size={20} />
+          <Icon icon="book" size={18} />
           {__('Contact')}
         </Tab>
       </TabsContainer>
-    </Popover>
+    </>
   );
 };
 

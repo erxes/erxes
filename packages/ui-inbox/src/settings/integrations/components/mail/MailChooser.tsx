@@ -24,38 +24,45 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
+  messages: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
+      messages = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
       selectedItem = '',
       onChange
     } = this.props;
 
-    const onSelectChange = val => {
+    const onSelectChange = (val) => {
       onChange(val && val.value);
     };
 
     const options = [
       {
         label: 'Shared Emails (IMAP)',
-        options: verifiedImapEmails.map(e => ({ value: e, label: e }))
+        options: verifiedImapEmails.map((e) => ({ value: e, label: e }))
       },
       {
         label: 'Broadcast (Campaign)',
-        options: verifiedEngageEmails.map(e => ({ value: e, label: e }))
+        options: verifiedEngageEmails.map((e) => ({ value: e, label: e }))
       }
     ];
 
+    let defaultEmail = '';
+    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
+      defaultEmail = messages[0].mailData.to[0].email;
+    }
     return (
       <Wrapper>
         <FormGroup>
           <Select
             placeholder={__('Choose email to send from')}
             value={selectedItem}
+            defaultValue={defaultEmail}
             onChange={onSelectChange}
             options={options}
           />

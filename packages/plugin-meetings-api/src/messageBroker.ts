@@ -9,7 +9,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const initBroker = async () => {};
+export const setupMessageConsumers = async () => {};
 
 export const sendCommonMessage = async (
   args: MessageArgs & { serviceName: string },

@@ -45,6 +45,7 @@ export interface IAttachment {
   url: string
   size?: number
   duration?: number
+  color?: string
 }
 export interface IEventData {
   where: string
@@ -88,6 +89,7 @@ export interface IFeed {
   unitId?: string
   createdUser?: IUser
   commentCount?: boolean
+  background?: IAttachment
 }
 
 export interface IFeedVariable {
@@ -113,4 +115,5 @@ export interface IFeedVariable {
   branchIds?: string[]
   unitId?: string
   createdUser?: IUser
+  background?: any
 }

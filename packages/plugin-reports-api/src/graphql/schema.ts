@@ -36,6 +36,9 @@ export const types = (tagsAvailable) => `
     createdBy: User
 
     sectionId: String
+    
+    serviceName: String
+    serviceType: String
   }
 
   enum VisibilityType {
@@ -178,6 +181,8 @@ const report_params = `
   tagIds: [String],
   reportTemplateType: String
   serviceName: String
+  serviceType: String
+  sectionId: String
   charts: [JSON]
 `;
 
@@ -187,6 +192,7 @@ export const mutations = `
   reportsRemoveMany(ids: [String]!): JSON 
    
   reportsEdit(_id:String!, ${report_params}): Report
+  reportsDuplicate(_id: String!): Report
 
   reportChartsAdd(${report_chart_common_params}, reportId: String!): ReportChart
   reportChartsRemove(_id: String!): JSON

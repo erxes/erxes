@@ -1,13 +1,14 @@
 import {
   IPeriodLock,
   IPeriodLockDocument,
-  periodLockSchema
+  periodLockSchema,
 } from './definitions/periodLocks';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { sendMessageBroker } from '../messageBroker';
 import { IStoredInterestDocument } from './definitions/storedInterest';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const loadPeriodLockClass = (models: IModels) => {
   class PeriodLock {
@@ -31,52 +32,55 @@ export const loadPeriodLockClass = (models: IModels) => {
      */
     public static async createPeriodLock(doc: IPeriodLock, subdomain: string) {
       const nextLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.date }
+        date: { $gte: doc.date },
       })
         .sort({ date: -1 })
         .lean();
       if (!!nextLock)
         throw new Error(
-          `Can't lock period at this time because already locked`
+          `Can't lock period at this time because already locked`,
         );
 
       const periodLocks = await models.PeriodLocks.create(doc);
 
       const prevLock = await models.PeriodLocks.findOne({
-        date: { $lt: periodLocks.date }
+        date: { $lt: periodLocks.date },
       }).sort({ date: -1 });
 
       const transactions = await models.Transactions.find({
         payDate: {
           $lte: periodLocks.date,
-          ...(prevLock?.date ? { $gt: prevLock?.date } : {})
+          ...(prevLock?.date ? { $gt: prevLock?.date } : {}),
         },
         total: { $gt: 0 },
-        contractId: { $nin: doc.excludeContracts || [], $exists: true }
+        contractId: { $nin: doc.excludeContracts || [], $exists: true },
       });
 
       await models.StoredInterest.createStoredInterest(
         doc.date,
-        periodLocks._id
+        periodLocks._id,
+        subdomain,
       );
 
       const generals = await models.General.createGeneral(
         transactions,
         periodLocks._id,
-        subdomain
+        subdomain,
       );
 
       await models.Invoices.createCreditMassInvoice(subdomain, doc.date);
 
-      await sendMessageBroker(
-        {
-          action: 'loanTransaction',
-          subdomain,
-          data: { generals, orderId: periodLocks._id, config: {} },
-          isRPC: true
-        },
-        'syncerkhet'
-      );
+      if (isEnabled('syncerkhet')) {
+        await sendMessageBroker(
+          {
+            action: 'loanTransaction',
+            subdomain,
+            data: { generals, orderId: periodLocks._id, config: {} },
+            isRPC: true,
+          },
+          'syncerkhet',
+        );
+      }
 
       return periodLocks;
     }
@@ -87,27 +91,27 @@ export const loadPeriodLockClass = (models: IModels) => {
     public static async updatePeriodLock(
       _id: string,
       doc: IPeriodLock,
-      subdomain: string
+      subdomain: string,
     ) {
       await models.PeriodLocks.updateOne({ _id }, { $set: doc });
 
       const prevLock = await models.PeriodLocks.findOne({
-        date: { $lt: doc.date }
+        date: { $lt: doc.date },
       }).sort({ date: -1 });
 
       const transactions = await models.Transactions.find({
         payDate: {
           $lte: doc.date,
-          ...(prevLock?.date ? { $gt: prevLock?.date } : {})
+          ...(prevLock?.date ? { $gt: prevLock?.date } : {}),
         },
-        contractId: { $nin: doc.excludeContracts || [], $exists: true }
+        contractId: { $nin: doc.excludeContracts || [], $exists: true },
       });
 
       await models.General.deleteMany({ periodLockId: _id });
       const generals = await models.General.createGeneral(
         transactions,
         _id,
-        subdomain
+        subdomain,
       );
 
       await sendMessageBroker(
@@ -115,9 +119,9 @@ export const loadPeriodLockClass = (models: IModels) => {
           action: 'loanTransaction',
           subdomain,
           data: { generals, orderId: _id, config: {} },
-          isRPC: true
+          isRPC: true,
         },
-        'syncerkhet'
+        'syncerkhet',
       );
 
       return models.PeriodLocks.findOne({ _id });
@@ -128,23 +132,24 @@ export const loadPeriodLockClass = (models: IModels) => {
      */
     public static async removePeriodLocks(_ids: string[]) {
       await models.General.deleteMany({ periodLockId: { $in: _ids } });
-      const storedInterestList: IStoredInterestDocument[] = await models.StoredInterest.find(
-        { periodLockId: { $in: _ids } }
-      ).lean();
+      const storedInterestList: IStoredInterestDocument[] =
+        await models.StoredInterest.find({
+          periodLockId: { $in: _ids },
+        }).lean();
       for (const storedInterst of storedInterestList) {
         await models.Contracts.updateOne(
           { _id: storedInterst.contractId },
           {
             $set: {
               storedInterst: { $inc: storedInterst.amount * -1 },
-              lastStoredDate: storedInterst.prevStoredDate
-            }
-          }
+              lastStoredDate: storedInterst.prevStoredDate,
+            },
+          },
         );
       }
 
       await models.StoredInterest.deleteMany({
-        _id: storedInterestList.map(a => a._id)
+        _id: storedInterestList.map((a) => a._id),
       });
       return models.PeriodLocks.deleteMany({ _id: { $in: _ids } });
     }

@@ -2,12 +2,12 @@ import { Document, Schema } from 'mongoose';
 import {
   attachmentSchema,
   IRule,
-  ruleSchema
+  ruleSchema,
 } from '@erxes/api-utils/src/definitions/common';
 import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
-  MESSENGER_DATA_AVAILABILITY
+  MESSENGER_DATA_AVAILABILITY,
 } from './constants';
 
 import { field, schemaHooksWrapper } from './utils';
@@ -180,6 +180,7 @@ export interface IIntegration {
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
+  isConnected?: boolean;
   channelIds?: string[];
   bookingData?: IBookingData;
   departmentIds?: string[];
@@ -203,9 +204,9 @@ const messengerOnlineHoursSchema = new Schema(
   {
     day: field({ type: String }),
     from: field({ type: String }),
-    to: field({ type: String })
+    to: field({ type: String }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // subdocument schema for MessengerData
@@ -218,39 +219,39 @@ const messengerDataSchema = new Schema(
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
       type: String,
-      enum: MESSENGER_DATA_AVAILABILITY.ALL
+      enum: MESSENGER_DATA_AVAILABILITY.ALL,
     }),
     isOnline: field({
-      type: Boolean
+      type: Boolean,
     }),
     onlineHours: field({ type: [messengerOnlineHoursSchema] }),
     timezone: field({
       type: String,
-      optional: true
+      optional: true,
     }),
     responseRate: field({
       type: String,
-      optional: true
+      optional: true,
     }),
     showTimezone: field({
       type: Boolean,
-      optional: true
+      optional: true,
     }),
     messages: field({ type: Object, optional: true }),
     links: {
       facebook: String,
       instagram: String,
       twitter: String,
-      youtube: String
+      youtube: String,
     },
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
     hideWhenOffline: field({ type: Boolean, default: false }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
-    showVideoCallRequest: field({ type: Boolean, default: false })
+    showVideoCallRequest: field({ type: Boolean, default: false }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // schema for lead's callout component
@@ -262,11 +263,11 @@ export const calloutSchema = new Schema(
     featuredImage: field({
       type: String,
       optional: true,
-      label: 'Featured image'
+      label: 'Featured image',
     }),
-    skip: field({ type: Boolean, optional: true, label: 'Skip' })
+    skip: field({ type: Boolean, optional: true, label: 'Skip' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // TODO: remove
@@ -274,9 +275,9 @@ export const calloutSchema = new Schema(
 export const submissionSchema = new Schema(
   {
     customerId: field({ type: String }),
-    submittedAt: field({ type: Date })
+    submittedAt: field({ type: Date }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // subdocument schema for LeadData
@@ -285,122 +286,122 @@ export const leadDataSchema = new Schema(
     loadType: field({
       type: String,
       enum: LEAD_LOAD_TYPES.ALL,
-      label: 'Load type'
+      label: 'Load type',
     }),
     successAction: field({
       type: String,
       enum: LEAD_SUCCESS_ACTIONS.ALL,
       optional: true,
-      label: 'Success action'
+      label: 'Success action',
     }),
     fromEmail: field({
       type: String,
       optional: true,
-      label: 'From email'
+      label: 'From email',
     }),
     userEmailTitle: field({
       type: String,
       optional: true,
-      label: 'User email title'
+      label: 'User email title',
     }),
     userEmailContent: field({
       type: String,
       optional: true,
-      label: 'User email content'
+      label: 'User email content',
     }),
     adminEmails: field({
       type: [String],
       optional: true,
-      label: 'Admin emails'
+      label: 'Admin emails',
     }),
     adminEmailTitle: field({
       type: String,
       optional: true,
-      label: 'Admin email title'
+      label: 'Admin email title',
     }),
     adminEmailContent: field({
       type: String,
       optional: true,
-      label: 'Admin email content'
+      label: 'Admin email content',
     }),
     thankTitle: field({
       type: String,
       optional: true,
-      label: 'Thank content title'
+      label: 'Thank content title',
     }),
     thankContent: field({
       type: String,
       optional: true,
-      label: 'Thank content'
+      label: 'Thank content',
     }),
     redirectUrl: field({
       type: String,
       optional: true,
-      label: 'Redirect URL'
+      label: 'Redirect URL',
     }),
     themeColor: field({
       type: String,
       optional: true,
-      label: 'Theme color code'
+      label: 'Theme color code',
     }),
     callout: field({
       type: calloutSchema,
       optional: true,
-      label: 'Callout'
+      label: 'Callout',
     }),
     viewCount: field({
       type: Number,
       optional: true,
-      label: 'View count'
+      label: 'View count',
     }),
     contactsGathered: field({
       type: Number,
       optional: true,
-      label: 'Contacts gathered'
+      label: 'Contacts gathered',
     }),
     rules: field({
       type: [ruleSchema],
       optional: true,
-      label: 'Rules'
+      label: 'Rules',
     }),
     isRequireOnce: field({
       type: Boolean,
       optional: true,
-      label: 'Do not show again if already filled out'
+      label: 'Do not show again if already filled out',
     }),
     saveAsCustomer: field({
       type: Boolean,
       optional: true,
-      label: 'Save as customer'
+      label: 'Save as customer',
     }),
     templateId: field({
       type: String,
       optional: true,
-      label: 'Template'
+      label: 'Template',
     }),
     attachments: field({ type: Object, optional: true, label: 'Attachments' }),
     css: field({
       type: String,
       optional: true,
-      label: 'Custom CSS'
+      label: 'Custom CSS',
     }),
     successImage: field({
       type: String,
       optional: true,
-      label: 'Success image'
+      label: 'Success image',
     }),
     successImageSize: field({
       type: String,
       optional: true,
-      label: 'Success image size'
+      label: 'Success image size',
     }),
     verifyEmail: field({
       type: Boolean,
       optional: true,
-      label: 'Verify email'
-    })
+      label: 'Verify email',
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // subdocument schema for messenger UiOptions
@@ -409,18 +410,18 @@ const uiOptionsSchema = new Schema(
     color: field({ type: String }),
     textColor: field({ type: String }),
     wallpaper: field({ type: String }),
-    logo: field({ type: String })
+    logo: field({ type: String }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const webhookDataSchema = new Schema(
   {
     script: field({ type: String, optional: true }),
     token: field({ type: String }),
-    origin: field({ type: String, optional: true })
+    origin: field({ type: String, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const bookingStyleSchema = new Schema(
@@ -434,9 +435,9 @@ export const bookingStyleSchema = new Schema(
     line: field({ type: String, optional: true, label: 'Line' }),
     columns: field({ type: Number, optional: true, label: 'Columns' }),
     rows: field({ type: Number, optional: true, label: 'Rows' }),
-    margin: field({ type: Number, optional: true, label: 'Margin' })
+    margin: field({ type: Number, optional: true, label: 'Margin' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const bookingSchema = new Schema(
@@ -451,30 +452,30 @@ const bookingSchema = new Schema(
     productCategoryId: field({
       type: String,
       optional: true,
-      label: 'Product category'
+      label: 'Product category',
     }),
     viewCount: field({
       type: Number,
       optional: true,
-      label: 'View count'
+      label: 'View count',
     }),
     navigationText: field({
       type: String,
       optional: true,
-      label: 'Navigation text'
+      label: 'Navigation text',
     }),
     bookingFormText: field({
       type: String,
       optional: true,
-      label: 'Booking form text'
+      label: 'Booking form text',
     }),
     productFieldIds: field({
       type: [String],
       optional: true,
-      label: 'Custom fields'
-    })
+      label: 'Custom fields',
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // schema for integration document
@@ -485,7 +486,7 @@ export const integrationSchema = schemaHooksWrapper(
 
     kind: field({
       type: String,
-      label: 'Kind'
+      label: 'Kind',
     }),
     createdAt: field({ type: 'Date', label: 'Created at' }),
 
@@ -498,7 +499,7 @@ export const integrationSchema = schemaHooksWrapper(
     languageCode: field({
       type: String,
       optional: true,
-      label: 'Language code'
+      label: 'Language code',
     }),
     tagIds: field({ type: [String], label: 'Tags', index: true }),
     formId: field({ type: String, label: 'Form' }),
@@ -507,7 +508,13 @@ export const integrationSchema = schemaHooksWrapper(
       type: Boolean,
       optional: true,
       default: true,
-      label: 'Is active'
+      label: 'Is active',
+    }),
+    isConnected: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Is connect',
     }),
     webhookData: field({ type: webhookDataSchema }),
     // TODO: remove
@@ -515,7 +522,7 @@ export const integrationSchema = schemaHooksWrapper(
     messengerData: field({ type: messengerDataSchema }),
     uiOptions: field({ type: uiOptionsSchema }),
 
-    bookingData: field({ type: bookingSchema })
+    bookingData: field({ type: bookingSchema }),
   }),
-  'erxes_integrations'
+  'erxes_integrations',
 );

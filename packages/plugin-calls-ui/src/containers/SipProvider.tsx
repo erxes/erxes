@@ -1,45 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import SipProvider from '../components/SipProvider';
+import * as moment from "moment";
 
-import IncomingCallContainer from './IncomingCall';
-import WidgetContainer from './Widget';
-import { CALL_DIRECTION_INCOMING } from '../lib/enums';
-import { queries, mutations, subscriptions } from '../graphql';
-import { useQuery, gql, useMutation, useSubscription } from '@apollo/client';
+import React, { useState } from "react";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
+import { mutations, queries, subscriptions } from "../graphql";
 
-import { ModalTrigger } from '@erxes/ui/src/components';
-import { Alert } from '@erxes/ui/src/utils';
-import CallIntegrationForm from '../components/Form';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import TerminateSessionForm from '../components/TerminateCallForm';
-import { setLocalStorage } from '../utils';
+import { Alert } from "@erxes/ui/src/utils";
+import { CALL_DIRECTION_INCOMING } from "../lib/enums";
+import CallIntegrationForm from "../components/Form";
+import IncomingCallContainer from "./IncomingCall";
+import { ModalTrigger } from "@erxes/ui/src/components";
+import SipProvider from "../components/SipProvider";
+import WidgetContainer from "./Widget";
+import { getSubdomain } from "@erxes/ui/src/utils/core";
+import { setLocalStorage } from "../utils";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem('config:call_integrations')),
+    JSON.parse(localStorage.getItem("config:call_integrations") || "{}")
   );
-
-  const callInfo = JSON.parse(localStorage.getItem('callInfo'));
-  const sessionCode = sessionStorage.getItem('sessioncode');
-
+  const callInfo = JSON.parse(localStorage.getItem("callInfo") || "{}");
   const isConnectCallRequested = JSON.parse(
-    localStorage.getItem('isConnectCallRequested'),
+    localStorage.getItem("isConnectCallRequested") || "{}"
   );
 
-  const { data, loading, error } = useQuery(
-    gql(queries.callIntegrationsOfUser),
-  );
-  const {
-    data: activeSession,
-    loading: activeSessionLoading,
-    error: activeSessionError,
-    refetch,
-  } = useQuery(gql(queries.activeSession), {});
+  const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession),
+    gql(mutations.callTerminateSession)
   );
+  const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -47,7 +38,7 @@ const SipProviderContainer = (props) => {
       if (
         !callInfo?.isRegistered ||
         isConnectCallRequested ||
-        isConnectCallRequested === 'true'
+        isConnectCallRequested === "true"
       ) {
         setConfig({
           inboxId: config?.inboxId,
@@ -58,7 +49,7 @@ const SipProviderContainer = (props) => {
           isAvailable: true,
         });
         setLocalStorage(true, true);
-        localStorage.removeItem('isConnectCallRequested');
+        localStorage.removeItem("isConnectCallRequested");
       } else {
         setConfig({
           inboxId: config?.inboxId,
@@ -69,16 +60,14 @@ const SipProviderContainer = (props) => {
           isAvailable: false,
         });
         setLocalStorage(false, false);
-        localStorage.removeItem('isConnectCallRequested');
+        localStorage.removeItem("isConnectCallRequested");
       }
     },
   });
 
   const createSession = () => {
     createActiveSession()
-      .then(() => {
-        refetch();
-      })
+      .then(() => {})
       .catch((e) => {
         Alert.error(e.message);
       });
@@ -87,8 +76,6 @@ const SipProviderContainer = (props) => {
   const removeSession = () => {
     removeActiveSession()
       .then(() => {
-        refetch();
-
         if (config) {
           setConfig({
             inboxId: config.inboxId,
@@ -106,18 +93,44 @@ const SipProviderContainer = (props) => {
       });
   };
 
-  if (loading || activeSessionLoading) {
+  const updateHistory = (
+    sessionId: string,
+    callStartTime: Date,
+    callEndTime: Date,
+    callStatus: string
+  ) => {
+    let duration = 0;
+    if (callStartTime && callEndTime) {
+      const startedMoment = moment(callStartTime);
+      const endedMoment = moment(callEndTime);
+      duration = endedMoment.diff(startedMoment, "seconds");
+    }
+
+    updateHistoryMutation({
+      variables: {
+        sessionId,
+        callStartTime,
+        callEndTime,
+        callDuration: duration,
+        callStatus,
+      },
+      refetchQueries: ["callHistories"],
+    })
+      .then()
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
+  if (loading) {
     return null;
   }
   if (error) {
     return Alert.error(error.message);
   }
-  if (activeSessionError) {
-    return Alert.error(activeSessionError.message);
-  }
 
-  const { callIntegrationsOfUser } = data;
-  if (!callIntegrationsOfUser || callIntegrationsOfUser.length === 0) {
+  const { callUserIntegrations } = data;
+  if (!callUserIntegrations || callUserIntegrations.length === 0) {
     return null;
   }
 
@@ -130,67 +143,53 @@ const SipProviderContainer = (props) => {
   const content = (args) => (
     <CallIntegrationForm
       {...args}
-      data={callIntegrationsOfUser}
+      data={callUserIntegrations}
       setConfig={handleSetConfig}
     />
   );
 
-  const terminateContent = (args) => (
-    <TerminateSessionForm
-      {...args}
-      setConfig={handleSetConfig}
-      removeActiveSession={removeSession}
-    />
-  );
   if (!config || !config.inboxId) {
     return (
       <ModalTrigger title="Call Config Modal" content={content} isOpen={true} />
     );
   }
-  if (activeSession && activeSession.callsActiveSession) {
-    if (
-      (activeSession.callsActiveSession?.lastLoginDeviceId !== sessionCode ||
-        isConnectCallRequested ||
-        isConnectCallRequested === 'true') &&
-      !callInfo.isUnRegistered
-    ) {
-      return (
-        <ModalTrigger
-          title="Call Config Modal"
-          content={terminateContent}
-          isOpen={true}
-        />
-      );
-    }
-  }
+
   if (!config.isAvailable) {
     return (
       <WidgetContainer
         {...props}
-        callIntegrationsOfUser={callIntegrationsOfUser}
+        callUserIntegrations={callUserIntegrations}
         setConfig={handleSetConfig}
       />
     );
   }
 
-  const defaultIntegration = config || callIntegrationsOfUser?.[0];
+  const filteredIntegration = callUserIntegrations.find(
+    (integrationConfig) => integrationConfig.phone === config.phone
+  );
+  const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(':');
+  const [host, port] = wsServer?.split(":");
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
 
   const sipConfig = {
     host,
-    pathname: '/ws',
+    pathname: "/ws",
     user: gsUsername,
     password: gsPassword,
     // autoRegister: true,
-    port: parseInt(port?.toString() || '8089', 10),
+    port: parseInt(port?.toString() || "8089", 10),
     iceServers: [
       {
-        urls: 'stun:stun.l.google.com:19302',
+        urls: "stun:stun.l.google.com:19302",
+      },
+      {
+        urls: "turn:relay8.expressturn.com:3478",
+        username: "efVCM7AV4B0436ZEJQ",
+        credential: "PtBTQUgzOtZ1T874",
       },
     ],
   };
@@ -199,22 +198,24 @@ const SipProviderContainer = (props) => {
     <SipProvider
       {...sipConfig}
       createSession={createSession}
-      callsActiveSession={activeSession?.callsActiveSession}
+      updateHistory={updateHistory}
+      callUserIntegration={filteredIntegration}
     >
-      {(state) =>
-        state?.callDirection === CALL_DIRECTION_INCOMING ? (
-          <IncomingCallContainer
-            {...props}
-            callIntegrationsOfUser={callIntegrationsOfUser}
-          />
-        ) : (
+      {(state) => (
+        <>
+          {state?.callDirection === CALL_DIRECTION_INCOMING && (
+            <IncomingCallContainer
+              {...props}
+              callUserIntegrations={callUserIntegrations}
+            />
+          )}
           <WidgetContainer
             {...props}
-            callIntegrationsOfUser={callIntegrationsOfUser}
+            callUserIntegrations={callUserIntegrations}
             setConfig={handleSetConfig}
           />
-        )
-      }
+        </>
+      )}
     </SipProvider>
   );
 };

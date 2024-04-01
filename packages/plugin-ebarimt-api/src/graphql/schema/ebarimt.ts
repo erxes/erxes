@@ -64,8 +64,15 @@ const queryParams = `
 export const queries = `
   putResponses(${queryParams}): [PutResponse]
   putResponsesByDate(${queryParams}): JSON
+  putResponsesDuplicated(startDate: Date, endDate: Date, billType: String, page: Int, perPage: Int): JSON
+  putResponsesDuplicatedCount(startDate: Date, endDate: Date, billType: String, page: Int, perPage: Int): JSON
+  putResponsesDuplicatedDetail(contentId: String, taxType: String): [PutResponse]
   putResponsesCount(${queryParams}): Int
   putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String
   ebarimtGetCompany(companyRD: String!): JSON
+`;
+
+export const mutations = `
+  putResponseReturnBill(_id: String!): PutResponse
 `;

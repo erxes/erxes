@@ -1,9 +1,3 @@
-const productsQueryParams = `
-  productIds: [String]
-  stageId: String
-  pipelineId: String
-`;
-
 const commonHistoryParams = `
   page: Int,
   perPage: Int,
@@ -20,7 +14,13 @@ const commonHistoryParams = `
   searchError: String,
 `;
 
+const polarisData = `
+  method: String,
+  data: JSON
+`;
+
 export const queries = `
-  syncHistories(${commonHistoryParams}): [SyncHistory]
-  syncHistoriesCount(${commonHistoryParams}): Int
+  syncHistoriesPolaris(${commonHistoryParams}): [SyncHistory]
+  syncHistoriesCountPolaris(${commonHistoryParams}): Int
+  getPolarisData(${polarisData}): JSON
 `;

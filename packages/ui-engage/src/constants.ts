@@ -10,9 +10,9 @@ export const MESSAGE_KINDS = {
 };
 
 export const statusFilters = [
-  { key: 'live', value: 'Live' },
+  // { key: 'live', value: 'Live' },
   { key: 'draft', value: 'draft' },
-  { key: 'paused', value: 'Paused' },
+  // { key: 'paused', value: 'Paused' },
   { key: 'yours', value: 'Your messages' },
 ];
 
@@ -224,6 +224,32 @@ export const AWS_EMAIL_DELIVERY_STATUSES = {
       label: 'Rendering failure',
       description: `The email wasn't sent because of a template rendering issue`,
       icon: 'ban',
+    },
+  ],
+};
+
+export const NOTIFICATION_DELIVERY_STATUSES = {
+  SENT: 'sent',
+  READ: 'read',
+  UNREAD: 'unread',
+  OPTIONS: [
+    {
+      value: 'sent',
+      label: 'Sent',
+      description: 'The notification was successfully sent to the recipient',
+      icon: 'telegram-alt',
+    },
+    {
+      value: 'read',
+      label: 'Read',
+      description: 'The recipient received the notification and opened it',
+      icon: 'envelope-open',
+    },
+    {
+      value: 'unread',
+      label: 'Unread',
+      description: 'The recipient has not yet opened the notification',
+      icon: 'envelope',
     },
   ],
 };

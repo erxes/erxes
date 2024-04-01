@@ -56,7 +56,10 @@ export const getPostDetails = async (
   }
 
   try {
-    const response: any = await graphRequest.get(`/${postId}`, pageAccessToken);
+    const response: any = await graphRequest.get(
+      `/${postId}?fields=permalink_url,message,created_time`,
+      pageAccessToken,
+    );
 
     return response;
   } catch (e) {
@@ -397,7 +400,10 @@ export const sendReply = async (
   }
 };
 
-export const generateAttachmentMessages = (attachments: IAttachment[]) => {
+export const generateAttachmentMessages = (
+  subdomain: string,
+  attachments: IAttachment[],
+) => {
   const messages: IAttachmentMessage[] = [];
 
   for (const attachment of attachments || []) {
@@ -407,7 +413,7 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
       type = 'image';
     }
 
-    const url = generateAttachmentUrl(attachment.url);
+    const url = generateAttachmentUrl(subdomain, attachment.url);
 
     messages.push({
       attachment: {

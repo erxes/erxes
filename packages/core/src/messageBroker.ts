@@ -1,6 +1,6 @@
 import {
   InterMessage,
-  init as initBrokerCore,
+  connectToMessageBroker,
 } from '@erxes/api-utils/src/messageBroker';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
@@ -39,8 +39,10 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 
 export const initBroker = async (): Promise<void> => {
-  await initBrokerCore();
+  await connectToMessageBroker(setupMessageConsumers);
+};
 
+export const setupMessageConsumers = async (): Promise<void> => {
   consumeQueue(
     'core:manage-installation-notification',
     async ({

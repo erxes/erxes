@@ -72,10 +72,8 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
   models.CommentConversation = db.model<
     ICommentConversationDocument,
     ICommentConversationModel
@@ -85,30 +83,33 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ICommentConversationReplyModel
   >(
     'comment_conversations_reply_facebook',
-    loadCommentConversationReplyClass(models),
+    loadCommentConversationReplyClass(models)
   );
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'facebook_accounts',
-    loadAccountClass(models),
+    loadAccountClass(models)
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'facebook_configs',
-    loadConfigClass(models),
+    loadConfigClass(models)
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'facebook_integrations',
-    loadIntegrationClass(models),
+    loadIntegrationClass(models)
   );
-  models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
+  models.Logs = db.model<ILogDocument, ILogModel>(
+    'facebook_logs',
+    loadLogClass(models)
+  );
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations_facebooks',
-    loadConversationClass(models),
+    loadConversationClass(models)
   );
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'customers_facebooks',
-    loadCustomerClass(models),
+    loadCustomerClass(models)
   );
 
   models.PostConversations = db.model<
@@ -123,13 +124,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Bots = db.model<IBotDocument, IBotModel>(
     'facebook_messengers_bots',
-    loadBotClass(models),
+    loadBotClass(models)
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses,
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

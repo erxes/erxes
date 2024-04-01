@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - master
+      - rc
       - staging
     paths:
       - 'email-verifier/**'
@@ -14,6 +15,7 @@ on:
     branches:
       - dev
       - master
+      - rc
       - staging
     paths:
       - 'email-verifier/**'
@@ -51,10 +53,6 @@ jobs:
           cd email-verifier
           yarn install --frozen-lockfile
 
-      - name: Lint
-        run: |
-          yarn lint email-verifier
-
       - name: Build
         run: |
           cd email-verifier
@@ -63,7 +61,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'   )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'   )
         run: |
           cd email-verifier
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

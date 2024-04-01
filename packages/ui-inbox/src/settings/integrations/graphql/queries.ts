@@ -39,7 +39,6 @@ const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       ${commonFields}
-      data
       messengerData
       uiOptions
       websiteMessengerApps {
@@ -122,7 +121,6 @@ const integrations = `
             `
           : ''
       }
-      data
       details
       healthStatus
     }
@@ -221,6 +219,15 @@ const imapIntegrations = `
   }
 `;
 
+const imapSendMail = `
+  query imapConversationDetail($conversationId: String!) {
+    imapConversationDetail(conversationId: $conversationId) {
+     _id
+      mailData
+      createdAt
+  }
+ }
+`;
 export default {
   users,
   brands,
@@ -238,5 +245,6 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations
+  imapIntegrations,
+  imapSendMail
 };

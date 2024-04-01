@@ -10,14 +10,14 @@ const SyncHistoryList = asyncComponent(
       /* webpackChunkName: "CheckSyncedDeals" */ './syncPolarisHistories/containers/SyncHistoryList'
     ),
 );
-
 const Settings = asyncComponent(
   () =>
     import(/* webpackChunkName: "Settings" */ './settings/containers/Settings'),
 );
 
-const Customer = asyncComponent(
-  () => import(/* webpackChunkName: "customer" */ './customer/containers/List'),
+const List = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "customer" */ './syncPolaris/containers/List'),
 );
 const syncHistoryList = ({ location, history }) => {
   return (
@@ -28,66 +28,49 @@ const syncHistoryList = ({ location, history }) => {
   );
 };
 
-const TransactionSaving = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "transaction" */ './transactionSaving/containers/List'
-    ),
-);
-
-const TransactionLoan = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "transaction" */ './transactionLoan/containers/List'
-    ),
-);
-const LoanAcnt = asyncComponent(
-  () => import(/* webpackChunkName: "loanAcnt" */ './loanAcnt/containers/List'),
-);
-
-const SavingAcnt = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "savingAcnt" */ './savingAcnt/containers/List'),
-);
-
 const customerList = ({ location, history }) => {
   return (
-    <Customer
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
+      contentType="contacts:customer"
     />
   );
 };
 const transactionSavingList = ({ location, history }) => {
   return (
-    <TransactionSaving
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
+      contentType="savings:transaction"
     />
   );
 };
 const transactionLoanList = ({ location, history }) => {
   return (
-    <TransactionLoan
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
+      contentType="loans:transaction"
     />
   );
 };
 
 const savingAcntList = ({ location, history }) => {
   return (
-    <SavingAcnt
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
+      contentType="savings:contract"
     />
   );
 };
 const loanAcntList = ({ location, history }) => {
   return (
-    <LoanAcnt
+    <List
       queryParams={queryString.parse(location.search)}
       history={history}
+      contentType="loans:contract"
     />
   );
 };

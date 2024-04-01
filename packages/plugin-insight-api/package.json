@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-insight-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "migrateCharts": "../../node_modules/.bin/ts-node src/commands/migrateCharts.ts"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "xlsx-populate": "^1.20.1"
+  }
+}

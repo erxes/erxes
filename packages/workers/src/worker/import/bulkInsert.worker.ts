@@ -1,10 +1,7 @@
-import * as mongoose from 'mongoose';
-
 import * as _ from 'underscore';
 import { generateModels } from '../../connectionResolvers';
-import { connect } from '../utils';
 import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
-
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
 const { subdomain } = workerData;
@@ -58,7 +55,7 @@ const create = async ({
   return { objects, updated };
 };
 
-connect().then(async () => {
+const main = async () => {
   if (cancel) {
     return;
   }
@@ -138,14 +135,14 @@ connect().then(async () => {
 
     await models.ImportHistory.update({ _id: importHistoryId }, modifier);
 
-    mongoose.connection.close();
-
     console.log(`Worker done`);
 
     parentPort.postMessage({
       action: 'remove',
       message: 'Successfully finished the job',
     });
+
+    await disconnect();
   }
 
   try {
@@ -190,12 +187,14 @@ connect().then(async () => {
 
   await models.ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
-  mongoose.connection.close();
-
   console.log(`Worker done`);
 
   parentPort.postMessage({
     action: 'remove',
     message: 'Successfully finished the job',
   });
-});
+
+  await disconnect();
+};
+
+main();

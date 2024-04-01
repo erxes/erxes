@@ -1,12 +1,13 @@
 import { incomeDeposit } from '../deposit/incomeDeposit';
-import { fetchPolaris, getSavingContract } from '../utils';
+import { fetchPolaris, getContract } from '../utils';
 
 export const incomeSaving = async (subdomain, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    savingTransactionParams.savingContractId,
+    { _id: savingTransactionParams.contractId },
+    'savings',
   );
 
   if (!savingContract) {
@@ -43,9 +44,11 @@ export const incomeSaving = async (subdomain, params) => {
     ],
   };
 
-  fetchPolaris({
+  const result = await fetchPolaris({
     op: '13610015',
     data: [sendData],
     subdomain,
   });
+
+  return result;
 };

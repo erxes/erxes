@@ -1,37 +1,38 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { BarcodeItem, TableBarcode } from "../styles";
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { extractAttachment } from '@erxes/ui/src/utils';
-import { __, router } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { TAX_TYPES, TYPES } from '../constants';
-import CategoryForm from '../containers/CategoryForm';
-import { queries } from '../graphql';
-import { BarcodeItem, TableBarcode } from '../styles';
-import { IProduct, IProductCategory, IUom, IVariant } from '../types';
-import Select from 'react-select-plus';
+} from "@erxes/ui/src/types";
+import { IProduct, IProductCategory, IUom, IVariant } from "../types";
+import { TAX_TYPES, TYPES } from "../constants";
+import { __, router } from "@erxes/ui/src/utils/core";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../containers/CategoryForm";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Select from "react-select-plus";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { extractAttachment } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
 
 type Props = {
   product?: IProduct;
@@ -66,7 +67,7 @@ class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const paramCategoryId = router.getParam(props.history, 'categoryId');
+    const paramCategoryId = router.getParam(props.history, "categoryId");
 
     const product = props.product || ({} as IProduct);
     const {
@@ -94,18 +95,18 @@ class Form extends React.Component<Props, State> {
     this.state = {
       barcodes: barcodes ? barcodes : [],
       variants: fixVariants,
-      barcodeInput: '',
-      barcodeDescription: barcodeDescription ? barcodeDescription : '',
+      barcodeInput: "",
+      barcodeDescription: barcodeDescription ? barcodeDescription : "",
       attachment: attachment ? attachment : undefined,
       attachmentMore: attachmentMore ? attachmentMore : undefined,
-      vendorId: vendorId ? vendorId : '',
-      description: description ? description : '',
+      vendorId: vendorId ? vendorId : "",
+      description: description ? description : "",
       uom,
       subUoms: subUoms ? subUoms : [],
       taxType,
       taxCode,
       scopeBrandIds,
-      code: code || '',
+      code: code || "",
       categoryId: categoryId || paramCategoryId,
     };
   }
@@ -127,7 +128,7 @@ class Form extends React.Component<Props, State> {
     const { productCategories } = this.props;
 
     const category = productCategories.find((pc) => pc._id === categoryId);
-    let maskStr = '';
+    let maskStr = "";
 
     if (category && category.maskType && category.mask) {
       const maskList: any[] = [];
@@ -137,15 +138,15 @@ class Form extends React.Component<Props, State> {
           continue;
         }
 
-        if (value.type === 'char') {
+        if (value.type === "char") {
           maskList.push(value.char);
         }
 
-        if (value.type === 'customField' && value.matches) {
-          maskList.push(`(${Object.values(value.matches).join('|')})`);
+        if (value.type === "customField" && value.matches) {
+          maskList.push(`(${Object.values(value.matches).join("|")})`);
         }
       }
-      maskStr = `${maskList.join('')}\w+`;
+      maskStr = `${maskList.join("")}\w+`;
 
       if (maskList.length && !code) {
         this.setState({ code: maskList[0] });
@@ -238,16 +239,16 @@ class Form extends React.Component<Props, State> {
       };
 
       const onChangeUom = ({ selectedOption }) => {
-        updateUoms('uom', selectedOption);
+        updateUoms("uom", selectedOption);
       };
 
       const onChangeRatio = (e) => {
         const name = e.currentTarget.name;
         let value = e.currentTarget.value;
-        if (name === 'inverse') {
+        if (name === "inverse") {
           value = Number((1 / e.currentTarget.value || 1).toFixed(13));
         }
-        updateUoms('ratio', value);
+        updateUoms("ratio", value);
       };
 
       return (
@@ -309,10 +310,10 @@ class Form extends React.Component<Props, State> {
   }
 
   onComboEvent = (variable: string, e) => {
-    let value = '';
+    let value = "";
 
     switch (variable) {
-      case 'vendorId':
+      case "vendorId":
         value = e;
         break;
       default:
@@ -327,7 +328,7 @@ class Form extends React.Component<Props, State> {
   };
 
   updateBarcodes = (barcode?: string) => {
-    const value = barcode || this.state.barcodeInput || '';
+    const value = barcode || this.state.barcodeInput || "";
     if (!value) {
       return;
     }
@@ -340,13 +341,13 @@ class Form extends React.Component<Props, State> {
 
     barcodes.unshift(value);
 
-    this.setState({ barcodes, barcodeInput: '' });
+    this.setState({ barcodes, barcodeInput: "" });
   };
 
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
 
-    subUoms.push({ uom: '', ratio: 1, _id: Math.random().toString() });
+    subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     this.setState({ subUoms });
   };
 
@@ -381,7 +382,7 @@ class Form extends React.Component<Props, State> {
   };
 
   onKeyDownBarcodeInput = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
 
       this.updateBarcodes();
@@ -456,7 +457,7 @@ class Form extends React.Component<Props, State> {
               <td>
                 <FormControl
                   name="name"
-                  value={(variants[item] || {}).name || ''}
+                  value={(variants[item] || {}).name || ""}
                   onChange={(e) =>
                     this.setState({
                       variants: {
@@ -474,11 +475,11 @@ class Form extends React.Component<Props, State> {
                 <FormControl
                   name="image"
                   componentClass="select"
-                  value={((variants[item] || {}).image || {}).url || ''}
+                  value={((variants[item] || {}).image || {}).url || ""}
                   onChange={onChangePerImage.bind(this, item)}
                 >
                   <option key={Math.random()} value="">
-                    {' '}
+                    {" "}
                   </option>
                   {(attachmentMore || []).map((img) => (
                     <option key={img.url} value={img.url}>
@@ -493,7 +494,7 @@ class Form extends React.Component<Props, State> {
                     btnStyle="link"
                     onClick={() => this.onClickBarcode(item)}
                   >
-                    <Tip text={__('Delete')} placement="bottom">
+                    <Tip text={__("Delete")} placement="bottom">
                       <Icon icon="trash" />
                     </Tip>
                   </Button>
@@ -552,7 +553,7 @@ class Form extends React.Component<Props, State> {
               <Row>
                 <Select
                   {...formProps}
-                  placeholder={__('Choose a category')}
+                  placeholder={__("Choose a category")}
                   value={categoryId}
                   options={generateOptions()}
                   onChange={this.onChangeCateogry}
@@ -576,7 +577,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
                 onChange={(e: any) => {
                   this.setState({
-                    code: e.target.value.replace(/\*/g, ''),
+                    code: e.target.value.replace(/\*/g, ""),
                   });
                 }}
               />
@@ -629,14 +630,14 @@ class Form extends React.Component<Props, State> {
                 isSubmitted={formProps.isSaved}
                 name={`product_description_${description}`}
                 toolbar={[
-                  'bold',
-                  'italic',
-                  'orderedList',
-                  'bulletList',
-                  'link',
-                  'unlink',
-                  '|',
-                  'image'
+                  "bold",
+                  "italic",
+                  "orderedList",
+                  "bulletList",
+                  "link",
+                  "unlink",
+                  "|",
+                  "image",
                 ]}
               />
             </FormGroup>
@@ -644,8 +645,8 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
-                Please ensure you have set the default currency in the{' '}
-                <a href="/settings/general"> {'General Settings'}</a> of the
+                Please ensure you have set the default currency in the{" "}
+                <a href="/settings/general"> {"General Settings"}</a> of the
                 System Configuration.
               </p>
               <FormControl
@@ -662,9 +663,9 @@ class Form extends React.Component<Props, State> {
               <SelectCompanies
                 label="Choose an vendor"
                 name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
+                customOption={{ value: "", label: "No vendor chosen" }}
                 initialValue={vendorId}
-                onSelect={this.onComboEvent.bind(this, 'vendorId')}
+                onSelect={this.onComboEvent.bind(this, "vendorId")}
                 multi={false}
               />
             </FormGroup>
@@ -677,7 +678,7 @@ class Form extends React.Component<Props, State> {
                 onChange={this.onTaxChange}
                 defaultValue={taxType}
                 options={[
-                  { value: '', label: 'default' },
+                  { value: "", label: "default" },
                   ...Object.keys(TAX_TYPES).map((type) => ({
                     value: type,
                     label: TAX_TYPES[type].label,
@@ -694,7 +695,7 @@ class Form extends React.Component<Props, State> {
                 componentClass="select"
                 onChange={this.onTaxChange}
                 defaultValue={taxCode}
-                options={(TAX_TYPES[taxType || ''] || {}).options || []}
+                options={(TAX_TYPES[taxType || ""] || {}).options || []}
               />
             </FormGroup>
           </FormColumn>
@@ -702,7 +703,7 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Brand</ControlLabel>
               <SelectBrands
-                label={__('Choose brands')}
+                label={__("Choose brands")}
                 onSelect={(brandIds) =>
                   this.onChangeBrand(brandIds as string[])
                 }
@@ -762,14 +763,14 @@ class Form extends React.Component<Props, State> {
                 isSubmitted={formProps.isSaved}
                 name={`product_barcode_description_${barcodeDescription}`}
                 toolbar={[
-                  'bold',
-                  'italic',
-                  'orderedList',
-                  'bulletList',
-                  'link',
-                  'unlink',
-                  '|',
-                  'image'
+                  "bold",
+                  "italic",
+                  "orderedList",
+                  "bulletList",
+                  "link",
+                  "unlink",
+                  "|",
+                  "image",
                 ]}
               />
             </FormGroup>
@@ -784,6 +785,7 @@ class Form extends React.Component<Props, State> {
                   queryName="uoms"
                   query={queries.uoms}
                   onChange={this.onChangeUom}
+                  required={true}
                 />
                 <Button
                   btnStyle="primary"
@@ -791,7 +793,7 @@ class Form extends React.Component<Props, State> {
                   icon="plus-circle"
                   onClick={this.onClickAddSub}
                 >
-                  {' '}
+                  {" "}
                   Add sub
                 </Button>
               </Row>
@@ -812,7 +814,7 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'product and service',
+            name: "product and service",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

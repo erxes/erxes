@@ -1,3 +1,4 @@
 export const mutations = `
-  toCheckSynced(ids: [String]): [CheckResponse]
+  toCheckPolaris(type: String): JSON
+  toSyncPolaris( items: [JSON],type: String): JSON
 `;

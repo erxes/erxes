@@ -29,8 +29,8 @@ const ContentWrapper = styled.div`
 const EmailConfigForm = (props: Props) => {
   const { data } = useQuery(gql(queries.configsGetEmailTemplate), {
     variables: {
-      name: props.templateName
-    }
+      name: props.templateName,
+    },
   });
 
   const defaultTemplate = data ? data.configsGetEmailTemplate : {};
@@ -45,7 +45,7 @@ const EmailConfigForm = (props: Props) => {
     setEmailConfig({
       type,
       template,
-      email: e.target.value
+      email: e.target.value,
     });
   };
 
@@ -53,7 +53,7 @@ const EmailConfigForm = (props: Props) => {
     setEmailConfig({
       email,
       template,
-      type: e.target.value
+      type: e.target.value,
     });
   };
 
@@ -61,7 +61,7 @@ const EmailConfigForm = (props: Props) => {
     setEmailConfig({
       type,
       email,
-      template: content
+      template: content,
     });
   };
 

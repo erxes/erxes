@@ -18,19 +18,17 @@ const ParticipantList = ({ chat }: { chat: IChat }) => {
 
   return (
     <>
-      <div className="px-6 pt-6 max-h-[70vh] overflow-auto">
-        <div className="">
-          {chat.participantUsers.map((user: any, index: number) => (
-            <ParticipantItem
-              key={index}
-              participant={user}
-              chatId={chat._id}
-              isAdmin={isAdmin}
-            />
-          ))}
-        </div>
+      <div>
+        {chat.participantUsers.map((user: any, index: number) => (
+          <ParticipantItem
+            key={index}
+            participant={user}
+            chatId={chat._id}
+            isAdmin={isAdmin}
+          />
+        ))}
       </div>
-      <div className="px-6 pb-6">
+      <div>
         <AddParticipant chat={chat} />
       </div>
     </>

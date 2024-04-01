@@ -43,3 +43,33 @@ export interface ICallConversation {
   callId: string;
   id: string;
 }
+export interface IHistoryDoc {
+  receiverNumber: string;
+  callerNumber: string;
+  callDuration: number;
+  callStartTime: Date;
+  callEndTime: Date;
+  callType: string;
+  callStatus: string;
+  sessionId: string;
+  updatedAt: Date;
+  createdAt: Date;
+  createdBy: string;
+  updatedBy: string;
+}
+export interface IHistory extends IHistoryDoc {
+  _id: string;
+  customer: ICustomer;
+}
+
+export interface ICallConfig {
+  _id: string;
+  inboxId: string;
+  phone: string;
+  wsServer: string;
+  operators: JSON;
+  token: string;
+}
+export interface ICallConfigDoc extends ICallConfig {
+  isAvailable: boolean;
+}

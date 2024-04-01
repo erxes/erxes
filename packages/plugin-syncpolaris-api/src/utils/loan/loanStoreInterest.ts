@@ -1,14 +1,9 @@
-import { fetchPolaris, getLoanContract } from '../utils';
+import { fetchPolaris } from '../utils';
 import { IPolarisStoreInterest } from './types';
 
 export const createLoanStoreInterest = async (subdomain, storeInterest) => {
-  const loanContract = await getLoanContract(
-    subdomain,
-    storeInterest.contractId,
-  );
-
   const loanStoreInterest: IPolarisStoreInterest = {
-    txnAcntCode: loanContract.number,
+    txnAcntCode: storeInterest.number,
     txnAmount: storeInterest.amount,
     txnDesc: storeInterest.description,
     sourceType: 'TLLR',

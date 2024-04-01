@@ -32,12 +32,15 @@ import {
   FontSize,
   MentionExtended,
   TableImproved,
+  Cell as TableCell,
+  Row as TableRow,
+  Header as TableHeader,
   ImageResize,
+  GlobalAttributes,
 } from '../extensions';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
-import TableRow from '@tiptap/extension-table-row';
-import { DivTag, SpanNode, StyleNode } from '../nodes';
+
+import { DivNode } from '../nodes';
+import { SpanMark } from '../marks';
 import {
   MentionSuggestionParams,
   getMentionSuggestions,
@@ -77,6 +80,28 @@ export type UseExtensionsOptions = {
 // https://github.com/ueberdosis/tiptap/issues/514
 const CustomLinkExtension = Link.extend({
   inclusive: false,
+  addAttributes() {
+    return {
+      href: {
+        default: null,
+      },
+      target: {
+        default: this.options.HTMLAttributes.target,
+      },
+      rel: {
+        default: this.options.HTMLAttributes.rel,
+      },
+      style: {
+        parseHTML: (element) => element.getAttribute('style'),
+        renderHTML: (attributes) => {
+          if (!attributes.style) {
+            return {};
+          }
+          return { style: attributes.style };
+        },
+      },
+    };
+  },
 });
 // Make subscript and superscript mutually exclusive
 // https://github.com/ueberdosis/tiptap/pull/1436#issuecomment-1031937768
@@ -101,32 +126,28 @@ export default function useExtensions({
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
   return useMemo(
     () => [
-      TableImproved.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
       Document,
-      BulletList,
-      CodeBlock,
-      HardBreak,
-      ListItem,
-      OrderedList,
-      Paragraph,
-      CustomSubscript,
-      CustomSuperscript,
-      Text,
-      Bold,
-      Blockquote,
-      Code,
-      Italic,
-      Underline,
-      ImageResize.configure({
-        inline: true,
-        allowBase64: true,
+      Paragraph.extend({
+        addAttributes() {
+          return {
+            style: {
+              parseHTML: (element) => element.getAttribute('style'),
+            },
+          };
+        },
       }),
-      Strike,
+      Text,
+      Heading.extend({
+        addAttributes() {
+          return {
+            style: {
+              parseHTML: (element) => element.getAttribute('style'),
+            },
+          };
+        },
+      }),
+      DivNode,
+      SpanMark,
       CustomLinkExtension.configure({
         // autolink is generally useful for changing text into links if they
         // appear to be URLs (like someone types in literally "example.com"),
@@ -139,19 +160,53 @@ export default function useExtensions({
         linkOnPaste: true,
         openOnClick: false,
       }),
+      FontSize,
+      FontFamily,
+      TableImproved,
+      TableCell,
+      TableHeader,
+      TableRow,
+      BulletList,
+      CodeBlock,
+      HardBreak.extend({
+        addKeyboardShortcuts() {
+          return {
+            // ctrl + enter [Win] = cmd + enter [macOS]
+            'Shift-Enter': () => this.editor.commands.setHardBreak(),
+            'Mod-Enter': () => false,
+            'Control-Enter': () => false,
+          };
+        },
+      }),
+      ListItem,
+      OrderedList,
+
+      CustomSubscript,
+      CustomSuperscript,
+
+      Bold,
+      Blockquote,
+      Code,
+      Italic,
+      Underline,
+      ImageResize.configure({
+        inline: true,
+        allowBase64: true,
+      }),
+      Strike,
+
       Gapcursor,
       TextAlign.configure({
         types: ['heading', 'paragraph', 'image'],
       }),
       Color,
-      FontFamily,
+
       Highlight.configure({ multicolor: true }),
       HorizontalRule,
       Dropcursor,
-      Heading,
+
       History,
-      FontSize,
-      DivTag,
+
       ...(showMentions && mentionSuggestion
         ? [
             MentionExtended.configure({
@@ -164,16 +219,15 @@ export default function useExtensions({
             }),
           ]
         : []),
-      SpanNode,
-      StyleNode,
       CharacterCount.configure({
         limit,
       }),
       Placeholder.configure({
         placeholder,
       }),
+      GlobalAttributes,
     ],
-    [showMentions],
+    [showMentions]
   );
 }
 
@@ -211,10 +265,9 @@ export function useGenerateJSON(html: string) {
     Heading,
     History,
     FontSize,
-    DivTag,
+    DivNode,
     MentionExtended,
-    SpanNode,
-    StyleNode,
+    SpanMark,
     CharacterCount,
     Placeholder,
   ]);

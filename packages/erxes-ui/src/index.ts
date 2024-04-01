@@ -6,7 +6,8 @@ export * from './auth';
 export * from './team';
 export * from './components';
 export * from './styles/eindex';
-export * from './utils';
 export * from './layout';
+export * from './utils';
 
 export { apolloClient, AppConsumer, AppProvider };
+// trigger

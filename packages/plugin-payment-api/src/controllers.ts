@@ -48,7 +48,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
       true,
     );
 
-    graphqlPubsub.publish('invoiceUpdated', {
+    graphqlPubsub.publish(`invoiceUpdated:${invoiceDoc._id}`, {
       invoiceUpdated: {
         _id: invoiceDoc._id,
         status: 'paid',

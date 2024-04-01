@@ -243,6 +243,7 @@ interface ISendNotification {
   isMobile?: boolean;
   eventData?: any | null;
   mobileConfig?: IMobileConfig;
+  groupId?: string;
 }
 
 export const sendNotification = async (
@@ -293,17 +294,19 @@ export const sendNotification = async (
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
+          groupId: doc?.groupId || '',
         },
         createdUser && createdUser._id,
       );
 
-    graphqlPubsub.publish('clientPortalNotificationInserted', {
+    graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
       clientPortalNotificationInserted: {
         _id: notification._id,
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
         link: notification.link,
+        groupId: notification.groupId,
         eventData,
       },
     });

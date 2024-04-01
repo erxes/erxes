@@ -76,33 +76,17 @@ class FormBase extends React.Component<Props> {
       }
     }
 
-    if (doc.scheduleDate) {
-      const { type, day, month } = doc.scheduleDate;
-
-      if (!type) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if ((type === 'year' || type === 'month') && !day) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-
-      if (type === 'year' && !month) {
-        return this.sendError(__('Choose a schedule day'));
-      }
-    }
-
     if (docType === 'live') {
       return {
         status: 'ok',
-        doc: { isLive: true, isDraft: false, ...doc }
+        doc: { isLive: true, isDraft: false, ...doc },
       };
     }
 
     if (docType === 'draft') {
       return {
         status: 'ok',
-        doc: { isLive: false, isDraft: true, ...doc }
+        doc: { isLive: false, isDraft: true, ...doc },
       };
     }
 
@@ -110,25 +94,15 @@ class FormBase extends React.Component<Props> {
   };
 
   renderTitle() {
-    const { kind } = this.props;
-
-    let title = __('Auto campaign');
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      title = __('Manual campaign');
-    }
-
-    if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      title = __('Visitor auto campaign');
-    }
+    let title = __('New broadcast');
 
     return title;
   }
 
   render() {
     const breadcrumbs = [
-      { title: __('Campaigns'), link: '/campaigns' },
-      { title: this.renderTitle() }
+      { title: __('Broadcast'), link: '/campaigns' },
+      { title: this.renderTitle() },
     ];
 
     return (
@@ -136,7 +110,7 @@ class FormBase extends React.Component<Props> {
         {this.props.content({
           renderTitle: () => this.renderTitle(),
           breadcrumbs,
-          validateDoc: this.validateDoc
+          validateDoc: this.validateDoc,
         })}
       </React.Fragment>
     );

@@ -1,18 +1,33 @@
 import {
   getBranch,
   getCustomer,
-  getLoanProduct,
   getUser,
   fetchPolaris,
-  updateLoanNumber,
+  updateContract,
+  getProduct,
 } from '../utils';
+import { createChangeLoanAmount } from './changeLoanAmount';
+import { changeLoanInterest } from './changeLoanInterest';
 
 export const updateLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
 
+  if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
+    return createChangeLoanAmount(subdomain, {
+      number: loan.number,
+      leaseAmount:
+        params.updatedDocument.leaseAmount - params.object.leaseAmount,
+      description: `change loan amount ${params.updatedDocument.description}`,
+    });
+  }
+
+  if (params.updatedDocument.interestRate !== params.object.interestRate) {
+    return changeLoanInterest(subdomain, params.updatedDocument);
+  }
+
   const customer = await getCustomer(subdomain, loan.customerId);
 
-  const loanProduct = await getLoanProduct(subdomain, loan.contractTypeId);
+  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
@@ -64,6 +79,11 @@ export const updateLoan = async (subdomain, params) => {
   });
 
   if (typeof result === 'string') {
-    await updateLoanNumber(subdomain, loan._id, result);
+    await updateContract(
+      subdomain,
+      { _id: loan._id },
+      { $set: { number: result } },
+      'loans',
+    );
   }
 };

@@ -11,7 +11,7 @@ import {
   loadMessageClass,
   ILogModel,
   ILogDocument,
-  loadLogClass
+  loadLogClass,
 } from './models';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -27,38 +27,33 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  _subdomain: string
+  _subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'imap_customers',
-    loadCustomerClass(models)
+    loadCustomerClass(models),
   );
 
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'imap_integrations',
-    loadIntegrationClass(models)
+    loadIntegrationClass(models),
   );
 
   models.Messages = db.model<IMessageDocument, IMessageModel>(
     'imap_messages',
-    loadMessageClass(models)
+    loadMessageClass(models),
   );
 
   models.Logs = db.model<ILogDocument, ILogModel>(
     'imap_logs',
-    loadLogClass(models)
+    loadLogClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

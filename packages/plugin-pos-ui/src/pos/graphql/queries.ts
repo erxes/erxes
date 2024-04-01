@@ -133,6 +133,12 @@ const posEnv = `
   }
 `;
 
+const posOrdersSummary = `
+query PosOrdersSummary($customerId: String) {
+  posOrdersSummary(customerId: $customerId)
+}
+`;
+
 export default {
   posList,
   productGroups,
@@ -140,4 +146,5 @@ export default {
   posEnv,
   getDbSchemaLabels,
   posSlots,
+  posOrdersSummary,
 };

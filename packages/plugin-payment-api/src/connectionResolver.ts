@@ -8,7 +8,7 @@ import { IPaymentDocument } from './models/definitions/payments';
 import { IInvoiceModel, loadInvoiceClass } from './models/Invoices';
 import {
   IPaymentConfigModel,
-  loadPaymentConfigClass
+  loadPaymentConfigClass,
 } from './models/PaymentConfigs';
 import { IPaymentModel, loadPaymentClass } from './models/Payments';
 
@@ -23,30 +23,25 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Payments = db.model<IPaymentDocument, IPaymentModel>(
     'payments',
-    loadPaymentClass(models)
+    loadPaymentClass(models),
   );
 
   models.Invoices = db.model<IInvoiceDocument, IInvoiceModel>(
     'invoices',
-    loadInvoiceClass(models)
+    loadInvoiceClass(models),
   );
 
   models.PaymentConfigs = db.model<IPaymentConfigDocument, IPaymentConfigModel>(
     'payment_configs',
-    loadPaymentConfigClass(models)
+    loadPaymentConfigClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

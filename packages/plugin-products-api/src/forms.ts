@@ -1,7 +1,62 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import { EXTEND_FIELDS, PRODUCT_INFO } from './constants';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { sendTagsMessage } from './messageBroker';
+
+const getTags = async (subdomain: string) => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      type: 'products:product',
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const tag of tags) {
+    selectOptions.push({
+      value: tag._id,
+      label: tag.name,
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions,
+  };
+};
+
+const getCategories = async (models: IModels) => {
+  const categories = await models.ProductCategories.find({}).sort({ order: 1 }).lean()
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const category of categories) {
+    let step = (category.order || '/').split('/').length - 2;
+    if (step < 0) step = 0;
+
+    selectOptions.push({
+      value: category._id,
+      label: `${'.'.repeat(step)}${category.code} - ${category.name}`,
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'categoryId',
+    label: 'Categories',
+    type: 'category',
+    selectOptions,
+  };
+
+}
 
 export default {
   types: [{ description: 'Products & services', type: 'product' }],
@@ -23,7 +78,10 @@ export default {
     }> = [];
 
     fields = EXTEND_FIELDS;
+    const tags = await getTags(subdomain);
+    const categories = await getCategories(models);
 
+    fields = [...fields, categories, tags];
     if (schema) {
       fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
@@ -50,6 +108,18 @@ export default {
           label: 'Sub Uoam Ratio',
         },
       ];
+    }
+
+    if (['import', 'export'].includes(usageType)) {
+      fields = [
+        ...fields,
+        {
+          _id: Math.random(),
+          name: 'categoryName',
+          label: 'Category Name',
+          type: 'string'
+        }
+      ]
     }
 
     return fields;

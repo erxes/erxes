@@ -2,14 +2,10 @@ import {
   EditorContainer,
   TestEmailWrapper,
   VerifyCancel,
-  VerifyCheck
+  VerifyCheck,
 } from '@erxes/ui-engage/src/styles';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import {
-  IEmailFormProps,
-  IEngageEmail,
-  IEngageScheduleDate
-} from '@erxes/ui-engage/src/types';
+import { IEmailFormProps, IEngageEmail } from '@erxes/ui-engage/src/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -23,7 +19,6 @@ import { ISelectedOption } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Scheduler from './Scheduler';
 import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
@@ -47,12 +42,11 @@ type State = {
   fromUserId: string;
   content: string;
   email: IEngageEmail;
-  scheduleDate?: IEngageScheduleDate;
   testEmail?: string;
 };
 
 const getEmail = (users: IUser[], fromUserId: string): string => {
-  const user = users.find(u => u._id === fromUserId);
+  const user = users.find((u) => u._id === fromUserId);
 
   return user && user.email ? user.email : '';
 };
@@ -65,8 +59,7 @@ class EmailForm extends React.Component<Props, State> {
       fromUserId: props.fromUserId,
       content: props.content,
       email: props.email,
-      scheduleDate: props.scheduleDate,
-      testEmail: getEmail(props.users, props.fromUserId)
+      testEmail: getEmail(props.users, props.fromUserId),
     };
   }
 
@@ -85,7 +78,7 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange('fromUserId', fromUserId);
   };
 
-  templateChange = value => {
+  templateChange = (value) => {
     const email = { ...this.state.email } as IEngageEmail;
 
     email.templateId = value;
@@ -95,8 +88,8 @@ class EmailForm extends React.Component<Props, State> {
     });
   };
 
-  findTemplate = id => {
-    const template = this.props.templates.find(t => t._id === id);
+  findTemplate = (id) => {
+    const template = this.props.templates.find((t) => t._id === id);
 
     if (template) {
       return template.content;
@@ -104,19 +97,6 @@ class EmailForm extends React.Component<Props, State> {
 
     return '';
   };
-
-  renderScheduler() {
-    if (this.props.kind === 'manual') {
-      return null;
-    }
-
-    return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
-        onChange={this.props.onChange}
-      />
-    );
-  }
 
   onEditorChange = (content: string) => {
     this.props.onChange('content', content);
@@ -139,18 +119,18 @@ class EmailForm extends React.Component<Props, State> {
       const { users, verifiedEmails } = this.props;
       const options: any[] = [];
 
-      users.map(user =>
+      users.map((user) =>
         options.push({
           value: user._id,
           label: user.email || user.username,
-          disabled: !verifiedEmails.includes(user.email)
+          disabled: !verifiedEmails.includes(user.email),
         })
       );
 
       return options;
     };
 
-    const optionRenderer = option => (
+    const optionRenderer = (option) => (
       <FlexContent>
         {!option.disabled ? (
           <Tip placement="auto" text="Email verified">
@@ -184,7 +164,7 @@ class EmailForm extends React.Component<Props, State> {
     const { content: propContent, email, sendTestEmail, users } = this.props;
     const { content, fromUserId, testEmail } = this.state;
 
-    const onChange = e => {
+    const onChange = (e) => {
       const value = (e.target as HTMLInputElement).value;
 
       this.setState({ testEmail: value });
@@ -195,7 +175,7 @@ class EmailForm extends React.Component<Props, State> {
         from: getEmail(users, fromUserId),
         to: testEmail || '',
         content: propContent || content,
-        title: email && email.subject ? email.subject : ''
+        title: email && email.subject ? email.subject : '',
       });
     };
 
@@ -225,19 +205,19 @@ class EmailForm extends React.Component<Props, State> {
   render() {
     const { attachments } = this.state.email;
 
-    const onChangeSubject = e =>
+    const onChangeSubject = (e) =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
 
-    const onChangeReplyTo = e =>
+    const onChangeReplyTo = (e) =>
       this.changeContent('replyTo', (e.target as HTMLInputElement).value);
 
-    const onChangeSender = e =>
+    const onChangeSender = (e) =>
       this.changeContent('sender', (e.target as HTMLInputElement).value);
 
-    const onChangeAttachment = attachmentsArr =>
+    const onChangeAttachment = (attachmentsArr) =>
       this.changeContent('attachments', attachmentsArr);
 
-    const onChangeTemplate = e => {
+    const onChangeTemplate = (e) => {
       this.templateChange(e.value);
     };
 
@@ -315,7 +295,6 @@ class EmailForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          {this.renderScheduler()}
           {this.renderTestEmailSection()}
         </FlexPad>
 

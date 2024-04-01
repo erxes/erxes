@@ -1,16 +1,18 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql, ChildProps } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import { mutations, queries } from '../graphql';
-import { BrandRemoveMutationResponse } from '../types';
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import { MutationVariables } from '@erxes/ui/src/types';
+import * as compose from "lodash.flowright";
+
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { ChildProps, graphql } from "@apollo/client/react/hoc";
+import { mutations, queries } from "../graphql";
+
+import { BrandRemoveMutationResponse } from "../types";
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { MutationVariables } from "@erxes/ui/src/types";
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import { gql } from "@apollo/client";
+import { withRouter } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -30,16 +32,18 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
   const brands = brandsQuery.brands || [];
 
   // remove action
-  const remove = brandId => {
-    confirm().then(() => {
+  const remove = (brandId) => {
+    confirm("This will permanently delete a brand. Are you absolutely sure?", {
+      hasDeleteConfirm: true,
+    }).then(() => {
       removeMutation({
-        variables: { _id: brandId }
+        variables: { _id: brandId },
       })
         .then(() => {
-          Alert.success('You successfully deleted a brand.');
-          history.push('/settings/brands');
+          Alert.success("You successfully deleted a brand.");
+          history.push("/settings/brands");
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -50,7 +54,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
     renderButton,
     brands,
     remove,
-    loading: brandsQuery.loading
+    loading: brandsQuery.loading,
   };
 
   return <Sidebar {...updatedProps} />;
@@ -61,21 +65,21 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
     {
       query: gql(queries.brands),
       variables: {
-        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-      }
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+      },
     },
     {
-      query: gql(queries.brands)
+      query: gql(queries.brands),
     },
     {
-      query: gql(queries.integrationsCount)
+      query: gql(queries.integrationsCount),
     },
     {
       query: gql(queries.brandDetail),
-      variables: { _id: currentBrandId || '' }
+      variables: { _id: currentBrandId || "" },
     },
     { query: gql(queries.brandsCount) },
-    { query: gql(queries.brands) }
+    { query: gql(queries.brands) },
   ];
 };
 
@@ -84,22 +88,22 @@ export default withProps<Props>(
     graphql<Props, BrandsQueryResponse, { perPage: number }>(
       gql(queries.brands),
       {
-        name: 'brandsQuery',
+        name: "brandsQuery",
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
           },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, BrandRemoveMutationResponse, MutationVariables>(
       gql(mutations.brandRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: ({ queryParams, currentBrandId }: Props) => ({
-          refetchQueries: getRefetchQueries(queryParams, currentBrandId)
-        })
+          refetchQueries: getRefetchQueries(queryParams, currentBrandId),
+        }),
       }
     )
   )(withRouter<FinalProps>(SidebarContainer))

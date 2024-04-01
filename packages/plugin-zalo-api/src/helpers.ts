@@ -2,7 +2,7 @@ import { generateModels, IModels } from './connectionResolver';
 import { getConfig, resetConfigsCache } from './commonUtils';
 import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { RPResult } from '@erxes/api-utils/src/messageBroker';
 
@@ -205,7 +205,7 @@ export const zaloSendRequest = async (
 
     return response;
   } catch (e) {
-    debug.error(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${e.message}`);
   }
 };
 
@@ -258,7 +258,7 @@ export const getOrCreateCustomer = async (
     //     },
     //   }
   } catch (e) {
-    debug.error(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${e.message}`);
   }
   // save on integrations db
   try {
@@ -293,7 +293,7 @@ export const getOrCreateCustomer = async (
       isRPC: true,
     });
 
-    debug.error(`apiCustomerResponse: ${apiCustomerResponse}`);
+    debugError(`apiCustomerResponse: ${apiCustomerResponse}`);
 
     customer.erxesApiId = apiCustomerResponse._id;
     await customer.save();

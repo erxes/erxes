@@ -1,11 +1,12 @@
-import { fetchPolaris, getSavingContract } from '../utils';
+import { fetchPolaris, getContract } from '../utils';
 
 export const incomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
-  const savingContract = await getSavingContract(
+  const savingContract = await getContract(
     subdomain,
-    transaction.savingContractId,
+    { _id: transaction.contractId },
+    'savings',
   );
 
   let sendData = {
@@ -18,20 +19,13 @@ export const incomeDeposit = async (subdomain, params) => {
     contCurCode: transaction.currency,
     contRate: '1',
     txnDesc: transaction.description,
-    banknotes: [
-      {
-        banknoteId: transaction.banknoteId,
-        qty: transaction.qty,
-        totalAmount: transaction.totalAmount,
-      },
-    ],
-    tcustRegisterMask: transaction.tcustRegisterMask,
-    sourceType: transaction.sourceType,
-    isPreview: transaction.isPreview,
-    isPreviewFee: transaction.isPreviewFee,
-    isTmw: transaction.isTmw,
-    isAdvice: transaction.isAdvice,
-    txnClearAmount: transaction.txnClearAmount,
+    tcustRegisterMask: '',
+    sourceType: 'OI',
+    isPreview: 0,
+    isPreviewFee: null,
+    isTmw: 1,
+    isAdvice: 1,
+    txnClearAmount: transaction.total,
     aspParam: [
       [
         {

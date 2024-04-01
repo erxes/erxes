@@ -50,7 +50,7 @@ export const afterMutationHandlers = async (
 
         if (returnResponses.length) {
           try {
-            await graphqlPubsub.publish('automationResponded', {
+            await graphqlPubsub.publish(`automationResponded:${user._id}`, {
               automationResponded: {
                 userId: user._id,
                 responseId: returnResponses.map((er) => er._id).join('-'),
@@ -97,10 +97,20 @@ export const afterMutationHandlers = async (
             registerNo: config.companyRD || '',
           };
         } else {
-          ebarimtResponse = await models.PutResponses.putData(
-            ebarimtData,
-            config,
-          );
+          try {
+            ebarimtResponse = await models.PutResponses.putData(
+              ebarimtData,
+              config,
+            );
+          } catch (e) {
+            ebarimtResponse = {
+              _id: `Err${Math.random()}`,
+              billId: 'Error',
+              success: 'false',
+              message: e.message
+            }
+          }
+
         }
         if (ebarimtResponse._id) {
           ebarimtResponses.push(ebarimtResponse);
@@ -109,7 +119,7 @@ export const afterMutationHandlers = async (
 
       try {
         if (ebarimtResponses.length) {
-          await graphqlPubsub.publish('automationResponded', {
+          await graphqlPubsub.publish(`automationResponded:${user._id}`, {
             automationResponded: {
               userId: user._id,
               responseId: ebarimtResponses.map((er) => er._id).join('-'),
