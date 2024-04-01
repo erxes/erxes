@@ -56,10 +56,13 @@ export interface Call {
   status: string;
   direction: string;
   counterpart: string;
+  startTime: string;
+  endTime: string;
 }
 export const callPropType = PropTypes.shape({
   id: PropTypes.string,
   status: PropTypes.string,
   direction: PropTypes.string,
   counterpart: PropTypes.string,
+  startTime: PropTypes.string,
 });
