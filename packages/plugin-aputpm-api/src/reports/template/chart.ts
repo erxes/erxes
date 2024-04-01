@@ -1,5 +1,5 @@
 import { sendCardsMessage, sendLogsMessage } from '../../messageBroker';
-import { buildMatchFilter, getDetails, getStageIds } from '../utils';
+import { buildMatchFilter, getDetails, generateGroupIds, getStageIds } from '../utils';
 import {
   ACTION_PIPELINES,
   ACTION_PIPELINE_TYPE,
@@ -30,6 +30,7 @@ const chartTemplates = [
         DEVIATION_PIPELINE_TYPE,
       );
 
+      const groupIds = await generateGroupIds(branchIds, 'branch', subdomain)
       const stageIds = await getStageIds(subdomain, DEVIATION_PIPELINE_TYPE);
 
       const tickets = await sendCardsMessage({
@@ -43,14 +44,10 @@ const chartTemplates = [
         defaultValue: null,
       });
 
-      const ticketCountByBranch = (tickets || []).reduce((acc, ticket) => {
-        let ticketBranchIds = ticket.branchIds || [];
+      let ticketCountByBranch = {}
 
-        if (branchIds && branchIds.length) {
-          ticketBranchIds = ticketBranchIds.filter((id) =>
-            branchIds.includes(id),
-          );
-        }
+      ticketCountByBranch = (tickets || []).reduce((acc, ticket) => {
+        let ticketBranchIds = ticket.branchIds || [];
 
         ticketBranchIds.forEach((branchId) => {
           acc[branchId] = (acc[branchId] || 0) + 1;
@@ -58,6 +55,15 @@ const chartTemplates = [
 
         return acc;
       }, {});
+
+      if (groupIds.length > 0) {
+        ticketCountByBranch = (groupIds || []).reduce((totalCount, obj) => {
+          Object.entries(obj).forEach(([key, value]) => {
+            totalCount[key] = value.reduce((total, id) => total + (ticketCountByBranch[id] || 0), totalCount[key] || 0);
+          });
+          return totalCount;
+        }, {});
+      }
 
       const getBranchTickets = Object.values(ticketCountByBranch);
       const getBranchIds = Object.keys(ticketCountByBranch);
@@ -363,6 +369,7 @@ const chartTemplates = [
         DEVIATION_PIPELINE_TYPE,
       );
 
+      const groupIds = await generateGroupIds(departmentIds, 'department', subdomain)
       const stageIds = await getStageIds(subdomain, DEVIATION_PIPELINE_TYPE);
 
       const tickets = await sendCardsMessage({
@@ -376,14 +383,10 @@ const chartTemplates = [
         defaultValue: null,
       });
 
-      const ticketCountByDepartment = (tickets || []).reduce((acc, ticket) => {
-        let ticketDepartmentIds = ticket.departmentIds || [];
+      let ticketCountByDepartment = {}
 
-        if (departmentIds && departmentIds.length) {
-          ticketDepartmentIds = ticketDepartmentIds.filter((id) =>
-            departmentIds.includes(id),
-          );
-        }
+      ticketCountByDepartment = (tickets || []).reduce((acc, ticket) => {
+        let ticketDepartmentIds = ticket.departmentIds || [];
 
         ticketDepartmentIds.forEach((departmentId) => {
           acc[departmentId] = (acc[departmentId] || 0) + 1;
@@ -391,6 +394,15 @@ const chartTemplates = [
 
         return acc;
       }, {});
+
+      if (groupIds.length > 0) {
+        ticketCountByDepartment = (groupIds || []).reduce((totalCount, obj) => {
+          Object.entries(obj).forEach(([key, value]) => {
+            totalCount[key] = value.reduce((total, id) => total + (ticketCountByDepartment[id] || 0), totalCount[key] || 0);
+          });
+          return totalCount;
+        }, {});
+      }
 
       const getDepartmentTickets = Object.values(ticketCountByDepartment);
       const getDepartmentIds = Object.keys(ticketCountByDepartment);
@@ -1121,6 +1133,8 @@ const chartTemplates = [
         subdomain,
         ACTION_PIPELINE_TYPE,
       );
+
+      const groupIds = await generateGroupIds(departmentIds, 'department', subdomain)
       const stageIds = await getStageIds(subdomain, ACTION_PIPELINE_TYPE);
 
       const tasks = await sendCardsMessage({
@@ -1134,20 +1148,25 @@ const chartTemplates = [
         defaultValue: null,
       });
 
-      const taskCountByDepartment = (tasks || []).reduce((acc, task) => {
-        let taskDepartmentIds = task.departmentIds || [];
+      let taskCountByDepartment = {}
 
-        if (departmentIds && departmentIds.length) {
-          taskDepartmentIds = taskDepartmentIds.filter((id) =>
-            departmentIds.includes(id),
-          );
-        }
+      taskCountByDepartment = (tasks || []).reduce((acc, task) => {
+        let taskDepartmentIds = task.departmentIds || [];
 
         taskDepartmentIds.forEach((departmentId) => {
           acc[departmentId] = (acc[departmentId] || 0) + 1;
         });
         return acc;
       }, {});
+
+      if (groupIds.length > 0) {
+        taskCountByDepartment = (groupIds || []).reduce((totalCount, obj) => {
+          Object.entries(obj).forEach(([key, value]) => {
+            totalCount[key] = value.reduce((total, id) => total + (taskCountByDepartment[id] || 0), totalCount[key] || 0);
+          });
+          return totalCount;
+        }, {});
+      }
 
       const getDepartmentTasks = Object.values(taskCountByDepartment);
       const getDepartmentIds = Object.keys(taskCountByDepartment);

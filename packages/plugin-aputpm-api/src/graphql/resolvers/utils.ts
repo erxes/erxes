@@ -11,7 +11,7 @@ const generateDateFilter = value => {
   return filter;
 };
 
-const generateChildrenIds = async ({ subdomain, action, query, type }) => {
+export const generateChildrenIds = async ({ subdomain, action, query, type }) => {
   const parentFilter = type === 'branch' ? { query } : query;
 
   const orders = (
