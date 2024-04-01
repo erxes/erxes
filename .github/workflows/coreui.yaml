@@ -7,7 +7,7 @@ on:
       - master
       - rc
       - staging
-      - build-test
+      - cards-separate
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
