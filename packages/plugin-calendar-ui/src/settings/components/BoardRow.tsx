@@ -1,6 +1,5 @@
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import BoardForm from './BoardForm';
-import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
 import Button from '@erxes/ui/src/components/Button';
 import { IBoard } from '../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -10,6 +9,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
+import { BoardItem } from '../../calendar/styles';
 
 type Props = {
   board: IBoard;
@@ -38,7 +38,7 @@ class BoardRow extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <BoardForm {...props} board={board} renderButton={renderButton} />
     );
 

@@ -7,7 +7,7 @@ import Event from '../components/Event';
 import Info from '@erxes/ui/src/components/Info';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import { getWarningMessage } from '../utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as integrationsQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
@@ -37,7 +37,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
       document: gql(subscriptions.calendarEventUpdated),
       updateQuery: () => {
         this.props.integrationsGetNylasEventsQuery.refetch();
-      }
+      },
     });
   }
 
@@ -55,7 +55,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
       removeEventMutation,
       startTime,
       endTime,
-      queryParams
+      queryParams,
     } = this.props;
 
     if (integrationsGetNylasEventsQuery.loading) {
@@ -73,21 +73,21 @@ class EventContainer extends React.Component<FinalProps, {}> {
           removeEventMutation({
             variables: {
               _id,
-              accountId
-            }
+              accountId,
+            },
           })
             .then(() => {
               integrationsGetNylasEventsQuery.refetch({
                 startTime,
                 endTime,
-                queryParams
+                queryParams,
               });
 
               const msg = `${__(`You successfully deleted a`)} ${__('event')}.`;
 
               Alert.success(msg);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         }
@@ -97,7 +97,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       remove,
-      events: integrationsGetNylasEventsQuery.integrationsGetNylasEvents || []
+      events: integrationsGetNylasEventsQuery.integrationsGetNylasEvents || [],
     };
 
     return <Event {...updatedProps} />;
@@ -113,15 +113,15 @@ export default withProps<Props>(
           variables: {
             calendarIds,
             startTime,
-            endTime
-          }
+            endTime,
+          },
         };
-      }
+      },
     }),
     graphql<Props, any, { _id: string; accountId: string }>(
       gql(mutations.deleteEvent),
       {
-        name: 'removeEventMutation'
+        name: 'removeEventMutation',
       }
     )
   )(EventContainer)

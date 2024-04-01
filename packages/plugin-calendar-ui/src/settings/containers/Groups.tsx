@@ -7,7 +7,7 @@ import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
 import { __, Alert, confirm, getEnv, withProps } from 'coreui/utils';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import { getWarningMessage } from '../../calendar/utils';
 import { INTEGRATIONS } from '../constants';
 import Groups from '../components/Groups';
 import { mutations, queries } from '../graphql';
@@ -18,7 +18,7 @@ import {
   IGroup,
   RemoveCalendarMutationResponse,
   RemoveCalendarMutationVariables,
-  RemoveGroupMutationResponse
+  RemoveGroupMutationResponse,
 } from '../types';
 
 type Props = {
@@ -42,7 +42,7 @@ class GroupsContainer extends React.Component<FinalProps> {
       removeMutation,
       boardDetailQuery,
       queryParams,
-      removeCalendarMutation
+      removeCalendarMutation,
     } = this.props;
 
     if (groupsQuery.loading || boardDetailQuery.loading) {
@@ -55,8 +55,8 @@ class GroupsContainer extends React.Component<FinalProps> {
         () => {
           removeMutation({
             variables: {
-              _id: calendar._id
-            }
+              _id: calendar._id,
+            },
           })
             .then(() => {
               groupsQuery.refetch({ boardId });
@@ -67,7 +67,7 @@ class GroupsContainer extends React.Component<FinalProps> {
 
               Alert.success(msg);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         }
@@ -80,7 +80,7 @@ class GroupsContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       object,
-      confirmationUpdate
+      confirmationUpdate,
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
         groupsQuery.refetch({ boardId });
@@ -108,10 +108,11 @@ class GroupsContainer extends React.Component<FinalProps> {
 
     const customLink = (kind: string) => {
       const { REACT_APP_API_URL } = getEnv();
-      const integration = INTEGRATIONS.find(i => i.kind === kind);
+      const integration = INTEGRATIONS.find((i) => i.kind === kind);
 
-      const url = `${REACT_APP_API_URL}/connect-integration?link=${integration &&
-        integration.createUrl}&kind=${kind}&type=calendar`;
+      const url = `${REACT_APP_API_URL}/connect-integration?link=${
+        integration && integration.createUrl
+      }&kind=${kind}&type=calendar`;
 
       window.location.replace(url);
     };
@@ -125,9 +126,9 @@ class GroupsContainer extends React.Component<FinalProps> {
           removeCalendarMutation({
             variables: {
               _id: calendar._id,
-              accountId: calendar.accountId
+              accountId: calendar.accountId,
             },
-            refetchQueries: getRefetchQueries(boardId, calendar.groupId)
+            refetchQueries: getRefetchQueries(boardId, calendar.groupId),
           })
             .then(() => {
               getRefetchQueries(boardId, calendar.groupId);
@@ -138,7 +139,7 @@ class GroupsContainer extends React.Component<FinalProps> {
 
               Alert.success(msg);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         }
@@ -151,7 +152,7 @@ class GroupsContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       object,
-      confirmationUpdate
+      confirmationUpdate,
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
         getRefetchQueries(boardId);
@@ -195,7 +196,7 @@ class GroupsContainer extends React.Component<FinalProps> {
         : undefined,
       customLink,
       removeCalendar,
-      renderCalendarButton
+      renderCalendarButton,
     };
 
     return <Groups {...extendedProps} />;
@@ -206,12 +207,12 @@ const getRefetchQueries = (boardId: string, groupId?: string) => {
   const refetchQueries = [
     {
       query: gql(queries.groups),
-      variables: { boardId }
+      variables: { boardId },
     },
     {
       query: gql(queries.boardDetail),
-      variables: { _id: boardId }
-    }
+      variables: { _id: boardId },
+    },
   ];
 
   if (!groupId) {
@@ -222,8 +223,8 @@ const getRefetchQueries = (boardId: string, groupId?: string) => {
     ...refetchQueries,
     {
       query: gql(calendarQueries.calendars),
-      variables: { groupId }
-    }
+      variables: { groupId },
+    },
   ];
 };
 
@@ -233,20 +234,20 @@ export default withProps<Props>(
       name: 'groupsQuery',
       options: ({ boardId = '' }: { boardId: string }) => ({
         variables: { boardId },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
       name: 'boardDetailQuery',
       options: ({ boardId }: { boardId: string }) => ({
         variables: { _id: boardId },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, RemoveGroupMutationResponse, MutationVariables>(
       gql(mutations.groupRemove),
       {
-        name: 'removeMutation'
+        name: 'removeMutation',
       }
     ),
     graphql<
@@ -254,7 +255,7 @@ export default withProps<Props>(
       RemoveCalendarMutationResponse,
       RemoveCalendarMutationVariables
     >(gql(mutations.calendarRemove), {
-      name: 'removeCalendarMutation'
+      name: 'removeCalendarMutation',
     })
   )(GroupsContainer)
 );
