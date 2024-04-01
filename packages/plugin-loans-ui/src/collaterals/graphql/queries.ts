@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
-} from '@erxes/ui-cards/src/conformity';
+  conformityQueryFields,
+} from '@erxes/ui-deals/src/conformity';
 
 const collateralFields = `
   _id
@@ -86,5 +86,5 @@ export const collateralsMain = `
 `;
 
 export default {
-  collateralsMain
+  collateralsMain,
 };
