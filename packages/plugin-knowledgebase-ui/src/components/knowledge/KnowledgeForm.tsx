@@ -330,7 +330,6 @@ class KnowledgeForm extends React.Component<Props, State> {
             {...formProps}
             name="code"
             defaultValue={topic.code || ''}
-            required={true}
           />
         </FormGroup>
 
