@@ -60,6 +60,7 @@ const fieldQueries = {
       { value: 'file', label: 'File' },
       { value: 'customer', label: 'Customer' },
       { value: 'product', label: 'Product' },
+      { value: 'users', label: 'Team members' },
       { value: 'branch', label: 'Branch' },
       { value: 'department', label: 'Department' },
       { value: 'map', label: 'Location/Map' },
