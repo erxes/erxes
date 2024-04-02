@@ -25,9 +25,8 @@ export const Authorization = (props: Props) => {
       window.opener.location.reload();
     }
     window.close();
-    window.location.reload();
   }
-
+  window.location.reload();
   return (
     <Wrapper>
       {queryParams.fbAuthorized ? (
