@@ -24,7 +24,8 @@ class BoardItemCreatedLogContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const contentDetail = contentTypeDetailsQuery.boardContentTypeDetail || {};
+    const contentDetail =
+      contentTypeDetailsQuery.dealBoardContentTypeDetail || {};
 
     const updatedProps = {
       ...this.props,

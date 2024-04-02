@@ -33,7 +33,7 @@ function ChecklistsContainer(props: FinalProps) {
     });
   });
 
-  const checklists = checklistsQuery.checklists || [];
+  const checklists = checklistsQuery.dealChecklists || [];
 
   return checklists.map((list) => (
     <List
@@ -56,7 +56,7 @@ export default withProps<IProps>(
             contentType,
             contentTypeId,
           },
-          refetchQueries: ['checklists'],
+          refetchQueries: ['dealChecklists'],
         }),
       }
     )

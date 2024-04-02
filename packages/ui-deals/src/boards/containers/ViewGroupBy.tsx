@@ -53,7 +53,7 @@ class WithStages extends Component<WithStagesProps> {
     } = this.props;
 
     let groupType = 'stage';
-    let groups: any[] = stagesQuery.stages || [];
+    let groups: any[] = stagesQuery.dealStages || [];
 
     if (queryParams.groupBy === 'label') {
       groups = pipelineLabelsQuery.pipelineLabels || [];
@@ -66,7 +66,7 @@ class WithStages extends Component<WithStagesProps> {
     }
 
     if (queryParams.groupBy === 'assignee') {
-      groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
+      groups = pipelineAssigneeQuery.dealPipelineAssignedUsers || [];
       groupType = 'assignee';
     }
 

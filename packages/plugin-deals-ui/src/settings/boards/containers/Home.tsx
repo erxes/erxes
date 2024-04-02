@@ -53,7 +53,7 @@ const LastBoard = (props: LastBoardProps & Props) => {
     return <Spinner objective={true} />;
   }
 
-  const lastBoard = boardGetLastQuery.boardGetLast || ({} as IBoard);
+  const lastBoard = boardGetLastQuery.dealBoardGetLast || ({} as IBoard);
 
   const extendedProps = {
     ...props,

@@ -137,31 +137,31 @@ const stageParams = `
 `;
 
 export const queries = `
-  boards(type: String!): [Board]
-  boardCounts(type: String!): [BoardCount]
-  boardGetLast(type: String!): Board
-  boardDetail(_id: String!): Board
-  pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
-  pipelineDetail(_id: String!): Pipeline
-  pipelineAssignedUsers(_id: String!): [User]
-  stages(
+  dealBoards(type: String!): [Board]
+  dealBoardCounts(type: String!): [BoardCount]
+  dealBoardGetLast(type: String!): Board
+  dealBoardDetail(_id: String!): Board
+  dealPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
+  dealPipelineDetail(_id: String!): Pipeline
+  dealPipelineAssignedUsers(_id: String!): [User]
+  dealStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
     pipelineIds: [String],
     ${stageParams}
   ): [Stage]
-  stageDetail(_id: String!, ${stageParams}): Stage
-  convertToInfo(conversationId: String!): ConvertTo
-  pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
-  archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
-  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
-  cardsFields: JSON
-  boardContentTypeDetail(contentType: String, contentId: String): JSON
-  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  dealStageDetail(_id: String!, ${stageParams}): Stage
+  dealConvertToInfo(conversationId: String!): ConvertTo
+  dealPipelineStateCount(boardId: String, type: String): JSON
+  dealArchivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+  dealArchivedStagesCount(pipelineId: String!, search: String): Int
+  dealItemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  dealItemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  dealCardsFields: JSON
+  dealBoardContentTypeDetail(contentType: String, contentId: String): JSON
+  dealBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  dealCheckFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `

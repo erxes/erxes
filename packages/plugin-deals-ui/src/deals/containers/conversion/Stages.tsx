@@ -24,7 +24,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
   render() {
     const { stagesQuery, type, pipelineId } = this.props;
 
-    if (!stagesQuery || !stagesQuery.stages) {
+    if (!stagesQuery || !stagesQuery.dealStages) {
       return (
         <EmptyState
           image="/images/actions/18.svg"
@@ -42,7 +42,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
       return <Spinner objective={true} />;
     }
 
-    const stages = stagesQuery.stages || [];
+    const stages = stagesQuery.dealStages || [];
 
     if (type === 'more') {
       return <Table {...this.props} stages={stages} />;

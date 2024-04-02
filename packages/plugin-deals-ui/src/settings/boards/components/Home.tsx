@@ -22,7 +22,7 @@ class Home extends React.Component<Props, {}> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __(title), link: `/settings/boards/${type}` }
+      { title: __(title), link: `/settings/boards/${type}` },
     ];
 
     return (

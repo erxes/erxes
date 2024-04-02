@@ -1,6 +1,6 @@
 const boards = `
-  query boards($type: String!) {
-    boards(type: $type) {
+  query dealBoards($type: String!) {
+    dealBoards(type: $type) {
       _id
       name
       pipelines {
@@ -12,8 +12,8 @@ const boards = `
 `;
 
 const boardGetLast = `
-  query boardGetLast($type: String!) {
-    boardGetLast(type: $type) {
+  query dealBoardGetLast($type: String!) {
+    dealBoardGetLast(type: $type) {
       _id
       name
     }
@@ -21,8 +21,8 @@ const boardGetLast = `
 `;
 
 const pipelines = `
-  query pipelines($boardId: String!, $type: String, $isAll: Boolean) {
-    pipelines(boardId: $boardId, type: $type, isAll: $isAll) {
+  query dealPipelines($boardId: String!, $type: String, $isAll: Boolean) {
+    dealPipelines(boardId: $boardId, type: $type, isAll: $isAll) {
       _id
       name
       status
@@ -55,8 +55,8 @@ const pipelines = `
 `;
 
 const stages = `
-  query stages($pipelineId: String!, $isAll: Boolean) {
-    stages(pipelineId: $pipelineId, isAll: $isAll) {
+  query dealStages($pipelineId: String!, $isAll: Boolean) {
+    dealStages(pipelineId: $pipelineId, isAll: $isAll) {
       _id
       name
       probability
@@ -76,8 +76,8 @@ const stages = `
 `;
 
 const boardDetail = `
-  query boardDetail($_id: String!) {
-    boardDetail(_id: $_id) {
+  query dealBoardDetail($_id: String!) {
+    dealBoardDetail(_id: $_id) {
       _id
       name
       type

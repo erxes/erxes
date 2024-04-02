@@ -65,7 +65,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  async boards(
+  async dealBoards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector, models: { Boards }, res }: IContext
@@ -117,7 +117,7 @@ const boardQueries = {
   /**
    *  Boards count
    */
-  async boardCounts(
+  async dealBoardCounts(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards, Pipelines } }: IContext
@@ -154,7 +154,7 @@ const boardQueries = {
   /**
    *  Board detail
    */
-  boardDetail(
+  dealBoardDetail(
     _root,
     { _id }: { _id: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -165,7 +165,7 @@ const boardQueries = {
   /**
    * Get last board
    */
-  boardGetLast(
+  dealBoardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -180,7 +180,7 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  async pipelines(
+  async dealPipelines(
     _root,
     {
       boardId,
@@ -260,7 +260,7 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async pipelineStateCount(
+  async dealPipelineStateCount(
     _root,
     { boardId, type }: { boardId: string; type: string },
     { models: { Pipelines } }: IContext
@@ -314,7 +314,7 @@ const boardQueries = {
   /**
    *  Pipeline detail
    */
-  pipelineDetail(
+  dealPipelineDetail(
     _root,
     { _id }: { _id: string },
     { models: { Pipelines } }: IContext
@@ -325,7 +325,7 @@ const boardQueries = {
   /**
    *  Pipeline related assigned users
    */
-  async pipelineAssignedUsers(
+  async dealPipelineAssignedUsers(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -350,7 +350,7 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  async stages(
+  async dealStages(
     _root,
     {
       pipelineId,
@@ -411,7 +411,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async itemsCountByAssignedUser(
+  async dealItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -555,7 +555,7 @@ const boardQueries = {
   /**
    *  Stage detail
    */
-  stageDetail(
+  dealStageDetail(
     _root,
     { _id }: { _id: string },
     { models: { Stages } }: IContext
@@ -567,7 +567,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  archivedStages(
+  dealArchivedStages(
     _root,
     {
       pipelineId,
@@ -585,7 +585,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  archivedStagesCount(
+  dealArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -602,7 +602,7 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async convertToInfo(
+  async dealConvertToInfo(
     _root,
     { conversationId }: { conversationId: string },
     { models: { Deals, Stages, Pipelines, Boards } }: IContext
@@ -625,7 +625,7 @@ const boardQueries = {
     };
   },
 
-  async itemsCountBySegments(
+  async dealItemsCountBySegments(
     _root,
     {
       type,
@@ -660,11 +660,11 @@ const boardQueries = {
     return counts;
   },
 
-  async boardContentTypeDetail(_root, args, { subdomain }: IContext) {
+  async dealBoardContentTypeDetail(_root, args, { subdomain }: IContext) {
     return getContentTypeDetail(subdomain, args);
   },
 
-  async boardLogs(_root, args, { subdomain, models }: IContext) {
+  async dealBoardLogs(_root, args, { subdomain, models }: IContext) {
     const { Deals, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
@@ -736,7 +736,7 @@ const boardQueries = {
     }
   },
 
-  async cardsFields(_root, _args, { models, subdomain }: IContext) {
+  async dealCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ['deal']) {
@@ -789,7 +789,7 @@ const boardQueries = {
     return result;
   },
 
-  async checkFreeTimes(
+  async dealCheckFreeTimes(
     _root,
     { pipelineId, intervals },
     { models, subdomain }: IContext

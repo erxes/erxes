@@ -5,7 +5,7 @@ const checklistQueries = {
   /**
    * Checklists list
    */
-  async checklists(
+  async dealChecklists(
     _root,
     {
       contentType,
@@ -22,7 +22,11 @@ const checklistQueries = {
   /**
    * Checklist
    */
-  async checklistDetail(_root, { _id }: { _id: string }, { models: { Checklists } }: IContext) {
+  async dealChecklistDetail(
+    _root,
+    { _id }: { _id: string },
+    { models: { Checklists } }: IContext
+  ) {
     return Checklists.findOne({ _id }).sort({ order: 1 });
   },
 };

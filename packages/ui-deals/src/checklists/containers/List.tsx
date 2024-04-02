@@ -105,7 +105,7 @@ function ListContainer(props: FinalProps) {
         mutation={mutations.checklistsEdit}
         variables={values}
         callback={callBackResponse}
-        refetchQueries={['checklistDetail']}
+        refetchQueries={['dealChecklistDetail']}
         isSubmitted={isSubmitted}
         btnSize="small"
         type="submit"
@@ -118,7 +118,7 @@ function ListContainer(props: FinalProps) {
     return null;
   }
 
-  const item = checklistDetailQuery.checklistDetail;
+  const item = checklistDetailQuery.dealChecklistDetail;
 
   const listProps = {
     item,
@@ -171,7 +171,7 @@ export default withProps<Props>(
       {
         name: 'removeMutation',
         options: () => ({
-          refetchQueries: ['checklists'],
+          refetchQueries: ['dealChecklists'],
         }),
       }
     )

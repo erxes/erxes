@@ -14,7 +14,7 @@ import { queries } from '../graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
 } from '../types';
 
 type Props = {
@@ -52,7 +52,7 @@ const FILTER_PARAMS = [
   'startDateStartDate',
   'startDateEndDate',
   'closeDateStartDate',
-  'closeDateEndDate'
+  'closeDateEndDate',
 ];
 
 const generateQueryParams = ({ location }) => {
@@ -104,7 +104,7 @@ class Main extends React.Component<FinalProps> {
     const params = generateQueryParams(this.props.history);
 
     const remainedParams = Object.keys(params).filter(
-      key => !defaultParams.includes(key)
+      (key) => !defaultParams.includes(key)
     );
 
     routerUtils.removeParams(this.props.history, ...remainedParams);
@@ -118,7 +118,7 @@ class Main extends React.Component<FinalProps> {
       boardGetLastQuery,
       boardDetailQuery,
       type,
-      middleContent
+      middleContent,
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -151,20 +151,20 @@ class Main extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
-    const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
+    const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
+    const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
 
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
     const [defaultBoardId, defaultPipelineId] = [
       defaultBoards[type],
-      defaultPipelines[type]
+      defaultPipelines[type],
     ];
 
     if (!boardId && defaultBoardId) {
       routerUtils.setParams(history, {
         id: defaultBoardId,
-        pipelineId: defaultPipelineId
+        pipelineId: defaultPipelineId,
       });
 
       return null;
@@ -182,7 +182,7 @@ class Main extends React.Component<FinalProps> {
 
       routerUtils.setParams(history, {
         id: lastBoard._id,
-        pipelineId: firstPipeline._id
+        pipelineId: firstPipeline._id,
       });
 
       return null;
@@ -207,7 +207,7 @@ class Main extends React.Component<FinalProps> {
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     const currentPipeline = pipelineId
-      ? pipelines.find(pipe => pipe._id === pipelineId)
+      ? pipelines.find((pipe) => pipe._id === pipelineId)
       : pipelines[0];
 
     const props = {
@@ -217,7 +217,7 @@ class Main extends React.Component<FinalProps> {
       history,
       currentBoard,
       currentPipeline,
-      boards: boardsQuery.boards || []
+      boards: boardsQuery.dealBoards || [],
     };
 
     const extendedProps = {
@@ -225,7 +225,7 @@ class Main extends React.Component<FinalProps> {
       type,
       onSelect: this.onSelect,
       isFiltered: this.isFiltered,
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
     };
 
     const Component = this.props.component;
@@ -239,24 +239,24 @@ const MainActionBarContainer = withProps<Props>(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
       name: 'boardGetLastQuery',
       skip: getBoardId,
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
         name: 'boardDetailQuery',
-        skip: props => !getBoardId(props),
-        options: props => ({
-          variables: { _id: getBoardId(props) }
-        })
+        skip: (props) => !getBoardId(props),
+        options: (props) => ({
+          variables: { _id: getBoardId(props) },
+        }),
       }
     )
   )(Main)
