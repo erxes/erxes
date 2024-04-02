@@ -75,6 +75,7 @@ const types = `
     createdBy: String
     modifiedBy: String
     customer: Customer
+    extentionNumber: String
   }
 `;
 

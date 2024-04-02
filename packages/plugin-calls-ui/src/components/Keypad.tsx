@@ -493,7 +493,7 @@ const KeyPad = (props: Props, context) => {
                   ? 'Call'
                   : Sip.call?.status === CALL_STATUS_STARTING
                     ? 'Calling'
-                    : 'aa'}
+                    : 'Stopping'}
               </Button>
             </>
           )}
