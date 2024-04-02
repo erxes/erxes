@@ -21,12 +21,12 @@ export const Authorization = (props: Props) => {
   const { queryParams } = props;
 
   if (queryParams.fbAuthorized) {
+    window.focus();
     if (window.opener) {
       window.opener.location.reload();
+      window.close();
     }
-    window.close();
   }
-  window.location.reload();
   return (
     <Wrapper>
       {queryParams.fbAuthorized ? (
