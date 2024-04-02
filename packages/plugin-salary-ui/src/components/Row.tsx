@@ -46,23 +46,23 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={'title'}>
+      <td key={Math.random()}>
         <RowTitle>{salary.title || '-'}</RowTitle>
       </td>
 
-      <td key={'employeeId'}>
+      <td key={salary.employeeId}>
         <RowTitle>{salary.employeeId || '-'}</RowTitle>
       </td>
 
-      <td key={'department'}>
+      <td key={Math.random()}>
         <RowTitle>{branchesList || '-'}</RowTitle>
       </td>
 
-      <td key={'position'}>
+      <td key={position}>
         <RowTitle>{position || '-'}</RowTitle>
       </td>
 
-      <td key={'fullName'}>
+      <td key={fullName}>
         <RowTitle>{fullName || '-'}</RowTitle>
       </td>
 

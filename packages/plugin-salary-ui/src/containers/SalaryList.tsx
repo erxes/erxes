@@ -110,8 +110,8 @@ export default function ListContainer(props: Props) {
   let totalCount = 0;
 
   if (!isEmployeeSalary) {
-    salaries = salariesQry.data.salaryReport.list || [];
-    totalCount = salariesQry.data.salaryReport.totalCount || 0;
+    salaries = salariesQry.data?.salaryReport?.list || [];
+    totalCount = salariesQry.data?.salaryReport?.totalCount || 0;
   }
 
   if (isEmployeeSalary) {
