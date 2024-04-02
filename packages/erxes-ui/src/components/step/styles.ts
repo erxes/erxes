@@ -386,14 +386,14 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
   }
 `;
 
-const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
+const Preview = styledTS<{ $fullHeight?: boolean }>(styled.div)`
   flex: 1;
   border-left: 1px solid ${colors.borderPrimary};
   background: url('/images/previews/preview.png');
   background-repeat: repeat;
   background-position: center 20px;
   background-size: cover;
-  height: ${(props) => props.fullHeight && '100%'};
+  height: ${(props) => props.$fullHeight && '100%'};
   overflow: hidden;
 `;
 

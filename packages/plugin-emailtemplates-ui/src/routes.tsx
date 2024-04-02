@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
@@ -13,8 +13,15 @@ const List = asyncComponent(
 
 const EmailTemplates = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  return <List queryParams={queryString.parse(location.search)} />;
+  return (
+    <List
+      queryParams={queryString.parse(location.search)}
+      location={location}
+      navigate={navigate}
+    />
+  );
 };
 
 const routes = () => (

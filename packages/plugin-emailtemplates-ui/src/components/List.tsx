@@ -6,26 +6,27 @@ import {
   TemplateBoxInfo,
   TemplateInfo,
   Templates,
-} from '@erxes/ui-emailtemplates/src/styles';
-import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "@erxes/ui-emailtemplates/src/styles";
+import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Form from '@erxes/ui-emailtemplates/src/components/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import List from '@erxes/ui-settings/src/common/components/List';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import { router } from '@erxes/ui/src';
+import Form from "@erxes/ui-emailtemplates/src/components/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ICommonListProps } from "@erxes/ui-settings/src/common/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import List from "@erxes/ui-settings/src/common/components/List";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
+import { router } from "@erxes/ui/src";
 
 type Props = {
   queryParams: any;
-  history: any;
+  location: any;
+  navigate: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
 } & ICommonListProps;
@@ -77,13 +78,13 @@ class EmailTemplateList extends React.Component<Props> {
   renderDate(createdAt, modifiedAt) {
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
-        return '-';
+        return "-";
       }
 
-      return dayjs(createdAt).format('DD MMM YYYY');
+      return dayjs(createdAt).format("DD MMM YYYY");
     }
 
-    return dayjs(modifiedAt).format('DD MMM YYYY');
+    return dayjs(modifiedAt).format("DD MMM YYYY");
   }
 
   renderRow = () => {
@@ -92,7 +93,7 @@ class EmailTemplateList extends React.Component<Props> {
         object || {};
 
       return (
-        <Template key={index} isLongName={name.length > 46}>
+        <Template key={index} $isLongName={name.length > 46}>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
@@ -130,9 +131,7 @@ class EmailTemplateList extends React.Component<Props> {
   };
 
   searchHandler = (event) => {
-    const { history } = this.props;
-    const location = useLocation();
-    const navigate = useNavigate();
+    const { navigate, location } = this.props;
 
     router.setParams(navigate, location, {
       page: 1,
@@ -146,14 +145,14 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderSearch = () => {
     return (
-      <FilterContainer marginRight={true}>
+      <FilterContainer $marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={this.searchHandler}
-            value={router.getParam(this.props.history, 'searchValue')}
+            value={router.getParam(this.props.location, "searchValue")}
             autoFocus={true}
           />
         </InputBar>
@@ -167,20 +166,20 @@ class EmailTemplateList extends React.Component<Props> {
         formTitle="New email template"
         size="lg"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Email templates') },
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Email templates") },
         ]}
-        title={__('Email templates')}
+        title={__("Email templates")}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/22.svg"
             title="Email templates"
             description={`${__(
-              `It's all about thinking ahead for your customers`,
+              `It's all about thinking ahead for your customers`
             )}.${__(
-              'Team members will be able to choose from email templates and send out one message to multiple recipients',
+              "Team members will be able to choose from email templates and send out one message to multiple recipients"
             )}.${__(
-              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members',
+              "You can use the email templates to send out a Mass email for leads/customers or you can send to other team members"
             )}`}
           />
         }
@@ -188,7 +187,6 @@ class EmailTemplateList extends React.Component<Props> {
         renderContent={this.renderContent}
         {...this.props}
         queryParams={this.props.queryParams}
-        history={this.props.history}
         additionalButton={this.renderSearch()}
       />
     );

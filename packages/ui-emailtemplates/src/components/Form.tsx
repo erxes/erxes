@@ -1,35 +1,37 @@
-import React, { useState } from 'react';
-
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IEmailTemplate } from '../types';
-import { IFormProps } from '@erxes/ui/src/types';
-import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IEmailTemplate } from "../types";
+import { IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
 
 type Props = {
   object?: IEmailTemplate;
   contentType?: string;
 } & ICommonFormProps;
 
-const Form = (props: Props) => {
-  const { object, contentType } = props;
+type State = {
+  content: string;
+};
 
-  const [content, setContent] = useState<string>(
-    (object && object.content) || '',
-  );
+class Form extends React.Component<Props & ICommonFormProps, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const onEditorChange = (e) => {
-    setContent(e.editor.getData());
+    this.state = {
+      content: (props.object && props.object.content) || "",
+    };
+  }
+
+  onEditorChange = (content: string) => {
+    this.setState({ content });
   };
 
-  const generateDoc = (values: {
-    _id?: string;
-    name: string;
-    content: string;
-  }) => {
+  generateDoc = (values: { _id?: string; name: string; content: string }) => {
+    const { object } = this.props;
     const finalValues = values;
 
     if (object) {
@@ -39,12 +41,12 @@ const Form = (props: Props) => {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      content: content,
+      content: this.state.content,
     };
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const { _id, name } = object || ({} as IEmailTemplate);
+  renderContent = (formProps: IFormProps) => {
+    const object = this.props.object || ({} as IEmailTemplate);
 
     return (
       <>
@@ -53,7 +55,7 @@ const Form = (props: Props) => {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={name}
+            defaultValue={object.name}
             type="text"
             required={true}
             autoFocus={true}
@@ -63,31 +65,35 @@ const Form = (props: Props) => {
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
           <RichTextEditor
-            content={content}
-            onChange={onEditorChange}
+            content={this.state.content}
+            onChange={this.onEditorChange}
             autoGrow={true}
             autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
-            name={`emailTemplates_${_id || 'create'}`}
-            contentType={contentType}
+            name={`emailTemplates_${object._id || "create"}`}
+            contentType={this?.props?.contentType}
           />
         </FormGroup>
       </>
     );
   };
 
-  return (
-    <CommonForm
-      {...props}
-      name="email template"
-      renderContent={renderContent}
-      generateDoc={generateDoc}
-      object={object}
-      createdAt={
-        object && object.modifiedAt !== object.createdAt && object.createdAt
-      }
-    />
-  );
-};
+  render() {
+    const { object } = this.props;
+
+    return (
+      <CommonForm
+        {...this.props}
+        name="email template"
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+        object={object}
+        createdAt={
+          object && object.modifiedAt !== object.createdAt && object.createdAt
+        }
+      />
+    );
+  }
+}
 
 export default Form;

@@ -1,17 +1,18 @@
-import { gql, useQuery, useMutation } from '@apollo/client';
-import client from '@erxes/ui/src/apolloClient';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { confirm } from '@erxes/ui/src/utils';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { IEmailTemplate } from '@erxes/ui-emailtemplates/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-import React from 'react';
 import {
   ICommonFormProps,
   ICommonListProps,
-} from '@erxes/ui-settings/src/common/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+} from "@erxes/ui-settings/src/common/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import { Alert } from "@erxes/ui/src/utils";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IEmailTemplate } from "@erxes/ui-emailtemplates/src/types";
+import List from "../components/List";
+import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { confirm } from "@erxes/ui/src/utils";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 
 export type EmailTemplatesTotalCountQueryResponse = {
   emailTemplatesTotalCount: number;
@@ -30,7 +31,8 @@ export type EmailTemplatesQueryResponse = {
 
 type Props = {
   queryParams: any;
-  history: any;
+  location: any;
+  navigate: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   listQuery: any;
 } & ICommonListProps &
@@ -47,7 +49,7 @@ const EmailListContainer = (props: Props) => {
         status: queryParams.status,
         ...generatePaginationParams(queryParams),
       },
-    },
+    }
   );
 
   const totalCountQuery = useQuery<EmailTemplatesTotalCountQueryResponse>(
@@ -56,20 +58,20 @@ const EmailListContainer = (props: Props) => {
       variables: {
         searchValue: queryParams.searchValue,
       },
-    },
+    }
   );
 
   const [emailTemplatesRemove] = useMutation(
     gql(mutations.emailTemplatesRemove),
     {
-      refetchQueries: ['emailTemplates', 'emailTemplatesTotalCount'],
-    },
+      refetchQueries: ["emailTemplates", "emailTemplatesTotalCount"],
+    }
   );
   const [emailTemplatesDuplicate] = useMutation(
     gql(mutations.emailTemplatesDuplicate),
     {
-      refetchQueries: ['emailTemplates', 'emailTemplatesTotalCount'],
-    },
+      refetchQueries: ["emailTemplates", "emailTemplatesTotalCount"],
+    }
   );
 
   const remove = (id: string) => {
@@ -78,7 +80,7 @@ const EmailListContainer = (props: Props) => {
         variables: { _id: id },
       })
         .then(() => {
-          Alert.success('Successfully deleted a template');
+          Alert.success("Successfully deleted a template");
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -92,7 +94,7 @@ const EmailListContainer = (props: Props) => {
       variables: { _id: id },
     })
       .then(() => {
-        Alert.success('Successfully duplicated a template');
+        Alert.success("Successfully duplicated a template");
       })
       .catch((e) => {
         Alert.error(e.message);

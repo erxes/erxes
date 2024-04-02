@@ -72,12 +72,12 @@ const TemplateWrapper = styled.div`
   }
 `;
 
-const TemplateBox = styledTS<{ hasPadding?: boolean }>(styled.div)`
+const TemplateBox = styledTS<{ $hasPadding?: boolean }>(styled.div)`
   width: 100%;
   height: 140px;
   border-bottom: 1px solid #F1F1F2;
   position: relative;
-  padding: ${props => props.hasPadding && `${dimensions.unitSpacing}px`};
+  padding: ${props => props.$hasPadding && `${dimensions.unitSpacing}px`};
 `;
 
 const Actions = styled.div`
@@ -117,7 +117,7 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styledTS<{ isLongName?: boolean; position?: string }>(
+const Template = styledTS<{ $isLongName?: boolean; position?: string }>(
   styled.div
 )`
   flex-basis: 300px;
@@ -137,8 +137,8 @@ const Template = styledTS<{ isLongName?: boolean; position?: string }>(
     height: ${dimensions.coreSpacing * 2}px;
     overflow: hidden;
     font-weight: normal;
-    display: ${props => !props.isLongName && 'flex'};
-    align-items: ${props => !props.isLongName && 'center'};
+    display: ${props => !props.$isLongName && 'flex'};
+    align-items: ${props => !props.$isLongName && 'center'};
     font-weight: 500;
     font-size: 15px;
   }

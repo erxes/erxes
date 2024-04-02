@@ -1,20 +1,19 @@
-// import ActionBarDropDown from '../../templates/containers/actionBar/ActionBar';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { IBreadCrumbItem } from '@erxes/ui/src/types';
-import { ICommonListProps } from '../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { IBreadCrumbItem } from "@erxes/ui/src/types";
+import { ICommonListProps } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   title: string;
   formTitle?: string;
-  size?: 'sm' | 'lg' | 'xl';
+  size?: "sm" | "lg" | "xl";
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
   leftActionBar?: React.ReactNode;
@@ -27,7 +26,8 @@ type Props = {
   leftSidebar?: any;
   queryParams?: any;
   searchValue?: string;
-  history?: any;
+  location?: any;
+  navigate?: any;
   rightActionBar?: any;
   transparent?: boolean;
   hasBorder?: boolean;
@@ -57,7 +57,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       leftSidebar,
       rightActionBar,
       transparent,
-      hasBorder
+      hasBorder,
     } = this.props;
 
     const trigger = (
@@ -66,20 +66,17 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return renderForm({ ...props, save });
     };
 
     const actionBarRight = rightActionBar ? (
-      <BarItems>
-        {additionalButton}
-        {/* <ActionBarDropDown queryParams={queryParams} history={history} /> */}
-      </BarItems>
+      <BarItems>{additionalButton}</BarItems>
     ) : (
       <Flex>
         {additionalButton}&nbsp;&nbsp;
         <ModalTrigger
-          title={formTitle || ''}
+          title={formTitle || ""}
           size={size}
           enforceFocus={false}
           trigger={trigger}
@@ -109,7 +106,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
-            emptyText={__('Oops! No data here')}
+            emptyText={__("Oops! No data here")}
             emptyImage="/images/actions/5.svg"
             emptyContent={emptyContent}
           />

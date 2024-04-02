@@ -19,6 +19,7 @@ import {
   mutations,
   queries,
 } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Properties from "../components/Properties";
 import React from "react";
@@ -27,9 +28,6 @@ import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { router } from "@erxes/ui/src/utils";
 import { updateCustomFieldsCache } from "@erxes/ui-forms/src/settings/properties/utils";
-import { useNavigate, useLocation } from "react-router-dom";
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;

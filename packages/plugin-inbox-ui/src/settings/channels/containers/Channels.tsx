@@ -1,33 +1,31 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   ChannelDetailQueryResponse,
   ChannelsGetLastQueryResponse,
-} from '../types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+} from "../types";
+import { router as routerUtils, withProps } from "@erxes/ui/src/utils";
 
-import DumbChannels from '../components/Channels';
-import Empty from '../components/Empty';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IntegrationsCountQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
-import queryString from 'query-string';
-
-// import { withRouter } from 'react-router-dom';
+import DumbChannels from "../components/Channels";
+import Empty from "../components/Empty";
+import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
+import { IntegrationsCountQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
+import queryString from "query-string";
 
 type Props = {
   currentChannelId: string;
+  location: any;
+  navigate: any;
 };
 
 type FinalProps = {
   integrationsCountQuery: IntegrationsCountQueryResponse;
   channelDetailQuery: ChannelDetailQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 class Channels extends React.Component<FinalProps> {
   render() {
@@ -62,47 +60,54 @@ const ChannelsContainer = withProps<Props>(
     graphql<Props, ChannelDetailQueryResponse, { _id: string }>(
       gql(queries.channelDetail),
       {
-        name: 'channelDetailQuery',
+        name: "channelDetailQuery",
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
           variables: { _id: currentChannelId },
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, IntegrationsCountQueryResponse, { channelId: string }>(
       gql(queries.integrationsCount),
       {
-        name: 'integrationsCountQuery',
+        name: "integrationsCountQuery",
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
           variables: { channelId: currentChannelId },
         }),
-      },
-    ),
-  )(Channels),
+      }
+    )
+  )(Channels)
 );
 
 type withCurrentIdProps = {
   queryParams?: any;
+  location: any;
+  navigate: any;
 };
 
 type withCurrentIdFinalProps = {
   lastChannelQuery: IChannel;
-} & IRouterProps &
-  withCurrentIdProps;
+} & withCurrentIdProps;
 
 // tslint:disable-next-line:max-classes-per-file
 class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
   componentWillReceiveProps(nextProps) {
     const {
+      location,
+      navigate,
       lastChannelQuery = {},
-      history,
       queryParams: { _id },
     } = nextProps;
 
     const { channelsGetLast, loading } = lastChannelQuery;
 
-    if (!_id && channelsGetLast && !loading && !history.location.hash) {
-      routerUtils.setParams(history, { _id: channelsGetLast._id }, true);
+    if (!_id && channelsGetLast && !loading && !location.hash) {
+      routerUtils.setParams(
+        navigate,
+        location,
+        { _id: channelsGetLast._id },
+        true
+      );
     }
   }
 
@@ -129,18 +134,18 @@ const WithLastChannel = withProps<withCurrentIdProps>(
     graphql<withCurrentIdProps, ChannelsGetLastQueryResponse, { _id: string }>(
       gql(queries.channelsGetLast),
       {
-        name: 'lastChannelQuery',
+        name: "lastChannelQuery",
         skip: ({ queryParams }) => queryParams._id,
         options: ({ queryParams }: withCurrentIdProps) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
-    ),
-  )(WithCurrentId),
+      }
+    )
+  )(WithCurrentId)
 );
 
-const WithQueryParams = (props: IRouterProps) => {
+const WithQueryParams = (props: Props) => {
   const { location } = props;
   const queryParams = queryString.parse(location.search);
 

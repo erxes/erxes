@@ -7,18 +7,18 @@ import {
   ServerInfo,
   Socials,
   TopBarIcon,
-  TopBarTab
-} from './styles';
+  TopBarTab,
+} from "./styles";
 
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IMessagesItem } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import SupporterComponent from './Supporters';
-import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IMessagesItem } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IMessengerApps } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import SupporterComponent from "./Supporters";
+import { __ } from "coreui/utils";
+import dayjs from "dayjs";
 
 type Props = {
   color: string;
@@ -45,7 +45,7 @@ type Props = {
 class TopBar extends React.Component<Props> {
   renderIcons(icon: string, left?: boolean, size?: number) {
     return (
-      <TopBarIcon isLeft={left || false}>
+      <TopBarIcon $isLeft={left || false}>
         <Icon icon={icon} size={size || 24} />
       </TopBarIcon>
     );
@@ -73,9 +73,9 @@ class TopBar extends React.Component<Props> {
     return (
       <ServerInfo>
         <div>
-          {__('Server time')}: {dayjs(new Date()).format('lll')}
+          {__("Server time")}: {dayjs(new Date()).format("lll")}
         </div>
-        {__('Timezone')}: {timezone ? timezone : __('Asia/Ulaanbaatar')}
+        {__("Timezone")}: {timezone ? timezone : __("Asia/Ulaanbaatar")}
       </ServerInfo>
     );
   }
@@ -87,7 +87,7 @@ class TopBar extends React.Component<Props> {
       teamMembers,
       showChatPreview,
       showTimezone,
-      timezone
+      timezone,
     } = this.props;
 
     return (
@@ -106,7 +106,7 @@ class TopBar extends React.Component<Props> {
     const { brands = [], brandId } = this.props;
     let currentBrand = {} as IBrand;
 
-    brands.map(brand => {
+    brands.map((brand) => {
       if (brand._id !== brandId) {
         return null;
       }
@@ -116,13 +116,13 @@ class TopBar extends React.Component<Props> {
 
     return (
       <>
-        {this.renderIcons('angle-left', true)}
+        {this.renderIcons("angle-left", true)}
         <ErxesMiddleTitle>
           {currentBrand && <h3>{currentBrand.name}</h3>}
           {currentBrand && <span>{currentBrand.description}</span>}
           {this.renderSupporters()}
         </ErxesMiddleTitle>
-        {this.renderIcons('times', false)}
+        {this.renderIcons("times", false)}
       </>
     );
   }
@@ -132,7 +132,7 @@ class TopBar extends React.Component<Props> {
       return <h3>{message.greetings.title}</h3>;
     }
 
-    return <h3>{__('Welcome')}</h3>;
+    return <h3>{__("Welcome")}</h3>;
   }
 
   renderGreetingMessage(message) {
@@ -142,7 +142,7 @@ class TopBar extends React.Component<Props> {
 
     return (
       <p>
-        {__('Hi, any questions?')} <br /> {__('We are ready to help you') + '.'}
+        {__("Hi, any questions?")} <br /> {__("We are ready to help you") + "."}
       </p>
     );
   }
@@ -165,7 +165,7 @@ class TopBar extends React.Component<Props> {
       !messengerApps ||
       (messengerApps.knowledgebases || []).length === 0 ||
       !(messengerApps.knowledgebases || [])[0].topicId ||
-      activeStep !== 'addon'
+      activeStep !== "addon"
     ) {
       return null;
     }
@@ -173,8 +173,8 @@ class TopBar extends React.Component<Props> {
     return (
       <TopBarTab>
         <div style={{ backgroundColor: this.props.color }} />
-        <span>{__('Support')}</span>
-        <span>{__('Faq')}</span>
+        <span>{__("Support")}</span>
+        <span>{__("Faq")}</span>
       </TopBarTab>
     );
   }
@@ -187,10 +187,10 @@ class TopBar extends React.Component<Props> {
         <ErxesGreeting>
           <Links>
             <Socials>
-              {this.renderLink(facebook, 'facebook-official')}
-              {this.renderLink(instagram, 'instagram')}
-              {this.renderLink(twitter, 'twitter')}
-              {this.renderLink(youtube, 'youtube-play')}
+              {this.renderLink(facebook, "facebook-official")}
+              {this.renderLink(instagram, "instagram")}
+              {this.renderLink(twitter, "twitter")}
+              {this.renderLink(youtube, "youtube-play")}
             </Socials>
           </Links>
 
@@ -198,7 +198,7 @@ class TopBar extends React.Component<Props> {
           {this.renderSupporters()}
           {this.renderTabs()}
         </ErxesGreeting>
-        {this.renderIcons('cancel', false, 11)}
+        {this.renderIcons("cancel", false, 11)}
       </>
     );
   }

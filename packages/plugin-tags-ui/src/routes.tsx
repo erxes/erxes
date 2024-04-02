@@ -12,7 +12,7 @@ const Tags = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} />;
+  return <List queryParams={queryParams} location={location} />;
 };
 
 const routes = () => {
