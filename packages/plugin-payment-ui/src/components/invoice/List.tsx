@@ -1,12 +1,11 @@
 import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import { IInvoice, InvoicesCount } from "../../types";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IRouterProps } from "@erxes/ui/src/types";
 import InvoiceDetail from "../../containers/invoice/Detail";
 import Modal from "react-bootstrap/Modal";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
@@ -14,11 +13,9 @@ import Row from "./Row";
 import Sidebar from "./SideBar";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { useLocation, useNavigate } from "react-router-dom";
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
-  history: any;
+interface IProps {
   queryParams: any;
   invoices: IInvoice[];
   isAllSelected: boolean;
@@ -37,24 +34,19 @@ const List = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
   const [showModal, setShowModal] = useState(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const {
-    invoices,
-    history,
-    toggleBulk,
-    toggleAll,
-    bulk,
-    isAllSelected,
-    counts,
-  } = props;
+  const { invoices, toggleBulk, toggleAll, bulk, isAllSelected, counts } =
+    props;
 
   React.useEffect(() => {
     let timeoutId: any = null;
 
     if (searchValue !== props.searchValue) {
       timeoutId = setTimeout(() => {
-        router.removeParams(history, "page");
-        router.setParams(history, { searchValue });
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
 
       return () => {
@@ -73,7 +65,6 @@ const List = (props: IProps) => {
     return invoices.map((invoice) => (
       <Row
         onClick={onClickRow}
-        history={history}
         key={invoice._id}
         invoice={invoice}
         toggleBulk={toggleBulk}
@@ -118,7 +109,7 @@ const List = (props: IProps) => {
   );
   const content = (
     <>
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
             <th

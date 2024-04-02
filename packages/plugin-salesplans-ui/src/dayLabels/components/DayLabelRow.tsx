@@ -13,7 +13,6 @@ import { IDayLabel } from "../types";
 
 type Props = {
   dayLabel: IDayLabel;
-  history: any;
   isChecked: boolean;
   toggleBulk: (dayLabel: IDayLabel, isChecked?: boolean) => void;
 };

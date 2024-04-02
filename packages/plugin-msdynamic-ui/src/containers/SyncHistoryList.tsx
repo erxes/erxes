@@ -1,18 +1,17 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { router, withProps } from '@erxes/ui/src/utils';
-import SyncHistoryList from '../components/SyncHistoryList';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { router, withProps } from "@erxes/ui/src/utils";
+import SyncHistoryList from "../components/SyncHistoryList";
 import {
   SyncHistoriesCountQueryResponse,
   SyncHistoriesQueryResponse,
-} from '../types';
-import { queries } from '../graphql';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
+} from "../types";
+import { queries } from "../graphql";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import React from "react";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -66,22 +65,22 @@ export default withProps<Props>(
     graphql<Props, SyncHistoriesQueryResponse, {}>(
       gql(queries.syncMsdHistories),
       {
-        name: 'syncMsdHistoriesQuery',
+        name: "syncMsdHistoriesQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
       gql(queries.syncMsdHistoriesCount),
       {
-        name: 'syncMsdHistoriesCountQuery',
+        name: "syncMsdHistoriesCountQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
-    ),
-  )(SyncHistoryListContainer),
+      }
+    )
+  )(SyncHistoryListContainer)
 );

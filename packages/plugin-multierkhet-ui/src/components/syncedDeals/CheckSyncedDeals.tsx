@@ -14,7 +14,6 @@ type Props = {
   totalCount: number;
   loading: boolean;
   deals: any[];
-  history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
@@ -39,7 +38,6 @@ const CheckSyncedDeals = (props: Props) => {
   const [contentLoading, setContentLoading] = useState(props.loading);
   const {
     deals,
-    history,
     queryParams,
     toggleBulk,
     bulk,
@@ -60,7 +58,6 @@ const CheckSyncedDeals = (props: Props) => {
 
     return deals.map((deal) => (
       <Row
-        history={history}
         key={deal._id}
         deal={deal}
         toggleBulk={toggleBulk}
@@ -123,12 +120,7 @@ const CheckSyncedDeals = (props: Props) => {
     </Table>
   );
 
-  const sidebar = (
-    <CheckSyncedDealsSidebar
-      queryParams={queryParams}
-      history={props.history}
-    />
-  );
+  const sidebar = <CheckSyncedDealsSidebar queryParams={queryParams} />;
 
   const onClickCheck = () => {
     confirm()

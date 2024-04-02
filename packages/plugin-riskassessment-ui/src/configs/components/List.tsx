@@ -14,7 +14,6 @@ import {
   Table,
   __,
   confirm,
-  __,
 } from "@erxes/ui/src";
 import Form from "../containers/Form";
 import Row from "./Row";
@@ -26,7 +25,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
   configs: any[];
   totalCount: number;
   remove: (configIds: string[]) => void;

@@ -22,7 +22,6 @@ type Props = {
   loading: boolean;
   isAllSelected: boolean;
   toggleAll: (targets: ITimeProportion[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -39,7 +38,6 @@ const List = (props: Props) => {
   const {
     queryParams,
     timeProportions,
-    history,
     totalCount,
     loading,
     isAllSelected,
@@ -64,7 +62,6 @@ const List = (props: Props) => {
     return timeProportions.map((timeProportion) => (
       <Row
         key={timeProportion._id}
-        history={history}
         timeProportion={timeProportion}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(timeProportion)}
@@ -138,7 +135,7 @@ const List = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -178,11 +175,7 @@ const List = (props: Props) => {
         />
       }
       leftSidebar={
-        <SidebarWrapper
-          queryParams={queryParams}
-          history={history}
-          children={Sidebar}
-        />
+        <SidebarWrapper queryParams={queryParams} children={Sidebar} />
       }
       transparent={true}
       hasBorder

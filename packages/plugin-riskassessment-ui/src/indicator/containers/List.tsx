@@ -1,24 +1,22 @@
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { EmptyState } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { ICommonListProps } from '../../common/types';
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { EmptyState } from "@erxes/ui/src";
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { ICommonListProps } from "../../common/types";
 import {
   RiskIndicatorsListQueryResponse,
-  RiskIndicatorsTotalCountQueryResponse
-} from '../common/types';
-import { generateParams } from '../common/utils';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+  RiskIndicatorsTotalCountQueryResponse,
+} from "../common/types";
+import { generateParams } from "../common/utils";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -28,17 +26,11 @@ type FinalProps = {
   duplicateMutation: any;
 } & Props &
   ICommonListProps &
-  IRouterProps &
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      removeMutation,
-      duplicateMutation,
-      listQuery,
-      totalCountQuery,
-      history
-    } = this.props;
+    const { removeMutation, duplicateMutation, listQuery, totalCountQuery } =
+      this.props;
 
     const { riskIndicators, loading, error } = listQuery;
 
@@ -47,25 +39,25 @@ class ListContainer extends React.Component<FinalProps> {
     }
 
     const remove = (_ids: string[]) => {
-      confirm('Are you sure?').then(() => {
+      confirm("Are you sure?").then(() => {
         removeMutation({ variables: { _ids } })
           .then(() => {
             listQuery.refetch();
-            Alert.success('You successfully removed risk assesments');
+            Alert.success("You successfully removed risk assesments");
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
     };
 
-    const duplicate = _id => {
+    const duplicate = (_id) => {
       confirm().then(() => {
         duplicateMutation({ variables: { _id } })
           .then(() => {
             listQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -78,8 +70,7 @@ class ListContainer extends React.Component<FinalProps> {
       refetch: listQuery.refetch,
       loading,
       remove,
-      history,
-      duplicate
+      duplicate,
     };
 
     return <List {...updatedProps} />;
@@ -89,28 +80,28 @@ class ListContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.list), {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCountQuery',
+      name: "totalCountQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql(gql(mutations.riskIndicatorAdd), {
-      name: 'addMutation'
+      name: "addMutation",
     }),
     graphql(gql(mutations.riskIndicatorRemove), {
-      name: 'removeMutation'
+      name: "removeMutation",
     }),
     graphql(gql(mutations.riskIndicatorUpdate), {
-      name: 'editMutation'
+      name: "editMutation",
     }),
     graphql(gql(mutations.duplicate), {
-      name: 'duplicateMutation'
+      name: "duplicateMutation",
     })
   )(ListContainer)
 );

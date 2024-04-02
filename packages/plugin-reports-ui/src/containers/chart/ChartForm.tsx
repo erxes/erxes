@@ -1,20 +1,20 @@
-import React from 'react';
-import { gql } from '@apollo/client';
+import React from "react";
+import { gql } from "@apollo/client";
 
-import ChartForm from '../../components/chart/ChartForm';
-import { mutations, queries } from '../../graphql';
+import ChartForm from "../../components/chart/ChartForm";
+import { mutations, queries } from "../../graphql";
 import {
   IChart,
   ReportChartFormMutationResponse,
   ReportChartTemplatesListQueryResponse,
   reportServicesListQueryResponse,
-} from '../../types';
-import { Alert, router } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../../types";
+import { Alert, router } from "@erxes/ui/src/utils";
+import { Spinner } from "@erxes/ui/src/components";
+import { useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
   toggleForm: () => void;
   showChartForm: boolean;
@@ -24,13 +24,15 @@ type Props = {
 };
 
 const ChartFormList = (props: Props) => {
-  const { toggleForm, queryParams, history, reportId } = props;
+  const { toggleForm, queryParams, reportId } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const reportServicesListQuery = useQuery<reportServicesListQueryResponse>(
     gql(queries.reportServicesList),
     {
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const reportChartTemplatesListQuery =
@@ -38,16 +40,16 @@ const ChartFormList = (props: Props) => {
       gql(queries.reportChartTemplatesList),
       {
         variables: { serviceName: queryParams.serviceName },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         skip: !queryParams.serviceName,
-      },
+      }
     );
 
   const [reportChartsAddMutation] =
     useMutation<ReportChartFormMutationResponse>(
       gql(mutations.reportChartsAdd),
       {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         refetchQueries: [
           {
             query: gql(queries.reportDetail),
@@ -56,13 +58,13 @@ const ChartFormList = (props: Props) => {
             },
           },
         ],
-      },
+      }
     );
   const [reportChartsEditMutation] =
     useMutation<ReportChartFormMutationResponse>(
       gql(mutations.reportChartsEdit),
       {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         refetchQueries: [
           {
             query: gql(queries.reportDetail),
@@ -71,11 +73,11 @@ const ChartFormList = (props: Props) => {
             },
           },
         ],
-      },
+      }
     );
   const [reportChartsRemoveMutation] =
     useMutation<ReportChartFormMutationResponse>(
-      gql(mutations.reportChartsRemove),
+      gql(mutations.reportChartsRemove)
     );
 
   if (reportServicesListQuery.loading) {
@@ -83,7 +85,7 @@ const ChartFormList = (props: Props) => {
   }
 
   const removeReportChartParams = () => {
-    router.removeParams(history, 'serviceName', 'chartTemplateType');
+    router.removeParams(navigate, location, "serviceName", "chartTemplateType");
   };
 
   const chartsEdit = (values, callback) => {
@@ -97,7 +99,7 @@ const ChartFormList = (props: Props) => {
   const chartsAdd = (values) => {
     reportChartsAddMutation({ variables: values })
       .then(() => {
-        Alert.success('Successfully added chart');
+        Alert.success("Successfully added chart");
         removeReportChartParams();
         toggleForm();
       })
@@ -107,7 +109,7 @@ const ChartFormList = (props: Props) => {
   const chartsRemove = (_id: string) => {
     reportChartsRemoveMutation({ variables: { _id } })
       .then(() => {
-        Alert.success('Successfully removed chart');
+        Alert.success("Successfully removed chart");
       })
       .catch((err) => Alert.error(err.message));
   };

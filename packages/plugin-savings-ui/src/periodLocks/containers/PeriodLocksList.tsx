@@ -1,15 +1,14 @@
-import { Alert, Bulk, router } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
+import { Alert, Bulk, router } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import React, { useState } from "react";
 
-import PeriodLocksList from '../components/PeriodLocksList';
-import { mutations, queries } from '../graphql';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import PeriodLocksList from "../components/PeriodLocksList";
+import { mutations, queries } from "../graphql";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const PeriodLockListContainer: React.FC<Props> = (props) => {
@@ -28,15 +27,15 @@ const PeriodLockListContainer: React.FC<Props> = (props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [periodLocksRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.periodLocksRemove),
     {
-      refetchQueries: ['savingsPeriodLocksMain'],
-    },
+      refetchQueries: ["savingsPeriodLocksMain"],
+    }
   );
 
   const removePeriodLocks = ({ periodLockIds }, emptyBulk) => {
@@ -45,14 +44,14 @@ const PeriodLockListContainer: React.FC<Props> = (props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a periodLock');
+        Alert.success("You successfully deleted a periodLock");
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const searchValue = queryParams.searchValue || '';
+  const searchValue = queryParams.searchValue || "";
   const { list = [], totalCount = 0 } =
     periodLocksMainQuery?.data?.savingsPeriodLocksMain || {};
 

@@ -25,7 +25,6 @@ import {
 import { Block, Features, FormContainer, Header, ListItem } from "../../styles";
 type Props = {
   queryParams: any;
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   config?: any;

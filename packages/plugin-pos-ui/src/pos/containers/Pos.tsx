@@ -1,10 +1,7 @@
-import * as compose from 'lodash.flowright';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React, { useState } from 'react';
-import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { graphql } from '@apollo/client/react/hoc';
-import Pos from '../components/Pos';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from "react";
+import { Alert, Spinner } from "@erxes/ui/src";
+import Pos from "../components/Pos";
 import {
   AddPosMutationResponse,
   EditPosMutationResponse,
@@ -15,18 +12,19 @@ import {
   PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse,
-} from '../../types';
-import { IPos, ISlot } from '../../types';
-import { mutations, queries } from '../graphql';
+} from "../../types";
+import { IPos } from "../../types";
+import { mutations, queries } from "../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   posId?: string;
   queryParams: any;
-  history: any;
 };
 
 const PosContainer = (props: Props) => {
-  const { posId, queryParams, history } = props;
+  const { posId } = props;
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -34,46 +32,46 @@ const PosContainer = (props: Props) => {
     gql(queries.posDetail),
     {
       skip: !posId,
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: "cache-and-network",
       variables: {
-        _id: posId || '',
-        posId: posId || '',
+        _id: posId || "",
+        posId: posId || "",
       },
-    },
+    }
   );
 
   const posEnvQuery = useQuery<PosEnvQueryResponse>(gql(queries.posEnv), {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
   });
 
   const groupsQuery = useQuery<GroupsQueryResponse>(
     gql(queries.productGroups),
     {
       skip: !posId,
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: "cache-and-network",
       variables: {
-        posId: posId || '',
+        posId: posId || "",
       },
-    },
+    }
   );
 
   const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.productGroups), {
     skip: !posId,
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     variables: {
-      posId: posId || '',
+      posId: posId || "",
     },
   });
 
   const [addPosMutation] = useMutation<AddPosMutationResponse>(
-    gql(mutations.posAdd),
+    gql(mutations.posAdd)
   );
   const [editPosMutation] = useMutation<EditPosMutationResponse>(
-    gql(mutations.posEdit),
+    gql(mutations.posEdit)
   );
   const [productGroupsBulkInsertMutation] =
     useMutation<GroupsBulkInsertMutationResponse>(
-      gql(mutations.saveProductGroups),
+      gql(mutations.saveProductGroups)
     );
   const [slotsBulkUpdateMutation] =
     useMutation<SlotsBulkUpdateMutationResponse>(gql(mutations.saveSlots));
@@ -119,11 +117,11 @@ const PosContainer = (props: Props) => {
         });
       })
       .then(() => {
-        Alert.success('You successfully updated a pos');
+        Alert.success("You successfully updated a pos");
 
-        history.push({
+        navigate({
           pathname: `/pos`,
-          search: '?refetchList=true',
+          search: "?refetchList=true",
         });
       })
 

@@ -17,7 +17,6 @@ import {
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 

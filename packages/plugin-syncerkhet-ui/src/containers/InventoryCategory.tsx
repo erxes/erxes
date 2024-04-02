@@ -7,7 +7,6 @@ import {
 
 import Alert from '@erxes/ui/src/utils/Alert';
 import { Bulk } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
 import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
 import React from 'react';
 import { gql } from '@apollo/client';
@@ -15,14 +14,12 @@ import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
 
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
 };
 
 type FinalProps = {} & Props &
-  IRouterProps &
   ToCheckCategoriesMutationResponse &
   ToSyncCategoriesMutationResponse;
 

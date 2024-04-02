@@ -34,7 +34,7 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {
-      history.push(`/processes/flows/details/${flow._id}`);
+      history(`/processes/flows/details/${flow._id}`);
     };
 
     const {

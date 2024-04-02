@@ -1,41 +1,44 @@
-import { router, __ } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React, { useState } from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { EndDateContainer, FlexColumnCustom } from '../../styles';
-import { CustomRangeContainer } from '../../styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Button from '@erxes/ui/src/components/Button';
-import { IUser } from '@erxes/ui/src/auth/types';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { router, __ } from "@erxes/ui/src/utils";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import React, { useState } from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { EndDateContainer, FlexColumnCustom } from "../../styles";
+import { CustomRangeContainer } from "../../styles";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Button from "@erxes/ui/src/components/Button";
+import { IUser } from "@erxes/ui/src/auth/types";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import moment from 'moment';
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import moment from "moment";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   currentUser: IUser;
 
   queryParams: any;
-  history: any;
 };
 
 const LeftSideBar = (props: Props) => {
-  const { history, queryParams } = props;
-  const [companyId, setCompanyId] = useState(queryParams?.companyId || '');
-  const [userId, setUserId] = useState(queryParams?.ownerId || '');
+  const { queryParams } = props;
+  const [companyId, setCompanyId] = useState(queryParams?.companyId || "");
+  const [userId, setUserId] = useState(queryParams?.ownerId || "");
   const [createdAtFrom, setCreatedForm] = useState(
-    queryParams.createdAtFrom || ''
+    queryParams.createdAtFrom || ""
   );
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const [createdAtTo, setCreatedAtTo] = useState(queryParams.createdAtTo || '');
+  const [createdAtTo, setCreatedAtTo] = useState(queryParams.createdAtTo || "");
 
   const cleanFilter = () => {
     router.removeParams(
-      history,
-      'createdAtFrom',
-      'createdAtTo',
-      'ownerId',
-      'companyId'
+      navigate,
+      location,
+      "createdAtFrom",
+      "createdAtTo",
+      "ownerId",
+      "companyId"
     );
     setCompanyId(undefined);
     setCreatedAtTo(undefined);
@@ -45,29 +48,30 @@ const LeftSideBar = (props: Props) => {
   };
 
   const removePageParams = () => {
-    router.removeParams(history, 'page', 'perPage');
+    router.removeParams(navigate, location, "page", "perPage");
   };
 
   const setFilter = (name, value) => {
-    if (name === 'companyId') {
+    if (name === "companyId") {
       setCompanyId(value);
     }
-    if (name === 'ownerId') {
+    if (name === "ownerId") {
       setUserId(value);
     }
-    router.setParams(props.history, { [name]: value });
+    router.setParams(navigate, location, { [name]: value });
   };
 
   const handleSelectDate = (value, name) => {
-    if ('createdAtTo' === name) {
+    if ("createdAtTo" === name) {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
       setCreatedAtTo(value);
     }
-    if ('createdAtFrom' === name) {
+    if ("createdAtFrom" === name) {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
       setCreatedForm(value);
     }
-    value !== 'Invalid date' && router.setParams(history, { [name]: value });
+    value !== "Invalid date" &&
+      router.setParams(navigate, location, { [name]: value });
   };
 
   return (
@@ -77,8 +81,8 @@ const LeftSideBar = (props: Props) => {
           label="Filter by company"
           name="companyId"
           initialValue={companyId}
-          onSelect={companyId => setFilter('companyId', companyId)}
-          customOption={{ value: '', label: '... Choose company' }}
+          onSelect={(companyId) => setFilter("companyId", companyId)}
+          customOption={{ value: "", label: "... Choose company" }}
           multi={false}
         />
 
@@ -88,7 +92,7 @@ const LeftSideBar = (props: Props) => {
               name="createdAtFrom"
               placeholder="Choose start date"
               value={createdAtFrom}
-              onChange={e => handleSelectDate(e, 'createdAtFrom')}
+              onChange={(e) => handleSelectDate(e, "createdAtFrom")}
             />
           </DateContainer>
           <EndDateContainer>
@@ -97,7 +101,7 @@ const LeftSideBar = (props: Props) => {
                 name="createdAtTo"
                 placeholder="Choose end date"
                 value={createdAtTo}
-                onChange={e => handleSelectDate(e, 'createdAtTo')}
+                onChange={(e) => handleSelectDate(e, "createdAtTo")}
               />
             </DateContainer>
           </EndDateContainer>
@@ -108,8 +112,8 @@ const LeftSideBar = (props: Props) => {
           name="ownerId"
           multi={false}
           initialValue={userId}
-          customOption={{ value: '', label: '... Choose created member' }}
-          onSelect={ownerId => setFilter('ownerId', ownerId)}
+          customOption={{ value: "", label: "... Choose created member" }}
+          onSelect={(ownerId) => setFilter("ownerId", ownerId)}
         />
 
         <Button btnStyle="warning" onClick={cleanFilter}>

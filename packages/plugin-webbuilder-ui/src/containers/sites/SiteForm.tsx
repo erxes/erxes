@@ -1,6 +1,5 @@
 import * as compose from 'lodash.flowright';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { PagesMainQueryResponse } from '../../types';
 import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
@@ -9,12 +8,10 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../graphql';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = {
   _id: string;
   queryParams: any;
-} & IRouterProps;
+};
 
 type FinalProps = Props & {
   pagesMainQuery: PagesMainQueryResponse;

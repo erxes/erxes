@@ -14,7 +14,6 @@ import { ITransaction } from "../types";
 import { __ } from "coreui/utils";
 type Props = {
   transaction: ITransaction;
-  history: any;
   isChecked: boolean;
   toggleBulk: (transaction: ITransaction, isChecked?: boolean) => void;
 };
@@ -29,12 +28,7 @@ function displayNumber(transaction, name) {
   return Number(String((value || 0).toFixed(2))).toLocaleString();
 }
 
-function TransactionRow({
-  transaction,
-  history,
-  isChecked,
-  toggleBulk,
-}: Props) {
+function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(transaction, e.target.checked);

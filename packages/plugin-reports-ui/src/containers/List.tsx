@@ -4,8 +4,6 @@ import { Alert, __, confirm, withProps } from '@erxes/ui/src/utils';
 import { ReportsListQueryResponse, ReportsMutationResponse } from '../types';
 import { mutations, queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -14,7 +12,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
-  history: any;
   queryParams: any;
 
   typeId: string;

@@ -1,47 +1,42 @@
-import * as compose from 'lodash.flowright';
-
-// import { withRouter } from 'react-router-dom';
-import { Alert, Bulk, Spinner, confirm, router } from '@erxes/ui/src';
+import { Alert, Bulk, Spinner, confirm, router } from "@erxes/ui/src";
 import {
   CoversCountQueryResponse,
   CoversQueryResponse,
-  ListQueryVariables,
   RemoveCoverMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import { FILTER_PARAMS } from '../../constants';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/CoverList';
-import React from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import queryString from 'query-string';
+import { FILTER_PARAMS } from "../../constants";
+import { IQueryParams } from "@erxes/ui/src/types";
+import List from "../components/CoverList";
+import React from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 const CoverListContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const coversQuery = useQuery<CoversQueryResponse>(gql(queries.covers), {
     variables: generateParams({ queryParams } || {}),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const coversCountQuery = useQuery<CoversCountQueryResponse>(
     gql(queries.coversCount),
     {
       variables: generateParams({ queryParams } || {}),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [removeCover] = useMutation<RemoveCoverMutationResponse>(
-    gql(mutations.coversRemove),
+    gql(mutations.coversRemove)
   );
 
   if (coversQuery.loading || coversCountQuery.loading) {
@@ -49,33 +44,33 @@ const CoverListContainer = (props: Props) => {
   }
 
   const onSearch = (search: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (!search) {
-      return router.removeParams(history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
 
-    router.setParams(history, { search });
+    router.setParams(navigate, location, { search });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (queryParams.params[key] === values) {
-      return router.removeParams(history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
@@ -93,11 +88,11 @@ const CoverListContainer = (props: Props) => {
   };
 
   const clearFilter = () => {
-    router.removeParams(history, ...Object.keys(queryParams));
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
   const remove = (_id: string) => {
-    const message = 'Are you sure?';
+    const message = "Are you sure?";
 
     confirm(message).then(() => {
       removeCover({
@@ -107,7 +102,7 @@ const CoverListContainer = (props: Props) => {
           // refresh queries
           coversQuery.refetch();
 
-          Alert.success('You successfully deleted a pos.');
+          Alert.success("You successfully deleted a pos.");
         })
         .catch((e) => {
           Alert.error(e.message);

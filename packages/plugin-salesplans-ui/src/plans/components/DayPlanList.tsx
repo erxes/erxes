@@ -24,6 +24,7 @@ import {
   InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   dayPlans: IDayPlan[];
@@ -33,7 +34,6 @@ type Props = {
   timeFrames: ITimeframe[];
   isAllSelected: boolean;
   toggleAll: (targets: IDayPlan[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -53,7 +53,6 @@ const DayPlanList = (props: Props) => {
     timeFrames,
     isAllSelected,
     toggleAll,
-    history,
     queryParams,
     bulk,
     emptyBulk,
@@ -63,6 +62,8 @@ const DayPlanList = (props: Props) => {
     searchValue,
     toConfirm,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { date, branchId, departmentId, productCategoryId, productId } =
     queryParams;
@@ -80,8 +81,8 @@ const DayPlanList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
@@ -100,7 +101,6 @@ const DayPlanList = (props: Props) => {
     return dayPlans.map((dayPlan) => (
       <Row
         key={dayPlan._id}
-        history={history}
         dayPlan={dayPlan}
         timeFrames={timeFrames}
         toggleBulk={toggleBulk}
@@ -111,7 +111,7 @@ const DayPlanList = (props: Props) => {
   };
 
   const modalContent = (props) => {
-    return <Form {...props} history={history} />;
+    return <Form {...props} />;
   };
 
   const removeDayPlans = (dayPlans) => {
@@ -206,7 +206,7 @@ const DayPlanList = (props: Props) => {
 
     return (
       <TableWrapper>
-        <Table hover={true} responsive={true}>
+        <Table $hover={true} $responsive={true}>
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: 60 }}>
@@ -262,7 +262,7 @@ const DayPlanList = (props: Props) => {
           right={actionBarRight()}
         />
       }
-      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <DataWithLoader
           data={renderContent()}

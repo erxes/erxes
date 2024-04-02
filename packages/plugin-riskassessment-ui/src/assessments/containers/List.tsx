@@ -1,19 +1,17 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { generateParamsIds } from '../../common/utils';
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
-import { generateCardFiltersQueryParams } from '../common/utils';
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, confirm, EmptyState, Spinner } from "@erxes/ui/src";
+import { router, withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { generateParamsIds } from "../../common/utils";
+import ListComponent from "../components/List";
+import { mutations, queries } from "../graphql";
+import { generateCardFiltersQueryParams } from "../common/utils";
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   listQuery: any;
@@ -28,13 +26,8 @@ class List extends React.Component<FinalProps, State> {
     super(props);
   }
   render() {
-    const {
-      listQuery,
-      totalCount,
-      queryParams,
-      history,
-      removeAssessments
-    } = this.props;
+    const { listQuery, totalCount, queryParams, removeAssessments } =
+      this.props;
 
     if (listQuery.loading) {
       return <Spinner />;
@@ -46,13 +39,13 @@ class List extends React.Component<FinalProps, State> {
 
     const remove = (ids: string[]) => {
       confirm(
-        'this action will erase every data of assessments.Are you sure?'
+        "this action will erase every data of assessments.Are you sure?"
       ).then(() => {
         removeAssessments({ variables: { ids } })
           .then(() => {
-            Alert.success('Removed successfully');
+            Alert.success("Removed successfully");
           })
-          .catch(err => {
+          .catch((err) => {
             Alert.error(err.message);
           });
       });
@@ -62,8 +55,7 @@ class List extends React.Component<FinalProps, State> {
       list: listQuery?.riskAssessments || [],
       totalCount: totalCount?.riskAssessmentsTotalCount,
       queryParams,
-      history,
-      remove
+      remove,
     };
 
     return <ListComponent {...updatedProps} />;
@@ -87,41 +79,41 @@ export const generateParams = ({ queryParams }) => ({
   operationIds: generateParamsIds(queryParams.operationIds),
   tagIds: generateParamsIds(queryParams.tagIds),
   groupIds: generateParamsIds(queryParams.groupIds),
-  cardFilter: generateCardFiltersQueryParams(queryParams)
+  cardFilter: generateCardFiltersQueryParams(queryParams),
 });
 
 const refetchQueries = ({ queryParams }) => {
   return [
     {
       query: gql(queries.riskAssessments),
-      variables: { ...generateParams({ queryParams }) }
+      variables: { ...generateParams({ queryParams }) },
     },
     {
       query: gql(queries.totalCount),
-      variables: { ...generateParams({ queryParams }) }
-    }
+      variables: { ...generateParams({ queryParams }) },
+    },
   ];
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskAssessments), {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCount',
+      name: "totalCount",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql<Props>(gql(mutations.removeAssessments), {
-      name: 'removeAssessments',
+      name: "removeAssessments",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries({ queryParams })
-      })
+        refetchQueries: refetchQueries({ queryParams }),
+      }),
     })
   )(List)
 );

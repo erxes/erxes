@@ -18,12 +18,10 @@ import ContractTypeForm from "../containers/ContractTypeForm";
 import ContractTypeRow from "./ContractTypeRow";
 import { ContractTypesTableWrapper } from "../styles";
 import { IContractType } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { __ } from "coreui/utils";
+import { useNavigate } from "react-router-dom";
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
+interface IProps {
   contractTypes: IContractType[];
   loading: boolean;
   searchValue: string;
@@ -38,7 +36,6 @@ interface IProps extends IRouterProps {
     doc: { contractTypeIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
@@ -47,7 +44,6 @@ const ContractTypesList = (props: IProps) => {
   const timerRef = useRef<number | null>(null);
   const {
     contractTypes,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -56,6 +52,7 @@ const ContractTypesList = (props: IProps) => {
     queryParams,
     toggleAll,
   } = props;
+  const navigate = useNavigate();
 
   useEffect(() => {
     setSearchValue(props.searchValue);
@@ -70,13 +67,12 @@ const ContractTypesList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 

@@ -14,7 +14,6 @@ import dayjs from "dayjs";
 import { menuDynamic } from "../constants";
 
 type Props = {
-  history: any;
   queryParams: any;
   syncHistories: any[];
   totalCount: number;
@@ -22,7 +21,6 @@ type Props = {
 };
 
 const SyncHistoryList = ({
-  history,
   queryParams,
   syncHistories,
   totalCount,
@@ -74,13 +72,7 @@ const SyncHistoryList = ({
           submenu={menuDynamic}
         />
       }
-      leftSidebar={
-        <SideBar
-          queryParams={queryParams}
-          history={history}
-          loading={loading}
-        />
-      }
+      leftSidebar={<SideBar queryParams={queryParams} loading={loading} />}
       actionBar={
         <Wrapper.ActionBar
           left={<Title>{__(`Sync Histories (${totalCount})`)}</Title>}

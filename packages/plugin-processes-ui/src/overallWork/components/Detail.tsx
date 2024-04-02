@@ -12,9 +12,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import { IOverallWorkDet } from "../types";
 import { IPerform } from "../../performs/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-// import { withRouter } from 'react-router-dom';
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import PerformRow from "./PerformRow";
 import React from "react";
@@ -25,14 +23,13 @@ import { __ } from "coreui/utils";
 import { menuNavs } from "../../constants";
 
 type Props = {
-  history: any;
   queryParams: any;
   overallWork: IOverallWorkDet;
   errorMsg?: string;
   performs: IPerform[];
   performsCount: number;
   removePerform: (_id: string) => void;
-} & IRouterProps;
+};
 
 type State = {
   minPotentialCount: number;
@@ -135,14 +132,8 @@ class OverallWorkDetail extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const {
-      overallWork,
-      queryParams,
-      history,
-      errorMsg,
-      performs,
-      removePerform,
-    } = this.props;
+    const { overallWork, queryParams, errorMsg, performs, removePerform } =
+      this.props;
     if (errorMsg) {
       return (
         <EmptyState
@@ -172,7 +163,6 @@ class OverallWorkDetail extends React.Component<Props, State> {
               key={Math.random()}
               perform={perform}
               overallWork={overallWork}
-              history={history}
               queryParams={queryParams}
               removePerform={removePerform}
               minPotentialCount={this.state.minPotentialCount}
@@ -184,7 +174,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { queryParams, history, overallWork, performsCount } = this.props;
+    const { queryParams, overallWork, performsCount } = this.props;
 
     const mainContent = (
       <DataWithLoader
@@ -231,9 +221,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
-        leftSidebar={
-          <DetailLeftSidebar queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<DetailLeftSidebar queryParams={queryParams} />}
         rightSidebar={
           <DetailRightSidebar
             queryParams={queryParams}

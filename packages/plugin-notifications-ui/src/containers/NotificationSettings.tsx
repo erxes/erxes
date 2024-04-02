@@ -17,7 +17,6 @@ import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
 
 type Props = {
   queryParams: IQueryParams;
-  history: any;
 };
 
 type FinalProps = {

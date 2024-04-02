@@ -19,7 +19,6 @@ import { TimeframeQueryResponse } from '../../settings/types';
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 

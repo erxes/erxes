@@ -18,19 +18,18 @@ import ContractForm from "../../containers/ContractForm";
 import ContractRow from "./ContractRow";
 import { ContractsTableWrapper } from "../../styles";
 import { IContract } from "../../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import RightMenu from "./RightMenu";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import { menuContracts } from "../../../constants";
-// import { withRouter } from 'react-router-dom';
 import withConsumer from "../../../withConsumer";
+import { useNavigate } from "react-router-dom";
 
 // import Sidebar from './Sidebar';
 
 type SavingAlert = { name: string; count: number; filter: any };
-interface IProps extends IRouterProps {
+interface IProps {
   contracts: IContract[];
   loading: boolean;
   searchValue: string;
@@ -46,7 +45,6 @@ interface IProps extends IRouterProps {
     emptyBulk: () => void
   ) => void;
   // mergeContracts: () => void;
-  history: any;
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   queryParams: any;
@@ -57,6 +55,8 @@ interface IProps extends IRouterProps {
 }
 
 const ContractsList = (props: IProps) => {
+  const navigate = useNavigate();
+
   const timerRef = useRef<number | undefined>(undefined);
 
   const [searchValue, setSearchValue] = useState(props.searchValue);
@@ -71,13 +71,12 @@ const ContractsList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -99,7 +98,6 @@ const ContractsList = (props: IProps) => {
 
   const {
     contracts,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -167,7 +165,6 @@ const ContractsList = (props: IProps) => {
               contract={contract}
               isChecked={bulk.includes(contract)}
               key={contract._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

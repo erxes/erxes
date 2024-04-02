@@ -5,7 +5,6 @@ import { FormControl, TextInfo, ModalTrigger } from "@erxes/ui/src/components";
 
 type Props = {
   timeProportion: ITimeProportion;
-  history: any;
   isChecked: boolean;
   toggleBulk: (timeProportion: ITimeProportion, isChecked?: boolean) => void;
 };

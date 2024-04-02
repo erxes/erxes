@@ -49,7 +49,7 @@ const SimilarityGroupComponent = () => {
 };
 
 const UomManage = () => {
-  return <Uom history={history} />;
+  return <Uom />;
 };
 
 const BarcodeGeneratorComponent = () => {

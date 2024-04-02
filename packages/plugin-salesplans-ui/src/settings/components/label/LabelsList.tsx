@@ -20,6 +20,7 @@ import {
   InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   spLabels: ISPLabel[];
@@ -27,7 +28,6 @@ type Props = {
   loading: boolean;
   isAllSelected: boolean;
   toggleAll: (targets: ISPLabel[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -47,7 +47,6 @@ const breadcrumb = [
 const List = (props: Props) => {
   const {
     queryParams,
-    history,
     isAllSelected,
     totalCount,
     loading,
@@ -62,6 +61,8 @@ const List = (props: Props) => {
 
   const [search, setSearch] = React.useState(searchValue || "");
   const timerRef = useRef<number | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleSearch = (e) => {
     if (timerRef.current) {
@@ -72,8 +73,8 @@ const List = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.setParams(history, { searchValue: value });
-      router.removeParams(history, "page");
+      router.setParams(navigate, location, { searchValue: value });
+      router.removeParams(navigate, location, "page");
     }, 500);
   };
 
@@ -88,7 +89,6 @@ const List = (props: Props) => {
     return spLabels.map((spLabel) => (
       <Row
         key={spLabel._id}
-        history={history}
         spLabel={spLabel}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(spLabel)}
@@ -167,7 +167,7 @@ const List = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -207,11 +207,7 @@ const List = (props: Props) => {
         />
       }
       leftSidebar={
-        <SidebarWrapper
-          queryParams={queryParams}
-          history={history}
-          children={Sidebar}
-        />
+        <SidebarWrapper queryParams={queryParams} children={Sidebar} />
       }
       transparent={true}
       hasBorder

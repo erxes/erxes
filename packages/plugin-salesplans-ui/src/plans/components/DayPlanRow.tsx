@@ -9,7 +9,6 @@ import { ITimeframe } from "../../settings/types";
 
 type Props = {
   dayPlan: IDayPlan;
-  history: any;
   isChecked: boolean;
   timeFrames: ITimeframe[];
   toggleBulk: (dayPlan: IDayPlan, isChecked?: boolean) => void;

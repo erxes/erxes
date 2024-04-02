@@ -1,5 +1,4 @@
-import queryString from 'query-string';
-import React from 'react';
+import React from "react";
 import {
   __,
   Button,
@@ -10,14 +9,12 @@ import {
   SidebarList,
   Tip,
   Wrapper,
-} from '@erxes/ui/src';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import { Link } from 'react-router-dom';
-import { SidebarListItem } from '../../styles';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+} from "@erxes/ui/src";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
   productCategories: IProductCategory[];
   loading: boolean;
@@ -26,21 +23,23 @@ type Props = {
 const { Section } = Wrapper.Sidebar;
 
 const CategoryList = (props: Props) => {
-  const { productCategories, queryParams, history, loading } = props;
+  const { productCategories, queryParams, loading } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const clearCategoryFilter = () => {
-    router.removeParams(history, 'categoryId');
+    router.removeParams(navigate, location, "categoryId");
   };
 
   const isActive = (id: string) => {
-    const currentGroup = queryParams.categoryId || '';
+    const currentGroup = queryParams.categoryId || "";
 
     return currentGroup === id;
   };
 
   const onClick = (id: string) => {
-    router.removeParams(history, 'page');
-    router.setParams(history, { categoryId: id });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { categoryId: id });
   };
 
   const renderContent = () => {
@@ -66,12 +65,12 @@ const CategoryList = (props: Props) => {
     return (
       <>
         <Section.Title>
-          {__('Categories')}
+          {__("Categories")}
 
           <Section.QuickButtons>
-            {router.getParam(history, 'categoryId') && (
+            {router.getParam(location, "categoryId") && (
               <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>

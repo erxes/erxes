@@ -7,7 +7,6 @@ import React from "react";
 
 type Props = {
   spLabel: ISPLabel;
-  history: any;
   isChecked: boolean;
   toggleBulk: (spLabel: ISPLabel, isChecked?: boolean) => void;
 };

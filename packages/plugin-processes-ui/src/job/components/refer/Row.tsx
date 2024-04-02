@@ -13,7 +13,6 @@ import { IJobRefer } from "../../types";
 
 type Props = {
   jobRefer: IJobRefer;
-  history: any;
   isChecked: boolean;
   toggleBulk: (jobRefer: IJobRefer, isChecked?: boolean) => void;
 };

@@ -1,42 +1,40 @@
-import * as compose from 'lodash.flowright';
-
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse,
-} from '../types';
-import { useMutation } from '@apollo/client';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { Bulk } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
-import InventoryCategory from '../components/inventoryCategory/InventoryCategory';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../graphql';
-import { router } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
+} from "../types";
+import { useMutation } from "@apollo/client";
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import InventoryCategory from "../components/inventoryCategory/InventoryCategory";
+import React, { useState } from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { mutations } from "../graphql";
+import { router } from "@erxes/ui/src";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
 };
 
-type FinalProps = {} & Props & IRouterProps;
+type FinalProps = {} & Props;
 
 const InventoryCategoryContainer = (props: FinalProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [toMultiCheckCategories] =
     useMutation<ToCheckCategoriesMutationResponse>(
-      gql(mutations.toCheckCategories),
+      gql(mutations.toCheckCategories)
     );
   const [toMultiSyncCategories] = useMutation<ToSyncCategoriesMutationResponse>(
-    gql(mutations.toSyncCategories),
+    gql(mutations.toSyncCategories)
   );
 
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const brandId = props.queryParams.brandId || 'noBrand';
+  const brandId = props.queryParams.brandId || "noBrand";
 
   const setSyncStatus = (data: any, action: string) => {
     const createData = data[action].items.map((d) => ({
@@ -59,7 +57,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
   };
 
   const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
+    router.setParams(navigate, location, { brandId: brandId });
     return router;
   };
 
@@ -74,7 +72,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
     })
       .then(() => {
         setLoading(false);
-        Alert.success('Success. Please check again.');
+        Alert.success("Success. Please check again.");
       })
       .finally(() => {
         let data = items;
@@ -95,9 +93,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
       .then((response) => {
         let data = response?.data?.toMultiCheckCategories;
 
-        setSyncStatus(data, 'create');
-        setSyncStatus(data, 'update');
-        setSyncStatus(data, 'delete');
+        setSyncStatus(data, "create");
+        setSyncStatus(data, "update");
+        setSyncStatus(data, "delete");
 
         setItems(response?.data?.toMultiCheckCategories || {});
         setLoading(false);

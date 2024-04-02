@@ -17,7 +17,6 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
-  history: any;
   queryParams: any;
   route?: string;
   perPage?: number;

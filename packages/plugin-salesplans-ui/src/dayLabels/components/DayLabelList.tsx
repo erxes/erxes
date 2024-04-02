@@ -22,7 +22,6 @@ type Props = {
   loading: boolean;
   isAllSelected: boolean;
   toggleAll: (targets: IDayLabel[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -35,7 +34,6 @@ type Props = {
 const DayLabelList = (props: Props) => {
   const {
     queryParams,
-    history,
     dayLabels,
     totalCount,
     bulk,
@@ -56,7 +54,6 @@ const DayLabelList = (props: Props) => {
     return dayLabels.map((dayLabel) => (
       <Row
         key={dayLabel._id}
-        history={history}
         dayLabel={dayLabel}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(dayLabel)}
@@ -116,7 +113,7 @@ const DayLabelList = (props: Props) => {
 
   const renderContent = () => {
     return (
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -152,7 +149,7 @@ const DayLabelList = (props: Props) => {
           right={actionBarRight()}
         />
       }
-      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <DataWithLoader
           data={renderContent()}

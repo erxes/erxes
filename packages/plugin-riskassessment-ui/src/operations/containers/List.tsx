@@ -15,7 +15,7 @@ import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';
 type Props = {
   queryParams: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   listQuery: OperationsQueryResponse;

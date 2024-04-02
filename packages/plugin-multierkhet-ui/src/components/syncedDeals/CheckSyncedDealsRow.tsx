@@ -7,7 +7,6 @@ import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   deal: any;
-  history: any;
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (deal: any, isChecked?: boolean) => void;

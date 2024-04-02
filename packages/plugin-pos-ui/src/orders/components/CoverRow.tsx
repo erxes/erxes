@@ -9,7 +9,6 @@ import { ICover } from '../types';
 
 type Props = {
   cover: ICover;
-  history: any;
   remove: (_id: string) => void;
 };
 

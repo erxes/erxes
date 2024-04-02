@@ -8,20 +8,18 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
 import React from "react";
 import SyncHistorySidebar from "./syncHistorySidebar";
 import { Title } from "@erxes/ui-settings/src/styles";
 import dayjs from "dayjs";
-// import { withRouter } from 'react-router-dom';
 import { menuSyncerkhet } from "../../constants";
 
-interface IProps extends IRouterProps {
+interface IProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -49,13 +47,13 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   };
 
   render() {
-    const { history, syncHistories, totalCount, loading, queryParams } =
+    const {  syncHistories, totalCount, loading, queryParams } =
       this.props;
 
     const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             {tablehead.map((p) => (
@@ -113,7 +111,6 @@ class SyncHistoryList extends React.Component<IProps, {}> {
         leftSidebar={
           <SyncHistorySidebar
             queryParams={queryParams}
-            history={history}
             loading={loading}
           />
         }

@@ -14,7 +14,6 @@ import Row from './InventoryPriceRow';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
@@ -126,7 +125,7 @@ const InventoryPrice = ({
     return (
       <>
         {action === 'UPDATE' && subHeader}
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th>{__('Code')}</th>

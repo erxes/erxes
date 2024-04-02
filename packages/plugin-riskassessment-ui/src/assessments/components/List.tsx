@@ -20,7 +20,6 @@ type Props = {
   list: any[];
   totalCount: number;
   queryParams: any;
-  history: any;
   remove: (ids: string[]) => void;
 };
 
@@ -38,7 +37,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderContent = () => {
-    const { list, queryParams, history } = this.props;
+    const { list, queryParams } = this.props;
     const { selectedAssessmentIds } = this.state;
 
     const handleSelect = (id: string) => {
@@ -79,7 +78,7 @@ class List extends React.Component<Props, State> {
             </th>
             <th>{__("Card type")}</th>
             <th>{__("Card Name")}</th>
-            {headers(queryParams, history).map((header) => (
+            {headers(queryParams).map((header) => (
               <TableHead
                 key={header.name}
                 filter={header.filter}
@@ -99,7 +98,6 @@ class List extends React.Component<Props, State> {
               selecteAssessmentIds={selectedAssessmentIds}
               handleSelect={handleSelect}
               queryParams={queryParams}
-              history={history}
             />
           ))}
         </tbody>
@@ -151,9 +149,7 @@ class List extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
-        leftSidebar={
-          <SideBar history={this.props.history} queryParams={queryParams} />
-        }
+        leftSidebar={<SideBar queryParams={queryParams} />}
         content={this.renderContent()}
         footer={<Pagination count={totalCount} />}
       />

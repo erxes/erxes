@@ -31,7 +31,6 @@ import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import {
   IButtonMutateProps,
   IFormProps,
-  IRouterProps,
 } from "@erxes/ui/src/types";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import React from "react";
@@ -55,7 +54,8 @@ type Props = {
   detail?: RiskIndicatorsType;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
   duplicatIndicator: (_id: string) => void;
-} & IRouterProps;
+  history?: any;
+};
 
 type IRiskIndicatorsStateType = {
   _id?: string;

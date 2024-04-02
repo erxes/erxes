@@ -8,28 +8,17 @@ import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   posList?: any[];
 }
 
-interface State {
-  posToken: string;
-  paidStartDate: Date;
-  paidEndDate: Date;
-  createdStartDate: Date;
-  createdEndDate: Date;
-  search: string;
-  userId: string;
-  posId: string;
-}
-
 const CheckerSidebar = (props: IProps) => {
-  const { history, queryParams, posList } = props;
+  const { queryParams, posList } = props;
   const [posToken, setPosToken] = useState(queryParams.posToken);
   const [search, setSearch] = useState(queryParams.search);
   const [paidStartDate, setPaidStartDate] = useState(queryParams.paidStartDate);
@@ -43,8 +32,11 @@ const CheckerSidebar = (props: IProps) => {
   const [userId, setUserId] = useState(queryParams.userId);
   const [posId, setPosId] = useState(queryParams.posId);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       page: 1,
       posToken,
       search,
@@ -140,7 +132,7 @@ const CheckerSidebar = (props: IProps) => {
   return (
     <Wrapper.Sidebar>
       <Sidebar>
-        <Section collapsible={false}>
+        <Section $collapsible={false}>
           <Section.Title>{__("Filters")}</Section.Title>
           <FormGroup>
             <ControlLabel>Enter POS token</ControlLabel>

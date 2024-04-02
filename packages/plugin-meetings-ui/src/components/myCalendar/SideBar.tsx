@@ -19,7 +19,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { colors } from "@erxes/ui/src/styles";
 import dayjs from "dayjs";
 import { generateColorCode } from "../../utils";
-import { useHistory } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -49,14 +49,15 @@ export const SideBar = (props: Props) => {
       queryParams.participantUserIds.split(",")) ||
       []
   );
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     setFilteredMeeting(meetings);
   }, [meetings, meetings.length]);
 
   const onClick = (_id: string) => {
-    router.setParams(history, { meetingId: _id });
+    router.setParams(navigate, location, { meetingId: _id });
   };
 
   const ListItem = (meeting) => {
@@ -67,7 +68,7 @@ export const SideBar = (props: Props) => {
 
     return (
       <SidebarListItem
-        isActive={className === "active"}
+        $isActive={className === "active"}
         key={meeting._id}
         onClick={() => onClick(meeting._id)}
         backgroundColor="#f2f2f2"
@@ -127,25 +128,25 @@ export const SideBar = (props: Props) => {
   };
 
   const handleChange = (e, userId: string) => {
-    router.removeParams(history, meetingId);
+    router.removeParams(navigate, location, meetingId);
     const isChecked = e.target.checked;
     if (isChecked && !checkedUsers?.includes(userId)) {
       setCheckedUsers([...checkedUsers, userId]);
       const participantIds = [...checkedUsers, userId];
       const queryString = "participantUserIds=" + participantIds.join(",");
 
-      return history.push(`${window.location.pathname}?${queryString}`);
+      return navigate(`${window.location.pathname}?${queryString}`);
     } else {
       const uncheckedUser = checkedUsers?.filter((user) => user !== userId);
       setCheckedUsers(uncheckedUser);
       const queryString = "participantUserIds=" + uncheckedUser.join(",");
 
-      return history.push(`${window.location.pathname}?${queryString}`);
+      return navigate(`${window.location.pathname}?${queryString}`);
     }
   };
 
   const clearUserFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       searchUserValue: null,
     });
   };
@@ -175,7 +176,7 @@ export const SideBar = (props: Props) => {
       })}
 
       <Section.QuickButtons>
-        {router.getParam(history, "searchUserValue") && (
+        {router.getParam(location, "searchUserValue") && (
           <Button btnStyle="warning" onClick={clearUserFilter}>
             Clear filter
           </Button>

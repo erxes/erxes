@@ -1,12 +1,11 @@
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   children: any;
-  history: any;
   queryParams: any;
 };
 
@@ -18,7 +17,7 @@ const Sidebar = (props: Props) => {
       <li>
         <Link
           to={url}
-          className={window.location.href.includes(url) ? 'active' : ''}
+          className={window.location.href.includes(url) ? "active" : ""}
         >
           {__(text)}
         </Link>
@@ -29,8 +28,8 @@ const Sidebar = (props: Props) => {
   return (
     <Wrapper.Sidebar hasBorder>
       <List id="SettingsSidebar">
-        {renderListItem('/salesplans/labels', 'Manage Day tag')}
-        {renderListItem('/salesplans/timeframes', 'Manage Day interval')}
+        {renderListItem("/salesplans/labels", "Manage Day tag")}
+        {renderListItem("/salesplans/timeframes", "Manage Day interval")}
       </List>
       <Children {...props} />
     </Wrapper.Sidebar>

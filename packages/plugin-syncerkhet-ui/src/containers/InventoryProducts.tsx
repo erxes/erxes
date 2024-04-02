@@ -7,8 +7,6 @@ import {
 
 import Alert from '@erxes/ui/src/utils/Alert';
 import { Bulk } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
 import InventoryProducts from '../components/inventoryProducts/InventoryProducts';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -22,7 +20,6 @@ type Props = {
 };
 
 type FinalProps = {} & Props &
-  IRouterProps &
   ToCheckProductsMutationResponse &
   ToSyncProductsMutationResponse;
 

@@ -20,7 +20,6 @@ type Props = {
   totalCount: number;
   loading: boolean;
   orders: any[];
-  history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
@@ -45,7 +44,6 @@ class CheckSyncedOrders extends React.Component<Props> {
   renderRow = () => {
     const {
       orders,
-      history,
       toggleBulk,
       bulk,
       unSyncedOrderIds,
@@ -55,7 +53,6 @@ class CheckSyncedOrders extends React.Component<Props> {
 
     return orders?.map((order) => (
       <Row
-        history={history}
         key={order._id}
         order={order}
         toggleBulk={toggleBulk}
@@ -106,7 +103,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       "Sync Actions",
     ];
     const Content = (
-      <Table bordered={true}>
+      <Table $bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -126,7 +123,6 @@ class CheckSyncedOrders extends React.Component<Props> {
     const sidebar = (
       <CheckSyncedOrdersSidebar
         queryParams={queryParams}
-        history={this.props.history}
         posList={posList}
       />
     );

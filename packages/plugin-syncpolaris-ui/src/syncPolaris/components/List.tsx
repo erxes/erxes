@@ -1,5 +1,4 @@
 import React from "react";
-import { IRouterProps } from "@erxes/ui/src/types";
 import {
   __,
   Wrapper,
@@ -15,12 +14,11 @@ import { menuSyncpolaris } from "../../constants";
 import { Title } from "@erxes/ui-settings/src/styles";
 import dayjs from "dayjs";
 import Form from "./Form";
-interface IProps extends IRouterProps {
+interface IProps {
   toSyncPolaris: (type: string, items: any[]) => void;
   syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
   toCheckPolaris: (type: string) => void;
   items: any;
@@ -30,7 +28,6 @@ interface IProps extends IRouterProps {
 class List extends React.Component<IProps> {
   render() {
     const {
-      history,
       syncHistoriesPolaris,
       totalCount,
       loading,
@@ -66,7 +63,7 @@ class List extends React.Component<IProps> {
     }
 
     const mainContent = (
-      <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             {tablehead.map((head) => (
@@ -143,7 +140,7 @@ class List extends React.Component<IProps> {
           />
         }
         actionBar={actionBar}
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         footer={<Pagination count={totalCount || 0} />}
         content={
           <DataWithLoader

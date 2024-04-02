@@ -4,10 +4,8 @@ import {
   OverallWorksCountQueryResponse,
   OverallWorksQueryResponse,
 } from '../types';
-// import { withRouter } from 'react-router-dom';
 import { Spinner, router, withProps } from '@erxes/ui/src';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { gql } from '@apollo/client';
@@ -16,14 +14,12 @@ import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   overallWorksQuery: OverallWorksQueryResponse;
   overallWorksCountQuery: OverallWorksCountQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props ;
 
 class OverallWorksContainer extends React.Component<FinalProps> {
   constructor(props) {

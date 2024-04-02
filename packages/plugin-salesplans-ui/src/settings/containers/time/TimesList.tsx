@@ -15,7 +15,6 @@ import List from '../../components/time/TimesList';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const TimesListContainer = (props: Props) => {

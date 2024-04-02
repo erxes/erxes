@@ -20,7 +20,6 @@ import { CardCustomFields, SelectStructure } from '../common/utils';
 import { mutations } from '../graphql';
 
 type Props = {
-  history: any;
   schedule?: ISchedule;
   plan: IPLan;
   refetch: () => void;

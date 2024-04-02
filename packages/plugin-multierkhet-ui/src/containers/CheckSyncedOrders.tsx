@@ -17,7 +17,6 @@ import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const CheckSyncedOrdersContainer = (props: Props) => {

@@ -6,25 +6,21 @@ import {
 } from '../types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SyncHistoryList from '../components/syncHistories/SyncHistoryList';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 type FinalProps = {
   syncHistoriesQuery: SyncHistoriesQueryResponse;
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 class SyncHistoryListContainer extends React.Component<FinalProps, {}> {
   constructor(props) {

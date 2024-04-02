@@ -12,7 +12,6 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   loading: boolean;
-  history: any;
   queryParams: any;
   toCheckCategories: () => void;
   toSyncCategories: (action: string, categories: any[]) => void;
@@ -87,7 +86,7 @@ const InventoryCategory = (props: Props) => {
     return (
       <>
         {header}
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th>{__('Code')}</th>

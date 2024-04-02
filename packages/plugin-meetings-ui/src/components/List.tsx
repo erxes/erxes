@@ -19,7 +19,6 @@ type Props = {
   loading: boolean;
   queryParams: any;
   route?: string;
-  history: string;
   refetchQueries?: any;
   currentUser: IUser;
   meetingQuery?: MeetingsQueryResponse;
@@ -30,7 +29,6 @@ function List(props: Props) {
     meetings,
     loading,
     queryParams,
-    history,
     currentUser,
     meetingQuery
   } = props;
@@ -57,7 +55,6 @@ function List(props: Props) {
         );
         setLeftSideBar(
           <SideBar
-            history={history}
             queryParams={queryParams}
             meetings={meetings}
             loading={loading}

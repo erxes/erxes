@@ -1,18 +1,17 @@
-import { gql } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert } from '@erxes/ui/src/utils';
-import React from 'react';
-import Report from '../../components/report/Report';
-import { mutations, queries } from '../../graphql';
+import { gql } from "@apollo/client";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert } from "@erxes/ui/src/utils";
+import React from "react";
+import Report from "../../components/report/Report";
+import { mutations, queries } from "../../graphql";
 import {
   ReportDetailQueryResponse,
   ReportsMutationResponse,
-} from '../../types';
-import { useQuery, useMutation } from '@apollo/client';
-import { IReport } from '../../types';
+} from "../../types";
+import { useQuery, useMutation } from "@apollo/client";
+import { IReport } from "../../types";
 
 type Props = {
-  history: any;
   queryParams: any;
   reportId: string;
 };
@@ -24,22 +23,22 @@ const ReportList = (props: Props) => {
     gql(queries.reportDetail),
     {
       variables: { reportId },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [reportsEditMutation] = useMutation<ReportsMutationResponse>(
     gql(mutations.reportsEdit),
     {
-      fetchPolicy: 'network-only',
-      refetchQueries: ['reportsList'],
-    },
+      fetchPolicy: "network-only",
+      refetchQueries: ["reportsList"],
+    }
   );
 
   const [reportChartsEditMutation] = useMutation<ReportsMutationResponse>(
     gql(mutations.reportChartsEdit),
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       refetchQueries: [
         {
           query: gql(queries.reportDetail),
@@ -48,13 +47,13 @@ const ReportList = (props: Props) => {
           },
         },
       ],
-    },
+    }
   );
 
   const [reportChartsRemoveMutation] = useMutation<ReportsMutationResponse>(
     gql(mutations.reportChartsRemove),
     {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       refetchQueries: [
         {
           query: gql(queries.reportDetail),
@@ -63,7 +62,7 @@ const ReportList = (props: Props) => {
           },
         },
       ],
-    },
+    }
   );
 
   if (reportDetailQuery.loading) {
@@ -73,7 +72,7 @@ const ReportList = (props: Props) => {
   const reportsEdit = (_id: string, values: any, callback?: any) => {
     reportsEditMutation({ variables: { _id, ...values } })
       .then(() => {
-        Alert.success('Successfully edited report');
+        Alert.success("Successfully edited report");
         if (callback) {
           callback();
         }
@@ -83,7 +82,7 @@ const ReportList = (props: Props) => {
 
   const reportChartsEdit = (_id: string, values: any, callback?: any) => {
     reportChartsEditMutation({ variables: { _id, ...values } }).then(() => {
-      Alert.success('Successfully edited chart');
+      Alert.success("Successfully edited chart");
       if (callback) {
         callback();
       }
@@ -93,7 +92,7 @@ const ReportList = (props: Props) => {
   const reportChartsRemove = (_id: string) => {
     reportChartsRemoveMutation({ variables: { _id } })
       .then(() => {
-        Alert.success('Successfully removed chart');
+        Alert.success("Successfully removed chart");
       })
       .catch((err) => Alert.error(err.message));
   };

@@ -3,10 +3,10 @@ import { FormControl, formatValue } from "@erxes/ui/src";
 import React from "react";
 import { FlexItem } from "../../styles";
 import { IContract } from "../../types";
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   contract: IContract;
-  history: any;
   isChecked: boolean;
   toggleBulk: (contract: IContract, isChecked?: boolean) => void;
 };
@@ -23,7 +23,9 @@ function displayValue(contract, name) {
   return formatValue(value);
 }
 
-function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
+function ContractRow({ contract, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate();
+  
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contract, e.target.checked);
@@ -35,7 +37,7 @@ function ContractRow({ contract, history, isChecked, toggleBulk }: Props) {
   };
 
   const onTrClick = () => {
-    history.push(`/erxes-plugin-saving/contract-details/${contract._id}`);
+    navigate(`/erxes-plugin-saving/contract-details/${contract._id}`);
   };
 
   return (

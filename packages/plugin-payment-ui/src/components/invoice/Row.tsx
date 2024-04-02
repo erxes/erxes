@@ -12,7 +12,6 @@ import { renderFullName } from "@erxes/ui/src/utils";
 
 type Props = {
   invoice: IInvoice;
-  history: any;
   isChecked: boolean;
   onClick: (invoiceId: string) => void;
   toggleBulk: (invoice: IInvoice, isChecked?: boolean) => void;

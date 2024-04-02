@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 
 type Props = {
   deal: any;
-  history: any;
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (deal: any, isChecked?: boolean) => void;

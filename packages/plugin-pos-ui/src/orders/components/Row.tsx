@@ -9,7 +9,6 @@ import { IOrder } from '../types';
 
 type Props = {
   order: IOrder;
-  history: any;
   otherPayTitles: string[];
   onReturnBill: (orderId: string) => void;
 };

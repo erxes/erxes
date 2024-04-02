@@ -15,22 +15,25 @@ import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import moment from "moment";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-  history: any;
   queryParams: any;
 }
 
 const { Section } = Wrapper.Sidebar;
 
 const DayPlanSidebar = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const timerRef = useRef<number | null>(null);
 
   const clearFilter = () => {
     router.removeParams(
-      history,
+      navigate,
+      location,
       "date",
       "filterStatus",
       "branchId",
@@ -41,8 +44,8 @@ const DayPlanSidebar = (props: Props) => {
   };
 
   const setFilter = (name, value) => {
-    router.removeParams(history, "page");
-    router.setParams(history, { [name]: value });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { [name]: value });
   };
 
   const onInputChange = (e) => {
@@ -69,12 +72,12 @@ const DayPlanSidebar = (props: Props) => {
       <Section.Title>
         {__("Filters")}
         <Section.QuickButtons>
-          {(router.getParam(history, "filterStatus") ||
-            router.getParam(history, "branchId") ||
-            router.getParam(history, "departmentId") ||
-            router.getParam(history, "productCategoryId") ||
-            router.getParam(history, "productId") ||
-            router.getParam(history, "date")) && (
+          {(router.getParam(location, "filterStatus") ||
+            router.getParam(location, "branchId") ||
+            router.getParam(location, "departmentId") ||
+            router.getParam(location, "productCategoryId") ||
+            router.getParam(location, "productId") ||
+            router.getParam(location, "date")) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
               <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />

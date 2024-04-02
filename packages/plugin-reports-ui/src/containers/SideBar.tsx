@@ -1,13 +1,12 @@
-import SideBarComponent from '../components/SideBar';
+import SideBarComponent from "../components/SideBar";
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
   TypeQueryResponse,
-} from '../types';
-import React from 'react';
+} from "../types";
+import React from "react";
 
 type Props = {
-  history: any;
   currentTypeId?: string;
 };
 

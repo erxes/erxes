@@ -9,9 +9,7 @@ import { UomRemoveMutationResponse, UomsCountQueryResponse } from '../../types';
 import { UomsQueryResponse } from '@erxes/ui-products/src/types';
 import { useQuery, useMutation } from '@apollo/client';
 
-type Props = {
-  history: any;
-};
+type Props = {};
 
 const ListContainer = (props: Props) => {
   const uomsQuery = useQuery<UomsQueryResponse>(gql(queries.uoms));

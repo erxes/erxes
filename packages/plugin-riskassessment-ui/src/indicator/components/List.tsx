@@ -11,7 +11,6 @@ import { FlexRow, HeaderContent } from "../../styles";
 
 import { DefaultWrapper } from "../../common/utils";
 import { ICommonListProps } from "../../common/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { Link } from "react-router-dom";
 import React from "react";
 import { RiskIndicatorsType } from "../common/types";
@@ -33,8 +32,7 @@ type Props = {
     searchValue: string;
   }) => void;
   duplicate: (_id: string) => void;
-} & ICommonListProps &
-  IRouterProps;
+} & ICommonListProps;
 
 type IState = {
   selectedItems: string[];
@@ -109,7 +107,7 @@ class ListComp extends React.Component<Props, IState> {
   renderContent = (list: RiskIndicatorsType[]) => {
     const { selectedItems } = this.state;
 
-    const { queryParams, duplicate, history } = this.props;
+    const { queryParams, duplicate } = this.props;
 
     return (
       <Table>
@@ -146,7 +144,6 @@ class ListComp extends React.Component<Props, IState> {
               indicator: item,
               selectedItems,
               queryParams,
-              history,
               handleDuplicate: duplicate,
               onChange: this.selectItem,
             };
@@ -204,9 +201,7 @@ class ListComp extends React.Component<Props, IState> {
       rightActionBar: rightActionBar,
       leftActionBar,
       content: this.renderContent(list),
-      sidebar: (
-        <SideBar queryParams={queryParams} history={this.props.history} />
-      ),
+      sidebar: <SideBar queryParams={queryParams} />,
       subMenu,
     };
 

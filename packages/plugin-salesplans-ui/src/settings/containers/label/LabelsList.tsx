@@ -15,7 +15,6 @@ import {
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const ListContainer = (props: Props) => {

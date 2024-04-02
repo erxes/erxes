@@ -16,14 +16,14 @@ import * as dayjs from "dayjs";
 
 type Props = {
   report: IReport;
-  history: any;
+  navigate: any;
   isChecked: boolean;
   toggleReport: (reportId: string, isChecked?: boolean) => void;
   removeReports: (reportIds: string[]) => void;
 };
 
 const Row = (props: Props) => {
-  const { report, history, isChecked, toggleReport, removeReports } = props;
+  const { report, navigate, isChecked, toggleReport, removeReports } = props;
 
   const { updatedBy, createdBy } = report;
 
@@ -60,7 +60,7 @@ const Row = (props: Props) => {
   };
 
   const onNameClick = () => {
-    history.push(`/reports/details/${report._id}`);
+    navigate(`/reports/details/${report._id}`);
   };
 
   const returnFormattedDateTime = (dateVal: Date) => {

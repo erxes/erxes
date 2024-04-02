@@ -1,41 +1,43 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import moment from 'moment';
-import queryString from 'query-string';
-import React, { useState } from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IQueryParams } from '@erxes/ui/src/types';
-import Button from '@erxes/ui/src/components/Button';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import moment from "moment";
+import queryString from "query-string";
+import React, { useState } from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { IQueryParams } from "@erxes/ui/src/types";
+import Button from "@erxes/ui/src/components/Button";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-  history: any;
   queryParams: any;
 }
 
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = ({ location }) => {
+const generateQueryParams = (location) => {
   return queryString.parse(location.search);
 };
 
 const SyncHistorySidebar = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
   const [filterParams, setFilterParams] = useState<IQueryParams>(queryParams);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams(history);
+    const params = generateQueryParams(location);
 
     for (const param in params) {
-      if (['posId', 'startDate', 'endDate', 'userId'].includes(param)) {
+      if (["posId", "startDate", "endDate", "userId"].includes(param)) {
         return true;
       }
     }
@@ -44,8 +46,8 @@ const SyncHistorySidebar = (props: Props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams(history);
-    router.removeParams(history, ...Object.keys(params));
+    const params = generateQueryParams(location);
+    router.removeParams(navigate, location, ...Object.keys(params));
   };
 
   const setFilter = (name, value) => {
@@ -53,22 +55,22 @@ const SyncHistorySidebar = (props: Props) => {
   };
 
   const onSelectDate = (value, name) => {
-    const strVal = moment(value).format('YYYY-MM-DD HH:mm');
+    const strVal = moment(value).format("YYYY-MM-DD HH:mm");
     setFilter(name, strVal);
   };
 
   const runFilter = () => {
-    router.setParams(history, { ...filterParams, page: 1 });
+    router.setParams(navigate, location, { ...filterParams, page: 1 });
   };
 
   return (
     <Wrapper.Sidebar hasBorder>
       <Section.Title>
-        {__('Filters')}
+        {__("Filters")}
         <Section.QuickButtons>
           {isFiltered() && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -82,8 +84,8 @@ const SyncHistorySidebar = (props: Props) => {
             label="Choose users"
             name="userId"
             initialValue={filterParams.userId}
-            onSelect={(userId) => setFilter('userId', userId)}
-            customOption={{ value: '', label: '...Clear user filter' }}
+            onSelect={(userId) => setFilter("userId", userId)}
+            customOption={{ value: "", label: "...Clear user filter" }}
             multi={false}
           />
         </FormGroup>
@@ -95,8 +97,8 @@ const SyncHistorySidebar = (props: Props) => {
               dateFormat="YYYY/MM/DD"
               timeFormat={true}
               placeholder="Choose date"
-              value={filterParams.startDate || ''}
-              onChange={(value) => onSelectDate(value, 'startDate')}
+              value={filterParams.startDate || ""}
+              onChange={(value) => onSelectDate(value, "startDate")}
             />
           </DateContainer>
         </FormGroup>
@@ -108,8 +110,8 @@ const SyncHistorySidebar = (props: Props) => {
               dateFormat="YYYY/MM/DD"
               timeFormat={true}
               placeholder="Choose date"
-              value={filterParams.endDate || ''}
-              onChange={(value) => onSelectDate(value, 'endDate')}
+              value={filterParams.endDate || ""}
+              onChange={(value) => onSelectDate(value, "endDate")}
             />
           </DateContainer>
         </FormGroup>
@@ -117,7 +119,7 @@ const SyncHistorySidebar = (props: Props) => {
           <ControlLabel>Content Type</ControlLabel>
           <FormControl
             name="contentType"
-            onChange={(e) => setFilter('contentType', (e.target as any).value)}
+            onChange={(e) => setFilter("contentType", (e.target as any).value)}
             defaultValue={filterParams.contentType}
           />
         </FormGroup>
@@ -125,7 +127,7 @@ const SyncHistorySidebar = (props: Props) => {
           <ControlLabel>Content ID</ControlLabel>
           <FormControl
             name="contentId"
-            onChange={(e) => setFilter('contentId', (e.target as any).value)}
+            onChange={(e) => setFilter("contentId", (e.target as any).value)}
             defaultValue={filterParams.contentId}
           />
         </FormGroup>
@@ -134,7 +136,7 @@ const SyncHistorySidebar = (props: Props) => {
           <FormControl
             name="searchConsume"
             onChange={(e) =>
-              setFilter('searchConsume', (e.target as any).value)
+              setFilter("searchConsume", (e.target as any).value)
             }
             defaultValue={filterParams.searchConsume}
           />
@@ -143,7 +145,7 @@ const SyncHistorySidebar = (props: Props) => {
           <ControlLabel>Search Send</ControlLabel>
           <FormControl
             name="searchSend"
-            onChange={(e) => setFilter('searchSend', (e.target as any).value)}
+            onChange={(e) => setFilter("searchSend", (e.target as any).value)}
             defaultValue={filterParams.searchSend}
           />
         </FormGroup>
@@ -152,7 +154,7 @@ const SyncHistorySidebar = (props: Props) => {
           <FormControl
             name="searchResponse"
             onChange={(e) =>
-              setFilter('searchResponse', (e.target as any).value)
+              setFilter("searchResponse", (e.target as any).value)
             }
             defaultValue={filterParams.searchResponse}
           />
@@ -161,7 +163,7 @@ const SyncHistorySidebar = (props: Props) => {
           <ControlLabel>Search Error</ControlLabel>
           <FormControl
             name="searchError"
-            onChange={(e) => setFilter('searchError', (e.target as any).value)}
+            onChange={(e) => setFilter("searchError", (e.target as any).value)}
             defaultValue={filterParams.searchError}
           />
         </FormGroup>
@@ -173,7 +175,7 @@ const SyncHistorySidebar = (props: Props) => {
         onClick={runFilter}
         icon="filter"
       >
-        {__('Filter')}
+        {__("Filter")}
       </Button>
     </Wrapper.Sidebar>
   );

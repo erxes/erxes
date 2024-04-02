@@ -1,27 +1,25 @@
 import { __, DataWithLoader, Pagination, Table, Wrapper } from "@erxes/ui/src";
 import dayjs from "dayjs";
-import { IRouterProps } from "@erxes/ui/src/types";
 import React from "react";
 import { menuSyncpolaris } from "../../constants";
 import SyncHistorySidebar from "./syncHistorySidebar";
 import { Title } from "@erxes/ui-settings/src/styles";
 
-interface IProps extends IRouterProps {
+interface IProps {
   syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 }
 class SyncHistoryList extends React.Component<IProps> {
   render() {
-    const { history, syncHistoriesPolaris, totalCount, loading, queryParams } =
+    const { syncHistoriesPolaris, totalCount, loading, queryParams } =
       this.props;
 
     const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             {tablehead.map((p) => (
@@ -59,9 +57,7 @@ class SyncHistoryList extends React.Component<IProps> {
             submenu={menuSyncpolaris}
           />
         }
-        leftSidebar={
-          <SyncHistorySidebar queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<SyncHistorySidebar queryParams={queryParams} />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__(`DATAS (${totalCount})`)}</Title>}

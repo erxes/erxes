@@ -8,7 +8,6 @@ import Detail from "../../containers/PosOrderDetail";
 
 type Props = {
   order: any;
-  history: any;
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (order: any, isChecked?: boolean) => void;

@@ -1,15 +1,14 @@
-import { Alert, Bulk, router } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
+import { Alert, Bulk, router } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import React, { useState } from "react";
 
-import ContractTypesList from '../components/ContractTypesList';
-import { mutations, queries } from '../graphql';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import ContractTypesList from "../components/ContractTypesList";
+import { mutations, queries } from "../graphql";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const ContractTypeListContainer = (props: Props) => {
@@ -28,15 +27,15 @@ const ContractTypeListContainer = (props: Props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [contractTypesRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractTypesRemove),
     {
-      refetchQueries: ['contractTypesMain'],
-    },
+      refetchQueries: ["contractTypesMain"],
+    }
   );
 
   const removeContractTypes = ({ contractTypeIds }, emptyBulk) => {
@@ -45,14 +44,14 @@ const ContractTypeListContainer = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a contractType');
+        Alert.success("You successfully deleted a contractType");
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const searchValue = queryParams.searchValue || '';
+  const searchValue = queryParams.searchValue || "";
   const { list = [], totalCount = 0 } =
     contractTypesMainQuery?.data?.savingsContractTypesMain || {};
 

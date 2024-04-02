@@ -3,7 +3,6 @@ import { IPosProduct } from '../types';
 
 type Props = {
   product: IPosProduct;
-  history: any;
 };
 
 const hours = [

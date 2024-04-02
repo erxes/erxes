@@ -1,5 +1,4 @@
 import {
-  BarItems,
   DataWithLoader,
   Pagination,
   SortHandler,
@@ -7,9 +6,8 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-// import { withRouter } from 'react-router-dom';
 import CoverSidebar from "./CoverSidebar";
 import { ICover } from "../types";
 import React from "react";
@@ -22,7 +20,6 @@ type Props = {
   covers: ICover[];
   bulk: any[];
   isAllSelected: boolean;
-  history: any;
   queryParams: any;
   coversCount: number;
   loading: boolean;
@@ -33,10 +30,10 @@ type Props = {
   isFiltered: boolean;
   clearFilter: () => void;
   remove: (_id: string) => void;
-} & IRouterProps;
+};
 
 const CoverList = (props: Props) => {
-  const { covers, history, queryParams, remove, coversCount, loading } = props;
+  const { covers, queryParams, remove, coversCount, loading } = props;
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
@@ -71,12 +68,7 @@ const CoverList = (props: Props) => {
           </thead>
           <tbody id="covers">
             {(covers || []).map((cover) => (
-              <Row
-                cover={cover}
-                key={cover._id}
-                history={history}
-                remove={remove}
-              />
+              <Row cover={cover} key={cover._id} remove={remove} />
             ))}
           </tbody>
         </Table>
@@ -88,7 +80,7 @@ const CoverList = (props: Props) => {
     <Wrapper
       header={<Wrapper.Header title={__(`Pos Covers`)} submenu={menuPos} />}
       actionBar={renderActionBar()}
-      leftSidebar={<CoverSidebar queryParams={queryParams} history={history} />}
+      leftSidebar={<CoverSidebar queryParams={queryParams} />}
       footer={<Pagination count={coversCount} />}
       hasBorder={true}
       content={

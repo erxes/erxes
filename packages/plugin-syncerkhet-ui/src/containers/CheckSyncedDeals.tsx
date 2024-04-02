@@ -1,34 +1,29 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   CheckSyncedDealsQueryResponse,
   CheckSyncedDealsTotalCountQueryResponse,
   CheckSyncedMutationResponse,
   ToSyncDealsMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { router, withProps } from '@erxes/ui/src/utils/core';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { router, withProps } from "@erxes/ui/src/utils/core";
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import { Bulk } from '@erxes/ui/src/components';
-import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-
-// import { withRouter } from 'react-router-dom';
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import CheckSyncedDeals from "../components/syncedDeals/CheckSyncedDeals";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   checkSyncItemsQuery: CheckSyncedDealsQueryResponse;
   checkSyncedDealsTotalCountQuery: CheckSyncedDealsTotalCountQueryResponse;
 } & Props &
-  IRouterProps &
   CheckSyncedMutationResponse &
   ToSyncDealsMutationResponse;
 
@@ -71,9 +66,9 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
 
           syncedDeals.forEach((item) => {
             syncedDealInfos[item._id] = {
-              syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || '',
+              syncedBillNumber: item.syncedBillNumber || "",
+              syncedDate: item.syncedDate || "",
+              syncedCustomer: item.syncedCustomer || "",
             };
           });
           this.setState({ unSyncedDealIds, syncedDealInfos });
@@ -91,11 +86,11 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         .then((response) => {
           const { skipped, error, success } = response.data.toSyncDeals;
           const changed = this.state.unSyncedDealIds.filter(
-            (u) => !dealIds.includes(u),
+            (u) => !dealIds.includes(u)
           );
           this.setState({ unSyncedDealIds: changed });
           Alert.success(
-            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
+            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
           );
         })
         .catch((e) => {
@@ -149,35 +144,35 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, CheckSyncedDealsQueryResponse>(
       gql(queries.checkSyncDeals),
       {
-        name: 'checkSyncItemsQuery',
+        name: "checkSyncItemsQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
 
     graphql<{ queryParams: any }, CheckSyncedDealsTotalCountQueryResponse>(
       gql(queries.checkSyncDealsTotalCount),
       {
-        name: 'checkSyncedDealsTotalCountQuery',
+        name: "checkSyncedDealsTotalCountQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, CheckSyncedMutationResponse, { dealIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSynced',
-      },
+        name: "toCheckSynced",
+      }
     ),
     graphql<Props, ToSyncDealsMutationResponse, { dealIds: string[] }>(
       gql(mutations.toSyncDeals),
       {
-        name: 'toSyncDeals',
-      },
-    ),
-  )(CheckSyncedDealsContainer),
+        name: "toSyncDeals",
+      }
+    )
+  )(CheckSyncedDealsContainer)
 );

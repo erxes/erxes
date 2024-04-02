@@ -1,26 +1,24 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, confirm, withProps, Bulk, router } from '@erxes/ui/src';
+import { Alert, confirm, Bulk, router } from '@erxes/ui/src';
 import React, { useEffect } from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import {
-  IRouterProps,
   PosListQueryResponse,
   RemoveMutationResponse,
 } from '../../types';
 
 import { queries, mutations } from '../graphql';
 import List from '../components/List';
+import { useLocation } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const ListContainer = (props: Props) => {
-  const { queryParams, history } = props;
-
-  const shouldRefetchList = router.getParam(history, 'refetchList');
+  const { queryParams } = props;
+  const location = useLocation();
+  
+  const shouldRefetchList = router.getParam(location, 'refetchList');
 
   const posListQuery = useQuery<PosListQueryResponse>(gql(queries.posList), {
     variables: {

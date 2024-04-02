@@ -1,26 +1,28 @@
-import { Alert, Bulk, router } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import queryString from 'query-string';
-import React, { useState } from 'react';
+import { Alert, Bulk, router } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import queryString from "query-string";
+import React, { useState } from "react";
 
-import { FILTER_PARAMS_TR } from '../../constants';
-import TransactionList from '../components/TransactionList';
-import { mutations, queries } from '../graphql';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { FILTER_PARAMS_TR } from "../../constants";
+import TransactionList from "../components/TransactionList";
+import { mutations, queries } from "../graphql";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
-const generateQueryParams = ({ location }) => {
+const generateQueryParams = (location) => {
   return queryString.parse(location.search);
 };
 
 const TransactionListContainer: React.FC<Props> = (props) => {
   const { queryParams } = props;
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const transactionsMainQuery = useQuery<MainQueryResponse>(
     gql(queries.transactionsMain),
@@ -41,33 +43,33 @@ const TransactionListContainer: React.FC<Props> = (props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-    },
+    }
   );
   const [transactionsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.transactionsRemove),
-    { refetchQueries: ['transactionsMain'] },
+    { refetchQueries: ["transactionsMain"] }
   );
 
   const onSearch = (search: string) => {
     if (!search) {
-      return router.removeParams(props.history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
 
-    router.setParams(props.history, { search });
+    router.setParams(navigate, location, { search });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(props.history);
+    const params = generateQueryParams(location);
 
     if (params[key] === values) {
-      return router.removeParams(props.history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(props.history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams(props.history);
+    const params = generateQueryParams(location);
 
     for (const param in params) {
       if (FILTER_PARAMS_TR.includes(param)) {
@@ -79,8 +81,8 @@ const TransactionListContainer: React.FC<Props> = (props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams(props.history);
-    router.removeParams(props.history, ...Object.keys(params));
+    const params = generateQueryParams(location);
+    router.removeParams(navigate, location, ...Object.keys(params));
   };
 
   const removeTransactions = ({ transactionIds }, emptyBulk) => {
@@ -89,7 +91,7 @@ const TransactionListContainer: React.FC<Props> = (props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a transaction');
+        Alert.success("You successfully deleted a transaction");
       })
       .catch((e) => {
         Alert.error(e.message);

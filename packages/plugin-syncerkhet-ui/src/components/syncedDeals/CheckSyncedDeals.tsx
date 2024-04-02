@@ -20,7 +20,6 @@ type Props = {
   totalCount: number;
   loading: boolean;
   deals: any[];
-  history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
@@ -49,7 +48,6 @@ class CheckSyncedDeals extends React.Component<Props> {
   renderRow = () => {
     const {
       deals,
-      history,
       queryParams,
       toggleBulk,
       bulk,
@@ -64,7 +62,6 @@ class CheckSyncedDeals extends React.Component<Props> {
 
     return deals.map((deal) => (
       <Row
-        history={history}
         key={deal._id}
         deal={deal}
         toggleBulk={toggleBulk}
@@ -117,7 +114,7 @@ class CheckSyncedDeals extends React.Component<Props> {
     ];
 
     const Content = (
-      <Table bordered={true}>
+      <Table $bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
@@ -139,7 +136,6 @@ class CheckSyncedDeals extends React.Component<Props> {
     const sidebar = (
       <CheckSyncedDealsSidebar
         queryParams={queryParams}
-        history={this.props.history}
       />
     );
 

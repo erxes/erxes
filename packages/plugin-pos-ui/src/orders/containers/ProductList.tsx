@@ -1,55 +1,53 @@
-import * as compose from 'lodash.flowright';
-import { gql, useQuery } from '@apollo/client';
-import List from '../components/ProductList';
-import React from 'react';
-import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { PosProductsQueryResponse } from '../types';
-import { queries } from '../graphql';
-import { FILTER_PARAMS } from '../../constants';
-import queryString from 'query-string';
-import { generateParams } from './List';
+import { gql, useQuery } from "@apollo/client";
+import List from "../components/ProductList";
+import React from "react";
+import { Bulk, router, Spinner } from "@erxes/ui/src";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { queries } from "../graphql";
+import { FILTER_PARAMS } from "../../constants";
+import { generateParams } from "./List";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
 const ProductList = (props: Props) => {
-  const { type, history, queryParams } = props;
+  const { type, queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const posProductsQuery = useQuery(gql(queries.posProducts), {
     variables: genParams({ queryParams } || {}),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const onSearch = (search: string) => {
     if (!search) {
-      return router.removeParams(history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
-    router.removeParams(history, 'page');
-    router.setParams(history, { search });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { search });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
     if (queryParams[key] === values) {
-      return router.removeParams(history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
@@ -67,7 +65,7 @@ const ProductList = (props: Props) => {
   };
 
   const clearFilter = () => {
-    router.removeParams(history, ...Object.keys(queryParams));
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
   if (posProductsQuery.loading) {
@@ -80,7 +78,7 @@ const ProductList = (props: Props) => {
     const totalCount =
       (posProductsQuery && posProductsQuery?.data?.posProducts.totalCount) || 0;
 
-    const searchValue = queryParams.searchValue || '';
+    const searchValue = queryParams.searchValue || "";
 
     const updatedProps = {
       ...props,

@@ -1,28 +1,28 @@
-import { AppConsumer } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import Table from '@erxes/ui/src/components/table';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { AppConsumer } from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import Icon from "@erxes/ui/src/components/Icon";
+import Table from "@erxes/ui/src/components/table";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "@erxes/ui/src/utils";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import {
   FlexItem,
   FlexRow,
   InputBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
-import React, { useRef, useState } from 'react';
-import List from '@erxes/ui-settings/src/common/components/List';
+} from "@erxes/ui-settings/src/styles";
+import React, { useRef, useState } from "react";
+import List from "@erxes/ui-settings/src/common/components/List";
 import {
   ICommonFormProps,
   ICommonListProps,
-} from '@erxes/ui-settings/src/common/types';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import WebhookForm from '../containers/WebhookForm';
-import WebhookRow from './WebhookRow';
-import { FormControl } from '@erxes/ui/src';
+} from "@erxes/ui-settings/src/common/types";
+import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import WebhookForm from "../containers/WebhookForm";
+import WebhookRow from "./WebhookRow";
+import { FormControl } from "@erxes/ui/src";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams?: any;
@@ -34,7 +34,9 @@ type Props = {
 type FinalProps = Props & { currentUser: IUser };
 
 const WebhookList = (props: FinalProps) => {
-  const { totalCount, queryParams, history, configsEnvQuery = {} } = props;
+  const { totalCount, queryParams, configsEnvQuery = {} } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const timerRef = useRef<number | null>(null);
 
@@ -54,8 +56,8 @@ const WebhookList = (props: FinalProps) => {
     setSearchValue(searchValue);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
@@ -66,7 +68,7 @@ const WebhookList = (props: FinalProps) => {
         <FlexItem>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={handleSearch}
             autoFocus={true}
             value={searchValue}
@@ -77,13 +79,13 @@ const WebhookList = (props: FinalProps) => {
   };
 
   const handleBrandSelect = (brandIds) => {
-    router.setParams(history, { brandIds });
+    router.setParams(navigate, location, { brandIds });
   };
 
   const renderBrandChooser = () => {
     const env = configsEnvQuery.configsGetEnv || {};
 
-    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
+    if (env.USE_BRAND_RESTRICTIONS !== "true") {
       return null;
     }
 
@@ -116,9 +118,9 @@ const WebhookList = (props: FinalProps) => {
       <Table>
         <thead>
           <tr>
-            <th>{__('Enpoint')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Enpoint")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <WebhookRow {...props} renderForm={renderForm} />
@@ -127,30 +129,30 @@ const WebhookList = (props: FinalProps) => {
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Webhooks') },
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Webhooks") },
   ];
 
   const mainHead = (
     <HeaderDescription
       icon="/images/actions/21.svg"
-      title={__('Outgoing webhooks')}
+      title={__("Outgoing webhooks")}
       description={__(
-        'Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time',
+        "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time"
       )}
     />
   );
 
   const title = (
-    <Title capitalize={true}>{`${__('Webhooks')} (${totalCount})`}</Title>
+    <Title $capitalize={true}>{`${__("Webhooks")} (${totalCount})`}</Title>
   );
 
   return (
     <List
-      formTitle={__('Add Webhook')}
+      formTitle={__("Add Webhook")}
       size="lg"
       breadcrumb={breadcrumb}
-      title={__('Webhooks')}
+      title={__("Webhooks")}
       leftActionBar={title}
       mainHead={mainHead}
       renderForm={renderForm}

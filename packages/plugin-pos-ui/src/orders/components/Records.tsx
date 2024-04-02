@@ -8,17 +8,14 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-import HeaderDescription from "./MainHead";
 import { IOrder } from "../types";
-import { Link } from "react-router-dom";
 import React from "react";
 import Record from "./Record";
 import RightMenu from "./RightMenu";
 import { TableWrapper } from "../../styles";
 import { Title } from "@erxes/ui-settings/src/styles";
-// import { withRouter } from 'react-router-dom';
 import { menuPos } from "../../constants";
 
 type Props = {
@@ -27,7 +24,6 @@ type Props = {
   loading: boolean;
   bulk: any[];
   isAllSelected: boolean;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -43,7 +39,6 @@ const Records = (props: Props) => {
     orders,
     count,
     exportRecord,
-    history,
     loading,
     queryParams,
     onFilter,
@@ -141,7 +136,6 @@ const Records = (props: Props) => {
               <Record
                 order={order}
                 key={`${order._id}_${order.items._id}`}
-                history={history}
                 otherPayTitles={[]}
               />
             ))}

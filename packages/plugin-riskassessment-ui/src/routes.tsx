@@ -1,154 +1,143 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-const RiskIndicators = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Riskindicators" */ './indicator/containers/List'
-  )
-);
-
-const RiskIndicator = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Detail - Riskindicator" */ './indicator/containers/Form'
-  )
+const RiskIndicators = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Riskindicators" */ "./indicator/containers/List"
+    )
 );
 
-const ConfigList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Configs" */ './configs/containers/List')
+const RiskIndicator = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Detail - Riskindicator" */ "./indicator/containers/Form"
+    )
 );
 
-const RiskAssessments = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Riskassessments" */ './assessments/containers/List'
-  )
+const ConfigList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "List - Configs" */ "./configs/containers/List")
 );
 
-const Operations = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Operations" */ './operations/containers/List'
-  )
-);
-const Groups = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Groups" */ './indicator/groups/containers/List'
-  )
-);
-const Plans = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Groups" */ './plan/containers/List')
+const RiskAssessments = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Riskassessments" */ "./assessments/containers/List"
+    )
 );
 
-const PlanForm = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Groups" */ './plan/containers/Form')
+const Operations = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Operations" */ "./operations/containers/List"
+    )
+);
+const Groups = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Groups" */ "./indicator/groups/containers/List"
+    )
+);
+const Plans = asyncComponent(
+  () => import(/* webpackChunkName: "List - Groups" */ "./plan/containers/List")
 );
 
-const riskIndicators = props => {
-  return (
-    <RiskIndicators
-      {...props}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const PlanForm = asyncComponent(
+  () => import(/* webpackChunkName: "List - Groups" */ "./plan/containers/Form")
+);
+
+const RiskIndicatorsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <RiskIndicators queryParams={queryParams} />;
 };
 
-const riskIndicator = props => {
-  return (
-    <RiskIndicator
-      {...props}
-      _id={props?.match?.params?.id}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const RiskIndicatorComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  const { id } = useParams();
+  return <RiskIndicator _id={id} queryParams={queryParams} />;
 };
 
-const configs = props => {
-  return (
-    <ConfigList
-      {...props}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const ConfigsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <ConfigList queryParams={queryParams} />;
 };
 
-const riskAssessments = props => {
-  return (
-    <RiskAssessments
-      {...props}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const RiskAssessmentsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <RiskAssessments queryParams={queryParams} />;
 };
-const operations = props => {
-  return (
-    <Operations
-      {...props}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const OperationsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <Operations queryParams={queryParams} />;
 };
 
-const groups = props => {
-  return (
-    <Groups {...props} queryParams={queryString.parse(props.location.search)} />
-  );
+const GroupsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <Groups queryParams={queryParams} />;
 };
-const plans = props => {
-  return (
-    <Plans {...props} queryParams={queryString.parse(props.location.search)} />
-  );
+const PlansComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+  return <Plans queryParams={queryParams} />;
 };
-const planForm = props => {
-  return (
-    <PlanForm
-      {...props}
-      _id={props?.match?.params?.id}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+const PlanFormComponent = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return <PlanForm _id={id} queryParams={queryParams} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/settings/risk-indicators"
-        exact
-        component={riskIndicators}
+        element={<RiskIndicatorsComponent />}
       />
 
       <Route
         path="/settings/risk-indicators/add"
-        exact
-        component={riskIndicator}
+        element={<RiskIndicatorComponent />}
       />
 
       <Route
         path="/settings/risk-indicators/detail/:id"
-        exact
-        component={riskIndicator}
+        element={<RiskIndicatorComponent />}
       />
 
       <Route
         path="/settings/risk-indicators-configs"
-        exact
-        component={configs}
+        element={<ConfigsComponent />}
       />
-      <Route path="/settings/risk-indicators-groups" exact component={groups} />
-      <Route path="/risk-assessments" exact component={riskAssessments} />
-      <Route path="/settings/operations" exact component={operations} />
-      <Route path="/settings/risk-assessment-plans" exact component={plans} />
+      <Route
+        path="/settings/risk-indicators-groups"
+        element={<GroupsComponent />}
+      />
+      <Route path="/risk-assessments" element={<RiskAssessmentsComponent />} />
+      <Route path="/settings/operations" element={<OperationsComponent />} />
+      <Route
+        path="/settings/risk-assessment-plans"
+        element={<PlansComponent />}
+      />
       <Route
         path="/settings/risk-assessment-plans/edit/:id"
-        exact
-        component={planForm}
+        element={<PlanFormComponent />}
       />
       <Route
         path="/settings/risk-assessment-plans/add"
-        exact
-        component={planForm}
+        element={<PlanFormComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

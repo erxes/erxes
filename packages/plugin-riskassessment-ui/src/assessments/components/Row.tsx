@@ -20,7 +20,6 @@ type Props = {
   selecteAssessmentIds: string[];
   handleSelect: (id: string) => void;
   queryParams: any;
-  history: any;
 };
 
 class Row extends React.Component<Props> {
@@ -46,7 +45,7 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { item, selecteAssessmentIds, handleSelect, queryParams, history } =
+    const { item, selecteAssessmentIds, handleSelect, queryParams } =
       this.props;
 
     const renderDetail = (item) => {
@@ -55,7 +54,6 @@ class Row extends React.Component<Props> {
           <Detail
             riskAssessment={item}
             queryParams={queryParams}
-            history={history}
           />
         );
       };

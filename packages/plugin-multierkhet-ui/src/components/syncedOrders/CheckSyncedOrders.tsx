@@ -13,7 +13,6 @@ type Props = {
   totalCount: number;
   loading: boolean;
   orders: any[];
-  history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
@@ -34,7 +33,6 @@ const CheckSyncedOrders = (props: Props) => {
   const [contentLoading, setContentLoading] = useState(props.loading);
   const {
     orders,
-    history,
     toggleBulk,
     bulk,
     unSyncedOrderIds,
@@ -52,7 +50,6 @@ const CheckSyncedOrders = (props: Props) => {
   const renderRow = () => {
     return orders?.map((order) => (
       <Row
-        history={history}
         key={order._id}
         order={order}
         toggleBulk={toggleBulk}
@@ -109,11 +106,7 @@ const CheckSyncedOrders = (props: Props) => {
   );
 
   const sidebar = (
-    <CheckSyncedOrdersSidebar
-      queryParams={queryParams}
-      history={history}
-      posList={posList}
-    />
+    <CheckSyncedOrdersSidebar queryParams={queryParams} posList={posList} />
   );
 
   const onClickCheck = () => {

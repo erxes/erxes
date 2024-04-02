@@ -9,16 +9,16 @@ import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import FormControl from "@erxes/ui/src/components/form/Control";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
 }
 
 const CheckerSidebar = (props: IProps) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const [userId, setUserId] = useState(queryParams.userId);
   const [boardId, setBoardId] = useState(queryParams.boardId);
@@ -35,8 +35,11 @@ const CheckerSidebar = (props: IProps) => {
   const [search, setSearch] = useState(queryParams.search);
   const [number, setNumber] = useState(queryParams.number);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       page: 1,
       boardId,
       pipelineId,
@@ -140,7 +143,7 @@ const CheckerSidebar = (props: IProps) => {
   return (
     <Wrapper.Sidebar>
       <Sidebar>
-        <Section collapsible={false}>
+        <Section $collapsible={false}>
           <Section.Title>{__("Filters")}</Section.Title>
 
           <FormGroup>

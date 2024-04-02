@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   CheckSyncedMutationResponse,
@@ -6,23 +6,19 @@ import {
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
   ToSyncOrdersMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { router, withProps } from '@erxes/ui/src/utils/core';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { router, withProps } from "@erxes/ui/src/utils/core";
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import { Bulk } from '@erxes/ui/src/components';
-import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-
-// import { withRouter } from 'react-router-dom';
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -30,7 +26,6 @@ type FinalProps = {
   checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
   posListQuery: PosListQueryResponse;
 } & Props &
-  IRouterProps &
   CheckSyncedMutationResponse &
   ToSyncOrdersMutationResponse;
 
@@ -74,14 +69,14 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
           syncedOrders.forEach((item) => {
             syncedOrderInfos[item._id] = {
-              syncedBillNumber: item.syncedBillNumber || '',
-              syncedDate: item.syncedDate || '',
-              syncedCustomer: item.syncedCustomer || '',
+              syncedBillNumber: item.syncedBillNumber || "",
+              syncedDate: item.syncedDate || "",
+              syncedCustomer: item.syncedCustomer || "",
             };
           });
 
           this.setState({ unSyncedOrderIds, syncedOrderInfos });
-          Alert.success('Check finished');
+          Alert.success("Check finished");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -96,11 +91,11 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
         .then((response) => {
           const { skipped, error, success } = response.data.toSyncOrders;
           const changed = this.state.unSyncedOrderIds.filter(
-            (u) => !orderIds.includes(u),
+            (u) => !orderIds.includes(u)
           );
           this.setState({ unSyncedOrderIds: changed });
           Alert.success(
-            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
+            `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
           );
         })
         .catch((e) => {
@@ -156,35 +151,35 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, CheckSyncedOrdersQueryResponse>(
       gql(queries.checkSyncOrders),
       {
-        name: 'checkSyncItemsQuery',
+        name: "checkSyncItemsQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
 
     graphql<{ queryParams: any }, CheckSyncedOrdersTotalCountQueryResponse>(
       gql(queries.checkSyncOrdersTotalCount),
       {
-        name: 'checkSyncedOrdersTotalCountQuery',
+        name: "checkSyncedOrdersTotalCountQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
       gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSynced',
-      },
+        name: "toCheckSynced",
+      }
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSyncOrders),
       {
-        name: 'toSyncOrders',
-      },
+        name: "toSyncOrders",
+      }
     ),
 
     graphql<{ queryParams: any }, PosListQueryResponse>(
@@ -196,8 +191,8 @@ export default withProps<Props>(
         }
       }`),
       {
-        name: 'posListQuery',
-      },
-    ),
-  )(CheckSyncedOrdersContainer),
+        name: "posListQuery",
+      }
+    )
+  )(CheckSyncedOrdersContainer)
 );

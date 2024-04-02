@@ -6,20 +6,18 @@ import {
   Table,
   Wrapper,
 } from "@erxes/ui/src";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
 import React from "react";
 import SyncHistorySidebar from "./syncHistorySidebar";
 import { __ } from "@erxes/ui/src/utils/core";
 import dayjs from "dayjs";
-// import { withRouter } from 'react-router-dom';
 import { menuMultierkhet } from "../constants";
 
-interface IProps extends IRouterProps {
+interface IProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -31,7 +29,7 @@ interface IProps extends IRouterProps {
 
 const SyncHistoryList = (props: IProps) => {
   let timer: undefined;
-  const { history, syncHistories, totalCount, loading, queryParams } = props;
+  const { syncHistories, totalCount, loading, queryParams } = props;
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
@@ -107,9 +105,7 @@ const SyncHistoryList = (props: IProps) => {
           submenu={menuMultierkhet}
         />
       }
-      leftSidebar={
-        <SyncHistorySidebar queryParams={queryParams} history={history} />
-      }
+      leftSidebar={<SyncHistorySidebar queryParams={queryParams} />}
       footer={<Pagination count={totalCount || 0} />}
       content={
         <DataWithLoader

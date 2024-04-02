@@ -1,6 +1,5 @@
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import { IOverallWork } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";
 import Row from "./Row";
@@ -9,13 +8,11 @@ import Table from "@erxes/ui/src/components/table";
 import { TableWrapper } from "../../styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
-// import { withRouter } from 'react-router-dom';
 import { menuNavs } from "../../constants";
 
-interface IProps extends IRouterProps {
+interface IProps {
   overallWorks: IOverallWork[];
   totalCount: number;
-  history: any;
   queryParams: any;
 }
 
@@ -25,7 +22,7 @@ class OverallWorks extends React.Component<IProps, {}> {
   }
 
   render() {
-    const { overallWorks, totalCount, history, queryParams } = this.props;
+    const { overallWorks, totalCount, queryParams } = this.props;
 
     const mainContent = (
       <TableWrapper>
@@ -45,12 +42,7 @@ class OverallWorks extends React.Component<IProps, {}> {
           </thead>
           <tbody id="overallWorks">
             {(overallWorks || []).map((work) => (
-              <Row
-                key={Math.random()}
-                work={work}
-                history={history}
-                queryParams={queryParams}
-              />
+              <Row key={Math.random()} work={work} queryParams={queryParams} />
             ))}
           </tbody>
         </Table>
@@ -62,7 +54,7 @@ class OverallWorks extends React.Component<IProps, {}> {
         header={
           <Wrapper.Header title={__(`Overall works`)} submenu={menuNavs} />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

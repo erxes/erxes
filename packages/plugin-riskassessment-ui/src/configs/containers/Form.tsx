@@ -9,7 +9,6 @@ import { mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
-  history: any;
   closeModal: () => void;
   config?: any;
 };

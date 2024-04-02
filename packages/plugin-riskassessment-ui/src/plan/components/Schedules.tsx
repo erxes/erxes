@@ -15,7 +15,6 @@ import { Config, IPLan, ISchedule } from '../common/types';
 import ScheduleForm from './ScheduleForm';
 
 type Props = {
-  history: any;
   removeSchedule: (_id) => void;
   refetch: () => void;
   plan: IPLan;
@@ -83,7 +82,7 @@ class SchedulesConfig extends React.Component<Props> {
   }
 
   renderAddForm() {
-    const { plan, history, refetch } = this.props;
+    const { plan, refetch } = this.props;
     const { configs, status } = plan;
 
     if (plan.status === 'archived') {
@@ -94,7 +93,6 @@ class SchedulesConfig extends React.Component<Props> {
 
     const content = ({ closeModal }) => {
       const updatedProps = {
-        history,
         plan: plan,
         closeModal,
         cardType: configs?.cardType,
@@ -116,7 +114,7 @@ class SchedulesConfig extends React.Component<Props> {
   }
 
   renderActionBar(schedule) {
-    const { history, removeSchedule, plan, refetch } = this.props;
+    const { removeSchedule, plan, refetch } = this.props;
     const { configs = {} as Config } = plan;
 
     const handleRemomve = e => {
@@ -125,7 +123,6 @@ class SchedulesConfig extends React.Component<Props> {
     };
 
     const updatedProps = {
-      history,
       plan,
       cardType: configs.cardType,
       pipelineId: configs.pipelineId,

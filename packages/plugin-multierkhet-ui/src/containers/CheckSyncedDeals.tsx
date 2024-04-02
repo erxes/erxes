@@ -1,28 +1,27 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+import Alert from "@erxes/ui/src/utils/Alert";
+import CheckSyncedDeals from "../components/syncedDeals/CheckSyncedDeals";
+import { gql } from "@apollo/client";
+import React, { useState } from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Bulk } from "@erxes/ui/src/components";
 import {
   CheckSyncedDealsQueryResponse,
   CheckSyncedDealsTotalCountQueryResponse,
   CheckSyncedMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { router } from '@erxes/ui/src/utils/core';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { router } from "@erxes/ui/src/utils/core";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const CheckSyncedDealsContainer = (props: Props) => {
   const { queryParams } = props;
 
   const [toMultiCheckSynced] = useMutation<CheckSyncedMutationResponse>(
-    gql(mutations.toCheckSynced),
+    gql(mutations.toCheckSynced)
   );
 
   const [toMultiSyncDeals] = useMutation(gql(mutations.toSyncDeals));
@@ -31,8 +30,8 @@ const CheckSyncedDealsContainer = (props: Props) => {
     gql(queries.checkSyncDeals),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const checkSyncedDealsTotalCountQuery =
@@ -40,8 +39,8 @@ const CheckSyncedDealsContainer = (props: Props) => {
       gql(queries.checkSyncDealsTotalCount),
       {
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
-      },
+        fetchPolicy: "network-only",
+      }
     );
 
   const [unSyncedDealIds, setUnSyncedDealIds] = useState([] as string[]);
@@ -50,7 +49,7 @@ const CheckSyncedDealsContainer = (props: Props) => {
   // remove action
   const checkSynced = async ({ dealIds }, emptyBulk) => {
     await toMultiCheckSynced({
-      variables: { ids: dealIds, type: 'deal' },
+      variables: { ids: dealIds, type: "deal" },
     })
       .then((response) => {
         emptyBulk();
@@ -89,7 +88,7 @@ const CheckSyncedDealsContainer = (props: Props) => {
         const changed = unSyncedDealIds.filter((u) => !dealIds.includes(u));
         setUnSyncedDealIds(changed);
         Alert.success(
-          `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
+          `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
         );
       })
       .catch((e) => {

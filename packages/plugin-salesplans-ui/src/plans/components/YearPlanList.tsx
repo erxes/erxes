@@ -22,6 +22,7 @@ import {
   InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   yearPlans: IYearPlan[];
@@ -30,7 +31,6 @@ type Props = {
   totalSum: any;
   isAllSelected: boolean;
   toggleAll: (targets: IYearPlan[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -48,7 +48,6 @@ const YearPlanList = (props: Props) => {
     totalSum,
     isAllSelected,
     toggleAll,
-    history,
     queryParams,
     bulk,
     emptyBulk,
@@ -60,6 +59,8 @@ const YearPlanList = (props: Props) => {
 
   const [search, setSearch] = useState<string>(searchValue || "");
   const timerRef = useRef<number | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleSearch = (e) => {
     if (timerRef.current) {
@@ -70,8 +71,8 @@ const YearPlanList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
@@ -90,7 +91,6 @@ const YearPlanList = (props: Props) => {
     return yearPlans.map((yearPlan) => (
       <Row
         key={yearPlan._id}
-        history={history}
         yearPlan={yearPlan}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(yearPlan)}
@@ -165,7 +165,7 @@ const YearPlanList = (props: Props) => {
   const renderContent = () => {
     return (
       <TableWrapper>
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th style={{ width: 60 }} rowSpan={2}>
@@ -220,7 +220,7 @@ const YearPlanList = (props: Props) => {
           right={actionBarRight()}
         />
       }
-      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <DataWithLoader
           data={renderContent()}

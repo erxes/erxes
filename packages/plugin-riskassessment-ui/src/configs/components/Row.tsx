@@ -11,7 +11,6 @@ import React from 'react';
 import Form from '../containers/Form';
 type Props = {
   queryParams: any;
-  history: any;
   config: any;
   checked: boolean;
   selectItem: (id: string) => void;

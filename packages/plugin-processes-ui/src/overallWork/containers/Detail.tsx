@@ -12,18 +12,15 @@ import {
 } from '../../performs/graphql';
 
 import Detail from '../components/Detail';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { OverallWorkDetailQueryResponse } from '../types';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-// import { withRouter } from 'react-router-dom';
 import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -31,7 +28,6 @@ type FinalProps = {
   performsQuery: PerformsQueryResponse;
   performsCountQuery: PerformsCountQueryResponse;
 } & Props &
-  IRouterProps &
   PerformRemoveMutationResponse;
 
 class OverallWorkDetailContainer extends React.Component<FinalProps> {

@@ -1,77 +1,72 @@
-import * as compose from 'lodash.flowright';
-
-// import { withRouter } from 'react-router-dom';
-import { Alert, Bulk, Spinner, router, withProps } from '@erxes/ui/src';
+import { Alert, Bulk, router } from "@erxes/ui/src";
 import {
-  ListQueryVariables,
   OrdersQueryResponse,
   OrdersSummaryQueryResponse,
   PosOrderReturnBillMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import { FILTER_PARAMS } from '../../constants';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import React from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import queryString from 'query-string';
+import { FILTER_PARAMS } from "../../constants";
+import { IQueryParams } from "@erxes/ui/src/types";
+import List from "../components/List";
+import React from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 const ListContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const ordersQuery = useQuery<OrdersQueryResponse>(gql(queries.posOrders), {
     variables: generateParams({ queryParams }),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const ordersSummaryQuery = useQuery<OrdersSummaryQueryResponse>(
     gql(queries.posOrdersSummary),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [posOrderReturnBill] = useMutation<PosOrderReturnBillMutationResponse>(
-    gql(mutations.posOrderReturnBill),
+    gql(mutations.posOrderReturnBill)
   );
 
   const onSearch = (search: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (!search) {
-      return router.removeParams(history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
 
-    router.setParams(history, { search });
+    router.setParams(navigate, location, { search });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (queryParams[key] === values) {
-      return router.removeParams(history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
@@ -89,7 +84,7 @@ const ListContainer = (props: Props) => {
   };
 
   const clearFilter = () => {
-    router.removeParams(history, ...Object.keys(queryParams));
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
   const onReturnBill = (posId) => {
@@ -100,7 +95,7 @@ const ListContainer = (props: Props) => {
         // refresh queries
         ordersQuery.refetch();
 
-        Alert.success('You successfully synced erkhet.');
+        Alert.success("You successfully synced erkhet.");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -151,12 +146,10 @@ export const generateParams = ({ queryParams }) => ({
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
   posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(','),
-  statuses: queryParams.statuses && queryParams.statuses.split(','),
+  types: queryParams.types && queryParams.types.split(","),
+  statuses: queryParams.statuses && queryParams.statuses.split(","),
   excludeStatuses:
-    queryParams.excludeStatuses && queryParams.excludeStatuses.split(','),
+    queryParams.excludeStatuses && queryParams.excludeStatuses.split(","),
 });
 
 export default ListContainer;
-
-// export default withRouter<Props>(ListContainer);

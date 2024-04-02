@@ -1,60 +1,56 @@
-import * as compose from 'lodash.flowright';
-import { ListQueryVariables, OrdersGroupSummaryQueryResponse } from '../types';
-// import { withRouter } from 'react-router-dom';
-import { Spinner, router, withProps } from '@erxes/ui/src';
+import { Spinner, router } from "@erxes/ui/src";
 
-import { FILTER_PARAMS } from '../../constants';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Summary from '../components/Summary';
-import { generateParams } from './List';
-import { gql, useQuery } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
-import queryString from 'query-string';
+import { FILTER_PARAMS } from "../../constants";
+import { IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
+import Summary from "../components/Summary";
+import { generateParams } from "./List";
+import { gql, useQuery } from "@apollo/client";
+import { queries } from "../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const SummaryContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const ordersGroupSummaryQuery = useQuery(gql(queries.posOrdersGroupSummary), {
     variables: genParams({ queryParams } || {}),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const onSearch = (search: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (!search) {
-      return router.removeParams(history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
 
-    router.setParams(history, { search });
+    router.setParams(navigate, location, { search });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     if (queryParams[key] === values) {
-      return router.removeParams(history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(history, 'page');
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
@@ -72,7 +68,7 @@ const SummaryContainer = (props: Props) => {
   };
 
   const clearFilter = () => {
-    router.removeParams(history, ...Object.keys(queryParams));
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
   if (ordersGroupSummaryQuery.loading) {

@@ -1,16 +1,13 @@
-import { gql, useQuery } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../components/CategoryList';
-import { queries } from '../graphql';
-import { ProductCategoriesQueryResponse } from '../../types';
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import List from "../components/CategoryList";
+import { queries } from "../graphql";
+import { ProductCategoriesQueryResponse } from "../../types";
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 const CategoryListContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
     gql(queries.productCategories),
@@ -19,8 +16,8 @@ const CategoryListContainer = (props: Props) => {
         status: queryParams.status,
         parentId: queryParams.parentId,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const productCategories =

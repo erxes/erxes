@@ -9,18 +9,15 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-import HeaderDescription from "./MainHead";
 import React from "react";
 import RightMenu from "./RightMenu";
 import { TableWrapper } from "../../styles";
 import { Title } from "@erxes/ui-settings/src/styles";
-// import { withRouter } from 'react-router-dom';
 import { menuPos } from "../../constants";
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   onSearch: (search: string) => void;

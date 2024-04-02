@@ -15,18 +15,17 @@ import {
 import React, { useRef, useState } from "react";
 
 import { IPeriodLock } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import PeriodLockForm from "../containers/PeriodLockForm";
 import PeriodLockRow from "./PeriodLockRow";
 import { PeriodLocksTableWrapper } from "../styles";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
-// import { withRouter } from 'react-router-dom';
 import { menuContracts } from "../../constants";
 import withConsumer from "../../withConsumer";
+import { useNavigate } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   periodLocks: IPeriodLock[];
   loading: boolean;
   searchValue: string;
@@ -41,7 +40,6 @@ interface IProps extends IRouterProps {
     doc: { periodLockIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
   currentUser: IUser;
 }
@@ -50,7 +48,6 @@ const PeriodLocksList = (props: IProps) => {
   const timerRef = useRef<number | null>(null);
   const {
     periodLocks,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -60,6 +57,7 @@ const PeriodLocksList = (props: IProps) => {
     currentUser,
     toggleAll,
   } = props;
+  const navigate = useNavigate();
 
   const [searchValue, setSearchValue] = useState(props.searchValue);
 
@@ -72,13 +70,12 @@ const PeriodLocksList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 

@@ -33,7 +33,6 @@ const getRandomNumbers = (num?: number) => {
 };
 
 type Props = {
-  history: any;
   queryParams: any;
   chartType: string;
 

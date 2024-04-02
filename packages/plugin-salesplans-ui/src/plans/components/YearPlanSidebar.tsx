@@ -12,22 +12,25 @@ import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-  history: any;
   queryParams: any;
 }
 
 const { Section } = Wrapper.Sidebar;
 
 const YearPlanSidebar = (props: Props) => {
-  const { history, queryParams } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const timerRef = useRef<number | null>(null);
 
   const clearFilter = () => {
     router.removeParams(
-      history,
+      navigate,
+      location,
       "year",
       "filterStatus",
       "branchId",
@@ -38,8 +41,8 @@ const YearPlanSidebar = (props: Props) => {
   };
 
   const setFilter = (name, value) => {
-    router.removeParams(history, "page");
-    router.setParams(history, { [name]: value });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { [name]: value });
   };
 
   const onInputChange = (e) => {
@@ -61,12 +64,12 @@ const YearPlanSidebar = (props: Props) => {
       <Section.Title>
         {__("Filters")}
         <Section.QuickButtons>
-          {(router.getParam(history, "filterStatus") ||
-            router.getParam(history, "branchId") ||
-            router.getParam(history, "departmentId") ||
-            router.getParam(history, "productCategoryId") ||
-            router.getParam(history, "productId") ||
-            router.getParam(history, "year")) && (
+          {(router.getParam(location, "filterStatus") ||
+            router.getParam(location, "branchId") ||
+            router.getParam(location, "departmentId") ||
+            router.getParam(location, "productCategoryId") ||
+            router.getParam(location, "productId") ||
+            router.getParam(location, "year")) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
               <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
