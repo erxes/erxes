@@ -68,7 +68,7 @@ class Form extends React.Component<any, any, any> {
       return <Spinner />;
     }
 
-    const boards = boardsQuery.boards || [];
+    const boards = boardsQuery.ticketBoards || [];
 
     const content = (
       <>

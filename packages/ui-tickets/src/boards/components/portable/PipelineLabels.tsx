@@ -18,8 +18,8 @@ const GenerateAddFormFields = (props: Props) => {
 
   const { data, loading } = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: props.pipelineId
-    }
+      pipelineId: props.pipelineId,
+    },
   });
 
   if (loading) {
@@ -29,15 +29,15 @@ const GenerateAddFormFields = (props: Props) => {
   const onChange = (ops: IOption[]) => {
     props.onChangeField(
       field.field,
-      ops.map(option => option.value)
+      ops.map((option) => option.value)
     );
 
-    setLabelIds(ops.map(option => option.value));
+    setLabelIds(ops.map((option) => option.value));
   };
 
-  const options: IOption[] = (data.pipelineLabels || []).map(d => ({
+  const options: IOption[] = (data.ticketPipelineLabels || []).map((d) => ({
     value: d._id,
-    label: d.name
+    label: d.name,
   }));
 
   return (

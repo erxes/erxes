@@ -9,7 +9,7 @@ import {
   BoardsQueryResponse,
   IStage,
   PipelinesQueryResponse,
-  StagesQueryResponse
+  StagesQueryResponse,
 } from '../types';
 
 type Props = {
@@ -38,13 +38,13 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     this.props.pipelinesQuery
       .refetch({ boardId })
       .then(({ data }) => {
-        const pipelines = data.pipelines;
+        const pipelines = data.ticketPipelines;
 
         if (pipelines.length > 0) {
           this.onChangePipeline(pipelines[0]._id);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -55,7 +55,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     stagesQuery
       .refetch({ pipelineId })
       .then(({ data }) => {
-        const stages = data.stages;
+        const stages = data.ticketStages;
 
         this.props.onChangePipeline(pipelineId, stages);
 
@@ -66,7 +66,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
           this.onChangeStage(stages[0]._id);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -84,9 +84,9 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   render() {
     const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
 
-    const boards = boardsQuery.boards || [];
-    const pipelines = pipelinesQuery.pipelines || [];
-    const stages = stagesQuery.stages || [];
+    const boards = boardsQuery.ticketBoards || [];
+    const pipelines = pipelinesQuery.ticketPipelines || [];
+    const stages = stagesQuery.ticketStages || [];
 
     const extendedProps = {
       ...this.props,
@@ -95,7 +95,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
       stages,
       onChangeBoard: this.onChangeBoard,
       onChangePipeline: this.onChangePipeline,
-      onChangeStage: this.onChangeStage
+      onChangeStage: this.onChangeStage,
     };
 
     return <BoardSelect {...extendedProps} />;
@@ -107,16 +107,16 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     }),
     graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',
         options: ({ boardId = '' }) => ({
-          variables: { boardId }
-        })
+          variables: { boardId },
+        }),
       }
     ),
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
@@ -124,8 +124,8 @@ export default withProps<Props>(
       {
         name: 'stagesQuery',
         options: ({ pipelineId = '' }) => ({
-          variables: { pipelineId }
-        })
+          variables: { pipelineId },
+        }),
       }
     )
   )(BoardSelectContainer)

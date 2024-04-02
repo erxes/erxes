@@ -21,8 +21,8 @@ export const types = `
 `;
 
 export const queries = `
-  checklists(contentType: String, contentTypeId: String): [Checklist]
-  checklistDetail(_id: String!): Checklist
+  ticketChecklists(contentType: String, contentTypeId: String): [Checklist]
+  ticketChecklistDetail(_id: String!): Checklist
 `;
 
 export const mutations = `

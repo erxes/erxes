@@ -11,7 +11,7 @@ import { withRouter } from 'react-router-dom';
 import {
   EMPTY_CONTENT_DEAL,
   EMPTY_CONTENT_TASK,
-  EMPTY_CONTENT_PURCHASE
+  EMPTY_CONTENT_PURCHASE,
 } from '../constants';
 import { queries } from '../graphql';
 import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
@@ -36,7 +36,7 @@ class Board extends React.Component<Props> {
       return <Spinner />;
     }
 
-    if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
+    if (!pipelineDetailQuery || !pipelineDetailQuery.ticketPipelineDetail) {
       const type = options.type;
 
       if (type === 'deal' || type === 'task' || type === 'purchase') {
@@ -46,8 +46,8 @@ class Board extends React.Component<Props> {
               type === 'deal'
                 ? EMPTY_CONTENT_DEAL
                 : type === 'task'
-                ? EMPTY_CONTENT_TASK
-                : EMPTY_CONTENT_PURCHASE
+                  ? EMPTY_CONTENT_TASK
+                  : EMPTY_CONTENT_PURCHASE
             }
             maxItemWidth="400px"
           />
@@ -64,7 +64,7 @@ class Board extends React.Component<Props> {
       );
     }
 
-    const pipeline = pipelineDetailQuery.pipelineDetail;
+    const pipeline = pipelineDetailQuery.ticketPipelineDetail;
 
     if (viewType === 'activity') {
       return (
@@ -159,8 +159,8 @@ export default withProps<WrapperProps>(
         name: 'pipelineDetailQuery',
         skip: ({ queryParams }) => !queryParams.pipelineId,
         options: ({ queryParams }) => ({
-          variables: { _id: queryParams && queryParams.pipelineId }
-        })
+          variables: { _id: queryParams && queryParams.pipelineId },
+        }),
       }
     )
   )(withRouter(Board))

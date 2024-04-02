@@ -137,31 +137,31 @@ const stageParams = `
 `;
 
 export const queries = `
-  boards(type: String!): [Board]
-  boardCounts(type: String!): [BoardCount]
-  boardGetLast(type: String!): Board
-  boardDetail(_id: String!): Board
-  pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
-  pipelineDetail(_id: String!): Pipeline
-  pipelineAssignedUsers(_id: String!): [User]
-  stages(
+  ticketBoards(type: String!): [Board]
+  ticketBoardCounts(type: String!): [BoardCount]
+  ticketBoardGetLast(type: String!): Board
+  ticketBoardDetail(_id: String!): Board
+  ticketPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
+  ticketPipelineDetail(_id: String!): Pipeline
+  ticketPipelineAssignedUsers(_id: String!): [User]
+  ticketStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
     pipelineIds: [String],
     ${stageParams}
   ): [Stage]
-  stageDetail(_id: String!, ${stageParams}): Stage
-  convertToInfo(conversationId: String!): ConvertTo
-  pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
-  archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
-  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
-  cardsFields: JSON
-  boardContentTypeDetail(contentType: String, contentId: String): JSON
-  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  ticketStageDetail(_id: String!, ${stageParams}): Stage
+  ticketConvertToInfo(conversationId: String!): ConvertTo
+  ticketPipelineStateCount(boardId: String, type: String): JSON
+  ticketArchivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+  ticketArchivedStagesCount(pipelineId: String!, search: String): Int
+  ticketItemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  ticketItemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  ticketCardsFields: JSON
+  ticketBoardContentTypeDetail(contentType: String, contentId: String): JSON
+  ticketBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  ticketCheckFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `

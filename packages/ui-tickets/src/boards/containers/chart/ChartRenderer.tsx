@@ -18,7 +18,7 @@ export default function ChartRendererContainer({
   pipelineId,
   type,
   stackBy,
-  chartType
+  chartType,
 }: Props) {
   const { data, loading, error } = useQuery(
     gql(queries.itemsCountByAssignedUser),
@@ -26,8 +26,8 @@ export default function ChartRendererContainer({
       variables: {
         pipelineId,
         type,
-        stackBy: stackBy || 'stage'
-      }
+        stackBy: stackBy || 'stage',
+      },
     }
   );
 
@@ -39,8 +39,8 @@ export default function ChartRendererContainer({
     return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
-  const items = data.itemsCountByAssignedUser.groups || [];
-  const assignees = data.itemsCountByAssignedUser.usersWithInfo || [];
+  const items = data.ticketItemsCountByAssignedUser.groups || [];
+  const assignees = data.ticketItemsCountByAssignedUser.usersWithInfo || [];
 
   if (items.length === 0) {
     return <EmptyState text="No data" icon="piechart" />;
