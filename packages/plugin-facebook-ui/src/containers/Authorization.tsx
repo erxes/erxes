@@ -36,7 +36,14 @@ export const Authorization = (props: Props) => {
   return (
     <Wrapper>
       {queryParams.fbAuthorized ? (
-        <p>__('Facebook authorized, You can close this window') </p>
+        <>
+        <p>{__('Facebook authorized, You can close this window')} </p>
+        <button
+          onClick={() => {
+            window.opener.location.reload();
+          }}
+        >Close</button>
+        </>
       ) : (
         <Spinner />
       )}
