@@ -66,7 +66,7 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
-    'boards',
+    'purchase_boards',
     loadBoardClass(models, subdomain)
   );
 
@@ -76,11 +76,11 @@ export const loadClasses = (
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
-    'pipelines',
+    'purchase_pipelines',
     loadPipelineClass(models, subdomain)
   );
   models.Stages = db.model<IStageDocument, IStageModel>(
-    'stages',
+    'purchase_stages',
     loadStageClass(models, subdomain)
   );
   models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
@@ -88,21 +88,24 @@ export const loadClasses = (
     loadPurchaseClass(models, subdomain)
   );
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
-    'checklists',
+    'purchase_checklists',
     loadChecklistClass(models, subdomain)
   );
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
-    'checklist_items',
+    'purchase_checklist_items',
     loadItemClass(models, subdomain)
   );
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
-    'pipeline_labels',
+    'purchase_pipeline_labels',
     loadPipelineLabelClass(models)
   );
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
-  >('pipeline_templates', loadPipelineTemplateClass(models, subdomain));
+  >(
+    'purchase_pipeline_templates',
+    loadPipelineTemplateClass(models, subdomain)
+  );
 
   return models;
 };

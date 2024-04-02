@@ -34,7 +34,14 @@
     "migrateClientPortalUsers": "node_modules/.bin/ts-node src/commands/migrateClientPortalUsers.ts",
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts",
-    "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts"
+    "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts",
+    "migrateBoards": "node_modules/.bin/ts-node src/commands/migrateBoards.ts",
+    "migrateStages": "node_modules/.bin/ts-node src/commands/migrateStages.ts",
+    "migratePipelines": "node_modules/.bin/ts-node src/commands/migratePipelines.ts",
+    "migrateCheckLists": "node_modules/.bin/ts-node src/commands/migrateCheckLists.ts",
+    "migrateCheckListItems": "node_modules/.bin/ts-node src/commands/migrateCheckListItems.ts",
+    "migratePipelineLabels": "node_modules/.bin/ts-node src/commands/migratePipelineLabels.ts",
+    "migratePipelineTemplates": "node_modules/.bin/ts-node src/commands/migratePipelineTemplates.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",

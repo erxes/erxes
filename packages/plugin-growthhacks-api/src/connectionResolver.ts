@@ -62,16 +62,16 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
-    'boards',
+    'growthhack_boards',
     loadBoardClass(models, subdomain)
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
-    'pipelines',
+    'growthhack_pipelines',
     loadPipelineClass(models, subdomain)
   );
   models.Stages = db.model<IStageDocument, IStageModel>(
-    'stages',
+    'growthhack_stages',
     loadStageClass(models, subdomain)
   );
   models.GrowthHacks = db.model<IGrowthHackDocument, IGrowthHackModel>(
@@ -79,21 +79,24 @@ export const loadClasses = (
     loadGrowthHackClass(models, subdomain)
   );
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
-    'checklists',
+    'growthhack_checklists',
     loadChecklistClass(models, subdomain)
   );
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
-    'checklist_items',
+    'growthhack_checklist_items',
     loadItemClass(models, subdomain)
   );
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
-    'pipeline_labels',
+    'growthhack_pipeline_labels',
     loadPipelineLabelClass(models)
   );
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
-  >('pipeline_templates', loadPipelineTemplateClass(models, subdomain));
+  >(
+    'growthhack_pipeline_templates',
+    loadPipelineTemplateClass(models, subdomain)
+  );
 
   return models;
 };

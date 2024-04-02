@@ -62,15 +62,15 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
-    'boards',
+    'deal_boards',
     loadBoardClass(models, subdomain)
   );
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
-    'pipelines',
+    'deal_pipelines',
     loadPipelineClass(models, subdomain)
   );
   models.Stages = db.model<IStageDocument, IStageModel>(
-    'stages',
+    'deal_stages',
     loadStageClass(models, subdomain)
   );
   models.Deals = db.model<IDealDocument, IDealModel>(
@@ -78,21 +78,21 @@ export const loadClasses = (
     loadDealClass(models, subdomain)
   );
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
-    'checklists',
+    'deal_checklists',
     loadChecklistClass(models, subdomain)
   );
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
-    'checklist_items',
+    'deal_checklist_items',
     loadItemClass(models, subdomain)
   );
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
-    'pipeline_labels',
+    'deal_pipeline_labels',
     loadPipelineLabelClass(models)
   );
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
-  >('pipeline_templates', loadPipelineTemplateClass(models, subdomain));
+  >('deal_pipeline_templates', loadPipelineTemplateClass(models, subdomain));
 
   return models;
 };
