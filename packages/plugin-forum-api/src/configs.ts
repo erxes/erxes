@@ -3,7 +3,7 @@ import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import * as cookieParser from 'cookie-parser';
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -13,8 +13,6 @@ import { IContext } from './graphql';
 import cronjobs from './cronjobs';
 import tags from './tags';
 import { generateAllDataLoaders } from './graphql/dataloaders';
-
-export let debug;
 
 export default {
   name: 'forum',
@@ -53,9 +51,6 @@ export default {
     return context;
   },
   middlewares: [(serverTiming as any)(), cookieParser(), cpUserMiddleware],
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

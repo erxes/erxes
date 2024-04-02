@@ -57,11 +57,11 @@ class FormComponent extends React.Component<Props, State> {
     const { tag } = this.props;
 
     this.state = {
-      colorCode: tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)]
+      colorCode: tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)],
     };
   }
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ colorCode: e.hex });
   };
 
@@ -83,7 +83,7 @@ class FormComponent extends React.Component<Props, State> {
       name: finalValues.name,
       colorCode: this.state.colorCode,
       type: finalValues.type,
-      parentId: finalValues.parentId
+      parentId: finalValues.parentId,
     };
   };
 
@@ -115,15 +115,8 @@ class FormComponent extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      tag,
-      closeModal,
-      afterSave,
-      renderButton,
-      tags,
-      tagType,
-      types
-    } = this.props;
+    const { tag, closeModal, afterSave, renderButton, tags, tagType, types } =
+      this.props;
     const { values, isSubmitted } = formProps;
     const { colorCode } = this.state;
     const object = tag || ({} as ITag);
@@ -209,7 +202,7 @@ class FormComponent extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,
-            object: tag
+            object: tag,
           })}
         </ModalFooter>
       </>

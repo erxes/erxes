@@ -503,9 +503,10 @@ a:hover {
   width: 360px;
   max-width: 360px;
   position: fixed !important;
-  bottom: 10px;
+  bottom: 155px;
   top: auto !important;
   transform: none !important;
+  border-radius: 25px;
 }
 
 .call-popover .arrow, #color-picker .arrow  {
@@ -1254,6 +1255,7 @@ a:hover {
 
     a {
       color: #228be6;
+      display: inline-flex;
     }
     
     a:hover {
@@ -1314,20 +1316,13 @@ a:hover {
       margin: 0;
       overflow: hidden;
       table-layout: fixed;
-      
-      td {
-        display: table-cell;
-      }
-      
+      display: table;
       td,
       th {
-        border: 2px solid #ced4da;
         box-sizing: border-box;
         min-width: 1em;
-        padding: 3px 5px;
         position: relative;
         vertical-align: top;
-
         > * {
           margin-bottom: 0;
         }
@@ -1351,19 +1346,13 @@ a:hover {
         z-index: 2;
       }
   
-      .column-resize-handle {
-        background-color: #adf;
-        bottom: -2px;
-        position: absolute;
-        right: -2px;
-        pointer-events: none;
-        top: 0;
-        width: 4px;
-      }
-  
       p {
         margin: 0;
       }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
     }
 
     p.is-editor-empty:first-child::before {
@@ -1372,11 +1361,6 @@ a:hover {
       float: left;
       height: 0;
       pointer-events: none;
-    }
-
-    .tableWrapper {
-      padding: 1rem 0;
-      overflow-x: auto;
     }
     
     .resize-cursor {
@@ -1402,11 +1386,73 @@ a:hover {
 
   /* ProseMirror (actual editable section of editor) */
   
-  .ProseMirror{
+  .ProseMirror{ 
     padding: 1rem;
     outline: 0px;
     height: 100%;
     overflow-y: auto;
+    a {
+      color: #228be6;
+      display: inline-flex;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      display: table;
+
+      td,
+      th {
+        box-sizing: border-box;
+        min-width: 1em;
+        position: relative;
+        vertical-align: top;
+        border: 1px solid #e9ecef;
+        > * {
+          margin-bottom: 0;
+        }
+      }
+  
+      th {
+        background-color: #f1f3f5;
+        font-weight: bold;
+        text-align: left;
+      }
+  
+      .selectedCell:after {
+        background: rgba(200, 200, 255, 0.4);
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+  
+      p {
+        margin: 0;
+      }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
+    }
+
+    img.ProseMirror-separator{
+      display: inline !important;
+      border: none !important;
+      margin: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
   }
  
 `;

@@ -12,6 +12,7 @@ type Props = {
   customers?: any;
   history: any;
   searchCustomer: (searchValue: string) => void;
+  changeMainTab: (phoneNumber: string, shiftTab: string) => void;
 };
 
 type State = {
@@ -23,9 +24,12 @@ class Contact extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: '',
     };
   }
+  onCall = (phoneNumber) => {
+    this.props.changeMainTab(phoneNumber, 'Keyboard');
+  };
 
   renderContact = () => {
     const { customers } = this.props;
@@ -48,11 +52,11 @@ class Contact extends React.Component<Props, State> {
                 <Icon icon="ellipsis-v" size={18} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <li key="call">
+                <li
+                  key="call"
+                  onClick={() => this.onCall(customer?.primaryPhone)}
+                >
                   <Icon icon="outgoing-call" /> {__('Call')}
-                </li>
-                <li key="delete">
-                  <Icon icon="trash-alt" size={14} /> {__('Delete')}
                 </li>
               </Dropdown.Menu>
             </Dropdown>
@@ -71,7 +75,7 @@ class Contact extends React.Component<Props, State> {
       searchCustomer(this.state.searchValue);
     };
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (timer) {
         clearTimeout(timer);
       }

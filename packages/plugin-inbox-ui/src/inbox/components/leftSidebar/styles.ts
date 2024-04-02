@@ -1,7 +1,7 @@
 import {
   EllipsisContent,
   FlexCenter,
-  SimpleButton
+  SimpleButton,
 } from '@erxes/ui/src/styles/main';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
@@ -46,7 +46,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   max-width: 100%;
   transition: all ease 0.3s;
   position: relative;
-  padding-left: ${props => props.isChecked && '30px'};
+  padding-left: ${(props) => props.isChecked && '30px'};
 
   &:hover {
     padding-left: 30px;
@@ -57,7 +57,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   }
 
   ${CheckBox} {
-    width: ${props => (props.isChecked ? '30px' : '0')};
+    width: ${(props) => (props.isChecked ? '30px' : '0')};
     margin: 0;
     overflow: hidden;
     transition: all ease 0.3s;
@@ -124,9 +124,9 @@ const RowItem = styledTS<{
   flex-direction: row;
   border-bottom: 1px solid rgba(0,0,0,0.05);
   transition: all ease 0.3s;
-  background: ${props => (props.isActive ? 'rgba(242,245,245,0.8)' : null)};
+  background: ${(props) => (props.isActive ? 'rgba(242,245,245,0.8)' : null)};
 
-  ${props =>
+  ${(props) =>
     !props.isRead &&
     css`
       background: ${colors.bgUnread};
@@ -139,7 +139,7 @@ const RowItem = styledTS<{
       }
     `};
   &:hover {
-    background: ${props =>
+    background: ${(props) =>
       !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
@@ -196,9 +196,8 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   display: flex;
   position: relative;
   flex-direction: row;
-  padding-left: ${props => props.isOpen && '200px'};
+  padding-left: ${(props) => props.isOpen && '200px'};
   transition: padding 0.3s ease;
-  box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
 
   > section {
     margin: 0;
@@ -277,5 +276,5 @@ export {
   DropdownWrapper,
   ToggleButton,
   Idle,
-  ScrollContent
+  ScrollContent,
 };

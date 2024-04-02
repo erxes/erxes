@@ -9,7 +9,7 @@ import {
   sendMessage,
 } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue(
     'salesplans:dayPlans.updateStatus',
     async ({ subdomain, data: { _ids, status } }) => {

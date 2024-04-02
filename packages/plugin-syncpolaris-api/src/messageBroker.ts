@@ -9,7 +9,7 @@ import { createLoanSchedule } from './utils/loan/createSchedule';
 import { getDepositBalance } from './utils/deposit/getDepositBalance';
 import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
   });

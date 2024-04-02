@@ -1,21 +1,20 @@
-import EmailForm from "../../containers/EmailForm";
-import React from "react";
-import { METHODS } from "@erxes/ui-engage/src/constants";
+import EmailForm from '../../containers/EmailForm';
+import React from 'react';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEmailTemplate,
   IEngageEmail,
   IEngageMessenger,
-  IEngageScheduleDate,
-} from "@erxes/ui-engage/src/types";
-import MessengerForm from "../MessengerForm";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IUser } from "@erxes/ui/src/auth/types";
+} from '@erxes/ui-engage/src/types';
+import MessengerForm from '../MessengerForm';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   brands: IBrand[];
   onChange: (
-    name: "messenger" | "email" | "content" | "scheduleDate" | "fromUserId",
-    value?: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
+    name: 'messenger' | 'email' | 'content' | 'fromUserId',
+    value?: IEngageEmail | IEngageMessenger | string
   ) => void;
   users: IUser[];
   method: string;
@@ -25,7 +24,6 @@ type Props = {
   email?: IEngageEmail;
   fromUserId: string;
   content: string;
-  scheduleDate: IEngageScheduleDate;
   isSaved?: boolean;
 };
 
@@ -42,7 +40,6 @@ class MessageStep extends React.Component<Props> {
       email,
       fromUserId,
       content,
-      scheduleDate,
       isSaved,
     } = this.props;
 
@@ -56,7 +53,6 @@ class MessageStep extends React.Component<Props> {
           email={email || ({} as IEngageEmail)}
           fromUserId={fromUserId}
           content={content}
-          scheduleDate={scheduleDate}
           isSaved={isSaved}
         />
       );
@@ -72,7 +68,6 @@ class MessageStep extends React.Component<Props> {
         messenger={messenger || ({} as IEngageMessenger)}
         fromUserId={fromUserId}
         content={content}
-        scheduleDate={scheduleDate}
         isSaved={isSaved}
       />
     );

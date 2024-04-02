@@ -12,7 +12,7 @@ import {
   IMessengerDataMessagesItem,
 } from '../../models/definitions/integrations';
 
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 import redis from '@erxes/api-utils/src/redis';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -91,19 +91,22 @@ export const pConversationClientMessageInserted = async (
   }
 
   graphqlPubsub.publish(`conversationMessageInserted:${conversation._id}`, {
-    conversationClientMessageInserted: message,
+    conversationMessageInserted: message,
     subdomain,
     conversation,
     integration,
   });
 
   for (const userId of channelMemberIds) {
-    graphqlPubsub.publish(`conversationClientMessageInserted:${userId}`, {
-      conversationClientMessageInserted: message,
-      subdomain,
-      conversation,
-      integration,
-    });
+    graphqlPubsub.publish(
+      `conversationClientMessageInserted:${subdomain}:${userId}`,
+      {
+        conversationClientMessageInserted: message,
+        subdomain,
+        conversation,
+        integration,
+      },
+    );
   }
 
   if (message.content) {
@@ -755,7 +758,7 @@ const widgetMutations = {
             isRPC: true,
           });
         } catch (e) {
-          debug.error(e);
+          debugError(e);
         }
 
         const timeDelay = integrationConfigs.find(
@@ -942,7 +945,7 @@ const widgetMutations = {
           },
         );
       } catch (e) {
-        debug.error(`Failed to connect to BOTPRESS: ${e.message}`);
+        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
       }
     }
 
@@ -970,7 +973,7 @@ const widgetMutations = {
       }
 
       // notify as connected
-      graphqlPubsub.publish('customerConnectionChanged', {
+      graphqlPubsub.publish(`customerConnectionChanged:${customerId}`, {
         customerConnectionChanged: {
           _id: customerId,
           status: 'connected',
@@ -1096,7 +1099,7 @@ const widgetMutations = {
       });
     } catch (e) {
       /* istanbul ignore next */
-      debug.error(
+      debugError(
         `Error occurred during widgets save browser info ${e.message}`,
       );
     }

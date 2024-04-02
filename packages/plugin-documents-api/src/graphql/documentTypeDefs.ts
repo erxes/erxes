@@ -1,6 +1,7 @@
 export const types = `
   type Document {
     _id: String!
+    code: String
 
     createdAt: Date
     createdUserId: String
@@ -43,6 +44,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  documentsSave(_id: String, contentType: String, subType: String, name: String!, content: String, replacer: String): Document
+  documentsSave(_id: String, contentType: String, subType: String, name: String!, content: String, replacer: String, code: String): Document
   documentsRemove(_id: String!): JSON
 `;

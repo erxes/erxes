@@ -7,7 +7,7 @@ import { Customers, Integrations, Messages } from './models';
 
 dotenv.config();
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     '{name}:createIntegration',
     async ({ data: { doc, integrationId } }) => {

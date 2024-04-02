@@ -12,10 +12,7 @@ import {
 } from './redis';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
-import {
-  applyProxiesCoreless,
-  applyProxyToCore,
-} from './proxy/create-middleware';
+import { applyProxiesCoreless, applyProxyToCore } from './proxy/middleware';
 import { startRouter, stopRouter } from './apollo-router';
 import {
   startSubscriptionServer,
@@ -23,14 +20,14 @@ import {
 } from './subscription';
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
+import { sanitizeHeaders } from '@erxes/api-utils/src/headers';
 
 const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
 
 (async () => {
   app.use((req, _res, next) => {
-    // this is important for security reasons
-    delete req.headers['user'];
+    sanitizeHeaders(req.headers);
     next();
   });
 
@@ -55,7 +52,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 
   await startRouter(targets);
 
-  await applyProxiesCoreless(app, targets);
+  applyProxiesCoreless(app, targets);
 
   const httpServer = http.createServer(app);
 
@@ -79,10 +76,9 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   await setAfterMutations();
   await setAfterQueries();
 
-  // this has to be applied last, just like 404 route handlers are applied last
-  applyProxyToCore(app, targets);
+  await applyProxyToCore(app, targets);
 
-  console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
+  console.log(`Erxes gateway ready at http://localhost:${port}/`);
 })();
 
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {

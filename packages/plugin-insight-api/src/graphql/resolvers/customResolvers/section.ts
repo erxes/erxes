@@ -1,7 +1,6 @@
 import { ISectionDocument } from './../../../models/definitions/insight';
 import { IContext } from '../../../connectionResolver';
 import { IDashboardDocument } from '../../../models/definitions/insight';
-import { sendReportsMessage } from '../../../messageBroker';
 
 export default {
   async list(
@@ -18,14 +17,8 @@ export default {
       }
 
       if (type === 'report') {
-        return await sendReportsMessage({
-          subdomain,
-          action: 'find',
-          data: {
-            sectionId: _id,
-          },
-          isRPC: true,
-        });
+        return models.Reports.find({ sectionId: _id });
+
       }
     } catch (error) {
       return new Error(`Invalid ${error.path}: ${error.value}`);
@@ -44,16 +37,7 @@ export default {
       }
 
       if (type === 'report') {
-        const reports = await sendReportsMessage({
-          subdomain,
-          action: 'find',
-          data: {
-            sectionId: _id,
-          },
-          isRPC: true,
-        });
-
-        return (reports || []).length;
+        return models.Reports.find({ sectionId: _id }).countDocuments();
       }
     } catch (error) {
       return new Error(`Invalid ${error.path}: ${error.value}`);

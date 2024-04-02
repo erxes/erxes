@@ -117,7 +117,7 @@ const reportParams = `
   $assignedUserIds: [String],
   $assignedDepartmentIds: [String],
   $tagIds: [String],
-  $reportTemplateType: String,
+  $serviceType: String,
   $serviceName: String,
   $charts: [JSON] 
 `;
@@ -129,13 +129,14 @@ const reportVariables = `
   assignedUserIds: $assignedUserIds,
   assignedDepartmentIds: $assignedDepartmentIds,
   tagIds: $tagIds,
-  reportTemplateType: $reportTemplateType,
+  serviceType: $serviceType,
   serviceName: $serviceName,
   charts: $charts
 `;
 
-const reportChartParams = `
+const chartParams = `
   $name: String,
+  $contentType: String
   $chartType: String
   $layout: String
   $vizState: String
@@ -145,8 +146,9 @@ const reportChartParams = `
   $dimension: JSON
 `;
 
-const reportChartVariables = `
+const chartVariables = `
   name: $name,
+  contentType: $contentType
   chartType: $chartType
   layout: $layout
   vizState: $vizState
@@ -156,14 +158,14 @@ const reportChartVariables = `
   templateType: $templateType
 `;
 
-const reportChartFields = `
+const chartFields = `
   name
   layout
 `;
 
 const reportAdd = `
-  mutation reportsAdd(${reportParams}) {
-    reportsAdd(${reportVariables}) {
+  mutation reportAdd(${reportParams}) {
+    reportAdd(${reportVariables}) {
       _id
       name
       visibility
@@ -175,8 +177,8 @@ const reportAdd = `
 `;
 
 const reportEdit = `
-  mutation reportsEdit($_id: String!, ${reportParams}) {
-    reportsEdit(_id: $_id, ${reportVariables}) {
+  mutation reportEdit($_id: String!, ${reportParams}) {
+    reportEdit(_id: $_id, ${reportVariables}) {
       name
       visibility
       assignedUserIds
@@ -186,45 +188,45 @@ const reportEdit = `
   }
 `;
 
-const reportsRemove = `
-  mutation reportsRemoveMany($ids: [String]!) {
-    reportsRemoveMany(ids: $ids)
+const reportRemove = `
+  mutation reportRemoveMany($ids: [String]!) {
+    reportRemoveMany(ids: $ids)
   }
 `;
 
-const reportsDuplicate = `
-  mutation reportsDuplicate($_id: String!) {
-    reportsDuplicate(_id: $_id) {
+const reportDuplicate = `
+  mutation reportDuplicate($_id: String!) {
+    reportDuplicate(_id: $_id) {
       _id
     }
   }
 `;
 
-const reportChartsEditMany = `
-mutation reportChartsEditMany($reportId: String!, ${reportParams}) {
-  reportChartsEditMany(reportId: $reportId, ${reportVariables}) 
+const chartsEditMany = `
+mutation chartsEditMany($contentId: String!, $contentType: String! ${reportParams}) {
+  chartsEditMany(contentId: $contentId, contentType: $contentType, ${reportVariables}) 
 }
 `;
 
-const reportChartsAdd = `
-  mutation reportChartsAdd($reportId: String!, ${reportChartParams}) {
-    reportChartsAdd(reportId: $reportId, ${reportChartVariables}) {
-      ${reportChartFields}
+const chartsAdd = `
+  mutation chartsAdd($contentId: String!, ${chartParams}) {
+    chartsAdd(contentId: $contentId, ${chartVariables}) {
+      ${chartFields}
     }
   }
 `;
 
-const reportChartsEdit = `
-  mutation reportChartsEdit($_id: String!, ${reportChartParams}) {
-    reportChartsEdit(_id: $_id, ${reportChartVariables}) {
-      ${reportChartFields}
+const chartsEdit = `
+  mutation chartsEdit($_id: String!, ${chartParams}) {
+    chartsEdit(_id: $_id, ${chartVariables}) {
+      ${chartFields}
     }
   }
 `;
 
-const reportChartsRemove = `
-  mutation reportChartsRemove($_id: String!){
-    reportChartsRemove(_id: $_id)
+const chartsRemove = `
+  mutation chartsRemove($_id: String!){
+    chartsRemove(_id: $_id)
   }
 `;
 
@@ -290,28 +292,6 @@ const dashboardDuplicate = `
   }
 `;
 
-const dashboardChartsAdd = `
-  mutation dashboardChartsAdd($dashboardId: String!, ${reportChartParams}) {
-    dashboardChartsAdd(dashboardId: $dashboardId, ${reportChartVariables}) {
-      ${reportChartFields}
-    }
-  }
-`;
-
-const dashboardChartsEdit = `
-  mutation dashboardChartsEdit($_id: String!, ${reportChartParams}) {
-    dashboardChartsEdit(_id: $_id, ${reportChartVariables}) {
-      ${reportChartFields}
-    }
-  }
-`;
-
-const dashboardChartsRemove = `
-  mutation dashboardChartsRemove($_id: String!){
-    dashboardChartsRemove(_id: $_id)
-  }
-`;
-
 // Section Mutations
 
 const sectionAdd = `
@@ -338,23 +318,19 @@ export default {
 
   reportAdd,
   reportEdit,
-  reportsRemove,
-  reportsDuplicate,
+  reportRemove,
+  reportDuplicate,
 
-  reportChartsAdd,
-  reportChartsEdit,
-  reportChartsEditMany,
-  reportChartsRemove,
+  chartsAdd,
+  chartsEdit,
+  chartsEditMany,
+  chartsRemove,
 
   dashboardAdd,
   dashboardAddTo,
   dashboardEdit,
   dashboardRemove,
   dashboardDuplicate,
-
-  dashboardChartsAdd,
-  dashboardChartsEdit,
-  dashboardChartsRemove,
 
   sectionAdd,
   sectionRemove,

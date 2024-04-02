@@ -8,22 +8,25 @@ import { __ } from '@erxes/ui/src/utils';
 function EngageConfigs() {
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Campaign config') }
+    { title: __('Broadcast config') },
   ];
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Campaign config')} breadcrumb={breadcrumb} />
+        <Wrapper.Header
+          title={__('Broadcast config')}
+          breadcrumb={breadcrumb}
+        />
       }
       mainHead={
         <Header
-          title="Campaign config"
-          description="Set up your campaign config."
+          title="Broadcast config"
+          description="Set up your Broadcast config."
         />
       }
       actionBar={
-        <Wrapper.ActionBar left={<Title>{__('Campaign config')}</Title>} />
+        <Wrapper.ActionBar left={<Title>{__('Broadcast config')}</Title>} />
       }
       content={<EngageSettingsContent />}
       transparent={true}

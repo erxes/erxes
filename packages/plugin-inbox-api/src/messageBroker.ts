@@ -46,7 +46,7 @@ const createConversationAndMessage = async (
   });
 };
 
-export const initBroker = () => {
+export const setupMessageConsumers = () => {
   consumeRPCQueue(
     'inbox:createConversationAndMessage',
     async ({ subdomain, data }) => {
@@ -516,3 +516,12 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true,
   });
+
+export const sendCallsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'calls',
+    ...args,
+  });
+};

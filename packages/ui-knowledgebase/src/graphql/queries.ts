@@ -3,6 +3,7 @@ const categoryFields = `
   title
   description
   icon
+  code
 `;
 
 const knowledgeBaseTopics = `
@@ -10,6 +11,7 @@ const knowledgeBaseTopics = `
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
       title
+      code
       description
       brand {
         _id
@@ -76,6 +78,7 @@ const knowledgeBaseCategoryDetail = `
         summary
         content
         status
+        isPrivate
       }
       firstTopic {
         _id
@@ -107,10 +110,12 @@ const knowledgeBaseArticles = `
   query objects($page: Int, $perPage: Int, $categoryIds: [String]) {
     knowledgeBaseArticles(page: $page, perPage: $perPage, categoryIds: $categoryIds) {
       _id
+      code
       title
       summary
       content
       status
+      isPrivate
       reactionChoices
       reactionCounts
       createdBy
@@ -165,5 +170,5 @@ export default {
   knowledgeBaseCategoryDetail,
   knowledgeBaseCategoriesTotalCount,
   knowledgeBaseArticles,
-  knowledgeBaseArticlesTotalCount
+  knowledgeBaseArticlesTotalCount,
 };

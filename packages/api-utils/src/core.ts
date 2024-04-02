@@ -350,7 +350,8 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 export const getSubdomain = (req): string => {
   const hostname =
     req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+  const subdomain = hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+  return subdomain;
 };
 
 export const connectionOptions: mongoose.ConnectionOptions = {
@@ -365,7 +366,7 @@ export const createGenerateModels = <IModels>(
     db: mongoose.Connection,
     subdomain: string,
   ) => IModels | Promise<IModels>,
-) => {
+): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   connect();
