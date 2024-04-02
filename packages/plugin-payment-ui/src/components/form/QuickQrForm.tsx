@@ -1,18 +1,17 @@
-import { BANK_CODES, MCC_CODES, PAYMENT_KINDS } from "../constants";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IPaymentDocument } from "../../types";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
-import Select from "react-select-plus";
+import { IPaymentDocument } from "../../types";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
 import { SettingsContent } from "./styles";
-import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "@erxes/ui/src/utils";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
+import { PAYMENT_KINDS, BANK_CODES, MCC_CODES } from "../constants";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import Select from "react-select";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -178,10 +177,10 @@ const QuickQrForm = (props: Props) => {
         <ControlLabel required={true}>MCC Code</ControlLabel>
         <Select
           placeholder={__("Select MCC Code")}
-          value={state.mccCode}
+          value={MCC_CODES.find((o) => o.value === state.mccCode)}
           onChange={onChangeMccCode}
           options={MCC_CODES}
-          multi={false}
+          isMulti={false}
         />
       </FormGroup>
     );

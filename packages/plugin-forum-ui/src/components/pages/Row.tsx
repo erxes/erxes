@@ -14,7 +14,6 @@ import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   page: IPage;
-  history: any;
   remove: (pageId: string, emptyBulk?: () => void) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;

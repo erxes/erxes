@@ -23,7 +23,6 @@ const ActivityInputs = asyncComponent(
 type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
-  history: any;
 };
 
 const ClientPortalCompanyDetails: React.FC<Props> = (props: Props) => {

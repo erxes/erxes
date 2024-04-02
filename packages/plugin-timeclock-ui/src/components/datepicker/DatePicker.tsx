@@ -3,7 +3,7 @@ import Datetime from "@nateradebaugh/react-datetime";
 import Button from "@erxes/ui/src/components/Button";
 import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { CustomWidth, FlexRow } from "../../styles";
 import { timeFormat } from "../../constants";
 import { IScheduleDate } from "../../types";
@@ -126,8 +126,10 @@ const DatePicker = (props: Props) => {
           onChange={onScheduleConfigSelect}
           placeholder="Select Schedule"
           options={scheduleConfigOptions}
-          value={selectedScheduleConfigId}
-          multi={false}
+          value={scheduleConfigOptions.find(
+            (o) => o.value === selectedScheduleConfigId
+          )}
+          isMulti={false}
           // components={{ _Option: CustomOption }}
         />
       )}

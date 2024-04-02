@@ -14,14 +14,14 @@ import { PERMISSIONS } from "../../constants";
 import PermissionForm from "./PermissionForm";
 import PermissionRow from "../../containers/permission/PermissionRow";
 import React from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isObject } from "util";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
   refetchQueries: any;
   permissions: IPermission[];
@@ -32,23 +32,24 @@ type Props = {
   categoryList?: ICategory[];
 };
 
-class PermissionList extends React.Component<Props> {
-  setFilter = (name: string, item: generatedList) => {
-    const { history } = this.props;
+const PermissionList = (props: Props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    router.setParams(history, {
+  const setFilter = (name: string, item: generatedList) => {
+    router.setParams(navigate, location, {
       [name]: isObject(item) ? correctValue(item) : item,
       page: null,
       perPage: null,
     });
   };
 
-  renderObjects() {
-    return <PermissionRow permissions={this.props.permissions} />;
-  }
+  const renderObjects = () => {
+    return <PermissionRow permissions={props.permissions} />;
+  };
 
-  renderFilter() {
-    const { queryParams, categoryList } = this.props;
+  const renderFilter = () => {
+    const { queryParams, categoryList } = props;
 
     return (
       <FilterWrapper>
@@ -56,25 +57,29 @@ class PermissionList extends React.Component<Props> {
         <FilterItem id="permission-choose-module">
           <Select
             placeholder={__("Choose category")}
-            value={queryParams.categoryId}
+            value={generateModuleParams(categoryList || []).find(
+              (o) => o.value === queryParams.categoryId
+            )}
             options={generateModuleParams(categoryList || [])}
-            onChange={this.setFilter.bind(this, "categoryId")}
+            onChange={setFilter.bind(this, "categoryId")}
           />
         </FilterItem>
 
         <FilterItem id="permission-choose-action">
           <Select
             placeholder={__("Choose permission")}
-            value={queryParams.permission}
+            value={generateModuleParams(PERMISSIONS).find(
+              (o) => o.value === queryParams.permission
+            )}
             options={generateModuleParams(PERMISSIONS)}
-            onChange={this.setFilter.bind(this, "permission")}
+            onChange={setFilter.bind(this, "permission")}
           />
         </FilterItem>
       </FilterWrapper>
     );
-  }
+  };
 
-  renderData() {
+  const renderData = () => {
     return (
       <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
@@ -85,13 +90,13 @@ class PermissionList extends React.Component<Props> {
             <th>{__("Actions")}</th>
           </tr>
         </thead>
-        <tbody>{this.renderObjects()}</tbody>
+        <tbody>{renderObjects()}</tbody>
       </Table>
     );
-  }
+  };
 
-  renderForm = (props) => {
-    const { categoryList, queryParams, refetchQueries } = this.props;
+  const renderForm = (props) => {
+    const { categoryList, queryParams, refetchQueries } = props;
 
     const extendedProps = {
       ...props,
@@ -103,7 +108,7 @@ class PermissionList extends React.Component<Props> {
     return <PermissionForm {...extendedProps} />;
   };
 
-  renderActionBar() {
+  const renderActionBar = () => {
     const trigger = (
       <Button
         id="permission-new-permission"
@@ -115,7 +120,7 @@ class PermissionList extends React.Component<Props> {
     );
 
     const title = (
-      <Title>{this.props.currentGroupName || __("All permissions")}</Title>
+      <Title>{props.currentGroupName || __("All permissions")}</Title>
     );
 
     const actionBarRight = (
@@ -123,7 +128,7 @@ class PermissionList extends React.Component<Props> {
         title="New permission"
         size="lg"
         trigger={trigger}
-        content={this.renderForm}
+        content={renderForm}
       />
     );
 
@@ -134,16 +139,16 @@ class PermissionList extends React.Component<Props> {
         wideSpacing={true}
       />
     );
-  }
+  };
 
-  renderContent() {
-    const { isLoading, permissions } = this.props;
+  const renderContent = () => {
+    const { isLoading, permissions } = props;
 
     return (
       <>
-        {this.renderFilter()}
+        {renderFilter()}
         <DataWithLoader
-          data={this.renderData()}
+          data={renderData()}
           loading={isLoading || false}
           count={permissions.length}
           emptyText={__("There is no permissions in this group")}
@@ -151,37 +156,35 @@ class PermissionList extends React.Component<Props> {
         />
       </>
     );
-  }
+  };
 
-  render() {
-    const { queryParams, permissionGroups } = this.props;
+  const { queryParams, permissionGroups } = props;
 
-    const breadcrumb = [
-      { title: "Settings", link: "/settings" },
-      { title: __("Forum Permissions") },
-    ];
+  const breadcrumb = [
+    { title: "Settings", link: "/settings" },
+    { title: __("Forum Permissions") },
+  ];
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__("Forum Permissions")}
-            breadcrumb={breadcrumb}
-          />
-        }
-        actionBar={this.renderActionBar()}
-        leftSidebar={
-          <GroupList
-            permissionGroups={permissionGroups}
-            queryParams={queryParams}
-          />
-        }
-        content={this.renderContent()}
-        center={false}
-        hasBorder={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__("Forum Permissions")}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={renderActionBar()}
+      leftSidebar={
+        <GroupList
+          permissionGroups={permissionGroups}
+          queryParams={queryParams}
+        />
+      }
+      content={renderContent()}
+      center={false}
+      hasBorder={true}
+    />
+  );
+};
 
 export default PermissionList;

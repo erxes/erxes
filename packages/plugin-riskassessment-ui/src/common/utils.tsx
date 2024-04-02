@@ -1,5 +1,7 @@
-import * as compose from "lodash.flowright";
-
+import { gql, useQuery } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
 import {
   BarItems,
   Box,
@@ -19,38 +21,34 @@ import {
   __,
   generateTree,
 } from "@erxes/ui/src";
-import { COLORS, calculateMethods } from "./constants";
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
 } from "@erxes/ui/src/styles/main";
-import { FormContainer, FormGroupRow } from "../styles";
 import { IFormProps, IOption, IQueryParams } from "@erxes/ui/src/types";
+import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import * as compose from "lodash.flowright";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import { Link } from "react-router-dom";
+import Select from "react-select";
+import { tags as tagsQuery } from "../common/graphql";
 import {
   RiskCalculateLogicType,
   RiskIndicatorsType,
 } from "../indicator/common/types";
-import { gql, useQuery } from "@apollo/client";
-import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-
-import { CustomFormGroupProps } from "./types";
-import { Link } from "react-router-dom";
-import { OperationTypes } from "../operations/common/types";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import React from "react";
-import Select from "react-select-plus";
-import { SidebarListItem } from "@erxes/ui-settings/src/styles";
-import TwitterPicker from "react-color/lib/Twitter";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries as operationQueries } from "../operations/graphql";
 import { queries as riskIndicatorQueries } from "../indicator/graphql";
 import { queries as riskIndicatorsGroupQueries } from "../indicator/groups/graphql";
-import { tags as tagsQuery } from "../common/graphql";
+import { OperationTypes } from "../operations/common/types";
+import { queries as operationQueries } from "../operations/graphql";
+import { FormContainer, FormGroupRow } from "../styles";
+import { COLORS, calculateMethods } from "./constants";
+import { CustomFormGroupProps } from "./types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const DefaultWrapper = ({
   title,
@@ -287,9 +285,11 @@ class SelectCustomFieldsComponent extends React.Component<
     return (
       <Select
         placeholder={__(label)}
-        value={defaultValue}
+        value={[{ label: "Select custom field", value: "" }, ...options].find(
+          (o) => o.value === defaultValue
+        )}
         options={[{ label: "Select custom field", value: "" }, ...options]}
-        multi={false}
+        isMulti={false}
         onChange={handleChange}
       />
     );
@@ -470,8 +470,15 @@ export class CommonCalculateFields extends React.Component<Props, State> {
     };
 
     const renderColorSelect = (selectedColor) => {
-      const popoverBottom = (
-        <Popover id="color-picker">
+      return (
+        <Popover
+          placement="bottom-start"
+          trigger={
+            <ColorPick>
+              <ColorPicker style={{ backgroundColor: selectedColor }} />
+            </ColorPick>
+          }
+        >
           <TwitterPicker
             width="266px"
             triangle="hide"
@@ -480,19 +487,6 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             colors={COLORS}
           />
         </Popover>
-      );
-
-      return (
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom-start"
-          overlay={popoverBottom}
-        >
-          <ColorPick>
-            <ColorPicker style={{ backgroundColor: selectedColor }} />
-          </ColorPick>
-        </OverlayTrigger>
       );
     };
 
@@ -590,9 +584,9 @@ export class CommonCalculateFields extends React.Component<Props, State> {
           <ControlLabel>{__("Calculate Methods")}</ControlLabel>
           <Select
             placeholder={__("Select Calculate Method")}
-            value={calculateMethod}
+            value={calculateMethods.find((o) => o.value === calculateMethod)}
             options={calculateMethods}
-            multi={false}
+            isMulti={false}
             onChange={handleCalculateMethod}
           />
         </FormGroup>
@@ -622,13 +616,10 @@ export const generateParamsIds = (ids) => {
   return ids;
 };
 
-export function FilterByTags({
-  history,
-  queryParams,
-}: {
-  history: any;
-  queryParams: any;
-}) {
+export function FilterByTags({ queryParams }: { queryParams: any }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   if (!isEnabled("tags")) {
     return (
       <Box name="tags" title="Filter by Tags">
@@ -651,7 +642,7 @@ export function FilterByTags({
   const tags = data?.tags || [];
 
   const handleRemoveParams = () => {
-    removeParams(history, "tagIds");
+    removeParams(navigate, location, "tagIds");
   };
 
   const handleSetParams = (_id) => {
@@ -662,8 +653,8 @@ export function FilterByTags({
     } else {
       tagIds = [...tagIds, _id];
     }
-    removeParams(history, "page");
-    setParams(history, { tagIds });
+    removeParams(navigate, location, "page");
+    setParams(navigate, location, { tagIds });
   };
   const extraButtons = (
     <BarItems>
@@ -700,7 +691,7 @@ export function FilterByTags({
             return (
               <SidebarListItem
                 key={_id}
-                isActive={(queryParams?.tagIds || []).includes(_id)}
+                $isActive={(queryParams?.tagIds || []).includes(_id)}
                 onClick={handleSetParams.bind(this, _id)}
               >
                 <a>

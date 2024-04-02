@@ -9,7 +9,7 @@ import {
 } from "@erxes/ui/src/components/form";
 import { FormColumn, FormWrapper, LinkButton } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { DividerBox } from "../styles";
 import { SelectCardType, SelectStage } from "./common";
 import { ListItem, RemoveRow, Row } from "./styles";
@@ -166,7 +166,9 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
             <FormGroup>
               <ControlLabel required>{__("Logic")}</ControlLabel>
               <Select
-                value={logic.logic}
+                value={generateOptions(logic._id, logicOptions).find(
+                  (o) => o.value === logic.logic
+                )}
                 options={generateOptions(logic._id, logicOptions)}
                 onChange={({ value }) =>
                   onChangeLogic(logic._id, value, "logic")

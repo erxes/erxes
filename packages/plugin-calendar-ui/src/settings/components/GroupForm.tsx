@@ -7,9 +7,10 @@ import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import React from "react";
-import Modal from "react-bootstrap/Modal";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { IBoard, IGroup } from "../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Dialog from "@erxes/ui/src/components/Dialog";
 
 type Props = {
   show: boolean;
@@ -85,10 +86,12 @@ class GroupForm extends React.Component<Props, State> {
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
           placeholder={__("Choose a board")}
-          value={this.state.boardId}
+          value={this.renderOptions(boards).find(
+            (o) => o.value === this.state.boardId
+          )}
           options={this.renderOptions(boards)}
           onChange={onChange}
-          clearable={false}
+          isClearable={false}
         />
       </FormGroup>
     );
@@ -123,80 +126,72 @@ class GroupForm extends React.Component<Props, State> {
 
     return (
       <div id="manage-group-modal">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {group ? `Edit ${groupName}` : `Add ${groupName}`}
-          </Modal.Title>
-        </Modal.Header>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
+            autoFocus={true}
+            required={true}
+          />
+        </FormGroup>
 
-        <Modal.Body>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="name"
-              defaultValue={object.name}
-              autoFocus={true}
-              required={true}
-            />
-          </FormGroup>
+        {this.renderBoards()}
 
-          {this.renderBoards()}
+        <FormGroup>
+          <ControlLabel>Is private</ControlLabel>
 
-          <FormGroup>
-            <ControlLabel>Is private</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="isPrivate"
+            defaultChecked={this.state.isPrivate}
+            componentclass="checkbox"
+            onChange={this.onChangeIsPrivate}
+          />
+        </FormGroup>
 
-            <FormControl
-              {...formProps}
-              name="isPrivate"
-              defaultChecked={this.state.isPrivate}
-              componentclass="checkbox"
-              onChange={this.onChangeIsPrivate}
-            />
-          </FormGroup>
+        {this.renderSelectMembers()}
 
-          {this.renderSelectMembers()}
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
 
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              onClick={closeModal}
-            >
-              Cancel
-            </Button>
-
-            {renderButton({
-              name: groupName,
-              values: this.generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object: group,
-              confirmationUpdate: true,
-            })}
-          </Modal.Footer>
-        </Modal.Body>
+          {renderButton({
+            name: groupName,
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: group,
+            confirmationUpdate: true,
+          })}
+        </ModalFooter>
       </div>
     );
   };
 
   render() {
-    const { show, closeModal } = this.props;
+    const { group, show, closeModal } = this.props;
+    const groupName = "group";
 
     if (!show) {
       return null;
     }
 
     return (
-      <Modal
+      <Dialog
         show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        animation={false}
+        closeModal={closeModal}
+        title={group ? `Edit ${groupName}` : `Add ${groupName}`}
       >
         <Form renderContent={this.renderContent} />
-      </Modal>
+      </Dialog>
     );
   }
 }

@@ -1,11 +1,16 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 
-const KnowledgeBase = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './containers/KnowledgeBase')
+const KnowledgeBase = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "KnowledgeBase" */ "./containers/KnowledgeBase")
 );
 
-const routes = () => <Route path='/knowledgeBase/' component={KnowledgeBase} />;
+const routes = () => (
+  <Routes>
+    <Route path="/knowledgeBase/" element={<KnowledgeBase />} />
+  </Routes>
+);
 
 export default routes;

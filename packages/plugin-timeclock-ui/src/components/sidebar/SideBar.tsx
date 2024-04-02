@@ -1,29 +1,29 @@
-import { router, __ } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React, { useState } from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { router, __ } from "@erxes/ui/src/utils";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import React, { useState } from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import {
   FlexColumnCustom,
   FlexRow,
   SidebarActions,
   SidebarHeader,
   Trigger,
-} from '../../styles';
-import { CustomRangeContainer } from '../../styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Button from '@erxes/ui/src/components/Button';
-import Select from 'react-select-plus';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { prepareCurrentUserOption } from '../../utils';
+} from "../../styles";
+import { CustomRangeContainer } from "../../styles";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Button from "@erxes/ui/src/components/Button";
+import Select from "react-select";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { prepareCurrentUserOption } from "../../utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   currentUser: IUser;
   isCurrentUserAdmin: boolean;
 
   queryParams: any;
-  history: any;
   branches: IBranch[];
   departments: IDepartment[];
 };
@@ -36,23 +36,24 @@ const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
 
 const LeftSideBar = (props: Props) => {
   const {
-    history,
     branches,
     queryParams,
     departments,
     currentUser,
     isCurrentUserAdmin,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [currUserIds, setUserIds] = useState(queryParams.userIds);
 
   const [selectedBranches, setBranches] = useState(queryParams.branchIds);
   const [selectedDepartments, setDepartments] = useState(
-    queryParams.departmentIds,
+    queryParams.departmentIds
   );
 
   const [isHovered, setIsHovered] = useState(false);
-  const [currentDateOption, setCurrentDateOption] = useState('thisMonth');
+  const [currentDateOption, setCurrentDateOption] = useState("thisMonth");
 
   const onMouseEnter = () => {
     setIsHovered(true);
@@ -63,9 +64,9 @@ const LeftSideBar = (props: Props) => {
   };
 
   const dateOptions = [
-    { label: 'Today', value: 'today' },
-    { label: 'This Week', value: 'thisWeek' },
-    { label: 'This Month', value: 'thisMonth' },
+    { label: "Today", value: "today" },
+    { label: "This Week", value: "thisWeek" },
+    { label: "This Month", value: "thisMonth" },
   ];
 
   const returnTotalUserOptions = () => {
@@ -92,10 +93,10 @@ const LeftSideBar = (props: Props) => {
       };
 
   const [startDate, setStartDate] = useState(
-    queryParams.startDate || startOfThisMonth,
+    queryParams.startDate || startOfThisMonth
   );
   const [endDate, setEndDate] = useState(
-    queryParams.endDate || startOfNextMonth,
+    queryParams.endDate || startOfNextMonth
   );
 
   const cleanFilter = () => {
@@ -105,23 +106,24 @@ const LeftSideBar = (props: Props) => {
     onStartDateChange(startOfThisMonth);
     onEndDateChange(startOfNextMonth);
     router.removeParams(
-      history,
-      'userIds',
-      'branchIds',
-      'startDate',
-      'endDate',
-      'departmentIds',
+      navigate,
+      location,
+      "userIds",
+      "branchIds",
+      "startDate",
+      "endDate",
+      "departmentIds"
     );
     removePageParams();
   };
 
   const removePageParams = () => {
-    router.removeParams(history, 'page', 'perPage');
+    router.removeParams(navigate, location, "page", "perPage");
   };
 
   const setParams = (key: string, value: any) => {
     if (value) {
-      router.setParams(history, {
+      router.setParams(navigate, location, {
         [key]: value,
       });
 
@@ -130,10 +132,10 @@ const LeftSideBar = (props: Props) => {
   };
 
   if (!queryParams.startDate) {
-    setParams('startDate', startOfThisMonth);
+    setParams("startDate", startOfThisMonth);
   }
   if (!queryParams.endDate) {
-    setParams('endDate', startOfNextMonth);
+    setParams("endDate", startOfNextMonth);
   }
 
   const renderDepartmentOptions = (depts: IDepartment[]) => {
@@ -161,7 +163,7 @@ const LeftSideBar = (props: Props) => {
       selectedBranchIds.push(branch.value);
     });
 
-    setParams('branchIds', selectedBranchIds);
+    setParams("branchIds", selectedBranchIds);
   };
 
   const onDepartmentSelect = (selectedDepartment) => {
@@ -173,24 +175,24 @@ const LeftSideBar = (props: Props) => {
       selectedDepartmentIds.push(department.value);
     });
 
-    setParams('departmentIds', selectedDepartmentIds);
+    setParams("departmentIds", selectedDepartmentIds);
   };
 
   const onMemberSelect = (selectedUsers) => {
     setUserIds(selectedUsers);
 
-    setParams('userIds', selectedUsers);
+    setParams("userIds", selectedUsers);
   };
 
   const onStartDateChange = (date) => {
     setStartDate(date);
-    setParams('startDate', date);
+    setParams("startDate", date);
   };
 
   const onEndDateChange = (date) => {
     setEndDate(date);
 
-    setParams('endDate', date);
+    setParams("endDate", date);
   };
 
   const renderSidebarActions = () => {
@@ -201,16 +203,16 @@ const LeftSideBar = (props: Props) => {
             required={false}
             value={startDate}
             name="startDate"
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Starting date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={onStartDateChange}
           />
           <DateControl
             required={false}
             value={endDate}
             name="endDate"
-            placeholder={'Ending date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Ending date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={onEndDateChange}
           />
         </CustomRangeContainer>
@@ -224,26 +226,26 @@ const LeftSideBar = (props: Props) => {
 
   const onDateButtonClick = (type: string) => {
     setCurrentDateOption(type);
-    if (type === 'today') {
+    if (type === "today") {
       const startOfToday = new Date(NOW.setHours(0, 0, 0, 0));
       const endOfToday = new Date(NOW.setHours(23, 59, 59, 999));
       setStartDate(startOfToday);
       setEndDate(endOfToday);
-      setParams('startDate', startOfToday);
-      setParams('endDate', endOfToday);
+      setParams("startDate", startOfToday);
+      setParams("endDate", endOfToday);
     }
 
-    if (type === 'thisMonth') {
+    if (type === "thisMonth") {
       const endOfThisMonth = new Date(startOfNextMonth.getTime() - 1);
 
       setStartDate(startOfThisMonth);
-      setParams('startDate', startOfThisMonth);
+      setParams("startDate", startOfThisMonth);
 
       setEndDate(endOfThisMonth);
-      setParams('endDate', endOfThisMonth);
+      setParams("endDate", endOfThisMonth);
     }
 
-    if (type === 'thisWeek') {
+    if (type === "thisWeek") {
       const startOfThisWeek = new Date(NOW.setHours(0, 0, 0, 0));
       const endOfThisWeek = new Date(NOW.setHours(23, 59, 59, 999));
 
@@ -254,10 +256,10 @@ const LeftSideBar = (props: Props) => {
       endOfThisWeek.setDate(startOfThisWeek.getDate() + 6);
 
       setStartDate(startOfThisWeek);
-      setParams('startDate', startOfThisWeek);
+      setParams("startDate", startOfThisWeek);
 
       setEndDate(endOfThisWeek);
-      setParams('endDate', endOfThisWeek);
+      setParams("endDate", endOfThisWeek);
     }
   };
 
@@ -273,7 +275,7 @@ const LeftSideBar = (props: Props) => {
           return (
             <div
               key={d.value}
-              className={d.value === currentDateOption ? 'active' : 'passive'}
+              className={d.value === currentDateOption ? "active" : "passive"}
               onClick={() => onDateButtonClick(d.value)}
             >
               {d.label}
@@ -291,20 +293,30 @@ const LeftSideBar = (props: Props) => {
         <div>
           <ControlLabel>Departments</ControlLabel>
           <Select
-            value={selectedDepartments}
+            value={
+              departments &&
+              renderDepartmentOptions(departments).filter((o) =>
+                selectedDepartments.includes(o.value)
+              )
+            }
             onChange={onDepartmentSelect}
             placeholder="Select departments"
-            multi={true}
+            isMulti={true}
             options={departments && renderDepartmentOptions(departments)}
           />
         </div>
         <div>
           <ControlLabel>Branches</ControlLabel>
           <Select
-            value={selectedBranches}
+            value={
+              branches &&
+              renderBranchOptions(branches).filter((o) =>
+                selectedBranches.includes(o.value)
+              )
+            }
             onChange={onBranchSelect}
             placeholder="Select branches"
-            multi={true}
+            isMulti={true}
             options={branches && renderBranchOptions(branches)}
           />
         </div>

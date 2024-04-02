@@ -7,7 +7,6 @@ import { CollateralsTableWrapper } from "../styles";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { ICollateral } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
@@ -17,16 +16,15 @@ import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import { menuContracts } from "../../constants";
-// import { withRouter } from 'react-router-dom';
 import withConsumer from "../../withConsumer";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   collaterals: ICollateral[];
   loading: boolean;
   searchValue: string;
   productIds: string[];
   totalCount: number;
-  history: any;
   queryParams: any;
   currentUser: IUser;
 }
@@ -35,20 +33,15 @@ const CollateralsList = (props: IProps) => {
   const timerRef = useRef<number | null>(null);
   const [searchValue, setSearchValue] = useState(props.searchValue);
   const [productIds, setProductIds] = useState(props.productIds);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const {
-    collaterals,
-    history,
-    loading,
-    totalCount,
-    queryParams,
-    currentUser,
-  } = props;
+  const { collaterals, loading, totalCount, queryParams, currentUser } = props;
 
   const onSelectProducts = (productIds) => {
     setProductIds(productIds);
-    router.removeParams(history, "page");
-    router.setParams(history, { productIds });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { productIds });
   };
 
   const search = (e) => {
@@ -56,13 +49,12 @@ const CollateralsList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -123,7 +115,6 @@ const CollateralsList = (props: IProps) => {
                   ? collateral.collateralData._id
                   : collateral._id
               }`}
-              history={history}
             />
           ))}
         </tbody>
@@ -169,7 +160,6 @@ const CollateralsList = (props: IProps) => {
         <Sidebar
           loadingMainQuery={loading}
           queryParams={queryParams}
-          history={history}
         />
       }
       content={

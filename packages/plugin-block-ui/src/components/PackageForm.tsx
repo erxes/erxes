@@ -9,12 +9,12 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from "@erxes/ui/src";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { useState } from "react";
-import Select from "react-select-plus";
-import { LEVEL } from "../constants";
-import { IPackage, IPackageDoc } from "../types";
+} from '@erxes/ui/src';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React, { useState } from 'react';
+import Select from 'react-select';
+import { LEVEL } from '../constants';
+import { IPackage, IPackageDoc } from '../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -93,10 +93,10 @@ const PackageForm: React.FC<Props> = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Level</ControlLabel>
                 <Select
-                  value={state.level}
+                  value={LEVEL.find((o) => o.value === state.level)}
                   onChange={onLevelChange}
                   options={LEVEL}
-                  clearable={false}
+                  isClearable={false}
                 />
               </FormGroup>
             </FormColumn>

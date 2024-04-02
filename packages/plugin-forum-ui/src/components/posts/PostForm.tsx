@@ -1,3 +1,4 @@
+import { readFile } from "@erxes/ui/src/utils";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import {
   IAttachment,
@@ -5,9 +6,10 @@ import {
   IFormProps,
 } from "@erxes/ui/src/types";
 import { ICategory, IPollOption, IPost, ITag } from "../../types";
-
+import { SelectTeamMembers } from "@erxes/ui/src";
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import { CustomRangeContainer } from "../../styles";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
@@ -16,13 +18,10 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PollOptions from "./PollOptions";
 import React from "react";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select from "react-select-plus";
-import { SelectTeamMembers } from "@erxes/ui/src";
+import Select from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
-import { readFile } from "@erxes/ui/src/utils";
 
 type Props = {
   post?: IPost;
@@ -276,9 +275,11 @@ class PostForm extends React.Component<Props, State> {
           <Select
             placeholder={__("Choose tags")}
             options={renderTagOptions()}
-            value={selectedTags}
+            value={renderTagOptions().filter((o) =>
+              selectedTags.includes(o.value)
+            )}
             onChange={onChange}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 

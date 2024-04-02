@@ -9,7 +9,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils/core";
 import { icons } from "../../icons.constant";
 
@@ -112,7 +112,7 @@ const CategoryForm = (props: Props) => {
 
         <Select
           placeholder={__("Choose knowledgebase")}
-          value={topicId}
+          value={generateOptions(topics).find((o) => o.value === topicId)}
           options={generateOptions(topics)}
           onChange={onChange}
         />
@@ -146,10 +146,12 @@ const CategoryForm = (props: Props) => {
 
         <Select
           placeholder={__("Choose category")}
-          value={parentCategoryId}
+          value={generateOptions(categories, true).find(
+            (o) => o.value === parentCategoryId
+          )}
           options={generateOptions(categories, true)}
           onChange={onChange}
-          clearable={false}
+          isClearable={false}
         />
       </FormGroup>
     );
@@ -189,11 +191,11 @@ const CategoryForm = (props: Props) => {
           <ControlLabel required={true}>Icon</ControlLabel>
           <Select
             required={true}
-            value={selectedIcon}
+            value={icons.find((o) => o.value === selectedIcon)}
             options={icons}
             onChange={handleIconChange}
-            optionRenderer={renderOption}
-            valueRenderer={renderOption}
+            // optionRenderer={renderOption}
+            // valueRenderer={renderOption}
           />
         </FormGroup>
 

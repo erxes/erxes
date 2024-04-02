@@ -21,8 +21,8 @@ import {
   IAttachment,
 } from "@erxes/ui/src/types";
 import { ChooseColor, BackgroundSelector } from "../../styles";
-import React, { useEffect, useReducer, useState } from "react";
-import Select from "react-select-plus";
+import React, { useState } from "react";
+import Select from "react-select";
 
 import {
   CAR_BODY_TYPES,
@@ -242,30 +242,30 @@ const CarForm = (props: Props) => {
             <FormGroup>
               <ControlLabel>Body Type</ControlLabel>
               <Select
-                value={state.bodyType}
+                value={CAR_BODY_TYPES.find((o) => o.value === state.bodyType)}
                 onChange={onBodyTypeChange}
                 options={CAR_BODY_TYPES}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Fuel Type</ControlLabel>
               <Select
-                value={state.fuelType}
+                value={CAR_FUEL_TYPES.find((o) => o.value === state.fuelType)}
                 onChange={onFuelTypeChange}
                 options={CAR_FUEL_TYPES}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Gear Box</ControlLabel>
               <Select
-                value={state.gearBox}
+                value={CAR_GEAR_BOXS.find((o) => o.value === state.gearBox)}
                 onChange={onGearBoxChange}
                 options={CAR_GEAR_BOXS}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
           </FormColumn>

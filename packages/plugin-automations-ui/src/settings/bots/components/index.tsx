@@ -119,7 +119,7 @@ function Settings() {
       mainHead={header}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title capitalize={true}>{__('Bots config')}</Title>}
+          left={<Title $capitalize={true}>{__('Bots config')}</Title>}
           right={actionButtons}
           wideSpacing={true}
         />

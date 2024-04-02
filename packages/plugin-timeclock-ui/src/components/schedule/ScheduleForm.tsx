@@ -10,7 +10,7 @@ import {
   IScheduleConfigOrder,
   ISchedule,
 } from "../../types";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
 import {
   FlexCenter,
@@ -22,8 +22,7 @@ import {
   CustomContainer,
 } from "../../styles";
 
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
 import Icon from "@erxes/ui/src/components/Icon";
 
@@ -49,7 +48,6 @@ type Props = {
 
   scheduleOfMember?: any;
   queryParams: any;
-  history: any;
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
   scheduleConfigOrder?: IScheduleConfigOrder;
@@ -187,7 +185,7 @@ function ScheduleForm(props: Props) {
   );
 
   const [departmentIds, setDepartmentIds] = useState([]);
-  const [branchIds, setBranchIds] = useState([]);
+  const [branchIds, setBranchIds] = useState<any[]>([]);
 
   const [showScheduleConfigOrder, setShowScheduleConfigOrder] = useState(false);
 
@@ -586,19 +584,17 @@ function ScheduleForm(props: Props) {
     <FlexColumn marginNum={20}>
       <FlexRow>
         <div style={{ width: "60%" }}>
-          <OverlayTrigger
-            ref={(overlay) => setOverlayTrigger(overlay)}
+          <Popover
             placement="top-start"
-            trigger="click"
-            overlay={renderDateSelection()}
-            container={this}
-            rootClose={this}
+            trigger={
+              <PopoverButton>
+                {__("Please select date")}
+                <Icon icon="angle-down" />
+              </PopoverButton>
+            }
           >
-            <PopoverButton>
-              {__("Please select date")}
-              <Icon icon="angle-down" />
-            </PopoverButton>
-          </OverlayTrigger>
+            {renderDateSelection()}
+          </Popover>
         </div>
         {displayStartEndBreak}
       </FlexRow>
@@ -625,8 +621,10 @@ function ScheduleForm(props: Props) {
         <Select
           options={renderScheduleConfigOptions()}
           onChange={onScheduleConfigSelectForAll}
-          multi={false}
-          value={selectedScheduleConfigId}
+          isMulti={false}
+          value={renderScheduleConfigOptions().find(
+            (o) => o.value === selectedScheduleConfigId
+          )}
         />
       </FormGroup>
       {dateSelection()}
@@ -786,6 +784,13 @@ function ScheduleForm(props: Props) {
   );
 
   const adminConfigDefaultContent = () => {
+    const contentTypeOptions = ["By Date Range", "By Date Selection"].map(
+      (day) => ({
+        value: day,
+        label: __(day),
+      })
+    );
+
     return (
       <FlexColumn marginNum={10}>
         <div style={{ marginBottom: "0" }}>
@@ -801,11 +806,16 @@ function ScheduleForm(props: Props) {
             <ControlLabel>Branches</ControlLabel>
             <Row>
               <Select
-                disabled={scheduleId ? true : false}
-                value={branchIds}
+                isDisabled={scheduleId ? true : false}
+                value={
+                  branches &&
+                  renderBranchOptions(branches).filter((o) =>
+                    branchIds.includes(o.value)
+                  )
+                }
                 onChange={onBranchSelect}
                 placeholder="Select branch"
-                multi={true}
+                isMulti={true}
                 options={branches && renderBranchOptions(branches)}
               />
             </Row>
@@ -835,8 +845,10 @@ function ScheduleForm(props: Props) {
           <Select
             options={renderScheduleConfigOptions()}
             onChange={onScheduleConfigSelectForAll}
-            multi={false}
-            value={selectedScheduleConfigId}
+            isMulti={false}
+            value={renderScheduleConfigOptions().find(
+              (o) => o.value === selectedScheduleConfigId
+            )}
           />
         </FormGroup>
 
@@ -854,13 +866,10 @@ function ScheduleForm(props: Props) {
         </FormGroup>
 
         <Select
-          value={contentType}
+          value={contentTypeOptions.find((o) => o.value === contentType)}
           onChange={onContentTypeSelect}
           placeholder="Select Content Type"
-          options={["By Date Range", "By Date Selection"].map((day) => ({
-            value: day,
-            label: __(day),
-          }))}
+          options={contentTypeOptions}
         />
 
         <MarginY margin={20}>{displayTotalDaysHoursBreakMins()}</MarginY>
@@ -1047,25 +1056,23 @@ function ScheduleForm(props: Props) {
 
   const renderDateSelection = () => {
     return (
-      <Popover id="schedule-date-select-popover" content={true}>
-        <div style={{ position: "relative" }}>
-          <Datetime
-            open={true}
-            input={false}
-            value={lastSelectedDate}
-            renderDay={renderDay}
-            closeOnSelect={false}
-            timeFormat={false}
-            onChange={onDateSelectChange}
-            inputProps={{ required: false }}
-          />
-          <FlexCenter>
-            <MarginY margin={10}>
-              <Button onClick={closePopover}>Close</Button>
-            </MarginY>
-          </FlexCenter>
-        </div>
-      </Popover>
+      <div style={{ position: "relative" }}>
+        <Datetime
+          open={true}
+          input={false}
+          value={lastSelectedDate}
+          renderDay={renderDay}
+          closeOnSelect={false}
+          timeFormat={false}
+          onChange={onDateSelectChange}
+          inputProps={{ required: false }}
+        />
+        <FlexCenter>
+          <MarginY margin={10}>
+            <Button onClick={closePopover}>Close</Button>
+          </MarginY>
+        </FlexCenter>
+      </div>
     );
   };
 
@@ -1073,19 +1080,17 @@ function ScheduleForm(props: Props) {
     <FlexColumn marginNum={20}>
       <FlexRow>
         <div style={{ width: "60%" }}>
-          <OverlayTrigger
-            ref={(overlay) => setOverlayTrigger(overlay)}
+          <Popover
             placement="top-start"
-            trigger="click"
-            overlay={renderDateSelection()}
-            container={this}
-            rootClose={this}
+            trigger={
+              <PopoverButton>
+                {__("Please select date")}
+                <Icon icon="angle-down" />
+              </PopoverButton>
+            }
           >
-            <PopoverButton>
-              {__("Please select date")}
-              <Icon icon="angle-down" />
-            </PopoverButton>
-          </OverlayTrigger>
+            {renderDateSelection()}
+          </Popover>
         </div>
         {displayStartEndBreak}
       </FlexRow>

@@ -9,27 +9,26 @@ import DateControl from "@erxes/ui/src/components/form/DateControl";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IKhanbankStatement } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Row from "./Row";
 import Table from "@erxes/ui/src/components/table";
 import { __ } from "@erxes/ui/src/utils/core";
 import dayjs from "dayjs";
-
-// import { withRouter } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   statement: IKhanbankStatement;
   queryParams: any;
-  history?: any;
   loading: boolean;
   showLatest?: boolean;
   // onChangeDate: (date: string, type: 'startDate' | 'endDate') => void;
   refetch?: () => void;
-} & IRouterProps;
+};
 
 const List = (props: Props) => {
-  const { queryParams, loading, statement, history } = props;
+  const { queryParams, loading, statement } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [type, setType] = useState(queryParams.type || "all");
   const [transactions, setTransactions] = useState(
@@ -102,7 +101,9 @@ const List = (props: Props) => {
             defaultValue={type}
             onChange={(e: any) => {
               setType(e.currentTarget.value);
-              routerUtils.setParams(history, { type: e.currentTarget.value });
+              routerUtils.setParams(navigate, location, {
+                type: e.currentTarget.value,
+              });
             }}
           >
             {["all", "income", "outcome"].map((t) => (
@@ -117,7 +118,7 @@ const List = (props: Props) => {
             required={false}
             name="startDate"
             onChange={(date: any) => {
-              routerUtils.setParams(history, {
+              routerUtils.setParams(navigate, location, {
                 startDate: dayjs(date).format("YYYY-MM-DD"),
               });
             }}
@@ -131,7 +132,7 @@ const List = (props: Props) => {
             name="endDate"
             placeholder={"End date"}
             onChange={(date: any) => {
-              routerUtils.setParams(history, {
+              routerUtils.setParams(navigate, location, {
                 endDate: dayjs(date).format("YYYY-MM-DD"),
               });
             }}

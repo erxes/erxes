@@ -1,17 +1,17 @@
-import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
+import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
 
-import { ISpinCampaign } from '../../../configs/spinCampaign/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { SidebarListItem } from '../../common/styles';
-import queryString from 'query-string';
+import { ISpinCampaign } from "../../../configs/spinCampaign/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { SidebarListItem } from "../../common/styles";
+import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   refetch: any;
   spinCampaigns: ISpinCampaign[];
@@ -19,20 +19,22 @@ interface IProps {
   loading: boolean;
 }
 
-class List extends React.Component<IProps> {
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { campaignId: null });
+const List = (props: IProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const clearCategoryFilter = () => {
+    router.setParams(navigate, location, { campaignId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.campaignId || '';
+  const isActive = (id: string) => {
+    const { queryParams } = props;
+    const currentGroup = queryParams.campaignId || "";
 
     return currentGroup === id;
   };
 
-  renderContent() {
-    const { spinCampaigns, queryParams } = this.props;
+  const renderContent = () => {
+    const { spinCampaigns, queryParams } = props;
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
@@ -46,7 +48,7 @@ class List extends React.Component<IProps> {
       result.push(
         <SidebarListItem
           key={campaign._id}
-          isActive={campaign._id ? this.isActive(campaign._id) : false}
+          isActive={campaign._id ? isActive(campaign._id) : false}
         >
           <Link to={`?${qryString}&campaignId=${campaign._id}`}>{name}</Link>
         </SidebarListItem>
@@ -54,20 +56,20 @@ class List extends React.Component<IProps> {
     }
 
     return result;
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     return (
       <>
         <Section.Title>
           <Link to={`/erxes-plugin-loyalty/settings/spin`}>
             <Icon icon="cog" />
-            {__('Manage Spin Campaigns')}
+            {__("Manage Spin Campaigns")}
           </Link>
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'campaignId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+            {router.getParam(location, "campaignId") && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -76,14 +78,14 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { spinCampaignsCount, loading } = this.props;
+  const renderCategoryList = () => {
+    const { spinCampaignsCount, loading } = props;
 
     return (
       <DataWithLoader
-        data={this.renderContent()}
+        data={renderContent()}
         loading={loading}
         count={spinCampaignsCount}
         emptyText="There is no spin campaigns"
@@ -91,21 +93,16 @@ class List extends React.Component<IProps> {
         size="small"
       />
     );
-  }
+  };
 
-  render() {
-    return (
-      <Sidebar hasBorder={true}>
-        <Section
-          maxHeight={188}
-          collapsible={this.props.spinCampaignsCount > 5}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar hasBorder={true}>
+      <Section maxHeight={188} $collapsible={props.spinCampaignsCount > 5}>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+    </Sidebar>
+  );
+};
 
 export default List;

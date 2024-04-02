@@ -1,28 +1,21 @@
-import * as compose from 'lodash.flowright';
 
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
+import { Alert, Bulk, router } from '@erxes/ui/src';
 import {
-  ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
 } from '../types';
 import { mutations, queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
 import GoalTypesList from '../components/goalTypesList';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const goalTypesList = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const goalTypesMainQuery = useQuery<MainQueryResponse>(
     gql(queries.goalTypesMain),

@@ -9,7 +9,6 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {

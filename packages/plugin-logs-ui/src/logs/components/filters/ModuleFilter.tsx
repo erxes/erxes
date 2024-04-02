@@ -3,14 +3,14 @@ import {
   SidebarList,
   Box,
   FormControl,
-  DataWithLoader
-} from '@erxes/ui/src';
-import { __, router } from 'coreui/utils';
-import React from 'react';
-import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
+  DataWithLoader,
+} from "@erxes/ui/src";
+import { __, router } from "coreui/utils";
+import React from "react";
+import { CustomPadding } from "@erxes/ui-contacts/src/customers/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -18,72 +18,74 @@ type Props = {
 // consider both ends when changing
 const moduleOptions = [
   // cards service items
-  { value: 'cards:board', label: 'Boards' },
-  { value: 'cards:dealBoards', label: 'Deal boards' },
-  { value: 'cards:purchaseBoards', label: 'Purchase boards' },
-  { value: 'cards:taskBoards', label: 'Task boards' },
-  { value: 'cards:ticketBoards', label: 'Ticket boards' },
-  { value: 'cards:growthHackBoards', label: 'Growth hack boards' },
-  { value: 'cards:dealPipelines', label: 'Deal pipelines' },
-  { value: 'cards:purchasePipelines', label: 'Purchase pipelines' },
-  { value: 'cards:taskPipelines', label: 'Task pipelines' },
-  { value: 'cards:ticketPipelines', label: 'Ticket pipelines' },
-  { value: 'cards:growthHackPipelines', label: 'Growth hack pipelines' },
-  { value: 'cards:checklist', label: 'Checklists' },
-  { value: 'cards:checkListItem', label: 'Checklist items' },
-  { value: 'cards:deal', label: 'Deals' },
-  { value: 'cards:purchase', label: 'Purchases' },
-  { value: 'cards:task', label: 'Tasks' },
-  { value: 'cards:ticket', label: 'Tickets' },
-  { value: 'cards:pipelineLabel', label: 'Pipeline labels' },
-  { value: 'cards:pipelineTemplate', label: 'Pipeline templates' },
-  { value: 'cards:growthHack', label: 'Growth hacks' },
-  { value: 'cards:dealStages', label: 'Deal stages' },
-  { value: 'cards:purchaseStages', label: 'Purchase stages' },
-  { value: 'cards:taskStages', label: 'Task stages' },
-  { value: 'cards:ticketStages', label: 'Ticket stages' },
-  { value: 'cards:growthHackStages', label: 'Growth hack stages' },
+  { value: "cards:board", label: "Boards" },
+  { value: "cards:dealBoards", label: "Deal boards" },
+  { value: "cards:purchaseBoards", label: "Purchase boards" },
+  { value: "cards:taskBoards", label: "Task boards" },
+  { value: "cards:ticketBoards", label: "Ticket boards" },
+  { value: "cards:growthHackBoards", label: "Growth hack boards" },
+  { value: "cards:dealPipelines", label: "Deal pipelines" },
+  { value: "cards:purchasePipelines", label: "Purchase pipelines" },
+  { value: "cards:taskPipelines", label: "Task pipelines" },
+  { value: "cards:ticketPipelines", label: "Ticket pipelines" },
+  { value: "cards:growthHackPipelines", label: "Growth hack pipelines" },
+  { value: "cards:checklist", label: "Checklists" },
+  { value: "cards:checkListItem", label: "Checklist items" },
+  { value: "cards:deal", label: "Deals" },
+  { value: "cards:purchase", label: "Purchases" },
+  { value: "cards:task", label: "Tasks" },
+  { value: "cards:ticket", label: "Tickets" },
+  { value: "cards:pipelineLabel", label: "Pipeline labels" },
+  { value: "cards:pipelineTemplate", label: "Pipeline templates" },
+  { value: "cards:growthHack", label: "Growth hacks" },
+  { value: "cards:dealStages", label: "Deal stages" },
+  { value: "cards:purchaseStages", label: "Purchase stages" },
+  { value: "cards:taskStages", label: "Task stages" },
+  { value: "cards:ticketStages", label: "Ticket stages" },
+  { value: "cards:growthHackStages", label: "Growth hack stages" },
   // core-api service items
-  { value: 'core:brand', label: 'Brands' },
-  { value: 'core:permission', label: 'Permissions' },
-  { value: 'core:user', label: 'Users' },
-  { value: 'core:userGroup', label: 'User groups' },
-  { value: 'core:config', label: 'Config' },
+  { value: "core:brand", label: "Brands" },
+  { value: "core:permission", label: "Permissions" },
+  { value: "core:user", label: "Users" },
+  { value: "core:userGroup", label: "User groups" },
+  { value: "core:config", label: "Config" },
   // inbox service items
-  { value: 'inbox:integration', label: 'Integrations' },
-  { value: 'inbox:channel', label: 'Channels' },
+  { value: "inbox:integration", label: "Integrations" },
+  { value: "inbox:channel", label: "Channels" },
   // contacts service items
-  { value: 'contacts:company', label: 'Companies' },
-  { value: 'contacts:customer', label: 'Customers' },
+  { value: "contacts:company", label: "Companies" },
+  { value: "contacts:customer", label: "Customers" },
   // products service items
-  { value: 'products:product', label: 'Products' },
-  { value: 'products:product-category', label: 'Product categories' },
+  { value: "products:product", label: "Products" },
+  { value: "products:product-category", label: "Product categories" },
   // knowledgebase service items
-  { value: 'knowledgebase:knowledgeBaseTopic', label: 'Knowledgebase topics' },
+  { value: "knowledgebase:knowledgeBaseTopic", label: "Knowledgebase topics" },
   {
-    value: 'knowledgebase:knowledgeBaseCategory',
-    label: 'Knowledgebase categories'
+    value: "knowledgebase:knowledgeBaseCategory",
+    label: "Knowledgebase categories",
   },
   {
-    value: 'knowledgebase:knowledgeBaseArticle',
-    label: 'Knowledgebase articles'
+    value: "knowledgebase:knowledgeBaseArticle",
+    label: "Knowledgebase articles",
   },
   // others
-  { value: 'engages:engage', label: 'Campaigns' },
-  { value: 'internalnotes:internalNote', label: 'Internal notes' },
-  { value: 'tags:tag', label: 'Tags' },
-  { value: 'segments:segment', label: 'Segments' },
-  { value: 'responseTemplate', label: 'Response templates' },
-  { value: 'emailTemplate', label: 'Email templates' },
-  { value: 'importHistory', label: 'Import histories' },
-  { value: 'script', label: 'Scripts' },
-  { value: 'pricing:pricingPlan', label: 'PricingPlan' }
+  { value: "engages:engage", label: "Campaigns" },
+  { value: "internalnotes:internalNote", label: "Internal notes" },
+  { value: "tags:tag", label: "Tags" },
+  { value: "segments:segment", label: "Segments" },
+  { value: "responseTemplate", label: "Response templates" },
+  { value: "emailTemplate", label: "Email templates" },
+  { value: "importHistory", label: "Import histories" },
+  { value: "script", label: "Scripts" },
+  { value: "pricing:pricingPlan", label: "PricingPlan" },
 ];
 
-function ModuleFilter({ history, queryParams }: Props) {
+function ModuleFilter({ queryParams }: Props) {
   const timerRef = React.useRef<number | null>(null);
-  const [searchValue, setSearchValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState("");
   const [modules, setModules] = React.useState(moduleOptions);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     if (!queryParams.type) {
@@ -97,24 +99,24 @@ function ModuleFilter({ history, queryParams }: Props) {
   }, [queryParams.type, queryParams.searchModule]);
 
   const resetFilter = () => {
-    setSearchValue('');
+    setSearchValue("");
     setModules(moduleOptions);
   };
 
   const applyModuleFilter = (value: string) => {
     setSearchValue(value);
-    const filteredModules = moduleOptions.filter(module =>
+    const filteredModules = moduleOptions.filter((module) =>
       module.label.toLowerCase().includes(value.toLowerCase())
     );
     setModules(filteredModules);
   };
 
   const onClick = (module: { value: string; label: string }) => {
-    router.setParams(history, { type: module.value });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { type: module.value });
+    router.removeParams(navigate, location, "page");
   };
 
-  const searchModule = e => {
+  const searchModule = (e) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -124,7 +126,7 @@ function ModuleFilter({ history, queryParams }: Props) {
     applyModuleFilter(inputValue);
 
     timerRef.current = window.setTimeout(() => {
-      router.setParams(history, { searchModule: inputValue });
+      router.setParams(navigate, location, { searchModule: inputValue });
     }, 500);
   };
 
@@ -133,7 +135,7 @@ function ModuleFilter({ history, queryParams }: Props) {
       <a
         href="#filter"
         tabIndex={0}
-        className={queryParams.type === module.value ? 'active' : ''}
+        className={queryParams.type === module.value ? "active" : ""}
         onClick={() => onClick(module)}
       >
         <FieldStyle>{module.label}</FieldStyle>
@@ -142,14 +144,14 @@ function ModuleFilter({ history, queryParams }: Props) {
   );
 
   const data = (
-    <SidebarList style={{ paddingBottom: '10px' }}>
+    <SidebarList style={{ paddingBottom: "10px" }}>
       {modules.map(renderModule)}
     </SidebarList>
   );
 
   return (
     <Box
-      title={__('Filter by Module')}
+      title={__("Filter by Module")}
       collapsible={modules.length > 5}
       name="showFilterByModule"
       isOpen={queryParams.type}
@@ -158,7 +160,7 @@ function ModuleFilter({ history, queryParams }: Props) {
         <FormControl
           type="text"
           onChange={searchModule}
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           value={searchValue}
         />
       </CustomPadding>
@@ -166,7 +168,7 @@ function ModuleFilter({ history, queryParams }: Props) {
         data={data}
         loading={false}
         count={modules.length}
-        emptyText={'There is no Module'}
+        emptyText={"There is no Module"}
         emptyIcon="leaf"
         size="small"
         objective={true}

@@ -1,32 +1,31 @@
-import React, { useState, useRef } from 'react';
-import RTG from 'react-transition-group';
+import React, { useState, useRef } from "react";
+import RTG from "react-transition-group";
 
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import Button from '@erxes/ui/src/components/Button';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-import queryString from 'query-string';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { BarItems } from '@erxes/ui/src';
-import { __ } from '@erxes/ui/src/utils/index';
-import { getEnv } from '@erxes/ui/src/utils/index';
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Icon from "@erxes/ui/src/components/Icon";
+import Button from "@erxes/ui/src/components/Button";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import queryString from "query-string";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { BarItems } from "@erxes/ui/src";
+import { __ } from "@erxes/ui/src/utils/index";
+import { getEnv } from "@erxes/ui/src/utils/index";
 
-import Participators from '../utils/Participators';
-import Form from '../../containers/chart/Form';
-import SelectMembersPopover from '../utils/SelectMembersPopover';
-import { ChartTitle, ContentContainer, DragField } from '../../styles';
-import { defaultLayout, deserializeItem } from '../../utils';
-import { RightDrawerContainer } from '../../styles';
-import { IDashboard } from '../../types';
+import Participators from "../utils/Participators";
+import Form from "../../containers/chart/Form";
+import SelectMembersPopover from "../utils/SelectMembersPopover";
+import { ChartTitle, ContentContainer, DragField } from "../../styles";
+import { defaultLayout, deserializeItem } from "../../utils";
+import { RightDrawerContainer } from "../../styles";
+import { IDashboard } from "../../types";
 
 type Props = {
   queryParams: any;
-  history: any;
   dashboard: IDashboard;
   loading: boolean;
   dashboardChartsRemove: (_id: string) => void;
@@ -38,7 +37,6 @@ type Props = {
 const Dashboard = (props: Props) => {
   const {
     queryParams,
-    history,
     dashboard,
     loading,
     dashboardChartsRemove,
@@ -60,7 +58,7 @@ const Dashboard = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__(`${dashboard.name || ''}`)}</Title>;
+    const leftActionBar = <Title>{__(`${dashboard.name || ""}`)}</Title>;
 
     const trigger = (
       <div>
@@ -79,7 +77,7 @@ const Dashboard = (props: Props) => {
         {/* <Button btnStyle="simple" onClick={() => {}} icon="arrow-to-bottom">
           Export
         </Button> */}
-        {dashboard.visibility === 'private' && (
+        {dashboard.visibility === "private" && (
           <SelectMembersPopover
             targets={[dashboard]}
             trigger={trigger}
@@ -111,7 +109,7 @@ const Dashboard = (props: Props) => {
                 }}
               >
                 <Icon icon="copy" />
-                {__('Duplicate')}
+                {__("Duplicate")}
               </a>
             </li>
             <li>
@@ -123,7 +121,7 @@ const Dashboard = (props: Props) => {
               >
                 <Icon icon="trash-alt" />
 
-                {__('Delete')}
+                {__("Delete")}
               </a>
             </li>
           </Dropdown.Menu>
@@ -135,7 +133,7 @@ const Dashboard = (props: Props) => {
   };
 
   const handleChartDelete = (_id: string) => {
-    confirm('Are you sure to delete this chart').then(() => {
+    confirm("Are you sure to delete this chart").then(() => {
       dashboardChartsRemove(_id);
     });
   };
@@ -164,7 +162,7 @@ const Dashboard = (props: Props) => {
     });
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`,
+      `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`
     );
   };
 
@@ -179,11 +177,11 @@ const Dashboard = (props: Props) => {
       <div
         key={chart._id || Math.random()}
         data-grid={defaultLayout(chart, index)}
-        style={{ overflow: 'hidden' }}
+        style={{ overflow: "hidden" }}
       >
         <ChartTitle>
           <div>{chart.name}</div>
-          {chartType && chartType === 'table' && (
+          {chartType && chartType === "table" && (
             <span
               className="db-chart-action"
               onClick={() => exportTable(chart)}
@@ -208,7 +206,6 @@ const Dashboard = (props: Props) => {
           </span>
         </ChartTitle>
         <ChartRenderer
-          history={history}
           queryParams={queryParams}
           chartType={chart.chartType}
           chartHeight={defaultLayout(chart, index).h * 160}
@@ -245,7 +242,7 @@ const Dashboard = (props: Props) => {
           </DragField>
         }
         loading={loading}
-        emptyText={__('No data for this dashboard')}
+        emptyText={__("No data for this dashboard")}
         emptyImage="/images/actions/11.svg"
       />
     );
@@ -266,7 +263,6 @@ const Dashboard = (props: Props) => {
             <RightDrawerContainer width={100}>
               {
                 <Form
-                  history={history}
                   queryParams={queryParams}
                   chart={currentChart}
                   item={dashboard}

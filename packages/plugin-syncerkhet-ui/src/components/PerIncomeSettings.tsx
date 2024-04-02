@@ -301,6 +301,10 @@ class PerSettings extends React.Component<Props, State> {
 
   render() {
     const { config } = this.state;
+    const responseFieldOptions = (this.state.fieldsCombined || []).map((f) => ({
+      value: f.name,
+      label: f.label,
+    }));
     return (
       <CollapseContent
         title={__(config.title)}
@@ -335,12 +339,11 @@ class PerSettings extends React.Component<Props, State> {
               <ControlLabel>{__("Choose response field")}</ControlLabel>
               <Select
                 name="responseField"
-                value={config.responseField}
+                value={responseFieldOptions.find(
+                  (o) => o.value === config.responseField
+                )}
                 onChange={this.onresponseCustomFieldChange}
-                options={(this.state.fieldsCombined || []).map((f) => ({
-                  value: f.name,
-                  label: f.label,
-                }))}
+                options={responseFieldOptions}
               />
             </FormGroup>
           </FormColumn>

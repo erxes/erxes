@@ -19,15 +19,17 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import VerificationForm from '../../containers/details/VerificationForm';
 import CompanyAssignForm from '../../containers/details/CompanyAssignForm';
 import { Button } from '@erxes/ui/src/components';
+import { useNavigate } from 'react-router-dom';
+
 type Props = {
   clientPortalUser: IClientPortalUser;
-  history: any;
 
   queryParams?: any;
 };
 
 const LeftSidebar: React.FC<Props> = (props: Props) => {
-  const { clientPortalUser, history, queryParams } = props;
+  const { clientPortalUser, queryParams } = props;
+  const navigate = useNavigate()
   const renderCustomer = () => {
     return renderFullName(clientPortalUser.customer);
   };
@@ -139,10 +141,10 @@ const LeftSidebar: React.FC<Props> = (props: Props) => {
 
   const onClick = () => {
     if (clientPortalUser.type === 'customer') {
-      history.push(`/contacts/details/${clientPortalUser.erxesCustomerId}`);
+      navigate(`/contacts/details/${clientPortalUser.erxesCustomerId}`);
     }
     if (clientPortalUser.type === 'company') {
-      history.push(`/companies/details/${clientPortalUser.erxesCompanyId}`);
+      navigate(`/companies/details/${clientPortalUser.erxesCompanyId}`);
     }
   };
 

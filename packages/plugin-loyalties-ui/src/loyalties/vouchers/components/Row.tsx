@@ -18,7 +18,6 @@ import { ModalTrigger } from "@erxes/ui/src/components";
 type Props = {
   voucher: IVoucher;
   currentCampaign?: IVoucherCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (voucher: IVoucher, isChecked?: boolean) => void;
   queryParams: IQueryParams;

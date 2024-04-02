@@ -13,12 +13,10 @@ import {
   Wrapper,
   confirm,
 } from "@erxes/ui/src";
-// import { withRouter } from 'react-router-dom';
 import { ORGANIZATION_TYPE, menuContracts } from "../../constants";
 
 import { ContractsTableWrapper } from "../../contracts/styles";
 import Dropdown from "react-bootstrap/Dropdown";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { ITransaction } from "../types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import InterestChange from "../../contracts/containers/detail/InterestChange";
@@ -30,7 +28,7 @@ import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import withConsumer from "../../withConsumer";
 
-interface IProps extends IRouterProps {
+interface IProps {
   transactions: ITransaction[];
   loading: boolean;
   totalCount: number;
@@ -57,7 +55,6 @@ const TransactionsList = (props: IProps) => {
   const {
     transactions,
     toggleAll,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -153,7 +150,6 @@ const TransactionsList = (props: IProps) => {
               transaction={transaction}
               isChecked={bulk.includes(transaction)}
               key={transaction._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

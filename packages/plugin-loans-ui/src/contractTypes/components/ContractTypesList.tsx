@@ -9,7 +9,6 @@ import { ContractTypesTableWrapper } from "../styles";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IContractType } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import SortHandler from "@erxes/ui/src/components/SortHandler";
@@ -17,10 +16,9 @@ import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
+interface IProps {
   contractTypes: IContractType[];
   loading: boolean;
   searchValue: string;
@@ -35,7 +33,6 @@ interface IProps extends IRouterProps {
     doc: { contractTypeIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
@@ -45,7 +42,6 @@ const ContractTypesList = (props: IProps) => {
 
   const {
     contractTypes,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -54,6 +50,8 @@ const ContractTypesList = (props: IProps) => {
     queryParams,
     toggleAll,
   } = props;
+
+  const navigate = useNavigate();
 
   const onChange = () => {
     toggleAll(contractTypes, "contractTypes");
@@ -64,13 +62,12 @@ const ContractTypesList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -126,7 +123,6 @@ const ContractTypesList = (props: IProps) => {
               contractType={contractType}
               isChecked={bulk.includes(contractType)}
               key={contractType._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

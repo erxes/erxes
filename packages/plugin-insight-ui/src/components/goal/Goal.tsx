@@ -18,14 +18,13 @@ import { ContentContainer, DragField } from '../../styles';
 import { IGoalType, ISpecificPeriodGoal } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   goal: IGoalType;
   loading: boolean;
 };
 
 const Goal = (props: Props) => {
-  const { goal, loading, queryParams, history } = props;
+  const { goal, loading, queryParams } = props;
   const [specificPeriodGoals, setSpecificPeriodGoals] = useState<
     ISpecificPeriodGoal[]
   >([]);

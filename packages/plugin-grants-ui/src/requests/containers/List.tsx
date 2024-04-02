@@ -1,19 +1,18 @@
-import React from 'react';
-import List from '../components/List';
-import { gql } from '@apollo/client';
-import { queries, mutations } from '../graphql';
-import { Alert, Spinner, confirm } from '@erxes/ui/src';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { useQuery, useMutation } from '@apollo/client';
+import React from "react";
+import List from "../components/List";
+import { gql } from "@apollo/client";
+import { queries, mutations } from "../graphql";
+import { Alert, Spinner, confirm } from "@erxes/ui/src";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
 const ListContainer: React.FC<Props> = (props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const listQuery = useQuery(gql(queries.requests), {
     variables: {
@@ -32,22 +31,21 @@ const ListContainer: React.FC<Props> = (props) => {
   const { grantRequests, grantRequestsTotalCount } = listQuery.data;
 
   const remove = (ids: string[]) => {
-    confirm('this action will erase every data of Requests.Are you sure?').then(
+    confirm("this action will erase every data of Requests.Are you sure?").then(
       () => {
         removeRequests({ variables: { ids } })
           .then(() => {
-            Alert.success('Removed successfully');
+            Alert.success("Removed successfully");
           })
           .catch((err) => {
             Alert.error(err.message);
           });
-      },
+      }
     );
   };
 
   const updatedProps = {
     queryParams,
-    history,
     list: grantRequests || [],
     totalCount: grantRequestsTotalCount,
     handleRemove: remove,
@@ -67,8 +65,8 @@ const generateQueryParams = (queryParams) => {
     createdAtTo: queryParams.createdAtTo || undefined,
     closedAtFrom: queryParams.closedAtFrom || undefined,
     closedAtTo: queryParams.closedAtTo || undefined,
-    onlyWaitingMe: ['true'].includes(queryParams?.onlyWaitingMe),
-    archived: queryParams?.archived === 'true',
+    onlyWaitingMe: ["true"].includes(queryParams?.onlyWaitingMe),
+    archived: queryParams?.archived === "true",
     ...generatePaginationParams(queryParams || {}),
   };
 };

@@ -1,30 +1,32 @@
-import { gql } from '@apollo/client';
-import { router } from '@erxes/ui/src/utils/core';
-import Alert from '@erxes/ui/src/utils/Alert';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import React, { useState } from 'react';
-import ContractList from '../components/list/ContractsList';
-import { mutations, queries } from '../graphql';
-import queryString from 'query-string';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { FILTER_PARAMS_CONTRACT } from '../../constants';
-import { useMutation, useQuery } from '@apollo/client';
+import { gql } from "@apollo/client";
+import { router } from "@erxes/ui/src/utils/core";
+import Alert from "@erxes/ui/src/utils/Alert";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import React, { useState } from "react";
+import ContractList from "../components/list/ContractsList";
+import { mutations, queries } from "../graphql";
+import queryString from "query-string";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { FILTER_PARAMS_CONTRACT } from "../../constants";
+import { useMutation, useQuery } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type ContractAlert = { name: string; count: number; filter: any };
 
-const generateQueryParams = ({ location }) => {
+const generateQueryParams = (location) => {
   return queryString.parse(location.search);
 };
 
 const ContractListContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const contractsMainQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
@@ -58,44 +60,44 @@ const ContractListContainer = (props: Props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const contractsAlertQuery = useQuery(gql(queries.contractsAlert), {
     variables: {
       date,
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const [contractsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractsRemove),
     {
-      refetchQueries: ['contractsMain'],
-    },
+      refetchQueries: ["contractsMain"],
+    }
   );
 
   const onSearch = (searchValue: string) => {
     if (!searchValue) {
-      return router.removeParams(history, 'searchValue');
+      return router.removeParams(navigate, location, "searchValue");
     }
 
-    router.setParams(history, { searchValue });
+    router.setParams(navigate, location, { searchValue });
   };
 
   const onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(history);
+    const params = generateQueryParams(location);
 
     if (params[key] === values) {
-      return router.removeParams(history, key);
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams(history);
+    const params = generateQueryParams(location);
 
     for (const param in params) {
       if (FILTER_PARAMS_CONTRACT.includes(param)) {
@@ -107,8 +109,8 @@ const ContractListContainer = (props: Props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams(history);
-    router.removeParams(history, ...Object.keys(params));
+    const params = generateQueryParams(location);
+    router.removeParams(navigate, location, ...Object.keys(params));
   };
 
   const removeContracts = ({ contractIds }, emptyBulk) => {
@@ -117,14 +119,14 @@ const ContractListContainer = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a contract');
+        Alert.success("You successfully deleted a contract");
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const searchValue = queryParams.searchValue || '';
+  const searchValue = queryParams.searchValue || "";
   const { list = [], totalCount = 0 } =
     contractsMainQuery?.data?.contractsMain || {};
 

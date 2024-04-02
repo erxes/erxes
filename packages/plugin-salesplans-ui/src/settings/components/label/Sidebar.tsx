@@ -1,40 +1,43 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useRef } from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __, router } from '@erxes/ui/src/utils';
-import { Link } from 'react-router-dom';
-import { SidebarFilters } from '../../../styles';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import Select from 'react-select-plus';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import React, { useRef } from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __, router } from "@erxes/ui/src/utils";
+import { Link } from "react-router-dom";
+import { SidebarFilters } from "../../../styles";
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import Select from "react-select";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-  history: any;
   queryParams: any;
 }
 
 const { Section } = Wrapper.Sidebar;
 
 const Sidebar = (props: Props) => {
-  const { history, queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { queryParams } = props;
 
   const timerRef = useRef<number | null>(null);
 
   const clearCategoryFilter = () => {
     router.removeParams(
-      history,
-      'filterStatus',
-      'minMulitiplier',
-      'maxMulitiplier',
+      navigate,
+      location,
+      "filterStatus",
+      "minMulitiplier",
+      "maxMulitiplier"
     );
   };
 
   const setFilter = (name, value) => {
-    router.removeParams(history, 'page');
-    router.setParams(history, { [name]: value });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { [name]: value });
   };
 
   const handleStatusSelect = (name, selectedOption) => {
@@ -59,7 +62,7 @@ const Sidebar = (props: Props) => {
       <li>
         <Link
           to={url}
-          className={window.location.href.includes(url) ? 'active' : ''}
+          className={window.location.href.includes(url) ? "active" : ""}
         >
           {__(text)}
         </Link>
@@ -67,16 +70,31 @@ const Sidebar = (props: Props) => {
     );
   };
 
+  const statusOptions = [
+    {
+      label: "All status",
+      value: "",
+    },
+    {
+      label: "Active",
+      value: "active",
+    },
+    {
+      label: "Archived",
+      value: "archived",
+    },
+  ];
+
   return (
     <>
       <Section.Title>
-        {__('Filters')}
+        {__("Filters")}
         <Section.QuickButtons>
-          {(router.getParam(history, 'filterStatus') ||
-            router.getParam(history, 'minMulitiplier') ||
-            router.getParam(history, 'maxMulitiplier')) && (
+          {(router.getParam(location, "filterStatus") ||
+            router.getParam(location, "minMulitiplier") ||
+            router.getParam(location, "maxMulitiplier")) && (
             <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -92,7 +110,7 @@ const Sidebar = (props: Props) => {
               type="number"
               min={0}
               required={false}
-              defaultValue={queryParams.minMulitiplier || ''}
+              defaultValue={queryParams.minMulitiplier || ""}
               onChange={searchMultiplier}
             />
           </FormGroup>
@@ -104,7 +122,7 @@ const Sidebar = (props: Props) => {
               type="number"
               min={0}
               required={false}
-              defaultValue={queryParams.maxMulitiplier || ''}
+              defaultValue={queryParams.maxMulitiplier || ""}
               onChange={searchMultiplier}
             />
           </FormGroup>
@@ -112,23 +130,12 @@ const Sidebar = (props: Props) => {
             <ControlLabel>Status</ControlLabel>
             <Select
               name="filterStatus"
-              value={queryParams.filterStatus || ''}
-              onChange={(option) => handleStatusSelect('filterStatus', option)}
-              options={[
-                {
-                  label: 'All status',
-                  value: '',
-                },
-                {
-                  label: 'Active',
-                  value: 'active',
-                },
-                {
-                  label: 'Archived',
-                  value: 'archived',
-                },
-              ]}
-              clearable={false}
+              value={statusOptions.find(
+                (o) => o.value === (queryParams.filterStatus || "")
+              )}
+              onChange={(option) => handleStatusSelect("filterStatus", option)}
+              options={statusOptions}
+              isClearable={false}
             />
           </FormGroup>
         </List>

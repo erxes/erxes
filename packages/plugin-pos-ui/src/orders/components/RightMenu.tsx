@@ -4,7 +4,7 @@ import {
   FormControl,
   Icon,
   SelectTeamMembers,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 import {
   CustomRangeContainer,
   FilterBox,
@@ -12,32 +12,32 @@ import {
   MenuFooter,
   RightMenuContainer,
   TabContent,
-} from '../../styles';
-import Select from 'react-select-plus';
-import Datetime from '@nateradebaugh/react-datetime';
-import { IQueryParams } from '@erxes/ui/src/types';
-import RTG from 'react-transition-group';
-import React, { useRef, useState } from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import dayjs from 'dayjs';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
-import SelectPos from './SelectPos';
-import { ALLOW_STATUSES, ALLOW_TYPES } from '../../constants';
+} from "../../styles";
+import Select from "react-select";
+import Datetime from "@nateradebaugh/react-datetime";
+import { IQueryParams } from "@erxes/ui/src/types";
+import RTG from "react-transition-group";
+import React, { useRef, useState } from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import dayjs from "dayjs";
+import { isEnabled, __ } from "@erxes/ui/src/utils/core";
+import SelectPos from "./SelectPos";
+import { ALLOW_STATUSES, ALLOW_TYPES } from "../../constants";
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    ),
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
+    )
 );
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    ),
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
+    )
 );
 
 type Props = {
@@ -55,10 +55,10 @@ const RightMenu = (props: Props) => {
 
   const wrapperRef = useRef(null);
 
-  const [currentTab, setCurrentTab] = useState<string>('Filter');
+  const [currentTab, setCurrentTab] = useState<string>("Filter");
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [filterParams, setFilterParams] = useState<IQueryParams>(
-    queryParams || {},
+    queryParams || {}
   );
 
   const setFilter = () => {
@@ -70,9 +70,9 @@ const RightMenu = (props: Props) => {
   };
 
   const handleSearch = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       const target = e.currentTarget as HTMLInputElement;
-      onSearch(target.value || '');
+      onSearch(target.value || "");
     }
   };
 
@@ -104,16 +104,16 @@ const RightMenu = (props: Props) => {
   };
 
   const onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
     setFilterParams((prevState) => ({ ...prevState, [kind]: cDate }));
   };
 
   const renderSpecials = () => {
     return (
       <>
-        {renderLink('Only Today', 'paidDate', 'today')}
-        {renderLink('Only Me', 'userId', 'me')}
-        {renderLink('No Pos', 'userId', 'nothing')}
+        {renderLink("Only Today", "paidDate", "today")}
+        {renderLink("Only Me", "userId", "me")}
+        {renderLink("No Pos", "userId", "nothing")}
       </>
     );
   };
@@ -129,7 +129,7 @@ const RightMenu = (props: Props) => {
         <CustomRangeContainer>
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblStart]}
@@ -137,14 +137,14 @@ const RightMenu = (props: Props) => {
               utc={true}
               input={true}
               onChange={onChangeRangeFilter.bind(this, lblStart)}
-              viewMode={'days'}
-              className={'filterDate'}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
 
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblEnd]}
@@ -152,8 +152,8 @@ const RightMenu = (props: Props) => {
               utc={true}
               input={true}
               onChange={onChangeRangeFilter.bind(this, lblEnd)}
-              viewMode={'days'}
-              className={'filterDate'}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
         </CustomRangeContainer>
@@ -165,22 +165,22 @@ const RightMenu = (props: Props) => {
     return (
       <FilterBox>
         <FormControl
-          name={'search'}
+          name={"search"}
           defaultValue={filterParams.search}
-          placeholder={__('Number ...')}
+          placeholder={__("Number ...")}
           onKeyPress={handleSearch}
           autoFocus={true}
           onChange={onChangeInput}
         />
 
-        {isEnabled('contacts') && (
+        {isEnabled("contacts") && (
           <>
             <SelectCustomers
               label="Filter by customer"
               name="customerId"
               initialValue={filterParams.customerId}
               onSelect={handleSelect}
-              customOption={{ value: '', label: '...Clear customer filter' }}
+              customOption={{ value: "", label: "...Clear customer filter" }}
               multi={false}
             />
             <SelectCompanies
@@ -188,7 +188,7 @@ const RightMenu = (props: Props) => {
               name="customerId"
               initialValue={filterParams.customerId}
               onSelect={handleSelect}
-              customOption={{ value: '', label: '...Clear company filter' }}
+              customOption={{ value: "", label: "...Clear company filter" }}
               multi={false}
             />
           </>
@@ -199,7 +199,7 @@ const RightMenu = (props: Props) => {
           name="userId"
           initialValue={filterParams.userId}
           onSelect={handleSelect}
-          customOption={{ value: '', label: '...Clear user filter' }}
+          customOption={{ value: "", label: "...Clear user filter" }}
           multi={false}
         />
 
@@ -208,54 +208,60 @@ const RightMenu = (props: Props) => {
           name="posId"
           initialValue={filterParams.posId}
           onSelect={handleSelect}
-          customOption={{ value: '', label: '...Clear user filter' }}
+          customOption={{ value: "", label: "...Clear user filter" }}
           multi={false}
         />
 
         <Select
-          name={'types'}
-          multi={true}
-          placeholder={__('Choose types')}
-          value={filterParams.types}
+          name={"types"}
+          isMulti={true}
+          placeholder={__("Choose types")}
+          value={ALLOW_TYPES.filter((o) =>
+            filterParams.types.includes(o.value)
+          )}
           onChange={(types) => {
             handleSelect(
               (types || []).map((t) => t.value),
-              'types',
+              "types"
             );
           }}
           options={ALLOW_TYPES}
         />
 
         <Select
-          name={'statuses'}
-          multi={true}
-          placeholder={__('Choose status')}
-          value={filterParams.statuses}
+          name={"statuses"}
+          isMulti={true}
+          placeholder={__("Choose status")}
+          value={ALLOW_STATUSES.filter((o) =>
+            filterParams.statuses.includes(o.value)
+          )}
           onChange={(statuses) => {
             handleSelect(
               (statuses || []).map((t) => t.value),
-              'statuses',
+              "statuses"
             );
           }}
           options={ALLOW_STATUSES}
         />
 
         <Select
-          name={'excludeStatuses'}
-          multi={true}
-          placeholder={__('Exclude status')}
-          value={filterParams.excludeStatuses}
+          name={"excludeStatuses"}
+          isMulti={true}
+          placeholder={__("Exclude status")}
+          value={ALLOW_STATUSES.filter((o) =>
+            filterParams.excludeStatuses.includes(o.value)
+          )}
           onChange={(statuses) => {
             handleSelect(
               (statuses || []).map((t) => t.value),
-              'excludeStatuses',
+              "excludeStatuses"
             );
           }}
           options={ALLOW_STATUSES}
         />
 
-        {renderRange('created')}
-        {renderRange('paid')}
+        {renderRange("created")}
+        {renderRange("paid")}
 
         {renderSpecials()}
       </FilterBox>
@@ -274,7 +280,7 @@ const RightMenu = (props: Props) => {
             onClick={setFilter}
             icon="filter"
           >
-            {__('Filter')}
+            {__("Filter")}
           </Button>
         </MenuFooter>
       </>
@@ -290,7 +296,7 @@ const RightMenu = (props: Props) => {
           uppercase={false}
           onClick={clearFilter}
         >
-          {__('Clear Filter')}
+          {__("Clear Filter")}
         </Button>
       )}
       <Button
@@ -299,7 +305,7 @@ const RightMenu = (props: Props) => {
         icon="bars"
         onClick={toggleMenu}
       >
-        {showMenu ? __('Hide Filter') : __('Show Filter')}
+        {showMenu ? __("Hide Filter") : __("Show Filter")}
       </Button>
 
       <RTG.CSSTransition

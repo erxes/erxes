@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from "react";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 import {
   __,
   ControlLabel,
   FormControl,
   FormGroup,
   Toggle,
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 import {
   Block,
   BlockRow,
   BlockRowUp,
   FlexColumn,
   FlexItem,
-} from '../../../styles';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { IPos } from '../../../types';
-import Select from 'react-select-plus';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+} from "../../../styles";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { IPos } from "../../../types";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 
 type Props = {
   onChange: (
-    name: 'pos' | 'erkhetConfig' | 'checkRemainder',
-    value: any,
+    name: "pos" | "erkhetConfig" | "checkRemainder",
+    value: any
   ) => void;
   pos: IPos;
   checkRemainder: boolean;
@@ -36,21 +36,21 @@ const ErkhetConfig = (props: Props) => {
       ? pos.erkhetConfig
       : {
           isSyncErkhet: false,
-          userEmail: '',
-          defaultPay: '',
+          userEmail: "",
+          defaultPay: "",
           getRemainder: false,
-        },
+        }
   );
 
   const [checkRemainder, setCheckRemainder] = useState<boolean>(
-    props.checkRemainder,
+    props.checkRemainder
   );
 
   const onChangeConfig = (code: string, value) => {
     const newConfig = { ...config, [code]: value };
 
     setConfig(newConfig);
-    onChange('erkhetConfig', newConfig);
+    onChange("erkhetConfig", newConfig);
   };
 
   const onChangeInput = (code: string, e) => {
@@ -62,7 +62,7 @@ const ErkhetConfig = (props: Props) => {
   };
 
   const onChangeSwitch = (e) => {
-    onChangeConfig('isSyncErkhet', e.target.checked);
+    onChangeConfig("isSyncErkhet", e.target.checked);
   };
 
   const onChangeSwitchCheckErkhet = (e) => {
@@ -72,24 +72,24 @@ const ErkhetConfig = (props: Props) => {
     }
 
     if (val && checkRemainder) {
-      onChange('checkRemainder', false);
+      onChange("checkRemainder", false);
       setCheckRemainder(false);
     }
 
-    onChangeConfig('getRemainder', val);
+    onChangeConfig("getRemainder", val);
   };
 
   const onChangeSwitchCheckInv = (e) => {
     let val = e.target.checked;
-    if (!isEnabled('inventories')) {
+    if (!isEnabled("inventories")) {
       val = false;
     }
 
     if (val && config.getRemainder) {
-      onChangeConfig('getRemainder', false);
+      onChangeConfig("getRemainder", false);
     }
 
-    onChange('checkRemainder', val);
+    onChange("checkRemainder", val);
     setCheckRemainder(val);
   };
 
@@ -101,7 +101,7 @@ const ErkhetConfig = (props: Props) => {
     key: string,
     title?: string,
     description?: string,
-    type?: string,
+    type?: string
   ) => {
     return (
       <FormGroup>
@@ -109,7 +109,7 @@ const ErkhetConfig = (props: Props) => {
         {description && <p>{__(description)}</p>}
         <FormControl
           defaultValue={config[key]}
-          type={type || 'text'}
+          type={type || "text"}
           onChange={onChangeInput.bind(this, key)}
           required={true}
         />
@@ -122,15 +122,15 @@ const ErkhetConfig = (props: Props) => {
     key1: string,
     title: string,
     description?: string,
-    type?: string,
+    type?: string
   ) => {
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={(config[key] && config[key][key1]) || ''}
-          type={type || 'text'}
+          defaultValue={(config[key] && config[key][key1]) || ""}
+          type={type || "text"}
           onChange={onChangeInputSub.bind(this, key, key1)}
           required={true}
         />
@@ -142,8 +142,8 @@ const ErkhetConfig = (props: Props) => {
     if (!pos.isOnline) {
       return (
         <BlockRow>
-          {renderInput('account', 'Account', '')}
-          {renderInput('location', 'Location', '')}
+          {renderInput("account", "Account", "")}
+          {renderInput("location", "Location", "")}
         </BlockRow>
       );
     }
@@ -163,8 +163,8 @@ const ErkhetConfig = (props: Props) => {
                   multi={false}
                 />
               </FormGroup>
-              {renderInputSub(`${branchId}`, 'account', 'Account', '')}
-              {renderInputSub(`${branchId}`, 'location', 'Location', '')}
+              {renderInputSub(`${branchId}`, "account", "Account", "")}
+              {renderInputSub(`${branchId}`, "location", "Location", "")}
             </BlockRow>
           );
         })}
@@ -173,21 +173,22 @@ const ErkhetConfig = (props: Props) => {
   };
 
   const renderSelectType = (key, value) => {
+    const options = [
+      { value: "debtAmount", label: "debt Amount" },
+      { value: "cashAmount", label: "cash Amount" },
+      { value: "cardAmount", label: "card Amount" },
+      { value: "card2Amount", label: "card2 Amount" },
+      { value: "mobileAmount", label: "mobile Amount" },
+      { value: "debtBarterAmount", label: "barter Amount" },
+    ];
     return (
       <Select
         key={Math.random()}
-        value={value || ''}
+        value={options.find((o) => o.value === (value || ""))}
         onChange={onChangeSelect.bind(this, key)}
-        clearable={false}
+        isClearable={false}
         required={true}
-        options={[
-          { value: 'debtAmount', label: 'debt Amount' },
-          { value: 'cashAmount', label: 'cash Amount' },
-          { value: 'cardAmount', label: 'card Amount' },
-          { value: 'card2Amount', label: 'card2 Amount' },
-          { value: 'mobileAmount', label: 'mobile Amount' },
-          { value: 'debtBarterAmount', label: 'barter Amount' },
-        ]}
+        options={options}
       />
     );
   };
@@ -199,13 +200,13 @@ const ErkhetConfig = (props: Props) => {
 
     return (
       <Block>
-        <h4>{__('Other')}</h4>
+        <h4>{__("Other")}</h4>
         <BlockRow>
-          {renderInput('userEmail', 'user Email', '')}
-          {renderInput('beginNumber', 'Begin bill number', '')}
+          {renderInput("userEmail", "user Email", "")}
+          {renderInput("beginNumber", "Begin bill number", "")}
           <FormGroup>
-            <ControlLabel>{'defaultPay'}</ControlLabel>
-            {renderSelectType('defaultPay', config.defaultPay)}
+            <ControlLabel>{"defaultPay"}</ControlLabel>
+            {renderSelectType("defaultPay", config.defaultPay)}
           </FormGroup>
         </BlockRow>
         {renderAccLoc()}
@@ -226,12 +227,12 @@ const ErkhetConfig = (props: Props) => {
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__('Main')}</h4>
+            <h4>{__("Main")}</h4>
             <BlockRow>
               <FormGroup>
                 <ControlLabel>Is Sync erkhet</ControlLabel>
                 <Toggle
-                  id={'isSyncErkhet'}
+                  id={"isSyncErkhet"}
                   checked={config.isSyncErkhet || false}
                   onChange={onChangeSwitch}
                   icons={{
@@ -246,12 +247,12 @@ const ErkhetConfig = (props: Props) => {
           {renderOther()}
 
           <Block>
-            <h4>{__('Remainder')}</h4>
+            <h4>{__("Remainder")}</h4>
             <BlockRow>
               <FormGroup>
                 <ControlLabel>Check erkhet</ControlLabel>
                 <Toggle
-                  id={'getRemainder'}
+                  id={"getRemainder"}
                   checked={config.getRemainder || false}
                   onChange={onChangeSwitchCheckErkhet}
                   icons={{
@@ -263,7 +264,7 @@ const ErkhetConfig = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Check inventories</ControlLabel>
                 <Toggle
-                  id={'checkRemainder'}
+                  id={"checkRemainder"}
                   checked={checkRemainder}
                   onChange={onChangeSwitchCheckInv}
                   icons={{

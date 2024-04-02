@@ -11,7 +11,6 @@ import { useQuery } from '@apollo/client';
 
 type Props = {
   id: string;
-  history: any;
 };
 
 type FinalProps = {

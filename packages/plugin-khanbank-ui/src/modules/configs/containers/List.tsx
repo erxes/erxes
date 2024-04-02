@@ -1,52 +1,52 @@
-import { router } from '@erxes/ui/src';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { router } from "@erxes/ui/src";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { gql } from "@apollo/client";
+import React from "react";
+import { useQuery, useMutation } from "@apollo/client";
 
-import SidebarList from '../../corporateGateway/components/ConfigsList';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { ConfigsListQueryResponse } from '../types';
+import SidebarList from "../../corporateGateway/components/ConfigsList";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
+import { ConfigsListQueryResponse } from "../types";
+import { useLocation } from "react-router-dom";
 
 type Props = {
   refetch?: () => void;
-  history?: any;
   queryParams: any;
-} & IRouterProps;
+};
 
 export default function ListContainer(props: Props) {
-  const isSettings = props.history.location.pathname === '/settings/khanbank';
+  const location = useLocation();
+  const isSettings = location.pathname === "/settings/khanbank";
 
   const variables: any = {
-    ...router.generatePaginationParams(props.queryParams || {})
+    ...router.generatePaginationParams(props.queryParams || {}),
   };
 
   const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
     gql(queries.listQuery),
     {
       variables: isSettings ? variables : {},
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only",
     }
   );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
 
   const remove = (_id: string) => {
-    const message = 'Are you sure want to remove this config ?';
+    const message = "Are you sure want to remove this config ?";
 
     confirm(message).then(() => {
       removeMutation({
-        variables: { _id }
+        variables: { _id },
       })
         .then(() => {
           refetch();
 
-          Alert.success('You successfully deleted a config.');
+          Alert.success("You successfully deleted a config.");
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -66,7 +66,7 @@ export default function ListContainer(props: Props) {
     configs,
     totalCount,
     refetch,
-    remove
+    remove,
   };
 
   if (!isSettings) {

@@ -1,10 +1,10 @@
-import React from 'react';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { useQuery } from '@apollo/client';
-import Select from 'react-select-plus';
-import { FormGroup, ControlLabel, __, BarItems, Icon } from '@erxes/ui/src';
-import { Card } from './styles';
+import React from "react";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-cards/src/boards/graphql";
+import { useQuery } from "@apollo/client";
+import Select from "react-select";
+import { FormGroup, ControlLabel, __, BarItems, Icon } from "@erxes/ui/src";
+import { Card } from "./styles";
 
 export function SelectStage({
   pipelineId,
@@ -29,7 +29,7 @@ export function SelectStage({
 
   const { data, loading } = useQuery(gql(queries.stages), {
     variables: queryVariables,
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     skip: !pipelineId,
   });
 
@@ -42,10 +42,10 @@ export function SelectStage({
     <FormGroup>
       <ControlLabel required>{__(label)}</ControlLabel>
       <Select
-        isRequired={true}
+        required={true}
         name={name}
-        placeholder={'Choose a stage'}
-        value={initialValue}
+        placeholder={"Choose a stage"}
+        value={options.find((o) => o.value === initialValue)}
         onChange={onSelect}
         options={options}
         isLoading={loading}
@@ -56,9 +56,9 @@ export function SelectStage({
 
 export function SelectCardType({ type, handleSelect, params }) {
   const options = [
-    { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
-    { value: 'task', label: 'Task', icon: 'file-check-alt' },
-    { value: 'ticket', label: 'Ticket', icon: 'ticket' },
+    { value: "deal", label: "Deal", icon: "piggy-bank" },
+    { value: "task", label: "Task", icon: "file-check-alt" },
+    { value: "ticket", label: "Ticket", icon: "ticket" },
   ].filter((option) => option.value !== type);
 
   return (
@@ -67,9 +67,9 @@ export function SelectCardType({ type, handleSelect, params }) {
         return (
           <Card
             key={option.value}
-            className={params['type'] === option.value ? 'active' : ''}
+            className={params["type"] === option.value ? "active" : ""}
             onClick={() =>
-              handleSelect({ ...params, value: option.value }, 'params')
+              handleSelect({ ...params, value: option.value }, "params")
             }
           >
             <Icon icon={option.icon} />

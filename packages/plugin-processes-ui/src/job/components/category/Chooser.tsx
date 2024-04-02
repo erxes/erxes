@@ -1,10 +1,10 @@
-import React from 'react';
-import Select from 'react-select-plus';
+import React from "react";
+import Select from "react-select";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IJobCategory } from '../../types';
-import styled from 'styled-components';
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/core";
+import { IJobCategory } from "../../types";
+import styled from "styled-components";
 
 const CategoryContainer = styled.div`
   flex: 1;
@@ -25,25 +25,25 @@ class JobCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: ''
+      categoryId: "",
     };
   }
 
   selectOptions(categories: IJobCategory[]) {
-    return categories.map(item => ({
+    return categories.map((item) => ({
       value: item._id,
       label: item.name,
       order: item.order,
-      isRoot: item.isRoot
+      isRoot: item.isRoot,
     }));
   }
 
-  onChange = categoryId => {
+  onChange = (categoryId) => {
     this.setState({ categoryId });
     this.props.onChangeCategory(categoryId);
   };
 
-  renderOptions = option => {
+  renderOptions = (option) => {
     const name = option.isRoot ? (
       <strong>{option.label}</strong>
     ) : (
@@ -53,10 +53,10 @@ class JobCategoryChooser extends React.Component<Props, State> {
       </>
     );
     const order = option.order.match(/[/]/gi);
-    let space = '';
+    let space = "";
 
     if (order) {
-      space = '\u00A0 '.repeat(order.length);
+      space = "\u00A0 ".repeat(order.length);
     }
 
     return (
@@ -71,18 +71,20 @@ class JobCategoryChooser extends React.Component<Props, State> {
 
   render() {
     const { categories } = this.props;
-    const onChangeCategory = option => this.onChange(option.value);
+    const onChangeCategory = (option) => this.onChange(option.value);
 
     return (
       <CategoryContainer>
         <Select
-          isRequired={true}
-          placeholder={__('Choose a category')}
-          optionRenderer={this.renderOptions}
+          required={true}
+          placeholder={__("Choose a category")}
+          // optionRenderer={this.renderOptions}
           options={this.selectOptions(categories)}
-          value={this.state.categoryId}
+          value={this.selectOptions(categories).find(
+            (o) => o.value === this.state.categoryId
+          )}
           onChange={onChangeCategory}
-          clearable={false}
+          isClearable={false}
         />
       </CategoryContainer>
     );

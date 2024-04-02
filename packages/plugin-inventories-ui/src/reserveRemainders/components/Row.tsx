@@ -6,14 +6,9 @@ import { IReserveRem } from "../types";
 
 type Props = {
   reserveRem: IReserveRem;
-  history: any;
   isChecked: boolean;
   toggleBulk: (reserveRem: IReserveRem, isChecked?: boolean) => void;
   edit: (doc: IReserveRem) => void;
-};
-
-type State = {
-  remainder: number;
 };
 
 const Row: React.FC<Props> = (props) => {

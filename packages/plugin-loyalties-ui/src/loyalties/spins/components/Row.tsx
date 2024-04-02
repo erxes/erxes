@@ -17,7 +17,6 @@ import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 type Props = {
   spin: ISpin;
   currentCampaign?: ISpinCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (spin: ISpin, isChecked?: boolean) => void;
   queryParams: IQueryParams;

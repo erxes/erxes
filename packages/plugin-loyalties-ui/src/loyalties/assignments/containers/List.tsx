@@ -10,8 +10,6 @@ import {
 import { mutations, queries } from '../graphql';
 
 import { AssignmentCampaignDetailQueryResponse } from '../../../configs/assignmentCampaign/types';
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { queries as campaignQueries } from '../../../configs/assignmentCampaign/graphql';
@@ -20,14 +18,12 @@ import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   assignmentsMainQuery: MainQueryResponse;
   assignmentCampaignDetailQuery: AssignmentCampaignDetailQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
@@ -48,7 +44,6 @@ class AssignmentListContainer extends React.Component<FinalProps, State> {
       assignmentsMainQuery,
       assignmentCampaignDetailQuery,
       assignmentsRemove,
-      history,
     } = this.props;
 
     if (

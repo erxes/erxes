@@ -4,20 +4,18 @@ import {
   Icon,
   ModalTrigger,
   Tip,
-  __,
-} from "@erxes/ui/src";
-
-import Form from "../containers/Form";
-import { IRouterProps } from "@erxes/ui/src/types";
-import React from "react";
-import moment from "moment";
+  __
+} from '@erxes/ui/src';
+import moment from 'moment';
+import React from 'react';
+import Form from '../containers/Form';
 type Props = {
   queryParams: any;
   history: any;
   config: any;
   checked: boolean;
   selectItem: (id: string) => void;
-} & IRouterProps;
+};
 
 type State = {};
 

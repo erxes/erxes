@@ -14,7 +14,6 @@ import SideBar from "./SideBar";
 
 type Props = {
   queryParams: any;
-  history: any;
   list: IGrantRequest[];
   totalCount: number;
   handleRemove: (ids: string[]) => void;
@@ -22,7 +21,7 @@ type Props = {
 
 const List: React.FC<Props> = (props) => {
   const [selectedRequests, setSelectedRequests] = useState([] as string[]);
-  const { list, queryParams, history, handleRemove, totalCount } = props;
+  const { list, queryParams, handleRemove, totalCount } = props;
 
   const renderList = () => {
     const requestIds = list
@@ -108,7 +107,7 @@ const List: React.FC<Props> = (props) => {
     content: renderList(),
     rightActionBar,
     totalCount: totalCount,
-    sidebar: <SideBar queryParams={queryParams} history={history} />,
+    sidebar: <SideBar queryParams={queryParams} />,
   };
 
   return <DefaultWrapper {...updatedProps} />;

@@ -54,6 +54,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import TriggerDetailForm from './triggers/TriggerDetailForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { Transition } from "@headlessui/react";
 
 const plumb: any = jsPlumb;
 let instance;
@@ -1003,16 +1004,16 @@ class AutomationForm extends React.Component<Props, State> {
           </AutomationFormContainer>
 
           <div ref={this.setWrapperRef}>
-            <RTG.CSSTransition
-              in={this.state.showDrawer}
-              timeout={300}
-              classNames="slide-in-right"
-              unmountOnExit={true}
+            <Transition
+              show={this.state.showDrawer}
+              // timeout={300}
+              className="slide-in-right"
+              // unmountOnExit={true}
             >
               <RightDrawerContainer>
                 {this.renderTabContent()}
               </RightDrawerContainer>
-            </RTG.CSSTransition>
+            </Transition>
           </div>
 
           {this.renderNoteModal()}

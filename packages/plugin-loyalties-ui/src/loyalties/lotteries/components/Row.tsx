@@ -18,7 +18,6 @@ import { ModalTrigger } from "@erxes/ui/src/components";
 type Props = {
   lottery: ILottery;
   currentCampaign?: ILotteryCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (lottery: ILottery, isChecked?: boolean) => void;
   queryParams: IQueryParams;

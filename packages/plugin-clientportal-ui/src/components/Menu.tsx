@@ -1,11 +1,12 @@
-import React, { useCallback } from 'react';
-import styled from 'styled-components';
-import Icon from '@erxes/ui/src/components/Icon';
-import { colors } from '@erxes/ui/src/styles';
-import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { Link } from 'react-router-dom';
+import React, { useCallback } from "react";
+import styled from "styled-components";
+import Icon from "@erxes/ui/src/components/Icon";
+import { colors } from "@erxes/ui/src/styles";
+import { BoxRoot, FullContent } from "@erxes/ui/src/styles/main";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -36,18 +37,19 @@ const Box = styled(BoxRoot)`
 
 type Props = {};
 
-const SelectMenu = props => {
+const SelectMenu = (props) => {
   // const onChangeFunction = useCallback((key, val) => {
   //     props.onChange(key, val);
   //   }, []);
 
   const renderBox = useCallback((name, icon, desc, path) => {
     // const { name, icon, desc, path } = args;
+    const navigate = useNavigate();
     return (
       <Box
         selected={true}
         onClick={() => {
-          props.history.push(path);
+          navigate(path);
         }}
       >
         <Link to={path}>
@@ -60,38 +62,38 @@ const SelectMenu = props => {
   }, []);
   const breadcrumb = [
     {
-      title: __('Settings'),
-      link: '/settings'
+      title: __("Settings"),
+      link: "/settings",
     },
     {
-      title: __('Business Portal'),
-      link: '/settings/business-portal'
-    }
+      title: __("Business Portal"),
+      link: "/settings/business-portal",
+    },
   ];
   return (
     <>
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Business Portal')}
+            title={__("Business Portal")}
             breadcrumb={breadcrumb}
           />
         }
-        content={''}
+        content={""}
         transparent={true}
       />
       <FullContent center={true}>
         {renderBox(
-          'Client portal',
-          'user',
-          `${__('Helpdesk, knowledge base etc... for your customers')}`,
+          "Client portal",
+          "user",
+          `${__("Helpdesk, knowledge base etc... for your customers")}`,
           `/settings/business-portal/client`
         )}
         {renderBox(
-          'Vendor portal',
-          'building',
+          "Vendor portal",
+          "building",
           `${__(
-            'Knowledge base, Vendor Company profiles,  etc... for your vendors'
+            "Knowledge base, Vendor Company profiles,  etc... for your vendors"
           )}`,
           `/settings/business-portal/vendor`
         )}

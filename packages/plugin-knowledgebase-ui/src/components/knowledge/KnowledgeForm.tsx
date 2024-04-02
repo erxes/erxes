@@ -20,10 +20,9 @@ import { IBrand } from "@erxes/ui/src/brands/types";
 import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 import Info from "@erxes/ui/src/components/Info";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import ReactMarkdown from "react-markdown";
-import Select from "react-select-plus";
+import Select from "react-select";
 import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
 import TwitterPicker from "react-color/lib/Twitter";
 import Uploader from "@erxes/ui/src/components/Uploader";
@@ -237,17 +236,10 @@ const KnowledgeForm = (props: Props) => {
       setLanguageCode(selectLanguage.value);
     };
 
-    // Popover content
-    const popoverTop = (
-      <Popover id="kb-color-picker">
-        <TwitterPicker
-          width="205px"
-          triangle="hide"
-          color={color}
-          onChange={handleColorChange}
-        />
-      </Popover>
-    );
+    const notificationSegmentOptions = segments.map((segment) => ({
+      label: `${segment.name}`,
+      value: segment._id,
+    }));
 
     return (
       <>
@@ -285,11 +277,13 @@ const KnowledgeForm = (props: Props) => {
               <ControlLabel>Language</ControlLabel>
               <Select
                 id="languageCode"
-                value={languageCode || "en"}
+                value={LANGUAGES.find(
+                  (o) => o.value === (languageCode || "en")
+                )}
                 options={LANGUAGES}
                 onChange={handleLanguageChange}
-                formProps={formProps}
-                clearable={false}
+                // formProps={formProps}
+                isClearable={false}
               />
             </FormGroup>
           </ExpandWrapper>
@@ -297,16 +291,21 @@ const KnowledgeForm = (props: Props) => {
           <FormGroup>
             <ControlLabel>Custom color</ControlLabel>
             <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
+              <Popover
                 placement="bottom"
-                overlay={popoverTop}
+                trigger={
+                  <ColorPick>
+                    <ColorPicker style={{ backgroundColor: color }} />
+                  </ColorPick>
+                }
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: color }} />
-                </ColorPick>
-              </OverlayTrigger>
+                <TwitterPicker
+                  width="205px"
+                  triangle="hide"
+                  color={color}
+                  onChange={handleColorChange}
+                />
+              </Popover>
             </div>
           </FormGroup>
         </FlexContent>
@@ -345,11 +344,10 @@ const KnowledgeForm = (props: Props) => {
           <FormGroup>
             <ControlLabel>Notification segment</ControlLabel>
             <Select
-              options={segments.map((segment) => ({
-                label: `${segment.name}`,
-                value: segment._id,
-              }))}
-              value={notificationSegmentId}
+              options={notificationSegmentOptions}
+              value={notificationSegmentOptions.find(
+                (o) => o.value === notificationSegmentId
+              )}
               onChange={onChangeNotificationSegment}
             />
           </FormGroup>

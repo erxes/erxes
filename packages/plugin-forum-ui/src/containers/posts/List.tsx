@@ -15,12 +15,11 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = Props & RemoveMutationResponse;
 
-function List({ removeMutation, queryParams, history }: FinalProps) {
+function List({ removeMutation, queryParams }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
   const [state] = useSearchParam('state');
   const [categoryIncludeDescendants] = useSearchParam(
@@ -105,7 +104,6 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
       <PostsList
         {...props}
         queryParams={queryParams}
-        history={history}
         totalCount={totalCount}
         remove={remove}
         posts={queryParams.search ? filteredPosts : posts}

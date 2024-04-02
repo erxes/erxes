@@ -9,7 +9,6 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 // import { withRouter } from 'react-router-dom';
 import { IPage } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import PageList from '../../components/pages/PageList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -19,17 +18,14 @@ import { useQuery } from '@apollo/client';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   pagesQuery: PagesQueryResponse;
 } & Props &
-  RemoveMutationResponse &
-  IRouterProps;
+  RemoveMutationResponse;
 
 function PagesList({
-  history,
   removeMutation,
   pagesQuery,
   queryParams,
@@ -127,7 +123,6 @@ function PagesList({
         renderButton={renderButton}
         totalCount={totalCount}
         pages={queryParams.search ? filteredPages : pages}
-        history={history}
         remove={remove}
       />
     );

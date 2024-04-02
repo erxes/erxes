@@ -15,13 +15,13 @@ import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
 import Form from "../containers/Form";
 import { SUBMENU } from "../../constants";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   reserveRems: IReserveRem[];
   totalCount: number;
   isAllSelected: boolean;
   toggleAll: (targets: IReserveRem[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -37,7 +37,6 @@ const ReserveRems: React.FC<Props> = (props) => {
   const {
     toggleAll,
     reserveRems,
-    history,
     toggleBulk,
     bulk,
     edit,
@@ -47,7 +46,9 @@ const ReserveRems: React.FC<Props> = (props) => {
     totalCount,
     queryParams,
   } = props;
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const search = (e) => {
     if (timer) {
       clearTimeout(timer);
@@ -58,8 +59,8 @@ const ReserveRems: React.FC<Props> = (props) => {
     setSearchValue(searchValue);
 
     timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
@@ -78,7 +79,6 @@ const ReserveRems: React.FC<Props> = (props) => {
     return reserveRems.map((reserveRem) => (
       <Row
         key={reserveRem._id}
-        history={history}
         reserveRem={reserveRem}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(reserveRem)}
@@ -152,7 +152,7 @@ const ReserveRems: React.FC<Props> = (props) => {
   };
 
   const content = (
-    <Table hover={true}>
+    <Table $hover={true}>
       <thead>
         <tr>
           <th style={{ width: 60 }}>
@@ -185,7 +185,7 @@ const ReserveRems: React.FC<Props> = (props) => {
           right={actionBarRight()}
         />
       }
-      leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+      leftSidebar={<Sidebar queryParams={queryParams} />}
       content={
         <DataWithLoader
           data={content}

@@ -11,7 +11,7 @@ import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import styled from "styled-components";
 import { PAYMENT_TYPE_ICONS } from "../../../constants";
 import { Block, Description, FlexColumn, FlexItem } from "../../../styles";
@@ -111,6 +111,12 @@ const PaymentsStep = (props: Props) => {
       return "";
     };
 
+    const iconOptions = PAYMENT_TYPE_ICONS.map((icon) => ({
+      value: icon,
+      label: icon,
+      avatar: `${icon}`,
+    }));
+
     return (
       <div key={paymentType._id}>
         <FormWrapper>
@@ -138,17 +144,14 @@ const PaymentsStep = (props: Props) => {
             <FormGroup>
               <Select
                 name="icon"
-                componentclass="select"
-                optionRenderer={selectItemRenderer}
-                valueRenderer={selectItemRenderer}
-                value={paymentType.icon || ""}
+                // optionRenderer={selectItemRenderer}
+                // valueRenderer={selectItemRenderer}
+                value={iconOptions.find(
+                  (o) => o.value === (paymentType.icon || "")
+                )}
                 onChange={onChangeSelect}
-                options={PAYMENT_TYPE_ICONS.map((icon) => ({
-                  value: icon,
-                  label: icon,
-                  avatar: `${icon}`,
-                }))}
-                clearable={false}
+                options={iconOptions}
+                isClearable={false}
               />
             </FormGroup>
           </FormColumn>

@@ -9,7 +9,6 @@ import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
 
 type Props = {
   insuranceType: IInsuranceType;
-  history: any;
   isChecked: boolean;
   toggleBulk: (insuranceType: IInsuranceType, isChecked?: boolean) => void;
 };
@@ -62,7 +61,7 @@ function renderEditAction(insuranceType: IInsuranceType) {
 }
 
 function InsuranceTypeRow(
-  { insuranceType, history, isChecked, toggleBulk }: Props,
+  { insuranceType, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
   const onChange = (e) => {

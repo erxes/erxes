@@ -19,8 +19,7 @@ import InsuranceTypeRow from "./InsuranceTypeRow";
 import { InsuranceTypesTableWrapper } from "../styles";
 import { __ } from "coreui/utils";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-
-// import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   insuranceTypes: IInsuranceType[];
@@ -37,7 +36,6 @@ interface IProps extends IRouterProps {
     doc: { insuranceTypeIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
@@ -45,7 +43,6 @@ const InsuranceTypesList = (props: IProps) => {
   const timerRef = useRef<number | null>(null);
   const {
     insuranceTypes,
-    history,
     loading,
     toggleBulk,
     bulk,
@@ -55,6 +52,7 @@ const InsuranceTypesList = (props: IProps) => {
     toggleAll,
   } = props;
 
+  const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState(props.searchValue);
 
   const onChange = () => {
@@ -66,13 +64,12 @@ const InsuranceTypesList = (props: IProps) => {
       clearTimeout(timerRef.current);
     }
 
-    const { history } = props;
     const value = e.target.value;
 
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      history.push(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
@@ -134,7 +131,6 @@ const InsuranceTypesList = (props: IProps) => {
               insuranceType={insuranceType}
               isChecked={bulk.includes(insuranceType)}
               key={insuranceType._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

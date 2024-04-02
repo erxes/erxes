@@ -1,5 +1,4 @@
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import React, { useEffect, useState } from "react";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 import TwitterPicker from "react-color/lib/Twitter";
@@ -29,7 +28,7 @@ import {
 import { LevelOption, LevelWrapper, RemoveRow } from "../../../styles";
 import { FlexContent } from "@erxes/ui/src/layout";
 import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
-import Select from "react-select-plus";
+import Select from "react-select";
 
 type Props = {
   spLabel?: ISPLabel;
@@ -193,15 +192,10 @@ const Form = (props: Props) => {
       setLabel(newLabel);
     };
 
-    const popoverContent = (
-      <Popover id={Math.random()}>
-        <TwitterPicker
-          color={{ hex: label.color }}
-          onChange={onChangeColor}
-          triangle="hide"
-        />
-      </Popover>
-    );
+    const statusOptions = ["active", "archived"].map((option) => ({
+      value: option,
+      label: option,
+    }));
 
     return (
       <>
@@ -246,30 +240,33 @@ const Form = (props: Props) => {
                 <ControlLabel>Status</ControlLabel>
                 <Select
                   id="status"
-                  value={label.status || "active"}
-                  options={["active", "archived"].map((option) => ({
-                    value: option,
-                    label: option,
-                  }))}
+                  value={statusOptions.find(
+                    (o) => o.value === (label.status || "active")
+                  )}
+                  options={statusOptions}
                   onChange={onStatusChange}
-                  formProps={formProps}
-                  clearable={false}
+                  // formProps={formProps}
+                  isClearable={false}
                 />
               </FormGroup>
             </ExpandWrapper>
             <FormGroup>
               <ControlLabel>{__("Color")}</ControlLabel>
               <div>
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose={true}
+                <Popover
                   placement="bottom-start"
-                  overlay={popoverContent}
+                  trigger={
+                    <ColorPick>
+                      <ColorPicker style={{ backgroundColor: label.color }} />
+                    </ColorPick>
+                  }
                 >
-                  <ColorPick>
-                    <ColorPicker style={{ backgroundColor: label.color }} />
-                  </ColorPick>
-                </OverlayTrigger>
+                  <TwitterPicker
+                    color={{ hex: label.color }}
+                    onChange={onChangeColor}
+                    triangle="hide"
+                  />
+                </Popover>
               </div>
             </FormGroup>
           </FlexContent>

@@ -1,24 +1,24 @@
-import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
-import React, { useState } from 'react';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import Modal from "react-bootstrap/Modal";
+import Select from "react-select";
+import React, { useState } from "react";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import {
   __,
   ControlLabel,
   FormControl,
   FormGroup,
   Toggle,
-} from '@erxes/ui/src';
-import { IPos, ISlot } from '../../../types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import { ALLOW_TYPES } from '../../../constants';
-import PosSlotPlan from '../productGroup/posSlotPlan';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+} from "@erxes/ui/src";
+import { IPos, ISlot } from "../../../types";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { Block, BlockRow, FlexColumn, FlexItem } from "../../../styles";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import { ALLOW_TYPES } from "../../../constants";
+import PosSlotPlan from "../productGroup/posSlotPlan";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 
 type Props = {
-  onChange: (name: 'pos' | 'slots' | 'allowTypes', value: any) => void;
+  onChange: (name: "pos" | "slots" | "allowTypes", value: any) => void;
   pos: IPos;
   posSlots: ISlot[];
   allowTypes: string[];
@@ -31,8 +31,8 @@ const GeneralStep = (props: Props) => {
   const [slots, setSlots] = useState<ISlot[]>(props.posSlots || []);
   const [allowTypes, setAllowTypes] = useState<string[]>(props.allowTypes);
 
-  let name = 'POS name';
-  let description: any = 'description';
+  let name = "POS name";
+  let description: any = "description";
 
   if (pos) {
     name = pos.name;
@@ -44,15 +44,15 @@ const GeneralStep = (props: Props) => {
   };
 
   const onChangeDepartments = (departmentId) => {
-    onChangeFunction('pos', { ...pos, departmentId });
+    onChangeFunction("pos", { ...pos, departmentId });
   };
 
   const onChangeSwitchMain = (e) => {
-    onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
+    onChangeFunction("pos", { ...pos, [e.target.id]: e.target.checked });
   };
 
   const onChangeInput = (e) => {
-    onChangeFunction('pos', {
+    onChangeFunction("pos", {
       ...pos,
       [e.target.id]: (e.currentTarget as HTMLInputElement).value,
     });
@@ -60,12 +60,12 @@ const GeneralStep = (props: Props) => {
 
   const renderCauseOnline = () => {
     const onChangeBranches = (branchId) => {
-      onChangeFunction('pos', { ...pos, branchId });
+      onChangeFunction("pos", { ...pos, branchId });
     };
 
     if (pos.isOnline) {
       const onChangeMultiBranches = (branchIds) => {
-        onChangeFunction('pos', {
+        onChangeFunction("pos", {
           ...pos,
           allowBranchIds: branchIds,
         });
@@ -82,7 +82,7 @@ const GeneralStep = (props: Props) => {
                 name="branchId"
                 initialValue={pos.branchId}
                 onSelect={onChangeBranches}
-                customOption={{ value: '', label: 'No branch...' }}
+                customOption={{ value: "", label: "No branch..." }}
                 multi={false}
               />
             </FormGroup>
@@ -108,7 +108,7 @@ const GeneralStep = (props: Props) => {
               <FormControl
                 id="pdomain"
                 type="text"
-                value={pos.pdomain || ''}
+                value={pos.pdomain || ""}
                 onChange={onChangeInput}
               />
             </FormGroup>
@@ -120,7 +120,7 @@ const GeneralStep = (props: Props) => {
                 id="beginNumber"
                 maxLength={2}
                 type="text"
-                value={pos.beginNumber || ''}
+                value={pos.beginNumber || ""}
                 onChange={onChangeInput}
               />
             </FormGroup>
@@ -139,7 +139,7 @@ const GeneralStep = (props: Props) => {
               name="branchId"
               initialValue={pos.branchId}
               onSelect={onChangeBranches}
-              customOption={{ value: '', label: 'No branch...' }}
+              customOption={{ value: "", label: "No branch..." }}
               multi={false}
             />
           </FormGroup>
@@ -153,30 +153,31 @@ const GeneralStep = (props: Props) => {
       const newTypes = [...allowTypes];
       const preChosenInd = allowTypes.indexOf(option.value);
       if (preChosenInd >= 0) {
-        newTypes[preChosenInd] = '';
+        newTypes[preChosenInd] = "";
       }
 
       newTypes[i] = option.value;
       setAllowTypes(newTypes);
-      onChange('allowTypes', newTypes);
+      onChange("allowTypes", newTypes);
     };
 
     const chosenTypes: string[] = [];
     const result: any[] = [];
     for (var i = 0; i < ALLOW_TYPES.length; i++) {
-      const currentCh = (allowTypes || [])[i] || '';
+      const currentCh = (allowTypes || [])[i] || "";
+
+      const options = (i !== 0 ? [{ value: "", label: "Null" }] : []).concat(
+        ALLOW_TYPES.filter((at) => !chosenTypes.includes(at.value))
+      );
 
       result.push(
         <Select
           key={i}
-          index={i}
-          options={(i !== 0 ? [{ value: '', label: 'Null' }] : []).concat(
-            ALLOW_TYPES.filter((at) => !chosenTypes.includes(at.value)),
-          )}
-          value={currentCh}
+          options={options}
+          value={options.find((o) => o.value === currentCh)}
           onChange={handleOnChange.bind(this, i)}
-          clearable={false}
-        />,
+          isClearable={false}
+        />
       );
       chosenTypes.push(currentCh);
     }
@@ -188,14 +189,14 @@ const GeneralStep = (props: Props) => {
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__('Pos')}</h4>
+            <h4>{__("Pos")}</h4>
             <BlockRow>
               <FormGroup>
                 <ControlLabel required={true}>Name</ControlLabel>
                 <FormControl
                   id="name"
                   type="text"
-                  value={name || ''}
+                  value={name || ""}
                   onChange={onChangeInput}
                 />
               </FormGroup>
@@ -205,7 +206,7 @@ const GeneralStep = (props: Props) => {
                 <FormControl
                   id="description"
                   type="text"
-                  value={description || ''}
+                  value={description || ""}
                   onChange={onChangeInput}
                 />
               </FormGroup>
@@ -224,16 +225,16 @@ const GeneralStep = (props: Props) => {
                 <ControlLabel>Order Password</ControlLabel>
                 <FormControl
                   id="orderPassword"
-                  value={pos.orderPassword || ''}
+                  value={pos.orderPassword || ""}
                   onChange={onChangeInput}
                 />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Brand</ControlLabel>
                 <SelectBrands
-                  label={__('Choose brands')}
+                  label={__("Choose brands")}
                   onSelect={(brand) =>
-                    onChangeFunction('pos', {
+                    onChangeFunction("pos", {
                       ...pos,
                       scopeBrandIds: [brand],
                     })
@@ -242,8 +243,8 @@ const GeneralStep = (props: Props) => {
                   multi={false}
                   name="selectedBrands"
                   customOption={{
-                    label: 'No Brand (noBrand)',
-                    value: '',
+                    label: "No Brand (noBrand)",
+                    value: "",
                   }}
                 />
               </FormGroup>
@@ -257,7 +258,7 @@ const GeneralStep = (props: Props) => {
                   slots={slots}
                   onSave={(slots) => {
                     setSlots(slots);
-                    onChange('slots', slots);
+                    onChange("slots", slots);
                   }}
                   posId={pos._id}
                 />
@@ -277,7 +278,7 @@ const GeneralStep = (props: Props) => {
               <FormGroup>
                 <ControlLabel>Is Online</ControlLabel>
                 <Toggle
-                  id={'isOnline'}
+                  id={"isOnline"}
                   checked={pos && pos.isOnline ? true : false}
                   onChange={onChangeSwitchMain}
                   icons={{
@@ -290,7 +291,7 @@ const GeneralStep = (props: Props) => {
                 <FormGroup>
                   <ControlLabel>On Server</ControlLabel>
                   <Toggle
-                    id={'onServer'}
+                    id={"onServer"}
                     checked={pos && pos.onServer ? true : false}
                     onChange={onChangeSwitchMain}
                     icons={{
@@ -308,7 +309,7 @@ const GeneralStep = (props: Props) => {
                   initialValue={pos.departmentId}
                   onSelect={onChangeDepartments}
                   multi={false}
-                  customOption={{ value: '', label: 'No department...' }}
+                  customOption={{ value: "", label: "No department..." }}
                 />
               </FormGroup>
             </BlockRow>

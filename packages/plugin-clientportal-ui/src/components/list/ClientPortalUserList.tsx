@@ -10,7 +10,6 @@ import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IClientPortalUser } from "../../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Sidebar from "./Sidebar";
@@ -19,9 +18,9 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils/core";
 import { menuContacts } from "@erxes/ui/src/utils/menus";
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
-  history: any;
+interface IProps {
   type: string;
   kind: "client" | "vendor";
   queryParams: any;
@@ -42,7 +41,6 @@ interface IProps extends IRouterProps {
 }
 
 const ClientportalUserList: React.FC<IProps> = ({
-  history,
   type,
   kind,
   queryParams,
@@ -58,6 +56,9 @@ const ClientportalUserList: React.FC<IProps> = ({
   removeUsers,
   verifyUsers,
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [state, setState] = useState({
     searchValue: searchValue,
   });
@@ -135,7 +136,6 @@ const ClientportalUserList: React.FC<IProps> = ({
                 key={clientPortalUser._id}
                 isChecked={bulk.includes(clientPortalUser)}
                 toggleBulk={toggleBulk}
-                history={history}
               />
             ))}
           </tbody>
@@ -154,8 +154,8 @@ const ClientportalUserList: React.FC<IProps> = ({
     setState((prevState) => ({ ...prevState, searchValue }));
 
     timerRef.current = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate,location, "page");
+      router.setParams(navigate,location, { searchValue });
     }, 500);
   };
 

@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IField } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import { FieldConfig } from '../containers/FieldConfigForm';
 import { ClientPortalConfig } from '../types';
 
@@ -71,9 +71,9 @@ function FieldConfigForm(props: Props) {
           <p>{__('Please select client portals that can use this field.')}</p>
           <Select
             options={options(props.clientPortals)}
-            value={allowedClientPortalIds}
+            value={options(props.clientPortals).filter((o) => allowedClientPortalIds.includes(o.value))}
             onChange={onChange}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 
@@ -83,11 +83,11 @@ function FieldConfigForm(props: Props) {
             <p>{__('Please select client portals that field is required')}</p>
             <Select
               options={options(allowedClientPortals)}
-              value={requiredOn}
+              value={options(allowedClientPortals).filter((o) => requiredOn.includes(o.value))}
               onChange={value => {
                 setrequiredOn(value.map(v => v.value));
               }}
-              multi={true}
+              isMulti={true}
             />
           </FormGroup>
         )}

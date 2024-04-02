@@ -9,8 +9,6 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import React from 'react';
 import { SpinCampaignDetailQueryResponse } from '../../../configs/spinCampaign/types';
@@ -20,14 +18,12 @@ import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   spinsMainQuery: MainQueryResponse;
   spinCampaignDetailQuery: SpinCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -44,7 +40,7 @@ class SpinListContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { spinsMainQuery, spinCampaignDetailQuery, spinsRemove, history } =
+    const { spinsMainQuery, spinCampaignDetailQuery, spinsRemove } =
       this.props;
 
     if (

@@ -12,22 +12,21 @@ import {
   MainStyleCount as Count,
   MainStyleTitle as Title,
 } from "@erxes/ui/src/styles/eindex";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import { IVoucher } from "../types";
 import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
 import { LoyaltiesTableWrapper } from "../../common/styles";
-import React from "react";
+import React, {useState} from "react";
 import Sidebar from "./Sidebar";
 import VoucherForm from "../containers/Form";
 import VoucherRow from "./Row";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
-interface IProps extends IRouterProps {
+interface IProps {
   vouchers: IVoucher[];
   currentCampaign?: IVoucherCampaign;
   loading: boolean;
@@ -43,65 +42,52 @@ interface IProps extends IRouterProps {
     doc: { voucherIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: IQueryParams;
 }
 
-type State = {
-  searchValue?: string;
-};
-
-class VouchersList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue,
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, vouchers } = this.props;
+const VouchersList=(props: IProps) => {
+  let timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue)
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const onChange = () => {
+    const { toggleAll, vouchers } = props;
     toggleAll(vouchers, "vouchers");
   };
 
-  search = (e) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+    setSearchValue( searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
-  removeVouchers = (vouchers) => {
+  const removeVouchers = (vouchers) => {
     const voucherIds: string[] = [];
 
     vouchers.forEach((voucher) => {
       voucherIds.push(voucher._id);
     });
 
-    this.props.removeVouchers({ voucherIds }, this.props.emptyBulk);
+    props.removeVouchers({ voucherIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       vouchers,
-      history,
       loading,
       toggleBulk,
       bulk,
@@ -109,7 +95,7 @@ class VouchersList extends React.Component<IProps, State> {
       totalCount,
       queryParams,
       currentCampaign,
-    } = this.props;
+    } = props;
 
     const renderCheckbox = () => {
       if (
@@ -123,7 +109,7 @@ class VouchersList extends React.Component<IProps, State> {
           <FormControl
             checked={isAllSelected}
             componentclass="checkbox"
-            onChange={this.onChange}
+            onChange={onChange}
           />
         </th>
       );
@@ -156,7 +142,6 @@ class VouchersList extends React.Component<IProps, State> {
                 voucher={voucher}
                 isChecked={bulk.includes(voucher)}
                 key={voucher._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -182,7 +167,7 @@ class VouchersList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeVouchers(bulk);
+              removeVouchers(bulk);
             })
             .catch((error) => {
               Alert.error(error.message);
@@ -206,10 +191,10 @@ class VouchersList extends React.Component<IProps, State> {
           <FormControl
             type="text"
             placeholder={__("Type to search")}
-            onChange={this.search}
-            value={this.state.searchValue}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -248,7 +233,6 @@ class VouchersList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
           />
         }
         content={
@@ -268,7 +252,7 @@ class VouchersList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
 export default VouchersList;

@@ -23,7 +23,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { articleReactions } from "../../icons.constant";
 
@@ -203,14 +203,14 @@ const ArticleForm = (props: Props) => {
         <ControlLabel required={true}>Choose the knowledgebase</ControlLabel>
         <br />
 
-        {/* <Select
+        <Select
           {...formProps}
-          placeholder={__('Choose knowledgebase')}
-          value={topicId}
+          placeholder={__("Choose knowledgebase")}
+          value={generateOptions(topics).find((o) => o.value === topicId)}
           options={generateOptions(topics)}
           onChange={handleTopicChange}
-          clearable={false}
-        /> */}
+          isClearable={false}
+        />
       </FormGroup>
     );
   };
@@ -229,14 +229,16 @@ const ArticleForm = (props: Props) => {
         <ControlLabel required={true}>Choose the category</ControlLabel>
         <br />
 
-        {/* <Select
+        <Select
           {...formProps}
-          placeholder={__('Choose category')}
-          value={categoryId}
+          placeholder={__("Choose category")}
+          value={generateOptions(categories).find(
+            (o) => o.value === categoryId
+          )}
           options={generateOptions(categories)}
           onChange={handleCategoryChange}
-          clearable={false}
-        /> */}
+          isClearable={false}
+        />
       </FormGroup>
     );
   };
@@ -320,6 +322,13 @@ const ArticleForm = (props: Props) => {
 
     const object = article || ({} as IArticle);
 
+    const statusOptions = [{ value: "draft" }, { value: "publish" }].map(
+      (option) => ({
+        value: option.value,
+        label: option.value,
+      })
+    );
+
     return (
       <>
         <FormGroup>
@@ -350,33 +359,32 @@ const ArticleForm = (props: Props) => {
           <FlexItem count={4}>
             <FormGroup>
               <ControlLabel required={true}>{__("Reactions")}</ControlLabel>
-              {/* <Select
-                multi={true}
-                value={reactionChoices}
+              <Select
+                isMulti={true}
+                value={articleReactions.filter((o) =>
+                  reactionChoices.includes(o.value)
+                )}
                 options={articleReactions}
                 onChange={handleReactionsChange}
-                optionRenderer={renderOption}
-                valueRenderer={renderOption}
-                placeholder={__('Select')}
-              /> */}
+                // optionRenderer={renderOption}
+                // valueRenderer={renderOption}
+                placeholder={__("Select")}
+              />
             </FormGroup>
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>{__("Status")}</ControlLabel>
-              {/* <Select
+              <Select
                 {...formProps}
-                placeholder={__('Choose knowledgebase')}
-                value={status || 'draft'}
-                options={[{ value: 'draft' }, { value: 'publish' }].map(
-                  (option) => ({
-                    value: option.value,
-                    label: option.value,
-                  }),
+                placeholder={__("Choose knowledgebase")}
+                value={statusOptions.find(
+                  (o) => o.value === (status || "draft")
                 )}
+                options={statusOptions}
                 onChange={handleStatusChange}
-                clearable={false}
-              /> */}
+                isClearable={false}
+              />
             </FormGroup>
             <FormGroup>
               <ControlLabel required={true}>{__("isPrivate")}</ControlLabel>

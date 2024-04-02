@@ -1,22 +1,21 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import AccountList from '../accounts/containers/List';
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import { ConfigList } from '../../../styles';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '../../configs/containers/Form';
-import { IKhanbankConfigsItem } from '../../configs/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-// import { withRouter } from 'react-router-dom';
+import AccountList from "../accounts/containers/List";
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import { ConfigList } from "../../../styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "../../configs/containers/Form";
+import { IKhanbankConfigsItem } from "../../configs/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import LoadMore from "@erxes/ui/src/components/LoadMore";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TopHeader } from "@erxes/ui/src/styles/main";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   configs: IKhanbankConfigsItem[];
@@ -24,24 +23,26 @@ type Props = {
   queryParams: any;
   loading: boolean;
   refetch?: () => void;
-} & IRouterProps;
+};
 
 const ConfigsList = (props: Props) => {
-  const { configs, totalCount, queryParams, loading, history, refetch } = props;
+  const { configs, totalCount, queryParams, loading, refetch } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [currentConfig, setCurrentConfig] = React.useState<string | undefined>(
-    queryParams._id,
+    queryParams._id
   );
 
-  const [fetchPolicy, setFetchPolicy] = React.useState('cache-first');
+  const [fetchPolicy, setFetchPolicy] = React.useState("cache-first");
 
   React.useEffect(() => {
     const defaultAccount = JSON.parse(
-      localStorage.getItem('khanbankDefaultAccount') || '{}',
+      localStorage.getItem("khanbankDefaultAccount") || "{}"
     );
 
     if (defaultAccount.configId && defaultAccount.accountNumber) {
-      routerUtils.setParams(history, {
+      routerUtils.setParams(navigate, location, {
         _id: defaultAccount.configId,
         account: defaultAccount.accountNumber,
       });
@@ -50,11 +51,11 @@ const ConfigsList = (props: Props) => {
 
   const onClickRow = (config) => {
     setCurrentConfig(config._id);
-    routerUtils.setParams(history, { _id: config._id });
+    routerUtils.setParams(navigate, location, { _id: config._id });
   };
 
   const onRefresh = () => {
-    setFetchPolicy('network-only');
+    setFetchPolicy("network-only");
   };
 
   const reload = (
@@ -119,7 +120,7 @@ const ConfigsList = (props: Props) => {
         <SidebarList
           noTextColor={true}
           noBackground={true}
-          id={'khanbankSidebar'}
+          id={"khanbankSidebar"}
         >
           {renderRow()}
           <LoadMore all={totalCount} loading={loading} />

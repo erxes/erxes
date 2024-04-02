@@ -24,7 +24,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
-// import Select from 'react-select-plus';
+import Select from "react-select";
 import SelectCompanies from "../containers/SelectCompanies";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { isValidPhone } from "@erxes/ui-contacts/src/customers/utils";
@@ -258,15 +258,17 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Industries</ControlLabel>
-                  {/* <Select
-                    value={this.state.industry}
+                  <Select
+                    value={this.generateConstantParams(
+                      COMPANY_INDUSTRY_TYPES()
+                    ).filter((o) => this.state.industry?.includes(o.value))}
                     onChange={this.onIndustryChange}
                     options={this.generateConstantParams(
                       COMPANY_INDUSTRY_TYPES()
                     )}
-                    multi={true}
-                    clearable={false}
-                  /> */}
+                    isMulti={true}
+                    isClearable={false}
+                  />
                 </FormGroup>
 
                 <FormGroup>
@@ -299,13 +301,15 @@ class CompanyForm extends React.Component<Props, State> {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Headquarters Country</ControlLabel>
-                  {/* <Select
-                    value={this.state.location}
+                  <Select
+                    value={this.generateConstantParams(COUNTRIES).find(
+                      (o) => o.value === this.state.location
+                    )}
                     onChange={this.onCountryChange}
                     options={this.generateConstantParams(COUNTRIES)}
-                    placeholder={__('Select country')}
-                    clearable={true}
-                  /> */}
+                    placeholder={__("Select country")}
+                    isClearable={true}
+                  />
                 </FormGroup>
               </FormColumn>
               <FormColumn>
@@ -321,15 +325,17 @@ class CompanyForm extends React.Component<Props, State> {
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Business Type</ControlLabel>
-                  {/* <Select
-                    value={this.state.businessType}
+                  <Select
+                    value={this.generateConstantParams(
+                      COMPANY_BUSINESS_TYPES
+                    ).find((o) => o.value === this.state.businessType)}
                     onChange={this.onBusinessChange}
                     options={this.generateConstantParams(
                       COMPANY_BUSINESS_TYPES
                     )}
-                    placeholder={__('Select')}
-                    clearable={false}
-                  /> */}
+                    placeholder={__("Select")}
+                    isClearable={false}
+                  />
                 </FormGroup>
 
                 <FormGroup>

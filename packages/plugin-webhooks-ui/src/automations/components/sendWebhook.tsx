@@ -16,7 +16,7 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { EndColumn, FirstColumn, ListItem, Padding } from '../styles';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 
 type Props = {
   activeAction: IAction;
@@ -262,10 +262,10 @@ const SendWebhook = (props: Props) => {
               <ControlLabel>{__('Method')}</ControlLabel>
 
               <Select
-                value={config?.method || 'POST'}
+                value={RESP_METHODS.find(o=>o.value === (config?.method || 'POST'))}
                 options={RESP_METHODS}
                 name="method"
-                clearable={false}
+                isClearable={false}
                 onChange={handleSelect}
               />
             </FormGroup>

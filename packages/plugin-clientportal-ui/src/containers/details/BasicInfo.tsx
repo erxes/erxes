@@ -1,17 +1,18 @@
-import { Alert } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React from 'react';
+import { Alert } from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { gql } from "@apollo/client";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 
 import {
   ClientPortalUserRemoveMutationResponse,
   IClientPortalUser,
-} from '../../types';
-import { useMutation } from '@apollo/client';
+} from "../../types";
+import { useMutation } from "@apollo/client";
 
-import BasicInfoSection from '../../components/detail/BasicInfoSection';
-import { mutations } from '../../graphql';
+import BasicInfoSection from "../../components/detail/BasicInfoSection";
+import { mutations } from "../../graphql";
 // import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -19,18 +20,18 @@ type Props = {
 };
 
 type FinalProps = { currentUser: IUser } & Props &
-  IRouterProps &
   ClientPortalUserRemoveMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { clientPortalUser, history } = props;
+  const { clientPortalUser } = props;
+  const navigate = useNavigate();
 
   const [clientPortalUsersRemove] =
     useMutation<ClientPortalUserRemoveMutationResponse>(
       gql(mutations.clientPortalUsersRemove),
       {
-        refetchQueries: ['clientPortalUserCounts', 'clientPortalUsers'],
-      },
+        refetchQueries: ["clientPortalUserCounts", "clientPortalUsers"],
+      }
     );
 
   const { _id } = clientPortalUser;
@@ -38,8 +39,8 @@ const BasicInfoContainer = (props: FinalProps) => {
   const remove = () => {
     clientPortalUsersRemove({ variables: { clientPortalUserIds: [_id] } })
       .then(() => {
-        Alert.success('You successfully deleted a client portal user');
-        history.push('/settings/client-portal/user');
+        Alert.success("You successfully deleted a client portal user");
+        navigate("/settings/client-portal/user");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -54,6 +55,6 @@ const BasicInfoContainer = (props: FinalProps) => {
   return <BasicInfoSection {...updatedProps} />;
 };
 
-export default BasicInfoContainer;
+export default withCurrentUser(BasicInfoContainer);
 
 // export default withRouter<FinalProps>(BasicInfoContainer);

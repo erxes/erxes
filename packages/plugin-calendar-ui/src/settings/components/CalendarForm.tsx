@@ -11,12 +11,14 @@ import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import React from "react";
-import Modal from "react-bootstrap/Modal";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import TwitterPicker from "react-color/lib/Twitter";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { ICalendar, IGroup } from "../types";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import {
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 
 type Props = {
   show: boolean;
@@ -102,10 +104,13 @@ class CalendarForm extends React.Component<FinalProps, State> {
         <ControlLabel required={true}>Group</ControlLabel>
         <Select
           placeholder={__("Choose a group")}
-          value={this.state.groupId || (calendar && calendar.groupId)}
+          value={this.renderOptions(groups).find(
+            (o) =>
+              o.value === (this.state.groupId || (calendar && calendar.groupId))
+          )}
           options={this.renderOptions(groups)}
           onChange={onChange}
-          clearable={false}
+          isClearable={false}
         />
       </FormGroup>
     );
@@ -118,103 +123,89 @@ class CalendarForm extends React.Component<FinalProps, State> {
     const showPrimary =
       !calendar || (calendar && currentUserId === calendar.userId);
 
-    const popoverBottom = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="266px"
-          triangle="hide"
-          color={this.state.backgroundColor}
-          onChange={this.onColorChange}
-          colors={COLORS}
-        />
-      </Popover>
-    );
-
     return (
       <div id="manage-calendar-modal">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {calendar ? `Edit ${calendarName}` : `Add ${calendarName}`}
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <Flex>
-            <FormGroup>
-              <ControlLabel>Background</ControlLabel>
-              <div>
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose={true}
-                  placement="bottom"
-                  overlay={popoverBottom}
-                >
+        <Flex>
+          <FormGroup>
+            <ControlLabel>Background</ControlLabel>
+            <div>
+              <Popover
+                placement="bottom"
+                trigger={
                   <ColorPick>
                     <ColorPicker
                       style={{ backgroundColor: this.state.backgroundColor }}
                     />
                   </ColorPick>
-                </OverlayTrigger>
-              </div>
-            </FormGroup>
-          </Flex>
+                }
+              >
+                <TwitterPicker
+                  width="266px"
+                  triangle="hide"
+                  color={this.state.backgroundColor}
+                  onChange={this.onColorChange}
+                  colors={COLORS}
+                />
+              </Popover>
+            </div>
+          </FormGroup>
+        </Flex>
 
-          {this.renderGroups()}
+        {this.renderGroups()}
 
-          {showPrimary && (
-            <FormGroup>
-              <ControlLabel>Is primary</ControlLabel>
+        {showPrimary && (
+          <FormGroup>
+            <ControlLabel>Is primary</ControlLabel>
 
-              <FormControl
-                {...formProps}
-                name="isPrimary"
-                defaultChecked={this.state.isPrimary}
-                componentclass="checkbox"
-                onChange={this.onChangeIsPrimary}
-              />
-            </FormGroup>
-          )}
+            <FormControl
+              {...formProps}
+              name="isPrimary"
+              defaultChecked={this.state.isPrimary}
+              componentclass="checkbox"
+              onChange={this.onChangeIsPrimary}
+            />
+          </FormGroup>
+        )}
 
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              onClick={closeModal}
-            >
-              Cancel
-            </Button>
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
 
-            {renderButton({
-              name: calendarName,
-              values: this.generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object: calendar,
-              confirmationUpdate: true,
-            })}
-          </Modal.Footer>
-        </Modal.Body>
+          {renderButton({
+            name: calendarName,
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: calendar,
+            confirmationUpdate: true,
+          })}
+        </ModalFooter>
       </div>
     );
   };
 
   render() {
-    const { show, closeModal } = this.props;
+    const { calendar, closeModal, show } = this.props;
+    const calendarName = "calendar";
 
     if (!show) {
       return null;
     }
 
     return (
-      <Modal
+      <Dialog
         show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        animation={false}
+        closeModal={closeModal}
+        title={calendar ? `Edit ${calendarName}` : `Add ${calendarName}`}
       >
         <Form renderContent={this.renderContent} />
-      </Modal>
+      </Dialog>
     );
   }
 }

@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { router, withProps } from '@erxes/ui/src/utils';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import React from 'react';
 import { RemoveMutationResponse } from '../types';
@@ -12,15 +11,13 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../configs/lotteryCampaign/graphql';
 
-// import { withRouter } from 'react-router-dom';
 
-type Props = { history: any; queryParams: any; voucherCampaignId: string };
+type Props = {  queryParams: any; voucherCampaignId: string };
 type FinalProps = {
   doLottery: any;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
   multipledoLottery: any;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {

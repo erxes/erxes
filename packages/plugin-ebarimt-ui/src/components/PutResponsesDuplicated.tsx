@@ -5,7 +5,7 @@ import {
   Pagination,
   Table,
 } from "@erxes/ui/src/components";
-import { IQueryParams, IRouterProps } from "@erxes/ui/src/types";
+import { IQueryParams } from "@erxes/ui/src/types";
 
 import DetailDuplicated from "../containers/DetailDuplicated";
 import { IPutResponse } from "../types";
@@ -14,17 +14,13 @@ import RightMenu from "./RightMenuDuplicated";
 import { SUB_MENUS } from "../constants";
 import { TableWrapper } from "../styles";
 import { __ } from "@erxes/ui/src/utils";
-import { withRouter } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   errorMsg: string;
   putResponsesDuplicated: IPutResponse[];
   loading: boolean;
   totalCount: number;
-  sumAmount: number;
-  bulk: any[];
-  isAllSelected: boolean;
-  history: any;
+  sumAmount?: number;
   queryParams: any;
 
   onFilter: (filterParams: IQueryParams) => void;
@@ -32,9 +28,7 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-type State = {};
-
-class PutResponsesDuplicated extends React.Component<IProps, State> {
+class PutResponsesDuplicated extends React.Component<IProps> {
   renderRow(putResponse, index) {
     const { _id, date, number, count } = putResponse;
 
@@ -150,4 +144,4 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(PutResponsesDuplicated);
+export default PutResponsesDuplicated;

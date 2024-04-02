@@ -15,7 +15,6 @@ import GoalView from "./goalView";
 
 type Props = {
   goalType: IGoalType;
-  history: any;
   isChecked: boolean;
   toggleBulk: (goalType: IGoalType, isChecked?: boolean) => void;
 };

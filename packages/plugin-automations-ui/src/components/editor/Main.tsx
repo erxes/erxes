@@ -39,6 +39,7 @@ import ActionDetailForm from '../forms/actions/ActionDetailForm';
 import ActionsForm from '../forms/actions/ActionsForm';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import AutomationEditor from './RFEditor';
+import { Transition } from "@headlessui/react";
 
 type Props = {
   automation: IAutomation;
@@ -642,16 +643,16 @@ class Editor extends React.Component<Props, State> {
         </PageContent>
 
         <div ref={this.setWrapperRef}>
-          <RTG.CSSTransition
-            in={showDrawer}
-            timeout={300}
-            classNames="slide-in-right"
-            unmountOnExit={true}
+          <Transition
+            show={showDrawer}
+            // timeout={300}
+            className="slide-in-right"
+            // unmountOnExit={true}
           >
             <RightDrawerContainer>
               {this.renderTabContent()}
             </RightDrawerContainer>
-          </RTG.CSSTransition>
+          </Transition>
         </div>
       </>
     );
