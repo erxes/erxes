@@ -13,8 +13,8 @@ const customersAdd = `
           _id
           erxesApiId
           integrationId
-          senderPhoneNumber
-          recipientPhoneNumber
+          callerNumber
+          operatorPhone
           callId
           channels {
             _id

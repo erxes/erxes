@@ -132,6 +132,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       conversation={conversation}
       hasMicrophone={hasMicrophone}
       addNote={addNote}
+      phoneNumber={phoneNumber}
     />
   );
 };

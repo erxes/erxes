@@ -219,15 +219,6 @@ const imapIntegrations = `
   }
 `;
 
-const imapSendMail = `
-  query imapConversationDetail($conversationId: String!) {
-    imapConversationDetail(conversationId: $conversationId) {
-     _id
-      mailData
-      createdAt
-  }
- }
-`;
 export default {
   users,
   brands,
@@ -245,6 +236,5 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations,
-  imapSendMail
+  imapIntegrations
 };

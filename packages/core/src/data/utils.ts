@@ -543,7 +543,9 @@ const uploadToCFImages = async (
 
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'false', models);
+
+    const VERSION = getEnv({ name: 'VERSION' });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -578,7 +580,7 @@ const uploadToCFImages = async (
     throw new Error('Error uploading file to Cloudflare Images');
   }
 
-  if (!IS_PUBLIC || IS_PUBLIC === 'false') {
+  if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
     return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
   }
 

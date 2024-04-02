@@ -120,3 +120,4 @@ export const putResponseSchema = schemaHooksWrapper(
 );
 
 putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });
+putResponseSchema.index({ contentType: 1, contentId: 1, taxType: 1, status: 1 });

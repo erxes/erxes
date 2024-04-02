@@ -22,6 +22,8 @@ import {
   getStatus,
 } from './graphql/resolvers/mutations/orders';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { IOrderDocument } from './models/definitions/orders';
+import { IConfigDocument } from './models/definitions/configs';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -272,6 +274,11 @@ export const updateMobileAmount = async (
       billType === BILL_TYPES.INNER
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
+      if (!conf) {
+        debugError(`Error occurred while sending data to erxes: config not found`);
+        return;
+      }
+
       await prepareSettlePayment(subdomain, models, order, conf, {
         _id,
         billType,
@@ -325,10 +332,10 @@ export const updateMobileAmount = async (
 };
 
 export const prepareSettlePayment = async (
-  subdomain,
-  models,
-  order,
-  config,
+  subdomain: string,
+  models: IModels,
+  order: IOrderDocument,
+  config: IConfigDocument,
   { _id, billType, registerNumber }: ISettlePaymentParams,
 ) => {
   checkOrderStatus(order);
@@ -397,11 +404,21 @@ export const prepareSettlePayment = async (
           continue;
         }
 
-        response = await models.PutResponses.putData({
-          ...data,
-          config: ebarimtConfig,
-          models,
-        });
+        try {
+          response = await models.PutResponses.putData({
+            ...data,
+            config: ebarimtConfig,
+            models,
+          });
+        } catch (e) {
+          response = {
+            _id: `Err${Math.random()}`,
+            billId: 'Error',
+            success: 'false',
+            message: e.message
+          }
+        }
+        
         ebarimtResponses.push(response);
       }
     }

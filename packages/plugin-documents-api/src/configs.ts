@@ -34,18 +34,19 @@ export default {
         const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
-        // findOne _id or code
-        const document = await models.Documents.findOne({ $or: [{ _id }, { code: _id }] });
+
+        let document
+        try {
+          document = await models.Documents.findOne({ _id });
+        }catch(e){
+          document = await models.Documents.findOne({code: _id});
+        }
 
         if (!document) {
           return res.send('Not found');
         }
 
         const userId = req.headers.userid;
-
-        if (!document) {
-          return res.send('Not found');
-        }
 
         if (!userId) {
           return next(new Error('Permission denied'));

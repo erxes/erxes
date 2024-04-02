@@ -2,6 +2,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
+import * as moment from 'moment'
 
 const receiveCall = async (
   models: IModels,
@@ -24,23 +25,35 @@ const receiveCall = async (
   if (!integration) {
     throw new Error('Integration not found');
   }
-
+const operator = integration.operators.find(
+  (operator) => operator.userId === user?._id,
+);
   params.recipientId = integration.phone;
-  const { primaryPhone, recipientId, direction, callID } = params;
+  params.extentionNumber = operator?.gsUsername || '';
+  const { primaryPhone, recipientId, direction, callID, extentionNumber } =
+    params;
 
   const customer = await getOrCreateCustomer(models, subdomain, params);
 
   // get conversation
-  let conversation = await models.Conversations.findOne({ callId: callID });
+  const now = moment();
 
-  if (!conversation) {
+  // Subtract 30 seconds
+  const dateBefore30Seconds = now.subtract(5, 'seconds');
+  let conversation = await models.Conversations.findOne({ callerNumber: primaryPhone, status: 'missed', createdAt: {$gte: dateBefore30Seconds.toDate()} });
+
+  if (conversation) {
+    return customer
+  }
     try {
       conversation = await models.Conversations.create({
         callId: callID,
-        senderPhoneNumber: primaryPhone,
-        recipientPhoneNumber: recipientId,
+        callerNumber: primaryPhone,
+        operatorPhone: recipientId,
         integrationId: inboxIntegration._id,
+        createdAt: new Date(),
       });
+
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
@@ -48,10 +61,17 @@ const receiveCall = async (
           : e,
       );
     }
-  }
+  
 
-  let history = await models.CallHistory.findOne({ callId: callID });
-  if (!history) {
+  let history = await models.CallHistory.findOne({
+    callerNumber: primaryPhone,
+    status: 'missed',
+    createdAt: { $gte: dateBefore30Seconds.toDate() },
+  });
+  if (history) {
+    return customer
+  }
+  
     try {
       const newHistory = new models.CallHistory({
         sessionId: callID,
@@ -62,6 +82,7 @@ const receiveCall = async (
         createdBy: user._id,
         updatedBy: user._id,
         callDuration: 0,
+        extentionNumber,
       });
 
       try {
@@ -76,7 +97,6 @@ const receiveCall = async (
           : e,
       );
     }
-  }
 
   // save on api
   try {
@@ -91,7 +111,7 @@ const receiveCall = async (
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: user._id,
+          owner: user?.details?.operatorPhone || ''
         }),
       },
       isRPC: true,

@@ -65,6 +65,7 @@ class CategoryForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     description: string;
+    code?: string;
   }) => {
     const { category } = this.props;
     const finalValues = values;
@@ -83,7 +84,8 @@ class CategoryForm extends React.Component<Props, State> {
         icon: selectedIcon,
         topicIds: [topicId],
         topicId,
-        parentCategoryId
+        parentCategoryId,
+        code: finalValues.code
       }
     };
   };
@@ -183,6 +185,15 @@ class CategoryForm extends React.Component<Props, State> {
             name="title"
             defaultValue={object.title}
             required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
           />
         </FormGroup>
 

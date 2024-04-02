@@ -207,6 +207,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     title: string;
     description: string;
     brandId: string;
+    code?: string;
   }) => {
     const { topic } = this.props;
     const {
@@ -230,7 +231,8 @@ class KnowledgeForm extends React.Component<Props, State> {
         title: finalValues.title,
         color,
         backgroundImage,
-        notificationSegmentId
+        notificationSegmentId,
+        code: finalValues.code
       }
     };
   };
@@ -321,6 +323,15 @@ class KnowledgeForm extends React.Component<Props, State> {
             </div>
           </FormGroup>
         </FlexContent>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={topic.code || ''}
+          />
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel>Background image: </ControlLabel>

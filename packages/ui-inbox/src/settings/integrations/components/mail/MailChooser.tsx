@@ -5,6 +5,7 @@ import { IIntegration } from '../../types';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
+import { dealFields } from '@erxes/ui-cards/src/deals/graphql/queries';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -24,13 +25,13 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  messages: any;
+  detailQuery: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
-      messages = [],
+      detailQuery = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
       selectedItem = '',
@@ -53,16 +54,25 @@ class MailChooser extends React.Component<Props> {
     ];
 
     let defaultEmail = '';
-    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
-      defaultEmail = messages[0].mailData.to[0].email;
+
+    if (
+      detailQuery.imapConversationDetail?.length > 0 &&
+      detailQuery.imapConversationDetail[0].mailData.to?.length > 0
+    ) {
+      defaultEmail = detailQuery.imapConversationDetail[0].mailData.to[0].email;
+    }
+    let email = '';
+    if (selectedItem) {
+      email = selectedItem;
+    } else {
+      email = defaultEmail;
     }
     return (
       <Wrapper>
         <FormGroup>
           <Select
             placeholder={__('Choose email to send from')}
-            value={selectedItem}
-            defaultValue={defaultEmail}
+            value={email}
             onChange={onSelectChange}
             options={options}
           />

@@ -23,6 +23,14 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if(!operator){
+         throw new Error('Operator not found');
+      }
+      selector.extentionNumber = operator.gsUsername
+
       if (selector?.callStatus === 'missed') {
         selector.callStatus = { $ne: 'connected' };
       } else {

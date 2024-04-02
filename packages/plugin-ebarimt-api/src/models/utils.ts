@@ -68,6 +68,22 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
+    const continuePutResponses: IPutResponseDocument[] =
+      await this.models.PutResponses.find({
+        contentType,
+        contentId,
+        taxType: this.params.taxType,
+        modifiedAt: { $exists: false }
+      }).lean();
+
+    if (continuePutResponses.length) {
+      for (const cpr of continuePutResponses) {
+        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+          throw new Error('The previously submitted data has not yet been processed');
+        }
+      }
+    }
+
     const prePutResponse: IPutResponseDocument | undefined =
       await this.models.PutResponses.putHistory({
         contentType,
@@ -98,6 +114,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       sendInfo: { ...this.transactionInfo },
       contentId,
       contentType,
+      taxType: this.params.taxType,
       number,
     });
 
@@ -109,8 +126,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: 10000
       },
-    ).then((r) => r.json());
+    )
+      .then((r) => r.json())
+      .catch((err) => {
+        throw new Error(err.message);
+      });
 
     if (
       response.billType === '1' &&

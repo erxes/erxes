@@ -53,19 +53,21 @@ class Row extends React.Component<Props> {
       if (!otherBrands.length) {
         return <></>;
       }
-
+      
       return otherBrands.map(ob => {
         const otherInfo = syncedInfo[ob] || {};
 
         return (
-          <tr key={`${otherInfo._id}_${otherInfo.brandName || ''}`}>
-            <td>{otherInfo.brandName || ''}</td>
+          <tr key={`${otherInfo._id}_${otherInfo.brandName?.name || ''}`}>
+            <td></td>
+            <td>{otherInfo.brandName?.name || ''}</td>
             <td>
               {otherInfo.syncedDate &&
                 dayjs(otherInfo.syncedDate || '').format('ll')}
             </td>
             <td>{otherInfo.syncedBillNumber || ''}</td>
             <td>{otherInfo.syncedCustomer || ''}</td>
+            <td></td>
           </tr>
         );
       });
@@ -98,14 +100,15 @@ class Row extends React.Component<Props> {
               />
             )}
           </td>
-
-          <td>{firstInfo.brandName || ''}</td>
+          <td></td>
+          <td>{firstInfo.brandName?.name || ''}</td>
           <td>
             {firstInfo.syncedDate &&
               dayjs(firstInfo.syncedDate || '').format('ll')}
           </td>
           <td>{firstInfo.syncedBillNumber || ''}</td>
           <td>{firstInfo.syncedCustomer || ''}</td>
+          <td></td>
           <td rowSpan={brandLen}>
             {isUnsynced && (
               <Tip text="Sync">

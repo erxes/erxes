@@ -19,7 +19,7 @@ type Props = {
 export const Authorization = (props: Props) => {
   const { queryParams } = props;
 
-  if (queryParams.fbAuthorized) {
+  if (queryParams.fbAuthorized && window.opener) {
     window.opener.location.reload();
     window.close();
   }

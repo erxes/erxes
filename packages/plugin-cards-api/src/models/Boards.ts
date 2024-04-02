@@ -65,7 +65,7 @@ const removeItems = async (
 
   await models.Checklists.removeChecklists(type, itemIds);
 
-  sendCoreMessage({
+  await sendCoreMessage({
     subdomain,
     action: 'conformities.removeConformities',
     data: {
@@ -74,7 +74,7 @@ const removeItems = async (
     }
   });
 
-  sendInternalNotesMessage({ subdomain, action: 'remove', data: itemIds });
+  await sendInternalNotesMessage({ subdomain, action: 'removeInternalNotes', data: { contentType: `cards:${type}`, contentTypeIds: itemIds } });
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
 };

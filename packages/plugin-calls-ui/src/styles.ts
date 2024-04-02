@@ -6,7 +6,6 @@ import {
 } from '@erxes/ui/src/utils/animations';
 import styled, { keyframes } from 'styled-components';
 
-import { NameCardText } from '@erxes/ui/src/components/nameCard/NameCard';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';

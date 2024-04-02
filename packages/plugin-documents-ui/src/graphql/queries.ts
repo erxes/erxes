@@ -18,6 +18,7 @@ const documentsDetail = `
       name
       content
       replacer
+      code
     }
   }
 `;
