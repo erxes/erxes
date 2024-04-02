@@ -6,8 +6,8 @@ import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
-import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 import { connect } from './mongo-connection';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 
 export const getEnv = ({
   name,
@@ -49,7 +49,7 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  },
+  }
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
@@ -77,8 +77,8 @@ const stringToRegex = (value: string) => {
   const specialChars = '{}[]\\^$.|?*+()'.split('');
   const val = value.split('');
 
-  const result = val.map((char) =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char,
+  const result = val.map(char =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char
   );
 
   return '.*' + result.join('').substring(2) + '.*';
@@ -86,7 +86,7 @@ const stringToRegex = (value: string) => {
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText',
+  searchKey = 'searchText'
 ) => {
   const result: any[] = [];
 
@@ -134,8 +134,8 @@ export const getToday = (date: Date): Date => {
       date.getUTCDate(),
       0,
       0,
-      0,
-    ),
+      0
+    )
   );
 };
 
@@ -170,11 +170,11 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  */
 export const checkUserIds = (
   oldUserIds: string[] = [],
-  newUserIds: string[] = [],
+  newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -229,7 +229,7 @@ const generateRandomEmail = () => {
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
-  defaultValue?: string,
+  defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
     type === 'email' ? generateRandomEmail() : randomAlphanumeric();
@@ -301,7 +301,7 @@ interface IActionMap {
 export const userActionsMap = async (
   userPermissions: IPermissionDocument[],
   groupPermissions: IPermissionDocument[],
-  user: any,
+  user: any
 ): Promise<IActionMap> => {
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
@@ -364,8 +364,8 @@ export const connectionOptions: mongoose.ConnectionOptions = {
 export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
-    subdomain: string,
-  ) => IModels | Promise<IModels>,
+    subdomain: string
+  ) => IModels | Promise<IModels>
 ): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
   const VERSION = getEnv({ name: 'VERSION' });
 
@@ -374,7 +374,7 @@ export const createGenerateModels = <IModels>(
   if (VERSION && VERSION !== 'saas') {
     let models: IModels | null = null;
     return async function genereteModels(
-      hostnameOrSubdomain: string,
+      hostnameOrSubdomain: string
     ): Promise<IModels> {
       if (models) {
         return models;
@@ -386,7 +386,7 @@ export const createGenerateModels = <IModels>(
     };
   } else {
     return async function genereteModels(
-      hostnameOrSubdomain: string = '',
+      hostnameOrSubdomain: string = ''
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
@@ -405,14 +405,14 @@ export const createGenerateModels = <IModels>(
 
       if (!organization) {
         throw new Error(
-          `Organization with subdomain = ${subdomain} is not found`,
+          `Organization with subdomain = ${subdomain} is not found`
         );
       }
 
       const DB_NAME = getEnv({ name: 'DB_NAME' });
       const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
         '<organizationId>',
-        organization._id,
+        organization._id
       );
 
       // @ts-ignore
@@ -476,7 +476,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
 ) => {
   date = new Date(date || new Date());
 
@@ -508,7 +508,7 @@ export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n',
+  resultType?: 'd' | 'n'
 ) => {
   if (!shortStr) return;
 
