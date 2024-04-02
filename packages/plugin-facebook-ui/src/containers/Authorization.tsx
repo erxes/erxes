@@ -21,6 +21,8 @@ export const Authorization = (props: Props) => {
   const { queryParams } = props;
 
   if (queryParams.fbAuthorized) {
+    window.focus();
+    
     if (window.opener) {
       window.opener.location.reload();
     }
