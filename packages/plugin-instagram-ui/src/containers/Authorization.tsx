@@ -19,13 +19,19 @@ type Props = {
 export const Authorization = (props: Props) => {
   const { queryParams } = props;
   if (queryParams.igAuthorized) {
-    window.opener.location.reload();
+    if (window.opener) {
+      window.opener.location.reload();
+    }
     window.close();
+    window.location.reload();
   }
-
   return (
     <Wrapper>
-      <Spinner />
+      {queryParams.igAuthorized ? (
+        <p>__('Instagram authorized, You can close this window') </p>
+      ) : (
+        <Spinner />
+      )}
     </Wrapper>
   );
 };
