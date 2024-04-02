@@ -17,7 +17,6 @@ export const RichTextEditorSourceControl = () => {
   const handleSourceEditMode = () => {
     if (isSourceEnabled) {
       const codeText = codeMirrorRef?.current?.view?.state.doc.toString() || '';
-
       editor?.chain().focus().setContent(codeText).run();
     } else {
       const plainHtml = editor?.getHTML() || '';
@@ -31,6 +30,7 @@ export const RichTextEditorSourceControl = () => {
         },
       });
     }
+
     toggleSourceView();
   };
 

@@ -1368,7 +1368,7 @@ a:hover {
       cursor: col-resize;
     }
 
-    [data-type="mention"]{
+    .mention {
       padding-top: 0.25rem;
       padding-bottom: 0.25rem;
       padding-left: 0.5rem;
@@ -1391,6 +1391,7 @@ a:hover {
     outline: 0px;
     height: 100%;
     overflow-y: auto;
+  
     a {
       color: #228be6;
       display: inline-flex;
@@ -1400,6 +1401,10 @@ a:hover {
       text-decoration: underline;
     }
 
+    &.resize-cursor {
+      cursor: col-resize;
+    }
+    
     table {
       border-collapse: collapse;
       margin: 0;

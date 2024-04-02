@@ -74,7 +74,7 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
 
 const RichTextEditor = forwardRef(function RichTextEditor(
   props: IRichTextEditorProps,
-  ref: React.ForwardedRef<EditorMethods>,
+  ref: React.ForwardedRef<EditorMethods>
 ) {
   const {
     placeholder,
@@ -119,10 +119,10 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   const editor = useEditor(
     {
       extensions,
-      parseOptions: { preserveWhitespace: 'full' },
+      parseOptions: { preserveWhitespace: true },
       autofocus: autoFocus,
     },
-    [showMentions],
+    [showMentions]
   );
 
   useEffect(() => {
@@ -144,14 +144,20 @@ const RichTextEditor = forwardRef(function RichTextEditor(
 
   useEffect(() => {
     if (editor) {
+      const editorHTML = editor.getHTML();
       const { from, to } = editor.state.selection;
-      editor
-        .chain()
-        .setContent(content, false, {
-          preserveWhitespace: true,
-        })
-        .setTextSelection({ from, to })
-        .run();
+
+      if (editorHTML !== content) {
+        setTimeout(() => {
+          editor
+            .chain()
+            .setContent(content, false, {
+              preserveWhitespace: true,
+            })
+            .setTextSelection({ from, to })
+            .run();
+        });
+      }
 
       onChange && onChange(content);
     }
@@ -163,8 +169,10 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       if (!storedContent) {
         return;
       }
-      editor.commands.setContent(storedContent, false, {
-        preserveWhitespace: true,
+      setTimeout(() => {
+        editor.commands.setContent(storedContent, false, {
+          preserveWhitespace: true,
+        });
       });
 
       onChange && onChange(storedContent);
@@ -184,12 +192,12 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       getIsFocused: () => editorRef.current?.isFocused,
       focus: (position) => editorRef.current?.commands.focus(position),
     }),
-    [],
+    []
   );
 
   const mergedLabels = useMemo(
     () => ({ ...DEFAULT_LABELS, ...labels }),
-    [labels],
+    [labels]
   );
 
   const editorParts = useMemo(
@@ -288,7 +296,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
         key="erxes-rte-content-key"
       />,
     ],
-    [],
+    []
   );
 
   const renderEditor = useCallback(() => {
@@ -309,6 +317,13 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   }, []);
 
   const toggleSourceView = () => {
+    const editorContent = editor?.getHTML() || '';
+    onChange && onChange(editorContent);
+
+    if (name) {
+      localStorage.setItem(name, editorContent);
+    }
+
     setIsSourceEnabled(!isSourceEnabled);
   };
 

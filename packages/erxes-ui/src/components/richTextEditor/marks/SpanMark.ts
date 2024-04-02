@@ -4,8 +4,16 @@ export const SpanMark = Mark.create({
   name: 'spanMark',
   excludes: '',
   parseHTML() {
-    return [{ tag: 'span' }];
+    return [
+      { tag: 'span' },
+      {
+        tag: `span[data-type="mention"]`,
+        skip: true,
+        ignore: true,
+      },
+    ];
   },
+
   renderHTML({ HTMLAttributes }) {
     return [
       'span',
@@ -24,6 +32,18 @@ export const SpanMark = Mark.create({
           }
           return { style: attributes.style };
         },
+      },
+      class: {
+        parseHTML: (element) => element.getAttribute('class'),
+      },
+      'data-type': {
+        parseHTML: (element) => element.getAttribute('data-type'),
+      },
+      'data-id': {
+        parseHTML: (element) => element.getAttribute('data-id'),
+      },
+      'data-label': {
+        parseHTML: (element) => element.getAttribute('data-label'),
       },
     };
   },
