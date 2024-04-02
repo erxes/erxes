@@ -2,8 +2,9 @@ import * as React from "react";
 
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IIntegration } from "../../types";
-import Select from "react-select";
+import Select from "react-select-plus";
 import { __ } from "@erxes/ui/src/utils";
+import { dealFields } from "@erxes/ui-cards/src/deals/graphql/queries";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -24,13 +25,13 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  messages: any;
+  detailQuery: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
-      messages = [],
+      detailQuery = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
       selectedItem = "",
@@ -53,17 +54,25 @@ class MailChooser extends React.Component<Props> {
     ];
 
     let defaultEmail = "";
-    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
-      defaultEmail = messages[0].mailData.to[0].email;
+
+    if (
+      detailQuery.imapConversationDetail?.length > 0 &&
+      detailQuery.imapConversationDetail[0].mailData.to?.length > 0
+    ) {
+      defaultEmail = detailQuery.imapConversationDetail[0].mailData.to[0].email;
+    }
+    let email = "";
+    if (selectedItem) {
+      email = selectedItem;
+    } else {
+      email = defaultEmail;
     }
     return (
       <Wrapper>
         <FormGroup>
           <Select
             placeholder={__("Choose email to send from")}
-            value={options.map((o) =>
-              o.options.find((item) => item.value === selectedItem)
-            )}
+            value={email}
             onChange={onSelectChange}
             options={options}
           />

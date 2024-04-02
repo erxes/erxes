@@ -53,7 +53,6 @@ type FinalProps = {
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
   currentConversation: any;
-  messagesQuery: any;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -88,13 +87,8 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       currentConversation,
-      messagesQuery,
     } = this.props;
-    if (messagesQuery.loading) {
-      return null;
-    }
 
-    const messages = messagesQuery.imapConversationDetail || [];
     const { loadedEmails, verifiedImapEmails, verifiedEngageEmails } =
       this.state;
 
@@ -269,7 +263,6 @@ class MailFormContainer extends React.Component<
         callback,
       });
     };
-
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -284,7 +277,7 @@ class MailFormContainer extends React.Component<
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
       verifiedEngageEmails: verifiedEngageEmails || [],
-      messages: messages || [],
+      detailQuery: detailQuery || [],
     };
 
     return <MailForm {...updatedProps} />;
@@ -312,18 +305,6 @@ const WithMailForm = withProps<Props>(
         fetchPolicy: "cache-first",
       }),
       skip: !isEnabled("emailtemplates"),
-    }),
-    graphql<Props, any>(gql(queries.imapSendMail), {
-      name: "messagesQuery",
-      options: ({ queryParams }) => {
-        const { _id } = queryParams;
-        return {
-          variables: {
-            conversationId: _id, // Use the conversationId obtained from queryParams
-          },
-          fetchPolicy: "network-only",
-        };
-      },
     })
   )(withCurrentUser(MailFormContainer))
 );

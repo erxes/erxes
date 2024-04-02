@@ -1,4 +1,9 @@
-import { Button, Icon } from "@erxes/ui/src/components";
+import {
+  Button,
+  ControlLabel,
+  FormGroup,
+  Icon,
+} from "@erxes/ui/src/components";
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
@@ -12,22 +17,21 @@ import {
   isEnabled,
 } from "@erxes/ui/src/utils/core";
 
-import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Datetime from "@nateradebaugh/react-datetime";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IOption } from "@erxes/ui/src/types";
 import Map from "@erxes/ui/src/containers/map/Map";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectList from "./ObjectList";
 import React from "react";
-import Select from "react-select";
+import Select from "react-select-plus";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectProductCategory from "../containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { SelectTeamMembers } from "@erxes/ui/src";
 import Uploader from "@erxes/ui/src/components/Uploader";
 
 type Props = {
@@ -303,6 +307,28 @@ export default class GenerateField extends React.Component<Props, State> {
         label="Filter by customers"
         name="customerIds"
         multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
+  renderUser({ id, value }) {
+    const onSelect = (e) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectTeamMembers
+        label="Choose team members"
+        name="userIds"
+        multi={true}
         initialValue={value}
         onSelect={onSelect}
       />
@@ -706,6 +732,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case "customer": {
         return this.renderCustomer(attrs);
+      }
+
+      case "users": {
+        return this.renderUser(attrs);
       }
 
       case "product": {
