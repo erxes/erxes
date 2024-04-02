@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.5](https://github.com/erxes/erxes/compare/1.7.4...1.7.5) (2024-04-02)
+
+
+### Bug Fixes
+
+* **xbuilder:** Entries list scroll not working ([#5084](https://github.com/erxes/erxes/issues/5084)) ([c4bc165](https://github.com/erxes/erxes/commit/c4bc165bc2c4f8a3e4a48a93577b85fc36b12e63))
+
 ## [1.7.4](https://github.com/erxes/erxes/compare/1.7.3...1.7.4) (2024-04-01)
 
 
