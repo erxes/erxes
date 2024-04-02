@@ -155,6 +155,12 @@ const callHistories = `
     }
 }`;
 
+const callsGetConfigs = `
+  query callsGetConfigs {
+    callsGetConfigs
+  }
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -162,4 +168,5 @@ export default {
   customers,
   activeSession,
   callHistories,
+  callsGetConfigs,
 };
