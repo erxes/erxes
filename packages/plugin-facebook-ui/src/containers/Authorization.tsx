@@ -18,6 +18,7 @@ type Props = {
 };
 
 export const Authorization = (props: Props) => {
+  window.focus();
   const { queryParams } = props;
 
   React.useEffect(() => {
