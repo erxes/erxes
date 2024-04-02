@@ -18,14 +18,14 @@ export interface IChecklistsParam {
 }
 
 export type ChecklistsQueryResponse = {
-  checklists: IChecklist[];
+  taskChecklists: IChecklist[];
   loading: boolean;
   refetch: () => void;
   subscribeToMore: any;
 };
 
 export type AddMutationResponse = ({
-  variables: IChecklistDoc
+  variables: IChecklistDoc,
 }) => Promise<any>;
 
 export type EditMutationVariables = {
@@ -34,11 +34,11 @@ export type EditMutationVariables = {
 } & IChecklistsParam;
 
 export type EditMutationResponse = ({
-  variables: EditMutationVariables
+  variables: EditMutationVariables,
 }) => Promise<any>;
 
 export type RemoveMutationResponse = ({
-  variables: MutationVariables
+  variables: MutationVariables,
 }) => Promise<any>;
 
 // checklists items
@@ -59,11 +59,11 @@ export interface IChecklistItem extends IChecklistItemDoc {
 }
 
 export type AddItemMutationResponse = ({
-  variables: IChecklistItemDoc
+  variables: IChecklistItemDoc,
 }) => Promise<any>;
 
 export type UpdateItemsOrderMutationResponse = ({
-  variables: IChecklistItemsUpdateOrderDoc
+  variables: IChecklistItemsUpdateOrderDoc,
 }) => Promise<any>;
 
 export type EditItemMutationVariables = {
@@ -71,5 +71,5 @@ export type EditItemMutationVariables = {
 } & IChecklistItemDoc;
 
 export type EditItemMutationResponse = ({
-  variables: EditItemMutationVariables
+  variables: EditItemMutationVariables,
 }) => Promise<any>;

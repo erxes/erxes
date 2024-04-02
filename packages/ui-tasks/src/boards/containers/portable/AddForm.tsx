@@ -219,7 +219,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
       fetchCards: this.fetchCards,
-      stages: stagesQuery?.stages || [],
+      stages: stagesQuery?.taskStages || [],
     };
 
     return <AddForm {...extendedProps} />;

@@ -266,7 +266,7 @@ export interface IItemMap {
 }
 
 export type BoardsQueryResponse = {
-  boards: IBoard[];
+  taskBoards: IBoard[];
 } & QueryResponse;
 
 export interface IBoardCount {
@@ -276,11 +276,11 @@ export interface IBoardCount {
 }
 
 export type BoardCountsQueryResponse = {
-  boardCounts: IBoardCount[];
+  taskBoardCounts: IBoardCount[];
 } & QueryResponse;
 
 export type PipelinesQueryResponse = {
-  pipelines: IPipeline[];
+  taskPipelines: IPipeline[];
   loading: boolean;
   refetch: ({
     boardId,
@@ -292,29 +292,29 @@ export type PipelinesQueryResponse = {
 };
 
 export type StagesQueryResponse = {
-  stages: IStage[];
+  taskStages: IStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
 export type ConversionStagesQueryResponse = {
-  stages: IConversionStage[];
+  taskStages: IConversionStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
 export type BoardsGetLastQueryResponse = {
-  boardGetLast: IBoard;
+  taskBoardGetLast: IBoard;
   loading: boolean;
 };
 
 export type BoardDetailQueryResponse = {
-  boardDetail: IBoard;
+  taskBoardDetail: IBoard;
   loading: boolean;
 };
 
 export type PipelineDetailQueryResponse = {
-  pipelineDetail: IPipeline;
+  taskPipelineDetail: IPipeline;
   loading: boolean;
   subscribeToMore: any;
 };
@@ -361,11 +361,11 @@ export type DetailQueryResponse = {
 
 // query response
 export type PipelineLabelsQueryResponse = {
-  pipelineLabels: IPipelineLabel[];
+  taskPipelineLabels: IPipelineLabel[];
 } & QueryResponse;
 
 export type PipelineLabelDetailQueryResponse = {
-  pipelineLabelDetail: IPipelineLabel;
+  taskPipelineLabelDetail: IPipelineLabel;
 } & QueryResponse;
 
 // mutation response

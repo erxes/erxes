@@ -29,7 +29,7 @@ class ChecklisLogContainer extends React.Component<FinalProps> {
     }
 
     const checklistItemActivity = activityLogQuery.activityLogs || [];
-    const checkListDetail = checkListDetailQuery.checklistDetail || {};
+    const checkListDetail = checkListDetailQuery.taskChecklistDetail || {};
 
     const updatedProps = {
       ...this.props,

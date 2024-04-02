@@ -1,7 +1,7 @@
 import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '../../conformity/graphql/queries';
 
 const commonParams = `
@@ -91,7 +91,7 @@ const tasks = `
 `;
 
 const tasksTotalCount = `
-  query tasks(
+  query tasksTotalCount(
     $pipelineId: String,
     $stageId: String,
     $date: ItemDate,
@@ -175,5 +175,5 @@ export default {
   tasksTotalCount,
   taskDetail,
   archivedTasks,
-  archivedTasksCount
+  archivedTasksCount,
 };

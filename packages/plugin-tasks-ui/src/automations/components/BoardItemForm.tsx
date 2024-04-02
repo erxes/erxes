@@ -78,7 +78,7 @@ class BoardItemForm extends React.Component<Props, State> {
           variables: { pipelineId: plId },
         })
         .then((data) => {
-          this.setState({ pipelineLabels: data.data.pipelineLabels });
+          this.setState({ pipelineLabels: data.data.taskPipelineLabels });
         })
         .catch((e) => {
           Alert.error(e.message);

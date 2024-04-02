@@ -16,8 +16,8 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineLabels(pipelineId: String, pipelineIds: [String]): [PipelineLabel]
-  pipelineLabelDetail(_id: String!): PipelineLabel
+  taskPipelineLabels(pipelineId: String, pipelineIds: [String]): [PipelineLabel]
+  taskPipelineLabelDetail(_id: String!): PipelineLabel
 `;
 
 export const mutations = `
