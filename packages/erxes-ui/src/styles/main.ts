@@ -139,21 +139,21 @@ const MiddleContent = styledTS<{ $transparent?: boolean; $shrink?: boolean }>(
   }
 `;
 
-const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
+const BoxRoot = styledTS<{ $selected?: boolean }>(styled.div)`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
   box-shadow: ${(props) =>
-    props.selected
+    props.$selected
       ? `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`
       : `0 6px 10px 1px ${rgba(colors.colorCoreDarkGray, 0.08)}`} ;
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
-  border: 1px ${(props) => (props.selected ? 'solid' : 'dashed')}
+  border: 1px ${(props) => (props.$selected ? 'solid' : 'dashed')}
     ${(props) =>
-      props.selected ? colors.colorSecondary : 'rgba(0, 0, 0, 0.12)'};
+      props.$selected ? colors.colorSecondary : 'rgba(0, 0, 0, 0.12)'};
 
   > a {
     display: block;

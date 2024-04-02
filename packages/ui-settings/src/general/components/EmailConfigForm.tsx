@@ -91,7 +91,7 @@ const EmailConfigForm = (props: Props) => {
 
   return (
     <>
-      <FlexRow alignItems="flex-start" justifyContent="space-between">
+      <FlexRow $alignItems="flex-start" $justifyContent="space-between">
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
           <p>{emailText}</p>

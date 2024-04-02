@@ -203,24 +203,24 @@ const ExpandWrapper = styled.div`
   }
 `;
 
-const Description = styledTS<{ noMargin?: boolean; halfWidth?: boolean }>(
+const Description = styledTS<{ $noMargin?: boolean; $halfWidth?: boolean }>(
   styled.div,
 )`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  max-width: ${(props) => props.halfWidth && '500px'};
-  margin-bottom: ${(props) => !props.noMargin && '20px'};
+  max-width: ${(props) => props.$halfWidth && '500px'};
+  margin-bottom: ${(props) => !props.$noMargin && '20px'};
 `;
 
-const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
+const FlexRow = styledTS<{ $alignItems?: string; $justifyContent?: string }>(
   styled.div,
 )`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  align-items: ${(props) => (props.alignItems ? props.alignItems : 'center')};
+  align-items: ${(props) => (props.$alignItems ? props.$alignItems : 'center')};
   justify-content: ${(props) =>
-    props.justifyContent ? props.justifyContent : 'flex-start'};
+    props.$justifyContent ? props.$justifyContent : 'flex-start'};
   flex: 1;
 
   > div {

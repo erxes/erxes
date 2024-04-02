@@ -141,7 +141,7 @@ export default function StructureForm(props: Props) {
     <>
       <Wrapper.ActionBar
         background="bgWhite"
-        left={<Title capitalize={true}>{__("Structure")}</Title>}
+        left={<Title $capitalize={true}>{__("Structure")}</Title>}
         wideSpacing={true}
       />
       <Form renderContent={renderContent} />

@@ -1,35 +1,35 @@
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
 
 const Import = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Form container" */ './import/containers/FormContainer'
-    ),
+      /* webpackChunkName: "Form container" */ "./import/containers/FormContainer"
+    )
 );
 
 const Export = asyncComponent(
   () =>
-    import(/* webpackChunkName: "Form container" */ './export/containers/Form'),
+    import(/* webpackChunkName: "Form container" */ "./export/containers/Form")
 );
 
 const ImportHistories = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings Import Histories" */ './import/containers/list/Histories'
-    ),
+      /* webpackChunkName: "Settings Import Histories" */ "./import/containers/list/Histories"
+    )
 );
 const ExportHistories = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings Export Histories" */ './export/containers/Histories'
-    ),
+      /* webpackChunkName: "Settings Export Histories" */ "./export/containers/Histories"
+    )
 );
 const Menu = asyncComponent(
-  () => import(/* webpackChunkName: "Settings Menu" */ './SelectMenu'),
+  () => import(/* webpackChunkName: "Settings Menu" */ "./SelectMenu")
 );
 
 const ImportForm = () => {
@@ -49,13 +49,13 @@ const ImportHistoriesComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ImportHistories queryParams={queryParams} />;
+  return <ImportHistories queryParams={queryParams} location={location} />;
 };
 const ExportHistoriesComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ExportHistories queryParams={queryParams} />;
+  return <ExportHistories queryParams={queryParams} location={location} />;
 };
 
 const SelectMenu = () => {

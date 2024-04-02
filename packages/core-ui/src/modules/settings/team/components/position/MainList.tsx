@@ -271,7 +271,7 @@ const MainList = (props: Props) => {
         <Wrapper.ActionBar
           left={
             <LeftActionBar>
-              <Title capitalize={true}>
+              <Title $capitalize={true}>
                 {__("Positions")}&nbsp;
                 {`(${totalCount || 0})`}
               </Title>

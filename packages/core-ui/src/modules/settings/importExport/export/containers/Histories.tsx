@@ -1,24 +1,23 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   ExportHistoriesQueryResponse,
   RemoveMutationResponse,
-} from '../../types';
-import { router, withProps } from 'modules/common/utils';
+} from "../../types";
+import { router, withProps } from "modules/common/utils";
 
-import { AppConsumer } from 'appContext';
-// import { withRouter } from 'react-router-dom';
-import ExportHistories from '../components/Histories';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
+import { AppConsumer } from "appContext";
+import ExportHistories from "../components/Histories";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { generatePaginationParams } from "modules/common/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
 
 type Props = {
   queryParams: any;
+  location: any;
   showLoadingBar: (isRemovingImport: boolean) => void;
   closeLoadingBar: () => void;
   isDoneIndicatorAction: boolean;
@@ -27,7 +26,6 @@ type Props = {
 type FinalProps = {
   historiesQuery: ExportHistoriesQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
@@ -44,7 +42,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { historiesQuery, history } = this.props;
+    const { historiesQuery } = this.props;
 
     const histories = historiesQuery.exportHistories || {};
     const list = histories.list || [];
@@ -61,7 +59,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery.stopPolling();
     }
 
-    const currentType = router.getParam(history, 'type');
+    const currentType = router.getParam(history, "type");
 
     const updatedProps = {
       ...this.props,
@@ -81,7 +79,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
 const historiesListParams = (queryParams) => ({
   ...generatePaginationParams(queryParams),
-  type: queryParams.type || 'customer',
+  type: queryParams.type || "customer",
 });
 
 const HistoriesWithProps = withProps<Props>(
@@ -89,15 +87,15 @@ const HistoriesWithProps = withProps<Props>(
     graphql<Props, ExportHistoriesQueryResponse, { type: string }>(
       gql(queries.exportHistories),
       {
-        name: 'historiesQuery',
+        name: "historiesQuery",
         options: ({ queryParams }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: historiesListParams(queryParams),
           pollInterval: 3000,
         }),
-      },
-    ),
-  )(HistoriesContainer),
+      }
+    )
+  )(HistoriesContainer)
 );
 
 const WithConsumer = (props) => {

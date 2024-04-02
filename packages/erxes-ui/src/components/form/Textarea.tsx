@@ -42,6 +42,7 @@ const Textarea: React.FC<Props> = ({
   return (
     <TextArea
       {...props}
+      as="textarea"
       $hasError={hasError}
       innerRef={(area) => (areaRef.current = area)}
       maxHeight={maxHeight}

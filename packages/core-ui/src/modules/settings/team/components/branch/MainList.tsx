@@ -287,7 +287,7 @@ class MainList extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={
               <LeftActionBar>
-                <Title capitalize={true}>
+                <Title $capitalize={true}>
                   {__("Branches")}&nbsp;
                   {`(${totalCount || 0})`}
                 </Title>

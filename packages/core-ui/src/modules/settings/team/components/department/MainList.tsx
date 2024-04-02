@@ -292,7 +292,7 @@ class MainList extends React.Component<Props, State> {
             right={rightActionBar}
             left={
               <LeftActionBar>
-                <Title capitalize={true}>
+                <Title $capitalize={true}>
                   {__("Departments")}&nbsp;
                   {`(${totalCount || 0})`}
                 </Title>

@@ -295,14 +295,14 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
-  slimmer?: boolean;
-  thinner?: boolean;
+  $slimmer?: boolean;
+  $thinner?: boolean;
   vh?: number;
 }>(styled.div)`
   display: flex;
   height: 100%;
   border-right: ${(props) =>
-    !props.slimmer && `1px solid ${colors.borderPrimary}`};
+    !props.$slimmer && `1px solid ${colors.borderPrimary}`};
   flex: ${(props) => (props.count ? props.count : 1)};
   ${(props) => {
     if (props.vh) {
@@ -345,7 +345,7 @@ const FlexItem = styledTS<{
     return null;
   }};
   ${(props) => {
-    if (props.slimmer) {
+    if (props.$slimmer) {
       return `
         width: 50%;
         margin: 0 auto;
@@ -354,7 +354,7 @@ const FlexItem = styledTS<{
     return null;
   }};
   ${(props) => {
-    if (props.thinner) {
+    if (props.$thinner) {
       return `
         width: 60%;
         margin: 0 auto;
@@ -419,7 +419,7 @@ const ButtonContainer = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
 `;
 
-const StepButton = styledTS<{ next?: boolean }>(styled.button)`
+const StepButton = styledTS<{ $next?: boolean }>(styled.button)`
   border-radius: 8px;
   height: 36px;
   width: 110px;
@@ -427,9 +427,9 @@ const StepButton = styledTS<{ next?: boolean }>(styled.button)`
   margin-right: 10px;
   border: 1px solid ${colors.colorPrimary};
   color: ${(props) =>
-    props.next === true ? colors.colorWhite : colors.colorPrimary};
+    props.$next === true ? colors.colorWhite : colors.colorPrimary};
   background: ${(props) =>
-    props.next === true ? colors.colorPrimary : colors.colorWhite};
+    props.$next === true ? colors.colorPrimary : colors.colorWhite};
 
   &:hover {
     cursor: pointer;

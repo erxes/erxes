@@ -1,9 +1,10 @@
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { FlexPad } from 'modules/common/components/step/styles';
-import React from 'react';
-import { Box, TypeContent, ImportHeader } from '../../styles';
-import { IImportHistoryContentType } from '../../types';
+import { Box, ImportHeader, TypeContent } from "../../styles";
+
+import { FlexPad } from "modules/common/components/step/styles";
+import { IImportHistoryContentType } from "../../types";
+import Icon from "modules/common/components/Icon";
+import React from "react";
+import { __ } from "modules/common/utils";
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
@@ -51,11 +52,11 @@ class TypeForm extends React.Component<Props> {
   renderText = () => {
     const { type } = this.props;
 
-    if (type === 'single') {
-      return 'Select an object you would like to import';
+    if (type === "single") {
+      return "Select an object you would like to import";
     }
 
-    return 'Select an two  objects you would like to import';
+    return "Select an two  objects you would like to import";
   };
 
   renderOptions = () => {
@@ -71,7 +72,7 @@ class TypeForm extends React.Component<Props> {
       <FlexPad type="stepper" direction="column">
         <ImportHeader>{__(this.renderText())}</ImportHeader>
 
-        <TypeContent center={true}>{this.renderOptions()}</TypeContent>
+        <TypeContent $center={true}>{this.renderOptions()}</TypeContent>
       </FlexPad>
     );
   }
