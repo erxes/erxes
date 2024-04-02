@@ -4,7 +4,7 @@ dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
 
-const MONGO_URL = 'mongodb://localhost:27017/erxes';
+const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
