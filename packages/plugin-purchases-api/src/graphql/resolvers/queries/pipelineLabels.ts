@@ -5,10 +5,10 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label list
    */
-  pipelineLabels(
+  purchasePipelineLabels(
     _root,
     { pipelineId, pipelineIds }: { pipelineId: string; pipelineIds: string[] },
-    { models: { PipelineLabels } }: IContext,
+    { models: { PipelineLabels } }: IContext
   ) {
     const filter: any = {};
 
@@ -24,10 +24,10 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label detail
    */
-  pipelineLabelDetail(
+  purchasePipelineLabelDetail(
     _root,
     { _id }: { _id: string },
-    { models: { PipelineLabels } }: IContext,
+    { models: { PipelineLabels } }: IContext
   ) {
     return PipelineLabels.findOne({ _id });
   },

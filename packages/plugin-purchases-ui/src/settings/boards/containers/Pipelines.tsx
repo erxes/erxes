@@ -59,7 +59,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const pipelines = pipelinesQuery.pipelines || [];
+    const pipelines = pipelinesQuery.purchasePipelines || [];
 
     // archive action
     const archive = (pipelineId: string, status: string) => {
@@ -187,7 +187,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       renderButton,
       updateOrder,
       currentBoard: boardDetailQuery
-        ? boardDetailQuery?.boardDetail
+        ? boardDetailQuery?.purchaseBoardDetail
         : undefined,
     };
 

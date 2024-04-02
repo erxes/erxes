@@ -51,7 +51,7 @@ export default class SelectBoard extends React.Component<Props, State> {
           variables: { pipelineId },
         })
         .then((data) => {
-          this.setState({ stages: data.data.stages });
+          this.setState({ stages: data.data.purchaseStages });
         })
         .catch((e) => {
           Alert.error(e.message);

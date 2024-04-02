@@ -35,7 +35,7 @@ class BoardItemSelectContainer extends React.Component<FinalProps> {
 
     const users = allUserQuery.allUsers || [];
     const pipelineLabels = pipelineLabelQuery
-      ? pipelineLabelQuery.pipelineLabels || []
+      ? pipelineLabelQuery.purchasePipelineLabels || []
       : [];
 
     const extendedProps = {
