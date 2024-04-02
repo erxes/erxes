@@ -137,31 +137,31 @@ const stageParams = `
 `;
 
 export const queries = `
-  boards(type: String!): [Board]
-  boardCounts(type: String!): [BoardCount]
-  boardGetLast(type: String!): Board
-  boardDetail(_id: String!): Board
-  pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
-  pipelineDetail(_id: String!): Pipeline
-  pipelineAssignedUsers(_id: String!): [User]
-  stages(
+  ghBoards(type: String!): [Board]
+  ghBoardCounts(type: String!): [BoardCount]
+  ghBoardGetLast(type: String!): Board
+  ghBoardDetail(_id: String!): Board
+  ghPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
+  ghPipelineDetail(_id: String!): Pipeline
+  ghPipelineAssignedUsers(_id: String!): [User]
+  ghStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
     pipelineIds: [String],
     ${stageParams}
   ): [Stage]
-  stageDetail(_id: String!, ${stageParams}): Stage
-  convertToInfo(conversationId: String!): ConvertTo
-  pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
-  archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
-  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
-  cardsFields: JSON
-  boardContentTypeDetail(contentType: String, contentId: String): JSON
-  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  ghStageDetail(_id: String!, ${stageParams}): Stage
+  ghConvertToInfo(conversationId: String!): ConvertTo
+  ghPipelineStateCount(boardId: String, type: String): JSON
+  ghArchivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+  ghArchivedStagesCount(pipelineId: String!, search: String): Int
+  ghItemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  ghItemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  ghCardsFields: JSON
+  ghBoardContentTypeDetail(contentType: String, contentId: String): JSON
+  ghBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  ghCheckFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `

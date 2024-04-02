@@ -5,7 +5,7 @@ import {
   IPipelineLabel,
   PipelineLabelsQueryResponse,
   PipelineLabelMutationResponse,
-  PipelineLabelMutationVariables
+  PipelineLabelMutationVariables,
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
@@ -33,7 +33,7 @@ class LabelChooserContainer extends React.Component<
     super(props);
 
     this.state = {
-      isConfirmVisible: false
+      isConfirmVisible: false,
     };
   }
 
@@ -49,7 +49,7 @@ class LabelChooserContainer extends React.Component<
       pipelineLabelMutation,
       item,
       onSelect,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
     if (pipelineLabelsQuery.loading) {
@@ -57,24 +57,26 @@ class LabelChooserContainer extends React.Component<
     }
 
     const pipelineId = item.pipeline._id;
-    const labels = pipelineLabelsQuery.pipelineLabels || [];
+    const labels = pipelineLabelsQuery.ghPipelineLabels || [];
 
     const doLabel = (selectedLabelIds: string[]) => {
       const variables = {
         pipelineId,
         targetId: item._id,
-        labelIds: selectedLabelIds
+        labelIds: selectedLabelIds,
       };
 
       pipelineLabelMutation({ variables })
         .then(() => {
           if (onSelect) {
             onSelect(
-              labels.filter(label => selectedLabelIds.includes(label._id || ''))
+              labels.filter((label) =>
+                selectedLabelIds.includes(label._id || '')
+              )
             );
           }
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -86,7 +88,7 @@ class LabelChooserContainer extends React.Component<
       doLabel,
       isConfirmVisible: this.state.isConfirmVisible,
       onChangeRefresh,
-      toggleConfirm: this.toggleConfirm
+      toggleConfirm: this.toggleConfirm,
     };
 
     return <LabelChooser {...updatedProps} />;
@@ -100,7 +102,7 @@ export default withProps<Props>(
       PipelineLabelMutationResponse,
       PipelineLabelMutationVariables
     >(gql(mutations.pipelineLabelsLabel), {
-      name: 'pipelineLabelMutation'
+      name: 'pipelineLabelMutation',
     }),
     graphql<Props, PipelineLabelsQueryResponse, { pipelineId: string }>(
       gql(queries.pipelineLabels),
@@ -108,10 +110,10 @@ export default withProps<Props>(
         name: 'pipelineLabelsQuery',
         options: ({ item }) => ({
           variables: {
-            pipelineId: item.pipeline._id
+            pipelineId: item.pipeline._id,
           },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }
     )
   )(LabelChooserContainer)

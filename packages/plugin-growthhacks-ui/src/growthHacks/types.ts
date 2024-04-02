@@ -45,7 +45,7 @@ export type GrowthHacksPriorityQueryResponse = {
 } & QueryResponse;
 
 export type StateCountsQueryResponse = {
-  pipelineStateCount: any;
+  ghPipelineStateCount: any;
 } & QueryResponse;
 
 export type GrowthHacksCountQueryResponse = {

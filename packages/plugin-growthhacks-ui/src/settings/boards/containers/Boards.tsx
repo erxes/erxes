@@ -37,7 +37,7 @@ class BoardsContainer extends React.Component<FinalProps> {
   render() {
     const { history, boardsQuery, removeMutation, type } = this.props;
 
-    const boards = boardsQuery.boards || [];
+    const boards = boardsQuery.ghBoards || [];
 
     const removeHash = () => {
       const { location } = history;

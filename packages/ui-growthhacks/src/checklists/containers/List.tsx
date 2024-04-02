@@ -118,7 +118,7 @@ function ListContainer(props: FinalProps) {
     return null;
   }
 
-  const item = checklistDetailQuery.checklistDetail;
+  const item = checklistDetailQuery.ghChecklistDetail;
 
   const listProps = {
     item,

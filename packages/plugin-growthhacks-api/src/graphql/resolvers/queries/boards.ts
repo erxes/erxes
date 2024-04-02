@@ -59,7 +59,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  async boards(
+  async ghBoards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector, models: { Boards }, res }: IContext
@@ -111,7 +111,7 @@ const boardQueries = {
   /**
    *  Boards count
    */
-  async boardCounts(
+  async ghBoardCounts(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards, Pipelines } }: IContext
@@ -148,7 +148,7 @@ const boardQueries = {
   /**
    *  Board detail
    */
-  boardDetail(
+  ghBoardDetail(
     _root,
     { _id }: { _id: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -159,7 +159,7 @@ const boardQueries = {
   /**
    * Get last board
    */
-  boardGetLast(
+  ghBoardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -174,7 +174,7 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  async pipelines(
+  async ghPipelines(
     _root,
     {
       boardId,
@@ -254,7 +254,7 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async pipelineStateCount(
+  async ghPipelineStateCount(
     _root,
     { boardId, type }: { boardId: string; type: string },
     { models: { Pipelines } }: IContext
@@ -308,7 +308,7 @@ const boardQueries = {
   /**
    *  Pipeline detail
    */
-  pipelineDetail(
+  ghPipelineDetail(
     _root,
     { _id }: { _id: string },
     { models: { Pipelines } }: IContext
@@ -319,7 +319,7 @@ const boardQueries = {
   /**
    *  Pipeline related assigned users
    */
-  async pipelineAssignedUsers(
+  async ghPipelineAssignedUsers(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -344,7 +344,7 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  async stages(
+  async ghStages(
     _root,
     {
       pipelineId,
@@ -405,7 +405,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async itemsCountByAssignedUser(
+  async ghItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -549,7 +549,7 @@ const boardQueries = {
   /**
    *  Stage detail
    */
-  stageDetail(
+  ghStageDetail(
     _root,
     { _id }: { _id: string },
     { models: { Stages } }: IContext
@@ -561,7 +561,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  archivedStages(
+  ghArchivedStages(
     _root,
     {
       pipelineId,
@@ -579,7 +579,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  archivedStagesCount(
+  ghArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -593,11 +593,11 @@ const boardQueries = {
     return Stages.count(filter);
   },
 
-  async boardContentTypeDetail(_root, args, { subdomain }: IContext) {
+  async ghBoardContentTypeDetail(_root, args, { subdomain }: IContext) {
     return getContentTypeDetail(subdomain, args);
   },
 
-  async boardLogs(_root, args, { subdomain, models }: IContext) {
+  async ghBoardLogs(_root, args, { subdomain, models }: IContext) {
     const { GrowthHacks, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
@@ -670,7 +670,7 @@ const boardQueries = {
     }
   },
 
-  async checkFreeTimes(
+  async ghCheckFreeTimes(
     _root,
     { pipelineId, intervals },
     { models, subdomain }: IContext

@@ -30,8 +30,8 @@ class HomeContainer extends React.Component<FinalProps> {
 
     const props = {
       queryParams,
-      boardsWithCount: boardCountsQuery.boardCounts || [],
-      counts: pipelineStateCountQuery.pipelineStateCount || {},
+      boardsWithCount: boardCountsQuery.ghBoardCounts || [],
+      counts: pipelineStateCountQuery.ghPipelineStateCount || {},
     };
 
     return <Home {...props} />;

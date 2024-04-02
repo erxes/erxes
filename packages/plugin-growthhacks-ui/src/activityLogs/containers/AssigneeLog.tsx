@@ -24,7 +24,7 @@ class AssigneeLogContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const contentDetail = boardLogsQuery.boardLogs || {};
+    const contentDetail = boardLogsQuery.ghBoardLogs || {};
 
     const updatedProps = {
       ...this.props,

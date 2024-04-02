@@ -23,7 +23,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
   render() {
     const { queryParams, pipelinesQuery } = this.props;
 
-    let pipelines = pipelinesQuery ? pipelinesQuery.pipelines || [] : [];
+    let pipelines = pipelinesQuery ? pipelinesQuery.ghPipelines || [] : [];
 
     if (queryParams.state) {
       pipelines = pipelines.filter(

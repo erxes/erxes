@@ -10,7 +10,7 @@ import { mutations, queries } from '../../graphql';
 import {
   AddPipelineLabelMutationResponse,
   PipelineLabelDetailQueryResponse,
-  RemovePipelineLabelMutationResponse
+  RemovePipelineLabelMutationResponse,
 } from '../../types';
 
 type Props = {
@@ -34,8 +34,8 @@ const getRefetchQueries = (pipelineId: string) => {
   return [
     {
       query: gql(queries.pipelineLabels),
-      variables: { pipelineId }
-    }
+      variables: { pipelineId },
+    },
   ];
 };
 
@@ -50,7 +50,7 @@ class FormContainer extends React.Component<FinalProps> {
       showForm,
       selectedLabelIds,
       onSelectLabels,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
     const remove = (pipelineLabelId: string) => {
@@ -58,10 +58,10 @@ class FormContainer extends React.Component<FinalProps> {
         confirm('Are you sure? This cannot be undone.', {
           beforeDismiss: () => {
             toggleConfirm();
-          }
+          },
         }).then(() => {
           removeMutation({
-            variables: { _id: pipelineLabelId }
+            variables: { _id: pipelineLabelId },
           })
             .then(() => {
               Alert.success('You successfully deleted a label.');
@@ -74,7 +74,7 @@ class FormContainer extends React.Component<FinalProps> {
                 onSelectLabels(remained);
               }
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         });
@@ -86,7 +86,7 @@ class FormContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       const callbackResponse = () => {
         onChangeRefresh();
@@ -106,7 +106,7 @@ class FormContainer extends React.Component<FinalProps> {
           variables={{
             _id: object && object._id ? object._id : undefined,
             pipelineId,
-            ...values
+            ...values,
           }}
           callback={callbackResponse}
           refetchQueries={getRefetchQueries(pipelineId)}
@@ -127,8 +127,8 @@ class FormContainer extends React.Component<FinalProps> {
       showForm,
       remove,
       label: pipelineLabelDetailQuery
-        ? pipelineLabelDetailQuery.pipelineLabelDetail
-        : undefined
+        ? pipelineLabelDetailQuery.ghPipelineLabelDetail
+        : undefined,
     };
 
     return <Form {...updatedProps} />;
@@ -143,8 +143,8 @@ export default withProps<Props>(
         name: 'pipelineLabelDetailQuery',
         options: ({ labelId }) => ({
           variables: { _id: labelId || '' },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }
     ),
     graphql<Props, RemovePipelineLabelMutationResponse, { _id: string }>(
@@ -152,8 +152,8 @@ export default withProps<Props>(
       {
         name: 'removeMutation',
         options: ({ pipelineId }) => ({
-          refetchQueries: getRefetchQueries(pipelineId)
-        })
+          refetchQueries: getRefetchQueries(pipelineId),
+        }),
       }
     )
   )(FormContainer)

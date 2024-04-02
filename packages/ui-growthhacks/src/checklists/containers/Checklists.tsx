@@ -33,7 +33,7 @@ function ChecklistsContainer(props: FinalProps) {
     });
   });
 
-  const checklists = checklistsQuery.checklists || [];
+  const checklists = checklistsQuery.ghChecklists || [];
 
   return checklists.map((list) => (
     <List

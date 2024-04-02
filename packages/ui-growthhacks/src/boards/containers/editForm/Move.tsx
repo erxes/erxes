@@ -22,11 +22,11 @@ class MoveContainer extends React.Component<{
   render() {
     const { stagesQuery } = this.props;
 
-    const stages = stagesQuery.stages || [];
+    const stages = stagesQuery.ghStages || [];
 
     const updatedProps = {
       ...this.props,
-      stages
+      stages,
     };
 
     return <Move {...updatedProps} />;
@@ -43,9 +43,9 @@ export default withProps<Props>(
       name: 'stagesQuery',
       options: ({ item: { pipeline } }) => ({
         variables: {
-          pipelineId: pipeline._id
-        }
-      })
+          pipelineId: pipeline._id,
+        },
+      }),
     })
   )(MoveContainer)
 );
