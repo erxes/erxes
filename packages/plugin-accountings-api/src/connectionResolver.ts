@@ -1,13 +1,22 @@
-import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import * as mongoose from 'mongoose';
+import {
+  IAccountCategoryModel,
+  loadAccountCategoryClass,
+} from './models/AccountCategories';
 import {
   IAccountModel,
   loadAccountClass,
 } from './models/Accounts';
 import {
-  IAccountCategoryModel,
-  loadAccountCategoryClass,
-} from './models/AccountCategories';
+  IAccountingsConfigModel,
+  loadAccountingsConfigClass,
+} from './models/Configs';
+import {
+  ITransactionModel,
+  loadTransactionClass,
+} from './models/Transactions';
 import {
   IAccountDocument,
 } from './models/definitions/account';
@@ -16,12 +25,12 @@ import {
 } from './models/definitions/accountCategory';
 import { IAccountingsConfigDocument } from './models/definitions/config';
 import {
-  IAccountingsConfigModel,
-  loadAccountingsConfigClass,
-} from './models/Configs';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+  ITransactionDocument,
+} from './models/definitions/transaction';
+
 export interface IModels {
   Accounts: IAccountModel;
+  Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
   AccountingsConfigs: IAccountingsConfigModel;
 }
@@ -48,6 +57,11 @@ export const loadClasses = (
     IAccountCategoryDocument,
     IAccountCategoryModel
   >('accounting_categories', loadAccountCategoryClass(models));
+
+  models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
+    'transactions',
+    loadTransactionClass(models, subdomain),
+  );
 
   return models;
 };

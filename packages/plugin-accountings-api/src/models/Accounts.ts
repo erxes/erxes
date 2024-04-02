@@ -1,15 +1,15 @@
-import { Model } from 'mongoose';
 import * as _ from 'lodash';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import {
-  IAccount,
-  IAccountDocument,
-  accountSchema,
-  ACCOUNT_STATUSES,
-} from './definitions/account';
 import {
   checkCodeMask,
 } from '../maskUtils';
+import {
+  ACCOUNT_STATUSES,
+  IAccount,
+  IAccountDocument,
+  accountSchema,
+} from './definitions/account';
 
 const checkUsedInTr = (ids: string[]) => {
   

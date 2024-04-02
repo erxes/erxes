@@ -1,29 +1,7 @@
 import { Schema, Document } from 'mongoose';
 
 import { field, schemaWrapper } from './utils';
-
-export const ACCOUNT_KINDS = {
-  ACTIVE: 'active',
-  PASSIVE: 'passive',
-  ALL: ['active', 'passive'],
-};
-
-export const ACCOUNT_JOURNALS = {
-  MAIN: 'main',
-  FUND_CASH: 'cash',
-  FUND_BANK: 'bank',
-  DEBT: 'debt',
-  INVENTORY: 'inventory',
-  FIXED_ASSET: 'fixedAsset',
-  VAT: 'vat',
-  ALL: ['main', 'cash', 'bank', 'debt', 'inventory', 'fixedAsset', 'vat'],
-};
-
-export const ACCOUNT_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted',
-  ALL: ['active', 'deleted'],
-};
+import { ACCOUNT_KINDS, ACCOUNT_STATUSES } from './constants';
 
 export interface IAccount {
   code: string;
@@ -37,7 +15,7 @@ export interface IAccount {
   branchId?: string;
   departmentId?: string;
   scopeBrandIds?: string[];
-  status?: string;
+  status: string;
   mergedIds?: string[];
 }
 
@@ -75,7 +53,6 @@ export const accountSchema = schemaWrapper(
     status: field({
       type: String,
       enum: ACCOUNT_STATUSES.ALL,
-      optional: true,
       label: 'Status',
       default: 'active',
       esType: 'keyword',

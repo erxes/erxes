@@ -1,19 +1,7 @@
 import { Schema, Document } from 'mongoose';
 
 import { field, schemaWrapper } from './utils';
-
-export const ACCOUNT_CATEGORY_STATUSES = {
-  ACTIVE: 'active',
-  ARCHIVED: 'archived',
-  ALL: ['active', 'archived'],
-};
-
-export const ACCOUNT_CATEGORY_MASK_TYPES = {
-  ANY: '',
-  SOFT: 'soft',
-  HARD: 'hard',
-  ALL: ['', 'soft', 'hard'],
-};
+import { ACCOUNT_CATEGORY_MASK_TYPES, ACCOUNT_CATEGORY_STATUSES } from './constants';
 
 export interface IAccountCategory {
   name: string;
