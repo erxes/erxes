@@ -320,7 +320,7 @@ const WithMailForm = withProps<Props>(
         const { _id } = queryParams;
         return {
           variables: {
-            conversationId: _id // Use the conversationId obtained from queryParams
+            conversationId: _id || ''
           },
           fetchPolicy: 'network-only'
         };
