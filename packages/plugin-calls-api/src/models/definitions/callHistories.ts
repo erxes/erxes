@@ -33,10 +33,12 @@ export const callHistorySchema = new Schema({
     type: String,
     label: 'status',
     enum: ['missed', 'connected', 'rejected', 'cancelled'],
+    default: 'missed',
   }),
   sessionId: field({ type: String, label: 'call session id' }),
   updatedAt: field({ type: Date, label: 'modified date' }),
-  createdAt: field({ type: Date, label: 'created date' }),
+  createdAt: field({ type: Date, label: 'created date', default: new Date() }),
   createdBy: field({ type: String, label: 'created By' }),
   updatedBy: field({ type: String, label: 'updated By' }),
+  extentionNumber: field({ type: String, label: 'extention number' }),
 });

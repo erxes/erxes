@@ -29,6 +29,7 @@ type Props = {
   taggerRefetchQueries: any;
   hasMicrophone: boolean;
   addNote: (conversationId: string, content: string) => void;
+  phoneNumber: string;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -61,7 +62,7 @@ const formatNumber = (n: number) => {
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-  const { customer, conversation, hasMicrophone } = props;
+  const { customer, conversation, hasMicrophone, phoneNumber } = props;
   const primaryPhone = customer?.primaryPhone || '';
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
@@ -159,12 +160,13 @@ const IncomingCall = (props: Props, context) => {
     const inCall = type === 'incall' ? true : false;
     const hasChannel = conversationDetail?.channels?.length > 0;
     const channelName = conversationDetail?.channels?.[0]?.name || '';
+    const fullName = renderFullName(customer || '', false);
 
     return (
       <NameCardContainer>
         <h5>{__('Call')}</h5>
         <Avatar user={customer} size={inCall ? 72 : 30} />
-        <h4>{renderFullName(customer || '', true)}</h4>
+        <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}

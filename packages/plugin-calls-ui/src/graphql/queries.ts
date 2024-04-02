@@ -129,6 +129,7 @@ const callHistories = `
     createdAt
     createdBy
     modifiedBy
+    extentionNumber
     customer {
       _id
       avatar

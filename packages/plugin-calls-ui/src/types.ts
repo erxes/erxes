@@ -37,8 +37,8 @@ export interface ITag {
 
 export interface ICallConversation {
   erxesApiId?: string;
-  senderPhoneNumber: string;
-  recipientPhoneNumber: string;
+  callerNumber: string;
+  operatorPhone: string;
   integrationId: string;
   callId: string;
   id: string;
