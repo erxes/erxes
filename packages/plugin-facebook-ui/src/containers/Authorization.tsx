@@ -18,33 +18,19 @@ type Props = {
 };
 
 export const Authorization = (props: Props) => {
-  window.focus();
   const { queryParams } = props;
 
-  React.useEffect(() => {
-    if (queryParams.fbAuthorized) {
-      console.log('authorized')
-      console.log("Opener: ", window.opener)
-
-      window.focus();
-      if (window.opener) {
-        window.opener.location.reload();
-      }
-      // window.close();
+  if (queryParams.fbAuthorized) {
+    if (window.opener) {
+      window.opener.location.reload();
     }
-  }, [queryParams.fbAuthorized, window.opener]);
+    window.close();
+  }
 
   return (
     <Wrapper>
       {queryParams.fbAuthorized ? (
-        <>
         <p>{__('Facebook authorized, You can close this window')} </p>
-        <button
-          onClick={() => {
-            window.opener.location.reload();
-          }}
-        >Close</button>
-        </>
       ) : (
         <Spinner />
       )}
