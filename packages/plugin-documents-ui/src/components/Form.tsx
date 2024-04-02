@@ -6,10 +6,10 @@ import {
   FormGroup,
 } from "@erxes/ui/src/components";
 
-import RichTextEditor from "../containers/RichTextEditor";
 import { IFormProps } from "@erxes/ui/src/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
+import RichTextEditor from "../containers/RichTextEditor";
 import { __ } from "coreui/utils";
 import styled from "styled-components";
 
@@ -26,6 +26,7 @@ type State = {
   content?: string;
   replacer?: string;
   subType?: string;
+  code?: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -34,7 +35,12 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, content: obj.content, subType: obj.subType };
+    this.state = {
+      name: obj.name,
+      content: obj.content,
+      subType: obj.subType,
+      code: obj.code,
+    };
   }
 
   onContentChange = (content: string) => {
@@ -46,13 +52,14 @@ class Form extends React.Component<Props, State> {
   };
 
   onSave = () => {
-    const { name, content, replacer, subType } = this.state;
+    const { name, content, replacer, subType, code } = this.state;
 
     this.props.save({
       name,
       content,
       replacer,
       subType,
+      code,
     });
   };
 
@@ -71,6 +78,19 @@ class Form extends React.Component<Props, State> {
             autoFocus={true}
             defaultValue={obj.name}
             onChange={this.onChangeField.bind(this, "name")}
+            {...formProps}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Code</ControlLabel>
+
+          <FormControl
+            name="code"
+            required={false}
+            autoFocus={true}
+            defaultValue={obj.code}
+            onChange={this.onChangeField.bind(this, "code")}
             {...formProps}
           />
         </FormGroup>
