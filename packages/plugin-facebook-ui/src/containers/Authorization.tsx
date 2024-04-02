@@ -22,6 +22,9 @@ export const Authorization = (props: Props) => {
 
   React.useEffect(() => {
     if (queryParams.fbAuthorized) {
+      console.log('authorized')
+      console.log("Opener: ", window.opener)
+
       window.focus();
       if (window.opener) {
         window.opener.location.reload();
