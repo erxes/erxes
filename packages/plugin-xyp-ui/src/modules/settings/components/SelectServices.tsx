@@ -33,7 +33,8 @@ const SelectServices: React.FC<Props> = (props) => {
     setSearchValue(value);
   };
 
-  const onChangeTag = (value: string[]) => {
+  const onChangeTag = (options) => {
+    const value = options.map((o) => o.value);
     props.onChange(value);
   };
 

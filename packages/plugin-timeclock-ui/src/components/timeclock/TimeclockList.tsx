@@ -236,7 +236,7 @@ function List(props: Props) {
 
       <Select
         value={extractOptions.find((o) => o.value === extractType)}
-        onChange={(el) => setExtractType(el.value)}
+        onChange={(el: any) => setExtractType(el.value)}
         placeholder="Select extract type"
         options={extractOptions}
       />

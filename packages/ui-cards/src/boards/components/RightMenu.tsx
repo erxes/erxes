@@ -19,7 +19,7 @@ import { IOptions } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React, { Fragment } from "react";
 import SegmentFilter from "../containers/SegmentFilter";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectLabel from "./label/SelectLabel";
@@ -263,7 +263,7 @@ export default class RightMenu extends React.Component<Props, State> {
     }));
     const priorities = queryParams ? queryParams.priority : [];
 
-    const onPrioritySelect = (ops: IOption[]) =>
+    const onPrioritySelect = (ops: OnChangeValue<IOption, true>) =>
       onSelect(
         ops.map((option) => option.value),
         "priority"
@@ -298,7 +298,9 @@ export default class RightMenu extends React.Component<Props, State> {
         />
         <Select
           placeholder={__("Filter by priority")}
-          value={priorityValues.filter(option => (priorities || []).includes(option.value))}
+          value={priorityValues.filter((option) =>
+            (priorities || []).includes(option.value)
+          )}
           options={priorityValues}
           name="priority"
           onChange={onPrioritySelect}

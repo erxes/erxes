@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   FormGroup,
   FormControl,
@@ -8,15 +8,15 @@ import {
   Button,
   colors,
   Icon,
-} from '@erxes/ui/src';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
-import SelectFields from '@erxes/ui-automations/src/containers/forms/actions/SelectFields';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { Columns } from '@erxes/ui/src/styles/chooser';
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { EndColumn, FirstColumn, ListItem, Padding } from '../styles';
-import Select from 'react-select';
+} from "@erxes/ui/src";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
+import SelectFields from "@erxes/ui-automations/src/containers/forms/actions/SelectFields";
+import { IAction } from "@erxes/ui-automations/src/types";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import { Columns } from "@erxes/ui/src/styles/chooser";
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { EndColumn, FirstColumn, ListItem, Padding } from "../styles";
+import Select from "react-select";
 
 type Props = {
   activeAction: IAction;
@@ -27,20 +27,20 @@ type Props = {
 
 const RESP_METHODS = [
   {
-    value: 'POST',
-    label: 'POST',
+    value: "POST",
+    label: "POST",
   },
   {
-    value: 'PUT',
-    label: 'PUT',
+    value: "PUT",
+    label: "PUT",
   },
   {
-    value: 'DELETE',
-    label: 'DELETE',
+    value: "DELETE",
+    label: "DELETE",
   },
   {
-    value: 'PATCH',
-    label: 'PATCH',
+    value: "PATCH",
+    label: "PATCH",
   },
 ];
 
@@ -78,7 +78,7 @@ const SendWebhook = (props: Props) => {
     handleOnChange({ ...config, [name]: value });
   };
 
-  const handleSelect = ({ value }) => {
+  const handleSelect = ({ value }: any) => {
     handleOnChange({ ...config, method: value });
   };
 
@@ -89,7 +89,7 @@ const SendWebhook = (props: Props) => {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
       const updatedParams = params.map((h) =>
-        h._id === param._id ? { ...h, [name]: value } : h,
+        h._id === param._id ? { ...h, [name]: value } : h
       );
 
       setConfig((prevConfig) => {
@@ -145,7 +145,7 @@ const SendWebhook = (props: Props) => {
           ...prevConfig,
           params: [
             ...(config?.params || []),
-            { _id: Math.random(), key: '', value: '' },
+            { _id: Math.random(), key: "", value: "" },
           ],
         };
       });
@@ -156,7 +156,7 @@ const SendWebhook = (props: Props) => {
         {(config?.params || []).map((param) => renderParam(param))}
         <LinkButton onClick={addParam}>
           <Icon icon="plus-1" />
-          {'Add param'}
+          {"Add param"}
         </LinkButton>
       </>
     );
@@ -169,7 +169,7 @@ const SendWebhook = (props: Props) => {
       const { name, value } = e.currentTarget as HTMLInputElement;
 
       const updatedHeaders = headers.map((h) =>
-        h._id === header._id ? { ...h, [name]: value } : h,
+        h._id === header._id ? { ...h, [name]: value } : h
       );
 
       setConfig((prevConfig) => {
@@ -231,7 +231,7 @@ const SendWebhook = (props: Props) => {
           ...prevConfig,
           headers: [
             ...(config?.headers || []),
-            { _id: Math.random(), key: '', value: '' },
+            { _id: Math.random(), key: "", value: "" },
           ],
         };
       });
@@ -242,7 +242,7 @@ const SendWebhook = (props: Props) => {
         {(config?.headers || []).map((header) => renderHeader(header))}
         <LinkButton onClick={addHeader}>
           <Icon icon="plus-1" />
-          {'Add header'}
+          {"Add header"}
         </LinkButton>
       </>
     );
@@ -259,10 +259,12 @@ const SendWebhook = (props: Props) => {
         <Columns>
           <FirstColumn>
             <FormGroup>
-              <ControlLabel>{__('Method')}</ControlLabel>
+              <ControlLabel>{__("Method")}</ControlLabel>
 
               <Select
-                value={RESP_METHODS.find(o=>o.value === (config?.method || 'POST'))}
+                value={RESP_METHODS.find(
+                  (o) => o.value === (config?.method || "POST")
+                )}
                 options={RESP_METHODS}
                 name="method"
                 isClearable={false}
@@ -272,7 +274,7 @@ const SendWebhook = (props: Props) => {
           </FirstColumn>
           <EndColumn>
             <FormGroup>
-              <ControlLabel required>{__('Post Url')}</ControlLabel>
+              <ControlLabel required>{__("Post Url")}</ControlLabel>
               <FormControl
                 name="url"
                 value={config?.url}
@@ -284,16 +286,16 @@ const SendWebhook = (props: Props) => {
         </Columns>
 
         <DrawerDetail>
-          <ControlLabel>{__('Headers (optional)  ')}</ControlLabel>
+          <ControlLabel>{__("Headers (optional)  ")}</ControlLabel>
           {renderHeaders()}
         </DrawerDetail>
         <Padding />
         <DrawerDetail>
-          <ControlLabel>{__('Params (optional)  ')}</ControlLabel>
+          <ControlLabel>{__("Params (optional)  ")}</ControlLabel>
           {renderParams()}
         </DrawerDetail>
         <FormGroup>
-          <ControlLabel>{__('Use specified fields')}</ControlLabel>
+          <ControlLabel>{__("Use specified fields")}</ControlLabel>
           <Toggle
             onChange={() => {
               setUseSpecifiedFields((prevFields) => !prevFields);

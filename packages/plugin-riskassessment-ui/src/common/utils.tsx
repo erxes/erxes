@@ -574,7 +574,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
       this.setState({ calculateLogics: [...calculateLogics, variables] });
     };
 
-    const handleCalculateMethod = ({ value }) => {
+    const handleCalculateMethod = ({ value }: any) => {
       this.setState({ calculateMethod: value });
     };
 

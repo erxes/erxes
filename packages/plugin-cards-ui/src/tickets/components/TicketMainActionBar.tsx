@@ -3,7 +3,7 @@ import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
 import { IOption } from "@erxes/ui/src/types";
 import MainActionBar from "@erxes/ui-cards/src/boards/components/MainActionBar";
 import React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import { __ } from "coreui/utils";
@@ -41,7 +41,7 @@ const TicketMainActionBar = (props: Props) => {
 
   const sources = queryParams ? queryParams.source : [];
 
-  const onSourceSelect = (ops: IOption[]) =>
+  const onSourceSelect = (ops: OnChangeValue<IOption, true>) =>
     onSelect(
       ops.map((option) => option.value),
       "source"

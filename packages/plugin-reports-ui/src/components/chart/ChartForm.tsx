@@ -213,7 +213,6 @@ const ChartForm = (props: Props) => {
               chartVariables={{ serviceName, templateType }}
               filter={filters}
               dimension={dimension}
-              history={navigate}
               queryParams={queryParams}
             />
           ) : (

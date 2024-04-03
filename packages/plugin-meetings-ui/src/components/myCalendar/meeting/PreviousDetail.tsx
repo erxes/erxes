@@ -32,7 +32,7 @@ class PreviousDetailComponents extends React.Component<Props, State> {
         label: moment(startDate || "").format("ddd, MMMM DD, YYYY • HH:mm a"),
       })) || {};
 
-    const onSelect = ({ value }) => {
+    const onSelect = ({ value }: any) => {
       this.setState({ selectedMeetingId: value });
     };
 

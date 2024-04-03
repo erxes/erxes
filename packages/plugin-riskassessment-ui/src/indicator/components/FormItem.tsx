@@ -331,7 +331,7 @@ class Item extends React.Component<Props, State> {
       });
     };
 
-    const handleChangeCalculateMethod = ({ value }) => {
+    const handleChangeCalculateMethod = ({ value }: any) => {
       const { doc, handleChange } = this.props;
 
       handleChange({ ...doc, calculateMethod: value });

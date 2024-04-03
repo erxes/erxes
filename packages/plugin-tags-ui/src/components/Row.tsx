@@ -8,7 +8,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import Info from "@erxes/ui/src/components/Info";
 import Label from "@erxes/ui/src/components/Label";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import Tags from "@erxes/ui/src/components/Tags";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
@@ -61,8 +61,10 @@ const Row: React.FC<RowProps> = ({
     setMergeDestination(undefined);
   };
 
-  const onChangeDestination = (option: { value: string; label: string }) => {
-    setMergeDestination(option);
+  const onChangeDestination = (
+    option: OnChangeValue<{ value: string; label: string }, false>
+  ) => {
+    option && setMergeDestination(option);
   };
 
   const onMerge = () => {

@@ -98,7 +98,7 @@ const CategoryForm = (props: Props) => {
                 placeholder={__('Choose status')}
                 value={ASSET_CATEGORY_STATUSES.find(o=>o.value ===status)}
                 options={ASSET_CATEGORY_STATUSES}
-                onChange={(option) => setStatus(option.value)}
+                onChange={(option: any) => setStatus(option.value)}
                 isClearable={false}
                 {...formProps}
               />

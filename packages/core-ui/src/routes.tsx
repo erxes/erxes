@@ -129,7 +129,6 @@ const renderRoutes = (currentUser) => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => {
-  console.log("rrrr", currentUser);
   return (
     <Router>
       <BrowserRoutes>

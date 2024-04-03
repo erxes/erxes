@@ -242,15 +242,15 @@ class GeneralSettings extends React.Component<Props, State> {
         description={__("Cloudflare R2 Bucket, Images & Stream CDN configs")}
         beforeTitle={<Icon icon="comment-upload" />}
       >
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_ACCOUNT_ID")}
           {this.renderItem("CLOUDFLARE_API_TOKEN")}
         </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_ACCESS_KEY_ID")}
           {this.renderItem("CLOUDFLARE_SECRET_ACCESS_KEY")}
         </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_BUCKET_NAME")}
           {this.renderItem("CLOUDFLARE_ACCOUNT_HASH")}
         </FlexRow>
@@ -379,7 +379,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Theme")}
           beforeTitle={<Icon icon="puzzle" />}
         >
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderUploadImage(
               "THEME_LOGO",
               "Transparent PNG, around 3:1 aspect ratio. Max width: 600px."
@@ -419,7 +419,7 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("Learn how to set file uploading") + "."}
             </a>
           </Info>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
@@ -457,7 +457,7 @@ class GeneralSettings extends React.Component<Props, State> {
               />
             </FormGroup>
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             <FormGroup>
               <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
               <Select
@@ -529,11 +529,11 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("Learn how to set AWS S3 Variables")}
             </a>
           </Info>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("AWS_ACCESS_KEY_ID")}
             {this.renderItem("AWS_SECRET_ACCESS_KEY")}
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("AWS_BUCKET")}
             {this.renderItem("AWS_PREFIX")}
           </FlexRow>
@@ -563,11 +563,11 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("Learn how to set Amazon SES variables")}
             </a>
           </Info>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("AWS_SES_ACCESS_KEY_ID")}
             {this.renderItem("AWS_SES_SECRET_ACCESS_KEY")}
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("AWS_REGION")}
             {this.renderItem("AWS_SES_CONFIG_SET")}
           </FlexRow>
@@ -587,11 +587,11 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("Learn how to set Google variables")}
             </a>
           </Info>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("GOOGLE_PROJECT_ID")}
             {this.renderItem("GOOGLE_CLIENT_ID")}
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem(
               "GOOGLE_CLIENT_SECRET",
               "Client Secret key are required for authentication and authorization purposes"
@@ -601,7 +601,7 @@ class GeneralSettings extends React.Component<Props, State> {
               "The topic value created in Gmail setup"
             )}
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem(
               "GOOGLE_APPLICATION_CREDENTIALS_JSON",
               "Firebase config for notifications"
@@ -671,11 +671,11 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("Learn the case of custom email service")}
             </a>
           </Info>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("MAIL_SERVICE")}
             {this.renderItem("MAIL_PORT")}
           </FlexRow>
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("MAIL_USER")}
             {this.renderItem("MAIL_PASS")}
           </FlexRow>
@@ -687,7 +687,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title={__("Data retention")}
           beforeTitle={<Icon icon="cloud-data-connection" />}
         >
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             <FormGroup>
               <ControlLabel>
                 {KEY_LABELS.NOTIFICATION_DATA_RETENTION}
@@ -747,7 +747,7 @@ class GeneralSettings extends React.Component<Props, State> {
           title="MessagePro"
           beforeTitle={<Icon icon="comment-alt-verify" />}
         >
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             {this.renderItem("MESSAGE_PRO_API_KEY")}
             {this.renderItem("MESSAGE_PRO_PHONE_NUMBER")}
           </FlexRow>

@@ -8,8 +8,9 @@ import {
 } from "@erxes/ui-forms/src/forms/styles";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import { Features } from "../../../../styles";
+import { IOption } from "@erxes/ui/src/types";
 
 type Props = {
   config?: any;
@@ -87,7 +88,7 @@ class DateSettings extends React.Component<Props, State> {
           <ControlLabel>{__("Frequency Type")}</ControlLabel>
           <Select
             options={frequencyOptions}
-            onChange={({ value }) => onChangeDate(value, "frequencyType")}
+            onChange={({ value }: any) => onChangeDate(value, "frequencyType")}
             value={frequencyOptions.find(
               (o) => o.value === dateConfig?.frequencyType
             )}
@@ -158,8 +159,8 @@ class DateSettings extends React.Component<Props, State> {
     const { onChange } = this.props;
     const { selectDateType } = this.state;
 
-    const onSelectType = ({ value }) => {
-      this.setState({ selectDateType: value });
+    const onSelectType = (option: OnChangeValue<IOption, false>) => {
+      this.setState({ selectDateType: option?.value || "" });
 
       const { dateConfig, ...config } = this.props.config;
 

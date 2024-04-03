@@ -23,7 +23,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { articleReactions } from "../../icons.constant";
 
@@ -138,12 +138,12 @@ const ArticleForm = (props: Props) => {
     setContent(e.editor.getData());
   };
 
-  const handleReactionsChange = (options: IOption[]) => {
+  const handleReactionsChange = (options: OnChangeValue<IOption, true>) => {
     setReactionChoices(options.map((option) => option.value));
   };
 
-  const handleStatusChange = (option: IOption) => {
-    setStatus(option.value);
+  const handleStatusChange = (option: OnChangeValue<IOption, false>) => {
+    setStatus(option?.value || "");
   };
 
   const handleAttachmentsChange = (attachments: IAttachment[]) =>

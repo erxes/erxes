@@ -23,7 +23,7 @@ import Label from "@erxes/ui/src/components/Label";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import RTG from "react-transition-group";
 import React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import ShareForm from "../containers/ShareForm";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
@@ -95,7 +95,7 @@ class FileManager extends React.Component<Props, State> {
 
     const types = queryParams ? queryParams.type : [];
 
-    const onTypeSelect = (ops: IOption) =>
+    const onTypeSelect = (ops: OnChangeValue<IOption, false>) =>
       onSelect(ops && ops.value ? ops.value : "", "type");
 
     return (

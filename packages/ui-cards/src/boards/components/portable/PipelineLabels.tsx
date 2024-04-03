@@ -2,7 +2,7 @@ import { ControlLabel, FormGroup, Spinner } from "@erxes/ui/src/components";
 import { IField, IOption } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import { gql } from "@apollo/client";
 import { queries } from "../../graphql";
 import { useQuery } from "@apollo/client";
@@ -27,7 +27,7 @@ const GenerateAddFormFields = (props: Props) => {
     return <Spinner />;
   }
 
-  const onChange = (ops: IOption[]) => {
+  const onChange = (ops: OnChangeValue<IOption, true>) => {
     props.onChangeField(
       field.field,
       ops.map((option) => option.value)

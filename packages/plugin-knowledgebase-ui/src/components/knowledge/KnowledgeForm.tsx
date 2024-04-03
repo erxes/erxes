@@ -22,7 +22,7 @@ import Info from "@erxes/ui/src/components/Info";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
 import Popover from "@erxes/ui/src/components/Popover";
 import ReactMarkdown from "react-markdown";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
 import TwitterPicker from "react-color/lib/Twitter";
 import Uploader from "@erxes/ui/src/components/Uploader";
@@ -193,8 +193,8 @@ const KnowledgeForm = (props: Props) => {
   };
 
   // Handle notification segment change
-  const onChangeNotificationSegment = ({ value }: { value: string }) => {
-    setNotificationSegmentId(value);
+  const onChangeNotificationSegment = (val: OnChangeValue<{ value: string }, false>) => {
+    setNotificationSegmentId(val?.value || null);
   };
 
   // Generate document
@@ -232,8 +232,8 @@ const KnowledgeForm = (props: Props) => {
     const brandId = brand != null ? brand._id : "";
 
     // Handle language change
-    const handleLanguageChange = (selectLanguage: { value: string }) => {
-      setLanguageCode(selectLanguage.value);
+    const handleLanguageChange = (selectLanguage: OnChangeValue<{ value: string },false>) => {
+      setLanguageCode(selectLanguage?.value || '');
     };
 
     const notificationSegmentOptions = segments.map((segment) => ({

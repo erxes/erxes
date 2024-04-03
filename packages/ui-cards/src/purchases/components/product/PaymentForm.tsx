@@ -99,7 +99,7 @@ class PaymentForm extends React.Component<Props, State> {
       );
     };
 
-    const currencyOnChange = (currency: HTMLOptionElement) => {
+    const currencyOnChange = (currency) => {
       this.paymentStateChange(
         "currency",
         type.name,

@@ -8,7 +8,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { Formgroup } from "@erxes/ui/src/components/form/styles";
 import { OperatorList } from "../styles";
 import React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
@@ -111,7 +111,9 @@ class PropertyForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeSelect = (option: { value: string }) => {
+  onChangeSelect = (
+    option: OnChangeValue<{ value: string | number; label: string }, false>
+  ) => {
     const value = !option ? "" : option.value.toString();
 
     this.setState({ currentValue: value });

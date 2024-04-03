@@ -101,7 +101,7 @@ export default class ScoreForm extends React.Component<Props, State> {
             value={OWNER_TYPES.find((o) => o.value === config?.ownerType)}
             options={OWNER_TYPES}
             isMulti={false}
-            onChange={({ value }) => handleChange(value, "ownerType")}
+            onChange={({ value }: any) => handleChange(value, "ownerType")}
           />
         </FormGroup>
         {this.renderOwnerTypeComponent(handleChange)}

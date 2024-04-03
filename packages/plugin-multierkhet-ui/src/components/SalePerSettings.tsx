@@ -206,7 +206,7 @@ const PerSettings = (props: Props) => {
                   value={options.find(
                     (o) => o.value === brandRules[key].defaultPay
                   )}
-                  onChange={(option) =>
+                  onChange={(option: any) =>
                     updateConfig(key, "defaultPay", option.value)
                   }
                   isClearable={false}

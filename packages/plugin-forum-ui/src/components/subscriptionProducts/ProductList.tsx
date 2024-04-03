@@ -12,7 +12,7 @@ import { IProduct } from "../../types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { Filter } from "../../styles";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import { userTypes } from "../../constants";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -50,8 +50,10 @@ export default function ProductList({
     <Form onDelete={onDelete} renderButton={renderButton} {...props} />
   );
 
-  const onStatusChange = (status: { label: string; value: boolean }) => {
-    routerUtils.setParams(navigate, location, { userType: status.value });
+  const onStatusChange = (
+    status: OnChangeValue<{ label: string; value: string }, false>
+  ) => {
+    routerUtils.setParams(navigate, location, { userType: status?.value });
   };
 
   const actionBarRight = (

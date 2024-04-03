@@ -182,7 +182,7 @@ export default function DirectMessageForm({
             <ControlLabel>{__(label || "Message")}</ControlLabel>
             <Select
               value={OPERATOR_TYPES.find((o) => o.value === operator)}
-              onChange={({ value }) =>
+              onChange={({ value }: any) =>
                 onChangeCondition(_id, "operator", value)
               }
               options={OPERATOR_TYPES}

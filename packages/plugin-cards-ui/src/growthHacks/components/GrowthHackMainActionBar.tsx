@@ -8,8 +8,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import MainActionBar from "@erxes/ui-cards/src/boards/components/MainActionBar";
 import React from "react";
-// import { withRouter } from 'react-router-dom';
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import options from "../options";
 import queryString from "query-string";
@@ -147,7 +146,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
     }
   };
 
-  const onChangeHackStage = (ops: IOption[]) => {
+  const onChangeHackStage = (ops: OnChangeValue<IOption, true>) => {
     props.onSelect(
       ops.map((option) => option.value),
       "hackStage"

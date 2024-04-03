@@ -1,4 +1,4 @@
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
@@ -127,7 +127,7 @@ class MessengerForm extends React.Component<Props, State> {
     const onChangeContent = (e) =>
       this.onChangeSms("content", (e.target as HTMLInputElement).value);
 
-    const onChangeFrom = (value: ISelectedOption) => {
+    const onChangeFrom = (value: OnChangeValue<ISelectedOption, false>) => {
       const integrationId = value ? value.value : "";
 
       this.setState({ fromIntegrationId: integrationId });

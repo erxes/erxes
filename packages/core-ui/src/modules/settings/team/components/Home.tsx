@@ -13,7 +13,7 @@ import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Sidebar from "./Sidebar";
 import UserInvitationForm from "../containers/UserInvitationForm";
@@ -78,9 +78,11 @@ export default function Home(props: Props) {
     e.target.value = tmpValue;
   };
 
-  const onStatusChange = (status: { label: string; value: boolean }) => {
-    router.setParams(navigate, location, { isActive: status.value });
-    setActive(status.value);
+  const onStatusChange = (
+    status: OnChangeValue<{ label: string; value: boolean }, false>
+  ) => {
+    router.setParams(navigate, location, { isActive: status?.value });
+    setActive(status?.value || true);
   };
 
   const renderBrandChooser = () => {

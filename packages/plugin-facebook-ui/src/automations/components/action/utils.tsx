@@ -43,7 +43,7 @@ export function TimeSetter({
           <Select
             options={timeTypes}
             value={timeTypes.find((o) => o.value === timeType)}
-            onChange={({ value }) => onChange("timeType", value)}
+            onChange={({ value }: any) => onChange("timeType", value)}
           />
         </Container>
       </Wrapper>

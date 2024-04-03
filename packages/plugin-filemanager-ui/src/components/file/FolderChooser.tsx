@@ -108,7 +108,7 @@ class FolderChooser extends React.Component<Props, State> {
           value={this.selectOptions(this.props.folders).find(
             (o) => o.value === this.state.folderId
           )}
-          onChange={(option) => this.onChange(option?.value)}
+          onChange={(option: any) => this.onChange(option?.value)}
           isClearable={false}
         />
       </FolderChooserWrapper>

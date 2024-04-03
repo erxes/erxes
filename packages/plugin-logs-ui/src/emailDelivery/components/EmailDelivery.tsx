@@ -8,7 +8,7 @@ import { __, router } from "@erxes/ui/src/utils";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import * as React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import { EMAIL_TYPES } from "../containers/EmailDelivery";
 import Row from "./Row";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -90,13 +90,15 @@ function EmailDelivery({
     }, 500);
   };
 
-  const handleEmailtype = ({ value }: { value: string }) => {
+  const handleEmailtype = (value: OnChangeValue<{ value: string }, false>) => {
     setSearch("");
-    return handleSelectEmailType(value);
+    return handleSelectEmailType(value?.value || "");
   };
 
-  const handleStatusChange = ({ value }: { value: string }) => {
-    return handleSelectStatus(value);
+  const handleStatusChange = (
+    value: OnChangeValue<{ value: string }, false>
+  ) => {
+    return handleSelectStatus(value?.value || "");
   };
 
   function renderContent() {

@@ -294,14 +294,14 @@ class ProductItem extends React.Component<Props, State> {
     );
   }
 
-  uomOnChange = (option: HTMLOptionElement) =>
+  uomOnChange = (option) =>
     this.onChangeField(
       "uom",
       option ? option.value : "",
       this.props.productData._id
     );
 
-  currencyOnChange = (currency: HTMLOptionElement) =>
+  currencyOnChange = (currency) =>
     this.onChangeField(
       "currency",
       currency ? currency.value : "",

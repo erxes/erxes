@@ -8,7 +8,7 @@ import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
 import Popover from "@erxes/ui/src/components/Popover";
 import TwitterPicker from "react-color/lib/Twitter";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 
 import { COLORS, FONTS } from "../../constants";
 import {
@@ -77,10 +77,12 @@ function Appearance({
     label: string;
     name: string;
   }) {
-    const handleSelect = (option: { label: string; value: string }) => {
+    const handleSelect = (
+      option: OnChangeValue<{ label: string; value: string }, false>
+    ) => {
       const currentStyles = { ...styles };
 
-      currentStyles[name] = option.value;
+      currentStyles[name] = option?.value;
 
       handleFormChange("styles", currentStyles);
     };

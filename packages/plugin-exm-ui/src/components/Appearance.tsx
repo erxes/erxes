@@ -9,7 +9,7 @@ import {
 } from "../styles";
 import { ColorPick, ColorPicker } from "../styles";
 import React, { useState } from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -133,7 +133,7 @@ export default function Appearance(props: Props) {
     setLogo(e);
   };
 
-  const handleSelectBoard = (option: ISelectedOption) => {
+  const handleSelectBoard = (option: OnChangeValue<ISelectedOption, false>) => {
     const value = option ? option.value : "";
 
     if (value) {

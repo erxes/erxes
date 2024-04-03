@@ -7,7 +7,7 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import mutations from "../../graphql/mutations";
 
 type Props = {
@@ -51,7 +51,7 @@ function UserSkillForm({
     };
 
     const handleSkillsChange = (
-      options: [{ label: string; value: string }]
+      options: OnChangeValue<{ label: string; value: string }, true>
     ) => {
       setSkillIds(options.map((option) => option.value));
     };

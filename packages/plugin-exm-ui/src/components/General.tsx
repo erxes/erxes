@@ -144,9 +144,8 @@ export default function General(props: Props) {
                   (o) => o.value === feature.contentId
                 )}
                 options={getContentValues()}
-                onChange={(item) => {
+                onChange={(item: any) => {
                   getKbCategories(item.value);
-
                   onChangeFeatureItem(feature._id, "contentId", item.value);
                 }}
                 isClearable={false}

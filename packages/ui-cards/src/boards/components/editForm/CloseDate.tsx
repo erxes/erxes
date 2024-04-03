@@ -51,7 +51,7 @@ class CloseDate extends React.Component<Props, State> {
     this.overlay = overlay;
   };
 
-  minuteOnChange = ({ value }: { value: string }) => {
+  minuteOnChange = ({ value }: any) => {
     this.props.onChangeField("reminderMinute", parseInt(value, 10));
   };
 
@@ -150,7 +150,9 @@ class CloseDate extends React.Component<Props, State> {
 
         <Select
           required={true}
-          value={reminderMinute}
+          value={selectOptions(REMINDER_MINUTES).filter(
+            (o) => o.value === reminderMinute.toString()
+          )}
           onChange={this.minuteOnChange}
           options={selectOptions(REMINDER_MINUTES)}
           isClearable={false}

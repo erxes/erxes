@@ -245,7 +245,7 @@ export default (props: Props) => {
       <FlexColumn marginNum={10}>
         <Select
           value={options.find((o) => o.value === checkInOutType)}
-          onChange={(e) => setCheckInOutType(e.value)}
+          onChange={(e: any) => setCheckInOutType(e.value)}
           options={options}
         />
 

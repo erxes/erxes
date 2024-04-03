@@ -25,7 +25,7 @@ import Map from "@erxes/ui/src/containers/map/Map";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectList from "./ObjectList";
 import React from "react";
-import Select from "react-select-plus";
+import Select, { OnChangeValue } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
@@ -126,7 +126,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMultiSelect(options: string[] = [], attrs) {
-    const onChange = (ops: IOption[]) => {
+    const onChange = (ops: OnChangeValue<IOption, true>) => {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {

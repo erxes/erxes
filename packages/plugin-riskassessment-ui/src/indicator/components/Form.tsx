@@ -294,7 +294,7 @@ class Form extends React.Component<Props, State> {
       return null;
     }
 
-    const handleChangeCalculateMethod = ({ value }) => {
+    const handleChangeCalculateMethod = ({ value }: any) => {
       this.setState((prev) => ({
         riskIndicator: { ...prev.riskIndicator, calculateMethod: value },
       }));
