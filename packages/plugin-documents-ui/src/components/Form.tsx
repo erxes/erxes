@@ -78,7 +78,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
+          <ControlLabel required={false}>Code</ControlLabel>
 
           <FormControl
             name="code"
