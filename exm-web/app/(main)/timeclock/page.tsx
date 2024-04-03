@@ -3,9 +3,9 @@ import { FunctionComponent } from "react"
 import TodaysClock from "@/components/TodaysClock"
 import YourRequests from "@/components/YourRequests"
 
-interface OverviewPageProps {}
+interface TimeClockPageProps {}
 
-const OverviewPage: FunctionComponent<OverviewPageProps> = () => {
+const TimeClockPage: FunctionComponent<TimeClockPageProps> = () => {
   return (
     <div className="flex h-full w-[calc(100%-230px)] flex-col shrink-0 p-4">
       <div className="flex gap-5 max-w-[1607px] w-full mx-auto">
@@ -19,4 +19,4 @@ const OverviewPage: FunctionComponent<OverviewPageProps> = () => {
   )
 }
 
-export default OverviewPage
+export default TimeClockPage
