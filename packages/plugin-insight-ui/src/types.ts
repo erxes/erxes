@@ -315,6 +315,7 @@ export interface IFieldLogic {
   logicFieldName: string;
   logicFieldValue: any;
   logicFieldVariable?: string;
+  logicFieldExtraVariable?: string
 }
 
 //queries

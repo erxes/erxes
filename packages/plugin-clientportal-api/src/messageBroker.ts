@@ -87,6 +87,18 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
+    'clientportal:clientPortalUsers.count',
+    async ({ subdomain, data: { pipeline } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ClientPortalUsers.aggregate(pipeline),
+        status: 'success',
+      };
+    },
+  );
+
+  consumeRPCQueue(
     'clientportal:clientPortalEngageNotifications',
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
