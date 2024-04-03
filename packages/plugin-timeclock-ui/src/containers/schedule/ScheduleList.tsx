@@ -31,7 +31,6 @@ type Props = {
   branches: IBranch[];
   departments: IDepartment[];
 
-  history: any;
   queryParams: any;
 
   userId?: string;

@@ -17,7 +17,6 @@ import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   currentUser: IUser;
   queryParams: any;
-  history?: any;
   isCurrentUserAdmin: boolean;
   isCurrentUserSupervisor: boolean;
 

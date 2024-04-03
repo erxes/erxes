@@ -28,7 +28,6 @@ import { compareStartAndEndTime } from "../../utils";
 import dayjs from "dayjs";
 
 type Props = {
-  history?: any;
   configType: string;
   absenceType?: IAbsenceType;
   scheduleConfig?: IScheduleConfig;

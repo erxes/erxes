@@ -28,10 +28,7 @@ import {
 } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import {
-  IButtonMutateProps,
-  IFormProps,
-} from "@erxes/ui/src/types";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import React from "react";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -54,7 +51,7 @@ type Props = {
   detail?: RiskIndicatorsType;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
   duplicatIndicator: (_id: string) => void;
-  history?: any;
+  navigate?: any;
 };
 
 type IRiskIndicatorsStateType = {
@@ -112,7 +109,7 @@ class Form extends React.Component<Props, State> {
   }
   handleClose = () => {
     const { riskIndicator } = this.state;
-    const { detail, history } = this.props;
+    const { detail, navigate } = this.props;
     const formIds: any[] = [];
 
     for (const form of riskIndicator.forms || []) {
@@ -133,10 +130,10 @@ class Form extends React.Component<Props, State> {
           mutation: gql(mutations.removeUnusedRiskIndicatorForm),
           variables: { formIds },
         });
-        return history.push("/settings/risk-indicators");
+        return navigate("/settings/risk-indicators");
       });
     }
-    history.push("/settings/risk-indicators");
+    navigate("/settings/risk-indicators");
   };
 
   renderLogic(

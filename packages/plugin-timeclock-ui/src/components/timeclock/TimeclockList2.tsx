@@ -34,7 +34,6 @@ type Props = {
   reportByUsers: [IUserReport] | [];
   totalCount: number;
   queryParams: any;
-  history?: any;
 
   currentUser: IUser;
   isCurrentUserAdmin: boolean;
@@ -546,7 +545,7 @@ const TimeclockList = (props: Props) => {
 
   return (
     <TimeclockTableWrapper>
-      <Table bordered={true}>
+      <Table $bordered={true}>
         {renderTableHeaders()}
         {showModal && renderEditForm()}
         <tbody>

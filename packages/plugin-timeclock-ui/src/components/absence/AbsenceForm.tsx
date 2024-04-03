@@ -38,7 +38,6 @@ type Props = {
   isCurrentUserAdmin: boolean;
 
   absenceTypes: IAbsenceType[];
-  history: any;
   queryParams: any;
 
   submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;

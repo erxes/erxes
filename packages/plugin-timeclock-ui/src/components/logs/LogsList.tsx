@@ -16,7 +16,6 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
   queryParams: any;
-  history: any;
   timelogs: ITimelog[];
   totalCount?: number;
 

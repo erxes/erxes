@@ -33,7 +33,6 @@ type Props = {
   absences: IAbsence[];
   absenceTypes: IAbsenceType[];
   queryParams: any;
-  history: any;
   startTime?: Date;
   loading?: boolean;
   totalCount: number;
@@ -155,7 +154,7 @@ function AbsenceList(props: Props) {
         <Icon icon="subject" />
       </ToggleButton>
 
-      <Title capitalize={true}>{` Total: ${absences.length}`}</Title>
+      <Title $capitalize={true}>{` Total: ${absences.length}`}</Title>
     </FlexRowLeft>
   );
 

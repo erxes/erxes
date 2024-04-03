@@ -25,6 +25,8 @@ const MainContent = () => {
       searchFilter={location.search}
       queryParams={queryParams}
       route={routePath}
+      location={location}
+      navigate={navigate}
     />
   );
 };

@@ -24,7 +24,8 @@ type Props = {
   searchValue: string;
 
   route?: string;
-  history: any;
+  navigate: any;
+  location: any;
   startTime: Date;
   stopTime: Date;
   timeId: string;
@@ -47,7 +48,7 @@ class ListContainer extends React.Component<FinalProps> {
 
   componentDidUpdate(prevProps): void {
     if (prevProps.route !== this.props.route) {
-      removeParams(this.props.history, 'page', 'perPage');
+      removeParams(this.props.navigate, this.props.location, 'page', 'perPage');
     }
   }
 

@@ -89,6 +89,7 @@ const FormContainer = (props: FinalProps) => {
     detail: indicatorDetail?.riskIndicatorDetail,
     renderButton,
     duplicatIndicator,
+    navigate
   };
 
   return <FormCompnent {...updatedProps} />;
