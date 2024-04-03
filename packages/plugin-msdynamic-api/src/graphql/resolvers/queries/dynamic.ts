@@ -95,7 +95,7 @@ const msdynamicQueries = {
 
     filterSection = filterSection.slice(0, -4) + '';
 
-    const url = `${itemApi}?$filter=(${filterSection}) and Location_Filter eq '${locationCode}'   &$select=No,Inventory`;
+    const url = `${itemApi}?$filter=(${filterSection}) and Location_Filter eq '${locationCode}'&$select=No,Inventory`;
 
     const response = await fetch(url, {
       headers: {
@@ -113,7 +113,7 @@ const msdynamicQueries = {
     }
 
     if (response.value.length === 0) {
-      return {};
+      return response.value || [];
     }
   },
 };
