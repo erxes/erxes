@@ -188,7 +188,7 @@ const reportTemplates = [
       'DealsClosedWonAllTimeByRep',
       'DealRevenueByStage',
       'DealsSales',
-      'DealCountInEachPipiline',
+      'DealCountInEachPipeline',
       'DealCountByCompanies',
       'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
     ],
@@ -213,7 +213,7 @@ const reportTemplates = [
       'AllTasksIncompleteByDueDate',
       'TasksIncompleteAssignedToTheTeamByDueDate',
       'TasksIncompleteAssignedToMeByDueDate',
-      'TaskCountInEachPipiline',
+      'TaskCountInEachPipeline',
       'TaskCountByCompanies',
     ],
     img: 'https://cdn.mos.cms.futurecdn.net/S5bicwPe8vbP9nt3iwAwwi.jpg',
@@ -235,7 +235,7 @@ const reportTemplates = [
       'TicketTotalsBySource',
       'TicketsCardCountAssignedUser',
       'TicketsStageDateRange',
-      'TicketCountInEachPipiline',
+      'TicketCountInEachPipeline',
       'TicketCountByCompanies',
     ],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
@@ -6919,7 +6919,7 @@ const chartTemplates = [
     ],
   },
   {
-    templateType: 'DealCountInEachPipiline',
+    templateType: 'DealCountInEachPipeline',
     name: 'Deal Count In Each Pipeline',
     chartTypes: [
       'bar',
@@ -7106,7 +7106,7 @@ const chartTemplates = [
     ],
   },
   {
-    templateType: 'TaskCountInEachPipiline',
+    templateType: 'TaskCountInEachPipeline',
     name: 'Task Count In Each Pipeline',
     chartTypes: [
       'bar',
@@ -7293,7 +7293,7 @@ const chartTemplates = [
     ],
   },
   {
-    templateType: 'TicketCountInEachPipiline',
+    templateType: 'TicketCountInEachPipeline',
     name: 'Ticket Count In Each Pipeline',
     chartTypes: [
       'bar',
