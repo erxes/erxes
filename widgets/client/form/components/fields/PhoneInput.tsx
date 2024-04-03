@@ -16,9 +16,7 @@ const PhoneInputWithCountryCode = (props: Props) => {
   const [country, setCountry] = React.useState<ICountry | null>(() => {
     if (connection.browserInfo) {
       const { countryCode } = connection.browserInfo;
-      return (
-        COUNTRIES.find((country) => country.code === countryCode) || null
-      );
+      return COUNTRIES.find((country) => country.code === countryCode) || null;
     }
     return COUNTRIES[0];
   });
@@ -41,13 +39,13 @@ const PhoneInputWithCountryCode = (props: Props) => {
     if (selectedCountry) {
       setCountry(selectedCountry);
     }
-    // Pass the country code and phone number 
+    // Pass the country code and phone number
     onChange(`${selectedCountry?.dialCode} ${phoneNumber}`);
   };
 
   const handlePhoneNumberChange = (e: any) => {
     setPhoneNumber(e.target.value);
-    // Pass the country code and phone number 
+    // Pass the country code and phone number
     onChange(`${country?.dialCode} ${e.target.value}`);
   };
 
@@ -59,29 +57,17 @@ const PhoneInputWithCountryCode = (props: Props) => {
         height: '100%',
       }}
     >
-      <div className="form-control" style={{ width: '130px' }}>
-        {country && `${country.emoji} ${country.dialCode}`}
-      </div>
-      <div style={{ height: '36px' }}>
-        <select
-          value={country?.code}
-          onChange={handleCountryCodeChange}
-          className="form-control"
-          style={{
-            width: '120px',
-            opacity: 0,
-            position: 'absolute',
-            left: 0,
-            cursor: 'pointer',
-          }}
-        >
-          {COUNTRIES.map((country) => (
-            <option key={country.code} value={country.code}>
-              {country.name} {country.emoji}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        value={country?.code}
+        onChange={handleCountryCodeChange}
+        className="form-control"
+      >
+        {COUNTRIES.map((country) => (
+          <option key={country.code} value={country.code}>
+            {country.emoji} {country.code}
+          </option>
+        ))}
+      </select>
 
       <input
         className="form-control"
