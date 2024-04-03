@@ -16,7 +16,6 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IFormProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSelect: (accountId?: string, account?: IAccount) => void;
@@ -45,7 +44,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (this.props?.selectedAccountId) {
       const account = (accounts || []).find(
-        (account) => account._id === this.props.selectedAccountId
+        (account) => account._id === this.props.selectedAccountId,
       );
       this.onSelectAccount(this.props.selectedAccountId, account);
     }
@@ -68,21 +67,13 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
   renderButton() {
     const { onAdd, kind } = this.props;
-    const { REACT_APP_API_URL } = getEnv();
 
     if (kind === 'facebook') {
       return (
-        <div>
+        <FacebookButton onClick={onAdd}>
           <Icon icon="facebook-official" />
-
-          <a
-            href={`${REACT_APP_API_URL}/pl:facebook/fblogin?kind=${kind}`}
-            target="_blank"
-            rel="opener"
-          >
-            {__('Continue with Facebook')}
-          </a>
-        </div>
+          {__('Continue with Facebook')}
+        </FacebookButton>
       );
     }
 
