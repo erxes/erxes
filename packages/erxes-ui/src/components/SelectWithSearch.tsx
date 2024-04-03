@@ -5,7 +5,7 @@ import { __, confirm, readFile, withProps } from "../utils";
 import { IOption } from "../types";
 import Icon from "./Icon";
 import React from "react";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 import colors from "../styles/colors";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
@@ -199,7 +199,7 @@ class SelectWithSearch extends React.Component<
 
     const { totalOptions, selectedOptions } = this.state;
 
-    const selectMultiple = (ops: IOption[]) => {
+    const selectMultiple = (ops: OnChangeValue<IOption, true>) => {
       const selectedOptionsValues = ops.map((option) => option.value);
 
       onSelect(selectedOptionsValues, name);
@@ -210,14 +210,15 @@ class SelectWithSearch extends React.Component<
       });
     };
 
-    const selectSingle = (option: IOption) => {
+    const selectSingle = (option: OnChangeValue<IOption, false>) => {
       const selectedOptionValue = option ? option.value : "";
+      const selectedOption = option ? option : { value: "", label: "" };
 
       onSelect(selectedOptionValue, name, option?.extraValue);
 
       this.setState({
         selectedValues: [selectedOptionValue],
-        selectedOptions: [{ ...option }],
+        selectedOptions: [{ ...selectedOption }],
       });
     };
 
@@ -259,7 +260,7 @@ class SelectWithSearch extends React.Component<
         // loadingMessage={__('Loading...')}
         isLoading={customQuery.loading}
         onMenuOpen={onOpen}
-        onChange={onChange}
+        onChange={(options:any) => onChange(options)}
         openMenuOnClick={true}
         // optionRenderer={optionRenderer}
         // valueRenderer={optionRenderer}
