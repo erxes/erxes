@@ -27,11 +27,10 @@ export const Authorization = (props: Props) => {
       window.close();
     }
   }
-
   return (
     <Wrapper>
       {queryParams.fbAuthorized ? (
-        <p>__('Facebook authorized, You can close this window') </p>
+        <p>{__('Facebook authorized, You can close this window')}</p>
       ) : (
         <Spinner />
       )}
