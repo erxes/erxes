@@ -75,6 +75,7 @@ const msdynamicQueries = {
     const config = configs[brandId || 'noBrand'];
 
     if (
+      !config ||
       !config.itemApi ||
       !config.username ||
       !config.password ||
@@ -108,7 +109,11 @@ const msdynamicQueries = {
     }).then((res) => res.json());
 
     if (response.value.length > 0) {
-      return response.value;
+      return response.value || [];
+    }
+
+    if (response.value.length === 0) {
+      return {};
     }
   },
 };
