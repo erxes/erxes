@@ -113,8 +113,14 @@ const msdynamicQueries = {
     }
 
     if (response.value.length === 0) {
-      return response.value || [];
+      return [];
     }
+
+    if (!(response.value || []).length) {
+      return [];
+    }
+
+    return response.value || [];
   },
 };
 
