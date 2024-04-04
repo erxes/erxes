@@ -1,6 +1,7 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 import queries from './queries';
+import mutations from './mutations';
 import safetyTipQueries from './safetyTip/queries';
 import SafetyTipMutations from './safetyTip/mutations';
 import customResolvers from './customResolvers';
@@ -10,11 +11,12 @@ const resolvers: any = async () => ({
   ...customResolvers,
   Query: {
     ...queries,
-    ...safetyTipQueries
+    ...safetyTipQueries,
   },
   Mutation: {
-    ...SafetyTipMutations
-  }
+    ...mutations,
+    ...SafetyTipMutations,
+  },
 });
 
 export default resolvers;
