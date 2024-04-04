@@ -1,5 +1,5 @@
 import React from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
 import { MoreHorizontal } from "lucide-react"
@@ -72,10 +72,7 @@ const MessagesHeader = ({ chatDetail, setShowSidebar }: Props) => {
           <div className="text-[12px] text-green-400">Active Now</div>
         </div>
       </div>
-      <button
-        className="p-1 cursor-pointer"
-        onClick={() => setShowSidebar()}
-      >
+      <button className="p-1 cursor-pointer" onClick={() => setShowSidebar()}>
         <MoreHorizontal size={20} />
       </button>
     </>

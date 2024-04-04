@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useSearchParams } from "next/navigation"
-import { exmAtom } from "@/modules/JotaiProiveder"
+import { exmAtom } from "@/modules/JotaiProvider"
 import { useDiscover } from "@/modules/discover/hooks/useDiscover"
 import { useAtomValue } from "jotai"
 

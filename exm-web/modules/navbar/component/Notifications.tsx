@@ -200,7 +200,7 @@ const Notifications = () => {
   return (
     <Popover>
       <PopoverTrigger asChild={true}>
-        <div className="p-2 bg-[#F9FAFB] border-[1.5px] border-exm rounded-[8px] mr-[10px] relative cursor-pointer">
+        <div className="p-2 bg-[#F9FAFB] border-[1.5px] border-exm rounded-[8px] relative cursor-pointer">
           <Bell size={14} />
           {unreadCount > 0 && (
             <div className="absolute top-[2px] right-[2px] bg-primary text-white text-[9px] flex w-[14px] h-[14px] justify-center items-center rounded-full">

@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { exmAtom } from "@/modules/JotaiProiveder"
+import { exmAtom } from "@/modules/JotaiProvider"
 import { useFeedback } from "@/modules/discover/hooks/useFeedback"
 import { useAtomValue } from "jotai"
 import { PenSquare } from "lucide-react"

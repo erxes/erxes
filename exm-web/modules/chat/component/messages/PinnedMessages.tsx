@@ -1,6 +1,6 @@
 "use client"
 
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useAtomValue } from "jotai"

@@ -1,6 +1,6 @@
 "use client"
 
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useAtomValue } from "jotai"
 
 import { useChatDetail } from "../hooks/useChatDetail"
@@ -28,9 +28,7 @@ const RightSideBar = ({
       : users?.[0]
 
   const renderGroup = () => {
-    return (
-      <GroupDetail chatDetail={chatDetail} />
-    )
+    return <GroupDetail chatDetail={chatDetail} />
   }
 
   const renderDirect = () => {

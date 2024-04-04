@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
 import { useInView } from "react-intersection-observer"

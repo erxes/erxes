@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useMutation, useQuery, useSubscription } from "@apollo/client"
 import { useAtomValue } from "jotai"
 

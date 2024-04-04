@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
 import {
   IScheduleConfig,

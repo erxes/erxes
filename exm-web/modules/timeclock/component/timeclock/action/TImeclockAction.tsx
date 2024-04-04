@@ -1,5 +1,5 @@
 import React from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useAtomValue } from "jotai"
 
 import { Toaster } from "@/components/ui/toaster"

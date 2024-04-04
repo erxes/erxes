@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import { exmAtom } from "@/modules/JotaiProiveder"
+import { exmAtom } from "@/modules/JotaiProvider"
 import { useAtomValue } from "jotai"
 import { Search } from "lucide-react"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -18,7 +18,7 @@ import Loader from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useUsers } from "@/components/hooks/useUsers"
 
-import RightNavbar from "../../navbar/component/RightNavbar"
+import RightNavbar from "../../navbar/component/TopNavbar"
 import { useEvents } from "../hooks/useEvent"
 import EventDropDown from "./EventDropDown"
 

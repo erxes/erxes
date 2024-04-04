@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAtomValue } from "jotai"
 
-import { currentUserAtom } from "../JotaiProiveder"
+import { currentUserAtom } from "../JotaiProvider"
 
 const checkValidAuth = (currentUser: any) => {
   const { _id } = currentUser || {}

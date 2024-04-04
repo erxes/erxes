@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useAbsenceMutation } from "@/modules/timeclock/hooks/useAbsenceMutation"
 import dayjs from "dayjs"
 import { useAtomValue } from "jotai"

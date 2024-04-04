@@ -6,7 +6,7 @@ import { useSetAtom } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
-import { setExmAtom } from "./JotaiProiveder"
+import { setExmAtom } from "./JotaiProvider"
 import { queries } from "./auth/graphql"
 
 const ExmProvider = ({ children }: { children: ReactNode }) => {

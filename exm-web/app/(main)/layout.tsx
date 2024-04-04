@@ -2,11 +2,10 @@ import "@/styles/globals.css"
 import ExmProvider from "@/modules/ExmProvider"
 import CheckAuth from "@/modules/auth/checkAuth"
 import Configs from "@/modules/auth/configs"
-import { Sidebar } from "@/modules/sidebar/component/Sidebar"
+import TopNavbar from "@/modules/navbar/component/TopNavbar"
+import Sidebar from "@/modules/sidebar/component/Sidebar"
 
 import Image from "@/components/ui/image"
-
-import RightNavbar from "../../modules/navbar/component/RightNavbar"
 
 interface ILayoutProps {
   children: React.ReactNode
@@ -17,24 +16,22 @@ export default function RootLayout({ children }: ILayoutProps) {
     <Configs>
       <CheckAuth>
         <ExmProvider>
-          <div className="relative flex h-screen flex-col">
-            <section className="flex justify-between bg-white border-b border-exm ">
-              <div className="flex justify-center w-[230px] h-[67px] items-center border-r border-exm">
-                <Image
-                  alt=""
-                  src="/logo-dark.svg"
-                  height={100}
-                  width={100}
-                  loading="lazy"
-                  className="w-25"
-                />
+          <div className="flex h-screen">
+            <div className="w-[230px] border-r">
+              <div className="w-full h-[67px] flex items-center justify-center relative border-b">
+                <Image alt="dark" src="/logo-dark.svg" fill priority />
               </div>
-              <RightNavbar />
-            </section>
-            <section className="flex flex-auto items-stretch bg-white">
+
               <Sidebar />
-              <div className="bg-[#FAFAFA] w-full">{children}</div>
-            </section>
+            </div>
+
+            <div className="flex-1">
+              <TopNavbar />
+
+              <div className="pt-[67px]">
+                <div className="p-4">{children}</div>
+              </div>
+            </div>
           </div>
         </ExmProvider>
       </CheckAuth>

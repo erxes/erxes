@@ -1,18 +1,19 @@
 "use client"
 
-import { IKbCategory, IKbParentCategory, Topic } from "../../types"
+import React from "react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { exmAtom } from "@/modules/JotaiProvider"
+import { useAtomValue } from "jotai"
 import { MenuSquare, UserSquare } from "lucide-react"
 
-import ArticleList from "./article/ArticleList"
 import { Button } from "@/components/ui/button"
-import EmptyList from "./EmptyList"
-import Link from "next/link"
 import Loader from "@/components/ui/loader"
-import React from "react"
-import { exmAtom } from "@/modules/JotaiProiveder"
-import { useAtomValue } from "jotai"
+
 import { useDiscover } from "../../hooks/useDiscover"
-import { useSearchParams } from "next/navigation"
+import { IKbCategory, IKbParentCategory, Topic } from "../../types"
+import EmptyList from "./EmptyList"
+import ArticleList from "./article/ArticleList"
 
 const Knowledgebase = () => {
   const searchParams = useSearchParams()

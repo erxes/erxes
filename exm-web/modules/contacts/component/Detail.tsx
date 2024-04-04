@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import RightNavbar from "@/modules/navbar/component/RightNavbar"
+import { currentUserAtom } from "@/modules/JotaiProvider"
+import RightNavbar from "@/modules/navbar/component/TopNavbar"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtomValue } from "jotai"
 import { Facebook, Globe, Twitter, Youtube } from "lucide-react"

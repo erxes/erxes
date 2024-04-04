@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useTimeclocksMutation } from "@/modules/timeclock/hooks/useTimeclocksMutations"
 import { isCurrentUserAdmin } from "@/modules/timeclock/utils"
 import { useAtomValue } from "jotai"

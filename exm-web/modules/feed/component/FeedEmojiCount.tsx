@@ -1,4 +1,4 @@
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
 import { ThumbsUp } from "lucide-react"
@@ -21,7 +21,7 @@ export default function EmojiCount({
   emojiOpen,
   setEmojiOpen,
   commentsCount,
-  commentOpen
+  commentOpen,
 }: {
   postId: string
   setDetailOpen?: (state: boolean) => void
@@ -31,10 +31,9 @@ export default function EmojiCount({
   commentsCount: number
   commentOpen: boolean
 }) {
-  const { emojiCount, emojiReactedUser } =
-    useReactionQuery({
-      feedId: postId,
-    })
+  const { emojiCount, emojiReactedUser } = useReactionQuery({
+    feedId: postId,
+  })
   const currentUser = useAtomValue(currentUserAtom) || ({} as IUser)
 
   const idExists = emojiReactedUser.some(

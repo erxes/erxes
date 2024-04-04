@@ -1,4 +1,4 @@
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
 import { MessageCircleIcon, ThumbsUp } from "lucide-react"

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useAtomValue } from "jotai"
 import { ChevronDown, ChevronRight } from "lucide-react"
 

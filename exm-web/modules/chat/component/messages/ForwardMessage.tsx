@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import { IAttachment } from "@/modules/feed/component/form/uploader/Uploader"
 import { useAtomValue } from "jotai"

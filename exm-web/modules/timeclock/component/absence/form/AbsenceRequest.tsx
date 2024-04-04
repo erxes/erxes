@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import Uploader from "@/modules/feed/component/form/uploader/Uploader"
 import { useAbsenceMutation } from "@/modules/timeclock/hooks/useAbsenceMutation"
 import { useTimeclocksMutation } from "@/modules/timeclock/hooks/useTimeclocksMutations"

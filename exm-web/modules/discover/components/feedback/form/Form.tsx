@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { currentUserAtom, exmAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom, exmAtom } from "@/modules/JotaiProvider"
 import { IUser } from "@/modules/auth/types"
 import EmojiPicker from "@/modules/chat/component/messages/EmojiPicker"
 import { useFeedback } from "@/modules/discover/hooks/useFeedback"
@@ -264,7 +264,7 @@ const Form = ({ type, currentStep, setCurrentStep, setToggleView }: Props) => {
         <Button
           onClick={onSubmit}
           disabled={loading}
-          className={`${currentStep === 1 ? 'bg-[#4F33AF]' : "bg-[#3dcc38]"}`}
+          className={`${currentStep === 1 ? "bg-[#4F33AF]" : "bg-[#3dcc38]"}`}
         >
           {buttonText}
         </Button>

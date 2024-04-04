@@ -1,6 +1,6 @@
 "use client"
 
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { IAttachment } from "@/modules/types"
 import { useMutation } from "@apollo/client"
 import { useAtomValue } from "jotai"

@@ -1,26 +1,27 @@
-import { CalendarIcon, Plus, X } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { currentUserAtom } from "@/modules/JotaiProvider"
+import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
 import {
   IScheduleConfig,
   IScheduleConfigOrder,
 } from "@/modules/timeclock/types"
+import { isSameDay } from "date-fns"
+import dayjs from "dayjs"
+import { useAtomValue } from "jotai"
+import { CalendarIcon, Plus, X } from "lucide-react"
+import Select from "react-select"
+
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import React, { useEffect, useState } from "react"
-
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { DatePicker } from "@/components/ui/date-picker"
-import ScheduleConfigOrder from "./ScheduleConfigOrder"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import Select from "react-select"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
-import dayjs from "dayjs"
-import { isSameDay } from "date-fns"
-import { useAtomValue } from "jotai"
-import { useScheduleMutation } from "@/modules/timeclock/hooks/useScheduleMutation"
+
+import ScheduleConfigOrder from "./ScheduleConfigOrder"
 
 type Props = {
   configsList: IScheduleConfig[]

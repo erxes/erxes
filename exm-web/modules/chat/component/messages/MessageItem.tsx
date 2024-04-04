@@ -9,7 +9,7 @@ import { Pin, PinOff, ReplyIcon } from "lucide-react"
 
 import Image from "@/components/ui/image"
 
-import { currentUserAtom } from "../../../JotaiProiveder"
+import { currentUserAtom } from "../../../JotaiProvider"
 import useChatsMutation from "../../hooks/useChatsMutation"
 import { IChatMessage } from "../../types"
 import ForwardMessage from "./ForwardMessage"

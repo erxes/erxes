@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { currentUserAtom } from "@/modules/JotaiProiveder"
+import { currentUserAtom } from "@/modules/JotaiProvider"
 import { useAtomValue } from "jotai"
 import {
   Bell,

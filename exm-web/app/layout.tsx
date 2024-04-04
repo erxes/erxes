@@ -3,7 +3,7 @@ import ApolloProvider from "@/modules/ApolloProvider"
 import "@/styles/globals.css"
 import { Metadata } from "next"
 import Script from "next/script"
-import JotaiProvider from "@/modules/JotaiProiveder"
+import JotaiProvider from "@/modules/JotaiProvider"
 import CheckAuth from "@/modules/auth/checkAuth"
 import Configs from "@/modules/auth/configs"
 
