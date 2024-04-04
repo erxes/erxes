@@ -6,6 +6,8 @@ import { QueryResponse } from '@erxes/ui/src/types';
 
 import { IQuarter } from '../quarters/types';
 import { ICustomField } from '@erxes/api-utils/src/types';
+import { ICoordinates } from '../../types';
+
 export interface IOSMBuilding {
   id: string;
   properties: {
@@ -30,6 +32,7 @@ export interface IBuilding {
   serviceStatus: string;
   color: string;
   bounds: any;
+  drawnPoints: ICoordinates[];
   location: any;
   customerIds: string[];
   customers: ICustomer[];

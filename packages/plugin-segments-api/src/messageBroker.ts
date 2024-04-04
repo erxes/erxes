@@ -19,7 +19,7 @@ const sendErrorMessage = (message?) => ({
   message,
 });
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('segments:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

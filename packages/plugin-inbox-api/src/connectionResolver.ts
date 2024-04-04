@@ -2,42 +2,42 @@ import * as mongoose from 'mongoose';
 import { IChannelDocument } from './models/definitions/channels';
 import {
   ISkillDocument,
-  ISkillTypeDocument
+  ISkillTypeDocument,
 } from './models/definitions/skills';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IChannelModel,
-  loadClass as loadChannelClass
+  loadClass as loadChannelClass,
 } from './models/Channels';
 import {
   ISkillModel,
   ISkillTypeModel,
   loadSkillClass,
-  loadSkillTypeClass
+  loadSkillTypeClass,
 } from './models/Skills';
 import {
   loadClass as loadResponseTemplateClass,
-  IResponseTemplateModel
+  IResponseTemplateModel,
 } from './models/ResponseTemplates';
 import { IResponseTemplateDocument } from './models/definitions/responseTemplates';
 import {
   IIntegrationModel,
-  loadClass as loadIntegrationClass
+  loadClass as loadIntegrationClass,
 } from './models/Integrations';
 import { IIntegrationDocument } from './models/definitions/integrations';
 import {
   IMessengerAppModel,
-  loadClass as loadMessengerAppClass
+  loadClass as loadMessengerAppClass,
 } from './models/MessengerApps';
 import { IMessengerAppDocument } from './models/definitions/messengerApps';
 import {
   IMessageModel,
-  loadClass as loadMessageClass
+  loadClass as loadMessageClass,
 } from './models/ConversationMessages';
 import { IMessageDocument } from './models/definitions/conversationMessages';
 import {
   IConversationModel,
-  loadClass as loadConversationClass
+  loadClass as loadConversationClass,
 } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
 import { IScriptModel } from './models/Scripts';
@@ -62,25 +62,23 @@ export interface IContext extends IMainContext {
   serverTiming: any;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Channels = db.model<IChannelDocument, IChannelModel>(
     'channels',
-    loadChannelClass(models)
+    loadChannelClass(models),
   );
   models.Skills = db.model<ISkillDocument, ISkillModel>(
     'skills',
-    loadSkillClass(models)
+    loadSkillClass(models),
   );
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>(
     'skill_types',
-    loadSkillTypeClass(models)
+    loadSkillTypeClass(models),
   );
   models.ResponseTemplates = db.model<
     IResponseTemplateDocument,
@@ -88,29 +86,26 @@ export const loadClasses = (
   >('response_templates', loadResponseTemplateClass(models));
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',
-    loadIntegrationClass(models, subdomain)
+    loadIntegrationClass(models, subdomain),
   );
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
-    loadMessengerAppClass(models)
+    loadMessengerAppClass(models),
   );
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>(
     'conversation_messages',
-    loadMessageClass(models)
+    loadMessageClass(models),
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations',
-    loadConversationClass(models, subdomain)
+    loadConversationClass(models, subdomain),
   );
   models.Scripts = db.model<IScriptDocument, IScriptModel>(
     'scripts',
-    loadScriptClass(models, subdomain)
+    loadScriptClass(models, subdomain),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

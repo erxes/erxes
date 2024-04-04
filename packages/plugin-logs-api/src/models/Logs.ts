@@ -1,5 +1,5 @@
 import { Document, Model, Schema } from 'mongoose';
-import { debug } from '../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../connectionResolver';
 import { compareObjects } from '../utils';
 import { field } from './utils';
@@ -100,7 +100,7 @@ export const loadLogClass = (models: IModels) => {
           parsedNewData = JSON.parse(newData);
         }
       } catch (e) {
-        debug.error(`JSON parsing error: ${e.message}`);
+        debugError(`JSON parsing error: ${e.message}`);
         oldData = JSON.parse(object.replace('\n', ''));
       }
 
@@ -137,7 +137,7 @@ export const loadLogClass = (models: IModels) => {
                 checkUpdate = false;
               }
             } catch (e) {
-              debug.error(`object comparison error: ${e.message}`);
+              debugError(`object comparison error: ${e.message}`);
             }
           }
 

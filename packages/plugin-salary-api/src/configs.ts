@@ -1,7 +1,7 @@
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 
 import app from '@erxes/api-utils/src/app';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -12,21 +12,18 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import userMiddleware, { checkPermission, handleUpload } from './utils';
 
-export let mainDb;
-export let debug;
-
 export default {
   name: 'salary',
   permissions,
 
   meta: {
-    permissions,
+    permissions
   },
 
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
 
@@ -37,7 +34,7 @@ export default {
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      headers: req.headers,
+      headers: req.headers
     };
 
     context.subdomain = subdomain;
@@ -50,21 +47,15 @@ export default {
   },
   middlewares: [cookieParser(), userMiddleware],
 
-  onServerInit: async (options) => {
-    mainDb = options.db;
-
+  onServerInit: async () => {
     const { DOMAIN } = process.env;
 
     const corsOptions = {
       credentials: true,
-      origin: DOMAIN || 'http://localhost:3000',
+      origin: DOMAIN || 'http://localhost:3000'
     };
 
     app.use(cors(corsOptions));
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
 
     const upload = multer({ dest: __dirname + '../uploads/' });
 
@@ -88,10 +79,19 @@ export default {
             return res.status(200).json({ error: 'File is required' });
           }
 
-          try {
-            const result = await handleUpload(subdomain, req.user, file, title);
+          const [startDateString, endDateString] = title.split('-');
 
-            res.status(200).json({ success: true, result });
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+
+          try {
+            const message = await handleUpload(subdomain, req.user, file, {
+              title,
+              startDate,
+              endDate
+            });
+
+            res.status(200).json({ success: true, message });
           } catch (e) {
             return res.status(200).json({ error: e.message });
           }
@@ -100,7 +100,8 @@ export default {
           // next(e);
           return res.status(200).json({ error: e.message });
         }
-      },
+      }
     );
   },
+  setupMessageConsumers
 };

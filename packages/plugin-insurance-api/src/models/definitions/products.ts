@@ -13,15 +13,29 @@ export type RiskConfig = {
   coverageLimit?: number;
 };
 
+export type TravelProductConfig = {
+  duration: number;
+  price: any;
+  numberOfPeople: number;
+};
+
 export interface IInsuranceProduct {
+  categoryId: string;
   name: string;
   code: string;
   description?: string;
   price: number;
-  companyProductConfigs?: ProductConfig[];
+  currencyCode?: string;
+  duration?: number;
+
   riskConfigs?: RiskConfig[];
-  categoryId: string;
+
   customFieldsData?: any;
+
+  travelProductConfigs?: TravelProductConfig[];
+  companyProductConfigs?: ProductConfig[];
+
+  tagIds?: string[];
 }
 
 export interface IInsuranceProductDocument extends IInsuranceProduct, Document {
@@ -35,9 +49,9 @@ export const riskSchema = new Schema(
   {
     riskId: field({ type: String, required: true }),
     coverage: field({ type: Number, min: 0, max: 100 }),
-    coverageLimit: field({ type: Number, min: 0, max: 100 })
+    coverageLimit: field({ type: Number, min: 0, max: 100 }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const productSchema = new Schema({
@@ -45,7 +59,7 @@ export const productSchema = new Schema({
   name: field({ required: true, type: String }),
   code: field({ required: true, unique: true, type: String }),
   description: field({ optional: true, type: String }),
-  price: field({ required: true, type: Number }),
+  price: field({ required: false, type: Number }),
   createdAt: field({ type: Date, default: Date.now }),
   updatedAt: field({ type: Date, default: Date.now }),
   lastModifiedBy: field({ type: String, optional: true }),
@@ -53,5 +67,10 @@ export const productSchema = new Schema({
   companyProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
   riskConfigs: field({ type: [riskSchema], optional: true }),
   categoryId: field({ type: String, optional: true }),
-  customFieldsData: field({ type: [customFieldSchema] })
+  customFieldsData: field({ type: [customFieldSchema] }),
+  travelProductConfigs: field({ type: [Schema.Types.Mixed], optional: true }),
+
+  duration: field({ type: Number, optional: true }),
+  currencyCode: field({ type: String, optional: true, default: 'MNT' }),
+  tagIds: field({ type: [String], optional: true }),
 });

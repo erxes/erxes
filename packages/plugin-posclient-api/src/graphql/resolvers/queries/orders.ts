@@ -17,6 +17,7 @@ interface ISearchParams {
   customerType?: string;
   isPaid?: boolean;
   statuses: string[];
+  saleStatus: string;
   dueStartDate?: Date;
   dueEndDate?: Date;
   isPreExclude?: boolean;
@@ -27,6 +28,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   const {
     searchValue,
     statuses,
+    saleStatus,
     customerId,
     startDate,
     endDate,
@@ -38,6 +40,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
     isPreExclude,
     slotCode,
   } = params;
+
   const filter: any = {
     $or: [{ posToken: config.token }, { subToken: config.token }],
   };
@@ -55,6 +58,10 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
 
   if (slotCode) {
     filter.slotCode = slotCode;
+  }
+
+  if (saleStatus) {
+    filter.saleStatus = saleStatus;
   }
 
   if (customerType) {
@@ -76,9 +83,11 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   if (startDate) {
     dateQry.$gte = getPureDate(startDate);
   }
+
   if (endDate) {
     dateQry.$lte = getPureDate(endDate);
   }
+
   if (Object.keys(dateQry).length) {
     const dateTypes = {
       paid: 'paidDate',
@@ -184,15 +193,18 @@ const orderQueries = {
     { _id, customerId }: { _id: string; customerId?: string },
     { posUser, models, config }: IContext,
   ) {
+    const tokenFilter = {
+      $or: [{ posToken: config.token }, { subToken: config.token }],
+    };
     if (posUser) {
-      return models.Orders.findOne({ _id, posToken: config.token });
+      return models.Orders.findOne({ _id, ...tokenFilter });
     }
 
     if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, posToken: config.token, customerId });
+    return models.Orders.findOne({ _id, ...tokenFilter });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {

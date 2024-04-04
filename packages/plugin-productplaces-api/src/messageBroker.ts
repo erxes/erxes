@@ -6,7 +6,7 @@ import {
 import { afterMutationHandlers } from './afterMutations';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('productplaces:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;

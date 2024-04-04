@@ -37,12 +37,11 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     const { dictionary, parentId } = this.props;
-    console.log('dictionary:', dictionary);
     this.state = {
       name: dictionary?.name,
       code: dictionary?.code,
       type: dictionary?.type,
-      parentId
+      parentId,
     };
   }
 
@@ -63,7 +62,7 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
     finalValues.parentId = this.state.parentId;
 
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
@@ -116,7 +115,7 @@ class FormComponent extends React.Component<Props & ICommonFormProps, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,
-            object: dictionary
+            object: dictionary,
           })}
         </ModalFooter>
       </>

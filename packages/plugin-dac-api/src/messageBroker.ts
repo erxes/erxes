@@ -6,7 +6,7 @@ import {
 import { afterMutationHandlers } from './aftermutations';
 import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('dac:afterMutation', async ({ data }) => {
     try {
       await afterMutationHandlers(data);

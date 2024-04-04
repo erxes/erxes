@@ -5,10 +5,10 @@ const CustomerAccount = {
     return (
       account.customerId && {
         __typename: 'Customer',
-        _id: account.customerId
+        _id: account.customerId,
       }
     );
-  }
+  },
 };
 
 export { CustomerAccount };

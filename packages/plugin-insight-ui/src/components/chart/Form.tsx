@@ -107,14 +107,15 @@ const Form = (props: Props) => {
   }, [[...chartTemplates]]);
 
   const generateDoc = (values) => {
+
     const finalValues = values;
     if (chart) {
       finalValues._id = chart._id;
     }
 
-    return {
+    const doc: IChart = {
       _id: finalValues._id,
-      [type + 'Id']: item._id,
+      contentId: item._id,
       chartType,
       name,
       filter: filters,
@@ -122,11 +123,20 @@ const Form = (props: Props) => {
       serviceName,
       templateType,
     };
+
+    if (!chart) {
+      doc.contentType = type;
+    }
+
+
+    return doc;
   };
 
   const onServiceNameChange = (selVal) => {
     updateServiceName(selVal.value);
     setServiceName(selVal.value);
+
+
   };
 
   const onChartTemplateChange = (selVal) => {
@@ -179,6 +189,34 @@ const Form = (props: Props) => {
     );
   };
 
+  const renderDimensions = () => {
+    if (!dimensions.length) {
+      return null;
+    }
+
+    return (
+      <>
+        <ControlLabel>Dimension</ControlLabel>
+        <Select
+          options={dimensions}
+          value={dimension?.x}
+          onChange={(sel) => setDimension({ x: sel.value })}
+        />
+      </>
+    );
+  };
+
+  const renderFields = () => {
+    if (!templateType) {
+      return null
+    }
+
+    return <>
+      <FormGroup>{renderDimensions()}</FormGroup>
+      <FormGroup>{renderFilterTypeFields()}</FormGroup>
+    </>
+  }
+
   const renderChartTemplates = () => {
     if (!chartTemplates.length) {
       return null;
@@ -194,6 +232,7 @@ const Form = (props: Props) => {
             value={templateType}
             onChange={onChartTemplateChange}
             placeholder={__(`Choose template`)}
+            clearable={false}
           />
         </FormGroup>
         <FormGroup>
@@ -204,17 +243,10 @@ const Form = (props: Props) => {
             value={chartType}
             onChange={onChartTypeChange}
             placeholder={__(`Choose type`)}
+            clearable={false}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>Dimension</ControlLabel>
-          <Select
-            options={dimensions}
-            value={dimension?.x}
-            onChange={(sel) => setDimension({ x: sel.value })}
-          />
-        </FormGroup>
-        <FormGroup>{renderFilterTypeFields()}</FormGroup>
+        {renderFields()}
       </>
     );
   };
@@ -277,6 +309,7 @@ const Form = (props: Props) => {
                 value={serviceName}
                 onChange={onServiceNameChange}
                 placeholder={__(`Choose service`)}
+                clearable={false}
               />
             </FormGroup>
 

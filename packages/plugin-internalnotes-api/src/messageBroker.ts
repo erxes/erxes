@@ -21,7 +21,7 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
   return;
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue(
     'internalnotes:batchUpdate',
     async ({

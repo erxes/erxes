@@ -13,8 +13,9 @@ import type {
   InterMessage,
   RPResult,
 } from '@erxes/api-utils/src/messageBroker';
+import { removeCustomers } from './helpers';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'calls:createIntegration',
     async (args: InterMessage): Promise<any> => {
@@ -124,7 +125,7 @@ export const initBroker = async () => {
   );
 
   consumeRPCQueue(
-    'viber:integrationDetail',
+    'calls:integrationDetail',
     async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const { inboxId } = data;
@@ -142,6 +143,60 @@ export const initBroker = async () => {
       };
     },
   );
+  consumeQueue('calls:notification', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { type } = data;
+
+    switch (type) {
+      case 'removeCustomers':
+        await removeCustomers(models, data);
+        break;
+
+      default:
+        break;
+    }
+  });
+  consumeRPCQueue(
+    'calls:getCallHistory',
+    async (args: InterMessage): Promise<any> => {
+      try {
+        const { subdomain, data } = args;
+        const models = await generateModels(subdomain);
+        const { erxesApiConversationId } = data;
+
+        if (!erxesApiConversationId) {
+          return {
+            status: 'error',
+            errorMessage: 'Conversation id not found.',
+          };
+        }
+
+        const conversation = await models.Conversations.findOne({
+          erxesApiId: erxesApiConversationId,
+        });
+
+        if (!conversation) {
+          return {
+            status: 'error',
+            errorMessage: 'Conversation  not found.',
+          };
+        }
+
+        const sessionId = conversation.callId || '';
+        const history = await models.CallHistory.findOne({ sessionId });
+        return {
+          status: 'success',
+          data: history,
+        };
+      } catch (error) {
+        return {
+          status: 'error',
+          errorMessage: 'Error processing call history:' + error,
+        };
+      }
+    },
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs) => {
@@ -153,6 +208,15 @@ export const sendCommonMessage = async (args: MessageArgs) => {
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
+    ...args,
+  });
+};
+
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'contacts',
     ...args,
   });
 };

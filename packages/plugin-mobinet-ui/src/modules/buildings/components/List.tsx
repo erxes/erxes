@@ -15,7 +15,6 @@ import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
-import { CityListQueryResponse } from '../../cities/types';
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
@@ -78,19 +77,8 @@ const List = (props: Props) => {
   };
   React.useEffect(() => {
     if (props.buildings) {
-      console.log('buildings changed  ', props.buildings);
       setBuildings(props.buildings);
     }
-
-    // if (buildings.length > 0 && map) {
-    //   map.highlight(feature => {
-    //     const foundBuilding = buildings.find(b => b.osmbId === feature.id);
-
-    //     if (foundBuilding) {
-    //       return foundBuilding.color;
-    //     }
-    //   });
-    // }
 
     if (buildings.length > 0 && map) {
       map.highlight((feature: { id: string }) => {
@@ -107,6 +95,10 @@ const List = (props: Props) => {
         if (foundBuilding && foundBuilding?.serviceStatus === 'inprogress') {
           return '#ffcc00';
         }
+        if (foundBuilding && foundBuilding?.serviceStatus === 'unavailable') {
+          return '#00ff00';
+        }
+
         if (current) {
           return '#00bbff';
         }
@@ -176,6 +168,7 @@ const List = (props: Props) => {
       onChangeCenter,
       onload,
       center,
+      buildings,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -183,18 +176,27 @@ const List = (props: Props) => {
 
   const render2dMap = () => {
     if (viewType !== '2d') {
+      console.log('rerender');
       return null;
     }
+    const onload = (bounds: ICoordinates[], mapRef) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+
+      setMap(mapRef.current);
+    };
 
     return (
       <OSMap
         id={Math.random().toString(10)}
         width={'100%'}
         height={'100%'}
+        onChangeCenter={onChangeCenter}
+        onload={onload}
         center={center}
+        buildings={buildings}
         zoom={16}
         addMarkerOnCenter={false}
-        // onChangeCenter={onChangeCenter}
       />
     );
   };
@@ -233,6 +235,7 @@ const List = (props: Props) => {
       center={center}
       osmBuilding={currentOsmBuilding}
       building={currentBuilding}
+      buildings={buildings}
     />
   );
 

@@ -11,22 +11,33 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-  const { loading, data = {} } = useQuery(gql(queries.usersOfCard), {
+  const {
+    loading,
+    data = {},
+    refetch,
+  } = useQuery(gql(queries.clientPortalParticipants), {
     variables: {
       contentType: props.mainType,
       contentTypeId: props.mainTypeId,
-      userKind: 'client'
+      userKind: 'client',
     },
-    skip: !props.mainType || !props.mainTypeId
+    skip: !props.mainType || !props.mainTypeId,
   });
 
   if (loading) {
     return <Spinner />;
   }
 
-  const { clientPortalCardUsers = [] } = data;
+  const { clientPortalParticipants = [] } = data;
 
-  return <VendorSection users={clientPortalCardUsers} kind="client" />;
+  return (
+    <VendorSection
+      {...props}
+      refetch={refetch}
+      participants={clientPortalParticipants}
+      kind="client"
+    />
+  );
 };
 
 export default Container;

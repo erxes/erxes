@@ -1,6 +1,6 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields
+  conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -310,6 +310,118 @@ query ClientPortalCardUsers($contentType: String!, $contentTypeId: String!, $use
 }
 `;
 
+const cardFields = `
+_id
+companies {
+  _id
+  primaryName
+  primaryEmail
+  primaryPhone
+}
+assignedUsers {
+  _id
+  details {
+    avatar
+    firstName
+    fullName
+    lastName
+    shortName
+  }
+  email
+  username
+}
+customers {
+  _id
+  firstName
+  lastName
+  middleName
+  primaryEmail
+  primaryPhone
+}
+name
+boardId
+stageId
+status
+pipeline {
+  _id
+}
+createdAt
+`;
+
+const tasksOfUser = `
+query ClientPortalUserTasks($userId: String) {
+  clientPortalUserTasks(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const dealsOfUser = `
+query ClientPortalUserDeals($userId: String) {
+  clientPortalUserDeals(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const ticketsOfUser = `
+query ClientPortalUserTickets($userId: String) {
+  clientPortalUserTickets(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const purchasesOfUser = `
+query ClientPortalUserPurchases($userId: String) {
+  clientPortalUserPurchases(userId: $userId) {
+    ${cardFields}
+  }
+}
+`;
+
+const clientPortalParticipantDetail = `
+query clientPortalParticipantDetail($contentType: String!, $cpUserId: String!, $contentTypeId: String!) {
+  clientPortalParticipantDetail(contentType: $contentType, cpUserId: $cpUserId, contentTypeId: $contentTypeId) {
+    _id
+    contentType
+    contentTypeId
+    cpUserId
+    createdAt
+    hasVat
+    modifiedAt
+    offeredAmount
+    paymentAmount
+    paymentStatus
+    status
+  }
+}`;
+
+const clientPortalParticipants = `
+query clientPortalParticipants($contentType: String!, $userKind: BusinessPortalKind!, $contentTypeId: String!) {
+  clientPortalParticipants(contentType: $contentType, userKind: $userKind, contentTypeId: $contentTypeId) {
+    _id
+    contentType
+    contentTypeId
+    cpUserId
+    cpUser {
+      _id
+      phone
+      email
+      firstName
+      lastName
+    }
+    createdAt
+    hasVat
+    modifiedAt
+    offeredAmount
+    paymentAmount
+    paymentStatus
+    status
+  }
+}
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -321,5 +433,11 @@ export default {
   clientPortalUserCounts,
   clientPortalComments,
   fieldConfig,
-  usersOfCard
+  usersOfCard,
+  tasksOfUser,
+  dealsOfUser,
+  ticketsOfUser,
+  purchasesOfUser,
+  clientPortalParticipantDetail,
+  clientPortalParticipants,
 };

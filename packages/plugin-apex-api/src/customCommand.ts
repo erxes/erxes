@@ -1,12 +1,10 @@
 import * as dotenv from 'dotenv';
-import { init } from '@erxes/api-utils/src/messageBroker';
-import { initBroker } from './messageBroker';
+import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { MessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
 import { Writable } from 'stream';
 import csvParser = require('csv-parser');
-
-let messageBrokerClient;
 
 const bankField = process.env.bankField;
 const bankAccountNameField = process.env.bankAccountNameField;
@@ -269,9 +267,7 @@ dotenv.config();
 const command = async () => {
   const [_a1, _a2, filePath] = process.argv;
 
-  await init();
-
-  initBroker();
+  await connectToMessageBroker(setupMessageConsumers);
 
   await importBulkStream({ filePath, bulkLimit: 100 });
 

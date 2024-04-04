@@ -13,9 +13,9 @@ const callsIntegrationDetail: string = `
   }
 `;
 
-const callIntegrationsOfUser: any = `
-  query callIntegrationsOfUser {
-    callIntegrationsOfUser {
+const callUserIntegrations: any = `
+  query callUserIntegrations {
+    callUserIntegrations {
       _id
       inboxId
       operators
@@ -112,10 +112,62 @@ const activeSession = `
     lastLoginDeviceId
   }
 }`;
+
+const callHistories = `
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip) {
+      _id
+    receiverNumber
+    callerNumber
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    extentionNumber
+    customer {
+      _id
+      avatar
+      email
+      firstName
+      ${
+        isEnabled('tags')
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+                    type
+
+          }
+        `
+          : ``
+      }
+      phone
+      primaryEmail
+      primaryPhone
+      tagIds
+    }
+    }
+}`;
+
+const callsGetConfigs = `
+  query callsGetConfigs {
+    callsGetConfigs
+  }
+`;
+
 export default {
   callsIntegrationDetail,
-  callIntegrationsOfUser,
+  callUserIntegrations,
   callCustomerDetail,
   customers,
   activeSession,
+  callHistories,
+  callsGetConfigs,
 };

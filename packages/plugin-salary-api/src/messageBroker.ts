@@ -1,13 +1,17 @@
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
+
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
 import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const setupMessageConsumers = async (cl: any) => {
   client = cl;
-
-  const { consumeRPCQueue } = client;
 
   consumeRPCQueue('salary:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -19,15 +23,15 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string },
-) => {
+export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
     ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
     ...args,

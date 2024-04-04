@@ -1,6 +1,19 @@
 import { generateModels } from './connectionResolver';
 import { sendCommonMessage } from './messageBroker';
 
+const getCustomer = async (subdomain, customerId) => {
+  const customer = await sendCommonMessage({
+    serviceName: 'contacts',
+    subdomain,
+    action: 'customers.findOne',
+    isRPC: true,
+    defaultValue: null,
+    data: { _id: customerId },
+  });
+
+  return customer;
+};
+
 const getItem = async (subdomain, _id) => {
   const models = await generateModels(subdomain);
 
@@ -142,6 +155,19 @@ const getFields = async ({ subdomain }) => {
   fields.push({ value: 'customers', name: 'Customers' });
   fields.push({ value: 'companies', name: 'Companies' });
 
+  fields.push({
+    value: 'customer_primaryPhone',
+    name: 'Customer primary phone',
+  });
+  fields.push({
+    value: 'customer_primaryEmail',
+    name: 'Customer primary email',
+  });
+  fields.push({ value: 'customer_firstName', name: 'Customer first name' });
+  fields.push({ value: 'customer_lastName', name: 'Customer last name' });
+  fields.push({ value: 'customer_middleName', name: 'Customer middle name' });
+  fields.push({ value: 'customer_code', name: 'Customer code' });
+
   return fields;
 };
 
@@ -156,8 +182,11 @@ export default {
   editorAttributes: async ({ subdomain, data: { contentType } }) => {
     return await getFields({ subdomain });
   },
-  replaceContent: async ({ subdomain, data: { itemId, content } }) => {
+  replaceContent: async ({ subdomain, data }) => {
+    const { itemId, content, customerId } = data;
     const response = await getItem(subdomain, itemId);
+
+    const customer = await getCustomer(subdomain, customerId);
 
     if (!response) {
       return '';
@@ -281,6 +310,23 @@ export default {
         /{{ dealCloseDate }}/g,
         deal.closeDate || '',
       );
+    }
+
+    if (customer) {
+      [
+        'customer_primaryPhone',
+        'customer_primaryEmail',
+        'customer_firstName',
+        'customer_lastName',
+        'customer_middleName',
+        'customer_code',
+      ].forEach((field) => {
+        const f = field.replace('customer_', '');
+        replacedContent = replacedContent.replace(
+          new RegExp(`{{ ${field} }}`, 'g'),
+          customer[f] || '',
+        );
+      });
     }
 
     if (item.customFieldsData) {

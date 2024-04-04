@@ -27,7 +27,7 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
-  errorMessage?: string
+  errorMessage?: string,
 ) => {
   debugBase(`
     Sending request to
@@ -42,7 +42,7 @@ export const sendRequest = async (
   try {
     const options = {
       method,
-      headers: { 'Content-Type': 'application/json', ...(headers || {}) }
+      headers: { 'Content-Type': 'application/json', ...(headers || {}) },
     } as any;
 
     if (method !== 'GET') {
@@ -53,7 +53,7 @@ export const sendRequest = async (
     if (!response.ok) {
       const errorBody = await response.text();
       throw new Error(
-        `Request failed with status ${response.status}. Response body: ${errorBody}`
+        `Request failed with status ${response.status}. Response body: ${errorBody}`,
       );
     }
 
@@ -77,7 +77,7 @@ export const sendRequest = async (
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;
@@ -89,4 +89,9 @@ export const getEnv = ({
   }
 
   return value || '';
+};
+
+export const isEmailValid = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  return emailRegex.test(email);
 };

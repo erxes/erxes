@@ -4,7 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   purchaseHistorySchema,
   IPurchaseHistory,
-  IPurchaseHistoryDocument
+  IPurchaseHistoryDocument,
 } from './definitions/customerPurchaseHistory';
 
 export interface IPurchaseHistoryModel extends Model<IPurchaseHistoryDocument> {
@@ -29,9 +29,10 @@ export const loadPurchaseHistoryClass = (models: IModels) => {
 
     public static async createHistory(doc: IPurchaseHistory) {
       const history = await models.PurchaseHistories.findOne({
-        dealId: doc.dealId,
+        dealId: doc?.dealId,
+        adsId: doc?.adsId,
         driverId: doc.driverId,
-        cpUserId: doc.cpUserId
+        cpUserId: doc.cpUserId,
       });
 
       if (history) {

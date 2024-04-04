@@ -2,7 +2,7 @@ import {
   IBuildingModel,
   IBuildingToContactModel,
   loadBuildingClass,
-  loadBuildingToContactClass
+  loadBuildingToContactClass,
 } from './models/Buildings';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -34,29 +34,27 @@ export interface IContext extends IMainContext {
   cpUser: any;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Cities = db.model<ICityDocument, ICityModel>(
     'mobinet_cities',
-    loadCityClass(models)
+    loadCityClass(models),
   );
 
   models.Districts = db.model<IDistrictDocument, IDistrictModel>(
     'mobinet_districts',
-    loadDistrictClass(models)
+    loadDistrictClass(models),
   );
 
   models.Quarters = db.model<IQuarterDocument, IQuarterModel>(
     'mobinet_quarters',
-    loadQuarterClass(models)
+    loadQuarterClass(models),
   );
 
   models.Buildings = db.model<IBuildingDocument, IBuildingModel>(
     'mobinet_buildings',
-    loadBuildingClass(models)
+    loadBuildingClass(models),
   );
 
   models.BuildingToContacts = db.model<
@@ -66,13 +64,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Contracts = db.model<IContractDocument, IContractModel>(
     'mobinet_contracts',
-    loadContractClass(models)
+    loadContractClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

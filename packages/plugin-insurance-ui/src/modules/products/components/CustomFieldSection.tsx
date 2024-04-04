@@ -11,9 +11,11 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   isDetail: boolean;
-  _id: string;
+  _id?: string;
   product?: any;
   refetch: () => void;
+  categoryCode?: string;
+  onChange?: (data: any) => void;
 };
 
 const CustomFieldsSection = (props: Props) => {
@@ -22,9 +24,9 @@ const CustomFieldsSection = (props: Props) => {
   const fieldsGroupsQuery = useQuery(gql(fieldQueries.fieldsGroups), {
     variables: {
       contentType: 'insurance:product',
-      isDefinedByErxes: false
+      isDefinedByErxes: false,
     },
-    skip: !isEnabled('forms') ? true : false
+    skip: !isEnabled('forms') ? true : false,
   });
 
   // const productDetailQuery = useQuery(queries.GET_PRODUCT, {
@@ -44,27 +46,49 @@ const CustomFieldsSection = (props: Props) => {
   }
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         // productDetailQuery.refetch();
         props.refetch();
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
 
-  const { customFieldsData = [] } = props.product || {};
-  const fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
+  // const { customFieldsData = [] } = props.product || {};
+  let customFieldsData = props.product?.customFieldsData || [];
+
+  let fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
+
+  const codeMap = {
+    1: 'vehicle',
+    2: 'citizen',
+  };
+
+  const categoryCode = props.categoryCode;
+
+  if (categoryCode) {
+    fieldsGroups = fieldsGroups.filter(
+      (group) => group.code === codeMap[categoryCode] || group.parentId,
+    );
+  }
+
+  const onValuesChange = (data) => {
+    if (props.onChange) {
+      props.onChange(data);
+    }
+  };
 
   const updatedProps = {
     save,
     customFieldsData,
     fieldsGroups,
     isDetail,
-    object: props.product
+    object: props.product,
+    // onValuesChange,
   };
 
   return <GenerateCustomFields {...updatedProps} />;

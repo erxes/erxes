@@ -8,24 +8,33 @@ import { IConversationDocument } from './models/definitions/conversations';
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
 import {
   IConversationModel,
-  loadConversationClass
+  loadConversationClass,
 } from './models/Conversations';
 
 import { ICustomerDocument } from './models/definitions/customers';
-import {
-  IActiveSessionDocument,
-  IActiveSessions
-} from './models/definitions/activeSessions';
+import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
-  loadActiveSessionClass
+  loadActiveSessionClass,
 } from './models/ActiveSessions';
+import { ICallHistoryDocument } from './models/definitions/callHistories';
+import {
+  ICallHistoryModel,
+  loadCallHistoryClass,
+} from './models/CallHistories';
+import {
+  IConfigDocument,
+  IConfigModel,
+  loadConfigClass,
+} from './models/Configs';
 
 export interface IModels {
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   ActiveSessions: IActiveSessionModel;
+  CallHistory: ICallHistoryModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -33,34 +42,37 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'calls_integrations',
-    loadIntegrationClass(models)
+    loadIntegrationClass(models),
   );
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'calls_conversations',
-    loadConversationClass(models)
+    loadConversationClass(models),
   );
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'calls_customers',
-    loadCustomerClass(models)
+    loadCustomerClass(models),
   );
   models.ActiveSessions = db.model<IActiveSessionDocument, IActiveSessionModel>(
     'calls_active_sessions',
-    loadActiveSessionClass(models)
+    loadActiveSessionClass(models),
+  );
+  models.CallHistory = db.model<ICallHistoryDocument, ICallHistoryModel>(
+    'calls_history',
+    loadCallHistoryClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'calls_configs',
+    loadConfigClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

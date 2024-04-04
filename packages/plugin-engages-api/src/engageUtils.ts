@@ -4,7 +4,7 @@ import {
   IEngageMessage,
   IEngageMessageDocument,
 } from './models/definitions/engages';
-import { isUsingElk, setCampaignCount } from './utils';
+import { isUsingElk } from './utils';
 import {
   sendInboxMessage,
   sendCoreMessage,
@@ -12,8 +12,6 @@ import {
   sendContactsMessage,
   sendClientPortalMessage,
 } from './messageBroker';
-
-import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { IModels } from './connectionResolver';
 import { awsRequests } from './trackers/engageTracker';
@@ -47,7 +45,7 @@ export const generateCustomerSelector = async (
     segmentIds = [],
     tagIds = [],
     brandIds = [],
-  }: ICustomerSelector,
+  }: ICustomerSelector
 ): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
@@ -143,7 +141,7 @@ export const send = async (
   models: IModels,
   subdomain: string,
   engageMessage: IEngageMessageDocument,
-  forceCreateConversation?: boolean,
+  forceCreateConversation?: boolean
 ) => {
   const {
     customerIds,
@@ -167,7 +165,7 @@ export const send = async (
       await models.Logs.createLog(
         _id,
         'regular',
-        `Campaign will run at "${dateTime.toLocaleString()}"`,
+        `Broadcast will run at "${dateTime.toLocaleString()}"`
       );
 
       return;
@@ -188,7 +186,7 @@ export const send = async (
     await models.Logs.createLog(
       _id,
       'regular',
-      `Manual campaign "${title}" has already run before`,
+      `Broadcast "${title}" has already run before`
     );
 
     return;
@@ -207,7 +205,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngage',
+      'sendEngage'
     );
   }
 
@@ -216,7 +214,7 @@ export const send = async (
       models,
       subdomain,
       { engageMessage, customersSelector, user },
-      'sendEngageSms',
+      'sendEngageSms'
     );
   }
 
@@ -267,7 +265,7 @@ const sendEmailOrSms = async (
   models: IModels,
   subdomain,
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms',
+  action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -278,7 +276,7 @@ const sendEmailOrSms = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Run at ${new Date()}`,
+      `Run at ${new Date()}`
     );
   }
 
@@ -296,10 +294,30 @@ const sendEmailOrSms = async (
   });
 };
 
+const sendCampaignNotification = async (models, subdomain, doc) => {
+  const { groupId } = doc;
+  try {
+    await sendClientPortalMessage({
+      subdomain,
+      action: 'sendNotification',
+      data: doc,
+      isRPC: false,
+    }).then(async () => {
+      await models.Logs.createLog(groupId, 'success', 'Notification sent');
+      await models.EngageMessages.updateOne(
+        { _id: groupId },
+        { $inc: { runCount: 1 } }
+      );
+    });
+  } catch (e) {
+    await models.Logs.createLog(groupId, 'failure', e.message);
+  }
+};
+
 const sendNotifications = async (
   models: IModels,
   subdomain,
-  { engageMessage, customersSelector, user }: IEngageParams,
+  { engageMessage, customersSelector, user }: IEngageParams
 ) => {
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
@@ -324,14 +342,22 @@ const sendNotifications = async (
     })) as string[]) || [];
 
   if (cpUserIds.length === 0) {
-    throw new Error('No client portal user found');
+    await models.Logs.createLog(
+      engageMessageId,
+      'regular',
+      `No client portal user found`
+    );
+
+    return;
   }
 
-  setCampaignCount(models, {
-    _id: engageMessageId,
-    totalCustomersCount: cpUserIds.length,
-    validCustomersCount: cpUserIds.length,
-  });
+  if (cpUserIds.length > 0) {
+    await models.Logs.createLog(
+      engageMessageId,
+      'regular',
+      `Preparing to send Notification to "${cpUserIds.length}" customers`
+    );
+  }
 
   const doc = {
     createdUser: user,
@@ -341,31 +367,30 @@ const sendNotifications = async (
     notifType: 'engage',
     isMobile: notification?.isMobile || false,
     link: '',
-    engageId: engageMessageId,
+    groupId: engageMessageId,
   };
 
   const receiversLength = doc.receivers.length || 0;
 
   if (receiversLength > 0) {
     await models.EngageMessages.updateOne(
-      { _id: doc.engageId },
-      { $set: { totalCustomersCount: receiversLength } },
+      { _id: doc.groupId },
+      {
+        $set: {
+          totalCustomersCount: receiversLength,
+        },
+      }
     );
   }
 
-  sendClientPortalMessage({
-    subdomain,
-    action: 'sendNotification',
-    data: doc,
-    isRPC: false,
-  });
+  await sendCampaignNotification(models, subdomain, doc);
 };
 
 // check & validate campaign doc
 export const checkCampaignDoc = async (
   models: IModels,
   subdomain: string,
-  doc: IEngageMessage,
+  doc: IEngageMessage
 ) => {
   const {
     brandIds = [],
@@ -427,7 +452,7 @@ export const checkCampaignDoc = async (
     }
     if (!doc.cpId) {
       throw new Error(
-        'Please select "Clientportal" in the notification campaign',
+        'Please select "Clientportal" in the notification campaign'
       );
     }
     if (!doc.notification.title) {
@@ -473,7 +498,7 @@ export const findUser = async (subdomain, userId?: string) => {
 // check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
-  params: ICheckCustomerParams,
+  params: ICheckCustomerParams
 ) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
   if (!isUsingElk()) {

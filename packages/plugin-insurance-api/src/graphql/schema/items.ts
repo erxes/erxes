@@ -36,6 +36,7 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
     closeDate: Date
     startDate: Date
     price: Float
+    customerIds: [ID]
   }
   
   type InsuranceItemListResult {

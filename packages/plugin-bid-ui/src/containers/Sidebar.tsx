@@ -44,8 +44,9 @@ function AccoutSectionContainer(props: Props) {
   if (loading) {
     return <Spinner />;
   }
+  
 
-  let polarisData: any = data.bidGetPolarisData;
+  let polarisData: any = data ? data.bidGetPolarisData : null;
 
   const updateData = () => {
     updateMutation({ variables: { customerId } })

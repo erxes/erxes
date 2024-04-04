@@ -1,4 +1,4 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand } from './utils';
 
@@ -38,7 +38,7 @@ const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
   return enabled && hasMeta;
 };
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue('putLog', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -91,7 +91,7 @@ export const initBroker = async () => {
   );
 
   consumeQueue('putActivityLog', async (args) => {
-    debug.info(args);
+    debugInfo(args);
 
     const { data: obj, subdomain } = args;
 

@@ -1,10 +1,10 @@
 import {
   BooleanStatus,
-  ClickableRow
+  ClickableRow,
 } from '@erxes/ui-contacts/src/customers/styles';
 import {
   GENDER_TYPES,
-  LEAD_STATUS_TYPES
+  LEAD_STATUS_TYPES,
 } from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
 
@@ -22,6 +22,7 @@ import _ from 'lodash';
 import { formatValue } from '@erxes/ui/src/utils';
 import parse from 'ua-parser-js';
 import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+import { displayObjectListItem } from '../../utils';
 
 type Props = {
   index: number;
@@ -32,22 +33,7 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function displayObjectListItem(customer, customerFieldName, subFieldName) {
-  const objectList = customer[customerFieldName] || [];
-  const subFieldKey = subFieldName.replace(`${customerFieldName}.`, '');
-
-  const subField = objectList.find
-    ? objectList.find(obj => obj.field === subFieldKey)
-    : [];
-
-  if (!subField) {
-    return null;
-  }
-
-  return formatValue(subField.value);
-}
-
-function displayValue(customer, name, index) {
+function displayValue(customer, name, group, index) {
   const value = _.get(customer, name);
 
   if (name === 'firstName') {
@@ -60,11 +46,11 @@ function displayValue(customer, name, index) {
   }
 
   if (name.includes('customFieldsData')) {
-    return displayObjectListItem(customer, 'customFieldsData', name);
+    return displayObjectListItem(customer, 'customFieldsData', name, group);
   }
 
   if (name.includes('trackedData')) {
-    return displayObjectListItem(customer, 'trackedData', name);
+    return displayObjectListItem(customer, 'trackedData', name, group);
   }
 
   if (name === 'location.country') {
@@ -147,17 +133,17 @@ function CustomerRow({
   toggleBulk,
   isChecked,
   history,
-  index
+  index,
 }: Props) {
   const tags = customer.getTags;
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -174,7 +160,7 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, i) => {
+      {(columnsConfig || []).map(({ name, group }, i) => {
         if (name === 'primaryEmail') {
           return (
             <td key={i}>
@@ -190,7 +176,7 @@ function CustomerRow({
         return (
           <td key={i}>
             <ClickableRow onClick={onTrClick}>
-              {displayValue(customer, name, index)}
+              {displayValue(customer, name, group, index)}
             </ClickableRow>
           </td>
         );

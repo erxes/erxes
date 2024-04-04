@@ -6,7 +6,7 @@ import type {
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   // consumeRPCQueue('goals:find', async ({ subdomain, data }) => {
   //   const models = await generateModels(subdomain);
   //   return {
@@ -30,24 +30,6 @@ export const initBroker = async () => {
   // });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
-  });
-};
-
 export const sendCoreMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {
@@ -57,17 +39,35 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendReportsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceName: 'reports',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
+    serviceName: 'cards',
+    ...args,
+  });
+};
+
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tags',
+    ...args,
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'segments',
     ...args,
   });
 };

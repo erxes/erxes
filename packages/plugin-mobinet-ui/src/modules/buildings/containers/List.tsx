@@ -9,8 +9,6 @@ import {
   BuildingsByBoundsQueryResponse,
 } from '../types';
 import { ICoordinates } from '../../../types';
-import { CityListQueryResponse } from '../../cities/types';
-import { IQueryParams } from '@erxes/ui/src/types';
 
 const generateParams = (queryParams) => {
   return {
@@ -97,7 +95,7 @@ export default function BuildingContainer(props: Props) {
 
   let buildings = (data && data.buildingList.list) || [];
 
-  if (props.viewType === '3d') {
+  if (props.viewType === '3d' || props.viewType === '2d') {
     buildings =
       (buildingsByBoundsData && buildingsByBoundsData.buildingsByBounds) || [];
   }

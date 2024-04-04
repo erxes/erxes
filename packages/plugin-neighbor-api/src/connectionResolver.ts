@@ -1,17 +1,17 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   INeighborItemDocument,
-  INeighborDocument
+  INeighborDocument,
 } from './models/definitions/neighbor'; //INeighborItemDocument INeighborDocument
 import {
   INeighborModel,
   loadNeighborClass,
   INeighborItemModel,
-  loadNeighborItemClass
+  loadNeighborItemClass,
 } from './models/models';
 import { MongoClient } from 'mongodb';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Neighbor: INeighborModel;
@@ -27,60 +27,22 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-export let coreModels: ICoreModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
+export const loadClasses = async (
+  db: mongoose.Connection,
 ): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  coreModels = await connectCore();
-
-  loadClasses(mainDb);
-
-  return models;
-};
-
-const connectCore = async () => {
-  if (coreModels) {
-    return coreModels;
-  }
-
-  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
-  const client = new MongoClient(url);
-
-  const dbName = 'erxes';
-
-  let db;
-
-  await client.connect();
-
-  console.log('Connected successfully to server');
-
-  db = client.db(dbName);
-
-  coreModels = {
-    Users: db.collection('users')
-  };
-
-  return coreModels;
-};
-
-export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Neighbor = db.model<INeighborDocument, INeighborModel>(
     'neighbors',
-    loadNeighborClass(models)
+    loadNeighborClass(models),
   );
 
   models.NeighborItem = db.model<INeighborItemDocument, INeighborItemModel>(
     'neighbor_items',
-    loadNeighborItemClass(models)
+    loadNeighborItemClass(models),
   );
 
   return models;
 };
+
+export const generateModels = createGenerateModels(loadClasses);

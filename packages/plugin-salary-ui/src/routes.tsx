@@ -4,22 +4,29 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "List - Salaries" */ './containers/SalaryList'),
+  () => import(/* webpackChunkName: "List - Salaries" */ './components/List')
 );
 
 const salaryList = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
+  const isEmployeeSalary = history.location.pathname === '/profile/salaries';
 
-  return <List typeId={type} history={history} queryParams={queryParams} />;
+  return (
+    <List
+      typeId={type}
+      history={history}
+      queryParams={queryParams}
+      isEmployeeSalary={isEmployeeSalary}
+    />
+  );
 };
 
 const routes = () => {
   return (
     <>
-      <Route path="/salaries" component={salaryList} />;
-      <Route path="/profile/salaries" component={salaryList} />
+      <Route path='/salaries' component={salaryList} />;
+      <Route path='/profile/salaries' component={salaryList} />
     </>
   );
 };

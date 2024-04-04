@@ -6,7 +6,7 @@ const InsuranceProduct = {
     return (
       product.lastModifiedBy && {
         __typename: 'User',
-        _id: product.lastModifiedBy
+        _id: product.lastModifiedBy,
       }
     );
   },
@@ -14,10 +14,21 @@ const InsuranceProduct = {
   async category(
     product: IInsuranceProductDocument,
     _params,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Categories.findOne({ _id: product.categoryId }).lean();
-  }
+  },
+
+  async tags(
+    product: IInsuranceProductDocument,
+    _params,
+    { models }: IContext,
+  ) {
+    return (
+      product.tagIds &&
+      product.tagIds.map((_id) => ({ __typename: 'Tag', _id }))
+    );
+  },
 };
 
 const InsuranceProductOfVendor = {
@@ -25,10 +36,10 @@ const InsuranceProductOfVendor = {
     return (
       product.lastModifiedBy && {
         __typename: 'User',
-        _id: product.lastModifiedBy
+        _id: product.lastModifiedBy,
       }
     );
-  }
+  },
 
   // async risks(
   //   product: IInsuranceProductDocument,

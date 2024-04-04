@@ -11,7 +11,7 @@ const ClientPortalUser = {
     return (
       user.clientPortalId &&
       ClientPortals.findOne({
-        _id: user.clientPortalId
+        _id: user.clientPortalId,
       })
     );
   },
@@ -20,7 +20,7 @@ const ClientPortalUser = {
     return (
       user.erxesCustomerId && {
         __typename: 'Customer',
-        _id: user.erxesCustomerId
+        _id: user.erxesCustomerId,
       }
     );
   },
@@ -29,7 +29,7 @@ const ClientPortalUser = {
     return (
       user.erxesCompanyId && {
         __typename: 'Company',
-        _id: user.erxesCompanyId
+        _id: user.erxesCompanyId,
       }
     );
   },
@@ -44,10 +44,10 @@ const ClientPortalUser = {
         subdomain,
         action: 'companies.findOne',
         data: {
-          _id: user.erxesCompanyId
+          _id: user.erxesCompanyId,
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!company) {
@@ -56,7 +56,21 @@ const ClientPortalUser = {
 
       return company.primaryName;
     }
-  }
+  },
 };
 
-export { ClientPortalUser };
+const ClientPortalParticipant = {
+  __resolveReference: ({ _id }, { models }: IContext) => {
+    return models.ClientPortalUserCards.findOne({ _id });
+  },
+  cpUser(user, _args, { models: { ClientPortalUsers } }: IContext) {
+    return (
+      user.cpUserId &&
+      ClientPortalUsers.findOne({
+        _id: user.cpUserId,
+      })
+    );
+  },
+};
+
+export { ClientPortalUser, ClientPortalParticipant };

@@ -93,6 +93,7 @@ export const types = async () => {
 
       stats: JSON
       smsStats: JSON
+      notificationStats: JSON
       logs: [EngageLog]
     }
 
@@ -276,12 +277,23 @@ export const mutations = `
   engageMessageCopy(_id: String!): EngageMessage
 
   engageSendMail(
+    integrationId: String
+    conversationId: String
     subject: String!
     body: String
     to: [String]!
     cc: [String]
     bcc: [String]
     from: String!
+    shouldResolve: Boolean
+    shouldOpen: Boolean
+    headerId: String
+    replyTo: [String]
+    inReplyTo: String
+    threadId: String
+    messageId: String
+    replyToMessageId: String
+    references: [String]
     attachments: [JSON]
     customerId: String
   ): JSON

@@ -7,7 +7,7 @@ import {
   GraphQLError,
   parse,
   subscribe,
-  validate
+  validate,
 } from 'graphql';
 import * as ws from 'ws';
 import SubscriptionResolver from './SubscriptionResolver';
@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';
+import { getSubdomain } from '../util/subdomain';
 
 let disposable: Disposable | undefined;
 
@@ -35,7 +36,7 @@ export async function stopSubscriptionServer() {
 export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   if (!typeDefs || !resolvers) {
     throw new Error(
-      'Both `typeDefs` and `resolvers` are required to make the executable subscriptions schema.'
+      'Both `typeDefs` and `resolvers` are required to make the executable subscriptions schema.',
     );
   }
   const supergraph = fs.readFileSync(supergraphPath).toString();
@@ -45,16 +46,16 @@ export function makeSubscriptionSchema({ typeDefs, resolvers }: any) {
   return makeExecutableSchema({
     typeDefs: [
       ...((supergraphTypeDefs && [supergraphTypeDefs]) as DocumentNode[]),
-      typeDefs
+      typeDefs,
     ],
-    resolvers
+    resolvers,
   });
 }
 
 export async function startSubscriptionServer(httpServer: http.Server) {
   const wsServer = new ws.Server({
     server: httpServer,
-    path: '/graphql'
+    path: '/graphql',
   });
 
   const typeDefsResolvers = await genTypeDefsAndResolvers();
@@ -67,7 +68,7 @@ export async function startSubscriptionServer(httpServer: http.Server) {
 
   const schema = makeSubscriptionSchema({
     typeDefs,
-    resolvers
+    resolvers,
   });
 
   await stopSubscriptionServer();
@@ -79,19 +80,20 @@ export async function startSubscriptionServer(httpServer: http.Server) {
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
           `http://127.0.0.1:${apolloRouterPort}`,
-          ctx
+          ctx,
         );
-        return { dataSources: { gatewayDataSource } };
+        const subdomain = getSubdomain(ctx.extra.request);
+        return { dataSources: { gatewayDataSource }, subdomain };
       },
       onSubscribe: async (
         _ctx,
-        msg: SubscribeMessage
+        msg: SubscribeMessage,
       ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
         const args = {
           schema,
           operationName: msg.payload.operationName,
           document: parse(msg.payload.query),
-          variableValues: msg.payload.variables
+          variableValues: msg.payload.variables,
         };
 
         const operationAST = getOperationAST(args.document, args.operationName);
@@ -104,7 +106,7 @@ export async function startSubscriptionServer(httpServer: http.Server) {
         // Handle mutation and query requests
         if (operationAST.operation !== 'subscription') {
           return [
-            new GraphQLError('Only subscription operations are supported')
+            new GraphQLError('Only subscription operations are supported'),
           ];
         }
 
@@ -116,8 +118,8 @@ export async function startSubscriptionServer(httpServer: http.Server) {
         }
         // Ready execution arguments
         return args;
-      }
+      },
     },
-    wsServer
+    wsServer,
   );
 }

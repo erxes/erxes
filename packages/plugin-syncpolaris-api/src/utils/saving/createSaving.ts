@@ -1,18 +1,19 @@
 import {
   getCustomer,
-  getSavingProduct,
   fetchPolaris,
   getBranch,
   getDepositAccount,
-  updateSavingNumber,
+  updateContract,
+  getProduct,
 } from '../utils';
 
 export const createSaving = async (subdomain: string, params) => {
   const savingContract = params.object;
 
-  const savingProduct = await getSavingProduct(
+  const savingProduct = await getProduct(
     subdomain,
     savingContract.contractTypeId,
+    'savings',
   );
 
   const customer = await getCustomer(subdomain, savingContract.customerId);
@@ -58,10 +59,11 @@ export const createSaving = async (subdomain: string, params) => {
   });
 
   if (savingCode) {
-    await updateSavingNumber(
+    await updateContract(
       subdomain,
-      savingContract._id,
-      JSON.parse(savingCode),
+      { _id: savingContract._id },
+      { $set: { number: JSON.parse(savingCode) } },
+      'savings',
     );
   }
 

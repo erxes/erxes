@@ -142,6 +142,10 @@ const buildingsByBoundsQuery = `
       serviceStatus
       color
       osmbId
+      drawnPoints {
+        lat
+        lng
+      }
     }
   }
 `;

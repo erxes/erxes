@@ -71,23 +71,23 @@ const SalaryForm = (props: Props) => {
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <CustomRangeContainer>
-            <div className="input-container">
+            <div className='input-container'>
               <FormControl
                 defaultValue={''}
-                type="date"
+                type='date'
                 required={false}
-                name="startDate"
+                name='startDate'
                 onChange={onChangeRangeFilter.bind(this, 'startDate')}
                 placeholder={'Start date'}
               />
             </div>
 
-            <div className="input-container">
+            <div className='input-container'>
               <FormControl
                 defaultValue={''}
-                type="date"
+                type='date'
                 required={false}
-                name="endDate"
+                name='endDate'
                 placeholder={'End date'}
                 onChange={onChangeRangeFilter.bind(this, 'endDate')}
               />
@@ -99,24 +99,23 @@ const SalaryForm = (props: Props) => {
           /> */}
 
           <ControlLabel>File</ControlLabel>
-          <label htmlFor="file-upload">
-            <input id="file-upload" type="file" onChange={onChangeFile} />
+          <label htmlFor='file-upload'>
+            <input id='file-upload' type='file' onChange={onChangeFile} />
           </label>
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
             Close
           </Button>
 
           <Button
-            btnStyle="success"
-            type="submit"
-            icon="check-circle"
+            btnStyle='success'
+            type='submit'
+            icon='check-circle'
             uppercase={false}
             disabled={isSubmitted}
-            onClick={onSubmit}
-          >
+            onClick={onSubmit}>
             Save
           </Button>
         </ModalFooter>

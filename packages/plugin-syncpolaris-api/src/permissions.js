@@ -1,11 +1,11 @@
 module.exports = {
-  syncerkhet: {
-    name: "erkhet",
-    description: "Erkhet",
+  syncpolaris: {
+    name: "polaris",
+    description: "Polaris",
     actions: [
       {
-        name: "syncErkhetConfig",
-        description: "Manage erkhet config",
+        name: "syncPolarisConfig",
+        description: "Manage polaris config",
       },
     ],
   },

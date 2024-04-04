@@ -15,17 +15,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import Loader from "@/components/ui/loader"
 import LoadingPost from "@/components/ui/loadingPost"
 import SuccessPost from "@/components/ui/successPost"
 import { Textarea } from "@/components/ui/textarea"
-import DragNDrop from "@/components/DragNDrop"
 
 import useFeedMutation from "../../hooks/useFeedMutation"
 import { useTeamMembers } from "../../hooks/useTeamMembers"
 import { IFeed } from "../../types"
-import FormAttachments from "./FormAttachments"
-import FormImages from "./FormImages"
+import AttachmentBgSection from "./AttachmentBgSection"
+import { IAttachment } from "@/modules/types"
 
 const FormSchema = z.object({
   description: z
@@ -60,6 +58,7 @@ const PostForm = ({
   const [images, setImage] = useState(feed?.images || [])
   const [attachments, setAttachments] = useState(feed?.attachments || [])
   const [unitSearchValue, setUnitsSearchvalue] = useState("")
+  const [background, setBackground] = useState(feed?.background || {} as IAttachment)
   const [branchSearchValue, setBranchSearchvalue] = useState("")
   const [departmentSearchValue, seDepartmentSearchvalue] = useState("")
   const [success, setSuccess] = useState(false)
@@ -119,6 +118,7 @@ const PostForm = ({
         departmentIds,
         branchIds,
         unitId,
+        background,
       },
       feed?._id || ""
     )
@@ -251,29 +251,20 @@ const PostForm = ({
       <>
         <div className="flex justify-center gap-6 mb-6 h-[calc(100%-50px)]">
           <div className="max-w-[566px] border border-exm rounded-md w-full h-full">
-            <div className="overflow-auto h-[60%] px-4 pt-4">
-              {uploading && <Loader className="pb-4" />}
-              <FormImages images={images} setImage={setImage} />
-              <FormAttachments
-                attachments={attachments || []}
-                setAttachments={setAttachments}
-                type="form"
-              />
-            </div>
-
-            <div className="flex h-[40%] border-t border-exm p-4">
-              <DragNDrop
-                setAttachments={setAttachments}
-                setImage={setImage}
-                className="w-full h-full"
-                setUploading={setUploading}
-                defaultFileList={images.concat(attachments)}
-              />
-            </div>
+            <AttachmentBgSection
+              uploading={uploading}
+              images={images}
+              setImage={setImage}
+              attachments={attachments}
+              setAttachments={setAttachments}
+              setUploading={setUploading}
+              setBackground={setBackground}
+              background={background}
+            />
           </div>
 
           <div className="border border-exm rounded-md max-w-[566px] !w-full">
-            <div className="px-4 py-3 border-b-2 border-exm">Post</div>
+            <div className="px-4 py-3 border-b-2 border-exm text-sm">Post</div>
             <FormField
               control={form.control}
               name="description"

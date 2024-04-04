@@ -30,6 +30,10 @@ export interface IBuilding {
     lat: number;
     lng: number;
   };
+  drawnPoints: {
+    lat: number;
+    lng: number;
+  }[];
 
   serviceStatus: ServiceStatus;
 
@@ -64,6 +68,13 @@ export const productPriceConfigSchema = new Schema(
   { _id: false },
 );
 
+export const pointSchema = new Schema(
+  {
+    lat: field({ type: Number, label: 'latitude', required: true }),
+    lng: field({ type: Number, label: 'longtitude', required: true }),
+  },
+  { _id: false },
+);
 export const buildingSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -123,10 +134,11 @@ export const buildingSchema = schemaHooksWrapper(
       },
       required: false,
     },
+    drawnPoints: { required: false, type: [pointSchema] },
 
     serviceStatus: field({
       type: String,
-      enum: ['active', 'inactive', 'inprogress'],
+      enum: ['active', 'inactive', 'inprogress', 'unavailable'],
       label: 'serviceStatus',
       required: true,
       default: 'inactive',
