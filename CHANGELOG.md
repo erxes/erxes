@@ -2,41 +2,35 @@
 
 ## [1.7.5](https://github.com/erxes/erxes/compare/1.7.4...1.7.5) (2024-04-02)
 
-
 ### Bug Fixes
 
-* **xbuilder:** Entries list scroll not working ([#5084](https://github.com/erxes/erxes/issues/5084)) ([c4bc165](https://github.com/erxes/erxes/commit/c4bc165bc2c4f8a3e4a48a93577b85fc36b12e63))
+- **xbuilder:** Entries list scroll not working ([#5084](https://github.com/erxes/erxes/issues/5084)) ([c4bc165](https://github.com/erxes/erxes/commit/c4bc165bc2c4f8a3e4a48a93577b85fc36b12e63))
 
 ## [1.7.4](https://github.com/erxes/erxes/compare/1.7.3...1.7.4) (2024-04-01)
 
-
 ### Bug Fixes
 
-* segment count rabbitmq message ([ebf63a2](https://github.com/erxes/erxes/commit/ebf63a27c6c2c494598c119eff3f2dbfd27ef312))
+- segment count rabbitmq message ([ebf63a2](https://github.com/erxes/erxes/commit/ebf63a27c6c2c494598c119eff3f2dbfd27ef312))
 
 ## [1.7.3](https://github.com/erxes/erxes/compare/1.7.2...1.7.3) (2024-03-27)
 
+### Bug Fixes
+
+- **segment:** fix segment db connection string ([9519038](https://github.com/erxes/erxes/commit/9519038f3a9e69e6788ef68cb2d3dc97ba59cf19))
 
 ### Bug Fixes
 
-* **segment:** fix segment db connection string ([9519038](https://github.com/erxes/erxes/commit/9519038f3a9e69e6788ef68cb2d3dc97ba59cf19))
-
-
-### Reverts
-
-* revert erxes request headers erxes-user to user ([cf0684b](https://github.com/erxes/erxes/commit/cf0684be5d2e7e8bceccd7bb47a4e79b7087a5f0))
+- revert erxes request headers erxes-user to user ([cf0684b](https://github.com/erxes/erxes/commit/cf0684be5d2e7e8bceccd7bb47a4e79b7087a5f0))
 
 ## [1.7.2](https://github.com/erxes/erxes/compare/1.7.1...1.7.2) (2024-03-27)
 
-
 ### Bug Fixes
 
-* customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
-
+- customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
 
 ### Performance Improvements
 
-* **calls:** increase session timers, fix call timer and add integration config   ([ea49253](https://github.com/erxes/erxes/commit/ea49253ba53f08c03a86ac1cb3ad11b046d0a2d0))
+- **calls:** increase session timers, fix call timer and add integration config ([ea49253](https://github.com/erxes/erxes/commit/ea49253ba53f08c03a86ac1cb3ad11b046d0a2d0))
 
 ## [1.7.1](https://github.com/erxes/erxes/compare/1.7.0...1.7.1) (2024-03-26)
 
