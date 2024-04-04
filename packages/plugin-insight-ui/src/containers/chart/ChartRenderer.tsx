@@ -82,7 +82,7 @@ const ChartRendererList = (props: FinalProps) => {
 
   const dataset = { data, labels, title };
   if (chartType === 'table') {
-    return <TableRenderer dataset={dataset} />;
+    return <TableRenderer dataset={dataset} serviceName={chartVariables.serviceName} />;
   }
   const datasets =
     !data &&

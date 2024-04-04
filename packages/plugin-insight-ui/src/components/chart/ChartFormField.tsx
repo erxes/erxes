@@ -12,6 +12,9 @@ import { MarginY } from '../../styles';
 import { IFieldLogic } from '../../types';
 import { stringify } from 'querystring';
 import { SelectWithAssets } from '../utils/SelectAssets';
+import SelectLeads from '../utils/SelectLeads';
+import { IFilterType } from '../../containers/chart/ChartFormField';
+import SelectClientPortal from '../utils/SelectClientPortal';
 
 type Props = {
   fieldType: string;
@@ -27,6 +30,7 @@ type Props = {
   fieldValues?: any;
   fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
+  filterType: IFilterType;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -43,7 +47,15 @@ const ChartFormField = (props: Props) => {
     endDate,
     fieldValues,
     fieldDefaultValue,
+    filterType
   } = props;
+
+  const {
+    fieldValueVariable,
+    fieldLabelVariable,
+    fieldQueryVariables
+  } = filterType;
+
   useEffect(() => {
     if (fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
@@ -146,6 +158,36 @@ const ChartFormField = (props: Props) => {
             label={'Choose brands'}
             onSelect={OnSaveBrands}
             initialValue={fieldValue}
+          />
+        </div>
+      );
+    case 'forms':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+
+          <SelectLeads
+            multi={true}
+            name="selecteForms"
+            label={'Choose forms'}
+            onSelect={onChange}
+            initialValue={fieldValue}
+            filterParams={JSON.parse(fieldQueryVariables)}
+          />
+        </div>
+      );
+    case 'clientPortalGetConfigs':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+
+          <SelectClientPortal
+            multi={true}
+            name="selectePortal"
+            label={'Choose portal'}
+            onSelect={onChange}
+            initialValue={fieldValue}
+            filterParams={JSON.parse(fieldQueryVariables)}
           />
         </div>
       );
