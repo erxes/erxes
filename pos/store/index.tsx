@@ -51,9 +51,9 @@ export const invoiceIdAtom = atom<null | string>(null)
 
 // dialog
 
-export const checkoutModalView = atom<string>("")
+export const checkoutModalViewAtom = atom<string>("")
 
-export const kioskDialogOpenAtom = atom<boolean>(false)
+export const checkoutDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 

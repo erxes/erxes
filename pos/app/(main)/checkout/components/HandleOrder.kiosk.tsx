@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { checkoutModalView, kioskDialogOpenAtom } from "@/store"
+import { checkoutDialogOpenAtom, checkoutModalViewAtom } from "@/store"
 import { useAtom } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -22,8 +22,8 @@ const SelectPaymentType = dynamic(
 )
 
 const HandleOrder = () => {
-  const [view, setView] = useAtom(checkoutModalView)
-  const [open, setOpen] = useAtom(kioskDialogOpenAtom)
+  const [view, setView] = useAtom(checkoutModalViewAtom)
+  const [open, setOpen] = useAtom(checkoutDialogOpenAtom)
 
   return (
     <>

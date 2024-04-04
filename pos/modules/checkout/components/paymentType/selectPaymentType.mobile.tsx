@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import useConfig from "@/modules/auth/hooks/useConfig"
-import { checkoutModalView } from "@/store"
+import { checkoutModalViewAtom } from "@/store"
 import { useSetAtom } from "jotai"
 import { CoinsIcon, SmartphoneNfcIcon, Wallet } from "lucide-react"
 
@@ -19,7 +19,7 @@ const SelectPaymentType = () => {
   const { notPaidAmount, setCurrentAmount } = useHandlePayment()
 
   const { handleSetType, currentPaymentType } = useCheckNotSplit()
-  const setView = useSetAtom(checkoutModalView)
+  const setView = useSetAtom(checkoutModalViewAtom)
 
   useEffect(() => {
     setCurrentAmount(notPaidAmount)

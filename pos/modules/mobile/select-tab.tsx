@@ -26,7 +26,7 @@ const SelectTab = () => {
       </TabsList>
       <TabsContent
         value="products"
-        className="flex-auto flex flex-col overflow-hidden"
+        className="flex-auto flex flex-col overflow-hidden data-[state=inactive]:hidden"
       >
         <ScrollArea className="flex flex-auto flex-col">
           <Products />
@@ -34,7 +34,7 @@ const SelectTab = () => {
       </TabsContent>
       <TabsContent
         value="checkout"
-        className="flex-auto flex flex-col overflow-hidden"
+        className="flex-auto flex flex-col overflow-hidden data-[state=inactive]:hidden"
       >
         <CheckoutMain />
       </TabsContent>

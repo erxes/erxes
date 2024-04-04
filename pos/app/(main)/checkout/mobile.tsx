@@ -27,7 +27,7 @@ const Checkout = () => {
               Захиалга #{(number?.split("_") || [])[1]}
             </div>
           </div>
-          <div className="flex-1 my-2 bg-white p-1 overflow-y-auto">
+          <div className="flex-1 my-1 bg-white p-1 overflow-y-auto">
             <h3 className="font-bold text-base pb-2">Items</h3>
             <Items />
           </div>
