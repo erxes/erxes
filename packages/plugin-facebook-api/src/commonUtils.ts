@@ -45,6 +45,8 @@ export const getEnv = ({
 }): string => {
   let value = process.env[name];
 
+  console.log(process.env, 'env');
+
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
   }

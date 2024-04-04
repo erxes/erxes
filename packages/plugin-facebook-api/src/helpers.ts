@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 export const removeIntegration = async (
   subdomain: string,
   models: IModels,
-  integrationErxesApiId: string,
+  integrationErxesApiId: string
 ): Promise<string> => {
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationErxesApiId,
@@ -45,7 +45,7 @@ export const removeIntegration = async (
         pageTokenResponse = await getPageAccessToken(pageId, account.token);
       } catch (e) {
         debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`,
+          `Error ocurred while trying to get page access token with ${e.message}`
         );
       }
 
@@ -56,7 +56,7 @@ export const removeIntegration = async (
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`,
+          `Error occured while trying to unsubscribe page pageId: ${pageId}`
         );
       }
     }
@@ -108,7 +108,7 @@ export const removeIntegration = async (
 export const removeAccount = async (
   subdomain,
   models: IModels,
-  _id: string,
+  _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
 
@@ -128,7 +128,7 @@ export const removeAccount = async (
         const response = await removeIntegration(
           subdomain,
           models,
-          integration.erxesApiId,
+          integration.erxesApiId
         );
         erxesApiIds.push(response);
       } catch (e) {
@@ -145,7 +145,7 @@ export const removeAccount = async (
 export const repairIntegrations = async (
   subdomain: string,
   models: IModels,
-  integrationId: string,
+  integrationId: string
 ): Promise<true | Error> => {
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationId,
@@ -169,7 +169,7 @@ export const repairIntegrations = async (
 
   await models.Integrations.updateOne(
     { erxesApiId: integrationId },
-    { $set: { healthStatus: 'healthy', error: '' } },
+    { $set: { healthStatus: 'healthy', error: '' } }
   );
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
@@ -204,7 +204,7 @@ export const removeCustomers = async (models: IModels, params) => {
 
 export const updateConfigs = async (
   models: IModels,
-  configsMap,
+  configsMap
 ): Promise<void> => {
   await models.Configs.updateConfigs(configsMap);
 
@@ -229,7 +229,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
 
 export const facebookGetCustomerPosts = async (
   models: IModels,
-  { customerId },
+  { customerId }
 ) => {
   const customer = await models.Customers.findOne({ erxesApiId: customerId });
 
@@ -263,7 +263,7 @@ export const facebookGetCustomerPosts = async (
     },
   ]);
 
-  const conversationIds = result.map((conv) => conv.conversationId);
+  const conversationIds = result.map(conv => conv.conversationId);
 
   return conversationIds;
 };
@@ -271,7 +271,7 @@ export const facebookGetCustomerPosts = async (
 export const facebookCreateIntegration = async (
   subdomain: string,
   models: IModels,
-  { accountId, integrationId, data, kind },
+  { accountId, integrationId, data, kind }
 ): Promise<{ status: 'success' }> => {
   const facebookPageIds = JSON.parse(data).pageIds;
 
@@ -285,7 +285,10 @@ export const facebookCreateIntegration = async (
   });
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+
+  console.log(ENDPOINT_URL, 'ENDPOINT_URL', DOMAIN, 'DOMAIN');
 
   let domain = `${DOMAIN}/gateway/pl:facebook`;
 
@@ -324,7 +327,7 @@ export const facebookCreateIntegration = async (
         debugFacebook(`Successfully subscribed page ${pageId}`);
       } catch (e) {
         debugError(
-          `Error ocurred while trying to subscribe page ${e.message || e}`,
+          `Error ocurred while trying to subscribe page ${e.message || e}`
         );
         throw e;
       }
@@ -332,7 +335,7 @@ export const facebookCreateIntegration = async (
       debugError(
         `Error ocurred while trying to get page access token with ${
           e.message || e
-        }`,
+        }`
       );
 
       throw e;
