@@ -25,6 +25,7 @@ import exporter from './exporter';
 import documents from './documents';
 import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
+import reports from './reports/reports'
 
 export default {
   name: 'contacts',
@@ -45,6 +46,7 @@ export default {
 
   meta: {
     imports,
+    reports,
     segments,
     automations,
     forms,
